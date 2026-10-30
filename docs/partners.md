@@ -78,7 +78,13 @@ All figures are assumptions. Unknown numbers are `[TO VERIFY]`.
 
 **Open questions.** Cover limit per report and in aggregate `[TO VERIFY]`. Whether the lawyer's and surveyor's own cover counts. Whether cover extends to construction inspection.
 
-## 8. Later partners
+## 8. Partners for the product lines beyond land
+
+- **Structural engineers and building inspectors.** Inspect existing buildings before purchase. First ask: a per-inspection fee [TO VERIFY] and a standard inspection report. Phase 2.
+- **Developers.** Sell off-plan homes with stage payments held in escrow, and list verified units. First ask: a pilot estate with escrowed stage payments. Phase 3.
+- **Suppliers.** Paid directly for project funds and construction materials. First ask: accept direct payment against invoices and deliver to site with proof of delivery. Phase 3.
+
+## 9. Later partners
 
 - **Traditional authorities.** Stools, skins and families whose allocation records Fidero digitises under a revenue share. Approach after the verification service has a track record in their area.
 - **Lands Commission.** Formal access to searches or data `[TO VERIFY]`. Approach once volumes justify it.

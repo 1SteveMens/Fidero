@@ -61,6 +61,29 @@ Fidero vets contractors. A quantity surveyor produces a bill of quantities. Paym
 
 Over time Fidero digitises allocation records with traditional authorities under a revenue share. This makes future verifications faster and gives the authorities a clean register.
 
+### Product lines beyond land
+
+Fidero is not limited to land. Every line uses the same engine: verify, hold, release. Each line reuses the same field team, escrow partner and evidence app.
+
+| Line | What Fidero verifies | What releases the money | Phase |
+|---|---|---|---|
+| Land | Searches, survey, overlays, seller authority and consent | Report conditions met and indenture signed | 1 |
+| Existing buildings: houses, apartments, commercial property | The land checks, plus building permit, structural inspection, occupants and tenancies, unpaid property rates and utility bills | Report conditions met, transfer documents signed, keys and vacant possession handed over | 2 |
+| Construction on the buyer's own plot | Contractor vetting and the bill of quantities | Inspected milestones | 3 |
+| Off-plan homes from developers | The developer's title to the estate land, permits, company registration and track record | Construction stages confirmed by app evidence and an inspector | 3 |
+| Project funds: businesses, renovations, farms, family and community projects | The budget, the person running the project, and the suppliers | Suppliers paid directly against invoices, each stage confirmed by receipts, photos and visits | 3 |
+| Later candidates: vehicles, equipment, buying a business | Demand `[TO VERIFY]` | To be designed | 4 |
+
+Project funds are the widest new line. Money sent to a relative for a business, farm or renovation is often diverted, just like construction money. Fidero pays suppliers directly against invoices and confirms each stage. It does not advise on whether a project or property is a good investment and does not guarantee returns.
+
+Each line opens only after the previous phase passes its gate. Pricing for the new lines is `[TO VERIFY]`.
+
+Regulation to check for the wider lines:
+
+- Listing or brokering buildings may bring Fidero under the Real Estate Agency Act 2020 (Act 1047). Whether a licence is needed is `[TO VERIFY]`.
+- Project funds stay with the licensed partner bank. Anti-money laundering checks are stricter, because the money is not tied to one asset.
+- Professional indemnity cover must be extended to building inspections and project funds `[TO VERIFY]`.
+
 ## 4. Market and customers
 
 ### Segments

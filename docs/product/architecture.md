@@ -110,7 +110,9 @@ Flagged evidence goes to a Fidero reviewer before the inspector visit.
 
 ## 7. Core API and data model
 
-Main entities: client, seller, plot, report case, report section, evidence, escrow, condition, project, milestone, submission, inspection, defect, contractor, inspector, professional, audit event.
+Every product line runs on the same three parts: a case that verifies an asset or the people involved, an escrow with release conditions, and a milestone schedule with evidence. A new line is a new case template, a new condition set and a new milestone schedule, not new software.
+
+Main entities: client, seller, asset (a plot, a building or an off-plan unit), project (a construction or a funded project with its budget), supplier, plot, report case, report section, evidence, escrow, condition, project, milestone, submission, inspection, defect, contractor, inspector, professional, audit event.
 
 - One backend, one database. Keep it boring: a relational database and a web framework the team knows.
 - All actions go through the API and are written to an audit log that cannot be edited by application users.

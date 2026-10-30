@@ -18,6 +18,21 @@ Ghanaians abroad send roughly $4-5B a year home. Much of it goes to land and bui
 
 Over time, Fidero digitises allocation records with traditional authorities under a revenue share.
 
+## Beyond land
+
+Fidero is not limited to land. Every product line uses the same engine: verify the asset or the people involved, hold the money with a partner bank, and release it only against evidence. Land is the launch product.
+
+| Line | What Fidero verifies | What releases the money | Phase |
+|---|---|---|---|
+| Land | Searches, survey, overlays, seller authority and consent | Report conditions met and indenture signed | 1 |
+| Existing buildings: houses, apartments, commercial property | The land checks, plus building permit, structural inspection, occupants and tenancies, unpaid property rates and utility bills | Report conditions met, transfer documents signed, keys and vacant possession handed over | 2 |
+| Construction on the buyer's own plot | Contractor vetting and the bill of quantities | Inspected milestones | 3 |
+| Off-plan homes from developers | The developer's title to the estate land, permits, company registration and track record | Construction stages confirmed by app evidence and an inspector | 3 |
+| Project funds: businesses, renovations, farms, family and community projects | The budget, the person running the project, and the suppliers | Suppliers paid directly against invoices, each stage confirmed by receipts, photos and visits | 3 |
+| Later candidates: vehicles, equipment, buying a business | Demand `[TO VERIFY]` | To be designed | 4 |
+
+Project funds cover money sent home for a shop, a farm, a renovation or a family project. Fidero pays suppliers and workers directly instead of handing cash to someone on the ground. It confirms the money was spent as agreed. It does not judge whether the project will succeed.
+
 ## Customers
 
 - Diaspora buyers and home builders in the UK, US, Canada, Germany and the Netherlands. First target.
@@ -36,6 +51,7 @@ Over time, Fidero digitises allocation records with traditional authorities unde
 | Construction management | 5-8% of build value |
 | Materials margin | 3-7% |
 | Bank and developer API checks | Per check, price [TO VERIFY] |
+| Building verification, off-plan escrow, project funds management | [TO VERIFY] |
 | Extra inspections | $50-100 each |
 
 Illustrative year 3 revenue: about $1.9M a year, mostly in hard currency. Verification starts as a manual service, so revenue begins in month one.
