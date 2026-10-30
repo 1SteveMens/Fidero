@@ -65,6 +65,7 @@ Pre-seed: $400k for 18 months. It funds the manual verification service, the esc
 | Path | What it holds |
 |---|---|
 | `README.md` | This summary |
+| `CLAUDE.md` | Context and writing rules for Claude sessions working on Fidero |
 | `docs/proposal.md` | Full business proposal |
 | `docs/validation-plan.md` | 90-day plan to launch the manual verification service |
 | `docs/partners.md` | Partner types and the first ask to each |
