@@ -1,6 +1,6 @@
 # Fidero
 
-Fidero (from *fides*, trust) is a land verification, escrow and diaspora construction platform for Ghana. It lets a Ghanaian abroad buy a plot and build a house without being cheated or losing track of the money.
+Fidero (from *fides*, trust) is a land verification, escrow and diaspora construction platform. It lets someone abroad buy a plot at home and build a house without being cheated or losing track of the money. Ghana is the launch market. Fidero then extends to other countries with customary land tenure and large diasporas, starting with a Nigeria pilot.
 
 All figures in this repository are working assumptions, not verified data. Unknown numbers are marked `[TO VERIFY]`.
 

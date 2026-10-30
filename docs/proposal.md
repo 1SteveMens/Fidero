@@ -78,6 +78,20 @@ Diaspora remittances to Ghana: roughly $4-5B a year (assumption). Share going to
 
 A verification report costs a small fraction of a plot. Losing the plot costs everything. Construction management costs a fraction of the build. A stalled build costs the whole budget.
 
+### Expansion beyond Ghana
+
+Fidero starts in Ghana and extends to other countries where the same three problems exist: customary or poorly recorded land ownership, a large diaspora sending money home for land and building, and no neutral party tying payment to proof. The first expansion market is Nigeria, as a pilot in months 18-36. Further markets are `[TO VERIFY]`.
+
+A country qualifies for entry when it meets all of these criteria:
+
+1. A large diaspora in the countries Fidero already serves, so existing channels reach the new market.
+2. A legal framework that allows escrow through a licensed bank or agent.
+3. Licensed surveyors and land lawyers available to contract.
+4. A partner bank willing to run escrow and a professional indemnity insurer willing to cover reports.
+5. Field safety conditions that allow site visits under Fidero's safety rules.
+
+Each new country repeats phase 1: a manual verification service with local professionals, a country-specific report template and scope statement, and a 90-day validation before any software is localised. Ghana must have passed its construction gate before the first expansion market opens.
+
 ## 5. Business model and pricing
 
 All prices are assumptions to be tested in the first 90 days. See `docs/validation-plan.md`.
