@@ -77,6 +77,7 @@ Pre-seed: $400k for 18 months. It funds the manual verification service, the esc
 | `docs/operations/verification-report-template.md` | Structure of the red/amber/green land verification report |
 | `docs/operations/milestone-schedule.md` | Construction milestone schedule, release evidence and inspector checklists |
 | `docs/product/architecture.md` | Proposed architecture for the portal, report workflow, escrow tracking and milestone photo app |
+| `docs/specs/` | Product specification set: requirements (BRD, PRD, SRS), architecture, UI/UX, project plan and backlog, testing, deployment and operations |
 
 ## Naming note
 
