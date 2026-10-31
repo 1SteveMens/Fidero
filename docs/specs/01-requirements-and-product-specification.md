@@ -41,7 +41,7 @@ Every requirement has a stable ID. IDs are never reused. Documents 02 to 06 trac
 | `J-` | User journey | J-02 |
 | `RUL-` | Business rule the system must enforce | RUL-05 |
 | `FR-<MODULE>-nnn` | Functional requirement | FR-ESC-004 |
-| `NFR-<AREA>-nn` | Non-functional requirement | NFR-SEC-03 |
+| `NFR-<AREA>-nn` | Non-functional requirement. A11Y is accessibility | NFR-SEC-03 |
 | `IF-` | External interface | IF-02 |
 
 ### Priority
@@ -466,7 +466,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-ACC-003 | The system shall require multi-factor authentication for all Fidero staff, professionals, administrators and any user who approves a release. | Must | R1 | BR-15 |
 | FR-ACC-004 | The system shall run an identity check on a client before a report is released or an escrow is opened, using the identity check provider or a manual document check. | Must | R1 | BR-05 |
 | FR-ACC-005 | The system shall store each professional's licence number, licence body and expiry date, and block signing when the licence is expired or unverified. | Must | R1 | RUL-20 |
-| FR-ACC-006 | The system shall let an administrator invite staff, professionals, contractors and inspectors and assign roles. | Must | R1 | BR-03 |
+| FR-ACC-006 | The system shall let an administrator invite staff, professionals, contractors and inspectors and assign roles, and let a case manager invite a seller to accept escrow terms and supply documents for a named case. | Must | R1 | BR-03 |
 | FR-ACC-007 | The system shall enforce role-based access so each user sees only the cases, projects and listings assigned to them, owned by them, or within their operational scope. Case managers and reviewers see the work of their country and team. | Must | R1 | BR-15 |
 | FR-ACC-008 | The system shall let a client name a representative in Ghana with limited, read-only access to a case or project. | Should | R1 | BR-01 |
 | FR-ACC-009 | The system shall lock an account after 5 failed sign-in attempts for 15 minutes and notify the user. | Must | R1 | BR-15 |
@@ -803,7 +803,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | NFR-PRIV-02 | Personal data shall be minimised: each field must have a stated purpose in the data catalogue. | R1 |
 | NFR-USE-01 | In usability tests with 5 diaspora users, at least 4 shall order a report on a phone without help, with a median time under 10 minutes. | R1 |
 | NFR-USE-02 | Status messages shall be in plain English, with a Flesch-Kincaid grade of 7 or lower. | R1 |
-| NFR-ACC-01 | The portal and back office shall meet WCAG 2.2 level AA. | R1 |
+| NFR-A11Y-01 | The portal and back office shall meet WCAG 2.2 level AA. | R1 |
 | NFR-OBS-01 | Every request shall carry a trace ID. Errors, latency, upload queue length and job failures shall be monitored with alerts. | R1 |
 | NFR-MNT-01 | Automated tests shall cover at least 80% of lines in the core API and every business rule in B7. | R1 |
 | NFR-MNT-02 | A new product line or country shall be added through configuration, with code changes only for new integrations. | R2 |

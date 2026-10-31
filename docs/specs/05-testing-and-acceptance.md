@@ -948,8 +948,8 @@ Run in Playwright on staging against provider sandboxes. Mobile steps in J-03 an
 | TC-NFR-USE-01-01 | NFR-USE-01 | Moderated usability test (section 10.2) | Remote session recording | 5 diaspora users order on own phone, unaided | staging with sandbox payment | Each of 5 completes in under 10 minutes without help (see section 16 on interpretation) | R1 |
 | TC-NFR-USE-02-01 | NFR-USE-02 | Readability score on all status templates | Script using a readability formula `[TO VERIFY]` choice | Reading age 12 or lower | CI | Every status template scores within target; failures listed | R1 |
 | TC-NFR-USE-02-02 | NFR-USE-02 | Plain English review | Manual review by 3 users from P-01 and P-02 groups | Understood without help | staging | Each user restates meaning correctly for 10 sample messages | R1 |
-| TC-NFR-ACC-01-01 | NFR-ACC-01 | Automated checks on every page and state | axe-core in Playwright | WCAG 2.2 AA | CI and staging | Zero serious or critical violations | R1 |
-| TC-NFR-ACC-01-02 | NFR-ACC-01 | Manual audit (section 10.1) | Screen readers, keyboard, zoom | WCAG 2.2 AA | staging | No open AA failures on P1 journeys | R1 |
+| TC-NFR-A11Y-01-01 | NFR-A11Y-01 | Automated checks on every page and state | axe-core in Playwright | WCAG 2.2 AA | CI and staging | Zero serious or critical violations | R1 |
+| TC-NFR-A11Y-01-02 | NFR-A11Y-01 | Manual audit (section 10.1) | Screen readers, keyboard, zoom | WCAG 2.2 AA | staging | No open AA failures on P1 journeys | R1 |
 | TC-NFR-OBS-01-01 | NFR-OBS-01 | Check trace IDs and alerts | Integration test; alert drills | Trace ID on every request; alerts on errors, latency, upload queue, job failures | staging | Trace ID in logs for API, worker and app upload; each alert fires in a drill within 5 minutes (assumption) | R1 |
 | TC-NFR-MNT-01-01 | NFR-MNT-01 | Coverage report; RUL coverage check | coverage.py; script mapping `rul` tags to RUL IDs | 80% lines of core API; every RUL tested | CI | Gate fails below 80% or if any RUL-nn has no passing test | R1 |
 | TC-NFR-MNT-02-01 | NFR-MNT-02 | Add a test product line and a test country through configuration only | Admin UI; diff of code repository | No code change outside integrations | staging | Line works end to end; code diff empty apart from new integration adapters | R2 |
@@ -1109,7 +1109,7 @@ Field trial rules:
 
 ## 10. Accessibility and usability
 
-### 10.1 Accessibility testing (NFR-ACC-01, WCAG 2.2 AA)
+### 10.1 Accessibility testing (NFR-A11Y-01, WCAG 2.2 AA)
 
 Scope: portal, back office and listing pages. The milestone app follows Android accessibility guidance and is checked with TalkBack and Accessibility Scanner, but WCAG conformance is claimed for the web only.
 
@@ -1738,7 +1738,7 @@ Read each row left to right: business requirement, feature, functional requireme
 | NFR-PRIV-02 | BR-15 | R1 | TC-NFR-PRIV-02-01 | — |
 | NFR-USE-01 | BR-01 | R1 | TC-NFR-USE-01-01 | UAT-01, section 10.2 |
 | NFR-USE-02 | BR-01 | R1 | TC-NFR-USE-02-01, TC-NFR-USE-02-02 | — |
-| NFR-ACC-01 | BR-01 | R1 | TC-NFR-ACC-01-01, TC-NFR-ACC-01-02 | Section 10.1 |
+| NFR-A11Y-01 | BR-01 | R1 | TC-NFR-A11Y-01-01, TC-NFR-A11Y-01-02 | Section 10.1 |
 | NFR-OBS-01 | BR-15 | R1 | TC-NFR-OBS-01-01 | OAT-03 |
 | NFR-MNT-01 | BR-14 | R1 | TC-NFR-MNT-01-01 | — |
 | NFR-MNT-02 | BR-14 | R2 | TC-NFR-MNT-02-01 | TC-CTY-001-01 |

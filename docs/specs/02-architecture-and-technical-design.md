@@ -126,7 +126,7 @@ Each record is short. A decision changes only through a new ADR that supersedes 
 | Decision | One TypeScript monorepo with two Next.js apps: `portal` (clients, sellers, developers, public listings, server-side rendered) and `backoffice` (staff, professionals, administrators). Both call the same `/v1` API. Shared UI library and generated API client from the OpenAPI document. |
 | Consequences | Separate hostnames allow separate WAF rules, cookie scopes and content security policies. Two builds to maintain. |
 | Alternatives rejected | Django templates (weaker phone-first interactivity). One app for all users (larger attack surface on the public site). |
-| Traces | NFR-PERF-01, NFR-PERF-02, NFR-ACC-01, FR-LST-010 |
+| Traces | NFR-PERF-01, NFR-PERF-02, NFR-A11Y-01, FR-LST-010 |
 
 ### ADR-08 Celery and Redis for background work, with a transactional outbox
 
@@ -2191,7 +2191,7 @@ Savings levers: dev scaled to zero out of hours; Graviton instances; Savings Pla
 | NFR-PRIV-02 | `dpr_data_catalogue` with CI check (10.9) | CI check |
 | NFR-USE-01 | Short order flow, saved drafts, phone-first forms, prices shown early | Usability tests |
 | NFR-USE-02 | Status messages from reviewed templates in `case_status_message` sets; readability check in CI for templates | Readability check |
-| NFR-ACC-01 | Accessible component library, automated axe checks, manual screen-reader tests | Accessibility tests |
+| NFR-A11Y-01 | Accessible component library, automated axe checks, manual screen-reader tests | Accessibility tests |
 | NFR-OBS-01 | OpenTelemetry trace IDs, alerts in 11.6 | Alert tests |
 | NFR-MNT-01 | Rules enforced in services and DB, each with tests; coverage gate at 80% | CI coverage gate |
 | NFR-MNT-02 | Versioned configuration (ADR-11), country packs (ADR-14), adapters (ADR-10) | Add a test product line by configuration only |

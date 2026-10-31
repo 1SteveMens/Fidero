@@ -91,7 +91,7 @@ From month 9, sellers can pay to have a plot or property verified once and liste
 | Alibaba | Fidero |
 |---|---|
 | Verified sellers | Verified listings. Licensed third parties check the plot or property once. The badge shows the date of the checks and links to the full report. |
-| Trade Assurance: payment held until delivery | Escrow. The buyer pays into the partner bank's escrow account. Money is released when every condition is recorded as met, with one human approval kept. Fidero never holds the money. |
+| Trade Assurance: payment held until delivery | Escrow. The buyer pays into the partner bank's escrow account. Money is released when every condition is recorded as met, with two Fidero staff approving each release. Fidero never holds the money. |
 | Seller ratings | Public track records for sellers, developers, contractors and surveyors. Bad actors are removed. |
 | Dispute process | Fixed steps and timelines when a buyer or seller contests a release. |
 
@@ -108,7 +108,7 @@ What can be automated. The ground truth cannot be fully automated. Someone still
 | Overlay checks | Fully | Acquisition, road reserve, wetland and flood zone layers are checked as soon as coordinates are entered |
 | Satellite monitoring | Fully | Alerts fire if new structures appear on a listed plot |
 | Payments and receipts | Fully | Card and mobile money |
-| Escrow release | Fully, once the bank offers an API `[TO VERIFY]` | Conditions met triggers the release instruction, with one human approval |
+| Escrow release | Fully, once the bank offers an API `[TO VERIFY]` | Conditions met prepares the release instruction; two Fidero staff approve it |
 | Construction milestones | Mostly | Evidence comes through the app with automatic fraud checks. An inspector still visits. |
 | Lands Commission searches | Partly | Online where the Commission allows it `[TO VERIFY]`, otherwise a runner does them |
 | Surveyor check | Partly | Drones or GPS speed it up, but a licensed surveyor still signs |

@@ -64,7 +64,7 @@ This document creates no new functional requirement IDs. Where operations needs 
 | NFR-SEC-01 to NFR-SEC-05 | TLS, hashing, pen test, secrets manager, ASVS L2 | 4, 12 |
 | NFR-OBS-01 | Trace IDs; alerts on errors, latency, upload queue, job failures | 8 |
 | NFR-MNT-01 | 80% line coverage; every rule in B7 tested | 4.3 quality gates |
-| NFR-ACC-01 | WCAG 2.2 AA | 4.3 accessibility stage |
+| NFR-A11Y-01 | WCAG 2.2 AA | 4.3 accessibility stage |
 | A9 | Operating metrics | 8.6 business monitoring |
 | C5.2 | Data classes and retention | 8.5, 10.3, 13.1 |
 | IF-01 to IF-09 | External interfaces | 15 |
@@ -374,7 +374,7 @@ flowchart LR
 | 11. Deploy to dev | After stage 10 | Automatic | Deploy fails |
 | 12. E2E on staging | Release candidate | Playwright journeys J-01, J-02, J-08 (R1) and J-03 to J-07 (R2) with synthetic data; feature flags on and off | Any failure in a Must journey |
 | 13. DAST | Release candidate | ZAP baseline on portal, back office and API | New high or medium finding not triaged |
-| 14. Accessibility | Release candidate | axe-core on key pages; WCAG 2.2 AA checks (NFR-ACC-01) | Any serious or critical axe violation on a key page |
+| 14. Accessibility | Release candidate | axe-core on key pages; WCAG 2.2 AA checks (NFR-A11Y-01) | Any serious or critical axe violation on a key page |
 | 15. Performance smoke | Release candidate | k6 at 10 times the expected R1 load `[TO VERIFY]` for 5 minutes; Lighthouse CI on 3G profile | API p95 reads over 500 ms or writes over 1 second (NFR-PERF-03); page useful content over 3 seconds at p75 (NFR-PERF-01); initial transfer over 500 KB (NFR-PERF-02); overlay check over 30 seconds (NFR-PERF-04) |
 | 16. Production deploy | After go decision | Two-person approval, migration task, blue/green deploy | See 4.6 |
 
