@@ -12,7 +12,7 @@ Reports are reviewed by two people before release: the lawyer who signed the leg
 | Amber | Issues found that can be resolved before purchase. The report lists what must happen and who must do it. Do not pay until resolved. |
 | Red | A material issue that cannot be resolved by the buyer, or a risk Fidero will not advise proceeding with. Do not buy. |
 
-A report cannot be green if any single check in sections 4 to 9 is red.
+A report cannot be green if any single check in sections 4 to 10 is red.
 
 ## 1. Cover page
 

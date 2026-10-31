@@ -5,13 +5,20 @@ Business requirements (BRD), product requirements (PRD) and software requirement
 | Item | Value |
 |---|---|
 | Document | 01 of 6 in `docs/specs/` |
-| Version | 0.1, working draft |
+| Version | 0.2, working draft |
 | Date | 31 October 2026 |
 | Owner | Founder, acting as product owner |
 | Status | For review. Not yet baselined |
 | Sources | `README.md`, `docs/proposal.md`, `docs/validation-plan.md`, `docs/partners.md`, `docs/operations/verification-report-template.md`, `docs/operations/milestone-schedule.md`, `docs/product/architecture.md`, the business plan Claude doc |
 
 Every figure in this document is a working assumption, not verified data. Unknown numbers are marked `[TO VERIFY]`.
+
+### Change history
+
+| Version | Date | Change |
+|---|---|---|
+| 0.1 | 31 October 2026 | First draft |
+| 0.2 | 31 October 2026 | Review fixes raised while writing documents 02, 05 and 06: release rights and missing roles defined; client approval added to escrow; partial release, freeze and cancel paths added to the state models; mobilisation exception to RUL-09; second-person checks on manual bank entries, bank details and release-affecting settings; thresholds made configurable; NFR targets made measurable; questions Q-11 to Q-14 added. Each later document's "Issues found in document 01" section lists what it raised. Items not yet resolved stay open there. |
 
 ## How to read this document
 
@@ -357,13 +364,13 @@ The system must enforce these rules. Each is tested in document 05.
 | RUL-06 | A release instruction cannot be sent while any release condition is open. |
 | RUL-07 | Before any purchase release, a fresh search and site check must be recorded within `[TO VERIFY]` days of the release. |
 | RUL-08 | Milestone evidence must be captured in the Fidero app. Gallery and file uploads are not accepted as evidence. |
-| RUL-09 | A milestone payment cannot be released without an inspector's pass or pass with defects. A pass with defects holds back the defect value. |
+| RUL-09 | A milestone payment cannot be released without an inspector's pass or pass with defects. A pass with defects holds back the defect value. The only exception is milestone 0, mobilisation, which is released when the contract is signed and a Fidero staff member confirms site handover. |
 | RUL-10 | The inspector on a project cannot be chosen, paid or employed by the contractor on that project. |
-| RUL-11 | A client cannot release a payment alone. A client approves; Fidero staff approve; the bank pays. |
+| RUL-11 | A client cannot release a payment alone. The client approves; two Fidero staff approve; the bank pays. A client's silence is never treated as approval. |
 | RUL-12 | A listing is published only if its verification report is green and less than `[TO VERIFY]` days old. A failed check means no listing. |
 | RUL-13 | A listing badge expires after `[TO VERIFY]` days or when monitoring raises an unresolved alert. |
 | RUL-14 | Buyers always see the full report behind a listing. |
-| RUL-15 | An open dispute freezes every release linked to it. |
+| RUL-15 | An open dispute freezes every release on the escrow, milestone or listing it is raised against. |
 | RUL-16 | A full report is shared with a partner only with the client's recorded consent. |
 | RUL-17 | Field visits to a plot flagged as disputed need a risk screen and at least two people. |
 | RUL-18 | Each milestone's cost is re-priced in cedis against the dollar guide before release, and any change is shown to the client before approval. |
@@ -393,6 +400,10 @@ The system must enforce these rules. Each is tested in document 05.
 | Q-08 | Retention period for cases and consent videos | Lawyer, insurer | R1 |
 | Q-09 | Share of contractors on iPhone | Operations | R2 start |
 | Q-10 | Listing fee and success fee levels | Founder | R2 |
+| Q-11 | Which second location can hold backups and evidence copies within the data location rules? | Lawyer, product lead | R1 start |
+| Q-12 | How does the bank recall a payment sent in error, and how much notice does it need of a change to the instruction format? | Founder | R1 |
+| Q-13 | What happens when a client does not approve a milestone within the reminder period? | Founder, lawyer | R2 |
+| Q-14 | What content goes in the field risk screen, and who may flag a plot as disputed? | Operations, lawyer | R1 |
 
 ---
 
@@ -416,15 +427,22 @@ It integrates with an escrow bank, a payment provider, an identity check provide
 | Client | Order, pay Fidero fees, track own cases, escrows, projects; approve conditions and milestones; open disputes | See other clients' data; release money |
 | Seller | Accept escrow terms; supply documents; list verified assets (R2); respond to disputes | See the buyer's personal data beyond what the deal needs |
 | Developer | As seller, for many units; manage estates and off-plan stages | Choose the inspector |
-| Case manager (Fidero operations) | Run cases, assign tasks, chase, enter bank confirmations | Release alone; edit locked text |
-| Reviewer (Fidero) | Review and approve reports, releases, fraud flags, disputes | Approve their own work as second approver |
+| Case manager (Fidero operations) | Run cases, assign tasks, chase, enter bank confirmations, prepare release instructions | Approve a release; confirm their own manual bank entry; edit locked text |
+| Reviewer (Fidero) | Review and approve reports, releases, fraud flags, disputes. Holds release rights | Approve a release they prepared, or be both approvers |
 | Lawyer | Work assigned cases; sign the legal section | See unassigned cases |
 | Surveyor | Work assigned site visits; sign the surveyor's section | See unassigned cases |
 | Runner | Work assigned tasks; capture evidence | Sign sections |
 | Contractor | Submit milestone evidence for assigned projects | Choose the inspector; release |
 | Inspector | Complete checklists for assigned inspections | Work on a project where they have a conflict |
+| Quantity surveyor | Upload bills of quantities and milestone splits for assigned projects | Approve releases |
+| Client representative | Read-only view of a case or project the client shares (FR-ACC-008) | Approve anything; see other cases |
+| Project runner | The person running a funded project: upload invoices, receipts and photos | Receive money; choose suppliers alone |
+| Supplier | Receive direct payment from the bank against invoices; confirm deliveries | See the client's data beyond the order |
+| Authority representative | View and confirm their authority's records (R3) | See case data unrelated to their records |
 | Partner (API) | Query plot status for consented reports | See full reports without consent |
 | Administrator | Configure users, roles, templates, prices, partners, countries | Release money; edit the audit log |
+
+Release rights are a permission, not a role. Reviewers and senior staff named by the founder hold it. The two approvers of a release must be different people, and neither may be the person who prepared the instruction.
 
 ## C3. Operating environment
 
@@ -432,6 +450,7 @@ It integrates with an escrow bank, a payment provider, an identity check provide
 - The milestone app runs on Android 8.0 or later `[TO VERIFY]` on devices with 2 GB of RAM.
 - Users may be on 3G connections with frequent drops.
 - Primary language is English. Times are shown in the user's time zone and in Ghana time (GMT).
+- "Working days" means Monday to Friday excluding Ghana public holidays, from a holiday calendar the administrator maintains.
 - Currencies: Ghana cedi (GHS) and US dollar (USD) in R1; GBP, EUR and CAD shown as guides; Nigerian naira (NGN) in R3.
 
 ## C4. Functional requirements
@@ -448,7 +467,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-ACC-004 | The system shall run an identity check on a client before a report is released or an escrow is opened, using the identity check provider or a manual document check. | Must | R1 | BR-05 |
 | FR-ACC-005 | The system shall store each professional's licence number, licence body and expiry date, and block signing when the licence is expired or unverified. | Must | R1 | RUL-20 |
 | FR-ACC-006 | The system shall let an administrator invite staff, professionals, contractors and inspectors and assign roles. | Must | R1 | BR-03 |
-| FR-ACC-007 | The system shall enforce role-based access so each user sees only the cases, projects and listings assigned to them or owned by them. | Must | R1 | BR-15 |
+| FR-ACC-007 | The system shall enforce role-based access so each user sees only the cases, projects and listings assigned to them, owned by them, or within their operational scope. Case managers and reviewers see the work of their country and team. | Must | R1 | BR-15 |
 | FR-ACC-008 | The system shall let a client name a representative in Ghana with limited, read-only access to a case or project. | Should | R1 | BR-01 |
 | FR-ACC-009 | The system shall lock an account after 5 failed sign-in attempts for 15 minutes and notify the user. | Must | R1 | BR-15 |
 | FR-ACC-010 | The system shall let users manage notification preferences and their preferred channel. | Should | R1 | BR-01 |
@@ -534,11 +553,11 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-ESC-001 | The system shall create an escrow record with parties, asset, agreed price, currency, bank reference and the release conditions copied from the report. | Must | R1 | BR-05 |
 | FR-ESC-002 | The system shall record each party's acceptance of the escrow terms with time and terms version. | Must | R1 | BR-05 |
 | FR-ESC-003 | The system shall show the client the bank's payment instructions and never Fidero's own account details. | Must | R1 | RUL-01 |
-| FR-ESC-004 | The system shall record deposit confirmation from the bank's API, statement file or a manual entry with the bank's confirmation attached. | Must | R1 | BR-05 |
+| FR-ESC-004 | The system shall record deposit and release confirmation from the bank's API, statement file or a manual entry. A manual entry needs the bank's confirmation attached and a check by a second staff member. | Must | R1 | BR-05 |
 | FR-ESC-005 | The system shall let a case manager close each condition by attaching the evidence that satisfies it. | Must | R1 | BR-05 |
-| FR-ESC-006 | The system shall block a release instruction while any condition is open, a dispute is open, or the fresh search is missing or out of date. | Must | R1 | RUL-06, RUL-07, RUL-15 |
+| FR-ESC-006 | The system shall block a release instruction while any condition is open, the client has not approved, the fresh search is missing or out of date, or (from R2) a dispute is open. | Must | R1 | RUL-06, RUL-07, RUL-15 |
 | FR-ESC-007 | The system shall require approval of a release instruction by two different staff with release rights, using multi-factor authentication. | Must | R1 | RUL-05 |
-| FR-ESC-008 | The system shall generate the release instruction in the format agreed with the bank, signed by the approvers, and send it by the agreed channel. | Must | R1 | BR-05 |
+| FR-ESC-008 | The system shall generate the release instruction in the format agreed with the bank, record both approvers in it, sign it with a key held in a key management service, and send it by the channel agreed with the bank `[TO VERIFY]`. | Must | R1 | BR-05 |
 | FR-ESC-009 | The system shall record the bank's release confirmation and show it to all parties. | Must | R1 | BR-05 |
 | FR-ESC-010 | The system shall support partial releases against milestones or stages for construction, off-plan and project fund escrows. | Must | R2 | BR-08, BR-09 |
 | FR-ESC-011 | The system shall import the bank's daily statement file and match lines to escrows, listing unmatched lines. | Should | R2 | BR-05 |
@@ -570,7 +589,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-MOB-008 | The app shall compress photos and cap video length and resolution, keeping originals on the device until the server confirms receipt. | Must | R2 | C-08 |
 | FR-MOB-009 | The app shall encrypt stored evidence on the device and remove it after the server confirms receipt. | Must | R2 | BR-15 |
 | FR-MOB-010 | The app shall let runners and surveyors capture evidence for verification case tasks the same way. | Should | R2 | BR-06 |
-| FR-MOB-011 | The server shall verify each signature, record the server time and flag: position outside the plot buffer, a large gap between device and server time, capture before the previous milestone passed, a hash already seen on another project, and inconsistent image metadata. | Must | R2 | BR-08 |
+| FR-MOB-011 | The server shall verify each signature, record the server time and flag: position outside the plot buffer, a device-to-server time gap above the configured value, capture before the previous milestone passed, a hash already seen on another project, and image metadata that does not match the registered device. A reviewer shall be able to revoke a device key, which re-flags all evidence it signed for review. | Must | R2 | BR-08 |
 
 ### C4.10 Construction, off-plan and buildings (BLD)
 
@@ -650,7 +669,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-NTF-001 | The system shall notify users of status changes, tasks, requests and approvals by email, SMS and WhatsApp, according to their preferences. | Must | R1 | BR-01 |
 | FR-NTF-002 | The system shall send notifications from editable templates per language and channel. | Must | R1 | BR-01 |
 | FR-NTF-003 | The system shall remind task owners 2 working days before a due date and alert the case manager when a task is overdue. | Must | R1 | BR-03 |
-| FR-NTF-004 | The system shall never include report contents, money amounts above a threshold or personal data of third parties in SMS or WhatsApp messages. | Must | R1 | BR-15 |
+| FR-NTF-004 | The system shall never include report contents, money amounts above the configured threshold or personal data of third parties in SMS or WhatsApp messages. | Must | R1 | BR-15 |
 | FR-NTF-005 | The system shall log every notification sent, its channel and delivery status. | Should | R1 | BR-15 |
 
 ### C4.17 Administration (ADM)
@@ -659,9 +678,9 @@ Each requirement uses "shall". Priority and release follow the conventions above
 |---|---|---|---|---|
 | FR-ADM-001 | The system shall let an administrator manage case templates, report templates, condition sets and milestone schedules as versioned configuration. | Must | R1 | BR-03 |
 | FR-ADM-002 | The system shall let an administrator manage prices, tiers, currencies and exchange-rate guides. | Must | R1 | BR-01 |
-| FR-ADM-003 | The system shall let an administrator manage partners: banks, professionals, contractors, inspectors, suppliers, API partners. | Must | R1 | BR-03 |
+| FR-ADM-003 | The system shall let an administrator manage partners: banks, professionals, contractors, inspectors, suppliers, API partners. A change to any bank account details needs approval by a second administrator. | Must | R1 | BR-03 |
 | FR-ADM-004 | The system shall keep the locked scope statement versioned and changeable only by two administrators with the lawyer's and insurer's approval recorded. | Must | R1 | RUL-04 |
-| FR-ADM-005 | The system shall let an administrator set configurable values: fresh-search window, badge validity, plot buffer distances, dispute deadlines. | Must | R1 | RUL-07, RUL-13 |
+| FR-ADM-005 | The system shall let an administrator set configurable values: fresh-search window, listing report age, badge validity, plot buffer distances, device-to-server time gap, dispute deadlines, client approval reminder period, the money threshold for SMS and WhatsApp, and the project fund amount that triggers enhanced checks. A change to any value that affects a release needs approval by a second administrator. | Must | R1 | RUL-07, RUL-13 |
 
 ### C4.18 Audit (AUD)
 
@@ -769,12 +788,12 @@ Each requirement uses "shall". Priority and release follow the conventions above
 |---|---|---|
 | NFR-PERF-01 | Portal pages shall show useful content within 3 seconds at the 75th percentile on a simulated 3G connection (1.6 Mbps, 300 ms latency). | R1 |
 | NFR-PERF-02 | A portal page's initial transfer shall be under 500 KB, excluding images the user opens. | R1 |
-| NFR-PERF-03 | API reads shall respond within 500 ms and writes within 1 second at the 95th percentile, at 10 times the expected R1 load. | R1 |
+| NFR-PERF-03 | API reads shall respond within 500 ms and writes within 1 second at the 95th percentile, at 10 times the expected R1 load. Expected R1 load (assumption): 2,000 client accounts, 150 open cases and 50 users at once. | R1 |
 | NFR-PERF-04 | Overlay checks shall complete within 30 seconds of saving a plot polygon. | R1 |
-| NFR-PERF-05 | The milestone app shall start in under 3 seconds and its install size shall be under 30 MB on a 2 GB RAM device. | R2 |
-| NFR-AVL-01 | The portal and API shall be available 99.5% of each month, excluding announced maintenance. | R1 |
+| NFR-PERF-05 | The milestone app shall cold-start in under 3 seconds on a 2 GB RAM device, and its download size shall be under 30 MB. | R2 |
+| NFR-AVL-01 | The portal and API shall be available 99.5% of each month, excluding maintenance announced 48 hours ahead and limited to 4 hours a month. | R1 |
 | NFR-AVL-02 | Recovery point objective: no more than 1 hour of data loss. Recovery time objective: 4 hours. | R1 |
-| NFR-AVL-03 | Evidence shall be stored with at least two copies in separate locations. | R1 |
+| NFR-AVL-03 | Evidence shall be stored with at least two copies in separate data centres, both within the data locations allowed under NFR-PRIV-01. | R1 |
 | NFR-SEC-01 | All traffic shall use TLS 1.2 or later. Data at rest shall be encrypted. | R1 |
 | NFR-SEC-02 | Passwords shall be hashed with a modern adaptive algorithm. Staff sessions shall time out after 30 minutes idle. | R1 |
 | NFR-SEC-03 | The system shall pass an independent penetration test with no open high or critical findings before each release goes live. | R1 |
@@ -782,8 +801,8 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | NFR-SEC-05 | The system shall follow the OWASP Application Security Verification Standard level 2 for the portal, back office and API. | R1 |
 | NFR-PRIV-01 | Personal data shall be hosted where the Data Protection Commission accepts `[TO VERIFY]`, and every data location recorded. | R1 |
 | NFR-PRIV-02 | Personal data shall be minimised: each field must have a stated purpose in the data catalogue. | R1 |
-| NFR-USE-01 | A first-time client shall be able to order a report on a phone in under 10 minutes without help, in usability tests with 5 diaspora users. | R1 |
-| NFR-USE-02 | Status messages shall be in plain English, readable at a reading age of 12. | R1 |
+| NFR-USE-01 | In usability tests with 5 diaspora users, at least 4 shall order a report on a phone without help, with a median time under 10 minutes. | R1 |
+| NFR-USE-02 | Status messages shall be in plain English, with a Flesch-Kincaid grade of 7 or lower. | R1 |
 | NFR-ACC-01 | The portal and back office shall meet WCAG 2.2 level AA. | R1 |
 | NFR-OBS-01 | Every request shall carry a trace ID. Errors, latency, upload queue length and job failures shall be monitored with alerts. | R1 |
 | NFR-MNT-01 | Automated tests shall cover at least 80% of lines in the core API and every business rule in B7. | R1 |
@@ -796,9 +815,10 @@ Each requirement uses "shall". Priority and release follow the conventions above
 
 ### Case
 
+A case starts once its order is paid (FR-ORD-004). Before that, only the order exists.
+
 | From | To | Trigger |
 |---|---|---|
-| Draft | Paid | Payment confirmed |
 | Paid | In progress | Case manager accepts |
 | In progress | On hold | Waiting on client or third party, with reason |
 | On hold | In progress | Blocker cleared |
@@ -813,25 +833,35 @@ Each requirement uses "shall". Priority and release follow the conventions above
 |---|---|---|
 | Proposed | Agreed | All parties accept terms |
 | Agreed | Funded | Bank confirms deposit |
-| Funded | Ready to release | All conditions closed and fresh search in date |
-| Ready to release | Release approved | Two-person approval (RUL-05) |
-| Release approved | Released | Bank confirms payment |
-| Funded or Ready to release | Frozen | Dispute opened |
-| Frozen | Funded | Dispute resolved |
-| Agreed or Funded | Cancelled | Two-person approved cancellation; bank confirms refund |
+| Funded | Ready to release | All conditions for the next release closed and fresh search in date |
+| Ready to release | Client approved | Client approves the release (RUL-11) |
+| Client approved | Release approved | Two-person approval (RUL-05) |
+| Release approved | Partly released | Bank confirms a stage or milestone payment, and money remains |
+| Partly released | Ready to release | Conditions for the next stage closed |
+| Release approved | Released | Bank confirms the final payment |
+| Funded, Ready to release, Client approved, Release approved, Partly released | Frozen | Dispute opened (R2). A release approved but not yet confirmed by the bank is recalled `[TO VERIFY]` with the bank (Q-12) |
+| Frozen | The state it came from | Dispute resolved in favour of continuing |
+| Frozen | Cancelled | Dispute resolved in favour of a refund |
+| Agreed, Funded, Ready to release or Partly released | Cancelled | Two-person approved cancellation; bank confirms refund |
 
 ### Milestone
 
 | From | To | Trigger |
 |---|---|---|
 | Not started | Submitted | Contractor submits evidence |
+| Submitted | Returned | Evidence incomplete, or flagged and rejected by a reviewer |
+| Returned | Submitted | Contractor resubmits |
 | Submitted | Evidence checked | Fidero accepts evidence (flags cleared by a reviewer) |
-| Submitted | Returned | Evidence incomplete or flagged and rejected |
-| Evidence checked | Inspected | Inspector records outcome |
+| Evidence checked | Inspection scheduled | Inspector assigned with a visit date |
+| Inspection scheduled | Inspected | Inspector records outcome |
 | Inspected (fail) | Returned | Contractor must fix and resubmit |
-| Inspected (pass or pass with defects) | Client approved | Client approves, or approval window lapses `[TO VERIFY]` |
+| Inspected (pass or pass with defects) | Client approved | Client approves. Reminders follow the configured period; silence is never approval (Q-13) |
 | Client approved | Release approved | Two-person approval |
-| Release approved | Paid | Bank confirms |
+| Release approved | Paid | Bank confirms. Any defect value stays held (FR-BLD-006) |
+| Any before Paid | Frozen | Dispute opened |
+| Frozen | The state it came from | Dispute resolved |
+
+Milestone 0, mobilisation, skips evidence and inspection: it moves from Not started to Client approved when the contract is signed and site handover is confirmed (RUL-09).
 
 ### Listing
 
@@ -840,13 +870,13 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | Draft | In verification | Listing fee paid |
 | In verification | Rejected | Report not green |
 | In verification | Live | Report green and in date |
-| Live | Suspended | Monitoring alert, dispute or misconduct |
+| Live or Reserved | Suspended | Monitoring alert, dispute, failed fresh search or misconduct |
 | Suspended | Live | Issue resolved |
-| Live | Expired | Badge validity ends |
+| Live or Reserved | Expired | Badge validity ends |
 | Expired | In verification | Seller orders re-verification |
 | Live | Reserved | Buyer reserves; fresh search starts |
 | Reserved | Sold | Escrow released |
-| Reserved | Live | Reservation lapses or fails |
+| Reserved | Live | Buyer withdraws or the reservation lapses, with the fresh search passed |
 
 ### Dispute
 
@@ -854,10 +884,12 @@ Each requirement uses "shall". Priority and release follow the conventions above
 |---|---|---|
 | Open | Awaiting response | Notified to other party |
 | Awaiting response | Evidence | Response received or deadline passed |
-| Evidence | Decision | Evidence deadline passed |
+| Evidence | Decision | Evidence deadline passed, or all parties confirm their evidence is complete |
 | Decision | Closed | Decision recorded and notified |
-| Any | Referred | Referred to mediation |
+| Open, Awaiting response, Evidence or Decision | Referred | Referred to mediation |
 | Referred | Closed | Mediation outcome recorded |
+
+A dispute that passes its decision deadline is escalated to the founder and stays in Decision until decided.
 
 ## C9. Acceptance
 
