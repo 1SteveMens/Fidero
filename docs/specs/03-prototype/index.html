@@ -1,0 +1,1325 @@
+<!doctype html>
+<html lang="en-GH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Fidero Prototype</title>
+<meta name="description" content="Clickable prototype of key Fidero flows, with sample data. Companion to docs/specs/03-ui-ux-design.md.">
+<style>
+/* ===== Design tokens (03-ui-ux-design.md section 6.2) ===== */
+:root{
+  --color-bg:#FAF7F2; --color-surface:#FFFFFF; --color-surface-2:#F2EDE4;
+  --color-text:#1C1B19; --color-text-muted:#5A544D;
+  --color-border:#DDD5C8; --color-border-strong:#7C7368;
+  --color-primary:#2B3F8C; --color-primary-hover:#22337A; --color-on-primary:#FFFFFF; --color-primary-subtle:#E8ECF8;
+  --color-accent:#A0461E; --color-focus:#1A56DB;
+  --color-info:#1D5FA8; --color-info-bg:#E6F0FA;
+  --verdict-green-fg:#0A6B4F; --verdict-green-bg:#E2F3EC; --verdict-green-solid:#0B7A5C; --on-green-solid:#FFFFFF;
+  --verdict-amber-fg:#7A4300; --verdict-amber-bg:#FDF0D5; --verdict-amber-solid:#F0B429; --on-amber-solid:#1C1B19;
+  --verdict-red-fg:#A3191B; --verdict-red-bg:#FCE8E6; --verdict-red-solid:#B42318; --on-red-solid:#FFFFFF;
+  --font-sans:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",Arial,sans-serif;
+  --font-mono:ui-monospace,"SF Mono",Menlo,Consolas,"Roboto Mono",monospace;
+  --text-xs:.8125rem; --text-sm:.875rem; --text-md:1rem; --text-lg:1.125rem; --text-xl:1.25rem; --text-2xl:1.5rem; --text-3xl:1.875rem; --text-4xl:2.25rem;
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:24px; --space-6:32px; --space-7:48px;
+  --radius-sm:4px; --radius-md:8px; --radius-lg:12px; --radius-pill:999px;
+  --elev-1:0 1px 2px rgba(28,27,25,.08),0 1px 1px rgba(28,27,25,.04);
+  --elev-2:0 4px 12px rgba(28,27,25,.10);
+  --elev-3:0 12px 32px rgba(28,27,25,.18);
+  --dur-fast:100ms; --dur-base:200ms; --ease:cubic-bezier(.2,0,0,1);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --color-bg:#121417; --color-surface:#1B1E23; --color-surface-2:#252A31;
+    --color-text:#ECEAE6; --color-text-muted:#B5AFA7;
+    --color-border:#353B45; --color-border-strong:#808896;
+    --color-primary:#A9B8F5; --color-primary-hover:#C3CEF8; --color-on-primary:#0F1733; --color-primary-subtle:#1F2747;
+    --color-accent:#E08A62; --color-focus:#7FA8FF;
+    --color-info:#8EC1F5; --color-info-bg:#13263A;
+    --verdict-green-fg:#6FD9B0; --verdict-green-bg:#0F2E25; --verdict-green-solid:#3CBF8E; --on-green-solid:#0B0F12;
+    --verdict-amber-fg:#F7C66B; --verdict-amber-bg:#33260C; --verdict-amber-solid:#F0B429; --on-amber-solid:#0B0F12;
+    --verdict-red-fg:#FF9F96; --verdict-red-bg:#3A1514; --verdict-red-solid:#F2685C; --on-red-solid:#0B0F12;
+    --elev-1:none; --elev-2:0 4px 12px rgba(0,0,0,.5); --elev-3:0 12px 32px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --color-bg:#121417; --color-surface:#1B1E23; --color-surface-2:#252A31;
+  --color-text:#ECEAE6; --color-text-muted:#B5AFA7;
+  --color-border:#353B45; --color-border-strong:#808896;
+  --color-primary:#A9B8F5; --color-primary-hover:#C3CEF8; --color-on-primary:#0F1733; --color-primary-subtle:#1F2747;
+  --color-accent:#E08A62; --color-focus:#7FA8FF;
+  --color-info:#8EC1F5; --color-info-bg:#13263A;
+  --verdict-green-fg:#6FD9B0; --verdict-green-bg:#0F2E25; --verdict-green-solid:#3CBF8E; --on-green-solid:#0B0F12;
+  --verdict-amber-fg:#F7C66B; --verdict-amber-bg:#33260C; --verdict-amber-solid:#F0B429; --on-amber-solid:#0B0F12;
+  --verdict-red-fg:#FF9F96; --verdict-red-bg:#3A1514; --verdict-red-solid:#F2685C; --on-red-solid:#0B0F12;
+  --elev-1:none; --elev-2:0 4px 12px rgba(0,0,0,.5); --elev-3:0 12px 32px rgba(0,0,0,.6);
+}
+
+/* ===== Base ===== */
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:120px;scroll-padding-bottom:80px;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-sans);font-size:var(--text-md);line-height:1.5}
+h1,h2,h3{line-height:1.25;margin:0 0 var(--space-3)}
+h1{font-size:var(--text-2xl)} h2{font-size:var(--text-xl)} h3{font-size:var(--text-lg)}
+p{margin:0 0 var(--space-3)}
+a{color:var(--color-primary);text-underline-offset:2px}
+a:hover{color:var(--color-primary-hover)}
+:focus-visible{outline:3px solid var(--color-focus);outline-offset:2px;border-radius:2px}
+[hidden]{display:none !important}
+.muted{color:var(--color-text-muted)}
+.small{font-size:var(--text-sm)}
+.xs{font-size:var(--text-xs)}
+.mono{font-family:var(--font-mono)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.skip{position:absolute;left:-999px;top:0;background:var(--color-surface);padding:var(--space-2) var(--space-4);z-index:100}
+.skip:focus{left:var(--space-4)}
+.icon{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-4px}
+.icon.lg{width:28px;height:28px}
+@media (prefers-reduced-motion: reduce){*{transition:none !important;animation:none !important}}
+
+/* ===== Prototype bar ===== */
+.proto-bar{position:sticky;top:0;z-index:30;background:var(--color-surface-2);border-bottom:1px solid var(--color-border);padding:var(--space-2) var(--space-4)}
+.proto-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2) var(--space-3);max-width:1120px;margin:0 auto}
+.proto-tag{font-size:var(--text-xs);font-weight:700;color:var(--color-info);background:var(--color-info-bg);border:1px solid var(--color-info);border-radius:var(--radius-pill);padding:2px 10px}
+.flows{display:flex;flex-wrap:wrap;gap:var(--space-1);margin:0;padding:0;list-style:none}
+.flows button{font:inherit;font-size:var(--text-sm);min-height:36px;padding:4px 10px;border-radius:var(--radius-pill);border:1px solid var(--color-border-strong);background:var(--color-surface);color:var(--color-text);cursor:pointer}
+.flows button[aria-current="true"]{background:var(--color-primary);color:var(--color-on-primary);border-color:var(--color-primary)}
+.theme-pick{margin-left:auto;font-size:var(--text-sm);display:flex;align-items:center;gap:var(--space-2)}
+.theme-pick select{font:inherit;min-height:36px;border-radius:var(--radius-sm);border:1px solid var(--color-border-strong);background:var(--color-surface);color:var(--color-text);padding:2px 6px}
+
+/* ===== Layout shells ===== */
+.shell{max-width:560px;margin:0 auto;padding:0 var(--space-4) 96px}
+.shell.wide{max-width:1120px}
+.app-head{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) 0;border-bottom:1px solid var(--color-border);margin-bottom:var(--space-4)}
+.logo{display:flex;align-items:center;gap:var(--space-2);font-weight:700;font-size:var(--text-lg);color:var(--color-text);text-decoration:none;letter-spacing:.01em}
+.logo svg{width:26px;height:26px}
+.app-head .who{margin-left:auto;font-size:var(--text-sm);color:var(--color-text-muted)}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--color-surface);border-top:1px solid var(--color-border);box-shadow:var(--elev-2)}
+.tabbar ul{display:flex;max-width:560px;margin:0 auto;padding:0;list-style:none}
+.tabbar li{flex:1}
+.tabbar a{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:56px;justify-content:center;font-size:var(--text-xs);color:var(--color-text-muted);text-decoration:none}
+.tabbar a[aria-current="page"]{color:var(--color-primary);font-weight:700}
+.back{display:inline-flex;align-items:center;gap:var(--space-1);min-height:44px;font-size:var(--text-sm)}
+.ref{font-family:var(--font-mono);font-size:var(--text-sm);color:var(--color-text-muted)}
+
+/* ===== Components ===== */
+.card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-4);margin-bottom:var(--space-4);box-shadow:var(--elev-1)}
+.card h2,.card h3{margin-bottom:var(--space-2)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);font:inherit;font-weight:600;min-height:48px;padding:10px 18px;border-radius:var(--radius-md);border:1px solid transparent;cursor:pointer;text-decoration:none;transition:background var(--dur-fast) var(--ease)}
+.btn-primary{background:var(--color-primary);color:var(--color-on-primary)}
+.btn-primary:hover{background:var(--color-primary-hover);color:var(--color-on-primary)}
+.btn-secondary{background:var(--color-surface);color:var(--color-primary);border-color:var(--color-primary)}
+.btn-quiet{background:transparent;color:var(--color-primary);padding-left:8px;padding-right:8px;min-height:44px}
+.btn[disabled],.btn[aria-disabled="true"]{opacity:1;background:var(--color-surface-2);color:var(--color-text-muted);border-color:var(--color-border-strong);cursor:not-allowed}
+.btn.block{width:100%}
+.btn.small{min-height:40px;padding:6px 12px;font-size:var(--text-sm)}
+.actions{display:flex;flex-wrap:wrap;gap:var(--space-3);margin-top:var(--space-4)}
+.proto-note{font-size:var(--text-sm);border:1px dashed var(--color-info);background:var(--color-info-bg);color:var(--color-text);border-radius:var(--radius-md);padding:var(--space-3);margin:var(--space-4) 0}
+.proto-note strong{color:var(--color-info)}
+.proto-note .btn{margin-top:var(--space-2)}
+
+/* Stepper CMP-05 */
+.stepper{display:flex;gap:var(--space-1);list-style:none;padding:0;margin:0 0 var(--space-4);counter-reset:s}
+.stepper li{flex:1;font-size:var(--text-xs);color:var(--color-text-muted);border-top:4px solid var(--color-border);padding-top:var(--space-1);counter-increment:s}
+.stepper li::before{content:counter(s) ". "}
+.stepper li.done{border-color:var(--color-primary);color:var(--color-text)}
+.stepper li[aria-current="step"]{border-color:var(--color-primary);color:var(--color-primary);font-weight:700}
+.stepper button{all:unset;cursor:pointer;text-decoration:underline}
+.stepper button:focus-visible{outline:3px solid var(--color-focus)}
+
+/* Form CMP-02/03 */
+.field{margin-bottom:var(--space-4)}
+.field label,.legend{display:block;font-weight:600;margin-bottom:var(--space-1)}
+.hint{display:block;font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-1)}
+input[type=text],input[type=email],input[type=tel],select.input,textarea{font:inherit;width:100%;min-height:48px;padding:10px 12px;border:1px solid var(--color-border-strong);border-radius:var(--radius-sm);background:var(--color-surface);color:var(--color-text)}
+fieldset{border:0;padding:0;margin:0 0 var(--space-4)}
+legend{font-weight:600;margin-bottom:var(--space-2);padding:0}
+.rcard{display:flex;gap:var(--space-3);align-items:flex-start;padding:var(--space-3) var(--space-4);border:1px solid var(--color-border-strong);border-radius:var(--radius-md);background:var(--color-surface);margin-bottom:var(--space-2);cursor:pointer;min-height:56px}
+.rcard:has(input:checked){border:2px solid var(--color-primary);background:var(--color-primary-subtle);padding:calc(var(--space-3) - 1px) calc(var(--space-4) - 1px)}
+.rcard input{width:22px;height:22px;margin-top:2px;accent-color:var(--color-primary);flex:none}
+.rcard .r-body{flex:1}
+.rcard .r-title{font-weight:600;display:flex;justify-content:space-between;gap:var(--space-2);flex-wrap:wrap}
+.check{display:flex;gap:var(--space-3);align-items:flex-start;min-height:44px;padding:var(--space-2) 0}
+.check input{width:22px;height:22px;margin-top:2px;accent-color:var(--color-primary);flex:none}
+.err-summary{border:2px solid var(--verdict-red-fg);background:var(--verdict-red-bg);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);margin-bottom:var(--space-4)}
+.err-summary h2{font-size:var(--text-lg);color:var(--verdict-red-fg)}
+.err-summary ul{margin:0;padding-left:20px}
+.field-error{color:var(--verdict-red-fg);font-size:var(--text-sm);font-weight:600;display:flex;gap:6px;align-items:center}
+
+/* Alerts CMP-20 */
+.alert{display:flex;gap:var(--space-3);align-items:flex-start;border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);margin-bottom:var(--space-4);border:1px solid}
+.alert p:last-child{margin:0}
+.alert.info{background:var(--color-info-bg);border-color:var(--color-info);color:var(--color-text)}
+.alert.info .icon{color:var(--color-info)}
+.alert.error{background:var(--verdict-red-bg);border-color:var(--verdict-red-fg)}
+.alert.error .icon{color:var(--verdict-red-fg)}
+.alert.locked{background:var(--color-surface-2);border-color:var(--color-border-strong)}
+.alert.success{background:var(--verdict-green-bg);border-color:var(--verdict-green-fg)}
+.alert.success .icon{color:var(--verdict-green-fg)}
+
+/* Status sentence CMP-06 */
+.status{background:var(--color-primary-subtle);border-left:6px solid var(--color-primary);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);margin-bottom:var(--space-4)}
+.status .now{display:block;font-size:var(--text-xs);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-primary)}
+.status p{font-size:var(--text-lg);font-weight:600;margin:0}
+.timeline{list-style:none;margin:0;padding:0}
+.timeline li{display:grid;grid-template-columns:28px 1fr auto;gap:var(--space-2);align-items:start;padding:var(--space-2) 0;border-bottom:1px solid var(--color-border)}
+.timeline li:last-child{border-bottom:0}
+.timeline .dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--color-border-strong);display:grid;place-items:center;margin-top:1px}
+.timeline .done .dot{background:var(--color-primary);border-color:var(--color-primary);color:var(--color-on-primary)}
+.timeline .done .dot .icon{width:14px;height:14px;stroke-width:3}
+.timeline .current .dot{border-color:var(--color-primary);box-shadow:inset 0 0 0 4px var(--color-surface),inset 0 0 0 12px var(--color-primary)}
+.timeline .when{font-size:var(--text-sm);color:var(--color-text-muted);text-align:right;white-space:nowrap}
+.timeline .state{display:block;font-size:var(--text-xs);color:var(--color-text-muted)}
+
+/* Verdict badge CMP-07 */
+.verdict{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:var(--text-sm);letter-spacing:.04em;border-radius:var(--radius-pill);padding:2px 10px 2px 6px;border:2px solid}
+.verdict .icon{width:18px;height:18px}
+.v-green{color:var(--verdict-green-fg);background:var(--verdict-green-bg);border-color:var(--verdict-green-fg)}
+.v-amber{color:var(--verdict-amber-fg);background:var(--verdict-amber-bg);border-color:var(--verdict-amber-fg)}
+.v-red{color:var(--verdict-red-fg);background:var(--verdict-red-bg);border-color:var(--verdict-red-fg)}
+.verdict-hero{border-radius:var(--radius-lg);padding:var(--space-4);margin-bottom:var(--space-4);border:2px solid;display:flex;gap:var(--space-3);align-items:flex-start}
+.verdict-hero .word{font-size:var(--text-4xl);font-weight:800;line-height:1;letter-spacing:.02em;display:block;margin-bottom:var(--space-2)}
+.verdict-hero .icon{width:44px;height:44px;stroke-width:2.2}
+.verdict-hero.amber{background:var(--verdict-amber-bg);border-color:var(--verdict-amber-fg);color:var(--verdict-amber-fg)}
+.verdict-hero.green{background:var(--verdict-green-bg);border-color:var(--verdict-green-fg);color:var(--verdict-green-fg)}
+.verdict-hero p{color:var(--color-text);margin:0}
+
+/* Conditions CMP-08 */
+.conds{list-style:none;margin:0;padding:0}
+.conds li{display:grid;grid-template-columns:28px 1fr;gap:var(--space-2);padding:var(--space-3) 0;border-bottom:1px solid var(--color-border)}
+.conds li:last-child{border-bottom:0}
+.conds .c-done{color:var(--verdict-green-fg)}
+.conds .c-open{color:var(--color-text-muted)}
+.conds .meta{display:block;font-size:var(--text-sm);color:var(--color-text-muted)}
+
+/* Money CMP-17, hash CMP-19 */
+.money{font-variant-numeric:tabular-nums;font-weight:700}
+.big-money{font-size:var(--text-2xl);font-weight:700;font-variant-numeric:tabular-nums}
+.held{display:flex;gap:var(--space-2);align-items:center;font-size:var(--text-sm);color:var(--color-text-muted)}
+.hash{font-family:var(--font-mono);font-size:var(--text-sm);word-spacing:.15em;background:var(--color-surface-2);border-radius:var(--radius-sm);padding:var(--space-2) var(--space-3);overflow-wrap:anywhere;margin:var(--space-2) 0}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:var(--space-1) var(--space-4);margin:0}
+.kv dt{color:var(--color-text-muted);font-size:var(--text-sm)}
+.kv dd{margin:0;font-weight:600;overflow-wrap:anywhere}
+.sum-row{display:flex;justify-content:space-between;gap:var(--space-3);padding:var(--space-2) 0;border-bottom:1px solid var(--color-border)}
+.sum-row:last-child{border-bottom:0}
+.total{display:flex;justify-content:space-between;align-items:baseline;font-size:var(--text-lg);font-weight:700;padding-top:var(--space-3);border-top:2px solid var(--color-text);margin-top:var(--space-3)}
+
+/* Tables CMP-11 */
+table{width:100%;border-collapse:collapse;font-size:var(--text-sm)}
+th,td{text-align:left;padding:var(--space-2) var(--space-2);border-bottom:1px solid var(--color-border);vertical-align:top}
+th{color:var(--color-text-muted);font-weight:600}
+
+/* Approval CMP-10 */
+.gates{list-style:none;margin:0;padding:0}
+.gates li{display:flex;gap:var(--space-2);align-items:flex-start;padding:var(--space-2) 0;border-bottom:1px solid var(--color-border)}
+.gates li:last-child{border-bottom:0}
+.gate-ok{color:var(--verdict-green-fg)}
+.gate-bad{color:var(--verdict-red-fg)}
+.slots{display:grid;grid-template-columns:1fr;gap:var(--space-3)}
+@media (min-width:760px){.slots{grid-template-columns:1fr 1fr}}
+.slot{border:1px solid var(--color-border-strong);border-radius:var(--radius-md);padding:var(--space-4);background:var(--color-surface)}
+.slot h3{font-size:var(--text-sm);text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-muted)}
+.slot.filled{border-color:var(--verdict-green-fg)}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:var(--text-xs);font-weight:700;padding:2px 8px;border-radius:var(--radius-pill);background:var(--color-surface-2);color:var(--color-text);border:1px solid var(--color-border-strong)}
+.pill.primary{background:var(--color-primary-subtle);color:var(--color-primary);border-color:var(--color-primary)}
+
+/* Back office */
+.bo-top{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-3);padding:var(--space-3) 0;border-bottom:1px solid var(--color-border);margin-bottom:var(--space-4)}
+.bo-nav{display:flex;flex-wrap:wrap;gap:var(--space-1);list-style:none;margin:0;padding:0}
+.bo-nav a{display:inline-block;padding:8px 10px;font-size:var(--text-sm);border-radius:var(--radius-sm);text-decoration:none;color:var(--color-text-muted)}
+.bo-nav a[aria-current="page"]{background:var(--color-primary-subtle);color:var(--color-primary);font-weight:700}
+.bo-grid{display:grid;grid-template-columns:1fr;gap:var(--space-4)}
+@media (min-width:900px){.bo-grid{grid-template-columns:2fr 1fr}}
+.payline{font-size:var(--text-lg);font-weight:600;background:var(--color-surface-2);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);margin-bottom:var(--space-4)}
+
+/* Listings */
+.tabs{display:inline-flex;border:1px solid var(--color-border-strong);border-radius:var(--radius-md);overflow:hidden;margin-bottom:var(--space-4)}
+.tabs button{font:inherit;min-height:44px;padding:0 18px;border:0;background:var(--color-surface);color:var(--color-text);cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--color-primary);color:var(--color-on-primary);font-weight:700}
+.lcard{display:grid;grid-template-columns:96px 1fr;gap:var(--space-3);text-align:left;width:100%;font:inherit;color:inherit;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-3);margin-bottom:var(--space-3);cursor:pointer;box-shadow:var(--elev-1)}
+.lcard:hover{border-color:var(--color-primary)}
+.ph{border-radius:var(--radius-sm);background:
+  repeating-linear-gradient(135deg,transparent 0 10px,rgba(160,70,30,.10) 10px 20px),
+  linear-gradient(160deg,var(--color-surface-2),var(--color-border));
+  display:grid;place-items:center;color:var(--color-text-muted);font-size:var(--text-xs);text-align:center;min-height:80px}
+.ph.tall{min-height:180px;margin-bottom:var(--space-4)}
+.vbadge{display:inline-flex;align-items:center;gap:6px;font-size:var(--text-sm);font-weight:700;color:var(--color-primary)}
+.vbadge.expired{color:var(--color-text-muted)}
+.badge-card{border:2px solid var(--color-primary);border-radius:var(--radius-lg);padding:var(--space-4);background:var(--color-primary-subtle);margin-bottom:var(--space-4)}
+.badge-card.expired{border-color:var(--color-border-strong);background:var(--color-surface-2)}
+.badge-card .title{display:flex;align-items:center;gap:var(--space-2);font-size:var(--text-xl);font-weight:800;color:var(--color-primary);margin-bottom:var(--space-2)}
+.badge-card.expired .title{color:var(--color-text)}
+.map{width:100%;height:auto;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface-2)}
+
+/* Build */
+.bar{height:16px;border-radius:var(--radius-pill);background:var(--color-surface-2);border:1px solid var(--color-border-strong);overflow:hidden;margin:var(--space-2) 0}
+.bar span{display:block;height:100%;background:var(--color-primary)}
+.ms{list-style:none;margin:0;padding:0}
+.ms li{display:grid;grid-template-columns:28px 1fr auto;gap:var(--space-2);padding:var(--space-2) 0;border-bottom:1px solid var(--color-border);align-items:start}
+.ms li:last-child{border-bottom:0}
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:var(--space-2);margin-bottom:var(--space-3)}
+.photos figure{margin:0}
+.photos .ph{aspect-ratio:1/1;min-height:0}
+.photos figcaption{font-size:var(--text-xs);color:var(--color-text-muted);margin-top:2px}
+
+/* Android phone frame */
+.phone-wrap{display:flex;flex-wrap:wrap;gap:var(--space-5);align-items:flex-start;justify-content:center;padding-top:var(--space-4)}
+.phone{width:min(360px,100%);border-radius:36px;border:10px solid #1C1B19;background:var(--color-bg);box-shadow:var(--elev-3);overflow:hidden;position:relative}
+.p-status{display:flex;justify-content:space-between;font-size:var(--text-xs);padding:6px 16px;background:var(--color-surface-2);color:var(--color-text)}
+.p-banner{display:flex;gap:var(--space-2);align-items:flex-start;padding:var(--space-3);font-size:var(--text-sm);font-weight:600;border-bottom:1px solid var(--color-border)}
+.p-banner.offline{background:var(--color-surface-2);color:var(--color-text)}
+.p-banner.sending{background:var(--color-info-bg);color:var(--color-text)}
+.p-banner.sent{background:var(--verdict-green-bg);color:var(--color-text)}
+.p-appbar{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-3);font-weight:700;background:var(--color-surface);border-bottom:1px solid var(--color-border)}
+.p-body{padding:var(--space-3);min-height:440px;max-height:520px;overflow:auto}
+.p-item{display:grid;grid-template-columns:28px 1fr auto;gap:var(--space-2);align-items:center;padding:var(--space-2) 0;border-bottom:1px solid var(--color-border);font-size:var(--text-sm)}
+.p-nav{display:flex;border-top:1px solid var(--color-border);background:var(--color-surface)}
+.p-nav button{flex:1;font:inherit;font-size:var(--text-xs);min-height:56px;border:0;background:transparent;color:var(--color-text-muted);cursor:pointer}
+.p-nav button[aria-current="true"]{color:var(--color-primary);font-weight:700}
+.camera{position:absolute;inset:0;background:#0B0F12;color:#ECEAE6;display:grid;place-items:center;text-align:center;font-size:var(--text-sm);z-index:5}
+.camera .viewfinder{width:220px;height:280px;border:2px dashed #808896;border-radius:var(--radius-md);display:grid;place-items:center;margin:0 auto var(--space-3)}
+.qstate{font-size:var(--text-xs);font-weight:700}
+.side-panel{max-width:340px}
+
+/* Toast CMP-14 and dialog CMP-15 */
+.toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);z-index:50;background:var(--color-text);color:var(--color-bg);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);box-shadow:var(--elev-3);max-width:min(480px,calc(100% - 32px));font-size:var(--text-sm)}
+dialog{border:0;border-radius:var(--radius-lg);padding:0;max-width:min(520px,calc(100% - 32px));background:var(--color-surface);color:var(--color-text);box-shadow:var(--elev-3)}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+.dlg{padding:var(--space-5)}
+details{border:1px solid var(--color-border-strong);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);background:var(--color-surface);margin-bottom:var(--space-3)}
+summary{cursor:pointer;font-weight:600;min-height:28px}
+blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px solid var(--color-border-strong);font-size:var(--text-sm);color:var(--color-text)}
+.row{display:flex;gap:var(--space-3);flex-wrap:wrap;align-items:center}
+.spread{display:flex;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap;align-items:baseline}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- Icon sprite (section 6.3). Shapes carry meaning; never colour alone. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-green" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M7.5 12.5l3 3 6-6.5"/></symbol>
+  <symbol id="i-amber" viewBox="0 0 24 24"><path d="M12 3L2.5 20h19z"/><path d="M12 9.5v5"/><path d="M12 17.3v.2"/></symbol>
+  <symbol id="i-red" viewBox="0 0 24 24"><path d="M8 2.5h8l5.5 5.5v8L16 21.5H8L2.5 16V8z"/><path d="M9 9l6 6M15 9l-6 6"/></symbol>
+  <symbol id="i-tick" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 018 0v3"/></symbol>
+  <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 9.5L12 4l9 5.5"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 20.5h18"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><path d="M12 7.5v.2"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M12 7v5l3.5 2"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18.5a4.5 4.5 0 01-.6-9 6 6 0 0111.4 1.6A3.8 3.8 0 0117 18.5z"/><path d="M12 16v-5M9.5 13.5L12 11l2.5 2.5"/></symbol>
+  <symbol id="i-offline" viewBox="0 0 24 24"><path d="M2 8.5a15 15 0 0120 0M5.5 12a10 10 0 0113 0M9 15.5a5 5 0 016 0"/><path d="M12 19.5v.2"/><path d="M3 3l18 18"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 00-1-1H5a1 1 0 00-1 1v10a1 1 0 001 1h3"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 2.5h8l4.5 4.5v14.5H6z"/><path d="M14 2.5V7h4.5M9 12h6M9 16h6"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3.5 11L12 4l8.5 7"/><path d="M6 9.5V20h12V9.5"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></symbol>
+  <symbol id="i-build" viewBox="0 0 24 24"><path d="M4 20.5V10l8-6 8 6v10.5"/><path d="M9 20.5v-6h6v6"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="4"/><path d="M4 20.5a8 8 0 0116 0"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0113 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+  <symbol id="logo" viewBox="0 0 32 32"><rect style="stroke:var(--color-primary)" x="4" y="4" width="24" height="24" rx="3" fill="none" stroke-width="3"/><path style="stroke:var(--color-accent)" d="M14 24l10-12" stroke-width="3" fill="none" stroke-linecap="round"/><path style="stroke:var(--color-accent)" d="M9 19l5 5" stroke-width="3" fill="none" stroke-linecap="round"/></symbol>
+</svg>
+
+<header class="proto-bar">
+  <div class="proto-row">
+    <span class="proto-tag">PROTOTYPE · sample data · all prices are samples</span>
+    <nav aria-label="Prototype flows">
+      <ul class="flows">
+        <li><button type="button" data-flow="A" data-go="a1">A · Order a report</button></li>
+        <li><button type="button" data-flow="B" data-go="b1">B · Escrow</button></li>
+        <li><button type="button" data-flow="C" data-go="c1">C · Release approval</button></li>
+        <li><button type="button" data-flow="D" data-go="d1">D · Listings</button></li>
+        <li><button type="button" data-flow="E" data-go="e1">E · Build</button></li>
+        <li><button type="button" data-flow="F" data-go="f1">F · Android app</button></li>
+      </ul>
+    </nav>
+    <label class="theme-pick">Theme
+      <select id="theme">
+        <option value="system">System</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </label>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ================= PORTAL ================= -->
+<div id="portal" class="shell">
+  <div class="app-head">
+    <a class="logo" href="#a1" data-go="a1"><svg aria-hidden="true"><use href="#logo"/></svg>Fidero</a>
+    <span class="who">Signed in as Ama M. (sample)</span>
+  </div>
+
+  <!-- A1 Order step 1 -->
+  <section class="screen" id="a1" data-flow="A" data-tab="orders" aria-labelledby="a1h" hidden>
+    <a href="#home" class="back" data-toast="Home is not part of this prototype."><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Cancel</a>
+    <ol class="stepper" aria-label="Order steps">
+      <li aria-current="step">What</li><li>Plot</li><li>Docs</li><li>Agree</li>
+    </ol>
+    <p class="small muted">Step 1 of 4</p>
+    <h1 id="a1h" tabindex="-1">Order a check</h1>
+    <fieldset>
+      <legend>What do you want checked?</legend>
+      <label class="rcard"><input type="radio" name="line" value="land" checked>
+        <span class="r-body"><span class="r-title">Land (a plot)</span><span class="small muted">Searches, survey, map checks, seller's authority and consent.</span></span></label>
+      <label class="rcard"><input type="radio" name="line" value="building">
+        <span class="r-body"><span class="r-title">A building on its land</span><span class="small muted">Adds permit, structure, tenants, unpaid rates and bills.</span></span></label>
+    </fieldset>
+    <fieldset>
+      <legend>How fast?</legend>
+      <label class="rcard"><input type="radio" name="tier" value="standard" checked>
+        <span class="r-body"><span class="r-title"><span>Standard</span><span class="money" data-price="standard">USD 450.00</span></span><span class="small muted">About 3 to 4 weeks</span></span></label>
+      <label class="rcard"><input type="radio" name="tier" value="rush">
+        <span class="r-body"><span class="r-title"><span>Rush</span><span class="money" data-price="rush">USD 600.00</span></span><span class="small muted">About 2 weeks</span></span></label>
+    </fieldset>
+    <div class="field">
+      <label for="cur">Show prices in</label>
+      <span class="hint" id="cur-hint">You pay in US dollars by card or in cedis by mobile money. Other currencies are a guide.</span>
+      <select id="cur" class="input" aria-describedby="cur-hint">
+        <option>USD</option><option>GBP</option><option>EUR</option><option>CAD</option><option>GHS</option>
+      </select>
+    </div>
+    <p class="small muted" id="guide-line">Prices are samples. The final price is shown before you pay.</p>
+    <button class="btn btn-primary block" data-go="a2">Continue</button>
+  </section>
+
+  <!-- A2 Order step 2 -->
+  <section class="screen" id="a2" data-flow="A" data-tab="orders" aria-labelledby="a2h" hidden>
+    <a href="#a1" class="back" data-go="a1"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Back</a>
+    <ol class="stepper" aria-label="Order steps">
+      <li class="done"><button type="button" data-go="a1">What</button></li><li aria-current="step">Plot</li><li>Docs</li><li>Agree</li>
+    </ol>
+    <p class="small muted">Step 2 of 4</p>
+    <h1 id="a2h" tabindex="-1">Where is the plot?</h1>
+    <div class="field"><label for="region">Region</label>
+      <select id="region" class="input"><option>Central</option><option>Greater Accra</option><option>Ashanti</option><option>Eastern</option><option>Volta</option><option>Western</option></select></div>
+    <div class="field"><label for="town">Town or area</label><input id="town" type="text" value="Kasoa, Millennium City" autocomplete="off"></div>
+    <div class="field"><label for="plotno">Plot number <span class="muted">(if known)</span></label><input id="plotno" type="text" value="14"></div>
+    <div class="field"><label for="spref">Site plan reference <span class="muted">(if known)</span></label><input id="spref" type="text" value="CR/KS/2026/0391"></div>
+    <div class="field"><label for="gps">Ghana Post GPS address <span class="muted">(if known)</span></label>
+      <span class="hint" id="gps-hint">Looks like CX-071-4420</span>
+      <input id="gps" type="text" value="CX-071-4420" aria-describedby="gps-hint"></div>
+    <figure class="card" style="margin:0 0 var(--space-4);padding:var(--space-2)">
+      <svg viewBox="0 0 320 140" class="map" role="img" aria-labelledby="mapcap">
+        <rect style="fill:var(--color-surface-2)" width="320" height="140"/>
+        <path style="fill:var(--color-info-bg);stroke:var(--color-info)" d="M0 110 C60 100 120 120 180 108 S300 96 320 104 V140 H0z"/>
+        <path style="stroke:var(--color-border-strong)" d="M20 20 L300 60" stroke-width="6" opacity=".5"/>
+        <path style="stroke:var(--color-border-strong)" d="M140 0 L170 140" stroke-width="3" opacity=".4"/>
+        <g style="stroke:var(--color-primary)" transform="translate(150 46)" fill="none" stroke-width="3"><path style="fill:var(--color-primary-subtle)" d="M0 0h26v20H0z"/></g>
+        <text style="fill:var(--color-text)" x="182" y="62" font-size="11">Plot 14 (approximate)</text>
+      </svg>
+      <figcaption id="mapcap" class="small muted" style="padding:var(--space-2)">Map preview (static image). Plot 14 shown near Kasoa Millennium City. Tap to adjust the pin. The live map loads only when you tap.</figcaption>
+    </figure>
+    <div class="alert info"><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg><p>Don't know some of these? That's fine. Our surveyor confirms the plot on site.</p></div>
+    <button class="btn btn-primary block" data-go="a3">Continue</button>
+  </section>
+
+  <!-- A3 Order step 3 -->
+  <section class="screen" id="a3" data-flow="A" data-tab="orders" aria-labelledby="a3h" hidden>
+    <a href="#a2" class="back" data-go="a2"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Back</a>
+    <ol class="stepper" aria-label="Order steps">
+      <li class="done"><button type="button" data-go="a1">What</button></li><li class="done"><button type="button" data-go="a2">Plot</button></li><li aria-current="step">Docs</li><li>Agree</li>
+    </ol>
+    <p class="small muted">Step 3 of 4</p>
+    <h1 id="a3h" tabindex="-1">Documents and seller</h1>
+    <div class="field">
+      <label for="files">Site plan and any other documents</label>
+      <span class="hint" id="files-hint">Photo or PDF. Up to 10 MB each (sample limit). Nothing leaves your device in this prototype.</span>
+      <input id="files" type="file" multiple aria-describedby="files-hint">
+      <ul id="file-list" class="small" style="margin:var(--space-2) 0 0;padding-left:20px"><li><svg class="icon" aria-hidden="true"><use href="#i-doc"/></svg> site-plan-plot-14.pdf (sample, 1.1 MB) · checked, safe</li></ul>
+    </div>
+    <div class="field"><label for="seller">Seller's name</label><input id="seller" type="text" value="Kofi Asante" autocomplete="off"></div>
+    <div class="field"><label for="sellertel">Seller's phone</label><input id="sellertel" type="tel" value="+233 24 000 0000" autocomplete="off"></div>
+    <p class="small muted">We only use the seller's details to arrange the checks and the consent meeting.</p>
+    <button class="btn btn-primary block" data-go="a4">Continue</button>
+  </section>
+
+  <!-- A4 Order step 4 -->
+  <section class="screen" id="a4" data-flow="A" data-tab="orders" aria-labelledby="a4h" hidden>
+    <a href="#a3" class="back" data-go="a3"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Back</a>
+    <ol class="stepper" aria-label="Order steps">
+      <li class="done"><button type="button" data-go="a1">What</button></li><li class="done"><button type="button" data-go="a2">Plot</button></li><li class="done"><button type="button" data-go="a3">Docs</button></li><li aria-current="step">Agree</li>
+    </ol>
+    <p class="small muted">Step 4 of 4</p>
+    <h1 id="a4h" tabindex="-1">Check your order</h1>
+    <div id="a4-errors" class="err-summary" tabindex="-1" hidden role="alert">
+      <h2>There is a problem</h2>
+      <ul>
+        <li id="err-scope-li"><a href="#ok-scope">Confirm you have read what the report covers</a></li>
+        <li id="err-terms-li"><a href="#ok-terms">Agree to the terms to continue</a></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="sum-row"><span><span id="sum-line">Land check</span>, <span id="sum-tier">Standard</span></span><button class="btn-quiet btn small" data-go="a1">Change</button></div>
+      <div class="sum-row"><span>Plot 14, Kasoa Millennium City</span><button class="btn-quiet btn small" data-go="a2">Change</button></div>
+      <div class="sum-row"><span>Site plan uploaded (1 file)</span><button class="btn-quiet btn small" data-go="a3">Change</button></div>
+      <div class="sum-row"><span>Seller: Kofi Asante</span><button class="btn-quiet btn small" data-go="a3">Change</button></div>
+    </div>
+    <h2>What the report covers</h2>
+    <p class="small"><strong>Summary, not the legal text:</strong> the report tells you what we found on the dates of our checks. It does not guarantee title. It covers only this plot and only the checks listed.</p>
+    <details>
+      <summary><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg> Scope and limitation statement, version 1.0 (locked text)</summary>
+      <blockquote>This report sets out the results of the checks listed in section 3, carried out on the dates stated, using the documents the client supplied and the public and official records available to Fidero on those dates. It describes the position as found on those dates only.<br><br>The report does not guarantee title. Title to land in Ghana can only be confirmed by registration at the Lands Commission, and registered title can be challenged. … <em>(full text in the report template, section 12)</em></blockquote>
+    </details>
+    <div class="check"><input type="checkbox" id="ok-scope" aria-describedby="err-scope"><label for="ok-scope">I have read what the report covers and does not cover</label></div>
+    <p id="err-scope" class="field-error" hidden><svg class="icon" aria-hidden="true"><use href="#i-red"/></svg>Error: tick this box to continue</p>
+    <div class="check"><input type="checkbox" id="ok-terms" aria-describedby="err-terms"><label for="ok-terms">I agree to the terms, version 1.0 (sample)</label></div>
+    <p id="err-terms" class="field-error" hidden><svg class="icon" aria-hidden="true"><use href="#i-red"/></svg>Error: tick this box to continue</p>
+    <div class="field"><label for="heard">How did you hear about us?</label>
+      <select id="heard" class="input"><option>Choose one</option><option>Diaspora association</option><option>Webinar</option><option>A friend or relative</option><option>Money transfer service</option><option>Other</option></select></div>
+    <div class="field"><label for="ref">Referral code <span class="muted">(optional)</span></label><input id="ref" type="text"></div>
+    <div class="total"><span>Total to pay</span><span class="money" id="a4-total">USD 450.00</span></div>
+    <button class="btn btn-primary block" id="a4-go" style="margin-top:var(--space-4)">Continue to payment</button>
+  </section>
+
+  <!-- A5 Pay -->
+  <section class="screen" id="a5" data-flow="A" data-tab="orders" aria-labelledby="a5h" hidden>
+    <a href="#a4" class="back" data-go="a4"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Back</a>
+    <h1 id="a5h" tabindex="-1">Pay Fidero's fee</h1>
+    <div class="card">
+      <div class="spread"><span>Fee for a <span id="a5-what">land check, Standard</span></span><span class="big-money" id="a5-fee">USD 450.00</span></div>
+      <p class="small muted" id="a5-guide" style="margin:0">About GBP 355.50 (guide only, sample rate)</p>
+    </div>
+    <div id="pay-error" class="alert error" hidden role="alert"><svg class="icon" aria-hidden="true"><use href="#i-red"/></svg><p><strong>Error: your bank declined the card.</strong> Nothing was charged. Try again, use another card, or pay by mobile money. Your order is saved.</p></div>
+    <fieldset>
+      <legend>How do you want to pay?</legend>
+      <label class="rcard"><input type="radio" name="pm" value="card" checked><span class="r-body"><span class="r-title">Card</span><span class="small muted">Charged in US dollars</span></span></label>
+      <label class="rcard"><input type="radio" name="pm" value="momo"><span class="r-body"><span class="r-title"><span>Mobile money</span><span class="money" id="a5-ghs">GHS 6,975.00</span></span><span class="small muted">Charged in cedis</span></span></label>
+    </fieldset>
+    <div id="card-form" class="card" aria-label="Card details">
+      <p class="small muted">In the real product, the payment provider's secure form loads here. Fidero never stores card numbers.</p>
+      <div class="field"><label for="cardno">Card number</label><input id="cardno" type="text" inputmode="numeric" value="0000 0000 0000 0000" autocomplete="off"></div>
+      <div class="row"><div class="field" style="flex:1"><label for="exp">Expiry</label><input id="exp" type="text" value="12 / 29" autocomplete="off"></div><div class="field" style="flex:1"><label for="cvc">Security code</label><input id="cvc" type="text" value="000" autocomplete="off"></div></div>
+    </div>
+    <div id="momo-form" class="card" hidden>
+      <div class="field"><label for="momotel">Mobile money number</label><input id="momotel" type="tel" value="+233 24 000 0000"></div>
+      <p class="small muted">We will send a prompt to this phone. Approve it to pay.</p>
+    </div>
+    <button class="btn btn-primary block" id="pay-btn">Pay USD 450.00</button>
+    <p id="pay-live" class="small muted" role="status" aria-live="polite" style="margin-top:var(--space-2)"></p>
+    <div class="alert info" style="margin-top:var(--space-4)"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg><p>This page is only for Fidero's fee. We never take money for the land. Land money goes to a licensed bank.</p></div>
+    <div class="proto-note"><strong>Prototype:</strong> try the error state. <br><button class="btn btn-secondary small" id="sim-decline">Simulate a declined card</button></div>
+  </section>
+
+  <!-- A6 Payment result -->
+  <section class="screen" id="a6" data-flow="A" data-tab="orders" aria-labelledby="a6h" hidden>
+    <div class="alert success"><svg class="icon lg" aria-hidden="true"><use href="#i-green"/></svg><div><h1 id="a6h" tabindex="-1" style="margin-bottom:var(--space-1)">Payment received</h1><p>Thank you, Ama. Your case reference is <strong class="mono">FID-2027-0142</strong>.</p></div></div>
+    <div class="card">
+      <h2>Receipt</h2>
+      <dl class="kv">
+        <dt>Paid</dt><dd class="money" id="a6-amt">USD 450.00</dd>
+        <dt>For</dt><dd id="a6-for">Land check, Standard</dd>
+        <dt>When</dt><dd><time datetime="2027-03-03T09:41Z">3 March 2027, 09:41 GMT</time> <span class="muted small">(09:41 in London)</span></dd>
+        <dt>Receipt</dt><dd class="mono">R-2027-0142-1</dd>
+      </dl>
+      <p class="small muted" style="margin-top:var(--space-3)">We have emailed this receipt to ama.mensah@example.com.</p>
+    </div>
+    <h2>What happens next</h2>
+    <ol class="small">
+      <li>A case manager accepts your case within 1 working day (sample target).</li>
+      <li>We lodge searches at the Lands Commission and book the site visit.</li>
+      <li>You see every step, with dates, on your case page.</li>
+    </ol>
+    <button class="btn btn-primary block" data-go="a7">See my case</button>
+  </section>
+
+  <!-- A7 Case tracker -->
+  <section class="screen" id="a7" data-flow="A" data-tab="orders" aria-labelledby="a7h" hidden>
+    <a href="#home" class="back" data-toast="Home is not part of this prototype."><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Home</a>
+    <h1 id="a7h" tabindex="-1">Plot 14, Kasoa Millennium City</h1>
+    <p class="ref">Land check · FID-2027-0142</p>
+    <div class="status" role="status"><span class="now">Now</span><p>Searches lodged at the Lands Commission on 12 March. Results expected by 2 April.</p></div>
+    <div class="card" id="req-card">
+      <h2 class="spread" style="font-size:var(--text-lg)"><span>We need one thing from you</span><span class="pill" id="req-pill">Due 20 March</span></h2>
+      <p id="req-text">A copy of the seller's ID. Ask the seller for it and upload it here.</p>
+      <label class="legend" for="req-file" id="req-label">Upload the seller's ID</label>
+      <input id="req-file" type="file">
+    </div>
+    <div class="card">
+      <h2>Timeline</h2>
+      <ol class="timeline">
+        <li class="done"><span class="dot"><svg class="icon" aria-hidden="true"><use href="#i-tick"/></svg></span><span>Order paid<span class="state">Done</span></span><span class="when"><time datetime="2027-03-03">3 Mar</time></span></li>
+        <li class="done"><span class="dot"><svg class="icon" aria-hidden="true"><use href="#i-tick"/></svg></span><span>Case accepted<span class="state">Done</span></span><span class="when">4 Mar</span></li>
+        <li class="done"><span class="dot"><svg class="icon" aria-hidden="true"><use href="#i-tick"/></svg></span><span>Searches lodged at the Lands Commission<span class="state">Done</span></span><span class="when">12 Mar</span></li>
+        <li class="current"><span class="dot"></span><span>Surveyor's site visit<span class="state">Planned</span></span><span class="when">18 Mar</span></li>
+        <li><span class="dot"></span><span>Map checks<span class="state">Expected</span></span><span class="when">20 Mar</span></li>
+        <li><span class="dot"></span><span>Consent meeting with the family<span class="state">Expected</span></span><span class="when">27 Mar</span></li>
+        <li><span class="dot"></span><span>Search results<span class="state">Expected</span></span><span class="when">2 Apr</span></li>
+        <li><span class="dot"></span><span>Lawyer's review<span class="state">Expected</span></span><span class="when">7 Apr</span></li>
+        <li><span class="dot"></span><span>Report ready<span class="state">Expected</span></span><span class="when">10 Apr</span></li>
+      </ol>
+    </div>
+    <div class="row"><button class="btn btn-secondary" data-toast="Messages are not part of this prototype.">Message Fidero</button><a href="#a6" data-go="a6">See receipt</a></div>
+    <div class="proto-note"><strong>Prototype:</strong> skip ahead five weeks to the released report.<br><button class="btn btn-secondary small" data-go="a8">Report released (10 April)</button></div>
+  </section>
+
+  <!-- A8 Report viewer -->
+  <section class="screen" id="a8" data-flow="A" data-tab="orders" aria-labelledby="a8h" hidden>
+    <a href="#a7" class="back" data-go="a7"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Case FID-2027-0142</a>
+    <h1 id="a8h" tabindex="-1">Your report</h1>
+    <p class="ref">Plot 14, Kasoa Millennium City · Version 1 · released 10 April 2027</p>
+    <div class="verdict-hero amber">
+      <svg class="icon" aria-hidden="true"><use href="#i-amber"/></svg>
+      <div><span class="word"><span class="sr-only">Verdict: </span>AMBER</span>
+        <p><strong>Issues found that can be fixed before purchase.</strong> Do not pay the seller until they are fixed.</p></div>
+    </div>
+    <div class="card">
+      <h2>Why</h2>
+      <ul><li>Two corner pillars are missing. The rest of the boundary matches the site plan.</li><li>The family has promised consent but it is not yet recorded.</li></ul>
+      <h2>Before you pay</h2>
+      <ul class="conds">
+        <li><span class="c-open"><svg class="icon" aria-hidden="true"><use href="#i-circle"/></svg></span><span>Surveyor re-sets the two missing pillars<span class="meta">Evidence: photos and coordinates</span></span></li>
+        <li><span class="c-open"><svg class="icon" aria-hidden="true"><use href="#i-circle"/></svg></span><span>Consent meeting recorded on video with the family head<span class="meta">Evidence: signed form and video</span></span></li>
+      </ul>
+      <p class="small" style="margin-top:var(--space-3)">Paying into escrow is safe. The bank holds the money. The seller is paid only when every condition is closed.</p>
+    </div>
+    <div class="card">
+      <h2>Section verdicts</h2>
+      <table>
+        <caption class="sr-only">Verdict for each section of the report</caption>
+        <thead><tr><th scope="col">Section</th><th scope="col">Verdict</th></tr></thead>
+        <tbody>
+          <tr><td>4. Plot identity</td><td><span class="verdict v-amber"><svg class="icon" aria-hidden="true"><use href="#i-amber"/></svg>AMBER</span></td></tr>
+          <tr><td>5. Lands Commission searches</td><td><span class="verdict v-green"><svg class="icon" aria-hidden="true"><use href="#i-green"/></svg>GREEN</span></td></tr>
+          <tr><td>6. Surveyor's report</td><td><span class="verdict v-green"><svg class="icon" aria-hidden="true"><use href="#i-green"/></svg>GREEN</span></td></tr>
+          <tr><td>7. Map (overlay) checks</td><td><span class="verdict v-green"><svg class="icon" aria-hidden="true"><use href="#i-green"/></svg>GREEN</span></td></tr>
+          <tr><td>8. Seller's authority and consent</td><td><span class="verdict v-amber"><svg class="icon" aria-hidden="true"><use href="#i-amber"/></svg>AMBER</span></td></tr>
+          <tr><td>9. Chain of ownership</td><td><span class="verdict v-green"><svg class="icon" aria-hidden="true"><use href="#i-green"/></svg>GREEN</span></td></tr>
+          <tr><td>10. Occupation and ground</td><td><span class="verdict v-green"><svg class="icon" aria-hidden="true"><use href="#i-green"/></svg>GREEN</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Signed by</h2>
+      <dl class="kv">
+        <dt>Lawyer</dt><dd>Adwoa Darko · licence GBA-1234 (sample)</dd>
+        <dt>Surveyor</dt><dd>Edem Tetteh · licence LS-0567 (sample)</dd>
+        <dt>Reviewer</dt><dd>Kofi Boateng, Fidero</dd>
+      </dl>
+    </div>
+    <div class="card">
+      <h2>The report file</h2>
+      <button class="btn btn-primary block" id="dl-sample"><svg class="icon" aria-hidden="true"><use href="#i-doc"/></svg>Download report (sample file)</button>
+      <p class="small muted" style="margin-top:var(--space-2)">In the real product this is a PDF of about 1.2 MB. The prototype gives you a small sample text file so you can try the check below.</p>
+      <h3 style="margin-top:var(--space-4)">Fingerprint (SHA-256)</h3>
+      <p class="small">Every released report has a fingerprint. If even one character in the file changes, the fingerprint changes.</p>
+      <div class="hash" id="hash-show">computing…</div>
+      <button class="btn btn-quiet small" id="copy-hash"><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg>Copy fingerprint</button>
+      <h3 style="margin-top:var(--space-4)">Check a file</h3>
+      <p class="small">Choose the report file. We work out its fingerprint on your device. The file is not uploaded.</p>
+      <label for="hash-file" class="legend">Report file</label>
+      <input type="file" id="hash-file">
+      <div class="row" style="margin-top:var(--space-2)"><button class="btn btn-secondary small" id="hash-sample">Use the sample report</button></div>
+      <div id="hash-result" role="status" aria-live="polite" style="margin-top:var(--space-3)"></div>
+    </div>
+    <button class="btn btn-primary block" data-go="b1">Buy through escrow</button>
+    <p class="small muted" style="margin-top:var(--space-2)">Escrow is offered on green and amber reports. A licensed bank holds the money.</p>
+  </section>
+
+  <!-- B1 Escrow tracker -->
+  <section class="screen" id="b1" data-flow="B" data-tab="escrow" aria-labelledby="b1h" hidden>
+    <a href="#a8" class="back" data-go="a8"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Report</a>
+    <h1 id="b1h" tabindex="-1">Escrow for Plot 14, Kasoa</h1>
+    <p class="ref">ESC-2027-0031 · held by Partner Bank (sample)</p>
+    <div class="status" role="status"><span class="now">Now</span><p id="esc-status"></p></div>
+    <div id="esc-frozen" class="alert locked" hidden><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg><p><strong>Release frozen.</strong> A dispute was opened on 6 May. No money can move until it is decided.</p></div>
+    <div class="card">
+      <h2>Money at the bank</h2>
+      <div class="spread"><span class="big-money">USD 18,000.00</span><span class="pill">Deposit confirmed 22 Apr</span></div>
+      <p class="held" style="margin:var(--space-2) 0 0"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg>Your money is held by Partner Bank, not by Fidero.</p>
+      <button class="btn btn-quiet small" data-go="b2">See the bank's payment details</button>
+    </div>
+    <div class="card">
+      <h2 class="spread"><span>Conditions</span><span class="pill" id="cond-count">3 of 4 closed</span></h2>
+      <ul class="conds" id="cond-list">
+        <li><span class="c-done"><svg class="icon" aria-hidden="true"><use href="#i-green"/></svg></span><span>Two missing pillars re-set by the surveyor<span class="meta">Closed 25 Apr · photos and coordinates</span></span></li>
+        <li><span class="c-done"><svg class="icon" aria-hidden="true"><use href="#i-green"/></svg></span><span>Family consent recorded on video<span class="meta">Closed 28 Apr · signed form and video</span></span></li>
+        <li><span class="c-done"><svg class="icon" aria-hidden="true"><use href="#i-green"/></svg></span><span>Indenture signed by the seller and family head<span class="meta">Closed 30 Apr · signed indenture</span></span></li>
+        <li id="cond4"></li>
+      </ul>
+      <div class="sum-row" style="margin-top:var(--space-2)"><span><svg class="icon gate-ok" aria-hidden="true"><use href="#i-green"/></svg> Fresh search and site check</span><span class="small">Done 2 May · in date</span></div>
+    </div>
+    <div class="card">
+      <h2 class="spread"><span>Release approvals</span><span class="pill primary" id="appr-count">0 of 2</span></h2>
+      <ul class="conds" id="appr-list"></ul>
+      <p class="small muted" style="margin:var(--space-2) 0 0">Two different Fidero staff must approve. Then the bank pays the seller and confirms. You cannot release money alone, and nor can anyone else.</p>
+    </div>
+    <div class="proto-note" id="b1-proto"><strong>Prototype:</strong> <span id="b1-proto-text">close the last condition and watch the release become ready.</span><br>
+      <button class="btn btn-secondary small" id="close-cond">Seller's tax clearance arrives (6 May)</button>
+      <button class="btn btn-secondary small" data-go="c1" id="to-c1" hidden>Go to the back office (flow C)</button>
+    </div>
+  </section>
+
+  <!-- B2 Bank instructions -->
+  <section class="screen" id="b2" data-flow="B" data-tab="escrow" aria-labelledby="b2h" hidden>
+    <a href="#b1" class="back" data-go="b1"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Escrow ESC-2027-0031</a>
+    <h1 id="b2h" tabindex="-1">Pay the purchase price to the bank</h1>
+    <div class="alert info"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg><p><strong>These are the bank's details, not Fidero's.</strong> Fidero never asks you to pay land money to Fidero.</p></div>
+    <div class="card">
+      <dl class="kv">
+        <dt>Bank</dt><dd>Partner Bank (SAMPLE)</dd>
+        <dt>Account name</dt><dd>Escrow account (SAMPLE)</dd>
+        <dt>Account number</dt><dd class="mono">0000 0000 0000</dd>
+        <dt>SWIFT</dt><dd class="mono">XXXXGHAC</dd>
+        <dt>Reference</dt><dd class="mono">ESC-2027-0031</dd>
+        <dt>Amount</dt><dd class="money">USD 18,000.00</dd>
+      </dl>
+    </div>
+    <p>Always use the reference. Without it the bank cannot match your payment.</p>
+    <div class="alert error"><svg class="icon" aria-hidden="true"><use href="#i-red"/></svg><p><strong>Warning:</strong> if anyone sends you different details, by email, WhatsApp or phone, do not pay. Call Fidero first.</p></div>
+  </section>
+
+  <!-- D1 Listings search -->
+  <section class="screen" id="d1" data-flow="D" data-tab="" aria-labelledby="d1h" hidden>
+    <h1 id="d1h" tabindex="-1">Verified listings</h1>
+    <p class="small muted">Every listing here passed Fidero's checks. Prices are set by sellers. All listings are samples.</p>
+    <div class="field"><label for="q">Search by place</label><input id="q" type="text" placeholder="Tema, East Legon, Kasoa…" autocomplete="off"></div>
+    <div class="field"><label for="ltype">Type</label><select id="ltype" class="input"><option value="">All types</option><option value="plot">Plots</option><option value="house">Houses</option></select></div>
+    <div class="tabs" role="group" aria-label="View">
+      <button type="button" id="tab-list" aria-pressed="true">List</button>
+      <button type="button" id="tab-map" aria-pressed="false">Map and list</button>
+    </div>
+    <div id="panel-map" hidden>
+      <svg viewBox="0 0 340 200" class="map" role="img" aria-labelledby="lmapcap">
+        <rect style="fill:var(--color-surface-2)" width="340" height="200"/>
+        <path style="fill:var(--color-info-bg);stroke:var(--color-info)" d="M0 150 C70 140 140 170 210 150 S320 130 340 140 V200 H0z"/>
+        <text style="fill:var(--color-text-muted)" x="250" y="185" font-size="11">Gulf of Guinea</text>
+        <g id="pins"></g>
+      </svg>
+      <p id="lmapcap" class="small muted">Map of the listings below, numbered to match the list. Zoom and pan use buttons in the real product.</p>
+    </div>
+    <div id="panel-list"></div>
+    <p id="l-count" class="small muted" role="status" aria-live="polite"></p>
+    <div class="proto-note"><strong>Prototype:</strong> expired listings never appear in search. To see how a direct link to one looks:<br><button class="btn btn-secondary small" id="see-expired">Open an expired listing</button></div>
+  </section>
+
+  <!-- D2 Listing detail -->
+  <section class="screen" id="d2" data-flow="D" data-tab="" aria-labelledby="d2h" hidden>
+    <a href="#d1" class="back" data-go="d1"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Listings</a>
+    <div class="ph tall" role="img" aria-label="Photo placeholder for the listing">Photo placeholder</div>
+    <h1 id="d2h" tabindex="-1"></h1>
+    <p class="big-money" id="d2-price"></p>
+    <div id="d2-badge"></div>
+    <div class="card">
+      <h2>Seller</h2>
+      <p id="d2-seller" style="margin:0"></p>
+    </div>
+    <div class="alert info"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg><p>Before you pay, Fidero runs a fresh search and site check. Your money is held by a licensed bank until every condition is closed.</p></div>
+    <div class="actions" id="d2-actions"></div>
+  </section>
+
+  <!-- E1 Build dashboard -->
+  <section class="screen" id="e1" data-flow="E" data-tab="build" aria-labelledby="e1h" hidden>
+    <h1 id="e1h" tabindex="-1">House on Plot 14, Kasoa</h1>
+    <p class="ref">Build BLD-2027-0007 · contractor: Sample Builders Ltd</p>
+    <div class="status" role="status"><span class="now">Now</span><p id="e1-status">Blocks passed inspection on 14 August with 1 defect. Waiting for your approval by 21 August.</p></div>
+    <div class="card">
+      <h2>Budget</h2>
+      <div class="spread"><span>Planned</span><span class="money">USD 42,000.00</span></div>
+      <div class="bar" role="img" aria-label="30 percent of the budget released"><span style="width:30%"></span></div>
+      <div class="spread small"><span>Released to contractor</span><span class="money">USD 12,600.00 (30%)</span></div>
+      <div class="spread small"><span>Held at Partner Bank</span><span class="money">USD 29,400.00</span></div>
+      <p class="held" style="margin:var(--space-2) 0 0"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg>Held by Partner Bank, not by Fidero.</p>
+    </div>
+    <div class="card">
+      <h2>Milestones</h2>
+      <ul class="ms">
+        <li><svg class="icon gate-ok" aria-hidden="true"><use href="#i-green"/></svg><span>0. Mobilisation<span class="meta muted small" style="display:block">Paid</span></span><span class="small muted">2 Jun</span></li>
+        <li><svg class="icon gate-ok" aria-hidden="true"><use href="#i-green"/></svg><span>1. Foundation<span class="small muted" style="display:block">Passed, paid</span></span><span class="small muted">9 Jul</span></li>
+        <li><svg class="icon" style="color:var(--verdict-amber-fg)" aria-hidden="true"><use href="#i-amber"/></svg><span>2. Blocks<span class="small muted" style="display:block" id="ms2-state">Passed with 1 defect · needs your approval</span></span><span class="small muted">14 Aug</span></li>
+        <li><svg class="icon muted" aria-hidden="true"><use href="#i-circle"/></svg><span>3. Lintel<span class="small muted" style="display:block">Not started</span></span><span class="small muted">–</span></li>
+        <li><svg class="icon muted" aria-hidden="true"><use href="#i-circle"/></svg><span>4. Roof<span class="small muted" style="display:block">Not started</span></span><span class="small muted">–</span></li>
+        <li><svg class="icon muted" aria-hidden="true"><use href="#i-circle"/></svg><span>5. Finishing<span class="small muted" style="display:block">Not started</span></span><span class="small muted">–</span></li>
+        <li><svg class="icon muted" aria-hidden="true"><use href="#i-circle"/></svg><span>6. Handover and retention<span class="small muted" style="display:block">Not started</span></span><span class="small muted">–</span></li>
+      </ul>
+    </div>
+    <div class="card" id="approve-card">
+      <h2>Approve milestone 2: Blocks</h2>
+      <p class="small">Inspector P. Quaye (sample), 14 August: <strong>pass with defects</strong>. 1 defect: crumbling blocks on the east wall.</p>
+      <div class="sum-row"><span>Agreed price</span><span class="money">GHS 98,000.00</span></div>
+      <div class="sum-row"><span>Re-priced today<br><span class="small muted">Cement price guide rose. Source: sample price guide, 12 Aug</span></span><span class="money">GHS 101,500.00<br><span class="small muted">+GHS 3,500.00 (+3.6%)</span></span></div>
+      <div class="sum-row"><span>Defect value held back</span><span class="money">−GHS 2,400.00</span></div>
+      <div class="total"><span>To pay now</span><span class="money">GHS 99,100.00</span></div>
+      <p class="small muted">About USD 6,394 (guide only, sample rate)</p>
+      <div class="check"><input type="checkbox" id="seen-price"><label for="seen-price">I have seen the new price</label></div>
+      <div class="field"><label for="client-code">Code sent to your phone</label><span class="hint" id="cc-hint">Any 6 digits work in this prototype.</span><input id="client-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-describedby="cc-hint"></div>
+      <p id="approve-err" class="field-error" hidden role="alert"></p>
+      <button class="btn btn-primary block" id="approve-ms">Approve this milestone</button>
+      <div class="row" style="margin-top:var(--space-2)"><button class="btn btn-quiet small" data-toast="Questions go to your case manager. Not part of this prototype.">Question it</button><button class="btn btn-quiet small" data-toast="Opening a dispute freezes this payment (RUL-15). Not part of this prototype.">Open a dispute</button></div>
+      <p class="small muted">After you approve, two Fidero staff approve and the bank pays the contractor. Your approval alone does not release money.</p>
+    </div>
+    <div class="card">
+      <h2>Photo timeline</h2>
+      <h3 class="small muted">Blocks · captured 12 to 13 Aug</h3>
+      <div class="photos">
+        <figure><div class="ph" role="img" aria-label="Photo placeholder: north wall at lintel level, 12 August 10:02 GMT, on plot, captured in app">North wall</div><figcaption>12 Aug 10:02 · on plot</figcaption></figure>
+        <figure><div class="ph" role="img" aria-label="Photo placeholder: east wall close-up of joints, 12 August 10:05 GMT, on plot, captured in app">East wall joints</div><figcaption>12 Aug 10:05 · on plot</figcaption></figure>
+        <figure><div class="ph" role="img" aria-label="Photo placeholder: window opening with tape measure, 12 August 10:11 GMT, on plot, captured in app">Window + tape</div><figcaption>12 Aug 10:11 · on plot</figcaption></figure>
+        <figure><div class="ph" role="img" aria-label="Video placeholder: walk around inside and outside, 13 August 09:40 GMT, on plot, captured in app">▶ Video 0:48</div><figcaption>13 Aug 09:40 · on plot</figcaption></figure>
+      </div>
+      <h3 class="small muted">Foundation · captured 1 to 4 Jul</h3>
+      <div class="photos">
+        <figure><div class="ph" role="img" aria-label="Photo placeholder: trench with tape measure, 1 July, on plot, captured in app">Trench + tape</div><figcaption>1 Jul · on plot</figcaption></figure>
+        <figure><div class="ph" role="img" aria-label="Photo placeholder: reinforcement before concrete, 2 July, on plot, captured in app">Reinforcement</div><figcaption>2 Jul · on plot</figcaption></figure>
+        <figure><div class="ph" role="img" aria-label="Photo placeholder: cured foundation, 4 July, on plot, captured in app">Cured</div><figcaption>4 Jul · on plot</figcaption></figure>
+      </div>
+      <p class="small muted" style="margin:0">All photos were taken with the Fidero app on site. Small previews load first; tap for a larger image.</p>
+    </div>
+  </section>
+</div>
+
+<!-- ================= BACK OFFICE ================= -->
+<div id="bo" class="shell wide" hidden>
+  <div class="bo-top">
+    <a class="logo" href="#c1" data-go="c1"><svg aria-hidden="true"><use href="#logo"/></svg>Fidero <span class="small muted" style="font-weight:400">back office</span></a>
+    <nav aria-label="Back office"><ul class="bo-nav">
+      <li><a href="#c1" data-toast="Not part of this prototype.">My work</a></li>
+      <li><a href="#c1" data-toast="Not part of this prototype.">Cases</a></li>
+      <li><a href="#c1" aria-current="page">Escrow</a></li>
+      <li><a href="#c1" data-toast="Not part of this prototype.">Reports</a></li>
+      <li><a href="#c1" data-toast="Not part of this prototype.">Admin</a></li>
+    </ul></nav>
+    <span class="small muted" style="margin-left:auto" id="bo-who">Abena Owusu · reviewer</span>
+  </div>
+
+  <section class="screen" id="c1" data-flow="C" aria-labelledby="c1h" hidden>
+    <div class="spread"><h1 id="c1h" tabindex="-1">Release approval</h1><span class="pill primary" id="c1-state">Ready to release</span></div>
+    <p class="ref">ESC-2027-0031 · Plot 14, Kasoa Millennium City · client Ama M.</p>
+    <div class="payline">Pay <span class="money">USD 18,000.00</span> from escrow at Partner Bank to Kofi Asante (seller), account ending 4471.</div>
+    <div class="bo-grid">
+      <div>
+        <div class="card">
+          <h2>Gates <span class="small muted" style="font-weight:400">(all must pass)</span></h2>
+          <ul class="gates" id="gates"></ul>
+        </div>
+        <div class="slots">
+          <div class="slot filled" id="slot1">
+            <h3>Approval 1 of 2</h3>
+            <p style="margin:0"><svg class="icon gate-ok" aria-hidden="true"><use href="#i-green"/></svg> <strong>Kofi Boateng</strong>, reviewer</p>
+            <p class="small muted" style="margin:0">6 May 2027, 15:20 GMT · code verified</p>
+          </div>
+          <div class="slot" id="slot2"></div>
+        </div>
+        <p class="small muted" style="margin-top:var(--space-3)">After approval 2, the instruction is signed by both approvers and sent to the bank. Status becomes "Release approved", then "Released" when the bank confirms.</p>
+      </div>
+      <aside>
+        <div class="card">
+          <h2>Evidence</h2>
+          <ul class="small" style="padding-left:18px;margin:0">
+            <li><a href="#c1" data-toast="Evidence viewer not part of this prototype.">Pillars: 8 photos, coordinates</a></li>
+            <li><a href="#c1" data-toast="Evidence viewer not part of this prototype.">Consent: form and video (27 Apr)</a></li>
+            <li><a href="#c1" data-toast="Evidence viewer not part of this prototype.">Indenture (signed 30 Apr)</a></li>
+            <li><a href="#c1" data-toast="Evidence viewer not part of this prototype.">Tax clearance (6 May)</a></li>
+            <li><a href="#c1" data-toast="Evidence viewer not part of this prototype.">Fresh search result (2 May)</a></li>
+            <li><a href="#c1" data-toast="Evidence viewer not part of this prototype.">Bank deposit confirmation (22 Apr)</a></li>
+          </ul>
+        </div>
+        <div class="proto-note" style="margin-top:0">
+          <strong>Prototype controls</strong>
+          <fieldset style="margin:var(--space-2) 0">
+            <legend class="small">View this screen as</legend>
+            <label class="check small"><input type="radio" name="viewas" value="abena" checked> Abena Owusu (would give approval 2)</label>
+            <label class="check small"><input type="radio" name="viewas" value="kofi"> Kofi Boateng (gave approval 1)</label>
+          </fieldset>
+          <label class="check small"><input type="checkbox" id="sim-dispute"> Simulate: a dispute is opened</label>
+          <button class="btn btn-secondary small" id="c1-close-cond" hidden>Close the last condition now</button>
+          <button class="btn btn-secondary small" id="reset-c">Reset this flow</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+</div>
+
+<!-- ================= ANDROID APP (phone frame) ================= -->
+<div id="mob" class="shell wide" hidden>
+  <section class="screen" id="f1" data-flow="F" aria-labelledby="f1h" hidden>
+    <h1 id="f1h" tabindex="-1">Android milestone app: contractor submission</h1>
+    <p class="small muted">Phone-frame mock. The real app is native Android (Kotlin and Jetpack Compose). Shown in HTML for review only. Screens SCR-MOB-04, 07 and 08.</p>
+    <div class="phone-wrap">
+      <div class="phone" aria-label="Android phone mock">
+        <div class="p-status" aria-hidden="true"><span>10:24</span><span id="p-signal">No signal · 41%</span></div>
+        <div class="p-banner offline" id="p-banner" role="status" aria-live="polite"></div>
+        <div class="p-appbar"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg><span id="p-title">Foundation · House, Kasoa</span></div>
+        <div class="p-body" id="p-body"></div>
+        <div class="camera" id="camera" hidden>
+          <div><div class="viewfinder"><svg class="icon lg" aria-hidden="true"><use href="#i-camera"/></svg></div>
+          <p>Camera (Fidero app only)<br>Position: on plot, ±6 m</p></div>
+        </div>
+        <nav class="p-nav" aria-label="App">
+          <button type="button" id="p-jobs" aria-current="true">Jobs</button>
+          <button type="button" id="p-queue">Queue (<span id="p-qcount">0</span>)</button>
+          <button type="button" data-toast="Account screen not part of this prototype.">Account</button>
+        </nav>
+      </div>
+      <div class="side-panel">
+        <div class="proto-note" style="margin-top:0">
+          <strong>Prototype controls</strong>
+          <p class="small" style="margin:var(--space-2) 0">The phone starts with no signal. Capture the missing item, submit, then go online and watch the queue send.</p>
+          <button class="btn btn-secondary small" id="net-toggle" aria-pressed="false">Go online</button>
+          <button class="btn btn-secondary small" id="reset-f">Reset</button>
+        </div>
+        <div class="card small">
+          <h2 style="font-size:var(--text-lg)">Rules shown here</h2>
+          <ul style="padding-left:18px;margin:0">
+            <li>Camera only. No gallery (RUL-08, FR-MOB-002).</li>
+            <li>Submit stays disabled until every required item is captured (FR-MOB-006).</li>
+            <li>Queue survives closing the app or a restart (FR-MOB-005).</li>
+            <li>Originals stay on the phone until Fidero confirms receipt (FR-MOB-008).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+</main>
+
+<nav class="tabbar" id="tabbar" aria-label="Main">
+  <ul>
+    <li><a href="#home" data-tabname="home" data-toast="Home is not part of this prototype."><svg class="icon" aria-hidden="true"><use href="#i-home"/></svg>Home</a></li>
+    <li><a href="#a7" data-tabname="orders" data-go="a7"><svg class="icon" aria-hidden="true"><use href="#i-list"/></svg>Orders</a></li>
+    <li><a href="#b1" data-tabname="escrow" data-go="b1"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg>Escrow</a></li>
+    <li><a href="#e1" data-tabname="build" data-go="e1"><svg class="icon" aria-hidden="true"><use href="#i-build"/></svg>Build</a></li>
+    <li><a href="#acct" data-tabname="account" data-toast="Account is not part of this prototype."><svg class="icon" aria-hidden="true"><use href="#i-user"/></svg>Account</a></li>
+  </ul>
+</nav>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<dialog id="report-dlg" aria-labelledby="rdh">
+  <div class="dlg">
+    <h2 id="rdh">Full report (summary)</h2>
+    <div class="verdict-hero green" style="margin-bottom:var(--space-3)">
+      <svg class="icon" aria-hidden="true"><use href="#i-green"/></svg>
+      <div><span class="word" style="font-size:var(--text-2xl)"><span class="sr-only">Verdict: </span>GREEN</span><p>No material issue found within scope. You may proceed, subject to the conditions listed.</p></div>
+    </div>
+    <p class="small" id="rd-meta"></p>
+    <p class="small muted">In the real product this opens the full report with every section, signature and appendix (RUL-14).</p>
+    <form method="dialog"><button class="btn btn-primary">Close</button></form>
+  </div>
+</dialog>
+
+<script>
+(function(){
+  'use strict';
+  /* ---------- Sample data (all samples) ---------- */
+  var PRICES = { land:{standard:450, rush:600}, building:{standard:550, rush:750} };
+  var RATES = { USD:1, GBP:0.79, EUR:0.92, CAD:1.37, GHS:15.5 }; // sample guide rates only
+  var SAMPLE_REPORT = 'FIDERO SAMPLE REPORT\nReference FID-2027-0142\nVersion 1\nReleased 10 April 2027\nThis is sample data for a prototype. It is not a real report.\n';
+  var SAMPLE_HASH = '3a8edd728e24409facc451b8c0e63af6d3e18c29b03aa91dd2bc3bc63b1b264f';
+  var LISTINGS = [
+    {id:1, type:'plot', title:'Plot, 100 x 70 ft (about 650 m²)', place:'Community 25, Tema', price:'USD 24,000', checked:'3 June 2027', until:'1 September 2027', seller:'Sample Estates Ltd · 12 sales through Fidero, 0 disputes', x:255, y:95},
+    {id:2, type:'house', title:'2-bedroom house', place:'East Legon, Accra', price:'USD 145,000', checked:'18 May 2027', until:'16 August 2027', seller:'Sample Homes Ltd · 4 sales through Fidero, 0 disputes', x:205, y:70},
+    {id:3, type:'plot', title:'Plot, 50 x 100 ft (about 465 m²)', place:'Millennium City, Kasoa', price:'USD 9,500', checked:'25 May 2027', until:'23 August 2027', seller:'Sample Family Lands (developer account) · 2 sales, 0 disputes', x:110, y:110}
+  ];
+  var EXPIRED = {id:9, type:'plot', title:'Plot, 70 x 100 ft (about 650 m²)', place:'Oyarifa, Accra', price:'USD 18,500', checked:'12 February 2027', until:'13 May 2027', seller:'Sample Estates Ltd · 12 sales through Fidero, 0 disputes', expired:true};
+
+  var S = { line:'land', tier:'standard', cur:'USD', condClosed:false, appr2:false, bankDone:false, viewAs:'abena', dispute:false,
+            online:false, captured:false, submitted:false, queue:[], sending:false, view:'jobs', msApproved:false };
+
+  /* ---------- Helpers ---------- */
+  function $(s,r){return (r||document).querySelector(s);}
+  function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
+  function money(n,cur){return cur+' '+n.toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});}
+  function icon(id,cls){return '<svg class="icon '+(cls||'')+'" aria-hidden="true"><use href="#'+id+'"/></svg>';}
+  var toastT;
+  function toast(msg){var t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(function(){t.hidden=true;},4000);}
+
+  /* ---------- Theme ---------- */
+  var themeSel=$('#theme');
+  try{var saved=localStorage.getItem('fidero-proto-theme'); if(saved){themeSel.value=saved;}}catch(e){}
+  function applyTheme(){var v=themeSel.value; if(v==='system'){document.documentElement.removeAttribute('data-theme');}else{document.documentElement.setAttribute('data-theme',v);} try{localStorage.setItem('fidero-proto-theme',v);}catch(e){} }
+  themeSel.addEventListener('change',applyTheme); applyTheme();
+
+  /* ---------- Router ---------- */
+  var current=null;
+  function show(id,noFocus){
+    var el=document.getElementById(id); if(!el||!el.classList.contains('screen')) {id='a1'; el=document.getElementById('a1');}
+    $$('.screen').forEach(function(s){s.hidden=(s!==el);});
+    var flow=el.getAttribute('data-flow');
+    $('#portal').hidden = !/[ABDE]/.test(flow);
+    $('#bo').hidden = flow!=='C';
+    $('#mob').hidden = flow!=='F';
+    $('#tabbar').hidden = !/[ABE]/.test(flow);
+    $$('.flows button').forEach(function(b){b.setAttribute('aria-current', b.getAttribute('data-flow')===flow ? 'true':'false');});
+    var tab=el.getAttribute('data-tab');
+    $$('.tabbar a').forEach(function(a){ if(a.getAttribute('data-tabname')===tab){a.setAttribute('aria-current','page');}else{a.removeAttribute('aria-current');} });
+    current=id;
+    if(location.hash.slice(1)!==id){ try{history.replaceState(null,'','#'+id);}catch(e){} }
+    render();
+    window.scrollTo(0,0);
+    if(!noFocus){var h=el.querySelector('h1'); if(h){h.focus({preventScroll:true});}}
+  }
+  document.addEventListener('click',function(e){
+    var t=e.target.closest('[data-go],[data-toast]'); if(!t) return;
+    if(t.hasAttribute('data-go')){e.preventDefault(); show(t.getAttribute('data-go'));}
+    else if(t.hasAttribute('data-toast')){e.preventDefault(); toast(t.getAttribute('data-toast'));}
+  });
+  window.addEventListener('hashchange',function(){var h=location.hash.slice(1); if(h&&h!==current) show(h);});
+
+  /* ---------- Flow A: prices ---------- */
+  function fee(){return PRICES[S.line][S.tier];}
+  function lineLabel(){return (S.line==='land'?'Land check':'Building check')+', '+(S.tier==='standard'?'Standard':'Rush');}
+  function renderPrices(){
+    $$('[data-price]').forEach(function(el){
+      var usd=PRICES[S.line][el.getAttribute('data-price')];
+      el.textContent = S.cur==='USD' ? money(usd,'USD') : money(usd*RATES[S.cur],S.cur)+' (guide)';
+    });
+    var f=fee();
+    $('#guide-line').textContent = S.cur==='USD' ? 'Prices are samples. The final price is shown before you pay.' : 'You pay '+money(f,'USD')+' by card or '+money(f*RATES.GHS,'GHS')+' by mobile money. '+S.cur+' amounts are a guide only, at a sample rate.';
+    $('#sum-line').textContent = S.line==='land'?'Land check':'Building check';
+    $('#sum-tier').textContent = S.tier==='standard'?'Standard':'Rush';
+    $('#a4-total').textContent = money(f,'USD');
+    $('#a5-fee').textContent = money(f,'USD');
+    $('#a5-what').textContent = lineLabel().toLowerCase();
+    var g = S.cur==='USD'||S.cur==='GHS' ? 'GBP' : S.cur;
+    $('#a5-guide').textContent = 'About '+money(f*RATES[g],g)+' (guide only, sample rate)';
+    $('#a5-ghs').textContent = money(f*RATES.GHS,'GHS');
+    var momo = $('input[name=pm]:checked').value==='momo';
+    $('#pay-btn').textContent = 'Pay '+(momo?money(f*RATES.GHS,'GHS'):money(f,'USD'));
+    $('#a6-amt').textContent = momo?money(f*RATES.GHS,'GHS'):money(f,'USD');
+    $('#a6-for').textContent = lineLabel();
+  }
+  $$('input[name=line]').forEach(function(r){r.addEventListener('change',function(){S.line=r.value;renderPrices();});});
+  $$('input[name=tier]').forEach(function(r){r.addEventListener('change',function(){S.tier=r.value;renderPrices();});});
+  $('#cur').addEventListener('change',function(){S.cur=this.value;renderPrices();});
+
+  $('#files').addEventListener('change',function(){
+    var ul=$('#file-list'); ul.innerHTML='';
+    Array.prototype.forEach.call(this.files,function(f){
+      var li=document.createElement('li'); var mb=(f.size/1048576).toFixed(1);
+      li.innerHTML=icon('i-doc')+' ';
+      li.appendChild(document.createTextNode(f.name+' ('+mb+' MB) · '+(f.size>10485760?'too large: the limit is 10 MB (sample)':'ready')));
+      ul.appendChild(li);
+    });
+  });
+
+  /* A4 validation with error summary */
+  $('#a4-go').addEventListener('click',function(){
+    var a=$('#ok-scope').checked,b=$('#ok-terms').checked;
+    $('#err-scope').hidden=a; $('#err-terms').hidden=b;
+    $('#err-scope-li').hidden=a; $('#err-terms-li').hidden=b;
+    $('#ok-scope').setAttribute('aria-invalid',String(!a)); $('#ok-terms').setAttribute('aria-invalid',String(!b));
+    var box=$('#a4-errors');
+    if(a&&b){box.hidden=true; show('a5');}
+    else {box.hidden=false; box.focus();}
+  });
+  $$('#a4-errors a').forEach(function(l){l.addEventListener('click',function(e){e.preventDefault();var t=document.getElementById(l.getAttribute('href').slice(1));t.focus();});});
+
+  /* A5 pay */
+  $$('input[name=pm]').forEach(function(r){r.addEventListener('change',function(){
+    var momo=r.value==='momo'&&r.checked; $('#card-form').hidden=momo; $('#momo-form').hidden=!momo; renderPrices();
+  });});
+  var decline=false;
+  $('#sim-decline').addEventListener('click',function(){decline=true; toast('The next payment will be declined.');});
+  $('#pay-btn').addEventListener('click',function(){
+    var btn=this, momo=$('input[name=pm]:checked').value==='momo';
+    $('#pay-error').hidden=true;
+    btn.disabled=true; btn.textContent='Paying… do not close this page';
+    $('#pay-live').textContent = momo ? 'Approve the payment on your phone. We will wait for up to 10 minutes (sample).' : 'Contacting your bank.';
+    setTimeout(function(){
+      btn.disabled=false; renderPrices(); $('#pay-live').textContent='';
+      if(decline && !momo){decline=false; var e=$('#pay-error'); e.hidden=false; e.setAttribute('tabindex','-1'); e.focus(); return;}
+      show('a6');
+    }, momo?1800:1200);
+  });
+
+  /* A7 document request */
+  $('#req-file').addEventListener('change',function(){
+    if(!this.files.length) return;
+    $('#req-pill').textContent='Received';
+    $('#req-text').textContent='Thank you. We received the seller\'s ID on 14 March. Nothing else is needed from you right now.';
+    $('#req-label').hidden=true; $('#req-file').hidden=true;
+    toast('Uploaded. Your case manager has been told.');
+  });
+
+  /* A8 hash */
+  function groups(h){return h.replace(/(.{4})/g,'$1 ').trim();}
+  function sha256(buf){
+    if(window.crypto&&crypto.subtle&&crypto.subtle.digest){
+      return crypto.subtle.digest('SHA-256',buf).then(function(d){return Array.prototype.map.call(new Uint8Array(d),function(b){return ('0'+b.toString(16)).slice(-2);}).join('');});
+    }
+    return Promise.reject(new Error('no-crypto'));
+  }
+  $('#hash-show').textContent=groups(SAMPLE_HASH);
+  function showHashResult(h){
+    var ok=h===SAMPLE_HASH, r=$('#hash-result');
+    r.innerHTML = ok
+      ? '<div class="alert success">'+icon('i-green')+'<p><strong>Match.</strong> This file is report FID-2027-0142, version 1, released 10 April 2027. It has not been changed.</p></div>'
+      : '<div class="alert error">'+icon('i-red')+'<p><strong>No match.</strong> This file is not the released report, or it has been changed. Do not rely on it. Contact Fidero.</p></div>';
+    r.insertAdjacentHTML('beforeend','<p class="small muted">Fingerprint of your file: <span class="mono">'+groups(h)+'</span></p>');
+  }
+  function hashFail(){ $('#hash-result').innerHTML='<div class="alert info">'+icon('i-info')+'<p>Your browser cannot work out fingerprints here. Open the file over https, or use Fidero\'s check page.</p></div>'; }
+  $('#hash-file').addEventListener('change',function(){
+    var f=this.files[0]; if(!f) return;
+    $('#hash-result').textContent='Checking…';
+    f.arrayBuffer().then(sha256).then(showHashResult).catch(hashFail);
+  });
+  $('#hash-sample').addEventListener('click',function(){
+    $('#hash-result').textContent='Checking…';
+    sha256(new TextEncoder().encode(SAMPLE_REPORT)).then(showHashResult).catch(function(){showHashResult(SAMPLE_HASH);});
+  });
+  $('#copy-hash').addEventListener('click',function(){
+    var done=function(){toast('Fingerprint copied.');};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(SAMPLE_HASH).then(done,function(){toast('Copy did not work. Select the text instead.');});}
+    else toast('Copy did not work. Select the text instead.');
+  });
+  $('#dl-sample').addEventListener('click',function(){
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([SAMPLE_REPORT],{type:'text/plain'}));
+    a.download='FID-2027-0142-v1-SAMPLE.txt'; document.body.appendChild(a); a.click();
+    setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},500);
+    toast('Sample file downloaded. Choose it under "Check a file" to see a match.');
+  });
+
+  /* ---------- Flow B and C: escrow and approval ---------- */
+  function escrowState(){
+    if(S.dispute) return 'Frozen';
+    if(S.bankDone) return 'Released';
+    if(S.appr2) return 'Release approved';
+    if(S.condClosed) return 'Ready to release';
+    return 'Funded';
+  }
+  function renderEscrow(){
+    var st=escrowState();
+    var msg={
+      'Funded':'3 of 4 conditions closed. We are waiting for the seller\'s tax clearance, expected by 6 May. Fresh search done on 2 May.',
+      'Ready to release':'All 4 conditions closed. Fresh search done on 2 May. Release is waiting for a second Fidero approval.',
+      'Release approved':'Both Fidero approvals given on 7 May. The instruction went to Partner Bank at 11:02 GMT. Waiting for the bank to pay the seller.',
+      'Released':'Partner Bank paid the seller on 7 May at 11:05 GMT. Your purchase is complete.',
+      'Frozen':'A dispute was opened on 6 May. No money can move until it is decided. Decision due by 8 June.'
+    }[st];
+    $('#esc-status').textContent=msg;
+    $('#esc-frozen').hidden=st!=='Frozen';
+    $('#cond4').innerHTML = S.condClosed
+      ? '<span class="c-done">'+icon('i-green')+'</span><span>Seller\'s tax clearance<span class="meta">Closed 6 May · certificate</span></span>'
+      : '<span class="c-open">'+icon('i-clock')+'</span><span>Seller\'s tax clearance<span class="meta">Open · owner: seller\'s lawyer · expected by 6 May</span></span>';
+    $('#cond-count').textContent=(S.condClosed?4:3)+' of 4 closed';
+    var al=$('#appr-list'), n=0;
+    if(!S.condClosed){
+      al.innerHTML='<li><span class="c-open">'+icon('i-lock')+'</span><span>Approvals start when every condition is closed<span class="meta">Rule: no release while a condition is open</span></span></li>';
+    } else {
+      n=1+(S.appr2?1:0);
+      al.innerHTML='<li><span class="c-done">'+icon('i-green')+'</span><span>Approval 1: Kofi Boateng, reviewer<span class="meta">6 May 2027, 15:20 GMT</span></span></li>'+
+        (S.appr2?'<li><span class="c-done">'+icon('i-green')+'</span><span>Approval 2: Abena Owusu, reviewer<span class="meta">7 May 2027, 11:02 GMT</span></span></li>'
+               :'<li><span class="c-open">'+icon('i-circle')+'</span><span>Approval 2: waiting for a different person</span></li>')+
+        (S.bankDone?'<li><span class="c-done">'+icon('i-bank')+'</span><span>Partner Bank paid the seller<span class="meta">7 May 2027, 11:05 GMT · bank reference PB-SAMPLE-9921</span></span></li>':'');
+    }
+    $('#appr-count').textContent=n+' of 2';
+    $('#close-cond').hidden=S.condClosed;
+    $('#to-c1').hidden=!S.condClosed || S.appr2;
+    $('#b1-proto-text').textContent = !S.condClosed ? 'close the last condition and watch the release become ready.' : (S.appr2 ? 'the release has been approved in the back office. Check the status above.' : 'now give approval 2 in the back office.');
+  }
+  $('#close-cond').addEventListener('click',function(){S.condClosed=true; render(); toast('Condition closed with evidence. The release is ready for approval.');});
+
+  function gate(ok,text){return '<li>'+(ok?icon('i-green','gate-ok'):icon('i-red','gate-bad'))+'<span>'+(ok?'':'<strong>Blocked: </strong>')+text+'</span></li>';}
+  function renderApproval(){
+    var gatesOk = S.condClosed && !S.dispute;
+    $('#gates').innerHTML =
+      gate(S.condClosed, S.condClosed?'All 4 conditions closed with evidence':'1 condition open: seller\'s tax clearance (RUL-06)')+
+      gate(true,'Fresh search 2 May, inside the 14-day window [TO VERIFY] (RUL-07)')+
+      gate(!S.dispute, S.dispute?'Dispute DSP-2027-0004 is open. Release frozen (RUL-15)':'No open dispute')+
+      gate(true,'Deposit confirmed by the bank on 22 Apr: USD 18,000.00')+
+      gate(true,'Payee matches the escrow terms, version 1.0');
+    var st=escrowState();
+    $('#c1-state').textContent = st==='Funded' ? 'Blocked' : st;
+    $('#bo-who').textContent = S.viewAs==='kofi' ? 'Kofi Boateng · reviewer' : 'Abena Owusu · reviewer';
+    $('#c1-close-cond').hidden = S.condClosed;
+    var s2=$('#slot2'), h='<h3>Approval 2 of 2</h3>';
+    if(S.bankDone){
+      s2.className='slot filled';
+      s2.innerHTML=h+'<p style="margin:0">'+icon('i-green','gate-ok')+' <strong>Abena Owusu</strong>, reviewer</p><p class="small muted">7 May 2027, 11:02 GMT · code verified</p><div class="alert success" style="margin:0">'+icon('i-bank')+'<p><strong>Released.</strong> Partner Bank confirmed payment at 11:05 GMT. Reference PB-SAMPLE-9921. All parties have been told.</p></div>';
+    } else if(S.appr2){
+      s2.className='slot filled';
+      s2.innerHTML=h+'<p style="margin:0">'+icon('i-green','gate-ok')+' <strong>Abena Owusu</strong>, reviewer</p><p class="small muted">7 May 2027, 11:02 GMT · code verified</p><div class="alert info" style="margin:0 0 var(--space-3)">'+icon('i-info')+'<p>Instruction signed by both approvers and sent to Partner Bank at 11:02 GMT. Waiting for the bank to confirm.</p></div><button class="btn btn-secondary small" id="bank-ok">Prototype: bank confirms payment</button>';
+      $('#bank-ok').addEventListener('click',function(){S.bankDone=true; render(); toast('Bank confirmation recorded. Client, seller and staff notified.');});
+    } else if(!gatesOk){
+      s2.className='slot';
+      s2.innerHTML=h+'<div class="alert error" style="margin:0">'+icon('i-red')+'<p><strong>Release blocked.</strong> '+(S.dispute?'A dispute is open. No approval can be given until it is decided.':'1 condition is still open. Approval starts when every condition is closed.')+'</p></div>';
+    } else if(S.viewAs==='kofi'){
+      s2.className='slot';
+      s2.innerHTML=h+'<div class="alert locked" style="margin:0">'+icon('i-lock')+'<p>You gave approval 1. <strong>A different person must give approval 2</strong> (RUL-05).</p></div>';
+    } else {
+      s2.className='slot';
+      s2.innerHTML=h+'<p style="margin:0 0 var(--space-2)">You: <strong>Abena Owusu</strong>, reviewer</p>'+
+        '<div class="check small"><input type="checkbox" id="i-checked"><label for="i-checked">I checked the evidence for each condition myself</label></div>'+
+        '<div class="field"><label for="mfa">Code from your authenticator</label><span class="hint" id="mfa-hint">Any 6 digits work in this prototype.</span><input id="mfa" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-describedby="mfa-hint"></div>'+
+        '<p id="appr-err" class="field-error" role="alert" hidden></p>'+
+        '<button class="btn btn-primary block" id="approve-btn">Approve and send instruction</button>';
+      $('#approve-btn').addEventListener('click',function(){
+        var ok1=$('#i-checked').checked, ok2=/^\d{6}$/.test($('#mfa').value.trim()), err=$('#appr-err');
+        if(!ok1||!ok2){
+          err.hidden=false;
+          err.innerHTML=icon('i-red')+'Error: '+(!ok1?'tick the statement to confirm you checked the evidence. ':'')+(!ok2?'enter the 6-digit code.':'');
+          (!ok1?$('#i-checked'):$('#mfa')).focus(); return;
+        }
+        S.appr2=true; render(); toast('Approval 2 recorded. Instruction sent to Partner Bank.');
+        var s=$('#slot2'); s.setAttribute('tabindex','-1'); s.focus();
+      });
+    }
+  }
+  $$('input[name=viewas]').forEach(function(r){r.addEventListener('change',function(){S.viewAs=r.value; render();});});
+  $('#sim-dispute').addEventListener('change',function(){
+    if(S.appr2&&!S.bankDone&&this.checked){toast('Dispute opened after approval: release frozen before the bank pays.');}
+    if(S.bankDone&&this.checked){this.checked=false; toast('The money has already been paid. A dispute now follows the after-sale process.'); return;}
+    S.dispute=this.checked; render();
+  });
+  $('#c1-close-cond').addEventListener('click',function(){S.condClosed=true; render(); toast('Condition closed. Gates re-checked.');});
+  $('#reset-c').addEventListener('click',function(){S.condClosed=false;S.appr2=false;S.bankDone=false;S.dispute=false;$('#sim-dispute').checked=false; render(); toast('Escrow flow reset.');});
+
+  /* ---------- Flow D: listings ---------- */
+  var mapMode=false;
+  function badge(l,large){
+    if(l.expired){
+      return large
+        ? '<div class="badge-card expired"><div class="title">'+icon('i-clock','lg')+'Badge expired</div><p style="margin:0 0 var(--space-2)">The Fidero Verified badge expired on <strong>'+l.until+'</strong>. The checks done on '+l.checked+' are out of date, so this listing cannot be reserved.</p><button class="btn btn-secondary small" data-report="'+l.id+'">Read the old report</button></div>'
+        : '<span class="vbadge expired">'+icon('i-clock')+'Badge expired</span>';
+    }
+    return large
+      ? '<div class="badge-card"><div class="title">'+icon('i-green','lg')+'Fidero Verified</div><dl class="kv"><dt>Checks done</dt><dd>'+l.checked+'</dd><dt>Badge valid until</dt><dd>'+l.until+'</dd></dl><p class="small muted" style="margin:var(--space-2) 0">Validity period is a sample [TO VERIFY].</p><button class="btn btn-secondary" data-report="'+l.id+'">'+icon('i-doc')+'Read the full report</button></div>'
+      : '<span class="vbadge">'+icon('i-green')+'Fidero Verified · checked '+l.checked.replace(/ 2027$/,'')+'</span>';
+  }
+  function filtered(){
+    var q=$('#q').value.trim().toLowerCase(), t=$('#ltype').value;
+    return LISTINGS.filter(function(l){return (!t||l.type===t)&&(!q||(l.place+' '+l.title).toLowerCase().indexOf(q)>-1);});
+  }
+  function renderListings(){
+    var list=filtered(), p=$('#panel-list');
+    p.innerHTML = list.length ? list.map(function(l,i){
+      return '<button class="lcard" data-listing="'+l.id+'" aria-label="'+(i+1)+'. '+l.title+', '+l.place+', '+l.price+', Fidero Verified, checked '+l.checked+'"><div class="ph" aria-hidden="true">'+(i+1)+'</div><div><strong>'+l.title+'</strong><br><span class="small">'+l.place+'</span><br><span class="money">'+l.price+'</span><br>'+badge(l)+'</div></button>';
+    }).join('') : '<div class="card"><h2>No listings match</h2><p>Try another place or type.</p><button class="btn btn-secondary" id="clear-f">Clear filters</button></div>';
+    var cf=$('#clear-f'); if(cf) cf.addEventListener('click',function(){$('#q').value='';$('#ltype').value='';renderListings();});
+    $('#pins').innerHTML=list.map(function(l,i){return '<g transform="translate('+l.x+' '+l.y+')"><circle style="fill:var(--color-primary)" r="12"/><text style="fill:var(--color-on-primary)" text-anchor="middle" y="4" font-size="12" font-weight="700">'+(i+1)+'</text><text style="fill:var(--color-text)" x="16" y="4" font-size="11">'+l.place.split(',')[0]+'</text></g>';}).join('');
+    $('#l-count').textContent='Showing '+list.length+' of '+LISTINGS.length+' sample listings.';
+  }
+  $('#q').addEventListener('input',renderListings);
+  $('#ltype').addEventListener('change',renderListings);
+  function setTab(map){
+    mapMode=map;
+    $('#tab-list').setAttribute('aria-pressed',String(!map)); $('#tab-map').setAttribute('aria-pressed',String(map));
+    $('#panel-map').hidden=!map; // list stays visible below the map: no information only on the map
+  }
+  $('#tab-list').addEventListener('click',function(){setTab(false);});
+  $('#tab-map').addEventListener('click',function(){setTab(true);});
+  function openListing(l){
+    $('#d2h').textContent=l.title+', '+l.place;
+    $('#d2-price').textContent=l.price;
+    $('#d2-badge').innerHTML=badge(l,true);
+    $('#d2-seller').textContent=l.seller;
+    $('#d2-actions').innerHTML = l.expired
+      ? '<p class="small muted" style="margin:0">Reserve is not available while the badge is expired. The seller can order new checks.</p>'
+      : '<button class="btn btn-primary" id="reserve">Reserve this plot</button><button class="btn btn-secondary" data-toast="Enquiries go through Fidero. Not part of this prototype.">Ask Fidero</button>';
+    var rv=$('#reserve'); if(rv) rv.addEventListener('click',function(){toast('Reserving starts a fresh search and site check, then an escrow with a licensed bank (J-04, J-02). Not part of this prototype.');});
+    show('d2');
+  }
+  document.addEventListener('click',function(e){
+    var c=e.target.closest('[data-listing]'); if(c){var id=+c.getAttribute('data-listing'); openListing(LISTINGS.filter(function(l){return l.id===id;})[0]); return;}
+    var r=e.target.closest('[data-report]'); if(r){
+      var rid=+r.getAttribute('data-report'), l=rid===9?EXPIRED:LISTINGS.filter(function(x){return x.id===rid;})[0];
+      $('#rd-meta').textContent='Report for '+l.title+', '+l.place+'. Checks done '+l.checked+'.'+(l.expired?' These checks are out of date.':'');
+      var d=$('#report-dlg'); if(d.showModal) d.showModal(); else toast('Your browser cannot show this dialog.');
+    }
+  });
+  $('#see-expired').addEventListener('click',function(){openListing(EXPIRED);});
+
+  /* ---------- Flow E: milestone approval ---------- */
+  $('#approve-ms').addEventListener('click',function(){
+    var a=$('#seen-price').checked, b=/^\d{6}$/.test($('#client-code').value.trim()), err=$('#approve-err');
+    if(!a||!b){err.hidden=false; err.innerHTML=icon('i-red')+'Error: '+(!a?'tick "I have seen the new price". ':'')+(!b?'enter the 6-digit code.':''); (!a?$('#seen-price'):$('#client-code')).focus(); return;}
+    S.msApproved=true;
+    $('#approve-card').innerHTML='<h2>Milestone 2 approved by you</h2><div class="alert success">'+icon('i-green')+'<p>You approved GHS 99,100.00 on 15 August at 18:40 GMT. Next: two Fidero staff approve, then Partner Bank pays the contractor. GHS 2,400.00 stays held until the defect is fixed.</p></div>';
+    $('#e1-status').textContent='You approved the Blocks milestone on 15 August. Two Fidero approvals come next. Payment expected by 19 August.';
+    $('#ms2-state').textContent='Passed with 1 defect · you approved · waiting for Fidero approvals';
+    $('#approve-card').setAttribute('tabindex','-1'); $('#approve-card').focus();
+  });
+
+  /* ---------- Flow F: Android ---------- */
+  var ITEMS=[
+    {name:'Cleared site and setting out', files:1},
+    {name:'Trenches with tape measure', files:2},
+    {name:'Reinforcement, 2 angles', files:2},
+    {name:'Video: full trench line', files:1, video:true},
+    {name:'Cured foundation and footing', files:1},
+    {name:'Delivery notes: cement, aggregate, steel', files:3, missing:true}
+  ];
+  function initQueue(){
+    S.queue=[];
+    ITEMS.forEach(function(it){ if(!it.missing){ for(var i=0;i<it.files;i++) S.queue.push({label:it.name+(it.files>1?' ('+(i+1)+')':''),state:'waiting'}); } });
+  }
+  function queueCounts(){var w=0,s=0;S.queue.forEach(function(q){if(q.state==='sent')s++;else w++;});return {waiting:w,sent:s,total:S.queue.length};}
+  function renderPhone(){
+    var c=queueCounts(), b=$('#p-banner');
+    $('#p-signal').textContent = S.online ? '3G · 41%' : 'No signal · 41%';
+    if(!S.online){ b.className='p-banner offline'; b.innerHTML=icon('i-offline')+'<span>Offline. '+c.waiting+' item'+(c.waiting===1?'':'s')+' saved on this phone. They upload when you have signal.</span>'; }
+    else if(c.waiting>0){ b.className='p-banner sending'; b.innerHTML=icon('i-cloud')+'<span>Sending '+(c.sent+1)+' of '+c.total+'…</span>'; }
+    else { b.className='p-banner sent'; b.innerHTML=icon('i-green')+'<span>All sent. Received by Fidero at 10:31 GMT.</span>'; }
+    $('#p-qcount').textContent=c.waiting;
+    $('#p-jobs').setAttribute('aria-current',String(S.view==='jobs'));
+    $('#p-queue').setAttribute('aria-current',String(S.view==='queue'));
+    var body=$('#p-body');
+    if(S.view==='queue'){
+      $('#p-title').textContent='Upload queue';
+      body.innerHTML='<p class="small muted">Items stay on this phone, encrypted, until Fidero confirms receipt.</p>'+S.queue.map(function(q){
+        var st={waiting:'Waiting',sending:'Sending…',sent:'Sent'}[q.state];
+        return '<div class="p-item">'+icon(q.state==='sent'?'i-green':'i-cloud',q.state==='sent'?'gate-ok':'')+'<span>'+q.label+'</span><span class="qstate">'+st+'</span></div>';
+      }).join('');
+      return;
+    }
+    $('#p-title').textContent='Foundation · House, Kasoa';
+    var done=ITEMS.filter(function(it){return !it.missing||S.captured;}).length;
+    var html='<p class="small" style="margin-bottom:var(--space-2)"><strong>Milestone 1 of 6</strong> · Evidence '+done+' of '+ITEMS.length+'</p>';
+    ITEMS.forEach(function(it,i){
+      var ok=!it.missing||S.captured;
+      html+='<div class="p-item">'+(ok?icon('i-green','gate-ok'):icon('i-camera'))+'<span>'+it.name+'<br><span class="xs muted">'+(ok?(it.files+' '+(it.video?'video':'photo'+(it.files>1?'s':''))+' · on plot · in app'):'Needed: '+it.files+' photos')+'</span></span>'+
+        (ok?'':'<button class="btn btn-secondary small" id="cap">Capture</button>')+'</div>';
+    });
+    if(S.submitted){
+      html+='<div class="alert '+(c.waiting?'info':'success')+'" style="margin-top:var(--space-3)">'+icon(c.waiting?'i-cloud':'i-green')+'<p>'+(c.waiting?'<strong>Submitted.</strong> It will be sent automatically when you have signal. Keep the app installed.':'<strong>Received by Fidero.</strong> Evidence check next, then the inspector visits.')+'</p></div>';
+    } else {
+      var ready=S.captured;
+      html+='<p class="xs muted" style="margin-top:var(--space-3)">All photos are taken with this app. Gallery uploads are not allowed.</p>'+
+        (ready?'':'<p class="xs" id="sub-why"><strong>1 item still needed.</strong></p>')+
+        '<button class="btn btn-primary block" id="submit-ms" '+(ready?'':'disabled aria-describedby="sub-why"')+'>Submit milestone</button>';
+    }
+    body.innerHTML=html;
+    var cap=$('#cap'); if(cap) cap.addEventListener('click',capture);
+    var sb=$('#submit-ms'); if(sb) sb.addEventListener('click',function(){
+      S.submitted=true; S.queue.push({label:'Milestone submission record',state:'waiting'}); renderPhone(); pump();
+      toast(S.online?'Submitted. Sending now.':'Submitted offline. It will send when you have signal.');
+    });
+  }
+  function capture(){
+    var cam=$('#camera'); cam.hidden=false;
+    setTimeout(function(){
+      cam.hidden=true; S.captured=true;
+      for(var i=1;i<=3;i++) S.queue.push({label:'Delivery notes ('+i+')',state:'waiting'});
+      renderPhone(); pump(); toast('3 photos captured, signed and saved on the phone.');
+      var sb=$('#submit-ms'); if(sb) sb.focus();
+    },900);
+  }
+  function pump(){
+    if(!S.online||S.sending) return;
+    var next=S.queue.filter(function(q){return q.state==='waiting';})[0];
+    if(!next){renderPhone();return;}
+    S.sending=true; next.state='sending'; renderPhone();
+    setTimeout(function(){ next.state= S.online?'sent':'waiting'; S.sending=false; renderPhone(); pump(); },650);
+  }
+  $('#net-toggle').addEventListener('click',function(){
+    S.online=!S.online; this.setAttribute('aria-pressed',String(S.online)); this.textContent=S.online?'Go offline':'Go online';
+    renderPhone(); pump();
+  });
+  $('#p-jobs').addEventListener('click',function(){S.view='jobs';renderPhone();});
+  $('#p-queue').addEventListener('click',function(){S.view='queue';renderPhone();});
+  $('#reset-f').addEventListener('click',function(){S.online=false;S.captured=false;S.submitted=false;S.sending=false;S.view='jobs';initQueue();var n=$('#net-toggle');n.setAttribute('aria-pressed','false');n.textContent='Go online';renderPhone();toast('Phone reset.');});
+
+  /* ---------- Render all ---------- */
+  function render(){ renderPrices(); renderEscrow(); renderApproval(); renderPhone(); }
+  initQueue();
+  renderListings();
+  show(location.hash.slice(1)||'a1', true);
+})();
+</script>
+</body>
+</html>
