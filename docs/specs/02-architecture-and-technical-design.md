@@ -327,7 +327,7 @@ flowchart TB
 | worker-geo | Celery with GDAL and PostGIS client | Overlay and overlap checks, imagery | R1 |
 | worker-media | Celery with WeasyPrint, libvips, ffmpeg | Previews, video compression, PDF render | R1 |
 | worker-integrations | Celery | Bank, payment, identity, messaging adapters | R1 |
-| beat | Celery beat | Schedules in section 7.8 | R1 |
+| beat | Celery beat | Schedules in section 7.9 | R1 |
 | clamav | ClamAV daemon | Scan every upload (FR-EVD-005) | R1 |
 | Android app | Kotlin, Compose | Offline signed capture (FR-MOB-*) | R2 |
 | PostgreSQL | RDS, Multi-AZ | System of record | R1 |
@@ -2016,15 +2016,18 @@ Logged to the audit log and to CloudWatch, with alerts to the on-call channel:
 
 | AWS account | Contents |
 |---|---|
-| management | AWS Organizations, IAM Identity Center, billing |
-| nonprod | dev and staging environments |
-| prod | production |
-| backup-and-logs | Cross-account backup vault with Vault Lock, CloudTrail organisation trail, log archive |
+| `fidero-management` | AWS Organizations, IAM Identity Center, consolidated billing. No workloads |
+| `fidero-security` | CloudTrail organisation trail, AWS Config, security findings, log archive with Object Lock, `audit-anchors` bucket |
+| `fidero-shared` | ECR registry, Terraform state, CI role trust |
+| `fidero-dev`, `fidero-staging`, `fidero-prod` | Workloads, one account per environment |
+| `fidero-backup` | AWS Backup vault copies for production with Vault Lock, second region `[TO VERIFY]` |
+
+This matches the account layout in document 06, which owns the detail.
 
 | Environment | Purpose | Data | Scale (assumption) |
 |---|---|---|---|
-| dev | Integration of merged work, preview deploys | Synthetic only | Single-AZ, smallest sizes, scaled to zero out of hours |
-| staging | Release candidates, penetration tests, usability tests | Synthetic or anonymised only; never production PII | Same topology as production at smaller sizes |
+| dev | Integration of merged work on `main` | Synthetic only | Single-AZ, smallest sizes, scaled down out of hours |
+| staging | Release candidates, penetration tests, usability tests, restore drills | Synthetic or anonymised only; never production personal data | Same topology as production at smaller sizes |
 | production | Live service | Real data | Multi-AZ |
 
 ### 11.2 Network
@@ -2095,7 +2098,7 @@ flowchart TB
 | `evidence` | Versioning, Object Lock compliance, SSE-KMS, block public access, replication to second region, lifecycle to Infrequent Access after 90 days (assumption) |
 | `quarantine` | Uploads land here; objects deleted after 24 h if not promoted |
 | `previews` | SSE-KMS, served by CloudFront signed URLs; listing images public through CloudFront only |
-| `audit-anchors` | Object Lock compliance, in backup-and-logs account |
+| `audit-anchors` | Object Lock compliance, in the `fidero-security` account |
 | `exports` | SSE-KMS, 24 h lifecycle |
 
 ### 11.4 Backups and disaster recovery (NFR-AVL-02, NFR-AVL-03)
