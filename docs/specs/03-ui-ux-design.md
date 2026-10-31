@@ -32,7 +32,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | DA-03 | Money uses ISO codes (`USD 450.00`, `GHS 5,400.00`), not symbols. | `$` is ambiguous for clients in the US and Canada. Screen readers read codes reliably. |
 | DA-04 | The hash check computes the PDF hash in the browser. The PDF never leaves the user's device. | Privacy. FR-RPT-008 says "anyone" can check. |
 | DA-05 | The back office is used on laptops by office staff, and on phones by runners, surveyors and lawyers for their own tasks. | FR-CASE-006. |
-| DA-06 | The Android app is held to the same WCAG 2.2 AA bar as the web front ends. | NFR-ACC-01 names only the portal and back office. See issue I-06. |
+| DA-06 | The Android app is held to the same WCAG 2.2 AA bar as the web front ends. | NFR-A11Y-01 names only the portal and back office. See issue I-06. |
 
 ---
 
@@ -1517,7 +1517,7 @@ Each component lists its states, usage rules, accessibility notes and Android Co
 
 ### 7.1 WCAG 2.2 AA checklist mapped to components
 
-NFR-ACC-01 requires WCAG 2.2 AA on the portal and back office. This document applies the same bar to the Android app (DA-06). Each item is tested in document 05.
+NFR-A11Y-01 requires WCAG 2.2 AA on the portal and back office. This document applies the same bar to the Android app (DA-06). Each item is tested in document 05.
 
 | SC | Requirement | How Fidero meets it | Components and screens |
 |---|---|---|---|
@@ -1634,7 +1634,7 @@ How to use it:
 
 - The top bar has a **flow switcher** (A to F) and a **theme switch** (system, light, dark).
 - Within flow A, buttons move forward and back as in the real product. The step indicator is clickable for completed steps.
-- The hash check in flow A really computes SHA-256 in the browser for any file you choose, and compares it with the sample hash. A "Use the sample PDF" button shows the match state.
+- The hash check in flow A really computes SHA-256 in the browser for any file you choose, and compares it with the sample hash. "Download report (sample file)" saves a small text file that matches; "Use the sample report" shows the match state in one click. Any other file shows the no-match state.
 - The release approval in flow C is blocked until you tick the statement and type any 6 digits. The "View as Kofi Boateng" switch shows the "different person" rule.
 - In flow F, "Go online" sends queued items one by one; "Go offline" stops the queue.
 
@@ -1787,7 +1787,7 @@ Document 01 has not been edited. These need a decision by its owner.
 | I-03 | Milestone state model (C8) against FR-BLD-005, FR-BLD-006, FR-BLD-012 | States miss "Inspection scheduled" (in FR-BLD-005), the move from Returned back to Submitted, defect hold-back and defect closed, and retention held and released. | UI shows these as sub-states. The model should list them so document 05 can test them. |
 | I-04 | Escrow state model (C8) | No move to Frozen from Release approved (dispute raised after approval but before the bank pays). No Frozen to Cancelled when a dispute ends in cancellation. No states for partial releases (FR-ESC-010). No "manual mode" when no bank agreement exists (AS-02). | UI allows freeze until the bank confirms payment, and shows partial releases as a list under Funded. |
 | I-05 | FR-ACC-003 against RUL-11 | MFA is required for "any user who approves a release". Clients approve milestones but do not release. It is unclear whether client approvals need MFA. | DA-01: one-time code for client approvals. |
-| I-06 | NFR-ACC-01 | WCAG 2.2 AA applies only to the portal and back office. The Android app has no accessibility requirement. | DA-06: same bar for the app. |
+| I-06 | NFR-A11Y-01 | WCAG 2.2 AA applies only to the portal and back office. The Android app has no accessibility requirement. | DA-06: same bar for the app. |
 | I-07 | C2 user roles | Roles are missing for: quantity surveyor (FR-BLD-002), client representative (FR-ACC-008), traditional authority representative (FR-REC-004), project-run person and supplier (FR-PRJ-001). Sellers must accept escrow terms in R1 (FR-ESC-002), but seller features are mostly R2. | Screens assume these roles exist with minimal rights. |
 | I-08 | FR-NTF-004 | "Money amounts above a threshold" has no threshold and no `[TO VERIFY]` marker. FR-ADM-005 does not list it as a configurable value. | Treated as a configurable value. |
 | I-09 | FR-ORD-002 against C3 | FR-ORD-002 shows "the price in the client's currency". C3 says GBP, EUR and CAD are guides only. It is unclear which currency is charged. | DA-02: charge in USD (card) or GHS (mobile money); show others as guides. |

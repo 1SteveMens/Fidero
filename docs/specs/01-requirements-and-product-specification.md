@@ -478,7 +478,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | ID | Requirement | Priority | Release | Source |
 |---|---|---|---|---|
 | FR-ORD-001 | The system shall let a client order a verification for a plot or building by entering locality, plot number, site plan reference, Ghana Post GPS address if known, seller name and contact, and uploading the site plan and any documents. | Must | R1 | BR-01 |
-| FR-ORD-002 | The system shall offer the tiers configured by an administrator (diaspora standard, local standard, rush, extra plot same seller) and show the price in the client's currency before payment. | Must | R1 | BR-01 |
+| FR-ORD-002 | The system shall offer the tiers configured by an administrator (diaspora standard, local standard, rush, extra plot same seller) and show the price before payment. Card payments are charged in USD and mobile money in GHS; GBP, EUR and CAD are shown as guides only. | Must | R1 | BR-01 |
 | FR-ORD-003 | The system shall show the scope statement and terms before payment and record the client's acceptance with time and version. | Must | R1 | RUL-04 |
 | FR-ORD-004 | The system shall create a case only after payment is confirmed, or after a case manager records an offline payment with proof. | Must | R1 | BR-01 |
 | FR-ORD-005 | The system shall record the lead source of every order (association, webinar, referral, remittance partner, other). | Should | R1 | BR-16 |
@@ -803,7 +803,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | NFR-PRIV-02 | Personal data shall be minimised: each field must have a stated purpose in the data catalogue. | R1 |
 | NFR-USE-01 | In usability tests with 5 diaspora users, at least 4 shall order a report on a phone without help, with a median time under 10 minutes. | R1 |
 | NFR-USE-02 | Status messages shall be in plain English, with a Flesch-Kincaid grade of 7 or lower. | R1 |
-| NFR-A11Y-01 | The portal and back office shall meet WCAG 2.2 level AA. | R1 |
+| NFR-A11Y-01 | The portal and back office shall meet WCAG 2.2 level AA from R1. The milestone app shall meet the same level from R2, using Android's accessibility guidance. | R1 |
 | NFR-OBS-01 | Every request shall carry a trace ID. Errors, latency, upload queue length and job failures shall be monitored with alerts. | R1 |
 | NFR-MNT-01 | Automated tests shall cover at least 80% of lines in the core API and every business rule in B7. | R1 |
 | NFR-MNT-02 | A new product line or country shall be added through configuration, with code changes only for new integrations. | R2 |

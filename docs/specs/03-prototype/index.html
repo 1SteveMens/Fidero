@@ -75,6 +75,7 @@ a:hover{color:var(--color-primary-hover)}
 .skip:focus{left:var(--space-4)}
 .icon{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-4px}
 .icon.lg{width:28px;height:28px}
+@media (max-width:600px){.proto-bar{position:static}html{scroll-padding-top:16px}}
 @media (prefers-reduced-motion: reduce){*{transition:none !important;animation:none !important}}
 
 /* ===== Prototype bar ===== */
@@ -1059,7 +1060,8 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   });
   $('#hash-sample').addEventListener('click',function(){
     $('#hash-result').textContent='Checking…';
-    sha256(new TextEncoder().encode(SAMPLE_REPORT)).then(showHashResult).catch(function(){showHashResult(SAMPLE_HASH);});
+    try{ sha256(new TextEncoder().encode(SAMPLE_REPORT)).then(showHashResult).catch(function(){showHashResult(SAMPLE_HASH);}); }
+    catch(e){ showHashResult(SAMPLE_HASH); }
   });
   $('#copy-hash').addEventListener('click',function(){
     var done=function(){toast('Fingerprint copied.');};
