@@ -86,7 +86,7 @@ All figures are assumptions. Unknown numbers are `[TO VERIFY]`.
 
 ## 9. Later partners
 
-- **Traditional authorities.** Stools, skins and families whose allocation records Fidero digitises under a revenue share. Approach after the verification service has a track record in their area.
+- **Traditional authorities.** Stools, skins and families whose allocation records Fidero digitises under a revenue share, and who later list verified plots. Approach after the verification service has a track record in their area.
 - **Lands Commission.** Formal access to searches or data `[TO VERIFY]`. Approach once volumes justify it.
 - **Materials suppliers.** Bulk supply at a margin of 3-7% (assumption). Approach in phase 3.
 - **Mortgage lenders and developers.** Collateral checks and clean-title land. Approach with the first bank contract in phase 3.

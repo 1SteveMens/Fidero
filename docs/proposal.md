@@ -80,9 +80,47 @@ Each line opens only after the previous phase passes its gate. Pricing for the n
 
 Regulation to check for the wider lines:
 
-- Listing or brokering buildings may bring Fidero under the Real Estate Agency Act 2020 (Act 1047). Whether a licence is needed is `[TO VERIFY]`.
+- Verified listings of plots and buildings, or brokering their sale, may bring Fidero under the Real Estate Agency Act 2020 (Act 1047). Whether a licence is needed is `[TO VERIFY]`.
 - Project funds stay with the licensed partner bank. Anti-money laundering checks are stricter, because the money is not tied to one asset.
 - Professional indemnity cover must be extended to building inspections and project funds `[TO VERIFY]`.
+
+### Verified listings
+
+From month 9, sellers can pay to have a plot or property verified once and listed on Fidero with a "Fidero Verified" badge. Buyers browse the listings and buy through escrow. One verification then serves many buyers, which is how Fidero grows beyond one report per buyer. The model borrows four parts of how Alibaba makes trade between strangers safe.
+
+| Alibaba | Fidero |
+|---|---|
+| Verified sellers | Verified listings. Licensed third parties check the plot or property once. The badge shows the date of the checks and links to the full report. |
+| Trade Assurance: payment held until delivery | Escrow. The buyer pays into the partner bank's escrow account. Money is released when every condition is recorded as met, with one human approval kept. Fidero never holds the money. |
+| Seller ratings | Public track records for sellers, developers, contractors and surveyors. Bad actors are removed. |
+| Dispute process | Fixed steps and timelines when a buyer or seller contests a release. |
+
+Rules that protect the badge:
+
+- **Fresh search before payment.** Land is not a product. A listed plot can be resold or encroached on after it is verified. A fresh search and site check run just before any money moves. The check is cheap and is never skipped.
+- **The badge cannot be bought.** The seller pays, but licensed independent surveyors and lawyers do the checks. A failed check means no listing. Buyers see the full report. Buyer-ordered reports stay available for plots that are not listed.
+- **Badges expire.** A badge lapses after a set period `[TO VERIFY]`. Satellite monitoring alerts Fidero if new structures appear on a listed plot.
+
+What can be automated. The ground truth cannot be fully automated. Someone still stands on the plot, and the family still consents in person. The target is an automated platform with a small field team behind it.
+
+| Step | Automated | How |
+|---|---|---|
+| Overlay checks | Fully | Acquisition, road reserve, wetland and flood zone layers are checked as soon as coordinates are entered |
+| Satellite monitoring | Fully | Alerts fire if new structures appear on a listed plot |
+| Payments and receipts | Fully | Card and mobile money |
+| Escrow release | Fully, once the bank offers an API `[TO VERIFY]` | Conditions met triggers the release instruction, with one human approval |
+| Construction milestones | Mostly | Evidence comes through the app with automatic fraud checks. An inspector still visits. |
+| Lands Commission searches | Partly | Online where the Commission allows it `[TO VERIFY]`, otherwise a runner does them |
+| Surveyor check | Partly | Drones or GPS speed it up, but a licensed surveyor still signs |
+| Seller authority and consent | No | An in-person meeting the app records with video, signatures and location |
+
+Rollout:
+
+1. **Months 0-9.** No listings. Manual reports, the escrow partner and the portal run as planned. Overlay checks, satellite imagery and status updates are automated from the start, because they are cheap.
+2. **Months 9-18.** Developers list first. They hold many plots and want diaspora buyers.
+3. **Months 18-36.** Families and stools list through the records programme. Where records are digitised, the search step becomes largely automatic.
+
+Listings add a second source of revenue. Sellers pay a listing fee and a success fee on each sale, on top of what buyers pay. Both prices are `[TO VERIFY]`. A marketplace needs buyers and sellers at the same time. The plan builds buyer demand first, so sellers can see access to diaspora buyers before they pay to list.
 
 ## 4. Market and customers
 
@@ -130,6 +168,8 @@ All prices are assumptions to be tested in the first 90 days. See `docs/validati
 | Materials margin | 3-7% | On bulk materials bought for the build |
 | Bank and developer API checks | `[TO VERIFY]` per check | Volume pricing |
 | Extra inspections | $50-100 each | Beyond the standard milestone inspections |
+| Verified listing, paid by the seller | `[TO VERIFY]` per plot, unit or estate | From month 9, developers first |
+| Success fee on a listed sale, paid by the seller | `[TO VERIFY]` | Charged when escrow releases |
 | Traditional authority records | Revenue share `[TO VERIFY]` | Later phase |
 
 ### Unit economics of a verification report (assumptions)
@@ -163,8 +203,8 @@ About $1.9M a year, mostly in hard currency. The mix assumed is verification plu
 |---|---|---|---|
 | Manual service | 0-3 | Launch verification with a lawyer, a surveyor and a runner | 50 paid reports |
 | Escrow and portal | 3-9 | Sign an escrow partner bank, launch the client portal | 300 reports, 50 escrows |
-| Construction | 9-18 | Launch construction management and the milestone photo app | 40 active builds, one bank contract |
-| Scale | 18-36 | Traditional authority records, bulk materials, Nigeria pilot | `[TO VERIFY]` |
+| Construction | 9-18 | Launch construction management, the milestone photo app and verified listings for developers | 40 active builds, one bank contract |
+| Scale | 18-36 | Traditional authority records, family and stool listings, bulk materials, Nigeria pilot | `[TO VERIFY]` |
 
 All targets are assumptions.
 

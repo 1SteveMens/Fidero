@@ -33,6 +33,10 @@ Fidero is not limited to land. Every product line uses the same engine: verify t
 
 Project funds cover money sent home for a shop, a farm, a renovation or a family project. Fidero pays suppliers and workers directly instead of handing cash to someone on the ground. It confirms the money was spent as agreed. It does not judge whether the project will succeed.
 
+## Verified listings
+
+From month 9, sellers can pay to have a plot or property verified once and listed with a "Fidero Verified" badge. Buyers browse the listings and buy through escrow, so one verification serves many buyers. The model borrows from Alibaba: verified sellers, payment held until delivery, public track records and a dispute process. A fresh search still runs before any money moves, licensed third parties do the checks, and buyers see the full report. Developers list first, then families and stools through the records programme. Details are in `docs/proposal.md`.
+
 ## Customers
 
 - Diaspora buyers and home builders in the UK, US, Canada, Germany and the Netherlands. First target.
@@ -53,6 +57,7 @@ Project funds cover money sent home for a shop, a farm, a renovation or a family
 | Bank and developer API checks | Per check, price [TO VERIFY] |
 | Building verification, off-plan escrow, project funds management | [TO VERIFY] |
 | Extra inspections | $50-100 each |
+| Verified listing and success fee, paid by the seller | [TO VERIFY] |
 
 Illustrative year 3 revenue: about $1.9M a year, mostly in hard currency. Verification starts as a manual service, so revenue begins in month one.
 

@@ -20,6 +20,8 @@ Principles:
 | Evidence store | Stores every file with a hash, a timestamp and who uploaded it | 2 |
 | Core API | One backend serving all of the above | 2 |
 | Partner API | Bank and developer collateral checks | 3 |
+| Verified listings (web) | Sellers list verified plots and properties; buyers browse, see the full report and buy through escrow | 3 |
+| Overlay and satellite checks | Map layers checked as soon as coordinates are entered; alerts when new structures appear on a listed plot | 2 |
 
 ## 2. Client portal
 
@@ -112,7 +114,7 @@ Flagged evidence goes to a Fidero reviewer before the inspector visit.
 
 Every product line runs on the same three parts: a case that verifies an asset or the people involved, an escrow with release conditions, and a milestone schedule with evidence. A new line is a new case template, a new condition set and a new milestone schedule, not new software.
 
-Main entities: client, seller, asset (a plot, a building or an off-plan unit), project (a construction or a funded project with its budget), supplier, plot, report case, report section, evidence, escrow, condition, project, milestone, submission, inspection, defect, contractor, inspector, professional, audit event.
+Main entities: client, seller, listing, asset (a plot, a building or an off-plan unit), project (a construction or a funded project with its budget), supplier, plot, report case, report section, evidence, escrow, condition, project, milestone, submission, inspection, defect, contractor, inspector, professional, audit event.
 
 - One backend, one database. Keep it boring: a relational database and a web framework the team knows.
 - All actions go through the API and are written to an audit log that cannot be edited by application users.
@@ -152,7 +154,7 @@ Measures:
 ## 11. Build order
 
 1. Phase 2 (months 3-9): core API, report workflow, evidence store, client portal with report status and download, escrow tracker with manual entry.
-2. Phase 3 (months 9-18): milestone photo app, inspector mode, build dashboard, bank statement or API integration, partner API.
-3. Phase 4 (months 18-36): traditional authority records module, materials ordering, multi-country support for the Nigeria pilot.
+2. Phase 3 (months 9-18): milestone photo app, inspector mode, build dashboard, bank statement or API integration, partner API, verified listings for developers.
+3. Phase 4 (months 18-36): traditional authority records module, family and stool listings, materials ordering, multi-country support for the Nigeria pilot.
 
 Team for phase 2: one product and engineering lead plus one or two developers `[TO VERIFY]` against the budget in `docs/proposal.md`.
