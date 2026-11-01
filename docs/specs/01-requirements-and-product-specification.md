@@ -5,7 +5,7 @@ Business requirements (BRD), product requirements (PRD) and software requirement
 | Item | Value |
 |---|---|
 | Document | 01 of 6 in `docs/specs/` |
-| Version | 0.3, working draft |
+| Version | 0.4, working draft |
 | Date | 1 November 2026 |
 | Owner | Founder, acting as product owner |
 | Status | For review. Not yet baselined |
@@ -18,6 +18,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 31 October 2026 | First draft |
+| 0.4 | 1 November 2026 | Review fixes raised while updating documents 02 to 06 to v0.3. No new requirement IDs. Removes the runner cash route (FR-FEE-006 now marks such institutions not eligible); adds sellers and developers to RUL-22 payees; defines held amounts as amounts held at the bank; names the account-name source for FR-ESC-015; adds the owner's mandate for rent statements; states the premium route; ends unconfirmed visits with a reviewer decision; scopes the fresh search to purchases; adds standing approvals for visits and errand steps; extends RUL-08 and FR-MOB-001 to carers and agents; adds a Withdrawn dispute state; adds sensitive data classes; states how Must works inside Should features; Q-21 and Q-22. |
 | 0.3 | 1 November 2026 | Redefinition per `docs/decisions/2026-11-01-diaspora-platform.md`: Fidero is the diaspora's trusted agent at home. Adds product families and lines (fees to institutions, care visits, property management, paperwork and errands, insurer partner lines, events), personas P-15 to P-17, features F-29 to F-35, journeys J-09 to J-12, rules RUL-22 to RUL-25, modules FEE, CARE, PMG, TSK, INS and EVT, moves country configuration to R1, and opens a second country from month 6. |
 | 0.2 | 31 October 2026 | Review fixes raised while writing documents 02, 05 and 06: release rights and missing roles defined; client approval added to escrow; partial release, freeze and cancel paths added to the state models; mobilisation exception to RUL-09; second-person checks on manual bank entries, bank details and release-affecting settings; thresholds made configurable; NFR targets made measurable; questions Q-11 to Q-14 added. Each later document's "Issues found in document 01" section lists what it raised. Items not yet resolved stay open there. |
 
@@ -55,6 +56,8 @@ MoSCoW within each release.
 | Should | Important. Ship without it only with the product owner's written agreement |
 | Could | Include if time allows |
 | Won't (this release) | Agreed out of the release. May return later |
+
+A Must inside a Should or Could feature is required only if that feature ships in the release. It then blocks the feature, not the whole release.
 
 ### Releases
 
@@ -206,7 +209,7 @@ The full problem statement is in `docs/proposal.md` section 2.
 | AS-07 | Lands Commission searches stay manual, done by a runner, unless online search becomes available `[TO VERIFY]`. | No change; the workflow already assumes manual searches. |
 | AS-08 | Most contractors use Android phones `[TO VERIFY]`. | Build an iPhone app earlier. |
 | AS-09 | Professional indemnity cover extends to building inspections and project funds `[TO VERIFY]`. | Those lines do not open. |
-| AS-10 | Schools, hospitals and government agencies accept direct payment with an invoice or student reference `[TO VERIFY]`. | The runner pays in person and uploads the receipt. |
+| AS-10 | Schools, hospitals and government agencies accept direct payment with an invoice or student reference `[TO VERIFY]`. | That institution is not eligible for direct payment. Fidero does not pay cash on the client's behalf. |
 | AS-11 | At least one licensed insurer per country will sell health and funeral cover through Fidero `[TO VERIFY]`. | The insurer lines do not open in that country. |
 | AS-12 | Vetted carers and errand agents can be recruited and retained at a fee clients will pay `[TO VERIFY]`. | Care visits and errands stay small or close. |
 | AS-13 | Country 2 passes its day-90 gate by month 9 `[TO VERIFY]`. | Country 2 software waits; Ghana continues. |
@@ -328,7 +331,7 @@ Anyone abroad can get anything done at home, from buying land to paying a parent
 | F-32 | Paperwork and errands by vetted agents | P-01, P-15, P-17 | R2 | Should | TSK |
 | F-33 | Health and funeral cover through insurer partners | P-15 | R2 | Could | INS |
 | F-34 | Events and ceremonies with vendors paid against evidence | P-01, P-15 | R3 | Could | EVT |
-| F-35 | Unified home dashboard: everything a client has running at home in one view | All clients | R1 | Should | ACC, ANL |
+| F-35 | Unified home dashboard: everything a client has running at home in one view | All clients | R1 | Should | ACC |
 
 ## B6. Key user journeys
 
@@ -350,7 +353,7 @@ Anyone abroad can get anything done at home, from buying land to paying a parent
 3. Ama pays the purchase price to the bank, not to Fidero. The tracker shows the deposit when the bank confirms it.
 4. A fresh search and site check run before release.
 5. Each condition is closed with evidence, such as the signed indenture and recorded family consent.
-6. Two Fidero staff approve. Fidero sends the release instruction. The bank pays the seller and confirms. Ama sees each step.
+6. Ama approves the release. Then two Fidero staff approve. Fidero sends the release instruction. The bank pays the seller and confirms. Ama sees each step.
 
 ### J-03 Build with milestone payments (R2)
 
@@ -430,11 +433,11 @@ The system must enforce these rules. Each is tested in document 05.
 | RUL-04 | The scope and limitation statement is inserted from a locked text block. Users cannot edit it in a report. |
 | RUL-05 | Every release instruction needs approval by two different Fidero staff with release rights. Their names are recorded. |
 | RUL-06 | A release instruction cannot be sent while any release condition is open. |
-| RUL-07 | Before any purchase release, a fresh search and site check must be recorded within `[TO VERIFY]` days of the release. |
-| RUL-08 | Milestone evidence must be captured in the Fidero app. Gallery and file uploads are not accepted as evidence. |
+| RUL-07 | Before any release on a land, building, off-plan or listing purchase, a fresh search and site check must be recorded within `[TO VERIFY]` days of the release. |
+| RUL-08 | Milestone, inspection, care visit and errand evidence must be captured in the Fidero app from R2. Gallery and file uploads are not accepted as evidence. |
 | RUL-09 | A milestone payment cannot be released without an inspector's pass or pass with defects. A pass with defects holds back the defect value. The only exception is milestone 0, mobilisation, which is released when the contract is signed and a Fidero staff member confirms site handover. |
 | RUL-10 | The inspector on a project cannot be chosen, paid or employed by the contractor on that project. |
-| RUL-11 | A client cannot release a payment alone. The client approves; two Fidero staff approve; the bank pays. A client's silence is never treated as approval. |
+| RUL-11 | A client cannot release a payment alone. The client approves; two Fidero staff approve; the bank pays. A client's silence is never treated as approval. For care visits and errand steps the client may give a standing approval up to a stated amount per month; each payment still needs its evidence and two staff approvals. |
 | RUL-12 | A listing is published only if its verification report is green and less than `[TO VERIFY]` days old. A failed check means no listing. |
 | RUL-13 | A listing badge expires after `[TO VERIFY]` days or when monitoring raises an unresolved alert. |
 | RUL-14 | Buyers always see the full report behind a listing. |
@@ -445,7 +448,7 @@ The system must enforce these rules. Each is tested in document 05.
 | RUL-19 | Every scope variation on a build is agreed in writing in the app before work starts. |
 | RUL-20 | Only licensed professionals with a verified licence on file can sign their report section. |
 | RUL-21 | Project fund money goes only to named, checked suppliers against invoices, never as cash to a person running the project. |
-| RUL-22 | On every line, money is released only to a verified institution, supplier, vendor or professional with a bank account in that name. Fidero never releases cash to a relative or to the client's representative. |
+| RUL-22 | On every line, money is released only to a verified payee with a bank account in that payee's name: an institution, supplier, vendor, professional, or the seller or developer named in a purchase escrow. Fidero never releases cash to a relative or to the client's representative. |
 | RUL-23 | A carer or errand agent is paid only for visits or tasks confirmed by check-in evidence and by the family or the resulting document. |
 | RUL-24 | Rent on a managed property is paid by the tenant to the owner's own account at the partner bank, never to Fidero. |
 | RUL-25 | Insurance is sold as the named licensed insurer's policy. Fidero collects no premium into its own account and pays no claim. |
@@ -482,6 +485,8 @@ The system must enforce these rules. Each is tested in document 05.
 | Q-18 | Does property management or errand work need a licence in each country? | Lawyer | R2 |
 | Q-19 | How is a carer vetted and what does a care plan contain? | Operations | R2 |
 | Q-20 | Pricing for each new line | Founder | R1, R2 |
+| Q-21 | What data protection law and regulator apply in each new country, and what notification duties follow? | Lawyer per country | Each country's manual phase |
+| Q-22 | What duty of care does Fidero owe during care visits, how is a carer's own safety protected, and what insurance covers both? | Founder, lawyer, insurer | R2 |
 
 ---
 
@@ -639,13 +644,13 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-ESC-003 | The system shall show the client the bank's payment instructions and never Fidero's own account details. | Must | R1 | RUL-01 |
 | FR-ESC-004 | The system shall record deposit and release confirmation from the bank's API, statement file or a manual entry. A manual entry needs the bank's confirmation attached and a check by a second staff member. | Must | R1 | BR-05 |
 | FR-ESC-005 | The system shall let a case manager close each condition by attaching the evidence that satisfies it. | Must | R1 | BR-05 |
-| FR-ESC-006 | The system shall block a release instruction while any condition is open, the client has not approved, the fresh search is missing or out of date, or (from R2) a dispute is open. | Must | R1 | RUL-06, RUL-07, RUL-15 |
+| FR-ESC-006 | The system shall block a release instruction while any condition is open, the client has not approved, the fresh search is missing or out of date (purchases only, RUL-07), or (from R2) a dispute is open. | Must | R1 | RUL-06, RUL-07, RUL-15 |
 | FR-ESC-007 | The system shall require approval of a release instruction by two different staff with release rights, using multi-factor authentication. | Must | R1 | RUL-05 |
 | FR-ESC-008 | The system shall generate the release instruction in the format agreed with the bank, record both approvers in it, sign it with a key held in a key management service, and send it by the channel agreed with the bank `[TO VERIFY]`. | Must | R1 | BR-05 |
 | FR-ESC-009 | The system shall record the bank's release confirmation and show it to all parties. | Must | R1 | BR-05 |
 | FR-ESC-010 | The system shall support partial releases against milestones, stages, visits or tasks for construction, off-plan, project fund, care, errand, property repair and event escrows. | Must | R2 | BR-08, BR-09, BR-18, BR-19, BR-20 |
-| FR-ESC-014 | The system shall support a held balance from which several small releases are made over time, with a running statement to the client, for institution payments, care visits and errands. | Must | R1 | BR-17 |
-| FR-ESC-015 | The system shall block any release to a payee whose bank account name does not match the verified institution, supplier, vendor or professional. | Must | R1 | RUL-22 |
+| FR-ESC-014 | The system shall support an amount held at the bank from which several small releases are made over time, with a running statement to the client built only from bank-confirmed events, for institution payments, care visits and errands. | Must | R1 | BR-17 |
+| FR-ESC-015 | The system shall block any release to a payee whose bank account name does not match the verified payee. The account name comes from the bank's name check where offered `[TO VERIFY]`, otherwise from a bank letter checked by a second staff member. No user may override a mismatch. | Must | R1 | RUL-22 |
 | FR-ESC-011 | The system shall import the bank's daily statement file and match lines to escrows, listing unmatched lines. | Should | R2 | BR-05 |
 | FR-ESC-012 | The system shall integrate with the bank's API for deposit and release status where available. | Could | R2 | BR-05 |
 | FR-ESC-013 | The system shall support cancellation and refund instructions with the same two-person approval. | Must | R1 | RUL-05 |
@@ -661,11 +666,11 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-EVD-005 | The system shall scan uploads for malware and reject unsafe files. | Must | R1 | BR-15 |
 | FR-EVD-006 | The system shall mark each item as app-captured (with a verified device signature) or uploaded. | Must | R2 | RUL-08 |
 
-### C4.9 Milestone app (MOB)
+### C4.9 Field app (MOB)
 
 | ID | Requirement | Priority | Release | Source |
 |---|---|---|---|---|
-| FR-MOB-001 | The app shall let contractors, inspectors, runners and surveyors sign in and see only their assigned projects, cases and tasks. | Must | R2 | BR-08 |
+| FR-MOB-001 | The app shall let contractors, inspectors, runners, surveyors, carers and errand agents sign in and see only their assigned projects, cases and tasks. | Must | R2 | BR-08 |
 | FR-MOB-002 | The app shall capture photos and video with its own camera only, and block gallery and file uploads for evidence. | Must | R2 | RUL-08 |
 | FR-MOB-003 | The app shall record GPS position and accuracy at capture and warn when the position is more than a configured distance from the plot boundary. | Must | R2 | BR-08 |
 | FR-MOB-004 | The app shall hash each file at capture and sign the hash, position and device time with a key held in the device keystore. | Must | R2 | BR-06 |
@@ -805,8 +810,8 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-FEE-003 | The system shall let the client approve the invoice and pay into the partner bank, and shall instruct payment to the institution's account only. | Must | R1 | RUL-22 |
 | FR-FEE-004 | The system shall return the institution's receipt and, where the institution agrees, a confirmation of enrolment, treatment or service to the client's dashboard. | Must | R1 | BR-17 |
 | FR-FEE-005 | The system shall support recurring fee schedules (per term, per month) with reminders and the client's approval before each payment. | Should | R1 | BR-17 |
-| FR-FEE-006 | The system shall let a runner pay an institution in person and upload the receipt when direct payment is not possible, with the cash drawn from the bank against a signed voucher and reconciled within 2 working days. | Should | R1 | AS-10 |
-| FR-FEE-007 | The system shall show the client a statement per family member: invoices, payments, receipts and balance held. | Must | R1 | BR-17 |
+| FR-FEE-006 | The system shall mark an institution that cannot receive a bank transfer as not eligible for direct payment and shall offer no cash route. A runner may collect the invoice and deliver the receipt in person. | Should | R1 | AS-10, RUL-22 |
+| FR-FEE-007 | The system shall show the client a statement per family member: invoices, payments, receipts and the amount held at the bank. | Must | R1 | BR-17 |
 
 ### C4.22 Care visits (CARE)
 
@@ -815,7 +820,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-CARE-001 | The system shall let a client create a care plan for a family member: address, visit frequency, tasks (medicine, meals, readings, companionship, transport), and who in the family may confirm visits. | Should | R2 | BR-18 |
 | FR-CARE-002 | The system shall keep a panel of vetted carers with identity, references, background check, training and track record, and shall assign only vetted carers. | Must | R2 | BR-18 |
 | FR-CARE-003 | The carer shall check in at the registered address, complete the plan items, attach the agreed photos or readings, and check out, all in the field app. | Must | R2 | RUL-23 |
-| FR-CARE-004 | The system shall ask the family member to confirm each visit by a one-tap code, a call or the app, and shall pay the carer only for confirmed visits. | Must | R2 | RUL-23 |
+| FR-CARE-004 | The system shall ask the family member to confirm each visit by a one-tap code, a call or the app, and shall pay the carer only for confirmed visits. A visit unconfirmed after 72 hours goes to a reviewer, who decides from the check-in evidence and a call to the family. Confirmation by call is recorded by the staff member and checked by a second. Codes lock after 5 wrong attempts. | Must | R2 | RUL-23 |
 | FR-CARE-005 | The system shall alert the client and Fidero when a visit is missed, late or unconfirmed within 24 hours. | Must | R2 | BR-18 |
 | FR-CARE-006 | The system shall let the carer raise a concern (health, safety, welfare) that goes to the client and a Fidero reviewer the same day. | Must | R2 | BR-18 |
 
@@ -825,7 +830,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 |---|---|---|---|---|
 | FR-PMG-001 | The system shall let an owner register a property and shall record an inspection of its condition with photos before management starts. | Should | R2 | BR-19 |
 | FR-PMG-002 | The system shall record the tenant, the tenancy agreement, the rent and the owner's own account at the partner bank to which rent is paid. | Must | R2 | RUL-24 |
-| FR-PMG-003 | The system shall track rent due and received from the bank's statement or confirmation, and shall alert the owner and Fidero when rent is late. | Must | R2 | BR-19 |
+| FR-PMG-003 | The system shall track rent due and received from the bank's statement lines for that account only, under the owner's written mandate allowing the bank to share them, and shall alert the owner and Fidero when rent is late. | Must | R2 | BR-19 |
 | FR-PMG-004 | The system shall let a tenant or inspector report a repair, shall collect at least two quotes from vetted contractors, and shall let the owner approve one. | Should | R2 | BR-19 |
 | FR-PMG-005 | The system shall hold the repair money at the bank and release it to the contractor only after inspection with photos. | Must | R2 | RUL-22 |
 | FR-PMG-006 | The system shall schedule periodic inspections and show the owner a timeline of rent, repairs and inspections. | Should | R2 | BR-19 |
@@ -845,7 +850,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | ID | Requirement | Priority | Release | Source |
 |---|---|---|---|---|
 | FR-INS-001 | The system shall present health and funeral cover products from licensed insurer partners, showing the insurer's name, the policy terms and that the policy is the insurer's. | Could | R2 | BR-21, RUL-25 |
-| FR-INS-002 | The system shall collect the application and pass it to the insurer, and shall direct premium payment to the insurer's account, never to Fidero. | Must | R2 | RUL-25 |
+| FR-INS-002 | The system shall collect the application and pass it to the insurer, and shall direct premium payment to the insurer's account, never to Fidero: either the client pays the insurer directly, or the bank pays the insurer from money held for that purpose. | Must | R2 | RUL-25 |
 | FR-INS-003 | The system shall store the policy document, renewal dates and the insurer's claim contact, and shall remind the client before renewal. | Should | R2 | BR-21 |
 | FR-INS-004 | The system shall let a client start a claim and shall track the insurer's response, without Fidero deciding the claim. | Could | R2 | RUL-25 |
 
@@ -924,6 +929,10 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | Escrow and payment | Escrow records, instructions, receipts | As tax and banking law requires `[TO VERIFY]` |
 | Account | Profile, preferences | Life of account plus `[TO VERIFY]` |
 | Safety | Incident and threat logs | `[TO VERIFY]`; restricted access |
+| Health and care | Hospital invoices, care plans, visit records, readings, carer concerns | `[TO VERIFY]`; restricted access, own encryption key |
+| Tenancy | Tenant identity, agreements, rent records | Tenancy plus `[TO VERIFY]` |
+| Identity documents | Passports, ID cards and certificates handled in errands | Deleted from Fidero storage `[TO VERIFY]` days after handover |
+| Insurance | Applications and policy documents | Policy life plus `[TO VERIFY]` |
 | Audit | Audit log | At least as long as the longest class it covers |
 | Marketing | Leads | 24 months from last contact (assumption) |
 
@@ -960,7 +969,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | NFR-SEC-03 | The system shall pass an independent penetration test with no open high or critical findings before each release goes live. | R1 |
 | NFR-SEC-04 | Secrets shall live in a secrets manager, never in code or configuration files. | R1 |
 | NFR-SEC-05 | The system shall follow the OWASP Application Security Verification Standard level 2 for the portal, back office and API. | R1 |
-| NFR-PRIV-01 | Personal data shall be hosted where the Data Protection Commission accepts `[TO VERIFY]`, and every data location recorded. | R1 |
+| NFR-PRIV-01 | Personal data shall be hosted where each country's data protection authority accepts (in Ghana, the Data Protection Commission) `[TO VERIFY]`, and every data location recorded. | R1 |
 | NFR-PRIV-02 | Personal data shall be minimised: each field must have a stated purpose in the data catalogue. | R1 |
 | NFR-USE-01 | In usability tests with 5 diaspora users, at least 4 shall order a report on a phone without help, with a median time under 10 minutes. | R1 |
 | NFR-USE-02 | Status messages shall be in plain English, with a Flesch-Kincaid grade of 7 or lower. | R1 |
@@ -1049,6 +1058,7 @@ Milestone 0, mobilisation, skips evidence and inspection: it moves from Not star
 | Decision | Closed | Decision recorded and notified |
 | Open, Awaiting response, Evidence or Decision | Referred | Referred to mediation |
 | Referred | Closed | Mediation outcome recorded |
+| Open, Awaiting response or Evidence | Withdrawn | The party who raised it withdraws; frozen releases return to the state they came from |
 
 A dispute that passes its decision deadline is escalated to the founder and stays in Decision until decided.
 
