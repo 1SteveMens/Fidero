@@ -1,19 +1,26 @@
 # 03 — UI/UX Design Specification
 
-Information architecture, user flows, wireframes, interaction and content rules, design system and accessibility for the three Fidero front ends: the `portal` web app, the `backoffice` web app and the Android milestone app.
+Information architecture, user flows, wireframes, interaction and content rules, design system and accessibility for the three Fidero front ends: the `portal` web app, the `backoffice` web app and the Android field app (called the milestone app in R2 planning; it serves contractors, inspectors, runners, surveyors, carers and errand agents).
 
 | Item | Value |
 |---|---|
 | Document | 03 of 6 in `docs/specs/` |
-| Version | 0.1 |
-| Date | 31 October 2026 |
+| Version | 0.2 |
+| Date | 1 November 2026 |
 | Status | Draft. For review. Not yet baselined |
 | Owner | Product designer, for the founder as product owner |
-| Source of truth | `01-requirements-and-product-specification.md` (personas, features, journeys, rules, FR and NFR IDs, state models) |
-| Other sources | `README.md`, `docs/operations/verification-report-template.md`, `docs/operations/milestone-schedule.md`, `docs/product/architecture.md` |
+| Source of truth | `01-requirements-and-product-specification.md` v0.3 (personas, features, journeys, rules, FR and NFR IDs, state models) |
+| Other sources | `README.md`, `docs/decisions/2026-11-01-diaspora-platform.md`, `docs/operations/verification-report-template.md`, `docs/operations/milestone-schedule.md`, `docs/product/architecture.md` |
 | Companion | `03-prototype/index.html`, a clickable prototype with sample data |
 
 Every figure in this document is a working assumption, not verified data. Unknown numbers are marked `[TO VERIFY]`. Names, places, prices, dates and references in wireframes and the prototype are samples.
+
+### Change history
+
+| Version | Date | Change |
+|---|---|---|
+| 0.1 | 31 October 2026 | First draft against 01 v0.1. |
+| 0.2 | 1 November 2026 | Redesign for 01 v0.3 and the decision record `docs/decisions/2026-11-01-diaspora-platform.md`: Fidero is the diaspora's trusted agent at home. Adds the principles "Pay the institution, not the relative" and "Country is configuration"; the unified home dashboard (F-35) as the portal home with sections for Property, Family, and Projects and errands; a country selector at onboarding; screens SCR-PTL-36 to SCR-PTL-54, SCR-BO-27 to SCR-BO-32 and SCR-MOB-14 to SCR-MOB-18; flows for J-09 to J-12 with error states; wireframes W-25 to W-36; content rules for who gets paid (RUL-22), rent (RUL-24) and insurer products (RUL-25); components CMP-25 to CMP-32; prototype flows G and H. Client approval added to the escrow flow and tracker (01 v0.2 Escrow state model). Section 11.2 refreshed against 01 v0.3: I-01, I-02, I-03, I-04, I-06, I-07, I-08, I-09, I-10, I-12, I-13 and I-14 closed; I-17 to I-24 added. Design assumptions DA-07 to DA-10 added; DA-06 retired. |
 
 ## 0. How this document traces to 01
 
@@ -28,11 +35,15 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | ID | Assumption | Why |
 |---|---|---|
 | DA-01 | Clients confirm approvals (escrow terms, milestone approval, cedi re-pricing) with a one-time code. This is the client's step, not a release. | FR-ACC-003 asks for MFA for "any user who approves a release". RUL-11 says the client approves. See issue I-05. |
-| DA-02 | Prices show in the client's chosen display currency, but the charge is made in USD for cards and GHS for mobile money. | FR-ORD-002 and C3 differ. See issue I-09. |
+| DA-02 | Prices show in the client's chosen display currency, but the charge is made in USD for cards and GHS for mobile money. | Confirmed by FR-ORD-002 in 01 v0.3 (issue I-09 closed). Kept as the display rule. |
 | DA-03 | Money uses ISO codes (`USD 450.00`, `GHS 5,400.00`), not symbols. | `$` is ambiguous for clients in the US and Canada. Screen readers read codes reliably. |
 | DA-04 | The hash check computes the PDF hash in the browser. The PDF never leaves the user's device. | Privacy. FR-RPT-008 says "anyone" can check. |
 | DA-05 | The back office is used on laptops by office staff, and on phones by runners, surveyors and lawyers for their own tasks. | FR-CASE-006. |
-| DA-06 | The Android app is held to the same WCAG 2.2 AA bar as the web front ends. | NFR-A11Y-01 names only the portal and back office. See issue I-06. |
+| DA-06 | Retired. 01 v0.3 NFR-A11Y-01 now holds the field app to WCAG 2.2 AA from R2. | Issue I-06 closed. The ID is not reused. |
+| DA-07 | A family member who confirms a care visit does not need an account. They get a one-time link by SMS or WhatsApp that opens a page with one button and a 4-digit code the carer reads out. A call to Fidero is the fallback. | FR-CARE-004 allows "a one-tap code, a call or the app". Many elderly relatives will not install an app. See issue I-19. |
+| DA-08 | The held balance for institution payments, care visits and errands (FR-ESC-014) is shown as "held at Partner Bank for you", with a running statement. It is never called a wallet or a Fidero balance. | RUL-01 and B2.2. The money is at the bank. |
+| DA-09 | The country chosen at onboarding is the country where the things are (the plot, the hospital, the parent), not where the client lives. A client can add a second country later and the dashboard groups by country. | FR-CTY-001: every case, payment and user belongs to one country. Clients abroad live elsewhere by definition. |
+| DA-10 | When a runner pays an institution in person (FR-FEE-006), the client's screen says so plainly: "Paid in person by a Fidero runner to [institution]. Receipt attached. Cash drawn from Partner Bank against a signed voucher." | It is the one place where cash moves. The client must see it is an exception, not the rule. See issue I-20. |
 
 ---
 
@@ -46,9 +57,11 @@ The principles come from 01 section B2. Each one changes what a user sees.
 | **Fidero never holds the money** (B2.2) | Purchase, build and project money screens show only the partner bank's name and account. Fidero's own payment page is only for Fidero fees and says so. A fixed line on every money screen: "Your money is held by [bank], not by Fidero." | Bank instructions (SCR-PTL-18), payment (SCR-PTL-10), money display (CMP-17) |
 | **Plain status, always** (B2.3) | Every case, escrow, milestone, listing and dispute has one status sentence at the top: what happened, when, what comes next and by when. Reading age 12. | Status timeline (CMP-06), all trackers |
 | **Built for a slow phone** (B2.4) | Phone layout first. System fonts. Small pages. Static map first, live map on tap. Thumbnails before full images. Forms save as you go. The app works offline. | Performance budgets (section 7.2), offline banner (CMP-13) |
-| **One engine** (B2.5) | Land, building, construction, off-plan and project funds share the same components: tracker, conditions, evidence, approvals. A new line is new content, not a new screen design. | Shared components in section 6.4 |
+| **One engine** (B2.5) | Land, building, construction, off-plan, project funds, institution payments, care visits, property management, errands and events share the same components: tracker, conditions, evidence, approvals, statement. A new line is new content, not a new screen design. | Shared components in section 6.4; home dashboard (SCR-PTL-36) |
 | **People stay in the loop** (B2.6) | Licensed people sign their sections with name and licence number shown. Two named Fidero approvers on every release, visible to the client. | Report viewer (SCR-PTL-14), approval card (CMP-10) |
 | **Safety first** (B2.7) | A risk screen blocks assignment to a disputed plot until two people are named. Field staff can log an incident from any task in two taps. The app never shows the client's personal data to field staff. | Risk screen (SCR-BO-05), task detail (SCR-BO-04), app task (SCR-MOB-12) |
+| **Pay the institution, not the relative** (B2.8) | Every payment screen names the payee and its verified account: "Paid to Komfo Anokye Teaching Hospital, account ending 4471." There is no screen on which a relative, a carer or an agent can be chosen as a payee. Verified institutions carry a visible verified status with the date. A payment to an unverified payee is blocked in words. | Institution card (CMP-26), payee line (CMP-30), pay an invoice (SCR-PTL-40), institution verification (SCR-BO-27) |
+| **Country is configuration** (B2.9) | The client picks a country at onboarding. Currency, holiday calendar, institution types, errand catalogue, partner bank and legal texts follow from it. No screen hard-codes "Ghana", "GHS" or "Lands Commission"; they come from the country record. The dashboard shows the country on every item. | Country selector (CMP-29, SCR-PTL-37), country configuration (SCR-BO-29), home dashboard (SCR-PTL-36) |
 
 ### Design rules that follow
 
@@ -58,6 +71,8 @@ The principles come from 01 section B2. Each one changes what a user sees.
 4. Never a dead end. Every error, empty and blocked state says what to do next.
 5. No hidden money. Every amount shows its currency code and who holds it.
 6. Irreversible actions need a clear summary and a deliberate confirm (section 5.3). Reversible actions use undo.
+7. Name who gets paid. Every released or planned payment shows the payee's name and the last four digits of its verified account (RUL-22). Rent says it goes to the owner's own account (RUL-24). Insurance says whose policy it is (RUL-25).
+8. Country on every object. Each case, payment, property and visit shows its country and currency, taken from configuration.
 
 ---
 
@@ -73,41 +88,63 @@ portal
 │   ├── Check a report (hash check) ......... SCR-PTL-15
 │   ├── Listings search and map (R2) ........ SCR-PTL-26
 │   │   └── Listing detail (R2) ............. SCR-PTL-27
+│   ├── Insurer product pages (R2) .......... SCR-PTL-51
 │   ├── Sign up ............................. SCR-PTL-02
-│   └── Sign in ............................. SCR-PTL-03
+│   │   └── Choose a country ................ SCR-PTL-37
+│   ├── Sign in ............................. SCR-PTL-03
+│   └── Confirm a visit (one-time link) ..... SCR-PTL-45
 └── Signed in
-    ├── Home: my things ..................... SCR-PTL-05
+    ├── Home dashboard (F-35) ............... SCR-PTL-36
+    │   (sections: Property · Family · Projects and errands;
+    │    SCR-PTL-05 "Home: my things" is superseded by this screen)
     ├── Identity check ...................... SCR-PTL-04
-    ├── Orders
+    ├── PROPERTY
     │   ├── Order a report (4 steps) ........ SCR-PTL-06 to 09
-    │   ├── Pay ............................. SCR-PTL-10
+    │   ├── Pay Fidero's fee ................ SCR-PTL-10
     │   ├── Payment result and receipt ...... SCR-PTL-11
-    │   └── Case tracker .................... SCR-PTL-12
-    │       ├── Document request ............ SCR-PTL-13
-    │       ├── Messages .................... SCR-PTL-19
-    │       ├── Report viewer ............... SCR-PTL-14
-    │       └── Rate this case (R2) ......... SCR-PTL-33
-    ├── Escrow
+    │   ├── Case tracker .................... SCR-PTL-12
+    │   │   ├── Document request ............ SCR-PTL-13
+    │   │   ├── Messages .................... SCR-PTL-19
+    │   │   ├── Report viewer ............... SCR-PTL-14
+    │   │   └── Rate this case (R2) ......... SCR-PTL-33
     │   ├── Escrow offer and terms .......... SCR-PTL-16
     │   ├── Escrow tracker .................. SCR-PTL-17
-    │   └── Bank payment instructions ....... SCR-PTL-18
-    ├── Build and projects (R2)
-    │   ├── Start a build ................... SCR-PTL-25
-    │   ├── Build dashboard ................. SCR-PTL-22
-    │   ├── Milestone detail and approval ... SCR-PTL-23
-    │   ├── Variation approval .............. SCR-PTL-24
-    │   └── Project fund dashboard .......... SCR-PTL-30
-    ├── Listings: reserve (R2) .............. SCR-PTL-28
+    │   ├── Bank payment instructions ....... SCR-PTL-18
+    │   ├── Start a build (R2) .............. SCR-PTL-25
+    │   ├── Build dashboard (R2) ............ SCR-PTL-22
+    │   │   ├── Milestone detail and approval SCR-PTL-23
+    │   │   └── Variation approval .......... SCR-PTL-24
+    │   ├── Listings: reserve (R2) .......... SCR-PTL-28
+    │   ├── Selling (R2): list, my listings . SCR-PTL-31, 32
+    │   └── Property management (R2)
+    │       ├── Register a property, inspection  SCR-PTL-46
+    │       ├── Property dashboard: tenancy, rent, repairs  SCR-PTL-47
+    │       ├── Repair quotes and approval .. SCR-PTL-48
+    │       └── Tenant view (tenant role) ... SCR-PTL-54
+    ├── FAMILY
+    │   ├── Add a family member ............. SCR-PTL-38
+    │   ├── Add an institution, verification status  SCR-PTL-39
+    │   ├── Pay an invoice .................. SCR-PTL-40
+    │   ├── Recurring fee schedule .......... SCR-PTL-41
+    │   ├── Family-member statement ......... SCR-PTL-42
+    │   ├── Care plan setup (R2) ............ SCR-PTL-43
+    │   ├── Care visits and alerts (R2) ..... SCR-PTL-44
+    │   ├── Insurer product page (R2) ....... SCR-PTL-51
+    │   └── Policy wallet (R2) .............. SCR-PTL-52
+    ├── PROJECTS AND ERRANDS
+    │   ├── Project fund dashboard (R2) ..... SCR-PTL-30
+    │   ├── Errand catalogue (R2) ........... SCR-PTL-49
+    │   ├── Errand checklist and progress (R2)  SCR-PTL-50
+    │   └── Event budget (R3) ............... SCR-PTL-53
     ├── Disputes (R2) ....................... SCR-PTL-29
-    ├── Selling (R2)
-    │   ├── List a property ................. SCR-PTL-31
-    │   └── My listings ..................... SCR-PTL-32
     ├── Records confirmation (R3) ........... SCR-PTL-35
     └── Account
-        ├── Profile, notifications, representative .. SCR-PTL-20
+        ├── Profile, notifications, representative, countries .. SCR-PTL-20
         ├── Sharing and consent ............. SCR-PTL-21
         └── My data ......................... SCR-PTL-34
 ```
+
+The three capitalised groups are the product families in the decision record. The dashboard shows one section per family; a section appears only when the client has something in it. Family lines are offered to every client from R1 (the decision record, "Customer to lead with").
 
 ### 2.2 Back office sitemap (web, laptop first, phone for field roles)
 
@@ -133,10 +170,17 @@ backoffice
 │   └── Panel: contractors and inspectors ... SCR-BO-15
 ├── Listings moderation (R2) ................ SCR-BO-16
 ├── Disputes (R2) ........................... SCR-BO-17
+├── Family lines
+│   ├── Institution verification ............ SCR-BO-27
+│   ├── Invoice check and payment queue ..... SCR-BO-30
+│   └── Carer and agent panel, visit monitoring (R2)  SCR-BO-28
+├── Property management desk (R2) ........... SCR-BO-31
+├── Errands desk (R2) ....................... SCR-BO-32
 ├── Records programme (R3) .................. SCR-BO-26
 ├── Dashboard and exports ................... SCR-BO-23
 ├── Audit log ............................... SCR-BO-22
 └── Admin
+    ├── Country configuration ............... SCR-BO-29
     ├── Templates and configuration ......... SCR-BO-18
     ├── Prices, tiers, currencies ........... SCR-BO-19
     ├── Users, roles, licences .............. SCR-BO-20
@@ -145,10 +189,12 @@ backoffice
     └── Data requests and retention ......... SCR-BO-24
 ```
 
-### 2.3 Android milestone app map (R2, offline first)
+The back office carries a country switcher in the top bar for staff who work in more than one country. Everything below it is filtered by the chosen country (FR-ACC-007, FR-CTY-003).
+
+### 2.3 Android field app map (R2, offline first)
 
 ```text
-milestone app
+field app
 ├── Sign in and register this phone ......... SCR-MOB-01
 ├── My jobs ................................. SCR-MOB-02
 │   ├── Project and milestone overview ...... SCR-MOB-03
@@ -159,7 +205,13 @@ milestone app
 │   ├── Inspection checklist (inspector) .... SCR-MOB-09
 │   │   ├── Add a defect .................... SCR-MOB-10
 │   │   └── Result and submit ............... SCR-MOB-11
-│   └── Case task (runner, surveyor) ........ SCR-MOB-12
+│   ├── Case task (runner, surveyor) ........ SCR-MOB-12
+│   ├── Care visit (carer)
+│   │   ├── Check in at the address ......... SCR-MOB-14
+│   │   ├── Plan items and photos ........... SCR-MOB-15
+│   │   └── Check out, raise a concern ...... SCR-MOB-16
+│   ├── Errand steps and receipts (agent) ... SCR-MOB-17
+│   └── Property inspection (inspector) ..... SCR-MOB-18
 ├── Upload queue ............................ SCR-MOB-08
 └── Account, storage, help .................. SCR-MOB-13
 ```
@@ -169,13 +221,14 @@ milestone app
 | Front end | Phone | Laptop | Notes |
 |---|---|---|---|
 | Portal, public | Top bar: logo, "Listings", "Check a report", "Sign in". Menu button for the rest. | Same items in a horizontal top bar. | Public pages are server rendered and indexable (FR-LST-010). |
-| Portal, signed in | Bottom tab bar with up to 5 tabs: **Home**, **Orders**, **Escrow**, **Build** (R2, shown only if the user has a project), **Account**. | Left side bar with the same items. | Tabs appear only when the user has something in them. A first-time user sees Home, Orders, Account. |
-| Back office | Field roles (lawyer, surveyor, runner) get a single "My tasks" list and a top bar. No side bar. | Left side bar grouped by work area. Items filtered by role (FR-ACC-007). Global search for case, escrow, listing and person references. | Staff session times out after 30 minutes idle with a warning at 25 (NFR-SEC-02). |
-| Android app | Bottom bar: **Jobs**, **Queue** (with a count badge), **Account**. Linear task flows with a back arrow. | n/a | Upload state is visible on every screen through the offline banner (CMP-13). |
+| Portal, signed in | Bottom tab bar with up to 5 tabs: **Home** (the dashboard, SCR-PTL-36), **Property**, **Family**, **Projects** (projects and errands), **Account**. | Left side bar with the same items. | A family tab appears only when the client has something in it, or on first use as a prompt. A first-time user sees Home, Property, Family, Account. The old tabs Orders, Escrow and Build become sections inside Property. |
+| Back office | Field roles (lawyer, surveyor, runner) get a single "My tasks" list and a top bar. No side bar. | Left side bar grouped by work area. Items filtered by role (FR-ACC-007) and by the chosen country. Global search for case, escrow, listing, institution and person references. | Staff session times out after 30 minutes idle with a warning at 25 (NFR-SEC-02). |
+| Android field app | Bottom bar: **Jobs**, **Queue** (with a count badge), **Account**. Linear task flows with a back arrow. A carer sees only today's visits; an errand agent sees only assigned errands. | n/a | Upload state is visible on every screen through the offline banner (CMP-13). |
 
 Wayfinding rules:
 
-- Every signed-in page has a heading that names the object and its reference, such as "Plot 14, Kasoa Millennium City · FID-2027-0142".
+- Every signed-in page has a heading that names the object and its reference, such as "Plot 14, Kasoa Millennium City · FID-2027-0142" or "Comfort Mensah · Komfo Anokye Teaching Hospital · FEE-2027-0412".
+- Every object shows its country and currency in the reference line, from configuration. A client with one country sees it once, in the dashboard header.
 - Breadcrumbs on laptop only. On phone, a back link names the parent: "← Case FID-2027-0142".
 - Help is in the same place on every page: a "Get help" link in the page footer and in the account menu (WCAG 2.2 SC 3.2.6).
 
@@ -191,7 +244,7 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-PTL-02 | Sign up | Create account with email and phone, both confirmed by code; privacy notice | Public | R1 | F-01, FR-ACC-001, FR-DPR-001, J-01 |
 | SCR-PTL-03 | Sign in | Password or one-time code; lockout message | All portal users | R1 | FR-ACC-002, FR-ACC-009 |
 | SCR-PTL-04 | Identity check | Ghana Card or passport check through the provider, or manual upload | Client | R1 | FR-ACC-004, J-01, J-02 |
-| SCR-PTL-05 | Home: my things | One card per case, escrow, build, listing, with its status sentence | Client, seller, developer | R1 | F-06, FR-CASE-007 |
+| SCR-PTL-05 | Home: my things | Superseded by SCR-PTL-36, the home dashboard, in v0.2. ID retired, not reused | - | - | - |
 | SCR-PTL-06 | Order step 1: what to check | Land or building; tier; price in display currency | Client | R1 | F-02, F-09, FR-ORD-001, FR-ORD-002, J-01, J-08 |
 | SCR-PTL-07 | Order step 2: the plot | Locality, plot number, site plan reference, Ghana Post GPS | Client | R1 | FR-ORD-001, FR-GEO-008, J-01 |
 | SCR-PTL-08 | Order step 3: documents and seller | Upload site plan and documents; seller name and contact | Client | R1 | FR-ORD-001, FR-EVD-001, FR-EVD-005, J-01 |
@@ -222,6 +275,25 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-PTL-33 | Rate this case | 1 to 5 rating and comment | Client | R2 | FR-RAT-002 |
 | SCR-PTL-34 | My data | See what Fidero holds; ask for a copy or a correction | All portal users | R1 | FR-DPR-003 |
 | SCR-PTL-35 | Records confirmation | Authority representative views and confirms records | Authority representative | R3 | FR-REC-004, F-25 |
+| SCR-PTL-36 | Home dashboard | Everything the client has running at home in one view: sections for Property, Family, and Projects and errands; one status sentence per item; country shown | Client | R1 | F-35, FR-ACC-012, FR-CASE-007, FR-CTY-001 |
+| SCR-PTL-37 | Choose a country | At onboarding: pick the country where the things are; sets currency, calendar and partners | Public (during sign-up), client | R1 | F-28, FR-CTY-001, FR-ACC-001 |
+| SCR-PTL-38 | Add a family member | Name, relationship, address, phone; who may confirm visits | Client | R1 | FR-ACC-012, FR-CARE-001 (R2 fields) |
+| SCR-PTL-39 | Add an institution | Pick or propose a school, hospital, clinic, pharmacy, agency or utility; see verification status and the verified account | Client | R1 | F-29, FR-FEE-001, RUL-22, J-09 |
+| SCR-PTL-40 | Pay an invoice | Upload an invoice or open one the institution sent; see the checks; approve; pay into the partner bank; payee named | Client | R1 | F-29, FR-FEE-002, FR-FEE-003, FR-ESC-014, FR-ESC-015, RUL-11, RUL-22, J-09 |
+| SCR-PTL-41 | Recurring fee schedule | Per term or per month; reminder; approve before each payment; enrolment confirmation | Client | R1 | FR-FEE-005, FR-FEE-004, J-09 |
+| SCR-PTL-42 | Family-member statement | Invoices, payments, receipts, held balance, running statement; who was paid | Client, representative | R1 | FR-FEE-007, FR-FEE-004, FR-ESC-014, RUL-22, J-09 |
+| SCR-PTL-43 | Care plan setup | Address, visits per week, tasks, agreed photos, who confirms | Client | R2 | F-30, FR-CARE-001, J-10 |
+| SCR-PTL-44 | Care visits and alerts | Visit cards with check-in and out times, photos, confirmation state; missed, late and unconfirmed alerts; carer concerns | Client, representative | R2 | FR-CARE-003, FR-CARE-005, FR-CARE-006, RUL-23, J-10 |
+| SCR-PTL-45 | Confirm a visit | One-time link for the family member: one button plus the carer's code; or "this visit did not happen" | Family member (no account, DA-07) | R2 | FR-CARE-004, RUL-23, J-10 |
+| SCR-PTL-46 | Register a property | Address, type, documents; book the condition inspection; see its photos | Client (owner) | R2 | F-31, FR-PMG-001, J-11 |
+| SCR-PTL-47 | Property dashboard | Tenancy and rent record, rent due and received into the owner's own account, repairs, inspections, photo timeline | Client (owner), representative | R2 | FR-PMG-002, FR-PMG-003, FR-PMG-006, RUL-24, J-11 |
+| SCR-PTL-48 | Repair quotes and approval | Two or more quotes from vetted contractors; approve one; money held; inspection; payment to contractor | Client (owner) | R2 | FR-PMG-004, FR-PMG-005, RUL-11, RUL-22, J-11 |
+| SCR-PTL-49 | Errand catalogue | Errands for the country, each with checklist, official fees, Fidero's charge and target time | Client | R2 | F-32, FR-TSK-001, FR-CTY-001, J-12 |
+| SCR-PTL-50 | Errand checklist and progress | Upload checklist documents; pay fees into the partner bank; steps with receipts; completion by the resulting document; handover | Client, representative | R2 | FR-TSK-002 to FR-TSK-005, RUL-22, RUL-23, J-12 |
+| SCR-PTL-51 | Insurer product page | Health or funeral cover from a named licensed insurer; terms; "A policy from [insurer]. Fidero does not hold the risk."; apply | Public, client | R2 | F-33, FR-INS-001, FR-INS-002, RUL-25 |
+| SCR-PTL-52 | Policy wallet | Policy documents, renewal dates, insurer's claim contact; start a claim and track the insurer's response | Client | R2 | FR-INS-003, FR-INS-004, RUL-25 |
+| SCR-PTL-53 | Event budget | Event, date, budget, verified vendors, payments against invoices and delivery evidence, receipts | Client | R3 | F-34, FR-EVT-001 to FR-EVT-003, RUL-22 |
+| SCR-PTL-54 | Tenant view | The tenant's agreement and rent record; report a repair | Tenant | R2 | FR-PMG-002, FR-PMG-004 |
 
 #### Back office
 
@@ -253,12 +325,18 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-BO-24 | Data requests and retention | Access and correction requests; retention; bulk export with two approvals | Administrator | R1 | F-14, FR-DPR-003 to FR-DPR-005 |
 | SCR-BO-25 | Notifications | Templates per language and channel; send log | Administrator | R1 | FR-NTF-002, FR-NTF-004, FR-NTF-005 |
 | SCR-BO-26 | Records programme | Capture allocation records; revenue share | Case manager, administrator | R3 | F-25, FR-REC-001 to FR-REC-003 |
+| SCR-BO-27 | Institution verification | Registration, bank account in the institution's name, named contact; verify, reject, re-verify; second person checks the account | Case manager, reviewer | R1 | FR-FEE-001, FR-ESC-015, FR-ADM-003, RUL-22, J-09 |
+| SCR-BO-28 | Carer and agent panel | Vetted carers and errand agents: identity, references, background check, training, track record; live visit monitoring; missed and unconfirmed visits; concerns | Case manager, reviewer, administrator | R2 | FR-CARE-002, FR-CARE-005, FR-CARE-006, FR-TSK-003, RUL-23 |
+| SCR-BO-29 | Country configuration | One record per country: currency, holiday calendar, templates, scope statement, overlay layers, partners, licence bodies, legal texts, errand catalogue, data location; copy a country to open a new one | Administrator | R1 (edit), R2 (copy) | F-28, FR-CTY-001, FR-CTY-002, FR-CTY-004, FR-ADM-005 |
+| SCR-BO-30 | Invoice check and payment queue | Invoices waiting for checks; institution and family member match; amount; approve for release; runner in-person payment with voucher and receipt | Case manager, reviewer | R1 | FR-FEE-002, FR-FEE-003, FR-FEE-006, FR-ESC-014, FR-ESC-015, RUL-22, J-09 |
+| SCR-BO-31 | Property management desk | Managed properties; rent due and late; repair requests and quotes; inspection schedule | Case manager | R2 | FR-PMG-003, FR-PMG-004, FR-PMG-006, RUL-24, J-11 |
+| SCR-BO-32 | Errands desk | Errands by step; agency fees paid; receipts; completion check of the resulting document; handover record | Case manager | R2 | FR-TSK-003, FR-TSK-004, FR-TSK-005, J-12 |
 
-#### Android milestone app
+#### Android field app
 
 | Screen | Name | Purpose | Roles | Rel. | Satisfies |
 |---|---|---|---|---|---|
-| SCR-MOB-01 | Sign in | Sign in; register the phone's signing key | Contractor, inspector, runner, surveyor | R2 | FR-MOB-001, FR-MOB-004 |
+| SCR-MOB-01 | Sign in | Sign in; register the phone's signing key | Contractor, inspector, runner, surveyor, carer, errand agent | R2 | FR-MOB-001, FR-MOB-004 |
 | SCR-MOB-02 | My jobs | Assigned projects, inspections and tasks | Same | R2 | FR-MOB-001 |
 | SCR-MOB-03 | Milestone overview | Milestone, status, what is needed | Contractor | R2 | FR-BLD-005, J-03 |
 | SCR-MOB-04 | Evidence checklist | Required items from the schedule; progress | Contractor | R2 | FR-MOB-006 |
@@ -271,6 +349,11 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-MOB-11 | Inspection result | Pass, pass with defects, fail; submit | Inspector | R2 | FR-MOB-007, RUL-09 |
 | SCR-MOB-12 | Case task | Runner or surveyor task with in-app capture | Runner, surveyor | R2 | FR-MOB-010, FR-CASE-010 |
 | SCR-MOB-13 | Account and storage | Storage used, encrypted items, help | All app roles | R2 | FR-MOB-008, FR-MOB-009 |
+| SCR-MOB-14 | Care visit: check in | Today's visit; check in at the registered address with GPS; distance warning | Carer | R2 | FR-MOB-012, FR-CARE-003, RUL-23, J-10 |
+| SCR-MOB-15 | Care visit: plan items | Tick each plan item; agreed photos and readings captured in app | Carer | R2 | FR-CARE-003, FR-MOB-002, FR-MOB-010, J-10 |
+| SCR-MOB-16 | Care visit: check out | Check out; read the confirmation code to the family; raise a concern | Carer | R2 | FR-MOB-012, FR-CARE-004, FR-CARE-006, J-10 |
+| SCR-MOB-17 | Errand steps | Assigned errand; steps; receipt or acknowledgement captured at each step; handover photo or signature | Errand agent | R2 | FR-TSK-003, FR-TSK-005, FR-MOB-010, J-12 |
+| SCR-MOB-18 | Property inspection | Condition inspection or repair inspection with check-in, checklist and photos | Inspector | R2 | FR-PMG-001, FR-PMG-005, FR-MOB-012, J-11 |
 
 ---
 
@@ -346,7 +429,12 @@ flowchart TD
     B8f -->|"Out of date"| B8o["Blocked: fresh search older than the window · RUL-07. Re-run"]
     B8o --> B8
     B8f -->|"Yes"| B9["State: Ready to release"]
-    B9 --> B10["Approval 1 of 2 · SCR-BO-12"]
+    B9 --> B9c["Client approves the release with a one-time code · SCR-PTL-17 · RUL-11, DA-01"]
+    B9c --> B9d{"Client approved?"}
+    B9d -->|"No response"| B9r["Reminders on the configured period. Silence is never approval. Escrow stays Ready to release"]
+    B9r --> B9c
+    B9d -->|"Yes"| B9e["State: Client approved"]
+    B9e --> B10["Approval 1 of 2 · SCR-BO-12"]
     B10 --> B11["Approval 2 of 2 by a different person, with second factor"]
     B11 --> B12["State: Release approved. Instruction sent to bank"]
     B12 --> B13{"Bank confirms payment?"}
@@ -354,8 +442,11 @@ flowchart TD
     B13 -->|"Yes"| B14(["State: Released. All parties see bank confirmation"])
     B6 -.->|"Dispute opened"| BF["State: Frozen. Release button removed · RUL-15. Go to J-07"]
     B9 -.->|"Dispute opened"| BF
+    B12 -.->|"Dispute opened before the bank pays"| BF
     BF -.->|"Dispute resolved"| B6
 ```
+
+The client approval step follows the Escrow state model in 01 v0.2 and later (Ready to release → Client approved). It is the client's step, not a release: two Fidero staff still approve and the bank pays.
 
 ### 3.3 J-03 Build with milestone payments (R2)
 
