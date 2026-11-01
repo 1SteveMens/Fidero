@@ -5,11 +5,11 @@ Business requirements (BRD), product requirements (PRD) and software requirement
 | Item | Value |
 |---|---|
 | Document | 01 of 6 in `docs/specs/` |
-| Version | 0.2, working draft |
-| Date | 31 October 2026 |
+| Version | 0.3, working draft |
+| Date | 1 November 2026 |
 | Owner | Founder, acting as product owner |
 | Status | For review. Not yet baselined |
-| Sources | `README.md`, `docs/proposal.md`, `docs/validation-plan.md`, `docs/partners.md`, `docs/operations/verification-report-template.md`, `docs/operations/milestone-schedule.md`, `docs/product/architecture.md`, the business plan Claude doc |
+| Sources | `README.md`, `docs/proposal.md`, `docs/validation-plan.md`, `docs/partners.md`, `docs/operations/verification-report-template.md`, `docs/operations/milestone-schedule.md`, `docs/product/architecture.md`, `docs/decisions/2026-11-01-diaspora-platform.md`, the business plan Claude doc |
 
 Every figure in this document is a working assumption, not verified data. Unknown numbers are marked `[TO VERIFY]`.
 
@@ -18,6 +18,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 31 October 2026 | First draft |
+| 0.3 | 1 November 2026 | Redefinition per `docs/decisions/2026-11-01-diaspora-platform.md`: Fidero is the diaspora's trusted agent at home. Adds product families and lines (fees to institutions, care visits, property management, paperwork and errands, insurer partner lines, events), personas P-15 to P-17, features F-29 to F-35, journeys J-09 to J-12, rules RUL-22 to RUL-25, modules FEE, CARE, PMG, TSK, INS and EVT, moves country configuration to R1, and opens a second country from month 6. |
 | 0.2 | 31 October 2026 | Review fixes raised while writing documents 02, 05 and 06: release rights and missing roles defined; client approval added to escrow; partial release, freeze and cancel paths added to the state models; mobilisation exception to RUL-09; second-person checks on manual bank entries, bank details and release-affecting settings; thresholds made configurable; NFR targets made measurable; questions Q-11 to Q-14 added. Each later document's "Issues found in document 01" section lists what it raised. Items not yet resolved stay open there. |
 
 ## How to read this document
@@ -61,10 +62,10 @@ Releases follow the roadmap phases in `docs/proposal.md`. Each release opens onl
 
 | Release | Roadmap phase | Months | What ships |
 |---|---|---|---|
-| R0 | Manual service | 0-3 | No platform. Spreadsheets, templates, a landing page and a payment link |
-| R1 | Escrow and portal | 3-9 | Core platform: client portal, verification case workflow, report generation, evidence store, overlay checks, escrow tracking, building verification |
-| R2 | Construction | 9-18 | Milestone photo app, inspections, construction management, off-plan escrow, project funds, verified listings for developers, partner API, bank integration, track records, disputes |
-| R3 | Scale | 18-36 | Traditional authority records, family and stool listings, materials ordering, multi-country support for the Nigeria pilot |
+| R0 | Manual service | 0-3 | No platform. Spreadsheets, templates, a landing page and a payment link. Land reports and, for existing clients, fees paid to institutions by hand |
+| R1 | Escrow and portal | 3-9 | Core platform: client portal, verification case workflow, report generation, evidence store, overlay checks, escrow tracking, building verification, fees paid direct to institutions, country as configuration. Country 2 manual phase starts at month 6 |
+| R2 | Construction and family | 9-18 | Milestone photo app, inspections, construction management, off-plan escrow, project funds, verified listings for developers, property management, care visits, paperwork and errands, insurer partner lines, partner API, bank integration, track records, disputes. Country 2 software if its gate passes; country 3 manual phase |
+| R3 | Scale | 18-36 | Events and ceremonies, relocation and shipping, traditional authority records, family and stool listings, materials ordering, investing through partners, countries 2 and 3 live |
 
 ---
 
@@ -72,7 +73,7 @@ Releases follow the roadmap phases in `docs/proposal.md`. Each release opens onl
 
 ## A1. Purpose
 
-Fidero lets people abroad buy land and property, build, and fund projects at home without being cheated or losing track of the money. Ghana is the launch market. Land verification is the launch product.
+Fidero is the trusted agent at home for people abroad. Anyone in the diaspora who needs something done in their home country, from buying land to paying a parent's hospital bill, can have it checked, paid against proof and shown to them. Ghana is the launch market. Land verification is the launch product. The redefinition from a land platform to a diaspora platform is recorded in `docs/decisions/2026-11-01-diaspora-platform.md`.
 
 The 90-day manual service (R0) proves demand and the report process with no software. This BRD covers the software that lets the service grow past what a small team can run with spreadsheets, and that turns one-off reports into an escrow, construction and listings business.
 
@@ -80,6 +81,7 @@ The 90-day manual service (R0) proves demand and the report process with no soft
 
 - Land in Ghana is mostly held under customary tenure. Records are scattered. Plots are sold twice, sellers lack authority, site plans do not match the ground, and plots sit inside acquisitions or road reserves.
 - People abroad cannot visit, check records or watch a builder. Money sent home for land, building and projects is often diverted.
+- The same problem applies to everything else sent home: school fees, hospital bills, care for parents, paperwork, projects and events. The person abroad cannot see, verify or control what happens.
 - No neutral party ties payment to proof.
 
 The full problem statement is in `docs/proposal.md` section 2.
@@ -95,7 +97,9 @@ The full problem statement is in `docs/proposal.md` section 2.
 | BO-05 | Earn revenue from sellers as well as buyers | Verified listings live; seller fees as share of revenue | `[TO VERIFY]` |
 | BO-06 | Sell checks to banks and developers | Signed partner contracts | One bank contract by month 18 |
 | BO-07 | Keep client data and money safe | Data breaches; money held by Fidero | Zero reportable breaches; zero client money held by Fidero |
-| BO-08 | Be ready to enter a second country | Nigeria pilot running on the same platform | By month 36 `[TO VERIFY]` |
+| BO-08 | Run in more than one country | Country 2 manual phase from month 6; country 2 live on the platform by month 18; country 3 by month 36 | `[TO VERIFY]` |
+| BO-09 | Create monthly contact with clients through recurring family lines | Share of clients with a recurring payment; payments to institutions per month | 40% of clients by month 18 `[TO VERIFY]` |
+| BO-10 | Put money into institutions and suppliers, never into relatives' hands | Share of released money paid to a verified institution, supplier or professional | 100% |
 
 ## A4. Business requirements
 
@@ -114,7 +118,13 @@ The full problem statement is in `docs/proposal.md` section 2.
 | BR-11 | Banks and developers must be able to check a plot's verification status through an API, with the client's consent. | BO-06 | R2 |
 | BR-12 | Sellers, contractors, developers and professionals must build public track records, and disputes must follow fixed steps and timelines. | BO-04, BO-05 | R2 |
 | BR-13 | Allocation records from traditional authorities must be digitised and used to speed up searches. | BO-02 | R3 |
-| BR-14 | The platform must support a second country with its own report template, rules, currency and partners. | BO-08 | R3 |
+| BR-14 | The platform must treat country as configuration from the first release, so a second country can open with its own templates, rules, currency, partners, holiday calendar and data location. | BO-08 | R1 |
+| BR-17 | Clients must be able to pay school fees, hospital bills and other institution invoices directly to the institution against the invoice, with the receipt returned to them. | BO-09, BO-10 | R1 |
+| BR-18 | Clients must be able to arrange and pay for care visits to a relative, with each visit proven by check-in, photos and the family's confirmation. | BO-09 | R2 |
+| BR-19 | Clients who own property at home must be able to have it managed, with rent collected into their own account and repairs paid against quotes and inspection. | BO-09, BO-10 | R2 |
+| BR-20 | Clients must be able to have paperwork and errands done at home by a vetted agent, with fees paid to the agency and completion proven by the resulting document. | BO-09 | R2 |
+| BR-21 | Clients must be able to buy health and funeral cover for relatives from licensed insurer partners through Fidero, with Fidero holding no risk. | BO-09 | R2 |
+| BR-22 | Clients must be able to fund events and ceremonies at home with vendors paid against invoices and delivery evidence. | BO-10 | R3 |
 | BR-15 | The platform must meet the Data Protection Act 2012 (Act 843) and keep a full audit trail of every action. | BO-07 | R1 |
 | BR-16 | Management must see the operating metrics from the validation plan without building spreadsheets by hand. | BO-01, BO-02 | R1 |
 
@@ -150,15 +160,19 @@ The full problem statement is in `docs/proposal.md` section 2.
 - Evidence store, audit log, notifications, payments for Fidero's own fees.
 - Integrations with the escrow bank, a payment provider, an identity check provider, map and satellite data, and messaging channels.
 - Verified listings marketplace and partner API.
-- Records module and multi-country support (R3).
+- Family lines: payments to institutions, care visits, insurer partner lines.
+- Projects and errands: project funds, paperwork and errands, events.
+- Property management.
+- Country as configuration from R1; records module in R3.
 
 **Out of scope.**
 
 - Holding, pooling or moving client purchase money. A licensed bank or escrow agent does this. See C-01.
 - Giving investment advice or guaranteeing returns.
 - Replacing the Lands Commission register or issuing title.
-- Mortgage lending.
-- Vehicles, equipment and buying a business (phase 4 candidates, not specified here).
+- Mortgage lending, insurance underwriting or money transfer. Fidero partners with licensed providers for these.
+- Paying cash to a relative. Fidero pays institutions, suppliers, vendors and professionals only.
+- Vehicles, relocation and shipping, equipment, buying a business and investing (R3 or later candidates, not specified here).
 - An iPhone app for contractors before R2 data shows the need `[TO VERIFY]`.
 
 ## A7. Constraints
@@ -175,6 +189,9 @@ The full problem statement is in `docs/proposal.md` section 2.
 | C-08 | Many users in Ghana are on slow mobile connections and low-end Android phones. |
 | C-09 | Data hosting must be in Ghana or in a jurisdiction the Data Protection Commission accepts `[TO VERIFY]`. |
 | C-10 | The word "guard" must not appear in any product, feature or brand name. Land guards are the threat Fidero protects against. |
+| C-11 | Insurance is sold only as the licensed insurer's product. Fidero holds no insurance risk and needs an intermediary licence `[TO VERIFY]` per country. |
+| C-12 | Fidero does not transfer money across borders. Clients pay the partner bank or a licensed payment provider. |
+| C-13 | Each country opens only after its own manual phase and 90-day validation. |
 
 ## A8. Assumptions and dependencies
 
@@ -189,6 +206,10 @@ The full problem statement is in `docs/proposal.md` section 2.
 | AS-07 | Lands Commission searches stay manual, done by a runner, unless online search becomes available `[TO VERIFY]`. | No change; the workflow already assumes manual searches. |
 | AS-08 | Most contractors use Android phones `[TO VERIFY]`. | Build an iPhone app earlier. |
 | AS-09 | Professional indemnity cover extends to building inspections and project funds `[TO VERIFY]`. | Those lines do not open. |
+| AS-10 | Schools, hospitals and government agencies accept direct payment with an invoice or student reference `[TO VERIFY]`. | The runner pays in person and uploads the receipt. |
+| AS-11 | At least one licensed insurer per country will sell health and funeral cover through Fidero `[TO VERIFY]`. | The insurer lines do not open in that country. |
+| AS-12 | Vetted carers and errand agents can be recruited and retained at a fee clients will pay `[TO VERIFY]`. | Care visits and errands stay small or close. |
+| AS-13 | Country 2 passes its day-90 gate by month 9 `[TO VERIFY]`. | Country 2 software waits; Ghana continues. |
 
 ## A9. Success metrics
 
@@ -206,6 +227,12 @@ The platform must report these metrics from its own data (see FR-ANL).
 | Escrows opened, value held at the bank, value released | Escrow tracker |
 | Milestones submitted, passed first time, failed, flagged for fraud | Milestone app |
 | Listings live, views, enquiries, sales through escrow | Listings |
+| Payments to institutions per month, value, share with receipt returned within target | Institution payments |
+| Care visits scheduled, completed, confirmed by family | Care visits |
+| Properties under management, rent collected, repairs completed | Property management |
+| Errands completed, median days to completion | Errands |
+| Policies sold through insurer partners, claims paid | Insurer lines |
+| Metrics by country | All |
 | Disputes opened, resolved within the timeline | Disputes |
 | Client satisfaction (would recommend, yes or no) | Survey after delivery |
 | Safety incidents | Incident log |
@@ -216,9 +243,9 @@ The platform must report these metrics from its own data (see FR-ANL).
 
 ## B1. Product vision
 
-Anyone abroad can buy, build or fund something at home and know, with evidence, that the money went where it should.
+Anyone abroad can get anything done at home, from buying land to paying a parent's hospital bill, and know with evidence that it was done and the money went where it should.
 
-**Positioning.** For people abroad who send money home for land, property and projects, Fidero is the independent party that checks the asset, has the money held by a licensed bank, and releases it only against evidence. Unlike relatives, agents or a lawyer alone, Fidero gives one standard report, a neutral escrow and proof at every step.
+**Positioning.** For people abroad who need things done at home, Fidero is the trusted agent that checks the asset or the people, has the money held by a licensed partner, pays institutions and suppliers directly against proof, and shows the client every step. Unlike relatives, agents or a single lawyer, Fidero gives one standard of evidence across every need. Unlike single-purpose services for health cover, funeral cover or school fees, Fidero covers all of them with one field team and one account.
 
 ## B2. Product principles
 
@@ -229,6 +256,8 @@ Anyone abroad can buy, build or fund something at home and know, with evidence, 
 5. **One engine.** A new product line is a new template, condition set and milestone schedule, not new software.
 6. **People stay in the loop.** Software automates checks and paperwork. Licensed people sign, and two people approve every release.
 7. **Safety first.** No product feature may push field staff into a disputed site without a risk screen.
+8. **Pay the institution, not the relative.** Money goes to a verified school, hospital, supplier, vendor or professional. Fidero confirms it was spent as agreed; it does not judge whether the plan will succeed.
+9. **Country is configuration.** Nothing about Ghana is hard-coded.
 
 ## B3. Personas
 
@@ -247,7 +276,10 @@ Anyone abroad can buy, build or fund something at home and know, with evidence, 
 | P-11 | Family head or stool secretary | Represents the land-owning family or stool. | Sell legitimately, keep records straight, earn from the records programme. | Rogue family members selling family land. |
 | P-12 | Bank credit officer | Checks land offered as loan collateral. | A fast status check on a plot. | Slow manual collateral checks. |
 | P-13 | Project fund owner | Teacher in Toronto funding her brother's poultry farm. | Pay suppliers directly and see each stage done. | Money sent for projects disappears. |
-| P-14 | Fidero administrator | Configures templates, prices, users and partners. | Change settings without a developer. | Hard-coded rules. |
+| P-14 | Fidero administrator | Configures templates, prices, users, partners and countries. | Change settings without a developer. | Hard-coded rules. |
+| P-15 | Kwabena, family supporter | Bus driver in New Jersey, 45. Pays his mother's hospital bills and two nephews' school fees in Kumasi. | Pay the hospital and the school directly. Know his mother was visited this week. | A 2am WhatsApp asking for money with no bill. Fees that never reached the school. |
+| P-16 | Akosua, property owner abroad | Pharmacist in Toronto, 52. Owns a four-bedroom house in Tema rented out through an uncle. | Rent paid into her account. Repairs done and shown. | Uncle's family lives in it rent-free. No repair ever finished. |
+| P-17 | Carer or errand agent | Vetted local worker who visits an elderly parent or queues at an agency for a passport. | Clear task, fair pay, proof of work accepted. | Being accused of not showing up. |
 
 ## B4. Release plan and gates
 
@@ -255,8 +287,8 @@ Anyone abroad can buy, build or fund something at home and know, with evidence, 
 |---|---|---|
 | R0 | Founder decision | Day-90 review in `docs/validation-plan.md` section 6 passes |
 | R1 | R0 passes; escrow partner in talks | 300 reports and 50 escrows `[TO VERIFY]`; security review passed; insurer approves the platform report process |
-| R2 | R1 targets met; bank agreement signed; Act 1047 position known for listings | 40 active builds and one bank contract |
-| R3 | R2 targets met; Ghana construction gate passed for the Nigeria pilot | `[TO VERIFY]` |
+| R2 | R1 targets met; bank agreement signed; Act 1047 position known for listings | 40 active builds, one bank contract, 40% of clients with a recurring line `[TO VERIFY]` |
+| R3 | R2 targets met; country 2 day-90 gate passed and its software live | `[TO VERIFY]` |
 
 ## B5. Feature catalogue
 
@@ -289,7 +321,14 @@ Anyone abroad can buy, build or fund something at home and know, with evidence, 
 | F-25 | Traditional authority records module | P-11 | R3 | Should | REC |
 | F-26 | Family and stool listings | P-11 | R3 | Could | LST |
 | F-27 | Materials ordering for builds | P-01, P-08 | R3 | Could | BLD |
-| F-28 | Multi-country support | P-14 | R3 | Must (for Nigeria) | CTY |
+| F-28 | Country as configuration | P-14 | R1 basic, R2 full | Must | CTY |
+| F-29 | Payments to institutions: school fees, hospital and clinic bills, agency fees, with receipt returned | P-15, P-01 | R1 | Must | FEE |
+| F-30 | Care visits with check-in, photos and family confirmation | P-15, P-17 | R2 | Should | CARE |
+| F-31 | Property management: tenants, rent collection, repairs against quotes and inspection | P-16 | R2 | Should | PMG |
+| F-32 | Paperwork and errands by vetted agents | P-01, P-15, P-17 | R2 | Should | TSK |
+| F-33 | Health and funeral cover through insurer partners | P-15 | R2 | Could | INS |
+| F-34 | Events and ceremonies with vendors paid against evidence | P-01, P-15 | R3 | Could | EVT |
+| F-35 | Unified home dashboard: everything a client has running at home in one view | All clients | R1 | Should | ACC, ANL |
 
 ## B6. Key user journeys
 
@@ -350,6 +389,35 @@ Anyone abroad can buy, build or fund something at home and know, with evidence, 
 
 As J-01, with extra checks: building permit, structural inspection, occupants and tenancies, unpaid property rates and utility bills. Release in escrow also needs keys and vacant possession.
 
+### J-09 Pay a school or hospital directly (R1)
+
+1. Kwabena adds his mother as a family member and Komfo Anokye Teaching Hospital as an institution. Fidero verifies the institution: registration, bank account in the institution's name, a named contact.
+2. The hospital sends a bill. Kwabena uploads it, or the hospital sends it to Fidero's reference.
+3. Fidero checks the bill against the institution and the patient. Kwabena approves and pays into the partner bank.
+4. The bank pays the hospital. The receipt and, where allowed, the discharge note are returned to Kwabena's dashboard.
+5. For school fees, the same flow runs each term with a reminder and the school's confirmation of enrolment.
+
+### J-10 Arrange care visits (R2)
+
+1. Kwabena sets up a care plan for his mother: two visits a week, medicine pick-up, a blood pressure reading.
+2. Fidero assigns a vetted carer. The family is told who to expect.
+3. The carer checks in at the house in the app, completes the plan items, takes photos agreed with the family, and checks out.
+4. The mother or a family member confirms the visit with a one-tap code or a call. The carer is paid for confirmed visits only.
+
+### J-11 Manage a property (R2)
+
+1. Akosua registers her house in Tema. Fidero inspects it and records its condition with photos.
+2. Fidero finds or verifies a tenant, checks the agreement, and sets rent to be paid into Akosua's own account at the partner bank. Fidero never receives the rent.
+3. A repair is requested. Fidero gets two quotes, Akosua approves one, the money is held, the work is inspected and the contractor is paid.
+4. Akosua sees rent received, repairs, inspections and the photo timeline on her dashboard.
+
+### J-12 Get paperwork done (R2)
+
+1. Ama needs her Ghana Card renewed and a land title application lodged. She orders both as errands.
+2. Fidero shows the document checklist and the official fees. Ama uploads her documents and pays the fees and Fidero's charge into the partner bank.
+3. A vetted agent lodges the applications. Official fees are paid to the agency and the receipts uploaded. Each step shows in plain language.
+4. The finished document is handed to Ama's representative or couriered. Completion is confirmed by the uploaded document.
+
 ## B7. Business rules
 
 The system must enforce these rules. Each is tested in document 05.
@@ -377,6 +445,10 @@ The system must enforce these rules. Each is tested in document 05.
 | RUL-19 | Every scope variation on a build is agreed in writing in the app before work starts. |
 | RUL-20 | Only licensed professionals with a verified licence on file can sign their report section. |
 | RUL-21 | Project fund money goes only to named, checked suppliers against invoices, never as cash to a person running the project. |
+| RUL-22 | On every line, money is released only to a verified institution, supplier, vendor or professional with a bank account in that name. Fidero never releases cash to a relative or to the client's representative. |
+| RUL-23 | A carer or errand agent is paid only for visits or tasks confirmed by check-in evidence and by the family or the resulting document. |
+| RUL-24 | Rent on a managed property is paid by the tenant to the owner's own account at the partner bank, never to Fidero. |
+| RUL-25 | Insurance is sold as the named licensed insurer's policy. Fidero collects no premium into its own account and pays no claim. |
 
 ## B8. Out of scope for this specification
 
@@ -404,6 +476,12 @@ The system must enforce these rules. Each is tested in document 05.
 | Q-12 | How does the bank recall a payment sent in error, and how much notice does it need of a change to the instruction format? | Founder | R1 |
 | Q-13 | What happens when a client does not approve a milestone within the reminder period? | Founder, lawyer | R2 |
 | Q-14 | What content goes in the field risk screen, and who may flag a plot as disputed? | Operations, lawyer | R1 |
+| Q-15 | Which second and third countries, and when? Nigeria then Kenya are assumed | Founder | Month 6 |
+| Q-16 | Which institutions accept direct payment with an invoice or student reference? | Operations | R0 |
+| Q-17 | Which insurer partners for health and funeral cover in each country, and what intermediary licence Fidero needs? | Founder, lawyer | R2 |
+| Q-18 | Does property management or errand work need a licence in each country? | Lawyer | R2 |
+| Q-19 | How is a carer vetted and what does a care plan contain? | Operations | R2 |
+| Q-20 | Pricing for each new line | Founder | R1, R2 |
 
 ---
 
@@ -413,12 +491,12 @@ The system must enforce these rules. Each is tested in document 05.
 
 Fidero is one platform with four front ends over one core API:
 
-1. **Client portal** (web, phone first) for buyers, sellers, developers and project fund owners.
+1. **Client portal** (web, phone first) for clients abroad and at home: buyers, owners, family supporters, sellers, developers and project fund owners.
 2. **Back office** (web) for operations, reviewers, professionals and administrators.
-3. **Milestone app** (Android) for contractors, inspectors, runners and surveyors in the field.
+3. **Field app** (Android) for contractors, inspectors, runners, surveyors, carers and errand agents. Called the milestone app in R2 planning; the name covers all field roles.
 4. **Partner API** for banks and developers.
 
-It integrates with an escrow bank, a payment provider, an identity check provider, map and satellite data sources, and messaging channels. Architecture is in document 02.
+It integrates with an escrow bank, a payment provider, an identity check provider, map and satellite data sources, insurer partners, and messaging channels. Country is configuration throughout. Architecture is in document 02.
 
 ## C2. User roles
 
@@ -439,6 +517,11 @@ It integrates with an escrow bank, a payment provider, an identity check provide
 | Project runner | The person running a funded project: upload invoices, receipts and photos | Receive money; choose suppliers alone |
 | Supplier | Receive direct payment from the bank against invoices; confirm deliveries | See the client's data beyond the order |
 | Authority representative | View and confirm their authority's records (R3) | See case data unrelated to their records |
+| Family member | Confirm a care visit or a delivery; see the parts of a case the client shares | Receive money; approve releases |
+| Institution contact | Confirm an invoice and enrolment or treatment; receive payment to the institution's account | See the client's other activity |
+| Carer or errand agent | Check in and out, complete plan items, upload evidence for assigned visits and tasks | Receive money outside confirmed work; see unrelated clients |
+| Tenant | See their agreement and rent record; report a repair | See the owner's other data |
+| Insurer partner | Receive applications and premiums; return policy documents and claim outcomes | See clients who did not apply |
 | Partner (API) | Query plot status for consented reports | See full reports without consent |
 | Administrator | Configure users, roles, templates, prices, partners, countries | Release money; edit the audit log |
 
@@ -451,7 +534,7 @@ Release rights are a permission, not a role. Reviewers and senior staff named by
 - Users may be on 3G connections with frequent drops.
 - Primary language is English. Times are shown in the user's time zone and in Ghana time (GMT).
 - "Working days" means Monday to Friday excluding Ghana public holidays, from a holiday calendar the administrator maintains.
-- Currencies: Ghana cedi (GHS) and US dollar (USD) in R1; GBP, EUR and CAD shown as guides; Nigerian naira (NGN) in R3.
+- Currencies: Ghana cedi (GHS) and US dollar (USD) in R1; GBP, EUR and CAD shown as guides; the currency of each further country when it opens (Nigerian naira assumed first `[TO VERIFY]`).
 
 ## C4. Functional requirements
 
@@ -468,10 +551,11 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-ACC-005 | The system shall store each professional's licence number, licence body and expiry date, and block signing when the licence is expired or unverified. | Must | R1 | RUL-20 |
 | FR-ACC-006 | The system shall let an administrator invite staff, professionals, contractors and inspectors and assign roles, and let a case manager invite a seller to accept escrow terms and supply documents for a named case. | Must | R1 | BR-03 |
 | FR-ACC-007 | The system shall enforce role-based access so each user sees only the cases, projects and listings assigned to them, owned by them, or within their operational scope. Case managers and reviewers see the work of their country and team. | Must | R1 | BR-15 |
-| FR-ACC-008 | The system shall let a client name a representative in Ghana with limited, read-only access to a case or project. | Should | R1 | BR-01 |
+| FR-ACC-008 | The system shall let a client name a representative in the home country with limited, read-only access to a case or project. | Should | R1 | BR-01 |
+| FR-ACC-012 | The system shall let a client add family members, properties and institutions to their account and see everything running at home in one dashboard. | Should | R1 | BR-17 |
 | FR-ACC-009 | The system shall lock an account after 5 failed sign-in attempts for 15 minutes and notify the user. | Must | R1 | BR-15 |
 | FR-ACC-010 | The system shall let users manage notification preferences and their preferred channel. | Should | R1 | BR-01 |
-| FR-ACC-011 | The system shall let a developer or seller create an organisation account with several users. | Should | R2 | BR-10 |
+| FR-ACC-011 | The system shall let a developer, seller, institution or insurer create an organisation account with several users. | Should | R2 | BR-10, BR-17 |
 
 ### C4.2 Orders and leads (ORD)
 
@@ -559,7 +643,9 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-ESC-007 | The system shall require approval of a release instruction by two different staff with release rights, using multi-factor authentication. | Must | R1 | RUL-05 |
 | FR-ESC-008 | The system shall generate the release instruction in the format agreed with the bank, record both approvers in it, sign it with a key held in a key management service, and send it by the channel agreed with the bank `[TO VERIFY]`. | Must | R1 | BR-05 |
 | FR-ESC-009 | The system shall record the bank's release confirmation and show it to all parties. | Must | R1 | BR-05 |
-| FR-ESC-010 | The system shall support partial releases against milestones or stages for construction, off-plan and project fund escrows. | Must | R2 | BR-08, BR-09 |
+| FR-ESC-010 | The system shall support partial releases against milestones, stages, visits or tasks for construction, off-plan, project fund, care, errand, property repair and event escrows. | Must | R2 | BR-08, BR-09, BR-18, BR-19, BR-20 |
+| FR-ESC-014 | The system shall support a held balance from which several small releases are made over time, with a running statement to the client, for institution payments, care visits and errands. | Must | R1 | BR-17 |
+| FR-ESC-015 | The system shall block any release to a payee whose bank account name does not match the verified institution, supplier, vendor or professional. | Must | R1 | RUL-22 |
 | FR-ESC-011 | The system shall import the bank's daily statement file and match lines to escrows, listing unmatched lines. | Should | R2 | BR-05 |
 | FR-ESC-012 | The system shall integrate with the bank's API for deposit and release status where available. | Could | R2 | BR-05 |
 | FR-ESC-013 | The system shall support cancellation and refund instructions with the same two-person approval. | Must | R1 | RUL-05 |
@@ -588,7 +674,8 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-MOB-007 | The app shall give inspectors the checklist for the milestone and let them record pass, pass with defects (each defect with photos and a value) or fail. | Must | R2 | RUL-09 |
 | FR-MOB-008 | The app shall compress photos and cap video length and resolution, keeping originals on the device until the server confirms receipt. | Must | R2 | C-08 |
 | FR-MOB-009 | The app shall encrypt stored evidence on the device and remove it after the server confirms receipt. | Must | R2 | BR-15 |
-| FR-MOB-010 | The app shall let runners and surveyors capture evidence for verification case tasks the same way. | Should | R2 | BR-06 |
+| FR-MOB-010 | The app shall let runners, surveyors, carers and errand agents capture evidence for case tasks, visits and errands the same way. | Should | R2 | BR-06, BR-18, BR-20 |
+| FR-MOB-012 | The app shall support check-in and check-out at a registered address with GPS position, for care visits and inspections. | Must | R2 | RUL-23 |
 | FR-MOB-011 | The server shall verify each signature, record the server time and flag: position outside the plot buffer, a device-to-server time gap above the configured value, capture before the previous milestone passed, a hash already seen on another project, and image metadata that does not match the registered device. A reviewer shall be able to revoke a device key, which re-flags all evidence it signed for review. | Must | R2 | BR-08 |
 
 ### C4.10 Construction, off-plan and buildings (BLD)
@@ -709,7 +796,68 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-DPR-004 | The system shall apply retention rules per data class and delete or anonymise data at the end of the period, unless a legal hold applies. | Must | R1 | C-02 |
 | FR-DPR-005 | The system shall require two-person approval for any bulk export of personal data. | Must | R1 | C-02 |
 
-### C4.21 Records programme (REC)
+### C4.21 Payments to institutions (FEE)
+
+| ID | Requirement | Priority | Release | Source |
+|---|---|---|---|---|
+| FR-FEE-001 | The system shall let a client register an institution (school, hospital, clinic, pharmacy, government agency, utility) and shall verify its registration, its bank account in the institution's name and a named contact before any payment. | Must | R1 | BR-17, RUL-22 |
+| FR-FEE-002 | The system shall let a client or the institution submit an invoice or fee note with a reference, and shall check it against the institution and the named family member. | Must | R1 | BR-17 |
+| FR-FEE-003 | The system shall let the client approve the invoice and pay into the partner bank, and shall instruct payment to the institution's account only. | Must | R1 | RUL-22 |
+| FR-FEE-004 | The system shall return the institution's receipt and, where the institution agrees, a confirmation of enrolment, treatment or service to the client's dashboard. | Must | R1 | BR-17 |
+| FR-FEE-005 | The system shall support recurring fee schedules (per term, per month) with reminders and the client's approval before each payment. | Should | R1 | BR-17 |
+| FR-FEE-006 | The system shall let a runner pay an institution in person and upload the receipt when direct payment is not possible, with the cash drawn from the bank against a signed voucher and reconciled within 2 working days. | Should | R1 | AS-10 |
+| FR-FEE-007 | The system shall show the client a statement per family member: invoices, payments, receipts and balance held. | Must | R1 | BR-17 |
+
+### C4.22 Care visits (CARE)
+
+| ID | Requirement | Priority | Release | Source |
+|---|---|---|---|---|
+| FR-CARE-001 | The system shall let a client create a care plan for a family member: address, visit frequency, tasks (medicine, meals, readings, companionship, transport), and who in the family may confirm visits. | Should | R2 | BR-18 |
+| FR-CARE-002 | The system shall keep a panel of vetted carers with identity, references, background check, training and track record, and shall assign only vetted carers. | Must | R2 | BR-18 |
+| FR-CARE-003 | The carer shall check in at the registered address, complete the plan items, attach the agreed photos or readings, and check out, all in the field app. | Must | R2 | RUL-23 |
+| FR-CARE-004 | The system shall ask the family member to confirm each visit by a one-tap code, a call or the app, and shall pay the carer only for confirmed visits. | Must | R2 | RUL-23 |
+| FR-CARE-005 | The system shall alert the client and Fidero when a visit is missed, late or unconfirmed within 24 hours. | Must | R2 | BR-18 |
+| FR-CARE-006 | The system shall let the carer raise a concern (health, safety, welfare) that goes to the client and a Fidero reviewer the same day. | Must | R2 | BR-18 |
+
+### C4.23 Property management (PMG)
+
+| ID | Requirement | Priority | Release | Source |
+|---|---|---|---|---|
+| FR-PMG-001 | The system shall let an owner register a property and shall record an inspection of its condition with photos before management starts. | Should | R2 | BR-19 |
+| FR-PMG-002 | The system shall record the tenant, the tenancy agreement, the rent and the owner's own account at the partner bank to which rent is paid. | Must | R2 | RUL-24 |
+| FR-PMG-003 | The system shall track rent due and received from the bank's statement or confirmation, and shall alert the owner and Fidero when rent is late. | Must | R2 | BR-19 |
+| FR-PMG-004 | The system shall let a tenant or inspector report a repair, shall collect at least two quotes from vetted contractors, and shall let the owner approve one. | Should | R2 | BR-19 |
+| FR-PMG-005 | The system shall hold the repair money at the bank and release it to the contractor only after inspection with photos. | Must | R2 | RUL-22 |
+| FR-PMG-006 | The system shall schedule periodic inspections and show the owner a timeline of rent, repairs and inspections. | Should | R2 | BR-19 |
+
+### C4.24 Paperwork and errands (TSK)
+
+| ID | Requirement | Priority | Release | Source |
+|---|---|---|---|---|
+| FR-TSK-001 | The system shall offer a catalogue of errands per country (identity documents, passports, land title steps, probate, company registration, tax filings, utility connections), each with a document checklist, official fees, Fidero's charge and a target time. | Should | R2 | BR-20 |
+| FR-TSK-002 | The system shall let the client upload the checklist documents and pay the official fees and Fidero's charge into the partner bank. | Must | R2 | BR-20 |
+| FR-TSK-003 | The system shall assign a vetted agent, shall pay official fees to the agency's account only, and shall record each step with the receipt or acknowledgement uploaded. | Must | R2 | RUL-22, RUL-23 |
+| FR-TSK-004 | The system shall confirm completion only when the resulting document or official confirmation is uploaded and checked by Fidero. | Must | R2 | RUL-23 |
+| FR-TSK-005 | The system shall record handover of the document to the client's representative or courier, with a signature or photo. | Should | R2 | BR-20 |
+
+### C4.25 Insurer partner lines (INS)
+
+| ID | Requirement | Priority | Release | Source |
+|---|---|---|---|---|
+| FR-INS-001 | The system shall present health and funeral cover products from licensed insurer partners, showing the insurer's name, the policy terms and that the policy is the insurer's. | Could | R2 | BR-21, RUL-25 |
+| FR-INS-002 | The system shall collect the application and pass it to the insurer, and shall direct premium payment to the insurer's account, never to Fidero. | Must | R2 | RUL-25 |
+| FR-INS-003 | The system shall store the policy document, renewal dates and the insurer's claim contact, and shall remind the client before renewal. | Should | R2 | BR-21 |
+| FR-INS-004 | The system shall let a client start a claim and shall track the insurer's response, without Fidero deciding the claim. | Could | R2 | RUL-25 |
+
+### C4.26 Events and ceremonies (EVT)
+
+| ID | Requirement | Priority | Release | Source |
+|---|---|---|---|---|
+| FR-EVT-001 | The system shall let a client create an event with a budget, a date and a list of vendors, and shall verify each vendor's registration and bank account. | Could | R3 | BR-22 |
+| FR-EVT-002 | The system shall release vendor payments against invoices and delivery evidence (photos, delivery notes, a family confirmation), with deposits allowed against a signed quote. | Could | R3 | RUL-22 |
+| FR-EVT-003 | The system shall show the client budget against actual and a receipt for every payment. | Could | R3 | BR-22 |
+
+### C4.27 Records programme (REC)
 
 | ID | Requirement | Priority | Release | Source |
 |---|---|---|---|---|
@@ -718,13 +866,14 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-REC-003 | The system shall compute the revenue share owed to each authority from cases that used their records. | Should | R3 | BR-13 |
 | FR-REC-004 | The system shall let an authorised representative of the authority view and confirm their records. | Should | R3 | BR-13 |
 
-### C4.22 Multi-country (CTY)
+### C4.28 Multi-country (CTY)
 
 | ID | Requirement | Priority | Release | Source |
 |---|---|---|---|---|
-| FR-CTY-001 | The system shall hold country as configuration: templates, scope statement, overlay layers, currency, partners, professional licence bodies and legal texts. | Must | R3 | BR-14 |
-| FR-CTY-002 | The system shall keep each country's data in the location its law requires. | Must | R3 | BR-14 |
-| FR-CTY-003 | The system shall report all metrics by country. | Must | R3 | BR-14 |
+| FR-CTY-001 | The system shall hold country as configuration: templates, scope statement, overlay layers, currency, partners, professional licence bodies, legal texts, holiday calendar, errand catalogue and data location. Every case, payment, listing and user belongs to one country. | Must | R1 | BR-14 |
+| FR-CTY-004 | The system shall let an administrator open a new country by copying another country's configuration and editing it, without code changes other than new integrations. | Must | R2 | BR-14 |
+| FR-CTY-002 | The system shall keep each country's data in the location its law requires. | Must | R2 | BR-14 |
+| FR-CTY-003 | The system shall report all metrics by country. | Must | R1 | BR-14 |
 
 ## C5. Data requirements
 
@@ -755,6 +904,16 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | Rating | Subject, rater, score, comment |
 | Audit event | Actor, action, object, time, origin, previous hash |
 | Consent | Person, purpose, text version, time, linked recording |
+| Family member | Client, person, relationship, address, may confirm visits |
+| Institution | Country, type, registration, verified bank account, contact, status |
+| Institution payment | Client, family member, institution, invoice, amount, status, receipt |
+| Care plan and visit | Family member, carer, schedule, tasks, check-in and out, confirmation, outcome |
+| Managed property | Owner, property, tenant, agreement, rent, owner's bank account, inspections |
+| Repair | Property, quotes, approved quote, contractor, inspection, payment |
+| Errand | Client, catalogue item, country, agent, checklist, steps, fees, result document |
+| Policy | Client, insured, insurer, product, premium schedule, documents, claims |
+| Event | Client, budget, vendors, payments |
+| Country | Code, currency, configuration version, data location, holiday calendar |
 
 ### C5.2 Data classes and retention
 
@@ -781,6 +940,8 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | IF-07 | Email, SMS, WhatsApp | Notifications | R1 | Providers `[TO VERIFY]` |
 | IF-08 | Partner API consumers | Banks and developers | R2 | Defined in document 02 |
 | IF-09 | Lands Commission | Searches | Manual in all releases unless online access is offered `[TO VERIFY]` | |
+| IF-10 | Institutions: schools, hospitals, agencies | Invoice references and receipts | R1 manual upload; R2 portal or file | Per institution `[TO VERIFY]` |
+| IF-11 | Insurer partners | Applications, premiums, policies, claims | R2 | Per insurer `[TO VERIFY]` |
 
 ## C7. Non-functional requirements
 
@@ -806,7 +967,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | NFR-A11Y-01 | The portal and back office shall meet WCAG 2.2 level AA from R1. The milestone app shall meet the same level from R2, using Android's accessibility guidance. | R1 |
 | NFR-OBS-01 | Every request shall carry a trace ID. Errors, latency, upload queue length and job failures shall be monitored with alerts. | R1 |
 | NFR-MNT-01 | Automated tests shall cover at least 80% of lines in the core API and every business rule in B7. | R1 |
-| NFR-MNT-02 | A new product line or country shall be added through configuration, with code changes only for new integrations. | R2 |
+| NFR-MNT-02 | A new product line or country shall be added through configuration, with code changes only for new integrations. | R1 for country, R2 for lines |
 | NFR-SCL-01 | The platform shall handle 2,000 open cases, 500 active projects and 20,000 listings without redesign. | R2 |
 | NFR-LOC-01 | All user-facing text shall be held in translation files, ready for other languages. | R1 |
 | NFR-AUD-01 | Audit entries shall be retained and readable for the full retention period of the data they describe. | R1 |
@@ -910,3 +1071,6 @@ Each functional requirement and business rule has acceptance criteria and test c
 | Retention | Part of the build value held back until the defects period ends |
 | Release instruction | Fidero's signed instruction to the bank to pay out escrowed money |
 | Badge | The "Fidero Verified" mark on a listing, valid for a set period |
+| Institution | A school, hospital, clinic, pharmacy, agency or utility that Fidero has verified and pays directly |
+| Care plan | The agreed schedule and tasks for visits to a family member |
+| Errand | A paperwork or in-person task done at home by a vetted agent |
