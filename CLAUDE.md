@@ -11,6 +11,7 @@ The founder is in Ghana and runs three ventures. This repository is only for Fid
 - Business plan, the formal document: Claude doc at https://claude.ai/artifact/Mofu9Bu722tegJofEMTQ1H. Edit it with the Claude Docs tools, not by copying it into the repository.
 - Original business proposal: private Claude doc at https://claude.ai/artifact/6Ubez2eMb24wnnHU8Gh93a. It may not be readable from the cloud.
 - Clickable prototype: https://claude.ai/artifact/FzGbi543d8uvhyXpDDasLK, built from `docs/specs/03-prototype/index.html`.
+- Nigeria launch plan: Claude doc at https://claude.ai/artifact/X1r2egGWXyAH6dhLpy6QiJ. Lagos manual phase months 6 to 9, gate at month 9, platform by month 12.
 - Repository documents: see the map in `README.md`. The specification set in `docs/specs/` is the source of truth for the product; document 01 holds every requirement ID.
 
 ## Writing rules

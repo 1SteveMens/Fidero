@@ -87,3 +87,5 @@ Ama, the diaspora property buyer, stays the lead persona for the launch, because
 |---|---|
 | Countries | Nigeria is country 2: manual phase from month 6, software from month 12 if its day-90 gate passes. Kenya is country 3: manual phase in months 15-18, software in R3. Each still repeats the manual phase and a 90-day validation. |
 | R1 team | Keep one contract developer from sprint S3 to S13 (option A+ in `docs/specs/04` section 5.1). Cost about $17,600 `[TO VERIFY]`. R1 Musts finish by month 9 to 10 and the month-12 Nigeria date holds. If velocity after S2 is more than 20% below plan, the option C list in 04 section 5.1 is applied as well. |
+
+The Nigeria launch plan is a Claude doc: https://claude.ai/artifact/X1r2egGWXyAH6dhLpy6QiJ
