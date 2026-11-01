@@ -5,7 +5,7 @@ Business requirements (BRD), product requirements (PRD) and software requirement
 | Item | Value |
 |---|---|
 | Document | 01 of 6 in `docs/specs/` |
-| Version | 0.4, working draft |
+| Version | 0.5, working draft |
 | Date | 1 November 2026 |
 | Owner | Founder, acting as product owner |
 | Status | For review. Not yet baselined |
@@ -18,6 +18,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 31 October 2026 | First draft |
+| 0.5 | 1 November 2026 | Founder decisions: country 2 is Nigeria and country 3 is Kenya (Q-15 answered); the R1 team includes one contract developer from S3 to S13 (C-07). |
 | 0.4 | 1 November 2026 | Review fixes raised while updating documents 02 to 06 to v0.3. No new requirement IDs. Removes the runner cash route (FR-FEE-006 now marks such institutions not eligible); adds sellers and developers to RUL-22 payees; defines held amounts as amounts held at the bank; names the account-name source for FR-ESC-015; adds the owner's mandate for rent statements; states the premium route; ends unconfirmed visits with a reviewer decision; scopes the fresh search to purchases; adds standing approvals for visits and errand steps; extends RUL-08 and FR-MOB-001 to carers and agents; adds a Withdrawn dispute state; adds sensitive data classes; states how Must works inside Should features; Q-21 and Q-22. |
 | 0.3 | 1 November 2026 | Redefinition per `docs/decisions/2026-11-01-diaspora-platform.md`: Fidero is the diaspora's trusted agent at home. Adds product families and lines (fees to institutions, care visits, property management, paperwork and errands, insurer partner lines, events), personas P-15 to P-17, features F-29 to F-35, journeys J-09 to J-12, rules RUL-22 to RUL-25, modules FEE, CARE, PMG, TSK, INS and EVT, moves country configuration to R1, and opens a second country from month 6. |
 | 0.2 | 31 October 2026 | Review fixes raised while writing documents 02, 05 and 06: release rights and missing roles defined; client approval added to escrow; partial release, freeze and cancel paths added to the state models; mobilisation exception to RUL-09; second-person checks on manual bank entries, bank details and release-affecting settings; thresholds made configurable; NFR targets made measurable; questions Q-11 to Q-14 added. Each later document's "Issues found in document 01" section lists what it raised. Items not yet resolved stay open there. |
@@ -188,7 +189,7 @@ The full problem statement is in `docs/proposal.md` section 2.
 | C-04 | Listing or brokering property may need a licence under the Real Estate Agency Act 2020 (Act 1047) `[TO VERIFY]`. Listings do not go live until this is resolved. |
 | C-05 | Only licensed lawyers and surveyors may sign their report sections. |
 | C-06 | The scope and limitation statement is fixed text. It changes only with the lawyer's and insurer's approval. |
-| C-07 | Budget: $400,000 pre-seed for 18 months, shared with operations and marketing. Phase 2 team is one product and engineering lead plus one or two developers `[TO VERIFY]`. |
+| C-07 | Budget: $400,000 pre-seed for 18 months, shared with operations and marketing. R1 team is one product and engineering lead, two developers, a part-time designer and one contract developer from sprint S3 to S13 (decided 1 November 2026). R2 adds an Android developer and a QA engineer `[TO VERIFY]`. |
 | C-08 | Many users in Ghana are on slow mobile connections and low-end Android phones. |
 | C-09 | Data hosting must be where each country's data protection authority accepts. For Ghana, in Ghana or a jurisdiction the Data Protection Commission accepts `[TO VERIFY]`. |
 | C-10 | The word "guard" must not appear in any product, feature or brand name. Land guards are the threat Fidero protects against. |
@@ -212,7 +213,7 @@ The full problem statement is in `docs/proposal.md` section 2.
 | AS-10 | Schools, hospitals and government agencies accept direct payment with an invoice or student reference `[TO VERIFY]`. | That institution is not eligible for direct payment. Fidero does not pay cash on the client's behalf. |
 | AS-11 | At least one licensed insurer per country will sell health and funeral cover through Fidero `[TO VERIFY]`. | The insurer lines do not open in that country. |
 | AS-12 | Vetted carers and errand agents can be recruited and retained at a fee clients will pay `[TO VERIFY]`. | Care visits and errands stay small or close. |
-| AS-13 | Country 2 passes its day-90 gate by month 9 `[TO VERIFY]`. | Country 2 software waits; Ghana continues. |
+| AS-13 | Nigeria (country 2) passes its day-90 gate by month 9 `[TO VERIFY]`. | Country 2 software waits; Ghana continues. |
 
 ## A9. Success metrics
 
@@ -479,7 +480,7 @@ The system must enforce these rules. Each is tested in document 05.
 | Q-12 | How does the bank recall a payment sent in error, and how much notice does it need of a change to the instruction format? | Founder | R1 |
 | Q-13 | What happens when a client does not approve a milestone within the reminder period? | Founder, lawyer | R2 |
 | Q-14 | What content goes in the field risk screen, and who may flag a plot as disputed? | Operations, lawyer | R1 |
-| Q-15 | Which second and third countries, and when? Nigeria then Kenya are assumed | Founder | Month 6 |
+| Q-15 | Which second and third countries, and when? **Answered 1 November 2026:** Nigeria from month 6, then Kenya from month 15 | Founder | Closed |
 | Q-16 | Which institutions accept direct payment with an invoice or student reference? | Operations | R0 |
 | Q-17 | Which insurer partners for health and funeral cover in each country, and what intermediary licence Fidero needs? | Founder, lawyer | R2 |
 | Q-18 | Does property management or errand work need a licence in each country? | Lawyer | R2 |
@@ -539,7 +540,7 @@ Release rights are a permission, not a role. Reviewers and senior staff named by
 - Users may be on 3G connections with frequent drops.
 - Primary language is English. Times are shown in the user's time zone and in Ghana time (GMT).
 - "Working days" means Monday to Friday excluding Ghana public holidays, from a holiday calendar the administrator maintains.
-- Currencies: Ghana cedi (GHS) and US dollar (USD) in R1; GBP, EUR and CAD shown as guides; the currency of each further country when it opens (Nigerian naira assumed first `[TO VERIFY]`).
+- Currencies: Ghana cedi (GHS) and US dollar (USD) in R1; GBP, EUR and CAD shown as guides; Nigerian naira (NGN) when Nigeria opens; Kenyan shilling (KES) when Kenya opens.
 
 ## C4. Functional requirements
 

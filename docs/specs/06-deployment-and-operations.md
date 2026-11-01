@@ -2068,7 +2068,7 @@ The register lists every place personal data is stored or processed. It is kept 
 | Country | Law and regulator `[TO VERIFY]` | Allowed locations `[TO VERIFY]` | Hosting pattern (2.7) | Manual-phase records | Status |
 |---|---|---|---|---|---|
 | Ghana | Data Protection Act 2012 (Act 843); Data Protection Commission | Pending Q-07; af-south-1 as the working assumption | A (the primary) | R0 spreadsheets, migrated or deleted at R1 | Pending Q-07 |
-| Country 2 (Nigeria assumed, Q-15) | Its data protection law and regulator `[TO VERIFY]` | `[TO VERIFY]` by its lawyer before RB-26 | B assumed until its lawyer allows A | Spreadsheets from month 6 in an allowed location `[TO VERIFY]` | Not started |
+| Country 2, Nigeria (Q-15 answered) | Its data protection law and regulator `[TO VERIFY]` | `[TO VERIFY]` by its lawyer before RB-26 | B assumed until its lawyer allows A | Spreadsheets from month 6 in an allowed location `[TO VERIFY]` | Not started |
 | Country 3 (Kenya assumed, Q-15) | `[TO VERIFY]` | `[TO VERIFY]` | `[TO VERIFY]` | R2 manual phase | Not started |
 
 The full register follows. Each row is repeated per country where the location differs.

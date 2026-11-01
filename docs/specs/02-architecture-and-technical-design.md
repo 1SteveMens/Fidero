@@ -1854,7 +1854,7 @@ CREATE TABLE cty_country_config (                    -- FR-CTY-001, FR-CTY-004; 
 | Metrics by country (FR-CTY-003) | | Each cell publishes aggregated, anonymised metric tables (counts, sums, medians) to a central analytics bucket in the Ghana cell. No row-level data crosses a cell boundary. |
 | Staff in several countries | | A staff member has a grant per country. Cross-cell work means signing in to each cell; the back office shows the cell name in the header. |
 | Shared configuration | | Published configuration can be copied between cells by export and import of the content JSON with its hash; nothing else is shared. |
-| Which second country, when | | Assumed Nigeria at month 6 manual, month 12 software, then Kenya `[TO VERIFY]` (Q-15). Nigeria's data location rule `[TO VERIFY]` decides whether it needs its own cell (TQ-13). |
+| Which second country, when | | Decided: Nigeria at month 6 manual, month 12 software, then Kenya (Q-15 answered 1 November 2026). Nigeria's data location rule `[TO VERIFY]` decides whether it needs its own cell (TQ-13). |
 
 The one-cell design in R1 keeps C-07. The decision to open a second cell is taken at country 2's day-90 gate with the lawyer's data location opinion in hand.
 

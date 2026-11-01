@@ -176,7 +176,7 @@ A verification report costs a small fraction of a plot. Losing the plot costs ev
 
 ### Expansion beyond Ghana
 
-Fidero starts in Ghana and extends to other countries where the same problems exist: a large diaspora sending money home, poorly recorded land ownership, and no neutral party tying payment to proof. A second country starts its manual phase from about month 6, once Ghana has passed its day-90 gate, and its software opens from about month 12 if its own gate passes. A third country starts its manual phase in months 9-18. The assumed order is Ghana, Nigeria, Kenya `[TO VERIFY]`. Country is configuration in the software from the first release, so opening a country is a field and partner exercise, not a software project.
+Fidero starts in Ghana and extends to other countries where the same problems exist: a large diaspora sending money home, poorly recorded land ownership, and no neutral party tying payment to proof. Nigeria starts its manual phase from month 6, once Ghana has passed its day-90 gate, and its software opens from about month 12 if its own gate passes. Kenya starts its manual phase in months 15-18. The order is Ghana, then Nigeria, then Kenya (decided 1 November 2026). Country is configuration in the software from the first release, so opening a country is a field and partner exercise, not a software project.
 
 A country qualifies for entry when it meets all of these criteria:
 

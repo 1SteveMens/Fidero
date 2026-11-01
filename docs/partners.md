@@ -96,7 +96,7 @@ All figures are assumptions. Unknown numbers are `[TO VERIFY]`.
 - **Lands Commission.** Formal access to searches or data `[TO VERIFY]`. Approach once volumes justify it.
 - **Materials suppliers.** Bulk supply at a margin of 3-7% (assumption). Approach in phase 3.
 - **Mortgage lenders and developers.** Collateral checks and clean-title land. Approach with the first bank contract in phase 3.
-- **Country 2 partners.** A bank or licensed escrow agent, a law firm, licensed surveyors, an insurer and diaspora associations in the second country, assumed to be Nigeria `[TO VERIFY]`. Approach from month 6 with the Ghana numbers.
+- **Country 2 partners.** A bank or licensed escrow agent, a law firm, licensed surveyors, an insurer and diaspora associations in Nigeria. Approach from month 6 with the Ghana numbers. The same set in Kenya from month 15.
 - **Event vendors and freight forwarders.** For events and relocation in phase 4.
 
 ## Partner tracker

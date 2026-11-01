@@ -46,7 +46,7 @@ Rules that apply to every line:
 - Ghana launches first and remains the lead market.
 - A country is a configuration from the first software release: templates, scope statement, overlay layers, currency, partners, licence bodies, legal texts, holiday calendar and data location.
 - A second country starts its manual phase from about month 6, once Ghana has passed its day-90 gate, instead of waiting until month 18. Each country repeats the manual phase and a 90-day validation before any software is localised.
-- Assumed order: Ghana, then Nigeria, then Kenya `[TO VERIFY]`. Entry criteria are unchanged: a large diaspora in the countries Fidero already serves, a legal route to escrow through a licensed bank or agent, licensed professionals to contract, a partner bank and an insurer, and safe field conditions.
+- Order: Ghana, then Nigeria, then Kenya (decided 1 November 2026, see below). Entry criteria are unchanged: a large diaspora in the countries Fidero already serves, a legal route to escrow through a licensed bank or agent, licensed professionals to contract, a partner bank and an insurer, and safe field conditions.
 - Diaspora source markets: UK, US, Canada, Germany, Netherlands first; others follow the destination country's diaspora.
 
 ## Launch sequence
@@ -74,9 +74,16 @@ Ama, the diaspora property buyer, stays the lead persona for the launch, because
 
 | ID | Question | Owner |
 |---|---|---|
-| Q-15 | Which second and third countries, and when? | Founder |
+| Q-15 | Which second and third countries, and when? Answered: Nigeria, then Kenya | Founder |
 | Q-16 | Which institutions accept direct payment with an invoice reference (schools, hospitals, agencies)? | Operations |
 | Q-17 | Which insurer partners for health and funeral cover in each country? | Founder |
 | Q-18 | Does property management or errand work need any licence in each country? | Lawyer |
 | Q-19 | How is a carer vetted and what does a care plan contain? | Operations |
 | Q-20 | Pricing for each new line | Founder |
+
+## Follow-up decisions, 1 November 2026
+
+| Decision | Detail |
+|---|---|
+| Countries | Nigeria is country 2: manual phase from month 6, software from month 12 if its day-90 gate passes. Kenya is country 3: manual phase in months 15-18, software in R3. Each still repeats the manual phase and a 90-day validation. |
+| R1 team | Keep one contract developer from sprint S3 to S13 (option A+ in `docs/specs/04` section 5.1). Cost about $17,600 `[TO VERIFY]`. R1 Musts finish by month 9 to 10 and the month-12 Nigeria date holds. If velocity after S2 is more than 20% below plan, the option C list in 04 section 5.1 is applied as well. |

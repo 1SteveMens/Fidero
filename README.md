@@ -1,6 +1,6 @@
 # Fidero
 
-Fidero (from *fides*, trust) is the trusted agent at home for people abroad. Anyone in the diaspora who needs something done in their home country, from buying a plot to paying a parent's hospital bill, can have it checked, paid against proof, and shown to them. Ghana is the launch market. Land verification is the launch product. Other countries follow, starting with a second country whose manual phase begins around month 6.
+Fidero (from *fides*, trust) is the trusted agent at home for people abroad. Anyone in the diaspora who needs something done in their home country, from buying a plot to paying a parent's hospital bill, can have it checked, paid against proof, and shown to them. Ghana is the launch market. Land verification is the launch product. Nigeria follows from month 6 and Kenya from month 15.
 
 All figures in this repository are working assumptions, not verified data. Unknown numbers are marked `[TO VERIFY]`.
 
@@ -56,7 +56,7 @@ From month 9, sellers can pay to have a plot or property verified once and liste
 
 ## Countries
 
-Ghana first. Country is configuration in the software from the first release. A second country starts its manual phase from about month 6 and runs its own 90-day validation before any software is localised. Assumed order: Ghana, Nigeria, Kenya `[TO VERIFY]`. The decision is recorded in `docs/decisions/2026-11-01-diaspora-platform.md`.
+Ghana first. Country is configuration in the software from the first release. Nigeria starts its manual phase from month 6 and Kenya from month 15. Each runs its own 90-day validation before any software is localised. The decision is recorded in `docs/decisions/2026-11-01-diaspora-platform.md`.
 
 ## Revenue model (assumptions)
 

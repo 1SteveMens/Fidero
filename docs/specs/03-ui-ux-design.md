@@ -2401,7 +2401,7 @@ NFR-LOC-01 requires every user-facing string in translation files. English (Ghan
 | Expansion | Layouts allow 40% longer text. Buttons wrap rather than truncate. |
 | Fonts | System fonts cover Akan (ɛ, ɔ), Ewe and Ga letters and Hausa hooked letters. Test each before adding a language. |
 | Direction | CSS logical properties (`margin-inline-start`) so a right-to-left language is possible later, though none is planned. |
-| Candidate languages | Twi, Ga, Ewe, Hausa for Ghana; Nigeria pilot languages per FR-CTY-001. Demand `[TO VERIFY]` from R0 and R1 data. Legal texts stay in English until translated texts are approved by the lawyer. |
+| Candidate languages | Twi, Ga, Ewe, Hausa for Ghana; Nigeria and Kenya languages per FR-CTY-001 when each opens. Demand `[TO VERIFY]` from R0 and R1 data. Legal texts stay in English until translated texts are approved by the lawyer. |
 | Dates | `12 March 2027` (day, month name, year). Short form `12 Mar 2027`. Never `03/12/27`, which reads differently in the US. |
 | Times | 24-hour clock with zone: `14:05 GMT`. Ghana uses GMT all year with no daylight saving. For users abroad, add their local time: `14:05 GMT (15:05 in London)`. Deadlines are always stated in Ghana time first (C3). |
 | Working days | Deadlines in working days (FR-DSP-003) exclude weekends and the public holidays in the country's holiday calendar, which the administrator maintains (01 C3, FR-CTY-001; issue I-10 closed). |

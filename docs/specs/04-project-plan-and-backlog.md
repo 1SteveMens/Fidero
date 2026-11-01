@@ -56,7 +56,7 @@ Each release runs three steps. Software is built only for a phase that has passe
 - Two-week sprints. Sprint numbers run on from R1 to R2 (S0 to S31).
 - The founder is product owner. The product and engineering lead also acts as Scrum lead. There is no separate Scrum master at this team size.
 - Ceremonies, reports and change control are in section 12.
-- The R1 team is one product and engineering lead, two developers (one backend-leaning, one frontend-leaning) and a part-time designer `[TO VERIFY]` (C-07). This plan recommends one contract developer from S3 to S13 (section 5.1). R2 adds an Android developer and a QA engineer `[TO VERIFY]`.
+- The R1 team is one product and engineering lead, two developers (one backend-leaning, one frontend-leaning) and a part-time designer `[TO VERIFY]` (C-07). The founder has approved one contract developer from S3 to S13 (section 5.1). R2 adds an Android developer and a QA engineer `[TO VERIFY]`.
 - The country 2 manual phase is run by a country 2 lead, an operations role, not an engineering one (EN-47, `[TO VERIFY]`). Engineering stays one team working on one codebase, because country is configuration (FR-CTY-001).
 
 ### 2.3 Definition of ready
@@ -97,7 +97,7 @@ A story is done only when all of these hold:
 | S0 | Lead plus two developers, starting | 15 |
 | S1 | As above | 18 |
 | S2 | As above | 21 |
-| S3 to S13 | R1 team plus one contract developer (recommended, section 5.1) | 33 |
+| S3 to S13 | R1 team plus one contract developer (approved, section 5.1) | 33 |
 | S3 to S15 without the contract developer | R1 team at steady pace | 25 |
 | S13 onward | Plus the Android developer (ramping in S13 to S15) | 25 web plus about 10 Android from S16 |
 
@@ -295,11 +295,11 @@ S13 falls in months 9 to 10. The web team finishes R1 there while the Android de
 
 What the new scope means, plainly: version 0.1 already showed the baseline team 50 points short of the R1 Musts. Version 0.3 of 01 adds 46 points of R1 Must stories and enablers, and FR-CTY-003 pulls an 8-point Should (US-ANL-001) into the Must plan: 54 points more. The baseline team now finishes the R1 Musts around month 11, two months after gate G1 and one month after the Android developer starts. That is not workable: it eats the R2 start, and it collides with the country 2 configuration work that is due at month 12. The founder has three choices. All three are assumptions until the team's real velocity is known after S2.
 
-1. **More people. Option A+ (recommended).** Add one contract developer for S3 to S13, one sprint longer than version 0.1 proposed. All R1 Musts land by the end of S13 (months 9 to 10). Gate G1 at month 9 is judged on business numbers (reports, escrows, fees paid), which the S13 tail does not affect. Cost about $17,600 `[TO VERIFY]` (section 11). This protects the R2 start, the family lines and the month-12 country 2 date.
+1. **More people. Option A+ (chosen by the founder on 1 November 2026).** Add one contract developer for S3 to S13, one sprint longer than version 0.1 proposed. All R1 Musts land by the end of S13 (months 9 to 10). Gate G1 at month 9 is judged on business numbers (reports, escrows, fees paid), which the S13 tail does not affect. Cost about $17,600 `[TO VERIFY]` (section 11). This protects the R2 start, the family lines and the month-12 country 2 date.
 2. **Later R1. Option B.** Keep the baseline team and accept R1 completion at month 11 (S17). Not recommended: the Android developer would start while the web team is still on R1, and country 2 configuration (R2-B) would slip past month 12, which breaks BO-08.
 3. **Move items to R2. Option C.** Downgrade named R1 Musts through change control (section 12.3) with the product owner's written agreement. Candidates with the least effect before month 10: FR-CTY-003 (metrics by country, 3 points, no second-country data until month 12), FR-ACC-004 provider integration (US-ACC-004a, 5), FR-ADM-004 (3) and FR-DPR-003, FR-DPR-004, FR-DPR-005 (13). That is 24 points. Dropping FR-CTY-003 also lets US-ANL-001 return to the Should list, so 32 points leave the Must plan: 376 against 384 with Option A, which fits S12 with almost no slack. Moving EP-FEE or FR-CTY-001 is not recommended: fees to institutions are the first visible proof of the redefinition, R0 clients already pay them by hand, and country configuration is a data-model decision that costs far more to retrofit than to build in.
 
-The decision is needed at the end of S2, when velocity is first measured. If velocity after S2 is more than 20% below the table, the founder takes Option A+ and the Option C list together.
+**Decision, 1 November 2026:** the founder chose Option A+. The contract developer is in the plan from S3 to S13. At the end of S2, when velocity is first measured, if it is more than 20% below the table, the Option C list is applied as well.
 
 #### Cut line
 
@@ -369,7 +369,7 @@ The second country repeats Ghana's R0 with its own team, inside R1's timeline. I
 
 | Month | What happens | Items | Owner |
 |---|---|---|---|
-| 5 | Country confirmed (Q-15, Nigeria assumed). Country 2 lead appointed. Scope statement and report template adapted with a local lawyer and reviewed by the insurer. Lawyer, surveyor and runner contracted | EN-47, EN-48, EN-49, M-24 | Founder |
+| 5 | Nigeria confirmed as country 2 (Q-15 answered). Country 2 lead appointed. Scope statement and report template adapted with a local lawyer and reviewed by the insurer. Lawyer, surveyor and runner contracted | EN-47, EN-48, EN-49, M-24 | Founder |
 | 6 to 9 | Manual service: reports from the adapted template, two-person review, hash log, tracker spreadsheet. Fees to institutions by hand where clients ask. Partner bank or escrow agent talks and insurer shortlist | EN-44, EN-50, EN-51 pattern, M-25 | Country 2 lead |
 | 9 | Day-90 review against the Ghana R0 criteria adapted for the country `[TO VERIFY]`. Gate G-C2 | EN-44, M-27 | Founder |
 | 10 to 12 | If G-C2 passes: data location spike and stack (EN-45), copy and edit Ghana's configuration (US-CTY-004), publish (EN-59). Go-live M-28 | R2-B | Engineering lead, country 2 lead |
@@ -1639,7 +1639,7 @@ Acceptance criteria:
 | EN-41 | Survey of contractors' phones (Android versus iPhone) | R2 | Should | not pointed | - | Share known (Q-09) before app build passes sprint 15 | AS-08 |
 | EN-42 | Accessibility re-audit and performance test of R2 web surfaces and the app | R2 | Must | 3 | EN-25, EN-26 | WCAG 2.2 AA on new screens; listing pages under 3 s on 3G; app start under 3 s | NFR-A11Y-01, NFR-PERF-05, FR-LST-010 |
 | EN-43 | Configuration-only check: open the off-plan and project-fund lines through configuration | R2 | Should | 3 | US-ADM-001 | No code change was needed beyond new integrations, or the gap is logged | NFR-MNT-02 |
-| EN-44 | Country 2 (Nigeria assumed, Q-15) manual service and 90-day validation, repeating R0 with local professionals | R1 | Must | not pointed | EN-47, EN-48, EN-49 | Country 2 day-90 review passes (gate G-C2) before any configuration work | BR-14, C-13, AS-13 |
+| EN-44 | Country 2, Nigeria (Q-15 answered), manual service and 90-day validation, repeating R0 with local professionals | R1 | Must | not pointed | EN-47, EN-48, EN-49 | Country 2 day-90 review passes (gate G-C2) before any configuration work | BR-14, C-13, AS-13 |
 | EN-45 | Spike and Terraform for a second data location for country 2 | R2 | Must | 5 | EN-44, EN-16 | Lawyer's view on country 2 data location and a staging stack in that location | FR-CTY-002, Q-15 |
 | EN-46 | Penetration test before R3 go-live, including country 3 and the events line | R3 | Must | 3 | EN-38 | No open high or critical findings | NFR-SEC-03 |
 | EN-47 | Country 2 lead appointed (operations role, part-time or contract `[TO VERIFY]`), with a written plan and scope for the manual phase | R1 | Must | not pointed | - | Lead in place by month 5 and the country 2 manual-phase plan agreed by the founder | BO-08, C-13, Q-15 |
@@ -1902,7 +1902,7 @@ The split below is a planning proposal for the founder to confirm. Every figure 
 | Line | Months | Share of $400k (assumption) | Amount (assumption) | Notes |
 |---|---|---|---|---|
 | Product and engineering team: lead, two developers, part-time designer; Android developer and QA engineer from month 9 | 3 to 18 | 35% | $140,000 | Rates `[TO VERIFY]` |
-| Option A+: contract developer, S3 to S13 | 4 to 10 | 4.4% | $17,600 | 11 sprints at about $1,600 `[TO VERIFY]`. Only if the founder chooses Option A+. Version 0.1 had $16,000 for S3 to S12 |
+| Option A+: contract developer, S3 to S13 | 4 to 10 | 4.4% | $17,600 | 11 sprints at about $1,600 `[TO VERIFY]`. Approved by the founder on 1 November 2026. Version 0.1 had $16,000 for S3 to S12 |
 | Cloud hosting, tools and licences, including a second data location for country 2 from month 10 | 3 to 18 | 3% | $12,000 | Depends on the hosting decision (EN-16) and the country 2 location (EN-45) `[TO VERIFY]` |
 | Third-party services: identity checks, SMS and WhatsApp, map data, satellite images, institution registry lookups, carer background checks | 3 to 18 | 3% | $12,000 | Paid per use and grows with volume `[TO VERIFY]` |
 | Security and quality: two R1 penetration tests, one R2 penetration test, accessibility audits | 7 to 18 | 3% | $12,000 | Quotes `[TO VERIFY]` |
