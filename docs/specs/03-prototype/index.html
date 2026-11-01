@@ -401,8 +401,8 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
       <span class="t"><span>Escrow, Plot 14 · held by Partner Bank</span><span class="need-tag" id="h-esc-tag">Needs you</span></span>
       <span class="s" id="h-esc-s">All 4 conditions closed. Your approval is needed before Fidero staff can approve the release.</span>
     </a>
-    <a class="item" href="#e1" data-go="e1">
-      <span class="t"><span>House on Plot 14 · Build</span><span class="ref">BLD-2027-0007</span></span>
+    <a class="item need" href="#e1" data-go="e1" id="h-bld">
+      <span class="t"><span>House on Plot 14 · Build</span><span class="need-tag" id="h-bld-tag">Needs you</span></span>
       <span class="s">Blocks passed inspection on 14 August with 1 defect. Waiting for your approval by 21 August.</span>
     </a>
 
@@ -1472,7 +1472,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   $('#approve-ms').addEventListener('click',function(){
     var a=$('#seen-price').checked, b=/^\d{6}$/.test($('#client-code').value.trim()), err=$('#approve-err');
     if(!a||!b){err.hidden=false; err.innerHTML=icon('i-red')+'Error: '+(!a?'tick "I have seen the new price". ':'')+(!b?'enter the 6-digit code.':''); (!a?$('#seen-price'):$('#client-code')).focus(); return;}
-    S.msApproved=true;
+    S.msApproved=true; renderG();
     $('#approve-card').innerHTML='<h2>Milestone 2 approved by you</h2><div class="alert success">'+icon('i-green')+'<p>You approved GHS 99,100.00 on 15 August at 18:40 GMT. Next: two Fidero staff approve, then Partner Bank pays the contractor. GHS 2,400.00 stays held until the defect is fixed.</p></div>';
     $('#e1-status').textContent='You approved the Blocks milestone on 15 August. Two Fidero approvals come next. Payment expected by 19 August.';
     $('#ms2-state').textContent='Passed with 1 defect · you approved · waiting for Fidero approvals';
@@ -1597,7 +1597,8 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     /* Home dashboard card for the invoice */
     var hf=$('#h-fee'), hs=$('#h-fee-s'), ht=$('#h-fee-tag');
     if(hf){ hf.classList.toggle('need',!S.gPaid); ht.hidden=S.gPaid; hs.textContent = S.gPaid ? 'Paid to Komfo Anokye Teaching Hospital, account ending 4471, on 15 August. Receipt attached.' : 'Invoice GHS 3,850.00 is waiting for your approval. Nothing is paid until you approve.'; }
-    var needs = (S.gPaid?0:1) + (escrowState()==='Ready to release'?1:0) + 1; /* build approval always needs you in this sample */
+    var hb=$('#h-bld'); if(hb){ hb.classList.toggle('need',!S.msApproved); $('#h-bld-tag').hidden=S.msApproved; hb.querySelector('.s').textContent = S.msApproved ? 'You approved the Blocks milestone on 15 August. Two Fidero approvals come next.' : 'Blocks passed inspection on 14 August with 1 defect. Waiting for your approval by 21 August.'; }
+    var needs = (S.gPaid?0:1) + (escrowState()==='Ready to release'?1:0) + (S.msApproved?0:1);
     $('#h1-need').textContent = needs+' thing'+(needs===1?'':'s')+' need'+(needs===1?'s':'')+' you. '+(7-needs)+' running.';
   }
   $$('input[name=invsrc]').forEach(function(r){r.addEventListener('change',function(){ $('#inv-upload').hidden = r.value!=='upload'; });});
