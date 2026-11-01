@@ -19,7 +19,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 ## 0. How this document traces to document 01
 
 - Every design element names the IDs it serves from document 01: business requirements (BR-), features (F-), functional requirements (FR-<MODULE>-nnn), non-functional requirements (NFR-), business rules (RUL-), interfaces (IF-) and constraints (C-).
-- This document adds its own IDs: ADR- (architecture decisions), G- (architecture goals), TQ- (open technical questions), TR- (technical risks) and I-01 (issues found in document 01). It never creates new FR IDs.
+- This document adds its own IDs: ADR- (architecture decisions), G- (architecture goals), TQ- (open technical questions), TR- (technical risks) and I- (issues found in document 01, section 15). It never creates new FR IDs.
 - Section 13 maps every FR module to components, tables and endpoints. Section 12 maps every NFR to design measures. Document 05 carries the test traceability.
 - Where document 01 is silent or inconsistent, the gap is listed in section 15 and not fixed here.
 
@@ -66,7 +66,7 @@ Each record is short. A decision changes only through a new ADR that supersedes 
 
 | Part | Content |
 |---|---|
-| Context | Small team (C-07). 22 SRS modules with heavy cross-module rules (a release depends on reports, disputes, fresh searches and inspections). Strong consistency is needed for money-related state. |
+| Context | Small team (C-07). 28 SRS modules in document 01 version 0.3, with heavy cross-module rules (a release depends on reports, disputes, fresh searches and inspections). Strong consistency is needed for money-related state. |
 | Decision | One Python 3.12 / Django 5 + Django REST Framework codebase. One Django app per SRS module. One PostgreSQL database. Modules call each other only through a public `services.py` interface and domain events. Import rules are checked in CI with an import-linter contract. |
 | Consequences | One deploy unit, one transaction boundary, simple local development. Risk of a "big ball of mud" is managed by the import contracts and table ownership (section 4). A module can be split out later if load demands it. |
 | Alternatives rejected | Microservices (too much operations load, distributed transactions around releases). Serverless functions (hard to keep two-person approval and audit consistent). |
@@ -193,6 +193,8 @@ Each record is short. A decision changes only through a new ADR that supersedes 
 | Traces | FR-ACC-001 to FR-ACC-003, FR-ACC-009, NFR-SEC-02, FR-PTR-004 |
 
 ### ADR-14 Multi-country by configuration, with regional cells when law demands
+
+Status: superseded by ADR-16 in version 0.2. Kept for history; the `country_code` column it names became `country_id`.
 
 | Part | Content |
 |---|---|
@@ -1232,7 +1234,9 @@ CREATE INDEX ON ord_order (client_id, created_at DESC);
 CREATE TABLE pay_fee_payment (
   id              uuid PRIMARY KEY,
   purpose         text NOT NULL CHECK (purpose IN ('report_fee','escrow_fee','inspection_fee',
-                    'listing_fee','success_fee','construction_mgmt_fee','api_fee','conveyancing_fee')),
+                    'listing_fee','success_fee','construction_mgmt_fee','api_fee','conveyancing_fee',
+                    'institution_service_fee','care_service_fee','property_mgmt_fee','errand_fee',
+                    'event_service_fee')),               -- new line fees provisional until pricing, Q-20, TQ-22
   payer_id        uuid NOT NULL REFERENCES acc_person(id),
   order_id        uuid REFERENCES ord_order(id),
   invoice_id      uuid REFERENCES pay_invoice(id),
@@ -1301,8 +1305,8 @@ CREATE TABLE case_case (
                      'property_onboarding',        -- PMG, FR-PMG-001
                      'vendor_verification')),      -- EVT, FR-EVT-001; ADR-21
   template_version_id uuid NOT NULL REFERENCES adm_config_version(id),
-  status           text NOT NULL CHECK (status IN ('draft','paid','in_progress','on_hold',
-                     'in_review','released','cancelled')),
+  status           text NOT NULL CHECK (status IN ('paid','in_progress','on_hold',
+                     'in_review','released','cancelled')),   -- 01 C8: a case starts at Paid
   hold_reason      text,
   risk_flag        boolean NOT NULL DEFAULT false,
   case_manager_id  uuid REFERENCES acc_person(id),
@@ -1356,7 +1360,7 @@ CREATE TABLE rpt_report (
 );
 -- Trigger rpt.freeze_released(): rejects any UPDATE to a released row except status -> 'superseded'
 -- (FR-RPT-010). Trigger rpt.verdict_rule(): rejects overall_verdict = 'green' if any rpt_section
--- with number between 4 and 10 has verdict 'red' (RUL-02; see I-01 on the 4-9 vs 4-10 conflict).
+-- with number between 4 and 10 has verdict 'red' (RUL-02; the report template also says 4 to 10).
 
 CREATE TABLE rpt_section (
   id           uuid PRIMARY KEY,
@@ -1593,7 +1597,8 @@ CREATE TABLE bld_milestone (
   share_pct       numeric(5,2) NOT NULL CHECK (share_pct > 0 AND share_pct <= 100),
   amount          numeric(18,2) NOT NULL, currency char(3) NOT NULL,
   status          text NOT NULL CHECK (status IN ('not_started','submitted','evidence_checked',
-                    'returned','inspected','client_approved','release_approved','paid')),
+                    'returned','inspection_scheduled','inspected','client_approved','release_approved',
+                    'paid','frozen')),                   -- matches 01 C8 Milestone, version 0.2
   inspector_id    uuid REFERENCES bld_panel_member(id),
   UNIQUE (project_id, seq)
 );
@@ -3600,7 +3605,7 @@ Interfaces: IF-01 to IF-09 (section 9), IF-10 and IF-11 (section 9, 9.2, 9.3). J
 | TQ-19 | Premium route per insurer: client pays the insurer directly, or the bank pays from held funds? What intermediary licence does each route need? | Founder, lawyer | R2 | FR-INS-002, RUL-25, C-11, Q-17 |
 | TQ-20 | Which institutions can send invoices and receipts by portal or file, and in what format? | Operations | R2 | IF-10, Q-16 |
 | TQ-21 | Source and update cadence of official fees in the errand catalogue per country | Operations | R2 | FR-TSK-001 |
-| TQ-22 | Pricing per line decides which Fidero fee purposes exist in `pay_fee_payment` (errand fee, care management fee, property management fee) | Founder | R1, R2 | Q-20, FR-PAY-005 |
+| TQ-22 | Pricing per line confirms the provisional Fidero fee purposes in `pay_fee_payment` (institution service, care service, property management, errand and event service fees) | Founder | R1, R2 | Q-20, FR-PAY-005 |
 
 ---
 

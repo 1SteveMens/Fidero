@@ -1605,9 +1605,9 @@ Acceptance criteria:
 | EN-20 | Overlay layer sourcing and digitisation pipeline | R1 | Must | 5 | - | At least one version of each layer type is loaded, or the gap is recorded and the check is marked partly manual | IF-04, AS-06 |
 | EN-21 | Spike: satellite imagery provider for report images | R1 | Should | 2 | - | Provider, licence terms and cost per image known `[TO VERIFY]` | IF-05 |
 | EN-22 | Messaging providers: email, SMS and WhatsApp Business, with WhatsApp templates submitted for approval | R1 | Must | 3 | - | A test message is delivered on each channel | IF-07 |
-| EN-23 | Design system: phone-first components, translation files for all user text, page-weight budget in CI | R1 | Must | 5 | EN-09 | A page over 500 KB initial transfer fails CI | NFR-LOC-01, NFR-PERF-02, NFR-ACC-01 |
+| EN-23 | Design system: phone-first components, translation files for all user text, page-weight budget in CI | R1 | Must | 5 | EN-09 | A page over 500 KB initial transfer fails CI | NFR-LOC-01, NFR-PERF-02, NFR-A11Y-01 |
 | EN-24 | Usability test with 5 diaspora users and a reading-age review of status templates | R1 | Must | 2 | US-ORD-004 | Each tester orders on a phone in under 10 minutes without help, or the fixes are logged | NFR-USE-01, NFR-USE-02 |
-| EN-25 | Accessibility audit of portal and back office against WCAG 2.2 AA | R1 | Must | 3 | EN-23 | No open level A or AA failures on R1 screens | NFR-ACC-01 |
+| EN-25 | Accessibility audit of portal and back office against WCAG 2.2 AA | R1 | Must | 3 | EN-23 | No open level A or AA failures on R1 screens | NFR-A11Y-01 |
 | EN-26 | Performance and load test: 3G profile, 10 times expected R1 load `[TO VERIFY]`, overlay timing | R1 | Must | 5 | EN-13 | NFR-PERF-01 to NFR-PERF-04 met in staging, or gaps logged as defects | NFR-PERF-01, NFR-PERF-02, NFR-PERF-03, NFR-PERF-04 |
 | EN-27 | Threat model and OWASP ASVS level 2 checklist | R1 | Must | 3 | EN-09 | Checklist complete with each gap linked to a story or defect | NFR-SEC-05 |
 | EN-28 | Independent penetration test before clients get portal access (accounts, orders, payments, case tracker), and fixes | R1 | Must | 3 | EN-27 | Report shows no open high or critical findings | NFR-SEC-03 |
@@ -1624,7 +1624,7 @@ Acceptance criteria:
 | EN-39 | Legal position on the Real Estate Agency Act 2020 (Act 1047) for listings | R2 | Must | not pointed | - | Lawyer's written view (Q-06); licence obtained if needed. Listings stay off until done | C-04 |
 | EN-40 | Insurer extension of cover to building inspections and project funds | R2 | Must | not pointed | - | Written extension, or those lines stay closed | AS-09 |
 | EN-41 | Survey of contractors' phones (Android versus iPhone) | R2 | Should | not pointed | - | Share known (Q-09) before app build passes sprint 15 | AS-08 |
-| EN-42 | Accessibility re-audit and performance test of R2 web surfaces and the app | R2 | Must | 3 | EN-25, EN-26 | WCAG 2.2 AA on new screens; listing pages under 3 s on 3G; app start under 3 s | NFR-ACC-01, NFR-PERF-05, FR-LST-010 |
+| EN-42 | Accessibility re-audit and performance test of R2 web surfaces and the app | R2 | Must | 3 | EN-25, EN-26 | WCAG 2.2 AA on new screens; listing pages under 3 s on 3G; app start under 3 s | NFR-A11Y-01, NFR-PERF-05, FR-LST-010 |
 | EN-43 | Configuration-only check: open the off-plan and project-fund lines through configuration | R2 | Should | 3 | US-ADM-001 | No code change was needed beyond new integrations, or the gap is logged | NFR-MNT-02 |
 | EN-44 | Country 2 (Nigeria assumed, Q-15) manual service and 90-day validation, repeating R0 with local professionals | R1 | Must | not pointed | EN-47, EN-48, EN-49 | Country 2 day-90 review passes (gate G-C2) before any configuration work | BR-14, C-13, AS-13 |
 | EN-45 | Spike and Terraform for a second data location for country 2 | R2 | Must | 5 | EN-44, EN-16 | Lawyer's view on country 2 data location and a staging stack in that location | FR-CTY-002, Q-15 |
