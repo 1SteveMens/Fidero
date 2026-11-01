@@ -871,7 +871,7 @@ sequenceDiagram
     B->>A: Deposit confirmed
     Ct->>A: Work done, photos through the field app
     I->>A: Inspection with photos, pass or fail, FR-PMG-005
-    A->>A: Release instruction, payee = contractor; trigger needs inspection pass
+    A->>A: Release instruction, payee = contractor, trigger needs inspection pass
     Note over A: Two-person approval and dispatch as in 5.3
     B-->>A: Release confirmed
     A-->>O: Timeline: rent, repairs, inspections, photos, FR-PMG-006
@@ -894,17 +894,17 @@ sequenceDiagram
     Cl->>A: GET /v1/errand-catalogue?country=GH, FR-TSK-001
     A-->>Cl: Checklist, official fees, Fidero charge, target time, from cty_country_config
     Cl->>A: POST /v1/errands with checklist documents, FR-TSK-002
-    A->>A: Fidero charge through PAY; official fees to held funds at the bank
+    A->>A: Fidero charge through PAY, official fees to held funds at the bank
     Cl->>B: Pays official fees into held funds
     B->>A: Deposit confirmed
-    CM->>A: Assign vetted agent; agency is a verified payee, FR-TSK-003
+    CM->>A: Assign vetted agent, agency is a verified payee, FR-TSK-003
     Ag->>App: Step 1 lodge application, photo of acknowledgement
     App->>A: Signed evidence for the step
     A->>A: Release instruction for the official fee, payee = agency, RUL-22
     Note over A: Two-person approval and dispatch as in 5.3
     B->>Gov: Pays official fee to the agency account
     Ag->>App: Upload receipt for the step
-    A->>A: Step receipted; client sees plain-language status
+    A->>A: Step receipted, client sees plain-language status
     Gov-->>Ag: Document ready
     Ag->>App: Upload the resulting document
     CM->>A: Check the document, FR-TSK-004
