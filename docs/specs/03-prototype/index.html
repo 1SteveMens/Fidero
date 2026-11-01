@@ -1574,9 +1574,9 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     $('#sim-mismatch').textContent = mm ? 'Use the correct invoice again' : 'Simulate a mismatched invoice';
     /* Statement (SCR-PTL-42) */
     var rows=[
-      {d:'14 Jul', t:'Paid to Sample Pharmacy, account ending 0932', sub:'In person by a Fidero runner, receipt attached. Cash drawn from Partner Bank against a signed voucher.', amt:'−GHS 210.00'},
+      {d:'14 Jul', t:'Paid to Sample Pharmacy, account ending 0932', sub:'Receipt delivered by a Fidero runner.', amt:'−GHS 210.00'},
       {d:'14 Jul', t:'Fidero\'s charge', sub:'Receipt R-2027-0388-2', amt:'−GHS 20.00'},
-      {d:'1 Jul', t:'Balance held at Partner Bank', sub:'', amt:'GHS 1,360.00', bal:true}
+      {d:'1 Jul', t:'Held at Partner Bank', sub:'', amt:'GHS 1,360.00', bal:true}
     ];
     rows.unshift({d:'2 Aug', t:'You paid into Partner Bank', sub:'Bank reference PB-SAMPLE-3301', amt:'+GHS 3,870.00', inn:true});
     if(S.gPaid){

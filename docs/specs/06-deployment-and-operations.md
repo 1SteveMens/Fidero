@@ -8,12 +8,12 @@ How Fidero builds, ships, runs, watches, recovers and secures the platform. This
 |---|---|
 | Document | 06 of 6 in `docs/specs/` |
 | Title | Deployment and Operations |
-| Version | 0.2 |
+| Version | 0.3 |
 | Date | 1 November 2026 |
 | Status | Draft. For review. Not yet baselined |
 | Owner | Product and engineering lead |
 | Approver | Founder, acting as product owner |
-| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01) |
+| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01), version 0.4 |
 | Other sources | `docs/decisions/2026-11-01-diaspora-platform.md`; `docs/product/architecture.md` sections 9 and 10; documents 02 to 05 of this set |
 | Review cycle | Before each release gate (R1, R2, R3) and after every SEV1 or SEV2 incident |
 
@@ -23,6 +23,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 
 | Version | Date | Author | Change |
 |---|---|---|---|
+| 0.3 | 1 November 2026 | Product and engineering lead (draft) | Aligned to 01 v0.4: runner cash route removed (the runner cash flag and the runner-pays step in RB-27 removed; IF-10 row updated; RB-27 marks institutions not eligible for direct payment); account-name sources for FR-ESC-015 with no override (RB-27, RB-28, DR-E fallback in 10.5, checklists); 72-hour reviewer decision, second-person check of call confirmations and code lockout (AL-35, RB-30); owner's written mandate for rent statement lines (`lines.pmg`, RB-31); both premium routes (`lines.ins`, DR-E fallback in 10.5, checklist); fresh search scoped to purchases (invariant check 1); retention classes aligned to 01 C5.2 (13.1); data protection authority per country and Q-21; field app naming; issues 16, 17, 19, 21 and 27 resolved, 22 and 26 partly. |
 | 0.2 | 1 November 2026 | Product and engineering lead (draft) | Updated for document 01 v0.3 and `docs/decisions/2026-11-01-diaspora-platform.md`: multi-country operations (2.7); flags per product line and per country; SLO-17 to SLO-22; AL-33 to AL-42; RB-26 to RB-34; SEV examples for the new lines and a people-first welfare process (9.8); sensitive data classes and a per-country data location register (13); A9 metrics by country (8.6); IF-10 and IF-11 vendor operations (15); readiness checklists R1 to R3 updated and an "open a country" checklist added (16.4); second-country cost assumption (14.4); issues list for document 01 refreshed (17). Also reflects document 01 v0.2 fixes: maintenance cap, two data centres within allowed locations, KMS-signed instruction, second administrator, device key revocation |
 | 0.1 | 31 October 2026 | Product and engineering lead (draft) | First draft |
 
@@ -48,7 +49,7 @@ This document creates no new functional requirement IDs. Where operations needs 
 | C-04, AS-02 | Listings off until Act 1047 is resolved; escrow off until a bank signs | 2.6 feature flags |
 | C-07 | Small team and tight budget | 6.1, 14 |
 | C-08 | Slow connections, low-end Android | 4.3 stage 15 (performance smoke), SLO-04, SLO-07 |
-| C-09, NFR-PRIV-01 | Data hosting location accepted by the Data Protection Commission | 2.1, 10.1, 13.4 |
+| C-09, NFR-PRIV-01 | Data hosting location accepted by each country's data protection authority (in Ghana, the Data Protection Commission) | 2.1, 10.1, 13.4 |
 | C-10 | Banned word in product, feature and brand names | All names in this document (alerts, runbooks, components) |
 | FR-ESC-008, FR-ESC-009, IF-01 | Release instruction in the bank's format, by the agreed channel; bank confirmation | 5.7, SLO-08, AL-08, AL-09, RB-08, RB-09 |
 | FR-EVD-001, FR-EVD-002, BR-06, NFR-AVL-03 | Evidence hashed, never overwritten, two copies | 10.2, SLO-11, AL-16, RB-05 |
@@ -73,7 +74,7 @@ This document creates no new functional requirement IDs. Where operations needs 
 | C-11, AS-11, RUL-25, FR-INS-002 | Insurance is the insurer's product; no premium to Fidero; licence first | 2.6 (`lines.ins`), 8.6 invariant check 4, 9.1, RB-32, RB-34 |
 | C-12 | Fidero moves no money across borders; clients pay the partner bank or a licensed provider | 2.7, 15 |
 | C-13, AS-13, BR-14, FR-CTY-001 to FR-CTY-004 | Country as configuration; manual phase and 90-day gate before a country opens; data in the location its law requires | 2.6 (`country.<code>`), 2.7, 13.4, RB-26, RB-33, 16.4 |
-| BR-17, FR-FEE-001 to FR-FEE-007, FR-ESC-014, IF-10 | Payments to verified institutions against invoices; receipts returned; held balance with a running statement | 2.6 (`lines.fee`), SLO-17, AL-34, RB-27, 15 |
+| BR-17, FR-FEE-001 to FR-FEE-007, FR-ESC-014, IF-10 | Payments to verified institutions against invoices; receipts returned; amount held at the bank with a running statement; no cash route (FR-FEE-006) | 2.6 (`lines.fee`), SLO-17, AL-34, RB-27, 15 |
 | RUL-22, FR-ESC-015 | Release only to a payee whose account name matches the verified payee | SLO-20, AL-33, RB-28, 8.6 invariant check 3 |
 | BR-18, RUL-23, FR-CARE-001 to FR-CARE-006 | Care visits confirmed by check-in and the family; missed visits and concerns raised the same day | 2.6 (`lines.care`), SLO-18, AL-35, AL-36, 9.1, 9.8, RB-29, RB-30 |
 | BR-19, RUL-24, FR-PMG-002, FR-PMG-003 | Rent to the owner's own account, never Fidero; late rent alerts | 2.6 (`lines.pmg`), SLO-19, AL-37, RB-31, 8.6 invariant check 4 |
@@ -162,7 +163,7 @@ Separate accounts stop a mistake in dev from touching production and give a clea
 | Evidence | S3 bucket `evidence` with versioning, Object Lock and cross-region replication | Access only through 15-minute signed links (FR-EVD-003) |
 | Other storage | S3 buckets for reports (PDFs), exports (short-lived), overlay layers, static assets, logs | Each bucket has its own KMS key policy and lifecycle rules |
 | Secrets | AWS Secrets Manager | Injected into ECS tasks at start. Never in code or images (NFR-SEC-04) |
-| Keys | AWS KMS | Separate keys per data class (13.4) |
+| Keys | AWS KMS | Separate keys per data class (13.1; document 02, 10.6). Health and care data has its own key (01 C5.2) |
 | Email | Amazon SES | Region choice `[TO VERIFY]` against the data location ruling |
 | Network | VPC with public subnets (load balancer, NAT) and private subnets (tasks, RDS, Redis); VPC endpoints for S3, ECR, Secrets Manager, KMS, CloudWatch | No task has a public IP |
 
@@ -242,15 +243,14 @@ Flags let code ship before a business dependency is met. A flag is a switch, not
 | `geo.satellite_monitoring` | Off | R2, provider contract signed | Administrator | FR-GEO-007 |
 | `geo.ghana_post_gps` | Off | Service access confirmed (IF-06) | Administrator | FR-GEO-008 |
 | `partner_api.enabled` | Off | R2, first partner contract and consent flow tested | Founder plus one other administrator | FR-PTR-001 to FR-PTR-004 |
-| `mobile.capture` | Off | R2 milestone app goes live | Two administrators | FR-MOB-001 to FR-MOB-011 |
+| `mobile.capture` | Off | R2 field app goes live | Two administrators | FR-MOB-001 to FR-MOB-011 |
 | `projects.funds` | Off | R2 and insurer confirms cover (AS-09) | Founder plus one other administrator | FR-PRJ-001 to FR-PRJ-005 |
 | `building.construction` | Off | R2 gate and insurer confirms cover (AS-09) | Founder plus one other administrator | FR-BLD-001 to FR-BLD-012 |
-| `lines.fee` | Off | The first institutions are verified (FR-FEE-001, RB-27), the payee account-name check works with the bank (FR-ESC-015), and the held balance and running statement pass UAT (FR-ESC-014) | Founder plus one other administrator | BR-17, RUL-22, FR-FEE-001 to FR-FEE-007 |
-| `lines.fee.runner_cash` | Off | An institution cannot take direct payment (AS-10) and the cash voucher and 2-working-day reconciliation (FR-FEE-006) are agreed with the bank, with a voucher cap `[TO VERIFY]` | Founder plus one other administrator | FR-FEE-006 |
-| `lines.care` | Off | R2; carer vetting and care plan content defined (Q-19); welfare escalation drilled (9.8, RB-29); missed-visit alerts proven to reach a person out of hours (AL-35) | Founder plus one other administrator | BR-18, RUL-23, FR-CARE-001 to FR-CARE-006 |
-| `lines.pmg` | Off | R2; licence position known for the country (Q-18); rent matching tested against the bank's statement for the owner's account, including a misrouted test line (FR-PMG-003, RB-31) | Founder plus one other administrator | BR-19, RUL-24, FR-PMG-001 to FR-PMG-006 |
+| `lines.fee` | Off | The first institutions are verified (FR-FEE-001, RB-27), the payee account-name check works with the bank (FR-ESC-015), and the amount held at the bank and the running statement pass UAT (FR-ESC-014). An institution that cannot receive a bank transfer is marked not eligible for direct payment; there is no cash route (FR-FEE-006) | Founder plus one other administrator | BR-17, RUL-22, FR-FEE-001 to FR-FEE-007 |
+| `lines.care` | Off | R2; carer vetting and care plan content defined (Q-19); welfare escalation drilled (9.8, RB-29); missed-visit alerts proven to reach a person out of hours (AL-35); the 72-hour reviewer queue and the second-person check of call confirmations working (FR-CARE-004); duty of care and carer cover answered (Q-22) | Founder plus one other administrator | BR-18, RUL-23, FR-CARE-001 to FR-CARE-006 |
+| `lines.pmg` | Off | R2; licence position known for the country (Q-18); the owner's written mandate process agreed with the bank; rent matching tested against the bank's statement lines for the owner's rent account only, including a misrouted test line (FR-PMG-003, RB-31) | Founder plus one other administrator | BR-19, RUL-24, FR-PMG-001 to FR-PMG-006 |
 | `lines.tsk` | Off | R2; errand catalogue loaded for the country (FR-TSK-001); first agencies verified (RB-27); licence position known (Q-18); errand document deletion tested (13.1) | Founder plus one other administrator | BR-20, FR-TSK-001 to FR-TSK-005 |
-| `lines.ins` | Off | A licensed insurer is contracted for the country (AS-11, Q-17) and Fidero holds any intermediary licence the country requires (C-11); premium routing to the insurer's account tested end to end with a test premium that appeared in no Fidero or escrow account (RUL-25, RB-32) | Founder plus one other administrator | BR-21, C-11, RUL-25, FR-INS-001 to FR-INS-004 |
+| `lines.ins` | Off | A licensed insurer is contracted for the country (AS-11, Q-17) and Fidero holds any intermediary licence the country requires (C-11); premium routing to the insurer's account tested end to end, for each route the insurer uses (the client pays the insurer directly, or the bank pays from money held for that purpose; FR-INS-002), with a test premium that appeared in no Fidero or escrow account (RUL-25, RB-32) | Founder plus one other administrator | BR-21, C-11, RUL-25, FR-INS-001 to FR-INS-004 |
 | `lines.evt` | Off | R3 gate; first vendors verified (RB-27); event escrows use partial releases (FR-ESC-010) | Founder plus one other administrator | BR-22, FR-EVT-001 to FR-EVT-003 |
 | `country.<code>` (`country.ng` first, then `country.ke` `[TO VERIFY]` order, Q-15) | Off | The country has passed its manual phase and 90-day validation (C-13, AS-13); its data location ruling is recorded and met (FR-CTY-002); its partners are contracted; RB-26 and the 16.4 checklist are complete. Assumed from month 12 for country 2 | Founder plus one other administrator | BR-14, FR-CTY-001 to FR-CTY-004, 2.7 |
 | `maintenance.read_only` | Off | Planned maintenance or an incident needs writes stopped | Any on-call engineer (a kill switch) | 5.8, 9 |
@@ -649,7 +649,7 @@ In a three-person team, a formal board is too heavy. The change advisory is a sh
 | Permissions | Roles, object-level access, MFA, session rules, partner consent checks | `api/accounts/`, `api/permissions/` |
 | Money-adjacent | Fee payments, refunds, reconciliation | `api/payments/` |
 | Payee verification | Account-name matching (FR-ESC-015), institution, agency and vendor verification status, payee bank details | `api/payees/`, `api/fee/` |
-| Family and property lines money paths | Held balance and running statement (FR-ESC-014), carer and agent payment rules (RUL-23), rent matching (RUL-24), premium routing (RUL-25) | `api/fee/`, `api/care/`, `api/pmg/`, `api/tsk/`, `api/ins/` |
+| Family and property lines money paths | Amount held at the bank and running statement (FR-ESC-014), carer and agent payment rules (RUL-23), rent matching (RUL-24), premium routing (RUL-25) | `api/fee/`, `api/care/`, `api/pmg/`, `api/tsk/`, `api/ins/` |
 | Country configuration | Bundle import, data location settings, country scoping of access, holiday calendars | `api/countries/`, `api/permissions/` |
 | Data protection | Retention jobs, anonymisation, exports, data subject requests, legal holds | `api/dpr/` |
 | Infrastructure | KMS keys, IAM, network, backup and replication settings, WAF rules | `infra/` |
@@ -867,7 +867,7 @@ SLOs are internal targets. They are not contractual promises to clients. Each SL
 | SLO-12 | Backup success | Share of scheduled backup jobs (RDS automated backups, cross-region copies, AWS Backup plans, Terraform state, configuration exports) that complete | 100%. Any failure is fixed within 1 working day | AWS Backup job status; custom checks | NFR-AVL-02 | R1 |
 | SLO-13 | Recovery point | Age of the newest restorable point for the production database, checked every 15 minutes | Under 15 minutes in-region; under 1 hour cross-region | RDS latest restorable time; cross-region backup replication status | NFR-AVL-02 | R1 |
 | SLO-14 | Background job health | Share of Celery jobs that succeed without manual action (retries allowed) | 99.5% | Celery result events | NFR-OBS-01 | R1 |
-| SLO-15 | Milestone app stability | Crash-free user sessions on supported versions | 99% `[TO VERIFY]` | Play Console vitals and Sentry | NFR-PERF-05 | R2 |
+| SLO-15 | Field app stability | Crash-free user sessions on supported versions | 99% `[TO VERIFY]` | Play Console vitals and Sentry | NFR-PERF-05 | R2 |
 | SLO-16 | Partner API availability and latency | Share of partner API requests that succeed (non-5xx) and return within 1 second | 99.5% success; 95% under 1 second | API gateway metrics per partner | FR-PTR-001, IF-08 | R2 |
 | SLO-17 | Institution payment receipt return | Share of institution payments where the institution's receipt is in the client's dashboard within 2 bank working days of the bank's payment confirmation (FR-FEE-004) | 95% `[TO VERIFY]` against institution agreements | Institution payment event timestamps | BR-17, FR-FEE-004, IF-10 | R1 |
 | SLO-18 | Care visit confirmation latency | Share of visits either confirmed by the family within 24 hours of check-out, or flagged to the client and Fidero as unconfirmed within 15 minutes of the 24-hour mark (FR-CARE-005); and share of missed check-ins alerted within 60 minutes of the scheduled time | 99% | Care visit event timestamps; alert log | FR-CARE-004, FR-CARE-005, RUL-23 | R2 |
@@ -952,7 +952,7 @@ SLOs are internal targets. They are not contractual promises to clients. Each SL
 | Cost | Daily spend against budget (14.2) |
 | Mobile (R2) | Crash-free sessions; ANR rate; signature verification failures; fraud flags (FR-MOB-011) |
 | Payees | Account-name checks pending, matched, mismatched (FR-ESC-015); mismatch blocks and any override attempt; payee detail changes and who made them |
-| Family lines (R1 FEE; R2 CARE) | Institution verifications pending and failed; invoices awaiting check; receipts outstanding by age; held balances by client against the bank's figure (FR-ESC-014); visits scheduled today, checked in, missed, unconfirmed; concerns open by age |
+| Family lines (R1 FEE; R2 CARE) | Institution verifications pending and failed; invoices awaiting check; receipts outstanding by age; amounts held at the bank by client against the bank's own figure (FR-ESC-014); institutions marked not eligible for direct payment (FR-FEE-006); visits scheduled today, checked in, missed, unconfirmed; concerns open by age |
 | Property and errands (R2) | Rent due, received, late; rent-matching job result; repairs by state; errands by state and overdue; errand documents past their deletion date |
 | Insurer lines (R2) | Applications passed, pending, failed; premium confirmations by state; policy documents outstanding; premium lines seen in any Fidero or escrow account (must be 0) |
 | Country | Per-country availability; flag states per country; configuration bundle version; holiday calendar coverage; cross-country access denials |
@@ -1003,7 +1003,7 @@ The incident severity (SEV1 to SEV4) is set by the person who responds, using 9.
 | AL-32 | Scheduler missing | Celery beat heartbeat missing for 5 minutes, or a daily job (reconciliation, retention, audit check, inventory check, rent matching, payee checks) did not start | P2 | On call | RB-12 |
 | AL-33 | Payee account-name mismatch | Any release blocked because the payee's account name did not match the verified payee (FR-ESC-015) is a P3 notice. More than 3 blocks for one payee or one staff member in 24 hours is P2. Any attempt to override or bypass the block, or a failure of invariant check 3, is P1 | P3, P2, P1 | Operations lead; then lead; P1 adds the founder | RB-28 |
 | AL-34 | Institution verification failures spike | More than 5 institution, agency or vendor verifications failing in 24 hours; a verified payee's bank details changed without a second administrator (FR-ADM-003); or any payment instruction raised against an unverified or suspended institution (P1) | P2; P1 | Operations lead and on call; founder for P1 | RB-27 |
-| AL-35 | Missed or unconfirmed care visit (R2) | A visit with no check-in 60 minutes after its scheduled time; a visit unconfirmed 24 hours after check-out (FR-CARE-005); two consecutive missed visits for the same family member (P1) | P2 in the country's local hours; P1 | Operations lead and the client's case manager. Engineering only if the alert itself failed | RB-30 |
+| AL-35 | Missed or unconfirmed care visit (R2) | A visit with no check-in 60 minutes after its scheduled time; a visit unconfirmed 24 hours after check-out (FR-CARE-005); a visit still unconfirmed 72 hours after check-out, now in the reviewer's queue (FR-CARE-004); a confirmation code locked after 5 wrong attempts; two consecutive missed visits for the same family member (P1) | P2 in the country's local hours; P1 | Operations lead and the client's case manager. Engineering only if the alert itself failed | RB-30 |
 | AL-36 | Carer concern raised (R2) | Any concern raised by a carer (FR-CARE-006) routes to a reviewer and the operations lead the same day. A concern marked urgent (health or safety) pages the welfare escalation owner at any hour | P2 same day; P1 if urgent | Operations lead (welfare escalation owner) and the reviewer on duty; founder for P1 | RB-29 |
 | AL-37 | Rent late batch (R2) | Rent-matching job did not run or failed (P2); late rent on more than 20% of properties with rent due that day (P2); any rent line that landed in a Fidero or escrow account instead of the owner's account (P1) | P2; P1 | Operations lead and on call; founder for P1 | RB-31 |
 | AL-38 | Errand overdue (R2) | An errand past its target time by 2 working days with no step recorded; or an errand document (passport, ID copy) held more than 7 days `[TO VERIFY]` after handover without deletion (13.1) | P3 | Operations lead; the case manager follows up the errand; RB-25 for the deletion case | RB-25 |
@@ -1037,7 +1037,7 @@ Alert hygiene rules:
 | Cost | Lead, founder | Daily spend by service and environment, forecast, budget |
 | Mobile (R2) | Lead, release manager | Rollout stage, crash-free sessions, ANRs, version adoption, signature failures, fraud flags |
 | Business operations | Founder, operations | The A9 metrics (8.6), by country |
-| Family lines (R1 FEE; R2 CARE) | Operations lead, case managers | Institution verifications, invoices awaiting check, receipts outstanding, held balances against the bank's figures, visits today by state, concerns open. Names shown only to roles allowed (FR-ANL-003, 12.1) |
+| Family lines (R1 FEE; R2 CARE) | Operations lead, case managers | Institution verifications, invoices awaiting check, receipts outstanding, amounts held at the bank against the bank's own figures, visits today by state, concerns open. Names shown only to roles allowed (FR-ANL-003, 12.1) |
 | Property, errands and insurer lines (R2) | Operations lead | Rent due and late, matching job result, repairs, errands by state and overdue, insurer hand-offs and failures |
 | Country | Lead, founder, country leads | Per-country availability (SLO-21), flag states per country, configuration bundle version, calendar coverage, cross-country denials, per-country A9 metrics |
 
@@ -1093,10 +1093,10 @@ The operating dashboard (FR-ANL-001) is a product feature. Operations also watch
 
 **Invariant checks** run every hour in production and page (P1) on any failure, because they check money and safety rules in live data, which tests alone cannot do:
 
-1. No escrow is in "Release approved" or "Released" with an open condition, an open dispute, or a missing or out-of-date fresh search (RUL-06, RUL-07, RUL-15).
+1. No escrow is in "Release approved" or "Released" with an open condition, an open dispute, or, for a land, building, off-plan or listing purchase, a missing or out-of-date fresh search (RUL-06, RUL-07, RUL-15). Fee, care, errand and other releases need no fresh search.
 2. No release instruction has fewer than two distinct approvers with release rights at the time of approval, and no approver approved their own request (RUL-05).
 
-3. No release instruction names a payee whose account name was not matched to a verified institution, supplier, vendor or professional, and no payee record is "verified" without a second administrator on its bank details (FR-ESC-015, RUL-22, FR-ADM-003). (R1)
+3. No release instruction names a payee whose account name was not matched to a verified payee (an institution, supplier, vendor, professional, or the seller or developer in a purchase escrow), no payee record is "verified" without a second administrator on its bank details, no account name has a source other than the bank's name check or a second-checked bank letter, and no instruction names a runner or staff member or is of a cash type (FR-ESC-015, RUL-22, FR-ADM-003, FR-FEE-006). (R1)
 4. No payee on any instruction, and no collection account shown to a client, is a Fidero-owned account; every premium instruction names the insurer's account and every rent record names the owner's own account (RUL-01, RUL-24, RUL-25). (R1; extended to rent and premiums in R2)
 5. No carer or agent payment release references a visit or task without a confirmation record from the family or the resulting document, and no repair release lacks an inspection record (RUL-23, FR-PMG-005). (R2)
 6. No record was read across countries in the last hour by a role without cross-country rights (FR-ACC-007). (R2, when country 2 is live)
@@ -1403,8 +1403,8 @@ Each scenario starts with: declare an incident (9), pause release instructions (
 | Bank channel (IF-01) | Instructions cannot be sent or confirmations cannot be received | Hold instructions; agree an alternate channel in the bank agreement (for example, signed PDF by email plus voice call-back) `[TO VERIFY]`; never improvise a new channel during an incident without the bank's written agreement |
 | Satellite or map data (IF-04, IF-05) | New images or layers unavailable | Overlay checks still run on current layer versions; satellite image attached later; report waits if the image is required |
 | Institutions (IF-10) | Invoice references or receipts not received from an institution's portal or file (R2) | The client or the institution contact uploads the invoice or receipt in the portal or by email; a case manager attaches it with a second person's check. No payment goes out without a checked invoice (FR-FEE-002) |
-| Insurer partners (IF-11) | Applications or premium confirmations cannot be passed; policy documents not returned | Hold applications and tell clients the start date may move. Premiums go from the client to the insurer's account in every case, so no money is stuck with Fidero. The insurer's own channels are the fallback. Renewals due within 7 days are chased by phone |
-| Bank account-name check (part of IF-01) | Payee names cannot be checked | Releases to new or changed payees wait. A bank-confirmed manual match by phone to a named approver, recorded by a second approver, is the only alternative (RB-28). Existing matched payees are unaffected |
+| Insurer partners (IF-11) | Applications or premium confirmations cannot be passed; policy documents not returned | Hold applications and tell clients the start date may move. Premiums go to the insurer's account in every case, from the client directly or from the bank out of money held for that purpose (FR-INS-002), so no money is stuck with Fidero. The insurer's own channels are the fallback. Renewals due within 7 days are chased by phone |
+| Bank account-name check (part of IF-01) | Payee names cannot be checked | Releases to new or changed payees wait. The only alternative is a bank letter stating the account name, entered by one staff member and checked by a second (FR-ESC-015, RB-28). A phone call is never a name source. Existing matched payees are unaffected |
 | Bank in a second country (IF-01 for that country) | As the Ghana bank row, for that country only | Same rules, with that country's fallback channel from its bank agreement `[TO VERIFY]` |
 
 ### 10.6 Restore tests
@@ -1807,13 +1807,14 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
 - **Verify steps:**
   1. Collect the institution's registration document, a bank account in the institution's exact legal name, and a named contact with a role there (FR-FEE-001). For an agency or vendor, the same plus the licence where one applies (Q-18).
   2. Check the registration against the public register or by phone to the registrar `[TO VERIFY]` per country. Record the source and date.
-  3. Run the payee account-name check with the bank (FR-ESC-015). The name returned must match the registration document. A near match ("Ltd" against "Limited") is checked by a second person and recorded; anything else fails.
+  3. Get the account name from the bank's name check where the bank offers one, otherwise from a letter from the institution's bank, entered by one staff member and checked by a second (FR-ESC-015). After the normalisation in document 02, 9.2 (case, punctuation, suffixes such as "Ltd" and "Limited"), the name must match the registration document exactly. Anything else fails. No one can override it.
   4. Call the named contact on a number from the institution's own public source, not from the invoice, and confirm the account details.
   5. A second administrator approves the bank details (FR-ADM-003). The institution becomes "verified" with a review date (yearly `[TO VERIFY]`).
+  6. If the institution has no bank account in its own name or cannot receive a bank transfer, mark it "not eligible for direct payment" with the reason, checked by a reviewer, and tell the client plainly with the fixed wording (FR-FEE-006). Never offer cash or a payment through a person. A runner may still collect invoices from, or deliver receipts for, an eligible institution; the runner carries no money.
 - **Suspend steps:**
   1. Triggers: AL-34, a changed account, a receipt that does not match an invoice, a client complaint, a failed yearly review, a regulator notice.
   2. Set the institution to "suspended" with a reason. The platform blocks new payment instructions to it at once. Approved but unsent instructions are cancelled and re-approved only after the review (RB-08).
-  3. Tell affected clients plainly and offer the runner-pays path (FR-FEE-006) if the bill is urgent and `lines.fee.runner_cash` is on.
+  3. Tell affected clients plainly. There is no cash route (FR-FEE-006): if the institution can no longer receive a bank transfer, mark it not eligible for direct payment (verify step 6).
   4. Re-verify from verify step 1 before lifting the suspension. Record the outcome.
 - **Done when:** the institution record shows verified or suspended with evidence, source, date and the two names.
 
@@ -1825,7 +1826,7 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
   2. Read the mismatch: the name on the verified record, the name returned by the bank, who entered or changed the payee and when (audit log).
   3. If the payee's details changed recently, treat it as a possible fraud attempt (a relative or a staff member swapping the account). Freeze all releases to that payee. Check whether the same person changed other payees.
   4. Re-verify the payee through RB-27. If the institution really changed its account, the new details need a second administrator (FR-ADM-003) and a fresh name check before any release.
-  5. There is no override. If the name-check service is down, the release waits (RB-22). A manual match is allowed only when the bank confirms the account holder by phone to a named Fidero approver and a second approver records the call. Each manual match is logged and reviewed weekly (12.7).
+  5. There is no override, for any user (FR-ESC-015). If the bank's name check is down, the release waits (RB-22), or the payee provides a letter from its bank stating the account name, entered by one staff member and checked by a second. A phone call is never a name source. Each letter-based match is logged and reviewed weekly (12.7).
   6. Any attempt to bypass the block through a data change, a script or a flag is a SEV1 (9.1): pause instructions, follow RB-21 and RB-24, tell the founder.
   7. Tell the client that the payment is held and why, in plain words, without naming a suspect.
 - **Done when:** the payee is re-verified and the release re-approved by two people, or the release is cancelled with a reason; and any suspicious change is in an incident record.
@@ -1847,20 +1848,20 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
 
 - **Who:** the client's case manager; operations lead for a second miss.
 - **Steps:**
-  1. AL-35 fires: no check-in 60 minutes after the scheduled time, or no confirmation 24 hours after check-out.
+  1. AL-35 fires: no check-in 60 minutes after the scheduled time, no confirmation 24 hours after check-out, or a confirmation code locked after 5 wrong attempts.
   2. Call the carer. Common causes: transport, a wrong address pin, a phone offline (the app queues check-ins; wait up to 30 minutes for a sync before treating it as missed), illness.
-  3. Call the family contact to ask whether the carer came. If the carer came and the family cannot confirm in the app, take the confirmation by phone and record it with the time and who confirmed (FR-CARE-004). A phone confirmation is a second-person check, never the carer's own word.
+  3. Call the family contact to ask whether the carer came. If the carer came and the family cannot confirm in the app, take the confirmation by phone and record it with the time and who confirmed. A second staff member checks the record before the visit counts (FR-CARE-004). A phone confirmation is never the carer's own word, and a locked code is never reissued through the carer. If the visit is still unconfirmed 72 hours after check-out, it goes to a reviewer, who decides from the check-in evidence and a call to the family (FR-CARE-004); "not confirmed" means the carer is not paid for that visit.
   4. If the visit did not happen: tell the client the same day with the message in 9.4; offer a replacement visit within 24 hours; the carer is not paid for the visit (RUL-23).
   5. If the family cannot be reached after two attempts over 2 hours, and the person is elderly or unwell, treat it as a possible welfare concern and follow RB-29 from step 2.
   6. Two consecutive misses by the same carer: suspend assignments pending a conversation with the operations lead. Two consecutive unconfirmed visits for the same family: the case manager calls the client to agree a confirmation method that works for the family (a code by SMS, a call, a neighbour named in the plan).
   7. If AL-35 itself did not fire for a missed visit, it is a SEV2 (9.1): engineering checks the scheduler (AL-32, RB-12).
-- **Done when:** the visit is confirmed, replaced or recorded as missed and unpaid, and the client knows.
+- **Done when:** the visit is confirmed, decided by a reviewer, replaced or recorded as missed and unpaid, and the client knows.
 
 ### RB-31 Rent statement mismatch (R2)
 
 - **Who:** operations lead; the property's case manager; on-call engineer for a job fault.
 - **Steps:**
-  1. The rent-matching job (FR-PMG-003) reads the bank's statement or confirmation for the owner's own account and matches rent lines to tenancies. AL-37 fires on a failed job, a late-rent batch or a misrouted line.
+  1. The rent-matching job (FR-PMG-003) reads the bank's statement lines for the owner's rent account only, under the owner's written mandate allowing the bank to share them, and matches rent lines to tenancies. No mandate on file: the job does not run for that property. Lines for any other account are refused at import. AL-37 fires on a failed job, a late-rent batch or a misrouted line.
   2. Job failed or did not run: check the scheduler and the bank file (RB-12, RB-09). Re-run; the job is idempotent.
   3. Rent not received: confirm with the tenant and the owner before any chasing message; a tenant may have paid with a wrong reference. Match manually only with the bank line in view and a second person's check.
   4. Rent received in the wrong place: a rent line in a Fidero account or an escrow account breaks RUL-24. Return it to the owner's account the same bank working day with two-person approval; tell the owner and the tenant how to pay correctly; record a SEV1 (9.1) and find how the tenant got the wrong details (a changed statement, a staff error, a fake message to the tenant).
@@ -2001,7 +2002,7 @@ Key policies deny use outside the named roles. Key deletion has a 30-day wait an
 | Failed MFA and lockouts | Real time (AL-22) |
 | Release approvals: approver pairs, approvals outside bank hours, approvals from new devices or countries | Daily review by the operations lead; invariant check hourly (8.6) |
 | Role grants and locked text changes | Real time (AL-23) |
-| Payee changes, name-check results, manual matches (RB-28 step 5) and cross-country access grants | Daily review by the operations lead; weekly by the lead |
+| Payee changes, name-check results, bank-letter matches (RB-28 step 5) and cross-country access grants | Daily review by the operations lead; weekly by the lead |
 | Reads of sensitive-class records (12.1) | 5 in the weekly sample |
 | Weekly sample review of 20 random staff actions | Weekly by the lead or a reviewer |
 
@@ -2036,11 +2037,11 @@ AWS threat detection service, Security Hub (with the AWS Foundational Security B
 | Escrow and payment | As tax and banking law requires | Anonymise parties; keep amounts, dates, references and approver IDs | Nightly |
 | Account | Life of account plus a period | Delete or anonymise profile | Nightly |
 | Safety | To be set; restricted | Delete | Nightly |
-| Care visit records (R2): care plans, check-ins, readings, photos, concerns. Sensitive: health and welfare data about people who are often vulnerable | `[TO VERIFY]` by the lawyer; assumption: life of the care plan plus 12 months, then delete | Delete photos, readings and concern text; keep counts and dates for metrics | Nightly |
-| Health invoices and treatment or enrolment confirmations (FR-FEE-004). Sensitive where they show a diagnosis or treatment | `[TO VERIFY]`; the escrow and payment class applies to the payment record, but the invoice image and treatment detail are deleted earlier, assumption 24 months | Delete the document; keep amount, date, institution and receipt reference | Nightly |
-| Tenant data (R2): agreement, rent record, identity document | `[TO VERIFY]`; assumption: tenancy plus the limitation period for the agreement; identity document deleted at tenancy end | Anonymise the tenant; keep rent amounts and dates for the owner's record | Nightly |
-| Errand documents (R2): passport and ID copies, application forms, result documents. Sensitive | Short by design: deleted 7 days `[TO VERIFY]` after handover is recorded (FR-TSK-005), unless the client asks to keep a copy, then the account class | Delete the files; keep the step record and receipts | Nightly; AL-38 if held longer |
-| Insurance applications (R2): health declarations, beneficiary details. Sensitive | Passed to the insurer; Fidero keeps the application until the insurer confirms receipt plus 30 days `[TO VERIFY]`; the policy document follows the account class | Delete the application; keep policy reference, renewal date and claim contact | Nightly |
+| Health and care (C5.2): care visit records (R2): care plans, check-ins, readings, photos, carer concerns. Sensitive: health and welfare data about people who are often vulnerable; own encryption key | `[TO VERIFY]` by the lawyer; assumption: life of the care plan plus 12 months, then delete | Delete photos, readings and concern text; keep counts and dates for metrics | Nightly |
+| Health and care (C5.2): hospital invoices and treatment or enrolment confirmations (FR-FEE-004). Sensitive where they show a diagnosis or treatment; own encryption key | `[TO VERIFY]`; the escrow and payment class applies to the payment record, but the invoice image and treatment detail are deleted earlier, assumption 24 months | Delete the document; keep amount, date, institution and receipt reference | Nightly |
+| Tenancy (C5.2, R2): tenant identity, agreement, rent records | `[TO VERIFY]`; assumption: tenancy plus the limitation period for the agreement; identity document deleted at tenancy end | Anonymise the tenant; keep rent amounts and dates for the owner's record | Nightly |
+| Identity documents (C5.2, R2): passports, ID cards and certificates handled in errands, with application forms and result documents. Sensitive | Short by design: deleted from Fidero storage 7 days `[TO VERIFY]` after handover is recorded (FR-TSK-005), unless the client asks to keep a copy, then the account class | Delete the files; keep the step record and receipts | Nightly; AL-38 if held longer |
+| Insurance (C5.2, R2): applications (health declarations, beneficiary details) and policy documents. Sensitive | Policy life plus `[TO VERIFY]` (01 C5.2). Assumption: the application itself is kept only until the insurer confirms receipt plus 30 days `[TO VERIFY]`; the policy document is kept for the policy life plus the period | Delete the application; keep policy reference, renewal date and claim contact | Nightly |
 | Audit | At least as long as the longest class it covers (NFR-AUD-01) | Nothing to anonymise in the entry itself: audit rows hold IDs and keyed hashes, not personal values (document 02). Erasure of the person's data elsewhere (crypto-shredding of their data key) leaves the chain valid | Not applicable |
 | Marketing leads | 24 months from last contact (assumption in C5.2) | Delete | Nightly |
 | Operational logs | 8.5 | Lifecycle rules | Automatic |
@@ -2062,7 +2063,7 @@ RB-17 is the procedure. The hold register records: hold ID, reason, scope, reque
 
 ### 13.4 Data location register (NFR-PRIV-01)
 
-The register lists every place personal data is stored or processed. It is kept as a table in the repository (`ops/data-location-register.md`) and reviewed before each release and when a vendor changes. Every location is `[TO VERIFY]` against the Q-07 ruling. From country 2 the register has a country column and starts with this per-country summary (FR-CTY-002):
+The register lists every place personal data is stored or processed. It is kept as a table in the repository (`ops/data-location-register.md`) and reviewed before each release and when a vendor changes. Every location is `[TO VERIFY]` against the Q-07 ruling. From country 2 the register has a country column and starts with this per-country summary (FR-CTY-002). Each new country's law, regulator and notification duties are 01 Q-21, answered in that country's manual phase:
 
 | Country | Law and regulator `[TO VERIFY]` | Allowed locations `[TO VERIFY]` | Hosting pattern (2.7) | Manual-phase records | Status |
 |---|---|---|---|---|---|
@@ -2193,7 +2194,7 @@ A third country adds the same again. Pattern B's cost is the reason the lawyer's
 | IF-07 | Amazon SES; Hubtel or Twilio SMS; WhatsApp Business Platform `[TO VERIFY]` | AWS Health; vendor status pages | AWS support; vendor support | Vendor standard `[TO VERIFY]` | Channel fallback per user preference: WhatsApp → SMS → email; second SMS provider `[TO VERIFY]` | AL-15, AL-30 |
 | IF-08 | Partner API consumers (banks, developers) (R2) | Fidero publishes its own status page | Named technical contact per partner | Fidero to partner: SLO-16 as a target; contractual SLA `[TO VERIFY]` | Partners told through the status page; rate limits protect the platform | SLO-16 |
 | IF-09 | Lands Commission | None | Runners in person | None | Manual in all releases (AS-07). No platform dependency | Not monitored |
-| IF-10 | Institutions: schools, hospitals, clinics, pharmacies, agencies, utilities `[TO VERIFY]` per institution (Q-16) | None | Named contact in the institution record (FR-FEE-001) | Receipt return time agreed per institution `[TO VERIFY]` (SLO-17) | R1: invoices and receipts by manual upload. R2 portal or file: fall back to upload with a second-person check. If an institution cannot take direct payment, the runner pays in person against a voucher (FR-FEE-006, flag `lines.fee.runner_cash`) | SLO-17, AL-34 |
+| IF-10 | Institutions: schools, hospitals, clinics, pharmacies, agencies, utilities `[TO VERIFY]` per institution (Q-16) | None | Named contact in the institution record (FR-FEE-001) | Receipt return time agreed per institution `[TO VERIFY]` (SLO-17) | R1: invoices and receipts by manual upload. R2 portal or file: fall back to upload with a second-person check. If an institution cannot receive a bank transfer, it is marked not eligible for direct payment and there is no cash route; a runner may only collect invoices and deliver receipts (FR-FEE-006) | SLO-17, AL-34 |
 | IF-11 | Insurer partners, one or more per country `[TO VERIFY]` (Q-17) (R2) | The insurer's own, if any | Insurer operations desk and claims contact (6.6) | Application and policy document turnaround `[TO VERIFY]` in the agreement (SLO-22) | Hold applications. Premiums always go from the client to the insurer's account, so nothing is stuck with Fidero. Renewals chased by phone. `lines.ins` off if the insurer cannot process | SLO-22, AL-39 |
 | — | AWS | AWS Health Dashboard | AWS support plan | AWS service terms | DR plan (10.5) | AWS Health events to the engineering channel |
 | — | GitHub | GitHub status page | GitHub support | GitHub terms | Deploys wait; emergency deploy of an existing signed image through a documented break-glass AWS path `[TO VERIFY]` | Manual |
@@ -2221,9 +2222,9 @@ A release cannot go live until its operational readiness checklist is complete a
 - [ ] Blue/green deploy and automatic rollback tested in staging by forcing a failure.
 - [ ] Feature flags in place; `escrow.enabled` off until the bank agreement and format are signed; `listings.enabled` off; `lines.fee` off until its 2.6 conditions are met; every R2 and R3 `lines.*` flag off; `country.<code>` off for every country but Ghana.
 - [ ] Ghana configuration loaded as a bundle (`CFG-gh-v1`) through RB-33, with the holiday calendar a year ahead; the country constant check passing in CI (2.7).
-- [ ] Institution verification procedure (RB-27) agreed with the bank, including the account-name check (FR-ESC-015) and the bank-confirmed manual path when it is unavailable; first institutions verified.
-- [ ] Held balance and running statement (FR-ESC-014) reconciled against the bank's figure in UAT; the bank agrees the statement wording.
-- [ ] Health invoice data class (13.1) live with its key and access limits before the first hospital payment.
+- [ ] Institution verification procedure (RB-27) agreed with the bank, including the account-name check (FR-ESC-015) and the bank-letter path, checked by a second person, where the bank's name check is not offered; first institutions verified.
+- [ ] Amount held at the bank and the running statement (FR-ESC-014) reconciled against the bank's figure in UAT; the bank agrees the statement wording.
+- [ ] Health and care data class (01 C5.2, 13.1) live with its own key and access limits before the first hospital payment.
 - [ ] `lines.ins` confirmed off in every country; no insurer product shown anywhere in R1.
 - [ ] SLO-01 to SLO-14, SLO-17 and SLO-20 measured on dashboards for at least 2 weeks in staging or production soft launch.
 - [ ] All R1 alerts (AL-01 to AL-34 and AL-40 to AL-42, except the R2 alerts AL-10, AL-17 and AL-31) tested by forcing each condition once; runbook links work.
@@ -2251,9 +2252,9 @@ A release cannot go live until its operational readiness checklist is complete a
 - [ ] SLO-15 to SLO-19, SLO-21 and SLO-22 measured; AL-10, AL-17, AL-31 and AL-35 to AL-39 tested.
 - [ ] RB-29 to RB-32 and RB-34 written and drilled. The welfare drill (9.8, RB-29) done with the operations lead, a carer and the founder, including a practice call to the emergency services' non-emergency line `[TO VERIFY]`.
 - [ ] Care visit alerts (AL-35, AL-36) proven to fire out of hours and to reach a person; the welfare line hours (6.4) staffed.
-- [ ] Sensitive data classes for care, tenant, errand and insurance data (13.1) live with keys, access limits and retention jobs dry-run.
+- [ ] Health and care, tenancy, identity document and insurance data classes (01 C5.2, 13.1) live with keys, access limits and retention jobs dry-run.
 - [ ] Rent matching tested with real sample statements for an owner's account at the bank, including a deliberately misrouted test line; RB-31 drilled.
-- [ ] Insurer end-to-end premium routing test passed with a test premium that appeared only in the insurer's account. `lines.ins` stays off in any country without a contracted insurer and the licence (C-11, Q-17).
+- [ ] Insurer end-to-end premium routing test passed, for each route the insurer uses (FR-INS-002), with a test premium that appeared only in the insurer's account. `lines.ins` stays off in any country without a contracted insurer and the licence (C-11, Q-17).
 - [ ] Errand catalogue loaded per country; errand document deletion (AL-38, 13.1) tested.
 - [ ] Invariant checks 5 and 6 (8.6) running; checks 3 and 4 extended to the new lines.
 - [ ] Country 2: gate passed and recorded (AS-13, C-13); the "open a country" checklist (16.4) complete before `country.<code>` goes on. If the gate is not passed, country 2 stays off and Ghana continues (AS-13).
@@ -2290,7 +2291,7 @@ Completed once per country before `country.<code>` is turned on (RB-26 step 10).
 
 **Partners**
 
-- [ ] Bank or escrow agent contracted; release instruction format `RI-<bank>-vN`, channel, recall procedure and call-back agreed and tested (5.7); account-name check available, or a bank-confirmed manual path agreed (RB-28 step 5).
+- [ ] Bank or escrow agent contracted; release instruction format `RI-<bank>-vN`, channel, recall procedure and call-back agreed and tested (5.7); account-name check available, or the bank-letter path with a second-person check agreed (FR-ESC-015) (RB-28 step 5).
 - [ ] Payment, identity, SMS and WhatsApp providers contracted with data processing agreements; in 15, the register and the contact list.
 - [ ] First institutions verified (RB-27, Q-16); an insurer contracted and the licence held if `lines.ins` is to open (C-11).
 - [ ] Map layer sources and licence bodies recorded; professionals with verified licences onboarded (FR-ACC-005).
@@ -2328,7 +2329,7 @@ A release meets operational acceptance when:
 
 Document 01 is not edited here. These items need a decision by the product owner and, where shown, the lawyer, insurer or bank. The list was refreshed against document 01 v0.3 on 1 November 2026.
 
-Items raised in version 0.1 of this document and fixed in document 01 v0.2 or v0.3 have been removed: the maintenance cap (NFR-AVL-01); two data centres within allowed locations and the second-location question (NFR-AVL-03, Q-11); the KMS-signed release instruction (FR-ESC-008, with the channel still `[TO VERIFY]` under Q-01 and Q-12); device key revocation (FR-MOB-011); the second administrator for bank details and release-affecting settings (FR-ADM-003, FR-ADM-005); the stated expected R1 load (NFR-PERF-03); and the bank recall and notice-period questions (Q-12). Items 1 to 14 below are carried over and still open. Items 15 to 27 are new in this version.
+Items raised in version 0.1 of this document and fixed in document 01 v0.2 or v0.3 have been removed: the maintenance cap (NFR-AVL-01); two data centres within allowed locations and the second-location question (NFR-AVL-03, Q-11); the KMS-signed release instruction (FR-ESC-008, with the channel still `[TO VERIFY]` under Q-01 and Q-12); device key revocation (FR-MOB-011); the second administrator for bank details and release-affecting settings (FR-ADM-003, FR-ADM-005); the stated expected R1 load (NFR-PERF-03); and the bank recall and notice-period questions (Q-12). Items 1 to 14 below were carried over from version 0.1. Items 15 to 27 were added in version 0.2. Items resolved by 01 version 0.4 stay in the table, marked resolved, so their numbers remain traceable.
 
 | No. | Location in 01 | Issue | Suggested resolution |
 |---|---|---|---|
@@ -2347,15 +2348,15 @@ Items raised in version 0.1 of this document and fixed in document 01 v0.2 or v0
 | 13 | C3, C-08 | The app supports Android 8.0+ `[TO VERIFY]`, but Play Store target API rules and security patches limit old Android versions over time. No policy for dropping OS versions. | Add a rule to review the minimum Android version yearly. |
 | 14 | C4.16 (NTF) and FR-ACC-001, FR-ACC-002 | One-time codes by SMS are the main sign-in path for clients. No fallback is required when the SMS provider fails, and SMS abuse cost is not addressed. | Add a fallback channel requirement (email or WhatsApp) and a rate limit requirement. |
 | 15 | FR-CTY-001 (R1), FR-CTY-002 (R2), AS-13 | FR-CTY-001 makes "data location" part of a country's configuration in R1, but the requirement to keep data in that location (FR-CTY-002) is R2. Country 2's manual phase from month 6 creates personal data under country-2 law before any requirement covers it, and NFR-PRIV-01 names only the Ghana regulator. | Make FR-CTY-002 R1 for the location field and the storage binding, or state that no country-2 personal data enters the platform before R2. Add the manual-phase records of each country to C5.2 and NFR-PRIV-01. |
-| 16 | FR-ESC-015, IF-01 | The payee account-name check is a Must, but nothing says where the name comes from (a bank name-enquiry service, a statement, a manual call), what happens when the source is unavailable, or that the block cannot be overridden. | Add the name-check source to IF-01 `[TO VERIFY]`, a "no override" rule, and a bank-confirmed manual path with two people (RB-28). |
-| 17 | FR-FEE-006 vs RUL-22 and FR-ESC-015 | A runner drawing cash from the bank against a voucher is a payee who is not a verified institution, which conflicts with RUL-22 and FR-ESC-015 as written. Cash in a staff member's hands is a new risk with no limit. | State the exception explicitly, cap the voucher amount (configurable under FR-ADM-005), require same-day receipt upload, and add voucher reconciliation to FR-PAY-006 or FR-ESC-011. |
+| 16 | FR-ESC-015, IF-01 | The payee account-name check is a Must, but nothing says where the name comes from (a bank name-enquiry service, a statement, a manual call), what happens when the source is unavailable, or that the block cannot be overridden. | **Resolved by 01 v0.4.** FR-ESC-015 names the source (the bank's name check where offered, otherwise a bank letter checked by a second staff member) and forbids any override. RB-28 and the DR-E fallback in 10.5 now use only these two sources; the phone match is withdrawn. |
+| 17 | FR-FEE-006 vs RUL-22 and FR-ESC-015 | A runner drawing cash from the bank against a voucher is a payee who is not a verified institution, which conflicts with RUL-22 and FR-ESC-015 as written. Cash in a staff member's hands is a new risk with no limit. | **Resolved by 01 v0.4.** The cash route is removed. FR-FEE-006 marks an institution that cannot receive a bank transfer as not eligible for direct payment; a runner may only collect the invoice and deliver the receipt. The runner cash flag in 2.6 and the runner-pays step in RB-27 are removed. |
 | 18 | FR-CARE-005, FR-CARE-006 | "Within 24 hours" and "the same day" are fixed values, and the concern path has no out-of-hours requirement or emergency guidance. A concern raised at night must reach a person at once. | Make the thresholds configurable (FR-ADM-005); add an urgent flag that pages a named person at any hour; add emergency-services guidance in the carer's app (9.8). |
-| 19 | FR-PMG-003, FR-ESC-011, IF-01 | Rent is tracked "from the bank's statement or confirmation" of the owner's own account, which is not an escrow account. No interface or consent requirement covers Fidero reading an owner's account statement, and FR-ESC-011 (Should, R2) covers escrow statements only. | Add the owner's consent and the bank's data-sharing basis to IF-01 and FR-PMG-002 `[TO VERIFY]`; state the fallback (the owner uploads statements or confirms rent). |
+| 19 | FR-PMG-003, FR-ESC-011, IF-01 | Rent is tracked "from the bank's statement or confirmation" of the owner's own account, which is not an escrow account. No interface or consent requirement covers Fidero reading an owner's account statement, and FR-ESC-011 (Should, R2) covers escrow statements only. | **Resolved by 01 v0.4.** FR-PMG-003 reads the bank's statement lines for that account only, under the owner's written mandate allowing the bank to share them. RB-31 and `lines.pmg` follow it. The bank's agreement stays `[TO VERIFY]`. |
 | 20 | FR-INS-002, RUL-25, IF-11 | RUL-25 says Fidero collects no premium, but no requirement detects and returns a premium that lands in a Fidero or escrow account, or reconciles with the insurer. | Add a detection, return and reconciliation requirement (8.6 invariant check 4, RB-32), and say who the money goes back to `[TO VERIFY]`. |
-| 21 | C5.2 | No data classes for care visit records, health invoices and treatment confirmations, tenant data, errand documents (passport and ID copies) or insurance applications. Several are health data with higher duties under Act 843 `[TO VERIFY]`. | Add the classes with retention `[TO VERIFY]` and an access rule. 13.1 holds the working assumptions until then. |
-| 22 | C-02, NFR-PRIV-01, A5, B9 | They refer only to Act 843 and the Ghana Data Protection Commission. From month 6 a second country's law and regulator apply to its data. No open question asks for that country's deadlines and forms. | Generalise to "the data protection law and regulator of each country", with Ghana named first. Add a B9 question for each new country's data protection regime. |
+| 21 | C5.2 | No data classes for care visit records, health invoices and treatment confirmations, tenant data, errand documents (passport and ID copies) or insurance applications. Several are health data with higher duties under Act 843 `[TO VERIFY]`. | **Resolved by 01 v0.4.** C5.2 adds Health and care (own encryption key), Tenancy, Identity documents and Insurance classes. 13.1 now uses those names; periods stay `[TO VERIFY]`. |
+| 22 | C-02, NFR-PRIV-01, A5, B9 | They refer only to Act 843 and the Ghana Data Protection Commission. From month 6 a second country's law and regulator apply to its data. No open question asks for that country's deadlines and forms. | **Partly resolved by 01 v0.4.** NFR-PRIV-01 now names each country's data protection authority, and Q-21 asks for each new country's law, regulator and notification duties. C-02, C-09 and A5 still name only Act 843 and the Ghana Commission. |
 | 23 | NFR-AVL-01 | One target for the platform. It does not say whether the 4-hour maintenance cap is per country or shared, nor that a country's maintenance must avoid that country's business and bank hours. | State per-country measurement (SLO-21) and the hours rule. |
 | 24 | FR-ACC-007 | Country-scoped access is required, but no requirement logs denied cross-country access or names who may hold cross-country rights. | Add a logging requirement and name the roles (founder, named administrators, the lead's read-only access). |
 | 25 | FR-ANL-001 vs FR-CTY-003 | FR-ANL-001 (operating dashboard) is Should while FR-CTY-003 (all metrics by country) is Must in R1. A9 adds per-line metrics but FR-ANL-001 does not list the new lines. | Align the priorities and name the new lines' metrics in FR-ANL-001. |
-| 26 | C1 vs C4.9, F-15, NFR-PERF-05 | C1 renames the app "field app", but C4.9, F-15 and NFR-PERF-05 still say "milestone app". FR-MOB-001 lists its users without carers and agents, although FR-MOB-010 and FR-MOB-012 add them. | Use one name throughout and update FR-MOB-001's user list. |
-| 27 | B9 | No open question covers Fidero's welfare duty during care visits (when it must call emergency services or report to an authority) or the carer's own safety. | Add a question for the lawyer and operations, needed before `lines.care` opens. |
+| 26 | C1 vs C4.9, F-15, NFR-PERF-05 | C1 renames the app "field app", but C4.9, F-15 and NFR-PERF-05 still say "milestone app". FR-MOB-001 lists its users without carers and agents, although FR-MOB-010 and FR-MOB-012 add them. | **Partly resolved by 01 v0.4.** C4.9 is now "Field app (MOB)" and FR-MOB-001 lists carers and errand agents. F-15, C3, NFR-PERF-05 and NFR-A11Y-01 still say "milestone app". |
+| 27 | B9 | No open question covers Fidero's welfare duty during care visits (when it must call emergency services or report to an authority) or the carer's own safety. | **Resolved by 01 v0.4.** Q-22 asks what duty of care Fidero owes during visits, how a carer's own safety is protected and what insurance covers both, needed by R2. |

@@ -5,11 +5,11 @@ System, database, API, security and infrastructure design for the Fidero platfor
 | Item | Value |
 |---|---|
 | Document | 02 of 6 in `docs/specs/` |
-| Version | 0.2, working draft |
+| Version | 0.3, working draft |
 | Date | 1 November 2026 |
 | Owner | Product and engineering lead (to be hired; founder acts until then) `[TO VERIFY]` |
 | Status | Draft. For review. Not yet baselined |
-| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01, version 0.3) |
+| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01, version 0.4) |
 | Decision record | `docs/decisions/2026-11-01-diaspora-platform.md`: Fidero is the diaspora's trusted agent at home. Same engine, more lines, country as configuration from R1 |
 | Supersedes | `docs/product/architecture.md` (kept as the original proposal; this document deepens it and keeps its principles) |
 | Related | Document 05 (tests and traceability), document 06 (delivery, CI/CD and operations) |
@@ -29,6 +29,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 |---|---|---|---|
 | 0.1 | 31 October 2026 | First draft | Product and engineering lead (acting) |
 | 0.2 | 1 November 2026 | Aligned with document 01 version 0.3 and the decision record. New actors (family members, institutions, carers and errand agents, tenants, insurer partners) in the context and container views; the Android app becomes the field app. Six new modules FEE, CARE, PMG, TSK, INS and EVT with tables, events, endpoints and sequences for J-09 to J-12. CTY moves to R1: `country_id` on every tenant-scoped table, versioned `cty_country_config` with copying (FR-CTY-004), and a cell strategy for per-country data location. Verified payee registry and database checks for RUL-22 to RUL-25; held funds as a mirror of the bank for FR-ESC-014 and FR-ESC-015. ADR-16 to ADR-21. Threat model, RBAC, NFR, coverage, risks and questions extended. Issues fixed in 01 version 0.2 and 0.3 removed from section 15; new issues I-17 to I-28 added. Release rights limited to reviewers, as 01 C2 now states. | Product and engineering lead (acting) |
+| 0.3 | 1 November 2026 | Aligned to 01 v0.4: runner cash route removed (voucher table, instruction type, endpoints, job, threat row and TR-09 controls replaced by `fee_institution.eligible_for_direct_payment` and a runner task that only collects invoices and delivers receipts); fresh search blocks purchase releases only; standing client approvals for care visits and errand steps (`esc_standing_approval`); account-name sources for FR-ESC-015 with no override; 72-hour reviewer decision, second-person check of call confirmations and code lockout for visits; owner's written mandate for rent statement lines; both premium routes; dispute Withdrawn state; data classes and keys aligned to 01 C5.2; I-16 to I-22, I-25 and I-26 marked resolved. | Product and engineering lead (acting) |
 
 ### Release staging of the architecture
 
@@ -228,9 +229,9 @@ Status: superseded by ADR-16 in version 0.2. Kept for history; the `country_code
 
 | Part | Content |
 |---|---|
-| Context | RUL-22 applies to every line: money is released only to a verified institution, supplier, vendor or professional with a bank account in that name, never as cash to a relative or to the client's representative. FR-ESC-015 blocks any release where the account name does not match. Payee records today are scattered: `esc_party`, `prj_supplier`, `bld_panel_member`, the new institutions, carers, agencies, insurers and vendors. |
-| Decision | One table `esc_payee` holds every party that can receive money, with its kind, the verified legal name from a registration or identity document, the bank account name and number from the bank's own record, a computed `name_match`, a `verification_status`, and the two staff who verified it (FR-ADM-003 second-person check). Every `esc_release_instruction` has a `payee_id`. A database trigger rejects approval or dispatch unless the payee is `verified`, `name_match` is `matched`, the payee's kind is allowed for the instruction's subject, and the payee is not the client, a family member of the client or the client's representative. Any change to the payee's bank details resets verification and withdraws open approvals. Name matching is a normalised exact match (upper case, punctuation removed, common suffixes such as LTD and LIMITED removed); a reviewer cannot override a mismatch, only replace the evidence. |
-| Consequences | One tested implementation of RUL-22 for every line, with RUL-21 and RUL-25 as special cases. Verification needs a source for the bank account name: the bank's confirmation letter in R1, an account name enquiry where the bank offers one `[TO VERIFY]` (TQ-14). Land sellers and developers are payees too and must be verified through the report's identity and authority checks (I-18). |
+| Context | RUL-22 applies to every line: money is released only to a verified payee with a bank account in that payee's name (an institution, supplier, vendor, professional, or the seller or developer named in a purchase escrow), never as cash to a relative or to the client's representative. FR-ESC-015 blocks any release where the account name does not match. Payee records today are scattered: `esc_party`, `prj_supplier`, `bld_panel_member`, the new institutions, carers, agencies, insurers and vendors. |
+| Decision | One table `esc_payee` holds every party that can receive money, with its kind, the verified legal name from a registration or identity document, the bank account name and number from the bank's own record, a computed `name_match`, a `verification_status`, and the two staff who verified it (FR-ADM-003 second-person check). Every `esc_release_instruction` has a `payee_id`. A database trigger rejects approval or dispatch unless the payee is `verified`, `name_match` is `matched`, the payee's kind is allowed for the instruction's subject, and the payee is not the client, a family member of the client or the client's representative. Any change to the payee's bank details resets verification and withdraws open approvals. Name matching is a normalised exact match (upper case, punctuation removed, common suffixes such as LTD and LIMITED removed); no user can override a mismatch (FR-ESC-015), only replace the evidence. |
+| Consequences | One tested implementation of RUL-22 for every line, with RUL-21 and RUL-25 as special cases. The bank account name comes from the bank's name check where offered `[TO VERIFY]` (TQ-14), otherwise from a bank letter checked by a second staff member (FR-ESC-015, 9.2). Land sellers and developers are payees under RUL-22 and are verified through the report's identity and authority checks. |
 | Alternatives rejected | Payee details on each line's own table (five implementations of one rule). A reviewer override for near matches (defeats the rule; a legitimate name difference is fixed by new evidence). |
 | Traces | RUL-21, RUL-22, RUL-25, FR-ESC-015, FR-FEE-001, FR-FEE-003, FR-TSK-003, FR-PMG-005, FR-INS-002, FR-EVT-001, FR-ADM-003, BO-10 |
 
@@ -240,7 +241,7 @@ Status: superseded by ADR-16 in version 0.2. Kept for history; the `country_code
 |---|---|
 | Context | FR-ESC-014 asks for a held amount from which several small releases are made over time, with a running statement to the client, for institution payments, care visits and errands. FR-FEE-007 asks for a statement per family member. ADR-03 forbids any balance, wallet or ledger that Fidero controls. |
 | Decision | Extends ADR-03. A held-funds escrow (`esc_escrow.kind = 'held_funds'`) is still a mirror. It stores no amount that Fidero computes and keeps. The figure shown as "held at the bank" is a view, `esc_held_statement`, derived at read time from bank-confirmed deposits minus bank-confirmed releases, with approved instructions not yet confirmed shown separately as "instructed, awaiting the bank". A trigger refuses an instruction whose amount exceeds that derived figure, so Fidero never instructs more than the bank has reported holding. The running statement is the ordered list of bank events and instructions for the escrow, filterable by family member, institution or errand. Reconciliation against the bank's statement is daily (FR-ESC-011) and any difference is a reviewer item. Whether the bank holds each client's funds in a named sub-account or in one trust account with client references is the bank's design `[TO VERIFY]` (TQ-15). |
-| Consequences | The CI schema test that fails on any column named like `%balance%` or `%wallet%` stays. Document 01's words "held balance" and "balance held" (FR-ESC-014, FR-FEE-007) are read as "amount the bank reports holding" (I-17). |
+| Consequences | The CI schema test that fails on any column named like `%balance%` or `%wallet%` stays. Document 01 version 0.4 says "amount held at the bank" in FR-ESC-014 and FR-FEE-007, which matches this design (I-17, resolved). |
 | Alternatives rejected | A stored running balance updated by application code (a Fidero ledger of client money, against C-01). Per-payment escrows for every school term (too many bank accounts and deposits for small sums). |
 | Traces | C-01, RUL-01, FR-ESC-014, FR-ESC-010, FR-FEE-007, FR-CARE-004, FR-TSK-002 |
 
@@ -444,16 +445,16 @@ Uploads go straight from the client to S3 through presigned URLs. Files land in 
 | PRJ | `projectfunds` | Project funds on the shared project and milestone engine, suppliers, background checks, invoices, AML threshold, disclaimer | `prj_supplier`, `prj_background_check`, `prj_invoice`, `prj_aml_review` | `supplier.checked`, `invoice.accepted` | `milestone.status_changed`, `release.confirmed` | FR-PRJ-001 to 005 | R2 |
 | LST | `listings` | Listings, publish rule, badge, search, enquiries, reservations, removal, family and stool listings (R3) | `lst_listing`, `lst_listing_media`, `lst_enquiry`, `lst_reservation`, `lst_removal` | `listing.submitted`, `listing.verification_requested`, `listing.live`, `listing.suspended`, `reservation.created`, `listing.sold` | `payment.confirmed`, `report.released`, `monitoring.alert_raised`, `release.confirmed`, `dispute.opened` | FR-LST-001 to 010 | R2 |
 | RAT | `ratings` | Ratings, hidden comments, track records | `rat_rating`, `rat_track_record` | `track_record.updated` | `case.status_changed`, `milestone.status_changed`, `dispute.closed`, `release.confirmed` | FR-RAT-001 to 004 | R2 |
-| DSP | `disputes` | Disputes, parties, statements, deadlines, decisions, mediation, freeze links | `dsp_dispute`, `dsp_party`, `dsp_statement`, `dsp_subject_link` | `dispute.opened`, `dispute.resolved`, `dispute.closed` | none | FR-DSP-001 to 005 | R2 |
+| DSP | `disputes` | Disputes, parties, statements, deadlines, decisions, mediation, freeze links | `dsp_dispute`, `dsp_party`, `dsp_statement`, `dsp_subject_link` | `dispute.opened`, `dispute.resolved`, `dispute.closed`, `dispute.withdrawn` | none | FR-DSP-001 to 005 | R2 |
 | PTR | `partners` | Partner API clients, scopes, status queries, partner orders, metering, webhooks | `ptr_api_client`, `ptr_usage_event`, `ptr_webhook_subscription`, `ptr_webhook_delivery` | `partner.order_created` | `report.released`, `consent.changed` | FR-PTR-001 to 004 | R2 |
 | NTF | `notifications` | Templates per language and channel, preferences, sends, content policy, delivery log | `ntf_template`, `ntf_preference`, `ntf_message`, `ntf_delivery_event` | none | most events | FR-NTF-001 to 005 | R1 |
 | ADM | `administration` | Versioned configuration, prices, FX guides, partner registry, locked texts, settings | `adm_config_version`, `adm_price`, `adm_fx_rate`, `adm_partner`, `adm_locked_text_version`, `adm_setting` | `config.published` | none | FR-ADM-001 to 005 | R1 |
 | AUD | `audit` | Append-only hash-chained audit log, anchors, search, chain checks | `aud_event`, `aud_anchor` | none | written in-transaction, not by events | FR-AUD-001 to 004 | R1 |
 | ANL | `analytics` | Metric views, dashboard API, CSV exports with logging | `anl_*` materialised views, `anl_export_log` | none | reads selectors only | FR-ANL-001 to 003 | R1 |
 | DPR | `dataprotection` | Privacy notice acceptance, consents including video and partner sharing, subject requests, retention, legal holds, bulk exports, data catalogue, data locations | `dpr_privacy_acceptance`, `dpr_consent`, `dpr_request`, `dpr_retention_rule`, `dpr_legal_hold`, `dpr_bulk_export`, `dpr_data_catalogue`, `dpr_data_location` | `consent.changed` | `person.registered` | FR-DPR-001 to 005 | R1 |
-| FEE | `fees` | Institutions and their verification case, named contacts, invoices and fee notes, checks against institution and family member, client approval, payment through held funds to the institution's payee record, receipts and confirmations returned, recurring schedules, runner cash vouchers as the fallback, statement per family member | `fee_institution`, `fee_institution_contact`, `fee_invoice`, `fee_payment`, `fee_schedule`, `fee_cash_voucher` | `institution.verified`, `invoice.submitted`, `invoice.client_approved`, `fee_payment.receipted`, `fee_schedule.due` | `case.status_changed`, `release.confirmed`, `held_funds.deposit_confirmed`, `payee.verified`, `payee.suspended` | FR-FEE-001 to 007 | R1 |
+| FEE | `fees` | Institutions and their verification case, named contacts, invoices and fee notes, checks against institution and family member, client approval, payment through held funds to the institution's payee record, receipts and confirmations returned, recurring schedules, institutions marked not eligible for direct payment (no cash route), runner tasks to collect invoices and deliver receipts, statement per family member | `fee_institution`, `fee_institution_contact`, `fee_invoice`, `fee_payment`, `fee_schedule`, `fee_runner_task` | `institution.verified`, `invoice.submitted`, `invoice.client_approved`, `fee_payment.receipted`, `fee_schedule.due` | `case.status_changed`, `release.confirmed`, `held_funds.deposit_confirmed`, `payee.verified`, `payee.suspended` | FR-FEE-001 to 007 | R1 |
 | CARE | `care` | Care plans and plan items, carer panel over `acc_vetting`, visit schedule, check-in and check-out results, plan item results and readings, family confirmation codes, missed and unconfirmed alerts, concerns, pay-per-confirmed-visit instructions | `care_plan`, `care_plan_item`, `care_carer`, `care_visit`, `care_visit_item`, `care_confirmation`, `care_concern` | `visit.scheduled`, `visit.checked_out`, `visit.confirmed`, `visit.unconfirmed`, `visit.missed`, `concern.raised` | `checkin.recorded`, `checkout.recorded`, `evidence.stored`, `release.confirmed`, `vetting.completed` | FR-CARE-001 to 006 | R2 |
-| PMG | `propertymgmt` | Managed properties and their onboarding case, tenancies, rent periods matched to the owner's account statement under the owner's mandate, late rent alerts, repairs with quotes from the panel, repair escrows, inspections, owner timeline | `pmg_managed_property`, `pmg_tenancy`, `pmg_rent_period`, `pmg_statement_mandate`, `pmg_repair`, `pmg_repair_quote`, `pmg_inspection` | `property.onboarded`, `rent.received`, `rent.late`, `repair.reported`, `repair.quote_approved`, `repair.inspected` | `case.status_changed`, `statement.line_imported`, `checkin.recorded`, `inspection.recorded`, `release.confirmed`, `payee.verified` | FR-PMG-001 to 006 | R2 |
+| PMG | `propertymgmt` | Managed properties and their onboarding case, tenancies, rent periods matched to the owner's account statement lines under the owner's written mandate, late rent alerts, repairs with quotes from the panel, repair escrows, inspections, owner timeline | `pmg_managed_property`, `pmg_tenancy`, `pmg_rent_period`, `pmg_statement_mandate`, `pmg_repair`, `pmg_repair_quote`, `pmg_inspection` | `property.onboarded`, `rent.received`, `rent.late`, `repair.reported`, `repair.quote_approved`, `repair.inspected` | `case.status_changed`, `statement.line_imported`, `checkin.recorded`, `inspection.recorded`, `release.confirmed`, `payee.verified` | FR-PMG-001 to 006 | R2 |
 | TSK | `errands` | Errand catalogue per country (as configuration), errands, checklist documents, steps with receipts, agent panel over `acc_vetting`, agencies as payees, official fee instructions, completion check, handover | `tsk_errand`, `tsk_errand_document`, `tsk_errand_step`, `tsk_agent`, `tsk_handover` | `errand.ordered`, `errand.assigned`, `errand_step.receipted`, `errand.completed`, `errand.handed_over` | `config.published`, `held_funds.deposit_confirmed`, `evidence.stored`, `release.confirmed`, `vetting.completed` | FR-TSK-001 to 005 | R2 |
 | INS | `insurance` | Insurer partners' products, applications passed to the insurer, policies and documents, premium schedule with instructions to the insurer's payee record, renewal reminders, claims tracked without a Fidero decision | `ins_product`, `ins_application`, `ins_policy`, `ins_premium`, `ins_claim` | `application.submitted`, `policy.issued`, `premium.due`, `claim.updated` | `release.confirmed`, `payee.verified`, `config.published` | FR-INS-001 to 004 | R2 |
 | EVT | `events` | Events with budget and date, vendors and their verification case, deposits against signed quotes, vendor payments against invoices and delivery evidence with family confirmation, budget against actual | `evt_event`, `evt_vendor`, `evt_vendor_payment` | `event.created`, `vendor.verified`, `vendor_payment.evidenced` | `case.status_changed`, `release.confirmed`, `payee.verified`, `visit.confirmed` | FR-EVT-001 to 003 | R3 |
@@ -778,7 +779,7 @@ sequenceDiagram
     I-->>Cl: Sends invoice or fee note
     Cl->>P: Upload invoice with reference
     P->>A: POST /v1/invoices
-    A->>A: Check reference, institution, family member, FR-FEE-002
+    A->>A: Check reference, institution, family member, eligible for direct payment, FR-FEE-002, FR-FEE-006
     A-->>Cl: Amount, payee name from bank record, held funds available
     Cl->>A: POST /v1/invoices/id/client-approval, FR-FEE-003, RUL-11
     Note over Cl,B: Client pays into the held funds account at the bank if short
@@ -794,7 +795,7 @@ sequenceDiagram
     A-->>Cl: Dashboard: paid, receipt, statement per family member, FR-FEE-007
 ```
 
-For school fees, `fee_schedule` creates the next invoice each term and asks for the client's approval before payment (FR-FEE-005). Where the institution cannot take a direct payment, the fallback is a runner cash voucher (FR-FEE-006, section 6.12 and I-19). The payee of record stays the institution; the runner is never the payee.
+For school fees, `fee_schedule` creates the next invoice each term and asks for the client's approval before payment (FR-FEE-005). An institution that cannot receive a bank transfer is marked not eligible for direct payment (FR-FEE-006, `fee_institution.eligible_for_direct_payment` in 6.12). There is no cash route. The client is told plainly that Fidero cannot pay that institution, and no invoice for it can be checked, approved or instructed. Where an institution hands out invoices or receipts only on paper, a runner task collects the invoice and delivers the receipt in person. The runner carries paper, never money, and is never a payee.
 
 ### 5.8 Care visit with check-in, check-out and family confirmation (J-10)
 
@@ -809,6 +810,7 @@ sequenceDiagram
     actor F as Family member
     participant N as SMS or WhatsApp
     Cl->>A: POST /v1/care-plans: address, frequency, plan items, confirmers, FR-CARE-001
+    Cl->>A: Optional standing approval up to a monthly amount, RUL-11
     A->>A: Assign vetted carer from care_carer, FR-CARE-002
     A-->>F: Who to expect and when
     W->>W: care.visit_reminders creates visits and reminds the carer
@@ -827,13 +829,18 @@ sequenceDiagram
         A->>A: Visit confirmed, RUL-23
     else Family confirms by call
         F-->>A: Fidero staff record the call with method call
+        A->>A: A second staff member checks the call record, FR-CARE-004
     else No confirmation in 24 hours
         A->>A: Visit unconfirmed, alert client and Fidero, FR-CARE-005
+    else Still unconfirmed after 72 hours
+        A->>A: Reviewer decides from check-in evidence and a call to the family, FR-CARE-004
     end
     A->>A: Release instruction for confirmed visits only, payee = carer or agency
-    Note over A: Trigger rejects an instruction for an unconfirmed visit. Two-person approval as in 5.3
+    Note over A: Trigger rejects an instruction for an unconfirmed visit. Client approval or standing approval, RUL-11. Two-person approval as in 5.3
     A-->>Cl: Dashboard: visit, items done, readings, photos, confirmed by
 ```
+
+A family confirmation code locks after 5 wrong attempts (FR-CARE-004); the visit can then be confirmed in the app, by a call checked by a second staff member, or by the reviewer's decision at 72 hours. A reviewer who decides "not confirmed" means the carer is not paid for that visit.
 
 A concern raised by the carer (FR-CARE-006) is a separate, encrypted record sent the same day to the client and a reviewer. A missed visit (no check-in by the end of the scheduled window) alerts the client and Fidero.
 
@@ -854,10 +861,10 @@ sequenceDiagram
     A->>A: Property onboarding case: inspection with photos
     O->>A: Register own account at the partner bank as rent destination
     A->>A: Trigger: account holder is the owner, never a Fidero or payee account, RUL-24
-    O->>A: Sign statement mandate so the bank may share that account's statement
+    O->>A: Upload written mandate letting the bank share that account's statement lines
     CM->>A: Record tenant, agreement, rent, due day, FR-PMG-002
     T->>B: Pays rent into the owner's account
-    B->>W: Statement file or API for the owner's account, under the mandate
+    B->>W: Statement lines for that account only, under the mandate, FR-PMG-003
     W->>A: pmg.match_rent matches lines to rent periods by amount, date and reference
     alt Rent received
         A-->>O: Rent received on date
@@ -879,7 +886,7 @@ sequenceDiagram
     A-->>O: Timeline: rent, repairs, inspections, photos, FR-PMG-006
 ```
 
-Fidero never receives rent and never appears as a rent destination (RUL-24). Rent matching reads the owner's account statement only under the owner's recorded mandate to the bank (I-21, TQ-17).
+Fidero never receives rent and never appears as a rent destination (RUL-24). Rent matching reads the bank's statement lines for the owner's rent account only, and only under the owner's written mandate allowing the bank to share them (FR-PMG-003, TQ-17).
 
 ### 5.10 Paperwork and errands (J-12)
 
@@ -897,6 +904,7 @@ sequenceDiagram
     A-->>Cl: Checklist, official fees, Fidero charge, target time, from cty_country_config
     Cl->>A: POST /v1/errands with checklist documents, FR-TSK-002
     A->>A: Fidero charge through PAY, official fees to held funds at the bank
+    Cl->>A: Optional standing approval for official fees up to a monthly amount, RUL-11
     Cl->>B: Pays official fees into held funds
     B->>A: Deposit confirmed
     CM->>A: Assign vetted agent, agency is a verified payee, FR-TSK-003
@@ -915,7 +923,7 @@ sequenceDiagram
     A-->>Cl: Completed, document, receipts, handover record
 ```
 
-Fidero's own charge is a fee payment (PAY). Official fees are client money, held at the bank and paid to the agency only. The agent is never the payee of an official fee.
+Fidero's own charge is a fee payment (PAY). Official fees are client money, held at the bank and paid to the agency only. The agent is never the payee of an official fee. Each step's fee needs the client's approval or a standing approval within its monthly amount (RUL-11), its receipt evidence and two staff approvals.
 
 ---
 
@@ -1044,8 +1052,7 @@ CREATE TABLE core_approval_request (
                    'bank_account_verification', -- a client's own account as rent destination, RUL-24
                    'release_setting_change',    -- FR-ADM-005 values that affect a release
                    'release_rights_grant',      -- C2: release rights granted by two administrators
-                   'country_config_publish',    -- FR-CTY-004, 6.9
-                   'cash_voucher')),            -- FR-FEE-006 runner cash voucher
+                   'country_config_publish')),  -- FR-CTY-004, 6.9
   subject_id    uuid NOT NULL,
   prepared_by   uuid NOT NULL REFERENCES acc_person(id),
   required      smallint NOT NULL DEFAULT 2 CHECK (required >= 2),
@@ -1432,12 +1439,11 @@ CREATE TABLE esc_release_instruction (
   kind             text NOT NULL CHECK (kind IN ('release','partial_release','cancel_refund')),
   milestone_id     uuid REFERENCES bld_milestone(id),
   subject_type     text CHECK (subject_type IN ('milestone','fee_invoice','care_visit','errand_step',
-                     'repair','event_vendor_payment','premium','cash_voucher')),   -- FR-ESC-010
+                     'repair','event_vendor_payment','premium')),   -- FR-ESC-010
   subject_id       uuid,
   payee_party_id   uuid REFERENCES esc_party(id),
   payee_id         uuid REFERENCES esc_payee(id),                 -- ADR-17; null only for cancel_refund
-  payment_method   text NOT NULL DEFAULT 'bank_transfer'
-                   CHECK (payment_method IN ('bank_transfer','runner_cash_voucher')),  -- FR-FEE-006
+  standing_approval_id uuid REFERENCES esc_standing_approval(id), -- RUL-11; care_visit and errand_step only
   amount           numeric(18,2) NOT NULL CHECK (amount > 0),
   holdback_amount  numeric(18,2) NOT NULL DEFAULT 0 CHECK (holdback_amount >= 0),  -- RUL-09
   currency         char(3) NOT NULL,
@@ -1453,7 +1459,7 @@ CREATE TABLE esc_release_instruction (
   CHECK (kind <> 'partial_release' OR milestone_id IS NOT NULL OR subject_id IS NOT NULL),
   CHECK ((subject_type IS NULL) = (subject_id IS NULL)),
   CHECK (kind = 'cancel_refund' OR payee_id IS NOT NULL),        -- RUL-22: every release names a payee
-  CHECK (payment_method <> 'runner_cash_voucher' OR subject_type = 'cash_voucher'),
+  CHECK (standing_approval_id IS NULL OR subject_type IN ('care_visit','errand_step')),   -- RUL-11
   CHECK (status NOT IN ('sent','confirmed') OR (document_sha256 IS NOT NULL AND kms_signature IS NOT NULL))
 );
 CREATE UNIQUE INDEX one_live_instruction_per_milestone
@@ -1465,11 +1471,16 @@ CREATE UNIQUE INDEX one_live_instruction_per_subject
 -- Trigger esc.release_blockers() BEFORE UPDATE to 'approved' or 'sent' raises if:
 --   any esc_condition for the escrow is 'open'                          (RUL-06)
 --   any open dsp_dispute is linked to the escrow, project or milestone   (RUL-15)
---   kind <> 'cancel_refund' and the fresh-search case is missing, not released,
---     or older than adm_setting 'fresh_search_window_days'              (RUL-07; purchase only)
+--   escrow kind 'purchase' or 'offplan' (a land, building, off-plan or listing
+--     purchase), kind <> 'cancel_refund', and the fresh-search case is missing,
+--     not released, or older than 'fresh_search_window_days'           (RUL-07, FR-ESC-006)
+--     Never applied to held_funds, construction, project_fund, repair or
+--     event escrows: fee, care, errand and other releases need no fresh search
 --   approval request is not 'approved'                                   (RUL-05)
 --   milestone set and no inspection with outcome pass or pass_with_defects (RUL-09)
---   client_approved_at is null for kinds that need client approval      (RUL-11)
+--   client_approved_at is null for kinds that need client approval, unless
+--     subject_type is 'care_visit' or 'errand_step' and an active standing
+--     approval covers it within its monthly amount (6.11)               (RUL-11)
 --   payee is not 'verified' with name_match 'matched', or its kind is not
 --     allowed for subject_type, or it is the client, a family member of
 --     the client or the client's representative (6.11)                   (RUL-22, FR-ESC-015)
@@ -1478,8 +1489,9 @@ CREATE UNIQUE INDEX one_live_instruction_per_subject
 --     is not the payee                                                    (RUL-23, FR-TSK-003)
 --   subject_type 'repair' and the repair has no inspection with pass      (FR-PMG-005)
 --   subject_type 'premium' and the payee kind is not 'insurer'            (RUL-25)
---   subject_type 'fee_invoice' and the invoice has no client approval, or
---     the payee is not the invoice's institution                          (FR-FEE-003, RUL-11)
+--   subject_type 'fee_invoice' and the invoice has no client approval, the
+--     payee is not the invoice's institution, or the institution is not
+--     eligible_for_direct_payment                                         (FR-FEE-003, FR-FEE-006, RUL-11)
 --   escrow kind 'held_funds' and amount exceeds the derived available
 --     figure in esc_held_statement (ADR-18)                               (FR-ESC-014)
 ```
@@ -1515,7 +1527,7 @@ CREATE TABLE evd_link (
   evidence_id   uuid NOT NULL REFERENCES evd_evidence(id),
   subject_type  text NOT NULL CHECK (subject_type IN ('case','task','report_section','escrow_condition',
                   'milestone','inspection','defect','listing','dispute','consent','licence','invoice',
-                  'payee','bank_account','vetting','institution','fee_invoice','fee_payment','cash_voucher',
+                  'payee','bank_account','vetting','institution','fee_invoice','fee_payment','fee_runner_task',
                   'care_visit','care_visit_item','care_concern','checkin',
                   'managed_property','tenancy','rent_period','repair','repair_quote','property_inspection',
                   'errand','errand_document','errand_step','handover',
@@ -1648,17 +1660,23 @@ CREATE TABLE dsp_dispute (
   opened_by     uuid NOT NULL REFERENCES acc_person(id),
   reason        text NOT NULL,
   status        text NOT NULL CHECK (status IN ('open','awaiting_response','evidence','decision',
-                  'closed','referred')),
+                  'closed','referred','withdrawn')),     -- Withdrawn per 01 C8 v0.4
   response_due  date, evidence_due date, decision_due date,   -- FR-DSP-003 working days
   decided_by    uuid REFERENCES acc_person(id),
   decision      text,
-  CHECK (status <> 'closed' OR decision IS NOT NULL)
+  withdrawn_at  timestamptz,
+  CHECK (status <> 'closed' OR decision IS NOT NULL),
+  CHECK (status <> 'withdrawn' OR withdrawn_at IS NOT NULL)
 );
+-- Trigger dsp.withdraw_rule(): 'withdrawn' only from 'open', 'awaiting_response' or 'evidence', and only by
+-- opened_by, the party who raised it. Each frozen subject then returns to its prior_status in
+-- dsp_subject_link, so frozen releases return to the state they came from (01 C8 Dispute).
 
 CREATE TABLE dsp_subject_link (
   dispute_id    uuid NOT NULL REFERENCES dsp_dispute(id),
   subject_type  text NOT NULL CHECK (subject_type IN ('escrow','milestone','listing','release_instruction')),
   subject_id    uuid NOT NULL,
+  prior_status  text NOT NULL,                     -- subject's state when frozen; restored on withdrawal
   PRIMARY KEY (dispute_id, subject_type, subject_id)
 );
 CREATE INDEX ON dsp_subject_link (subject_type, subject_id);
@@ -1754,7 +1772,7 @@ CREATE TABLE safety.incident (
 | `ntf_message` | recipient, channel, template version, status, provider ref | FR-NTF-005 |
 | `adm_config_version` | kind, `country_id`, product line, version, JSON content, content hash, state, schema version. Kinds now include `errand_catalogue`, `care_plan_template`, `vetting_checklist`, `institution_types`, `holiday_calendar` | FR-ADM-001, FR-TSK-001, FR-CTY-001 |
 | `adm_locked_text_version` | kind (`scope_statement`, `terms`, `privacy_notice`, `escrow_terms`), country, text, approvals, lawyer and insurer approval evidence | FR-ADM-004 |
-| `adm_setting` | key, `country_id`, value, changed by, `approval_request_id` (required for keys flagged `affects_release`, FR-ADM-005 version 0.2); keys include `fresh_search_window_days`, `listing_report_max_age_days`, `badge_validity_days`, `plot_buffer_m`, `device_time_gap_s`, `dispute_deadlines`, `client_approval_reminder_days`, `ntf_amount_threshold`, `prj_enhanced_check_amount`, `checkin_radius_m`, `visit_confirm_hours`, `rent_grace_days`, `cash_voucher_max_amount`, `cash_voucher_reconcile_days`, `receipt_target_days` | FR-ADM-005 |
+| `adm_setting` | key, `country_id`, value, changed by, `approval_request_id` (required for keys flagged `affects_release`, FR-ADM-005 version 0.2); keys include `fresh_search_window_days`, `listing_report_max_age_days`, `badge_validity_days`, `plot_buffer_m`, `device_time_gap_s`, `dispute_deadlines`, `client_approval_reminder_days`, `ntf_amount_threshold`, `prj_enhanced_check_amount`, `checkin_radius_m`, `visit_confirm_hours`, `rent_grace_days`, `receipt_target_days`. The 72-hour visit review and the 5-attempt code lockout are fixed by FR-CARE-004, not settings | FR-ADM-005 |
 | `dpr_request` | requester, type (access, correction, deletion), due date, status, export evidence | FR-DPR-003 |
 | `dpr_retention_rule`, `dpr_legal_hold` | data class, country, period, action; holds by subject | FR-DPR-004 |
 | `dpr_bulk_export` | requester, scope, approval request, file hash | FR-DPR-005 |
@@ -1765,7 +1783,7 @@ CREATE TABLE safety.incident (
 | `fee_schedule` | institution, family member, client, period (`term`, `month`, `quarter`), expected amount, next due, reminder lead days, status; creates `fee_invoice` rows in `draft` for the client's approval | FR-FEE-005 |
 | `care_plan_item` | plan, key, kind (`medicine`, `meal`, `reading`, `companionship`, `transport`, `other`), instructions, photo or reading required | FR-CARE-001 |
 | `care_visit_item` | visit, plan item, done, reading (JSON), evidence | FR-CARE-003 |
-| `pmg_statement_mandate` | owner, bank account, mandate evidence (the owner's signed instruction to the bank), bank acknowledgement, valid from and to, status | FR-PMG-003, I-21 |
+| `pmg_statement_mandate` | owner, bank account, mandate evidence (the owner's written mandate allowing the bank to share that account's statement lines), bank acknowledgement, valid from and to, status | FR-PMG-003 |
 | `pmg_inspection` | property, inspector (panel member), kind (`onboarding`, `periodic`, `repair`), scheduled for, check-in, outcome, notes, photos through `evd_link` | FR-PMG-001, FR-PMG-005, FR-PMG-006 |
 | `tsk_errand_document` | errand, checklist key from the catalogue, evidence, status (`missing`, `uploaded`, `accepted`, `rejected` with reason) | FR-TSK-002 |
 | `tsk_agent` | person, agency organisation, `acc_vetting`, status; the agency's `payee_id` is on the organisation | FR-TSK-003 |
@@ -1846,7 +1864,7 @@ The one-cell design in R1 keeps C-07. The decision to open a second cell is take
 
 | Step | Design |
 |---|---|
-| Classify | Each table and field is listed in `dpr_data_catalogue` with purpose and data class (NFR-PRIV-02). New classes for the lines in 01 version 0.3: `family` (family members, care plans, visits), `health` (care readings, concerns, insurance applications and claims; special category, dedicated KMS key, no analytics, no search index), `tenancy` (tenants, agreements, rent), `errand` (identity and official documents uploaded for errands, deleted at completion plus `[TO VERIFY]` days), `payee` (bank account details of institutions and suppliers). Retention periods `[TO VERIFY]` (Q-08). |
+| Classify | Each table and field is listed in `dpr_data_catalogue` with purpose and data class (NFR-PRIV-02). Classes follow 01 C5.2: `health_care` (hospital invoices, care plans, visit records, readings, carer concerns; special category `[TO VERIFY]`, own KMS key, no analytics, no search index), `tenancy` (tenant identity, agreements, rent records; tenancy plus `[TO VERIFY]`), `identity_documents` (passports, ID cards and certificates handled in errands; deleted from Fidero storage `[TO VERIFY]` days after handover), `insurance` (applications and policy documents; policy life plus `[TO VERIFY]`). Two design sub-classes sit under 01's classes: `family` (family members' names and addresses, under Account) and `payee` (bank details of payees, under Escrow and payment). Retention periods `[TO VERIFY]` (Q-08). |
 | Anchor | Retention runs from an anchor date per class: case release, escrow close, account closure, last lead contact. Periods are `[TO VERIFY]` (Q-08) except leads at 24 months (assumption from 01 C5.2). |
 | Lock | Evidence objects get an S3 Object Lock date equal to the minimum agreed period. It can be extended for legal holds, never shortened. |
 | Sweep | A nightly job lists expired records, skips any under `dpr_legal_hold`, then deletes or anonymises. |
@@ -1861,7 +1879,7 @@ CREATE TABLE esc_payee (
   id                 uuid PRIMARY KEY,
   country_id         uuid NOT NULL REFERENCES cty_country(id),
   kind               text NOT NULL CHECK (kind IN ('institution','supplier','vendor','professional','contractor',
-                       'agency','insurer','carer','seller','developer')),   -- see I-18 on seller and developer
+                       'agency','insurer','carer','seller','developer')),   -- RUL-22; seller and developer per 01 v0.4
   subject_type       text NOT NULL CHECK (subject_type IN ('institution','supplier','panel_member','organisation','person','partner')),
   subject_id         uuid NOT NULL,                                  -- the verified institution, supplier, ...
   legal_name_enc     bytea NOT NULL,                                 -- from registration or identity document
@@ -1873,7 +1891,7 @@ CREATE TABLE esc_payee (
   account_number_enc bytea NOT NULL,
   account_name_enc   bytea NOT NULL,                                 -- as the BANK states it
   account_name_bidx  bytea NOT NULL,
-  account_name_source text NOT NULL CHECK (account_name_source IN ('bank_confirmation_letter','name_enquiry_api','bank_statement')),
+  account_name_source text NOT NULL CHECK (account_name_source IN ('bank_name_check','bank_letter')),  -- FR-ESC-015
   account_name_evidence_id uuid NOT NULL REFERENCES evd_evidence(id),
   name_match         text NOT NULL GENERATED ALWAYS AS
                        (CASE WHEN legal_name_bidx = account_name_bidx THEN 'matched' ELSE 'mismatch' END) STORED,
@@ -1900,9 +1918,40 @@ CREATE INDEX ON esc_payee (country_id, kind, verification_status);
 -- Trigger esc.payee_kind_for_subject() on esc_release_instruction:
 --   fee_invoice -> institution; errand_step -> agency; care_visit -> carer or agency; repair -> contractor;
 --   event_vendor_payment -> vendor; premium -> insurer (RUL-25); milestone -> contractor, developer or
---   supplier; purchase release -> seller or developer; cash_voucher -> institution (the runner is a courier).
--- No reviewer override exists for name_match. A legitimate difference is fixed by new evidence.
+--   supplier; purchase release -> seller or developer. No subject maps to a runner (FR-FEE-006).
+-- Trigger esc.payee_not_staff(): rejects a payee whose subject person holds a Fidero staff or runner role.
+-- A runner can never be a payee, so no release instruction can name one (FR-FEE-006, RUL-22).
+-- Account name source (FR-ESC-015): the bank's name check where offered (bank_name_check), otherwise a
+-- bank letter entered by one staff member and checked by a second (bank_letter, second_check_by). A
+-- statement line is never a name source. No user, including an administrator, can override name_match.
+-- A legitimate difference is fixed by new evidence from one of the two sources.
 -- fidero_app has no DELETE on esc_payee (history of payees stays for the audit trail).
+```
+
+**Standing client approvals (RUL-11).** For care visits and errand steps the client may approve once, up to a stated amount per month, instead of approving each payment. Each payment still needs its evidence and two staff approvals. Silence is never approval.
+
+```sql
+CREATE TABLE esc_standing_approval (
+  id               uuid PRIMARY KEY,
+  country_id       uuid NOT NULL REFERENCES cty_country(id),
+  client_id        uuid NOT NULL REFERENCES acc_person(id),
+  escrow_id        uuid NOT NULL REFERENCES esc_escrow(id),          -- kind held_funds
+  subject_kind     text NOT NULL CHECK (subject_kind IN ('care_plan','errand')),
+  subject_id       uuid NOT NULL,                                     -- care_plan.id or tsk_errand.id
+  monthly_max      numeric(18,2) NOT NULL CHECK (monthly_max > 0),
+  currency         char(3) NOT NULL,
+  approved_at      timestamptz NOT NULL,                              -- by the client, with MFA (FR-ACC-003)
+  withdrawn_at     timestamptz,
+  status           text NOT NULL CHECK (status IN ('active','withdrawn')),
+  CHECK (status <> 'withdrawn' OR withdrawn_at IS NOT NULL)
+);
+CREATE UNIQUE INDEX one_active_standing_approval
+  ON esc_standing_approval (subject_kind, subject_id) WHERE status = 'active';
+-- esc.release_blockers() accepts a standing approval in place of client_approved_at only when the
+-- instruction's subject_type is 'care_visit' (its plan is the subject) or 'errand_step' (its errand is the
+-- subject), the approval is 'active', and instructions under it this calendar month plus this amount do
+-- not exceed monthly_max. Above that amount the client approves the payment on its own. Raising
+-- monthly_max needs a new approval; withdrawal takes effect at once for instructions not yet approved.
 ```
 
 **Held funds and the running statement (FR-ESC-014).** No table stores a running figure. The view below is the only source of "held at the bank" and is computed from bank-confirmed events.
@@ -1946,13 +1995,22 @@ CREATE TABLE fee_institution (                        -- FR-FEE-001
   invoice_channel  text NOT NULL DEFAULT 'manual_upload'
                    CHECK (invoice_channel IN ('manual_upload','institution_portal','file')),   -- IF-10
   returns_confirmation boolean NOT NULL DEFAULT false, -- enrolment or treatment confirmation agreed, FR-FEE-004
-  status           text NOT NULL CHECK (status IN ('pending','verified','suspended')),
+  status           text NOT NULL CHECK (status IN ('pending','verified','not_eligible','suspended')),
+  eligible_for_direct_payment boolean GENERATED ALWAYS AS (status = 'verified' AND payee_id IS NOT NULL) STORED,
+                                                        -- FR-FEE-006: true only when the institution takes a
+                                                        -- bank transfer into an account in its own name
+  not_eligible_reason text,                             -- shown to the client in plain words
   added_by_client_id uuid REFERENCES acc_person(id),
-  CHECK (status <> 'verified' OR payee_id IS NOT NULL)
+  CHECK (status <> 'verified' OR payee_id IS NOT NULL),
+  CHECK (status <> 'not_eligible' OR not_eligible_reason IS NOT NULL)
 );
 CREATE UNIQUE INDEX ON fee_institution (country_id, legal_name_bidx);
 -- Trigger fee.institution_verified_means_payee_verified(): status 'verified' requires the payee to be 'verified'.
 -- Trigger fee.institution_follows_payee(): payee.suspended or revoked sets the institution to 'suspended'.
+-- An institution that cannot receive a bank transfer is set 'not_eligible' by a case manager and checked by
+-- a reviewer (FR-FEE-006). There is no cash route: no invoice for it can reach 'checked', and the client is
+-- told plainly that Fidero cannot pay it. If the institution later opens an account in its own name, a new
+-- verification moves it back to 'pending'.
 
 CREATE TABLE fee_invoice (                            -- FR-FEE-002, FR-FEE-003
   id               uuid PRIMARY KEY,
@@ -1964,7 +2022,7 @@ CREATE TABLE fee_invoice (                            -- FR-FEE-002, FR-FEE-003
   institution_reference text NOT NULL,                 -- invoice, student or patient reference
   amount           numeric(18,2) NOT NULL CHECK (amount > 0), currency char(3) NOT NULL,
   due_on           date,
-  submitted_by     text NOT NULL CHECK (submitted_by IN ('client','institution_contact','schedule','case_manager')),
+  submitted_by     text NOT NULL CHECK (submitted_by IN ('client','institution_contact','schedule','case_manager','runner')),
   evidence_id      uuid REFERENCES evd_evidence(id),  -- the invoice or fee note
   check_status     text NOT NULL DEFAULT 'pending' CHECK (check_status IN ('pending','checked','rejected')),
   checked_by       uuid REFERENCES acc_person(id),
@@ -1981,6 +2039,8 @@ CREATE INDEX ON fee_invoice (client_id, family_member_id, created_at DESC);   --
 CREATE UNIQUE INDEX ON fee_invoice (institution_id, institution_reference)
   WHERE status NOT IN ('rejected','cancelled');                                -- no double payment of one invoice
 -- Trigger fee.family_member_belongs_to_client(): family_member_id.client_id = client_id.
+-- Trigger fee.invoice_institution_eligible(): check_status 'checked' requires the institution's
+-- eligible_for_direct_payment to be true (FR-FEE-006).
 
 CREATE TABLE fee_payment (                            -- FR-FEE-003, FR-FEE-004
   id               uuid PRIMARY KEY,
@@ -1996,28 +2056,23 @@ CREATE TABLE fee_payment (                            -- FR-FEE-003, FR-FEE-004
 -- Trigger fee.payment_payee_is_institution(): the instruction's payee_id = institution.payee_id and
 -- subject_type = 'fee_invoice' and subject_id = invoice_id (RUL-22, FR-FEE-003).
 
-CREATE TABLE fee_cash_voucher (                       -- FR-FEE-006 fallback when direct payment is impossible
+CREATE TABLE fee_runner_task (                        -- FR-FEE-006: the runner carries paper, never money
   id               uuid PRIMARY KEY,
   country_id       uuid NOT NULL REFERENCES cty_country(id),
-  invoice_id       uuid NOT NULL UNIQUE REFERENCES fee_invoice(id),
-  runner_id        uuid NOT NULL REFERENCES acc_person(id),
-  amount           numeric(18,2) NOT NULL CHECK (amount > 0), currency char(3) NOT NULL,
-  approval_request_id uuid NOT NULL REFERENCES core_approval_request(id),  -- cash_voucher, two staff
-  voucher_evidence_id uuid NOT NULL REFERENCES evd_evidence(id),          -- the signed bank voucher
-  release_instruction_id uuid NOT NULL REFERENCES esc_release_instruction(id),  -- payee = institution,
-                                                                                 -- payment_method runner_cash_voucher
-  drawn_at         timestamptz,
-  receipt_evidence_id uuid REFERENCES evd_evidence(id),                   -- institution's receipt
-  reconciled_by    uuid REFERENCES acc_person(id),
-  reconciled_at    timestamptz,
-  status           text NOT NULL CHECK (status IN ('approved','drawn','paid','reconciled','overdue','escalated')),
-  CHECK (status <> 'reconciled' OR (receipt_evidence_id IS NOT NULL AND reconciled_by IS NOT NULL
-         AND reconciled_by <> runner_id))
+  institution_id   uuid NOT NULL REFERENCES fee_institution(id),
+  invoice_id       uuid REFERENCES fee_invoice(id),                    -- set once the invoice is uploaded
+  kind             text NOT NULL CHECK (kind IN ('collect_invoice','deliver_receipt')),
+  runner_id        uuid NOT NULL REFERENCES acc_person(id),            -- role runner
+  deliver_to_family_member_id uuid REFERENCES acc_family_member(id),  -- deliver_receipt only
+  due_at           timestamptz NOT NULL,
+  evidence_id      uuid REFERENCES evd_evidence(id),                   -- invoice photo, or handover record
+  status           text NOT NULL CHECK (status IN ('open','done','cancelled')),
+  CHECK (kind <> 'deliver_receipt' OR invoice_id IS NOT NULL),
+  CHECK (status <> 'done' OR evidence_id IS NOT NULL)
 );
--- Trigger fee.voucher_limits(): amount <= adm_setting cash_voucher_max_amount [TO VERIFY]; the runner
--- holds no 'client', 'family_member' or 'representative' grant for this client; one open voucher per
--- runner at a time. The job fee.cash_voucher_overdue sets 'overdue' after cash_voucher_reconcile_days
--- (2 working days per FR-FEE-006) and 'escalated' to a reviewer the day after. See I-19.
+-- No amount column and no link to esc_release_instruction: a runner task cannot carry or move money.
+-- esc.payee_not_staff() (6.11) means a runner can never be a payee. An invoice the runner collects is
+-- created with submitted_by 'runner' and goes through the same checks and approvals as any other.
 
 CREATE TABLE care_plan (                              -- FR-CARE-001
   id               uuid PRIMARY KEY,
@@ -2031,10 +2086,11 @@ CREATE TABLE care_plan (                              -- FR-CARE-001
   confirmers       uuid[] NOT NULL,                             -- acc_family_member ids with may_confirm_visits
   carer_id         uuid REFERENCES care_carer(id),
   escrow_id        uuid REFERENCES esc_escrow(id),             -- held_funds
-  client_standing_approval_at timestamptz,                     -- approves payment of visit_fee per confirmed visit, I-25
+  standing_approval_id uuid REFERENCES esc_standing_approval(id), -- optional: visit fees up to a monthly amount, RUL-11
   status           text NOT NULL CHECK (status IN ('draft','active','paused','ended')),
   CHECK (cardinality(confirmers) >= 1),
-  CHECK (status <> 'active' OR (carer_id IS NOT NULL AND escrow_id IS NOT NULL AND client_standing_approval_at IS NOT NULL))
+  CHECK (status <> 'active' OR (carer_id IS NOT NULL AND escrow_id IS NOT NULL))   -- without a standing approval
+                                                   -- the client approves each visit payment (RUL-11)
 );
 -- Trigger care.confirmers_may_confirm(): every id in confirmers is an active acc_family_member of this
 -- client with may_confirm_visits = true.
@@ -2082,23 +2138,36 @@ CREATE TABLE care_confirmation (                      -- FR-CARE-004; ADR-20
   code_hash        bytea NOT NULL,                             -- sha256 of code and per-visit salt; never the code
   code_expires_at  timestamptz NOT NULL,                       -- checkout + visit_confirm_hours (24, assumption)
   attempts         smallint NOT NULL DEFAULT 0 CHECK (attempts <= 5),
+  locked_at        timestamptz,                                -- FR-CARE-004: set at the 5th wrong attempt
   sent_to_family_member_id uuid NOT NULL REFERENCES acc_family_member(id),
   sent_channel     text NOT NULL CHECK (sent_channel IN ('sms','whatsapp','app')),
   sent_message_id  uuid REFERENCES ntf_message(id),
   confirmed_by_family_member_id uuid REFERENCES acc_family_member(id),
-  method           text CHECK (method IN ('code','link','app','call')),
+  method           text CHECK (method IN ('code','link','app','call','reviewer')),
   recorded_by_staff_id uuid REFERENCES acc_person(id),        -- required for method 'call'
   call_note        text,
+  call_checked_by  uuid REFERENCES acc_person(id),             -- FR-CARE-004: a second staff member
+  reviewer_id      uuid REFERENCES acc_person(id),             -- decision after 72 hours unconfirmed
+  reviewer_decision text CHECK (reviewer_decision IN ('confirmed','not_confirmed')),
+  reviewer_note    text,                                       -- check-in evidence seen; call to the family
   confirmed_at     timestamptz,
-  CHECK (method <> 'call' OR recorded_by_staff_id IS NOT NULL),
-  CHECK (confirmed_at IS NULL OR (method IS NOT NULL AND confirmed_by_family_member_id IS NOT NULL))
+  CHECK (method <> 'call' OR (recorded_by_staff_id IS NOT NULL AND call_checked_by IS NOT NULL
+         AND call_checked_by <> recorded_by_staff_id)),
+  CHECK (method <> 'reviewer' OR (reviewer_id IS NOT NULL AND reviewer_decision = 'confirmed'
+         AND reviewer_note IS NOT NULL)),
+  CHECK (reviewer_decision IS NULL OR (reviewer_id IS NOT NULL AND reviewer_note IS NOT NULL)),
+  CHECK (confirmed_at IS NULL OR (method IS NOT NULL
+         AND (method = 'reviewer' OR confirmed_by_family_member_id IS NOT NULL)))
 );
 -- Trigger care.confirmer_allowed(): confirmed_by_family_member_id is in the plan's confirmers and is not
 -- the carer's own person. Trigger care.staff_not_carer(): recorded_by_staff_id holds a staff role and is
 -- not the carer. The code is generated server-side, sent only through NTF to the family member's channel,
--- and is never returned by any API the carer can call (ADR-20).
+-- and is never returned by any API the carer can call (ADR-20). A code with locked_at set is refused.
+-- A visit still unconfirmed 72 hours after check-out goes to a reviewer, who decides from the check-in and
+-- check-out evidence and a call to the family (FR-CARE-004). 'not_confirmed' means no payment for that
+-- visit. The reviewer and the call checker cannot be the carer or the staff member who recorded the call.
 
-CREATE TABLE care_concern (                           -- FR-CARE-006; data class health
+CREATE TABLE care_concern (                           -- FR-CARE-006; data class health_care
   id               uuid PRIMARY KEY,
   country_id       uuid NOT NULL REFERENCES cty_country(id),
   visit_id         uuid REFERENCES care_visit(id),
@@ -2106,13 +2175,13 @@ CREATE TABLE care_concern (                           -- FR-CARE-006; data class
   raised_by        uuid NOT NULL REFERENCES acc_person(id),
   kind             text NOT NULL CHECK (kind IN ('health','safety','welfare')),
   severity         text NOT NULL CHECK (severity IN ('low','medium','high','urgent')),
-  narrative_enc    bytea NOT NULL,                              -- health KMS key
+  narrative_enc    bytea NOT NULL,                              -- health and care KMS key
   raised_at        timestamptz NOT NULL DEFAULT now(),
   routed_to_reviewer_id uuid REFERENCES acc_person(id),
   client_notified_at timestamptz,
   reviewer_notified_at timestamptz,
   status           text NOT NULL CHECK (status IN ('open','acknowledged','actioned','closed')),
-  data_class       text NOT NULL DEFAULT 'health'
+  data_class       text NOT NULL DEFAULT 'health_care'
 );
 -- The job care.route_concerns delivers to the client and a reviewer the same day (FR-CARE-006); an
 -- 'urgent' concern pages the on-call reviewer. Not included in analytics or search.
@@ -2124,7 +2193,7 @@ CREATE TABLE ins_application (                        -- FR-INS-002
   insured_family_member_id uuid NOT NULL REFERENCES acc_family_member(id),
   product_id       uuid NOT NULL REFERENCES ins_product(id),
   insurer_partner_id uuid NOT NULL REFERENCES adm_partner(id),  -- kind insurer
-  application_enc  bytea NOT NULL,                              -- health KMS key; passed through, minimal retention
+  application_enc  bytea NOT NULL,                              -- class insurance; health and care KMS key; passed through
   submitted_to_insurer_at timestamptz,
   insurer_reference text,
   status           text NOT NULL CHECK (status IN ('draft','submitted','accepted','declined','withdrawn'))
@@ -2148,12 +2217,13 @@ CREATE TABLE ins_premium (                            -- FR-INS-002
   policy_id        uuid NOT NULL REFERENCES ins_policy(id),
   due_on           date NOT NULL,
   amount           numeric(18,2) NOT NULL CHECK (amount > 0), currency char(3) NOT NULL,
-  route            text NOT NULL CHECK (route IN ('client_direct_to_insurer','held_funds_to_insurer')),  -- I-22
+  route            text NOT NULL CHECK (route IN ('client_direct_to_insurer','held_funds_to_insurer')),  -- FR-INS-002
   release_instruction_id uuid REFERENCES esc_release_instruction(id),   -- route held_funds_to_insurer only
   insurer_receipt_evidence_id uuid REFERENCES evd_evidence(id),
   status           text NOT NULL CHECK (status IN ('due','instructed','paid','overdue','waived')),
   UNIQUE (policy_id, due_on),
-  CHECK (route <> 'held_funds_to_insurer' OR status = 'due' OR release_instruction_id IS NOT NULL)
+  CHECK (route <> 'held_funds_to_insurer' OR status = 'due' OR release_instruction_id IS NOT NULL),
+  CHECK (route <> 'client_direct_to_insurer' OR release_instruction_id IS NULL)   -- the client pays the insurer
 );
 -- pay_fee_payment.purpose has no 'premium' value: a premium can never be a Fidero fee (RUL-25, ADR-03).
 ```
@@ -2254,6 +2324,7 @@ CREATE TABLE tsk_errand (                             -- FR-TSK-001 to FR-TSK-00
   official_fees    numeric(18,2) NOT NULL CHECK (official_fees >= 0), currency char(3) NOT NULL,
   fidero_fee_payment_id uuid REFERENCES pay_fee_payment(id),           -- Fidero's charge, PAY, purpose errand_fee
   escrow_id        uuid REFERENCES esc_escrow(id),                      -- held_funds for official fees
+  standing_approval_id uuid REFERENCES esc_standing_approval(id),     -- optional: step fees up to a monthly amount, RUL-11
   agent_id         uuid REFERENCES tsk_agent(id),
   agency_payee_id  uuid REFERENCES esc_payee(id),                       -- kind agency, RUL-22
   target_days      smallint NOT NULL,
@@ -2478,6 +2549,7 @@ Roles: CL client, SE seller, DV developer, CM case manager, RV reviewer, LW lawy
 | POST | `/v1/ratings`, `/v1/ratings/{id}/hide` | Rate; hide abusive comment | CL; RV | FR-RAT-002, FR-RAT-004 |
 | GET | `/v1/track-records/{subject_id}` | Track record | Pub | FR-RAT-001, FR-RAT-003 |
 | POST | `/v1/disputes`, `/v1/disputes/{id}/statements` | Open dispute, submit statement | Parties, CM | FR-DSP-001, FR-DSP-002 |
+| POST | `/v1/disputes/{id}/withdrawals` | The party who raised the dispute withdraws it; frozen releases return to their prior state | Raising party | FR-DSP-001, 01 C8 Dispute |
 | POST | `/v1/disputes/{id}/decisions`, `/referrals` | Decide or refer | RV (not a party) | FR-DSP-004, FR-DSP-005 |
 | POST, DELETE | `/v1/consents` | Give or withdraw consent, including partner sharing | CL, SE | FR-PTR-002, FR-DPR-002 |
 | POST | `/v1/admin/users/invitations` | Invite and assign roles | AD | FR-ACC-006 |
@@ -2519,18 +2591,21 @@ Roles: CL client, SE seller, DV developer, CM case manager, RV reviewer, LW lawy
 | POST | `/v1/invoices/{id}/instructions` | Prepare the release instruction to the institution from held funds | CM | FR-FEE-003, RUL-22 |
 | POST | `/v1/fee-payments/{id}/receipts` | Attach the institution's receipt and confirmation | CM, IC | FR-FEE-004 |
 | GET, POST, PATCH | `/v1/fee-schedules` | Recurring fee schedules with reminders | CL own, CM | FR-FEE-005 |
-| POST | `/v1/invoices/{id}/cash-vouchers`, `/v1/cash-vouchers/{id}/reconciliations` | Runner cash voucher fallback, two-person approved, reconciled within 2 working days | CM, RV; RN uploads receipt | FR-FEE-006 |
+| POST | `/v1/institutions/{id}/eligibility` | Mark an institution not eligible for direct payment, with the reason the client sees; no cash route is offered | CM, RV checks | FR-FEE-006 |
+| POST | `/v1/institutions/{id}/runner-tasks` | Ask a runner to collect an invoice or deliver a receipt in person; no amount, no money | CM; RN asg completes | FR-FEE-006 |
 | GET | `/v1/family-members/{id}/statement` | Invoices, payments, receipts and held at the bank for one family member | CL own | FR-FEE-007 |
-| GET, POST, PATCH | `/v1/care-plans`, `/v1/care-plans/{id}` | Care plan with items, schedule, confirmers; standing approval of the visit fee | CL own, CM | FR-CARE-001 |
+| GET, POST, PATCH | `/v1/care-plans`, `/v1/care-plans/{id}` | Care plan with items, schedule, confirmers | CL own, CM | FR-CARE-001 |
+| POST, DELETE | `/v1/standing-approvals`, `/v1/standing-approvals/{id}` | Client gives or withdraws a standing approval for a care plan or errand, up to a monthly amount | CL own, MFA | RUL-11 |
 | GET, POST | `/v1/carers`, `/v1/carers/{id}/vetting` | Carer panel and vetting records | CM, RV; CL read for assigned carer | FR-CARE-002 |
 | POST | `/v1/care-plans/{id}/assignments` | Assign a vetted carer; family told who to expect | CM | FR-CARE-002 |
 | GET | `/v1/care-visits`, `/v1/care-visits/{id}` | Visits with check-in, items, photos, confirmation status | CL own, FM own, CM, CE asg | FR-CARE-003, FR-CARE-005 |
-| POST | `/v1/care-visits/{id}/confirmations` | Family member confirms with code or link; staff record a call | FM (confirmer), CM for call | FR-CARE-004, RUL-23 |
+| POST | `/v1/care-visits/{id}/confirmations` | Family member confirms with code or link (locks after 5 wrong attempts); staff record a call and a second staff member checks it | FM (confirmer), CM for call | FR-CARE-004, RUL-23 |
+| POST | `/v1/care-visits/{id}/reviewer-decisions` | Reviewer decides a visit still unconfirmed after 72 hours, from check-in evidence and a call to the family | RV | FR-CARE-004 |
 | POST | `/v1/care-visits/{id}/instructions` | Instruction to pay the carer for a confirmed visit, batched weekly (assumption) | CM | FR-CARE-004 |
 | GET | `/v1/concerns`, `/v1/concerns/{id}` | Concerns routed to the client and a reviewer | CL own, RV | FR-CARE-006 |
 | GET, POST | `/v1/managed-properties`, `/v1/managed-properties/{id}` | Register a property; opens onboarding case with inspection | CL (owner), CM | FR-PMG-001 |
 | PUT | `/v1/managed-properties/{id}/rent-account` | Set the owner's own verified account as rent destination | CL own | FR-PMG-002, RUL-24 |
-| POST | `/v1/managed-properties/{id}/statement-mandates` | Record the owner's mandate to the bank to share the account statement | CL own, CM | FR-PMG-003 |
+| POST | `/v1/managed-properties/{id}/statement-mandates` | Record the owner's written mandate letting the bank share that account's statement lines | CL own, CM | FR-PMG-003 |
 | POST | `/v1/managed-properties/{id}/tenancies` | Record tenant, agreement, rent, due day | CM | FR-PMG-002 |
 | GET | `/v1/tenancies/{id}` | Agreement and rent record | TN own, CL own, CM | FR-PMG-002, FR-PMG-003 |
 | GET | `/v1/managed-properties/{id}/rent-periods` | Rent due and received from statement matching | CL own, CM | FR-PMG-003 |
@@ -2923,10 +2998,9 @@ The `pay_to` block is read from the bank partner's record only (FR-ESC-003). Pay
 | `records.revenue_share` | default | Monthly | Revenue share per authority | FR-REC-003 |
 | `fees.schedule_due` | default | Daily 06:30 GMT | Create draft invoices from recurring schedules, remind the client before the due date, ask for approval | FR-FEE-005 |
 | `fees.receipt_overdue` | default | Daily | Flag paid invoices with no receipt after `receipt_target_days`; chase the institution contact | FR-FEE-004 |
-| `fees.cash_voucher_overdue` | default | Daily | Mark vouchers not reconciled within 2 working days; escalate to a reviewer | FR-FEE-006 |
 | `fees.institution_reverify` | default | Monthly | Re-verify institutions and payees past `valid_until` | FR-FEE-001, RUL-22 |
 | `care.visit_reminders` | notifications | Daily 06:00 GMT and 2 h before a window | Create visits from plan schedules; remind the carer; tell the family who to expect | FR-CARE-002, FR-CARE-003 |
-| `care.missed_and_unconfirmed` | default | Every 15 min | No check-in by window end: missed. No confirmation 24 h after check-out: unconfirmed. Alert client and Fidero | FR-CARE-005 |
+| `care.missed_and_unconfirmed` | default | Every 15 min | No check-in by window end: missed. No confirmation 24 h after check-out: unconfirmed; alert client and Fidero. Still unconfirmed at 72 h: to a reviewer's queue for a decision | FR-CARE-004, FR-CARE-005 |
 | `care.route_concerns` | notifications | Event `concern.raised` | Deliver to client and reviewer same day; page on urgent | FR-CARE-006 |
 | `care.weekly_payment_batch` | default | Weekly (assumption) | Prepare instructions for confirmed, uninstructed visits per carer or agency | FR-CARE-004 |
 | `propertymgmt.match_rent` | integrations | On statement import; daily 07:00 GMT | Match owner-account statement lines to rent periods; alert late rent after `rent_grace_days` | FR-PMG-003 |
@@ -3044,12 +3118,12 @@ Flagged items go to the reviewer queue before an inspection is scheduled. Cleari
 |---|---|
 | Sync | `GET /v1/mobile/sync` returns the carer's visits for the next 7 days (assumption) with the registered address point, radius, plan items and what each item needs (photo, reading, tick), and the agent's errand steps with their checklist. No other client data is sent to the device. |
 | Check-in | The carer taps "I am here". The app reads position and accuracy, builds a signed manifest of kind `checkin` (8.4, with `subject.type` `care_visit`), queues it offline and uploads it. The server computes the distance to the registered address and sets `within_radius`. Outside the radius is allowed but flagged (`outside_address_radius`), so a visit at a hospital instead of the house is reviewed, not blocked. |
-| Plan items | Each item is a form row: tick, reading (for example blood pressure as two integers), or a photo through the in-app camera only (RUL-08 applied by choice, see I-16). Items are signed and chained like evidence. |
+| Plan items | Each item is a form row: tick, reading (for example blood pressure as two integers), or a photo through the in-app camera only (RUL-08). Items are signed and chained like evidence. |
 | Check-out | Same as check-in with kind `checkout`. The server rejects a check-out without a check-in and flags `checkout_too_soon` when the visit lasted less than the plan's minimum (assumption, `adm_setting`). Check-out triggers the family confirmation message (ADR-20). The app shows "Waiting for the family to confirm" and never the code. |
 | Concerns | A concern form (kind, severity, free text) is encrypted on the device like evidence and sent on the next sync; `urgent` sends immediately when online and shows the Fidero emergency number when offline. The carer sees only that it was received. |
-| Errand steps | Each step shows its description, the acknowledgement or receipt it needs, and whether its official fee has been paid by the bank to the agency. The agent uploads documents through the in-app camera or a document scan; the server marks provenance. The result document and the handover record (signature on screen or photo) are evidence items. |
+| Errand steps | Each step shows its description, the acknowledgement or receipt it needs, and whether its official fee has been paid by the bank to the agency. From R2 the agent captures documents through the in-app camera or the app's own document scan only (RUL-08); the server marks provenance. The result document and the handover record (signature on screen or photo) are evidence items. |
 | Minimisation | Between check-in and check-out the app does not track location (NFR-PRIV-02). The carer sees the family member's first name, the address and the plan items, nothing else. Data on the device is deleted after the server confirms receipt (FR-MOB-009). |
-| Safety | The carer can tap a safety button that logs a `safety.incident` row (FR-CASE-010 path) and calls the Fidero duty phone. Carers are assigned to no address flagged as unsafe without a risk screen (principle 7 in 01 B2). The carer's own phone number is never shown to the family; contact runs through Fidero (RUL-17 by analogy). |
+| Safety | The carer can tap a safety button that logs a `safety.incident` row (FR-CASE-010 path) and calls the Fidero duty phone. Carers are assigned to no address flagged as unsafe without a risk screen (principle 7 in 01 B2). The carer's own phone number is never shown to the family; contact runs through Fidero (RUL-17 by analogy). Fidero's duty of care and the carer's own cover are open (01 Q-22). |
 
 ---
 
@@ -3068,29 +3142,29 @@ Each integration has a port in the owning module and adapters chosen per partner
 | IF-07 Messaging | `Channel` per channel (NTF) | Amazon SES email; Hubtel or Twilio SMS; WhatsApp Business Platform (Meta Cloud API) with approved templates `[TO VERIFY]` | Next channel in the user's preference order; in-portal notice always | Delivery status stored (FR-NTF-005). Content policy blocks report contents, large amounts and third-party personal data in SMS and WhatsApp (FR-NTF-004). | R1 |
 | IF-08 Partner API | Partner API (PTR) | `/partner/v1` with OAuth 2.0 client credentials and webhooks | None needed; partners can also receive a signed PDF with consent | Rate limits and quotas per client; usage metered; failing webhooks paused. | R2 |
 | IF-09 Lands Commission | `LandsSearch` (CASE) | `manual`: runner task with receipt and result uploaded as evidence | `api` adapter only if online access is offered `[TO VERIFY]` | Overdue search raises task alert and client status message. | All releases |
-| IF-10 Institutions | `InstitutionChannel` (FEE) | `manual`: the client or the institution contact uploads the invoice; the case manager or contact uploads the receipt; the bank's payment carries the invoice reference | `portal`: the institution contact signs in to the portal to submit invoices and receipts (R2); `file`: a periodic fee list and receipt file by SFTP or email for large schools and hospitals (format per institution `[TO VERIFY]`, Q-16); `api` only where an institution offers one `[TO VERIFY]` | Invoice reference not recognised by the institution: payment is not instructed until the contact confirms. Receipt not returned within `receipt_target_days`: chase job, then a runner collects it. Institution cannot take a transfer: runner cash voucher (FR-FEE-006, I-19). | R1 manual; R2 portal or file |
-| IF-11 Insurer partners | `InsurerGateway` (INS) | `manual`: application PDF sent to the insurer's named contact by secure email; policy document and claim outcome uploaded by staff or the insurer partner user in the portal | `file`: application and policy batch files per insurer `[TO VERIFY]` (Q-17); `api` where offered | Insurer silent: application stays `submitted` with reminders; the client is told. Premium route decided per insurer: client pays the insurer directly, or the bank pays the insurer from held funds; never Fidero (RUL-25). Claims: Fidero records the insurer's status only. | R2 |
+| IF-10 Institutions | `InstitutionChannel` (FEE) | `manual`: the client or the institution contact uploads the invoice; the case manager or contact uploads the receipt; the bank's payment carries the invoice reference | `portal`: the institution contact signs in to the portal to submit invoices and receipts (R2); `file`: a periodic fee list and receipt file by SFTP or email for large schools and hospitals (format per institution `[TO VERIFY]`, Q-16); `api` only where an institution offers one `[TO VERIFY]` | Invoice reference not recognised by the institution: payment is not instructed until the contact confirms. Receipt not returned within `receipt_target_days`: chase job, then a runner collects it. Institution cannot take a transfer: marked not eligible for direct payment and the client told plainly; no cash route (FR-FEE-006). | R1 manual; R2 portal or file |
+| IF-11 Insurer partners | `InsurerGateway` (INS) | `manual`: application PDF sent to the insurer's named contact by secure email; policy document and claim outcome uploaded by staff or the insurer partner user in the portal | `file`: application and policy batch files per insurer `[TO VERIFY]` (Q-17); `api` where offered | Insurer silent: application stays `submitted` with reminders; the client is told. Premium route per FR-INS-002, chosen per insurer: the client pays the insurer directly, or the bank pays the insurer from money held for that purpose; never Fidero (RUL-25). Claims: Fidero records the insurer's status only. | R2 |
 
 ### 9.1 Release instruction format (IF-01)
 
 - Content: escrow reference, bank reference, payee and their bank details from the bank's own records, amount and currency, holdback, conditions closed with evidence references, the two approvers' names and times, and the instruction ID.
 - Form: a PDF for people and a structured file for systems (format agreed with the bank, `[TO VERIFY]`).
 - Integrity: SHA-256 of the document, signed with a KMS asymmetric key (ECC NIST P-256) held only by the dispatch task's IAM role. The bank receives the public key in advance. Who signs on the bank side is open (Q-01, TQ-02).
-- Payee: the instruction names the payee's account exactly as `esc_payee` holds it from the bank's own record, with the payee kind and the subject reference (invoice, visit batch, errand step, repair, vendor payment). A runner cash voucher is a distinct instruction type the bank must accept `[TO VERIFY]` (I-19).
+- Payee: the instruction names the payee's account exactly as `esc_payee` holds it from the bank's own record, with the payee kind and the subject reference (invoice, visit batch, errand step, repair, vendor payment). Every instruction is a bank transfer to that account. There is no cash instruction type (FR-FEE-006).
 
 ### 9.2 Bank account name verification (RUL-22, RUL-24, FR-ESC-015)
 
 | Source | When | How it feeds `esc_payee` and `acc_bank_account` |
 |---|---|---|
-| Bank confirmation letter | R1, every payee and owner account | The institution, supplier or owner provides a letter or stamped statement header from their bank. Staff enter the account name exactly as printed; the letter is evidence. A second staff member checks it (FR-ADM-003). |
-| Account name enquiry | R2 where the partner bank offers it `[TO VERIFY]` (TQ-14) | The `BankGateway` port gains `lookup_account_name(bank, number)`; the returned name is stored with source `name_enquiry_api` and its raw response hash. Replaces the letter for accounts at banks the service covers. |
-| Statement line | Rent destination only | The first rent line received into the owner's account under the mandate confirms the account is live; it does not replace name verification. |
+| Bank letter | R1, and later for any account the bank's name check does not cover | The payee or owner provides a letter from their bank stating the account name. Staff enter the name exactly as printed with source `bank_letter`; the letter is evidence. A second staff member checks it (FR-ESC-015, FR-ADM-003). |
+| Bank's name check | Wherever the partner bank offers it `[TO VERIFY]` (TQ-14) | The `BankGateway` port gains `lookup_account_name(bank, number)`; the returned name is stored with source `bank_name_check` and its raw response hash. It is the first source under FR-ESC-015 and replaces the letter for accounts it covers. |
+| Statement line | Rent destination only | Not a name source. The first rent line received into the owner's account under the mandate confirms the account is live. |
 
-Normalisation for `name_match`: upper case, remove punctuation and double spaces, remove the suffixes LTD, LIMITED, PLC, CO, COMPANY, ENTERPRISE(S) and honorifics for individuals `[TO VERIFY]` with the bank's own conventions. The rule is a pure function with tests in document 05.
+Normalisation for `name_match`: upper case, remove punctuation and double spaces, remove the suffixes LTD, LIMITED, PLC, CO, COMPANY, ENTERPRISE(S) and honorifics for individuals `[TO VERIFY]` with the bank's own conventions. The rule is a pure function with tests in document 05. No user, including an administrator, can override a mismatch (FR-ESC-015); a real difference is fixed only by new evidence from one of the two sources.
 
-### 9.3 Statement access for the owner's rent account (FR-PMG-003, RUL-24, I-21)
+### 9.3 Statement access for the owner's rent account (FR-PMG-003, RUL-24)
 
-The rent account belongs to the owner, not to Fidero. Fidero can read its statement only under a mandate the owner gives the bank (`pmg_statement_mandate`). Adapters: `file` (the bank sends the owner's account statement for that account by SFTP, same format as IF-01), `api` where the bank offers third-party read access `[TO VERIFY]`, and `manual` (the owner uploads the statement or forwards the bank's credit alert; a case manager matches it with the owner's confirmation). Lines are stored in `esc_statement_line` with account kind `owner_rent` and are visible to the owner and case managers only. Whether the bank will share a customer's statement with Fidero under a mandate is open (TQ-17).
+The rent account belongs to the owner, not to Fidero. Fidero reads only the bank's statement lines for that account, and only under the owner's written mandate allowing the bank to share them (`pmg_statement_mandate`, FR-PMG-003). Lines for any other account are refused at import. Adapters: `file` (the bank sends the owner's account statement for that account by SFTP, same format as IF-01), `api` where the bank offers third-party read access `[TO VERIFY]`, and `manual` (the owner uploads the bank's statement for that account; a case manager matches it with the owner's confirmation). Lines are stored in `esc_statement_line` with account kind `owner_rent` and are visible to the owner and case managers only. Whether the bank will share a customer's statement with Fidero under a mandate is open (TQ-17).
 
 ---
 
@@ -3140,10 +3214,10 @@ The rent account belongs to the owner, not to Fidero. Fidero can read its statem
 | Payee | Spoofing | A relative or the client's representative registered as a "supplier" | `esc.payee_not_relative()` checks family members and representative grants; identity and registration evidence; reviewer check on individuals | RUL-22, RUL-21 |
 | Payee | Spoofing | Fake invoice from a look-alike institution | Invoice checked against a verified institution and its reference format; institution contact confirms where the channel exists; duplicate reference blocked | FR-FEE-002 |
 | Confirmation | Spoofing | Carer obtains the family member's code and confirms their own visit | Code sent only to the family member's registered channel, never shown in the carer app; code hashed; 5 tries; confirmer must be a named family member who is not the carer; visits confirmed by staff call are sampled | RUL-23, ADR-20 |
-| Confirmation | Repudiation | Family denies confirming | Confirmation records channel, message ID, method, time and the family member; one-tap links are single use | FR-CARE-004 |
+| Confirmation | Repudiation | Family denies confirming | Confirmation records channel, message ID, method, time and the family member; one-tap links are single use; codes lock after 5 wrong attempts; a call confirmation is checked by a second staff member; a visit unconfirmed after 72 hours goes to a reviewer | FR-CARE-004 |
 | Rent | Tampering | Rent destination changed to a third party's account | `acc_bank_account` holder must be the owner; two-person verification; change resets verification and alerts the owner on every channel | RUL-24, FR-PMG-002 |
-| Cash voucher | Elevation and theft | Runner draws cash and does not pay the institution | Two-person approval; cap per voucher; one open voucher per runner; receipt within 2 working days or escalation; runner cannot be the client's relative | FR-FEE-006, I-19 |
-| Family and health data | Information disclosure | Carer or staff browses addresses and readings of people they do not serve | Grants scoped to care plan; carer app receives only assigned visits; concerns and readings under the health KMS key; no analytics or search over them; every read of a concern audited | FR-ACC-007, NFR-PRIV-02 |
+| Institution payment | Elevation and theft | Staff or a runner tries to route an institution payment through a person or as cash | No cash instruction type exists; `esc.payee_not_staff` stops a runner or staff member becoming a payee; an institution that cannot take a transfer is marked not eligible; runner tasks carry no amount | FR-FEE-006, RUL-22 |
+| Family and health data | Information disclosure | Carer or staff browses addresses and readings of people they do not serve | Grants scoped to care plan; carer app receives only assigned visits; concerns and readings under the health and care KMS key; no analytics or search over them; every read of a concern audited | FR-ACC-007, NFR-PRIV-02 |
 | Family and health data | Information disclosure | Insurance application data kept or exposed | Pass-through with field-level encryption; retained only until the insurer confirms receipt plus `[TO VERIFY]` days; never in SMS or WhatsApp | FR-INS-002, FR-NTF-004 |
 | Carer safety | Physical harm | Carer sent to an unsafe address or threatened by a household | Risk screen on first visit to a new address; safety button in the app; incident log isolated; carer's number hidden from the family | RUL-17, FR-CASE-010 |
 | Tenant | Information disclosure | Tenant sees the owner's details or other properties | Tenant grant scoped to one tenancy; selectors filter by scope | FR-ACC-007 |
@@ -3158,7 +3232,7 @@ The rent account belongs to the owner, not to Fidero. Fidero can read its statem
 | Lawyers, surveyors, QS | Email and password | Mandatory | As staff |
 | Contractors, inspectors, runners (mobile) | Phone and one-time code, then device registration | Device key plus PIN or biometric unlock of the app (assumption) | JWT 10 min, refresh 30 days rotating with reuse detection (assumption) |
 | Partner systems | OAuth 2.0 client credentials | Not applicable; IP allow list optional | Token 15 min (assumption) |
-| Family member | Phone one-time code; one-tap confirmation links signed per visit, single use, 24 h life | Not required; confirming a visit is not a release approval (I-25) | Short session, 30 min (assumption) |
+| Family member | Phone one-time code; one-tap confirmation links signed per visit, single use, 24 h life | Not required; confirming a visit is not a release approval. The client's standing approval covers the payment (RUL-11) | Short session, 30 min (assumption) |
 | Institution contact | Email and password | Mandatory TOTP from R2 organisation accounts; one-time code in R1 (assumption) | 60 min idle |
 | Carer, errand agent (mobile) | As contractors: phone and one-time code, then device registration | Device key plus PIN or biometric unlock | As contractors |
 | Tenant | Phone one-time code | Optional | 60 min idle |
@@ -3213,14 +3287,15 @@ Roles added in 01 version 0.3 (FM family member, IC institution contact, CE care
 | Submit an invoice | own | - | own inst. | - | - | - | Y | - | - |
 | Check an invoice against institution and family member | - | - | - | - | - | - | Y | Y | - |
 | Approve an invoice for payment | own | - | - | - | - | - | - | - | - |
+| Give or withdraw a standing approval for visits or errand steps (RUL-11) | own | - | - | - | - | - | - | - | - |
 | Attach a receipt or confirmation | - | - | own inst. | - | - | - | Y | - | - |
 | Verify a payee (two people) | - | - | - | - | - | - | Y | Y | Y |
 | Suspend a payee | - | - | - | - | - | - | - | Y | - |
-| Approve a cash voucher (two people) | - | - | - | - | - | - | Y | RR | - |
+| Mark an institution not eligible for direct payment (FR-FEE-006) | - | - | - | - | - | - | Y | Y | - |
 | Create or change a care plan | own | - | - | - | - | - | Y | - | - |
 | Vet a carer or agent; assign | - | - | - | - | - | - | Y | Y | - |
 | Check in, check out, complete plan items, upload step receipts | - | - | - | asg | - | - | - | - | - |
-| Confirm a visit | - | named confirmer | - | never | - | - | record call | - | - |
+| Confirm a visit | - | named confirmer | - | never | - | - | record or check a call (two people) | check a call; decide after 72 h | - |
 | See a visit's items, photos and readings | own | own relative | - | asg, until synced | - | - | Y | Y | - |
 | Raise a concern | - | - | - | asg | - | - | - | - | - |
 | Read a concern | own | - | - | - | - | - | - | Y | - |
@@ -3253,7 +3328,7 @@ Roles added in 01 version 0.3 (FM family member, IC institution contact, CE care
 | At rest | KMS customer-managed keys for RDS, snapshots, S3 buckets, ElastiCache, EBS and logs |
 | Field level | Envelope encryption (AES-256-GCM) with per-person data keys wrapped by a KMS key for: full name, email, phone, identity document numbers, date of birth, bank details of individuals and payees, consent subject names, safety narratives, family members' names and addresses, care readings and concerns, insurance applications, tenant details. Keyed HMAC blind indexes for lookups and name matching. Destroying a person's data key anonymises them (6.10) |
 | Device | Encrypted Room database and files with Keystore-wrapped keys (FR-MOB-009) |
-| Key separation | Separate KMS keys for: database, evidence, previews, field PII (one per country), health data (care readings, concerns, insurance applications), payee bank details, safety data, audit anchors, instruction signing, backups |
+| Key separation | Separate KMS keys for: database, evidence, previews, field PII (one per country), health and care data (hospital invoices, care plans, visit records, readings, concerns; insurance applications, which hold health answers), identity documents from errands, payee bank details, safety data, audit anchors, instruction signing, backups |
 
 ### 10.7 Evidence integrity chain
 
@@ -3290,7 +3365,7 @@ Mapped to ASVS 4.0.3 chapters. Re-mapping to ASVS 5.0 is `[TO VERIFY]` before th
 
 | Measure | Design |
 |---|---|
-| Registration with the Data Protection Commission | Organisational task `[TO VERIFY]`; data locations exported from `dpr_data_location` |
+| Registration with each country's data protection authority (in Ghana, the Data Protection Commission; other countries per 01 Q-21) | Organisational task `[TO VERIFY]`; data locations exported from `dpr_data_location` |
 | Notice and consent | Versioned privacy notice accepted at sign-up (FR-DPR-001); recorded consent for every person on video (FR-DPR-002) |
 | Minimisation | Every field listed with purpose in `dpr_data_catalogue`; CI fails if a model field is missing from it (NFR-PRIV-02) |
 | Access and correction | Request workflow with export pack and logged corrections (FR-DPR-003) |
@@ -3299,7 +3374,7 @@ Mapped to ASVS 4.0.3 chapters. Re-mapping to ASVS 5.0 is `[TO VERIFY]` before th
 | Processors | Each vendor recorded with data categories and location; data processing agreements `[TO VERIFY]` |
 | Breach response | Security events feed an incident runbook in document 06; notification time `[TO VERIFY]` |
 | Safety-log isolation | Schema `safety`, role `fidero_safety`, own KMS key, no read replica copy, no analytics, no search index, access only with `safety.read` granted to named people, every read audited |
-| Special category data | Care readings, concerns and insurance applications are health data `[TO VERIFY]` under Act 843 section 37 or its equivalent in each country. Own KMS key, no analytics or search, access by scope only, every read of a concern audited, insurance data passed through and not kept beyond `[TO VERIFY]` days (TR-12) |
+| Special category data | Hospital invoices, care plans, visit records, readings, concerns and insurance applications are health data `[TO VERIFY]` under Act 843 section 37 or its equivalent in each country. Own KMS key, no analytics or search, access by scope only, every read of a concern audited, insurance data passed through and not kept beyond `[TO VERIFY]` days (TR-12) |
 | Family members without accounts | Treated as data subjects with their own notice (`acc_family_member.consent_id`) delivered by the client and confirmed on the first confirmation message; access and correction requests through the client or directly (FR-DPR-003) |
 | Per-country data location | `cty_cell` records where each country's data lives; `dpr_data_location` lists every service and vendor per cell (NFR-PRIV-01, FR-CTY-002) |
 
@@ -3312,8 +3387,8 @@ Logged to the audit log and to CloudWatch, with alerts to the on-call channel:
 | Sign-in success and failure, lockout, MFA enrolment or removal | Lockout bursts; MFA removed for an approver |
 | Grant or removal of roles, especially release rights and `safety.read` | Always |
 | Payee created, verified, changed or suspended; rent destination changed | Always, to the reviewer channel; the client or owner is told on every channel |
-| Family confirmation code failures | 3 failures on one visit, or 10 across visits in an hour (assumption) |
-| Cash voucher approved, drawn, overdue | Always |
+| Family confirmation code failures | 3 failures on one visit; lockout at 5 (FR-CARE-004); 10 across visits in an hour (assumption) |
+| Standing approval given, raised or withdrawn; institution marked not eligible for direct payment | Always |
 | Country configuration published or country activated; new cell deployed | Always |
 | Approval of any two-person action | Approvals outside working hours (assumption) |
 | Evidence rejected (bad signature, hash mismatch, malware) | Always |
@@ -3529,7 +3604,7 @@ Every FR ID in document 01 version 0.3 appears below, one row per module, so a t
 | CASE | FR-CASE-001, FR-CASE-002, FR-CASE-003, FR-CASE-004, FR-CASE-005, FR-CASE-006, FR-CASE-007, FR-CASE-008, FR-CASE-009, FR-CASE-010, FR-CASE-011, FR-CASE-012, FR-CASE-013, FR-CASE-014, FR-CASE-015 | `cases`; backoffice, portal | `case_case`, `case_task`, `case_status_message`, `case_risk_screen`, `safety.incident` | `/v1/cases*`, `/v1/tasks/*`, `/v1/work-queue`, `/v1/assets/{id}/fresh-searches` | 6.5, 6.7 |
 | RPT | FR-RPT-001, FR-RPT-002, FR-RPT-003, FR-RPT-004, FR-RPT-005, FR-RPT-006, FR-RPT-007, FR-RPT-008, FR-RPT-009, FR-RPT-010, FR-RPT-011 | `reports`; backoffice, portal | `rpt_report`, `rpt_section`, `rpt_signature`, `rpt_condition` | `/v1/reports/*`, `/v1/report-verifications` | 5.2, 6.5, ADR-15 |
 | GEO | FR-GEO-001, FR-GEO-002, FR-GEO-003, FR-GEO-004, FR-GEO-005, FR-GEO-006, FR-GEO-007, FR-GEO-008 | `geo`; backoffice | `geo_asset`, `geo_boundary_version`, `geo_overlay_*`, `geo_monitoring_alert` | `/v1/assets/{id}/*`, `/v1/admin/overlay-layers`, `/v1/geo/ghana-post` | 6.4, IF-04 to IF-06 |
-| ESC | FR-ESC-001, FR-ESC-002, FR-ESC-003, FR-ESC-004, FR-ESC-005, FR-ESC-006, FR-ESC-007, FR-ESC-008, FR-ESC-009, FR-ESC-010, FR-ESC-011, FR-ESC-012, FR-ESC-013, FR-ESC-014, FR-ESC-015 | `escrow`; portal, backoffice | `esc_escrow`, `esc_condition`, `esc_bank_event`, `esc_release_instruction`, `esc_payee`, view `esc_held_statement`, `core_approval*` | `/v1/escrows*`, `/v1/escrows/{id}/statement`, `/v1/release-instructions/*`, `/v1/payees*`, `/v1/bank-statements` | 5.3, 6.5, 6.11, 7.6, 9.2, IF-01, ADR-17, ADR-18 |
+| ESC | FR-ESC-001, FR-ESC-002, FR-ESC-003, FR-ESC-004, FR-ESC-005, FR-ESC-006, FR-ESC-007, FR-ESC-008, FR-ESC-009, FR-ESC-010, FR-ESC-011, FR-ESC-012, FR-ESC-013, FR-ESC-014, FR-ESC-015 | `escrow`; portal, backoffice | `esc_escrow`, `esc_condition`, `esc_bank_event`, `esc_release_instruction`, `esc_payee`, `esc_standing_approval`, view `esc_held_statement`, `core_approval*` | `/v1/escrows*`, `/v1/escrows/{id}/statement`, `/v1/release-instructions/*`, `/v1/payees*`, `/v1/standing-approvals*`, `/v1/bank-statements` | 5.3, 6.5, 6.11, 7.6, 9.2, IF-01, ADR-17, ADR-18 |
 | EVD | FR-EVD-001, FR-EVD-002, FR-EVD-003, FR-EVD-004, FR-EVD-005, FR-EVD-006 | `evidence`; all | `evd_evidence`, `evd_link` | `/v1/uploads`, `/v1/evidence/{id}/link` | ADR-04, 6.6, 10.7 |
 | MOB | FR-MOB-001, FR-MOB-002, FR-MOB-003, FR-MOB-004, FR-MOB-005, FR-MOB-006, FR-MOB-007, FR-MOB-008, FR-MOB-009, FR-MOB-010, FR-MOB-011, FR-MOB-012 | `mobile`; Android field app | `mob_device`, `mob_submission*`, `mob_checkin`, `mob_fraud_flag` | `/v1/mobile/*`, `/v1/mobile/check-ins`, `/v1/mobile/check-outs` | 5.4, 5.8, 7.7, 8, 8.8, ADR-19 |
 | BLD | FR-BLD-001, FR-BLD-002, FR-BLD-003, FR-BLD-004, FR-BLD-005, FR-BLD-006, FR-BLD-007, FR-BLD-008, FR-BLD-009, FR-BLD-010, FR-BLD-011, FR-BLD-012, FR-BLD-013 | `construction`; portal, backoffice, app | `bld_project`, `bld_milestone`, `bld_inspection`, `bld_defect`, `bld_conflict_link`, `bld_variation`, `bld_reprice` | `/v1/projects/*`, `/v1/milestones/*`, `/v1/panel-members`, `/v1/defects/*` | 5.4, 6.6 |
@@ -3545,14 +3620,14 @@ Every FR ID in document 01 version 0.3 appears below, one row per module, so a t
 | DPR | FR-DPR-001, FR-DPR-002, FR-DPR-003, FR-DPR-004, FR-DPR-005 | `dataprotection`; backoffice | `dpr_*` | `/v1/dpr/*`, `/v1/consents` | 6.10, 10.9 |
 | REC | FR-REC-001, FR-REC-002, FR-REC-003, FR-REC-004 | `records`; backoffice, portal | `rec_*` | `/v1/records/*` | 4.2 |
 | CTY | FR-CTY-001, FR-CTY-002, FR-CTY-003, FR-CTY-004 | `countries`; backoffice | `cty_country`, `cty_cell`, `cty_country_config`, `cty_directory`, `country_id` on every tenant-scoped table | `/v1/admin/countries`, `/v1/admin/countries/{id}/config-versions`, `/v1/admin/cells`, `/v1/analytics/metrics` | ADR-16, 6.1, 6.9, 11.1 |
-| FEE | FR-FEE-001, FR-FEE-002, FR-FEE-003, FR-FEE-004, FR-FEE-005, FR-FEE-006, FR-FEE-007 | `fees`; portal, backoffice | `fee_institution`, `fee_institution_contact`, `fee_invoice`, `fee_payment`, `fee_schedule`, `fee_cash_voucher`, shared `esc_payee`, `esc_escrow` (held_funds), `case_case` (institution_verification) | `/v1/institutions*`, `/v1/invoices*`, `/v1/fee-payments/{id}/receipts`, `/v1/fee-schedules`, `/v1/cash-vouchers*`, `/v1/family-members/{id}/statement` | 5.7, 6.11, 6.12, 7.9, 7.12, IF-10 |
+| FEE | FR-FEE-001, FR-FEE-002, FR-FEE-003, FR-FEE-004, FR-FEE-005, FR-FEE-006, FR-FEE-007 | `fees`; portal, backoffice | `fee_institution`, `fee_institution_contact`, `fee_invoice`, `fee_payment`, `fee_schedule`, `fee_runner_task`, shared `esc_payee`, `esc_escrow` (held_funds), `case_case` (institution_verification) | `/v1/institutions*`, `/v1/invoices*`, `/v1/fee-payments/{id}/receipts`, `/v1/fee-schedules`, `/v1/family-members/{id}/statement` | 5.7, 6.11, 6.12, 7.9, 7.12, IF-10 |
 | CARE | FR-CARE-001, FR-CARE-002, FR-CARE-003, FR-CARE-004, FR-CARE-005, FR-CARE-006 | `care`; portal, backoffice, field app | `care_plan`, `care_plan_item`, `care_carer`, `care_visit`, `care_visit_item`, `care_confirmation`, `care_concern`, shared `acc_vetting`, `mob_checkin` | `/v1/care-plans*`, `/v1/carers*`, `/v1/care-visits*`, `/v1/concerns`, `/v1/mobile/check-ins`, `/v1/mobile/visits/*` | 5.8, 6.12, 7.10, 7.12, 8.8, ADR-19, ADR-20 |
 | PMG | FR-PMG-001, FR-PMG-002, FR-PMG-003, FR-PMG-004, FR-PMG-005, FR-PMG-006 | `propertymgmt`; portal, backoffice, field app | `pmg_managed_property`, `pmg_tenancy`, `pmg_rent_period`, `pmg_statement_mandate`, `pmg_repair`, `pmg_repair_quote`, `pmg_inspection`, shared `acc_bank_account`, `esc_statement_line`, `esc_escrow` (repair) | `/v1/managed-properties*`, `/v1/tenancies/{id}`, `/v1/repairs*` | 5.9, 6.13, 7.11, 7.12, 9.3 |
 | TSK | FR-TSK-001, FR-TSK-002, FR-TSK-003, FR-TSK-004, FR-TSK-005 | `errands`; portal, backoffice, field app | `tsk_errand`, `tsk_errand_document`, `tsk_errand_step`, `tsk_agent`, `tsk_handover`, `adm_config_version` (errand_catalogue), shared `acc_vetting`, `esc_escrow` (held_funds) | `/v1/errand-catalogue`, `/v1/errands*`, `/v1/mobile/errands/*` | 5.10, 6.13, 7.12, 8.8 |
 | INS | FR-INS-001, FR-INS-002, FR-INS-003, FR-INS-004 | `insurance`; portal, backoffice | `ins_product`, `ins_application`, `ins_policy`, `ins_premium`, `ins_claim`, shared `esc_payee` (insurer) | `/v1/insurance/*` | 6.12, 7.12, IF-11 |
 | EVT | FR-EVT-001, FR-EVT-002, FR-EVT-003 | `events`; portal, backoffice | `evt_event`, `evt_vendor`, `evt_vendor_payment`, shared `esc_payee`, `esc_escrow` (event), `case_case` (vendor_verification), `care_confirmation` | `/v1/events*`, `/v1/vendor-payments/*` | 6.13, ADR-20 |
 
-Business rules: RUL-01 (ADR-03, 6.4), RUL-02 (6.5), RUL-03 (ADR-12, 5.2), RUL-04 (6.5, ADR-11), RUL-05 (6.3, 6.5), RUL-06 and RUL-07 (6.5), RUL-08 (8.1), RUL-09 (6.5, 6.6), RUL-10 (6.6), RUL-11 (6.5, 10.4), RUL-12 and RUL-13 (6.6, 7.12), RUL-14 (5.5), RUL-15 (6.5), RUL-16 (5.6, 6.7), RUL-17 (6.5, 6.7, 10.9), RUL-18 (5.4, 7.12), RUL-19 (6.8), RUL-20 (6.5), RUL-21 (6.8, 6.11 payee kind supplier only), RUL-22 (ADR-17, 6.5 trigger, 6.11 `esc_payee`, 9.2), RUL-23 (6.5 trigger, 6.12 `care_visit` and `care_confirmation`, 6.13 `tsk_errand_step`, ADR-20), RUL-24 (6.4 `acc_bank_account`, 6.13 `pmg_managed_property` trigger, 9.3), RUL-25 (6.12 `ins_policy`, `ins_premium`, `ins_claim`; no `premium` purpose in `pay_fee_payment`).
+Business rules: RUL-01 (ADR-03, 6.4), RUL-02 (6.5), RUL-03 (ADR-12, 5.2), RUL-04 (6.5, ADR-11), RUL-05 (6.3, 6.5), RUL-06 and RUL-07 (6.5), RUL-08 (8.1, 8.8), RUL-09 (6.5, 6.6), RUL-10 (6.6), RUL-11 (6.5, 6.11 `esc_standing_approval`, 10.4), RUL-12 and RUL-13 (6.6, 7.12), RUL-14 (5.5), RUL-15 (6.5), RUL-16 (5.6, 6.7), RUL-17 (6.5, 6.7, 10.9), RUL-18 (5.4, 7.12), RUL-19 (6.8), RUL-20 (6.5), RUL-21 (6.8, 6.11 payee kind supplier only), RUL-22 (ADR-17, 6.5 trigger, 6.11 `esc_payee`, 9.2), RUL-23 (6.5 trigger, 6.12 `care_visit` and `care_confirmation`, 6.13 `tsk_errand_step`, ADR-20), RUL-24 (6.4 `acc_bank_account`, 6.13 `pmg_managed_property` trigger, 9.3), RUL-25 (6.12 `ins_policy`, `ins_premium`, `ins_claim`; no `premium` purpose in `pay_fee_payment`).
 
 Interfaces: IF-01 to IF-09 (section 9), IF-10 and IF-11 (section 9, 9.2, 9.3). Journeys: J-01 (5.1, 5.2), J-02 (5.3), J-03 (5.4), J-04 (5.5), J-06 (5.6), J-09 (5.7), J-10 (5.8), J-11 (5.9), J-12 (5.10).
 
@@ -3572,7 +3647,7 @@ Interfaces: IF-01 to IF-09 (section 9), IF-10 and IF-11 (section 9, 9.2, 9.3). J
 | TR-06 | Overlay layer data unavailable or poor | Section 7 relies on manual work | Manual digitising path; layer version on every result | AS-06 |
 | TR-07 | Vendor data locations conflict with Act 843 | Need to change vendors | Record each in `dpr_data_location`; adapters make switching cheap | Q-02, Q-03, Q-07 |
 | TR-08 | Audit chain serialisation becomes a bottleneck | Slower writes | Load test; partition chains per country if needed | NFR-SCL-01 |
-| TR-09 | Institutions will not accept bank transfers with an invoice reference (AS-10) | Cash vouchers become the norm; cash in runners' hands | Voucher cap, two-person approval, 2-day reconciliation; renegotiate with the largest institutions first; measure the voucher share monthly and stop the line for an institution above a threshold `[TO VERIFY]` | AS-10, FR-FEE-006, Q-16, I-19 |
+| TR-09 | Institutions will not accept bank transfers with an invoice reference (AS-10) | Many institutions are not eligible for direct payment; the line reaches fewer families | No cash route by design (FR-FEE-006). Ask the largest schools and hospitals to accept transfers first; measure the share of requested institutions marked not eligible each month and report it at the line's gate `[TO VERIFY]` | AS-10, FR-FEE-006, Q-16 |
 | TR-10 | The bank will not share an owner's account statement under a mandate | Rent tracking falls back to owner uploads | Manual adapter; owner-forwarded credit alerts; consider the rent account at the partner bank only | FR-PMG-003, TQ-17 |
 | TR-11 | A second cell for country 2 doubles infrastructure and operations for a team of two or three | Outages, cost, slower releases | Join the Ghana cell unless the law forbids it; automate cell creation fully in Terraform; one shared on-call rota | ADR-16, C-07, Q-15 |
 | TR-12 | Care readings, concerns and insurance applications are special category data with stricter rules | Fines or forced redesign | Own KMS key, minimal retention, no analytics, lawyer's opinion before CARE and INS open | C-02, FR-CARE-006, FR-INS-002 |
@@ -3602,7 +3677,7 @@ Interfaces: IF-01 to IF-09 (section 9), IF-10 and IF-11 (section 9, 9.2, 9.3). J
 | TQ-16 | How is a visit confirmed when the family member has no phone of their own? Is a staff call plus sampling acceptable to the lawyer and insurer? | Operations, lawyer | R2 | FR-CARE-004, ADR-20 |
 | TQ-17 | Will the bank share a customer's account statement with Fidero under the owner's mandate, by file or API? | Founder with bank | R2 | FR-PMG-003, RUL-24, 9.3 |
 | TQ-18 | Are carers and errand agents paid as individuals or through an agency, and which is the payee of record? | Operations, lawyer | R2 | RUL-22, RUL-23, FR-CARE-004, Q-19 |
-| TQ-19 | Premium route per insurer: client pays the insurer directly, or the bank pays from held funds? What intermediary licence does each route need? | Founder, lawyer | R2 | FR-INS-002, RUL-25, C-11, Q-17 |
+| TQ-19 | Which of the two premium routes in FR-INS-002 does each insurer accept, and what intermediary licence does each route need? | Founder, lawyer | R2 | FR-INS-002, RUL-25, C-11, Q-17 |
 | TQ-20 | Which institutions can send invoices and receipts by portal or file, and in what format? | Operations | R2 | IF-10, Q-16 |
 | TQ-21 | Source and update cadence of official fees in the errand catalogue per country | Operations | R2 | FR-TSK-001 |
 | TQ-22 | Pricing per line confirms the provisional Fidero fee purposes in `pay_fee_payment` (institution service, care service, property management, errand and event service fees) | Founder | R1, R2 | Q-20, FR-PAY-005 |
@@ -3613,7 +3688,7 @@ Interfaces: IF-01 to IF-09 (section 9), IF-10 and IF-11 (section 9, 9.2, 9.3). J
 
 These are gaps or conflicts found while designing. Document 01 is not changed here. The design choice used in the meantime is stated.
 
-Resolved by document 01 version 0.2 and 0.3 and removed from this list: I-01 (the report template now says sections 4 to 10), I-03 (partial release, freeze and cancel paths in the Escrow model), I-04 (cases start at Paid), I-06 (missing roles added to C2), I-07 (release rights defined as a permission held by reviewers; case managers cannot approve), I-08 (client approval step in the Escrow model), I-09 (silence is never approval; Q-13), I-10 (Reserved to Suspended), I-12 (NFR-AVL-03 bounded by NFR-PRIV-01; Q-11), I-14 (SMS and WhatsApp threshold configurable in FR-ADM-005). Numbers are not reused.
+Resolved by document 01 version 0.2 and 0.3 and removed from this list: I-01 (the report template now says sections 4 to 10), I-03 (partial release, freeze and cancel paths in the Escrow model), I-04 (cases start at Paid), I-06 (missing roles added to C2), I-07 (release rights defined as a permission held by reviewers; case managers cannot approve), I-08 (client approval step in the Escrow model), I-09 (silence is never approval; Q-13), I-10 (Reserved to Suspended), I-12 (NFR-AVL-03 bounded by NFR-PRIV-01; Q-11), I-14 (SMS and WhatsApp threshold configurable in FR-ADM-005). Numbers are not reused. Items resolved by document 01 version 0.4 stay in the table below, marked resolved, so their numbers remain traceable.
 
 | ID | Issue | Where in 01 | Interim design choice |
 |---|---|---|---|
@@ -3622,16 +3697,16 @@ Resolved by document 01 version 0.2 and 0.3 and removed from this list: I-01 (th
 | I-11 | FR-ANL-002 lets reviewers export CSV, while FR-DPR-005 requires two-person approval for bulk exports of personal data. The boundary is still not defined. | C4.19, C4.20 | Metric exports contain no personal data; any export with personal data goes through DPR. |
 | I-13 | FR-ACC-003 requires MFA for "any user who approves a release", which includes clients under RUL-11. This affects NFR-USE-01 for diaspora clients, and now applies to every invoice approval and repair quote approval. | C4.1 | Clients enrol MFA at their first approval, not at sign-up. Family confirmation of a visit is not a release approval (I-25). |
 | I-15 | FR-PTR-001 now says a partner submits a plot reference or coordinates (fixed in 0.2), but what happens when a point matches several plots is still not stated. | C4.15 | Return `ambiguous` with no details (TQ-07). |
-| I-16 | FR-MOB-010 (Should) lets runners, surveyors, carers and errand agents use the app for case tasks, visits and errands, but RUL-08 applies the camera-only rule to milestones only. Whether browser uploads remain valid evidence for tasks, visits and errand steps is not stated. | C4.9, B7 | Both accepted; `provenance` records which. The field app applies camera-only by design for visit photos. |
-| I-17 | FR-ESC-014 and FR-FEE-007 say "held balance" and "balance held". ADR-03 and C-01 forbid any balance Fidero keeps, and this document's CI test fails on a column named like `%balance%`. | C4.7, C4.21 | Read as "the amount the bank reports holding". `esc_held_statement.held_at_bank` is derived from bank events (ADR-18). Suggest 01 says "amount held at the bank". |
-| I-18 | RUL-22 lists institution, supplier, vendor or professional as the only payees, but the payee on the launch product (a land purchase) is the seller, and on off-plan and listings the developer. | B7 | `esc_payee.kind` includes `seller` and `developer`, verified through the report's identity and authority checks and a bank account in that name. Suggest 01 adds them to RUL-22. |
-| I-19 | FR-FEE-006 lets a runner draw cash against a voucher and pay an institution in person. RUL-22 says Fidero never releases cash to a relative or representative, and RUL-01 says Fidero never holds client money. Cash in a Fidero runner's hands for up to 2 working days sits between the two. | C4.21, B7 | The payee of record is the institution; the instruction is a distinct `runner_cash_voucher` type the bank must accept; two-person approval, a cap `[TO VERIFY]`, one open voucher per runner, receipt within 2 working days, escalation after. Needs the bank's and lawyer's confirmation (TR-09). |
-| I-20 | Must requirements depend on Should requirements: FR-CARE-002 to 006 are Must but FR-CARE-001 (create a care plan) is Should; FR-PMG-002, 003 and 005 are Must but FR-PMG-001 is Should; FR-TSK-002 to 004 are Must but FR-TSK-001 is Should. | C4.22 to C4.24 | Treated as Must for the line once the line opens. Suggest 01 aligns the priorities. |
-| I-21 | FR-PMG-003 reads rent from "the bank's statement or confirmation" of the owner's own account. No requirement, consent or interface covers the owner's mandate to the bank to share that statement with Fidero. | C4.23, C6 | `pmg_statement_mandate` recorded before matching starts; adapters in 9.3; open with the bank (TQ-17). |
-| I-22 | FR-INS-002 says premiums go "to the insurer's account, never to Fidero" but not whether the client pays the insurer directly or the bank pays from held funds; neither route appears in the Escrow state model, and C-11 says the intermediary licence is `[TO VERIFY]`. | C4.25, C8, A7 | Both routes designed (`ins_premium.route`); the insurer is a verified payee for the held-funds route (TQ-19). |
+| I-16 | FR-MOB-010 (Should) lets runners, surveyors, carers and errand agents use the app for case tasks, visits and errands, but RUL-08 applies the camera-only rule to milestones only. Whether browser uploads remain valid evidence for tasks, visits and errand steps is not stated. | C4.9, B7 | **Partly resolved by 01 v0.4.** RUL-08 now covers milestone, inspection, care visit and errand evidence from R2, and FR-MOB-001 adds carers and errand agents. Runner and surveyor case tasks are still not named: browser uploads stay accepted there, and `provenance` records which. |
+| I-17 | FR-ESC-014 and FR-FEE-007 say "held balance" and "balance held". ADR-03 and C-01 forbid any balance Fidero keeps, and this document's CI test fails on a column named like `%balance%`. | C4.7, C4.21 | **Resolved by 01 v0.4.** FR-ESC-014 and FR-FEE-007 now say "amount held at the bank", built only from bank-confirmed events. `esc_held_statement.held_at_bank` is derived from bank events (ADR-18). |
+| I-18 | RUL-22 lists institution, supplier, vendor or professional as the only payees, but the payee on the launch product (a land purchase) is the seller, and on off-plan and listings the developer. | B7 | **Resolved by 01 v0.4.** RUL-22 now names the seller or developer in a purchase escrow as a payee. `esc_payee.kind` includes `seller` and `developer`, verified through the report's identity and authority checks. |
+| I-19 | FR-FEE-006 lets a runner draw cash against a voucher and pay an institution in person. RUL-22 says Fidero never releases cash to a relative or representative, and RUL-01 says Fidero never holds client money. Cash in a Fidero runner's hands for up to 2 working days sits between the two. | C4.21, B7 | **Resolved by 01 v0.4.** FR-FEE-006 removes the cash route. An institution that cannot receive a bank transfer is marked not eligible for direct payment (`fee_institution.eligible_for_direct_payment`); a runner may only collect the invoice and deliver the receipt (`fee_runner_task`). The voucher table, instruction type, endpoints, job and controls are removed. |
+| I-20 | Must requirements depend on Should requirements: FR-CARE-002 to 006 are Must but FR-CARE-001 (create a care plan) is Should; FR-PMG-002, 003 and 005 are Must but FR-PMG-001 is Should; FR-TSK-002 to 004 are Must but FR-TSK-001 is Should. | C4.22 to C4.24 | **Resolved by 01 v0.4.** A Must inside a Should or Could feature is required only if that feature ships in the release, and then blocks the feature, not the release (01 Priority). |
+| I-21 | FR-PMG-003 reads rent from "the bank's statement or confirmation" of the owner's own account. No requirement, consent or interface covers the owner's mandate to the bank to share that statement with Fidero. | C4.23, C6 | **Resolved by 01 v0.4.** FR-PMG-003 now requires the owner's written mandate and limits matching to that account's statement lines. `pmg_statement_mandate` and 9.3 follow it. Whether the bank will share lines stays open (TQ-17). |
+| I-22 | FR-INS-002 says premiums go "to the insurer's account, never to Fidero" but not whether the client pays the insurer directly or the bank pays from held funds; neither route appears in the Escrow state model, and C-11 says the intermediary licence is `[TO VERIFY]`. | C4.25, C8, A7 | **Resolved by 01 v0.4 for the route.** FR-INS-002 names both routes (the client pays the insurer directly, or the bank pays the insurer from money held for that purpose), as `ins_premium.route` already does. The state model (I-23) and the intermediary licence (C-11, TQ-19) stay open. |
 | I-23 | C8 has no state models for institution payment, care visit, repair, errand or policy, although RUL-22 to RUL-25 attach rules to them. | C8 | States proposed in 6.12 and 6.13 (for example visit: scheduled, checked in, checked out, confirmed, unconfirmed, missed, disputed, instructed, paid). Suggest 01 adopts them. |
 | I-24 | The Tenant role in C2 can "see their agreement and rent record" and "report a repair", but no FR in C4.1 gives a tenant an account or a sign-in. | C2, C4.1, C4.23 | Tenant signs in with a phone one-time code, with a grant scoped to one tenancy. |
-| I-25 | RUL-11 says the client approves every release. FR-CARE-004 pays the carer on the family's confirmation, and FR-TSK-003 pays official fees per step; neither states a client approval per payment. | B7, C4.22, C4.24 | The client's approval of the care plan (visit fee per confirmed visit) and of the errand order (official fees per step) is recorded as a standing approval within the agreed amounts; two staff still approve each instruction. Needs the lawyer's view. |
-| I-26 | FR-ESC-015 blocks a release when the account name does not match, but 01 does not say where the bank account name comes from or who checks it. | C4.7 | Bank confirmation letter checked by two people in R1; account name enquiry where the bank offers it (9.2, TQ-14). |
+| I-25 | RUL-11 says the client approves every release. FR-CARE-004 pays the carer on the family's confirmation, and FR-TSK-003 pays official fees per step; neither states a client approval per payment. | B7, C4.22, C4.24 | **Resolved by 01 v0.4.** RUL-11 allows a standing approval for care visits and errand steps up to a stated amount per month; each payment still needs its evidence and two staff approvals. Designed as `esc_standing_approval` (6.11). |
+| I-26 | FR-ESC-015 blocks a release when the account name does not match, but 01 does not say where the bank account name comes from or who checks it. | C4.7 | **Resolved by 01 v0.4.** FR-ESC-015 names the bank's name check where offered, otherwise a bank letter checked by a second staff member, with no override. `esc_payee.account_name_source` is `bank_name_check` or `bank_letter` (9.2). |
 | I-27 | FR-FEE-001 (R1) needs an institution with a named contact who confirms invoices (C2 role "Institution contact"), but organisation accounts for institutions (FR-ACC-011) are R2. | C2, C4.1, C4.21 | In R1 the contact is a person account with role `institution_contact` scoped to the institution; organisation accounts follow in R2. |
 | I-28 | Requirement IDs added in version 0.3 sit out of numeric order in their tables (FR-ACC-012 before FR-ACC-009, FR-ESC-014 and 015 before 011, FR-MOB-012 before 011, FR-CTY-004 before 002). Cosmetic, but it makes range notation such as "001 to 012" misleading. | C4 | This document lists every FR ID in full in section 13. |

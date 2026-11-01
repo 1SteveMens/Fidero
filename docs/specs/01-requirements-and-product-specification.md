@@ -183,14 +183,14 @@ The full problem statement is in `docs/proposal.md` section 2.
 | ID | Constraint |
 |---|---|
 | C-01 | Fidero never holds client money. A licensed bank or escrow agent holds it under Bank of Ghana guidance. Fidero only records conditions and sends release instructions. |
-| C-02 | The Data Protection Act 2012 (Act 843) applies to all personal data, including video of sellers, family heads and witnesses. |
+| C-02 | The Data Protection Act 2012 (Act 843) applies to all personal data in Ghana, including video of sellers, family heads and witnesses. Each further country's data protection law applies to its data (Q-21). |
 | C-03 | The Land Act 2020 (Act 1036) sets the land framework and allows electronic conveyancing. |
 | C-04 | Listing or brokering property may need a licence under the Real Estate Agency Act 2020 (Act 1047) `[TO VERIFY]`. Listings do not go live until this is resolved. |
 | C-05 | Only licensed lawyers and surveyors may sign their report sections. |
 | C-06 | The scope and limitation statement is fixed text. It changes only with the lawyer's and insurer's approval. |
 | C-07 | Budget: $400,000 pre-seed for 18 months, shared with operations and marketing. Phase 2 team is one product and engineering lead plus one or two developers `[TO VERIFY]`. |
 | C-08 | Many users in Ghana are on slow mobile connections and low-end Android phones. |
-| C-09 | Data hosting must be in Ghana or in a jurisdiction the Data Protection Commission accepts `[TO VERIFY]`. |
+| C-09 | Data hosting must be where each country's data protection authority accepts. For Ghana, in Ghana or a jurisdiction the Data Protection Commission accepts `[TO VERIFY]`. |
 | C-10 | The word "guard" must not appear in any product, feature or brand name. Land guards are the threat Fidero protects against. |
 | C-11 | Insurance is sold only as the licensed insurer's product. Fidero holds no insurance risk and needs an intermediary licence `[TO VERIFY]` per country. |
 | C-12 | Fidero does not transfer money across borders. Clients pay the partner bank or a licensed payment provider. |
@@ -228,7 +228,7 @@ The platform must report these metrics from its own data (see FR-ANL).
 | Conversion: report to escrow, report to build | Cases, escrows, projects |
 | Lead source and conversion | Leads |
 | Escrows opened, value held at the bank, value released | Escrow tracker |
-| Milestones submitted, passed first time, failed, flagged for fraud | Milestone app |
+| Milestones submitted, passed first time, failed, flagged for fraud | Field app |
 | Listings live, views, enquiries, sales through escrow | Listings |
 | Payments to institutions per month, value, share with receipt returned within target | Institution payments |
 | Care visits scheduled, completed, confirmed by family | Care visits |
@@ -311,7 +311,7 @@ Anyone abroad can get anything done at home, from buying land to paying a parent
 | F-12 | Audit log | P-04, P-14 | R1 | Must | AUD |
 | F-13 | Operating dashboard and exports | P-03, P-14 | R1 | Should | ANL |
 | F-14 | Data subject requests and retention | P-14 | R1 | Must | DPR |
-| F-15 | Milestone photo app with offline, tamper-evident capture | P-08, P-09 | R2 | Must | MOB |
+| F-15 | Field app with offline, tamper-evident capture for contractors, inspectors, carers and errand agents | P-08, P-09 | R2 | Must | MOB |
 | F-16 | Construction projects: bill of quantities, milestones, inspections, build dashboard | P-01, P-08, P-09 | R2 | Must | BLD |
 | F-17 | Off-plan purchase escrow with stage releases | P-01, P-10 | R2 | Should | BLD, ESC |
 | F-18 | Project funds: budgets, suppliers, direct payment against invoices | P-13 | R2 | Should | PRJ |
@@ -498,7 +498,7 @@ Fidero is one platform with four front ends over one core API:
 
 1. **Client portal** (web, phone first) for clients abroad and at home: buyers, owners, family supporters, sellers, developers and project fund owners.
 2. **Back office** (web) for operations, reviewers, professionals and administrators.
-3. **Field app** (Android) for contractors, inspectors, runners, surveyors, carers and errand agents. Called the milestone app in R2 planning; the name covers all field roles.
+3. **Field app** (Android) for contractors, inspectors, runners, surveyors, carers and errand agents.
 4. **Partner API** for banks and developers.
 
 It integrates with an escrow bank, a payment provider, an identity check provider, map and satellite data sources, insurer partners, and messaging channels. Country is configuration throughout. Architecture is in document 02.
@@ -535,7 +535,7 @@ Release rights are a permission, not a role. Reviewers and senior staff named by
 ## C3. Operating environment
 
 - Web front ends work on the last two major versions of Chrome, Safari, Firefox and Edge, and on Android Chrome on devices with 2 GB of RAM.
-- The milestone app runs on Android 8.0 or later `[TO VERIFY]` on devices with 2 GB of RAM.
+- The field app runs on Android 8.0 or later `[TO VERIFY]` on devices with 2 GB of RAM.
 - Users may be on 3G connections with frequent drops.
 - Primary language is English. Times are shown in the user's time zone and in Ghana time (GMT).
 - "Working days" means Monday to Friday excluding Ghana public holidays, from a holiday calendar the administrator maintains.
@@ -960,7 +960,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | NFR-PERF-02 | A portal page's initial transfer shall be under 500 KB, excluding images the user opens. | R1 |
 | NFR-PERF-03 | API reads shall respond within 500 ms and writes within 1 second at the 95th percentile, at 10 times the expected R1 load. Expected R1 load (assumption): 2,000 client accounts, 150 open cases and 50 users at once. | R1 |
 | NFR-PERF-04 | Overlay checks shall complete within 30 seconds of saving a plot polygon. | R1 |
-| NFR-PERF-05 | The milestone app shall cold-start in under 3 seconds on a 2 GB RAM device, and its download size shall be under 30 MB. | R2 |
+| NFR-PERF-05 | The field app shall cold-start in under 3 seconds on a 2 GB RAM device, and its download size shall be under 30 MB. | R2 |
 | NFR-AVL-01 | The portal and API shall be available 99.5% of each month, excluding maintenance announced 48 hours ahead and limited to 4 hours a month. | R1 |
 | NFR-AVL-02 | Recovery point objective: no more than 1 hour of data loss. Recovery time objective: 4 hours. | R1 |
 | NFR-AVL-03 | Evidence shall be stored with at least two copies in separate data centres, both within the data locations allowed under NFR-PRIV-01. | R1 |
@@ -973,7 +973,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | NFR-PRIV-02 | Personal data shall be minimised: each field must have a stated purpose in the data catalogue. | R1 |
 | NFR-USE-01 | In usability tests with 5 diaspora users, at least 4 shall order a report on a phone without help, with a median time under 10 minutes. | R1 |
 | NFR-USE-02 | Status messages shall be in plain English, with a Flesch-Kincaid grade of 7 or lower. | R1 |
-| NFR-A11Y-01 | The portal and back office shall meet WCAG 2.2 level AA from R1. The milestone app shall meet the same level from R2, using Android's accessibility guidance. | R1 |
+| NFR-A11Y-01 | The portal and back office shall meet WCAG 2.2 level AA from R1. The field app shall meet the same level from R2, using Android's accessibility guidance. | R1 |
 | NFR-OBS-01 | Every request shall carry a trace ID. Errors, latency, upload queue length and job failures shall be monitored with alerts. | R1 |
 | NFR-MNT-01 | Automated tests shall cover at least 80% of lines in the core API and every business rule in B7. | R1 |
 | NFR-MNT-02 | A new product line or country shall be added through configuration, with code changes only for new integrations. | R1 for country, R2 for lines |

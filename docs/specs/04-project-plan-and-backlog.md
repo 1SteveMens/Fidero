@@ -9,18 +9,19 @@ Every figure in this document is a working assumption, not verified data. That i
 | Item | Value |
 |---|---|
 | Document | 04 of 6 in `docs/specs/` |
-| Version | 0.2 |
+| Version | 0.3 |
 | Date | 1 November 2026 |
 | Status | Draft. For review by the founder as product owner |
 | Owner | Product and engineering lead (once hired). Until then, the founder |
 | Approver | Founder, acting as product owner |
-| Source of truth | [01 Requirements and Product Specification](01-requirements-and-product-specification.md), version 0.3, and the decision record [`docs/decisions/2026-11-01-diaspora-platform.md`](../decisions/2026-11-01-diaspora-platform.md) |
+| Source of truth | [01 Requirements and Product Specification](01-requirements-and-product-specification.md), version 0.4, and the decision record [`docs/decisions/2026-11-01-diaspora-platform.md`](../decisions/2026-11-01-diaspora-platform.md) |
 | Related | [02 Architecture](02-architecture-and-technical-design.md), [03 UI/UX](03-ui-ux-design.md), [05 Testing and Acceptance](05-testing-and-acceptance.md), [06 Deployment and Operations](06-deployment-and-operations.md), [`docs/proposal.md`](../proposal.md), [`docs/validation-plan.md`](../validation-plan.md), [`docs/partners.md`](../partners.md), [`docs/product/architecture.md`](../product/architecture.md) |
 
 ### Change log
 
 | Version | Date | Change | By |
 |---|---|---|---|
+| 0.3 | 1 November 2026 | Aligned to 01 v0.4: runner cash route removed (US-FEE-006 rewritten for institutions not eligible for direct payment and a paper-only runner task; estimate kept at 3 points, so EP-FEE, the R1 totals and the capacity figures are unchanged; DR-31 rewritten); fresh search scoped to purchases (US-ESC-006); standing approvals for care visits and errand steps (US-CARE-001, US-CARE-004, US-TSK-003); account-name sources and no override (US-ESC-015); 72-hour reviewer decision and code lockout (US-CARE-004); owner's written mandate (US-PMG-003); premium routes (US-INS-002); dispute withdrawal (US-DSP-002); carers and agents in the field app (US-MOB-001); "amount held at the bank" wording. Issues I-18, I-20, I-21, I-23 and I-26 resolved, I-19 partly. | Delivery lead |
 | 0.2 | 1 November 2026 | Updated for 01 version 0.3 and the diaspora platform decision. Six new epics (EP-FEE, EP-CARE, EP-PMG, EP-TSK, EP-INS, EP-EVT) with 37 new stories; six stories changed (US-ACC-007, US-ACC-008, US-ACC-011, US-ESC-006, US-ESC-010, US-MOB-010) and the EP-CTY stories rewritten for R1 basic and R2 full. Country 2 manual phase from month 6, its software from month 12, country 3 manual phase in R2, events in R3. Enablers EN-47 to EN-63, milestones M-24 to M-36, gates G-C2 and G-C3, risks DR-25 to DR-34. R1 capacity recomputed (408 points against 384) with a new recommendation. Budget, RACI, traceability and the issues list refreshed | Delivery lead |
 | 0.1 | 31 October 2026 | First draft against 01 version 0.1 | Delivery lead |
 
@@ -277,7 +278,7 @@ The plan covers Must items only, plus US-ANL-001, which US-CTY-003 (Must) needs.
 | S8 | 7 | Client readiness: manual identity check, licences, previews, SMS and WhatsApp, threat model, usability, accessibility, pen test 1, fresh search, consent (client beta, M-09) | US-ACC-004b, US-ACC-005, US-EVD-004, US-NTF-001b, EN-27, EN-24, EN-25, EN-28, US-CASE-014, US-DPR-002 | 33 |
 | S9 | 7-8 | Report builder, two-person review, hashed PDF | US-RPT-001, US-RPT-002, US-RPT-003, US-RPT-005, US-RPT-006, US-RPT-007, US-RPT-009, US-RPT-010 | 32 |
 | S10 | 8 | Escrow tracker with client approval, two-person release and payee name check (M-10) | US-ADM-005, US-ESC-001, US-ESC-002, US-ESC-003, US-ESC-004, US-ESC-005, US-ESC-006, US-ESC-007, US-ESC-015, US-ESC-008a, US-ESC-008b, US-ESC-009 | 33 |
-| S11 | 8-9 | Cancellation, held balance, fees to institutions (M-26), overlay layer sourcing | US-ESC-013, US-ESC-014, US-FEE-001, US-FEE-002, US-FEE-003, US-FEE-004, US-FEE-007, EN-20 | 32 |
+| S11 | 8-9 | Cancellation, amount held at the bank, fees to institutions (M-26), overlay layer sourcing | US-ESC-013, US-ESC-014, US-FEE-001, US-FEE-002, US-FEE-003, US-FEE-004, US-FEE-007, EN-20 | 32 |
 | S12 | 9 | Overlay checks, load test, pen retest, identity provider | US-GEO-001, US-GEO-004, US-GEO-002, US-GEO-003, EN-26, EN-29, US-ACC-004a | 33 |
 | S13 | 9-10 | R1 completion: scope wording control, data rights, retention and legal hold, dashboard and metrics by country (M-12) | US-ADM-004, US-DPR-003, US-DPR-005, US-DPR-004a, US-DPR-004b, US-ANL-003, US-ANL-001, US-CTY-003 | 29 |
 
@@ -322,7 +323,7 @@ US-CASE-013 (building verification) drops last among Shoulds because it opens th
 
 **Team.** R1 team plus an Android developer and a QA engineer `[TO VERIFY]`. The QA engineer adds no planned points. They own test automation, device testing and document 05 test runs, which lowers defect load on developers. The country 2 lead and field team are operations, outside this count.
 
-**Sequence.** The new lines are ordered by what they reuse. Care visits and errands come first in R2-C because they reuse the field app check-in (US-MOB-012), the case workflow and the held balance (US-ESC-014), and because BO-09 (40% of clients with a recurring line) is a G2 target. Property management follows because it reuses inspections (US-MOB-007) and the contractor panel (US-BLD-003) for repairs. Insurer lines come last, in R2-D, because they depend on Q-17 and C-11 (EN-55) and add no engine.
+**Sequence.** The new lines are ordered by what they reuse. Care visits and errands come first in R2-C because they reuse the field app check-in (US-MOB-012), the case workflow and the amount held at the bank (US-ESC-014), and because BO-09 (40% of clients with a recurring line) is a G2 target. Property management follows because it reuses inspections (US-MOB-007) and the contractor panel (US-BLD-003) for repairs. Insurer lines come last, in R2-D, because they depend on Q-17 and C-11 (EN-55) and add no engine.
 
 | Phase | Sprints | Month | Goal | Items | Points |
 |---|---|---|---|---|---|
@@ -387,7 +388,7 @@ Size: S up to 15 points, M 16 to 30, L 31 to 55, XL over 55.
 | EP-CASE | Verification case workflow | Run every case through owned, dated tasks with required evidence | F-03, F-06, F-09 | FR-CASE-001 to 015 | R1 | Must | 15 | 56 | XL |
 | EP-RPT | Report builder | Build, sign, review, hash and version reports from the template | F-04, F-09 | FR-RPT-001 to 011 | R1 | Must | 11 | 39 | L |
 | EP-GEO | Geospatial checks and monitoring | Automatic overlay checks, images and later change detection | F-05, F-24 | FR-GEO-001 to 008 | R1, R2 | Must | 8 | 40 | L |
-| EP-ESC | Escrow tracking | Mirror the bank's escrow and held balances; control every release instruction and payee | F-08, F-17, F-23, F-29 | FR-ESC-001 to 015 | R1, R2 | Must | 16 | 60 | XL |
+| EP-ESC | Escrow tracking | Mirror the bank's escrows and amounts held at the bank; control every release instruction and payee | F-08, F-17, F-23, F-29 | FR-ESC-001 to 015 | R1, R2 | Must | 16 | 60 | XL |
 | EP-EVD | Evidence store | Tamper-evident, never-overwritten evidence served safely | F-07 | FR-EVD-001 to 006 | R1, R2 | Must | 6 | 21 | M |
 | EP-MOB | Field app (milestone app) | Offline, signed, in-app capture, check-in and check-out for all field roles | F-15, F-30 | FR-MOB-001 to 012 | R2 | Must | 14 | 70 | XL |
 | EP-BLD | Construction, off-plan and buildings | Milestone releases, inspections, dashboard, off-plan, materials | F-16, F-17, F-27 | FR-BLD-001 to 013 | R2, R3 | Must | 15 | 78 | XL |
@@ -775,14 +776,14 @@ Acceptance criteria:
 | US-ESC-003 | As a diaspora buyer (P-01), I want to see only the bank's payment instructions, never Fidero's account, so that I pay the bank and not Fidero (RUL-01). | Must | R1 | 2 | US-ESC-002 |
 | US-ESC-004 | As a case manager (P-03), I want to record the bank's deposit confirmation, so that the client sees the money is safe at the bank. | Must | R1 | 3 | US-ESC-002, US-EVD-001 |
 | US-ESC-005 | As a case manager (P-03), I want to close each condition by attaching the evidence that satisfies it, so that release depends on proof. | Must | R1 | 3 | US-ESC-004 |
-| US-ESC-006 | As a reviewer (P-04), I want release blocked while any condition is open, the client has not approved, the fresh search is missing or out of date, or (from R2) a dispute is open, so that money never moves on incomplete proof or without the client's approval (RUL-06, RUL-07, RUL-11, RUL-15). | Must | R1 | 5 | US-ESC-005, US-CASE-014, US-ADM-005, US-ACC-003 |
+| US-ESC-006 | As a reviewer (P-04), I want release blocked while any condition is open, the client has not approved, the fresh search is missing or out of date (purchases only), or (from R2) a dispute is open, so that money never moves on incomplete proof or without the client's approval (RUL-06, RUL-07, RUL-11, RUL-15). | Must | R1 | 5 | US-ESC-005, US-CASE-014, US-ADM-005, US-ACC-003 |
 | US-ESC-007 | As a reviewer (P-04), I want each release instruction approved by two different staff with release rights using multi-factor authentication, so that no single person can move money (RUL-05). | Must | R1 | 3 | US-ESC-006, US-ACC-003 |
 | US-ESC-008a | As a reviewer (P-04), I want the release instruction generated in the format agreed with the bank and signed by both approvers, so that the bank can act on it without questions. | Must | R1 | 3 | US-ESC-007, EN-17 |
 | US-ESC-008b | As a case manager (P-03), I want the instruction sent by the channel agreed with the bank and the sending recorded, so that we can prove when the bank was instructed. | Must | R1 | 3 | US-ESC-008a |
 | US-ESC-009 | As a diaspora buyer (P-01), I want the bank's release confirmation recorded and shown to all parties, so that I know the seller was paid. | Must | R1 | 2 | US-ESC-008b |
 | US-ESC-013 | As a reviewer (P-04), I want cancellation and refund instructions to need the same two-person approval, so that refunds are as controlled as releases. | Must | R1 | 3 | US-ESC-007, US-ESC-008b |
-| US-ESC-014 | As a family supporter (P-15), I want a held balance at the partner bank from which several small payments are made over time, with a running statement, so that I can top up once and pay several bills without a new deposit each time. | Must | R1 | 5 | US-ESC-004, US-ESC-007, EN-53 |
-| US-ESC-015 | As a reviewer (P-04), I want any release blocked when the payee's bank account name does not match the verified institution, supplier, vendor or professional, so that money never goes to an account in someone else's name (RUL-22). | Must | R1 | 2 | US-ESC-007, US-ADM-003 |
+| US-ESC-014 | As a family supporter (P-15), I want an amount held at the partner bank from which several small payments are made over time, with a running statement built only from bank-confirmed events, so that I can top up once and pay several bills without a new deposit each time. | Must | R1 | 5 | US-ESC-004, US-ESC-007, EN-53 |
+| US-ESC-015 | As a reviewer (P-04), I want any release blocked when the payee's bank account name does not match the verified payee, so that money never goes to an account in someone else's name (RUL-22). | Must | R1 | 2 | US-ESC-007, US-ADM-003 |
 | US-ESC-010 | As a contractor, carer, agent or supplier (P-08, P-17, roles in 01 C2), I want partial releases against milestones, stages, visits or tasks for construction, off-plan, project fund, care, errand, property repair and event escrows, so that every line pays for work as it is proven, not at the end. | Must | R2 | 8 | US-ESC-007, US-ESC-014, US-BLD-005a |
 | US-ESC-011 | As a case manager (P-03), I want to import the bank's daily statement file and match lines to escrows, so that deposits are confirmed without typing. | Should | R2 | 5 | US-ESC-004, EN-35 |
 | US-ESC-012 | As a case manager (P-03), I want deposit and release status from the bank's API where available, so that the tracker updates on its own. | Could | R2 | 8 | US-ESC-011, EN-35 |
@@ -808,8 +809,9 @@ Acceptance criteria:
 - **US-ESC-006** (implements FR-ESC-006)
   1. Given one open condition, when a release instruction is requested, then it is blocked and the open condition named.
   2. Given the client has not approved the release, when a release instruction is requested, then it is blocked, the client is reminded over the configured period, and silence is never treated as approval (RUL-11).
-  3. Given the fresh search is older than the configured window, when release is requested, then it is blocked.
+  3. Given a land, building, off-plan or listing purchase whose fresh search is missing or older than the configured window, when release is requested, then it is blocked.
   4. Given a reviewer's hold on the escrow, or from R2 an open dispute (US-DSP-002), when release is requested, then it is blocked.
+  5. Given a payment to an institution, a care visit or an errand step, when release is requested, then no fresh search is required (RUL-07 covers purchases only).
 - **US-ESC-007** (implements FR-ESC-007)
   1. Given one approval, when the same person tries to approve again, then it is refused.
   2. Given two approvals by different people with release rights and second factor, when the second is recorded, then the escrow moves to Release approved and both names are stored.
@@ -826,13 +828,15 @@ Acceptance criteria:
   1. Given an Agreed or Funded escrow, when cancellation is requested, then two different approvers with second factor are needed.
   2. Given the bank confirms the refund, when it is recorded, then the escrow moves to Cancelled.
 - **US-ESC-014** (implements FR-ESC-014)
-  1. Given a deposit confirmed by the bank into a held balance, when I view it, then the balance, each release and the remaining amount are shown with bank references.
-  2. Given a release larger than the held balance, when it is requested, then it is blocked.
-  3. Given any release from a held balance, when it is prepared, then it needs the same two-person approval as any release (RUL-05) and goes only to a verified payee (US-ESC-015).
+  1. Given a deposit confirmed by the bank, when I view the statement, then each deposit, each release and the amount still held at the bank are shown with bank references, built only from bank-confirmed events.
+  2. Given a release larger than the amount held at the bank, when it is requested, then it is blocked.
+  3. Given any release from the amount held at the bank, when it is prepared, then it needs the same two-person approval as any release (RUL-05) and goes only to a verified payee (US-ESC-015).
 - **US-ESC-015** (implements FR-ESC-015)
   1. Given a release instruction, when the payee account name does not match the verified record, then the instruction cannot be approved and the mismatch is named.
   2. Given a payee record changed after verification, when a release is prepared, then it is treated as unverified until a second administrator confirms the change (FR-ADM-003).
   3. Given the business-rule test suite, when it runs, then a test attempts a release to a client's representative and confirms it is refused.
+  4. Given an account name, when it is recorded, then its source is the bank's name check where offered, or otherwise a bank letter checked by a second staff member; any other source is refused.
+  5. Given a mismatch, when any user, including an administrator, looks for a way to override it, then none exists; only new evidence from one of the two sources can clear it.
 - **US-ESC-010** (implements FR-ESC-010)
   1. Given a construction escrow, when a milestone is release approved, then a partial instruction for that milestone amount is generated.
   2. Given a care, errand or repair escrow, when a visit, task or inspection is confirmed, then a partial instruction for that item is generated through the same two-person path.
@@ -885,7 +889,7 @@ Acceptance criteria:
 
 | Story | As a … I want … so that … | Priority | Release | Points | Depends on |
 |---|---|---|---|---|---|
-| US-MOB-001 | As a contractor (P-08), I want to sign in to the app and see only my assigned projects, cases and tasks, so that I go straight to my work. | Must | R2 | 5 | EN-33, US-ACC-007 |
+| US-MOB-001 | As a field worker (contractor P-08, inspector, runner P-07, surveyor, carer or errand agent P-17), I want to sign in to the field app and see only my assigned projects, cases and tasks, so that I go straight to my work. | Must | R2 | 5 | EN-33, US-ACC-007 |
 | US-MOB-002 | As a contractor (P-08), I want evidence captured only with the app's own camera, so that no one can submit old or borrowed photos (RUL-08). | Must | R2 | 5 | US-MOB-001 |
 | US-MOB-003 | As a contractor (P-08), I want position and accuracy recorded at capture with a warning when I am far from the plot, so that I know when the evidence will be flagged. | Must | R2 | 3 | US-MOB-002, US-GEO-001 |
 | US-MOB-004 | As a reviewer (P-04), I want each file hashed at capture and the hash, position and device time signed with a key in the device keystore, so that tampering after capture is detectable. | Must | R2 | 8 | US-MOB-002, EN-34 |
@@ -905,6 +909,7 @@ Acceptance criteria:
 - **US-MOB-001** (implements FR-MOB-001)
   1. Given a contractor on two projects, when they sign in, then only those two appear.
   2. Given a staff member removes an assignment, when the app next syncs, then that project disappears.
+  3. Given a carer or errand agent, when they sign in, then they see only their assigned visits and errand steps, and no other client's data.
 - **US-MOB-002** (implements FR-MOB-002)
   1. Given the evidence step, when the user tries to attach from the gallery or files, then the option is not offered.
   2. Given the in-app camera, when a photo or video is taken, then it is saved to the app's encrypted store.
@@ -1146,6 +1151,7 @@ Acceptance criteria:
 - **US-DSP-002** (implements FR-DSP-002)
   1. Given an open dispute, when it is created, then linked escrows move to Frozen and release is blocked.
   2. Given the dispute closes, when the decision is recorded, then the escrow returns to Funded.
+  3. Given an Open, Awaiting response or Evidence dispute, when the party who raised it withdraws it, then it moves to Withdrawn and each frozen release returns to the state it came from (01 C8).
 - **US-DSP-003** (implements FR-DSP-003)
   1. Given a dispute, when it opens, then deadlines are set from configuration (defaults: 5, 10 and 10 working days, assumptions).
   2. Given a deadline passes, when the job runs, then the dispute moves on and parties are notified.
@@ -1328,9 +1334,9 @@ Acceptance criteria:
 | US-FEE-002 | As a family supporter (P-15), I want to upload an invoice or fee note with its reference, or have the institution send it to Fidero's reference, and have it checked against the institution and my family member, so that I only pay bills that are real and are ours. | Must | R1 | 3 | US-FEE-001, US-EVD-001 |
 | US-FEE-003 | As a family supporter (P-15), I want to approve a checked invoice and pay into the partner bank, with payment instructed to the institution's account only, so that the school or hospital is paid directly and no cash passes through a relative (RUL-22). | Must | R1 | 5 | US-FEE-002, US-ESC-003, US-ESC-007, US-ESC-015 |
 | US-FEE-004 | As a family supporter (P-15), I want the institution's receipt, and where it agrees a confirmation of enrolment, treatment or service, returned to my dashboard, so that I know the fee reached the school and my nephew is enrolled. | Must | R1 | 3 | US-FEE-003, US-NTF-001a |
-| US-FEE-007 | As a family supporter (P-15), I want a statement per family member showing invoices, payments, receipts and the balance held, so that I can see in one place what I paid for my mother and what is still held. | Must | R1 | 3 | US-FEE-004, US-ESC-014 |
+| US-FEE-007 | As a family supporter (P-15), I want a statement per family member showing invoices, payments, receipts and the amount held at the bank, so that I can see in one place what I paid for my mother and what is still held. | Must | R1 | 3 | US-FEE-004, US-ESC-014 |
 | US-FEE-005 | As a family supporter (P-15), I want a recurring fee schedule per term or per month, with a reminder and my approval before each payment, so that school fees go out on time each term without me having to remember. | Should | R1 | 3 | US-FEE-003, US-NTF-003 |
-| US-FEE-006 | As a runner (P-07), I want to pay an institution in person and upload its receipt when direct payment is not possible, with the cash drawn from the bank against a signed voucher and reconciled within 2 working days, so that a client can still pay a school that only takes cash (AS-10). | Should | R1 | 3 | US-FEE-003, US-CASE-006 |
+| US-FEE-006 | As a family supporter (P-15), I want an institution that cannot receive a bank transfer marked plainly as not eligible for direct payment, with no cash route offered, and a runner able to collect an invoice or deliver a receipt in person, so that I know at once which institutions Fidero can pay and no cash ever moves on my behalf (AS-10, RUL-22). | Should | R1 | 3 | US-FEE-001, US-CASE-006 |
 
 Acceptance criteria:
 
@@ -1351,15 +1357,16 @@ Acceptance criteria:
   2. Given no receipt within the configured target `[TO VERIFY]`, when the daily job runs, then the case manager is alerted to chase the institution.
   3. Given a confirmation of enrolment or treatment, when it is uploaded, then it shows with the receipt and never appears in SMS or WhatsApp text (US-NTF-004).
 - **US-FEE-007** (implements FR-FEE-007)
-  1. Given payments for a family member, when I open their statement, then each invoice, payment, receipt and the balance held at the bank appear in date order.
+  1. Given payments for a family member, when I open their statement, then each invoice, payment, receipt and the amount held at the bank appear in date order.
   2. Given a statement, when I download it, then a PDF is produced with its hash stored, as for reports (US-RPT-007).
 - **US-FEE-005** (implements FR-FEE-005)
   1. Given a schedule, when a due date approaches, then I am reminded the configured number of days before and nothing is paid until I approve.
   2. Given I do not approve, when the due date passes, then no payment is made and I am reminded again; silence is never approval (RUL-11).
 - **US-FEE-006** (implements FR-FEE-006)
-  1. Given an institution flagged as cash-only, when a payment is approved, then a voucher for the exact amount is generated, approved by two staff and signed by the runner on collection.
-  2. Given the runner uploads the institution's receipt, when it is matched to the voucher, then the payment shows Paid and the voucher Reconciled.
-  3. Given 2 working days pass without a matching receipt, when the job runs, then a reviewer is alerted and the runner can take no new voucher.
+  1. Given an institution that cannot receive a bank transfer into an account in its own name, when a case manager records this and a reviewer checks it, then it is marked Not eligible for direct payment with the reason, and the client sees: "This institution cannot receive a bank transfer, so Fidero cannot pay it. We never pay in cash."
+  2. Given an institution marked Not eligible, when anyone tries to check, approve or instruct an invoice for it, then it is refused. No cash, voucher or in-person payment option exists anywhere in the product.
+  3. Given a runner task to collect an invoice or deliver a receipt, when it is created and done, then it carries no amount and no money, a collected invoice goes through the normal checks (US-FEE-002), and any attempt to make the runner a payee or name them on a release instruction is refused (RUL-22, US-ESC-015).
+  Note: rewritten for 01 v0.4. The voucher flow is gone; the estimate stays at 3 points for the eligibility state, the client message and the paper-only runner task.
 
 ### EP-CARE: Care visits
 
@@ -1389,6 +1396,9 @@ Acceptance criteria:
   2. Given a confirmation by call, when a case manager records it, then a second staff member must confirm the entry before it counts for payment.
   3. Given confirmed visits in a pay period, when the carer's payment is prepared, then only confirmed visits are included and the instruction follows two-person approval.
   4. Given an unconfirmed visit, when payment is prepared, then it is excluded and shown as awaiting confirmation.
+  5. Given a visit still unconfirmed 72 hours after check-out, when the job runs, then it goes to a reviewer, who decides from the check-in evidence and a call to the family; only a "confirmed" decision makes it payable.
+  6. Given 5 wrong codes for a visit, when a further code is entered, then the code is locked and refused, and the family is offered the app or a call.
+  7. Given an active standing approval for the care plan, when a confirmed visit's payment is prepared within the monthly amount, then no further client approval is asked, but evidence and two staff approvals are still required; above the amount, the client approves that payment (RUL-11).
 - **US-CARE-005** (implements FR-CARE-005)
   1. Given a scheduled visit with no check-in by the end of its window, when the job runs, then the client and the case manager are alerted.
   2. Given a visit submitted but unconfirmed after 24 hours, when the job runs, then the client is alerted and the family member reminded.
@@ -1399,6 +1409,7 @@ Acceptance criteria:
   1. Given a family member with an address, when I save a plan with a frequency and at least one task, then visits are scheduled from the plan and a confirmer is named.
   2. Given a plan change, when I save it, then future visits follow the new version and past visits keep theirs.
   3. Given a plan, when the price is shown, then it is the configured price for the line (Q-20) and I accept the terms before the first visit.
+  4. Given a plan, when I choose, then I can give a standing approval for visit payments up to a stated amount per month, and withdraw it at any time; silence never creates or extends one (RUL-11).
 
 ### EP-PMG: Property management
 
@@ -1407,7 +1418,7 @@ Acceptance criteria:
 | Story | As a … I want … so that … | Priority | Release | Points | Depends on |
 |---|---|---|---|---|---|
 | US-PMG-002 | As a case manager (P-03), I want to record the tenant, the tenancy agreement, the rent and the owner's own account at the partner bank to which rent is paid, so that rent never passes through Fidero (RUL-24). | Must | R2 | 5 | US-ADM-003, US-ESC-003, US-ACC-004b |
-| US-PMG-003 | As a property owner abroad (P-16), I want rent due and received tracked from the bank's statement or confirmation, with an alert when rent is late, so that I know the day rent is late, not when my uncle tells me. | Must | R2 | 5 | US-PMG-002, US-ESC-004 |
+| US-PMG-003 | As a property owner abroad (P-16), I want rent due and received tracked from the bank's statement lines for my rent account only, under my written mandate allowing the bank to share them, with an alert when rent is late, so that I know the day rent is late, not when my uncle tells me. | Must | R2 | 5 | US-PMG-002, US-ESC-004 |
 | US-PMG-005 | As a property owner abroad (P-16), I want the repair money held at the bank and released to the contractor only after an inspection with photos, so that I pay for repairs that were done (RUL-22). | Must | R2 | 5 | US-ESC-010, US-MOB-010, US-ESC-015 |
 | US-PMG-001 | As a property owner abroad (P-16), I want to register my house and have Fidero inspect it and record its condition with photos before management starts, so that there is an agreed starting point for every later repair. | Should | R2 | 5 | US-ACC-012, US-MOB-010, US-CASE-001 |
 | US-PMG-004 | As a tenant (role in 01 C2), I want to report a repair, with Fidero collecting at least two quotes from vetted contractors and the owner approving one, so that repairs get done at a fair price. | Should | R2 | 5 | US-PMG-002, US-BLD-003 |
@@ -1420,9 +1431,10 @@ Acceptance criteria:
   2. Given rent payment details, when they are shown to the tenant, then only the owner's own account at the partner bank is shown, never a Fidero account.
   3. Given an attempt to set a Fidero or staff account as the rent account, when it is saved, then it is refused.
 - **US-PMG-003** (implements FR-PMG-003)
-  1. Given a rent schedule, when the bank's statement or confirmation shows a matching credit to the owner's account, then the rent shows Received.
+  1. Given a rent schedule and the owner's written mandate on file, when the bank's statement lines for that account show a matching credit, then the rent shows Received.
   2. Given no matching credit by the end of the configured grace period, when the job runs, then the owner, the tenant and the case manager are alerted.
   3. Given a manual confirmation, when it is entered, then a second staff member checks it (as in US-ESC-004).
+  4. Given no written mandate on file, when rent matching is due, then it does not start; statement lines for any other account are refused.
 - **US-PMG-005** (implements FR-PMG-005)
   1. Given an approved repair, when the owner's deposit is confirmed by the bank, then the money shows as held against that repair.
   2. Given the work is reported done, when an inspector or field staff member submits app photos and a pass, then a partial release to the contractor's verified account is prepared for two-person approval.
@@ -1459,6 +1471,7 @@ Acceptance criteria:
   1. Given an errand, when a case manager assigns an agent, then only agents on the vetted panel for that country can be chosen.
   2. Given an official fee, when payment is prepared, then the payee must be the agency's verified account (US-ESC-015) and the receipt is required before the step closes.
   3. Given a step, when I mark it done without the receipt or acknowledgement, then it is refused.
+  4. Given a standing approval for the errand, when a step fee within the monthly amount is prepared, then no further client approval is asked, but the receipt and two staff approvals are still required; above the amount, the client approves that fee (RUL-11).
 - **US-TSK-004** (implements FR-TSK-004)
   1. Given an errand with all steps done, when no result document is uploaded, then it cannot be marked Complete.
   2. Given the document is uploaded, when I check it against the checklist, then the errand shows Complete, the client is notified and the agent's fee becomes payable.
@@ -1484,7 +1497,7 @@ Acceptance criteria:
 
 - **US-INS-002** (implements FR-INS-002)
   1. Given a client completes an application, when it is submitted, then it is passed to the insurer in the agreed format and the client sees it as Sent to insurer.
-  2. Given a premium, when the client pays, then the payee is the insurer's verified account and no Fidero account is shown.
+  2. Given a premium, when it is paid, then the route is either the client paying the insurer directly or the bank paying the insurer from money held for that purpose; in both the payee is the insurer's verified account and no Fidero account is shown.
   3. Given the business-rule test suite, when it runs, then a test confirms no route accepts a premium into a Fidero account.
 - **US-INS-003** (implements FR-INS-003)
   1. Given a policy returned by the insurer, when it is stored, then its renewal date and claim contact show on my dashboard.
@@ -1870,12 +1883,12 @@ Likelihood and impact are H (high), M (medium) or L (low). They are assumptions,
 | DR-23 | Country 2 rules, partners or data location are unknown or unfavourable (Q-15, AS-13) | H | M | Country 2 repeats the manual phase first (EN-44) from month 6. EN-45 spike before any configuration. Country configuration waits for G-C2. Ghana is untouched if G-C2 fails | Founder, country 2 lead |
 | DR-24 | The scope statement does not allow buyers or banks to rely on a report (issue I-06) | M | H | Lawyer and insurer review the wording before R2-C. Listings and the partner API stay off until the wording allows them | Founder, with the lawyer |
 | DR-25 | Carer safety and vetting: a carer harms or is harmed in a client's home, or vetting misses a bad record (AS-12, Q-19) | M | H | Vetting standard EN-54 before the first carer. Identity, references, background check and training are blocking items (US-CARE-002). Check-in and check-out proof (US-MOB-012). Same-day concern route to a reviewer (US-CARE-006). Risk screen and two people where the family or area is flagged, reusing RUL-17. Insurance for carers `[TO VERIFY]` | Operations |
-| DR-26 | Institution fraud: a fake invoice, an impersonated institution bank account, or a relative inside the institution | M | H | Institution verified by two staff with the account name checked (US-FEE-001). Payee name match block on every release (US-ESC-015). Invoice confirmed with the named contact (US-FEE-002). Receipt chased within a target (US-FEE-004). The cash path (US-FEE-006) is Should, voucher-based and reconciled within 2 working days | Operations, reviewer |
+| DR-26 | Institution fraud: a fake invoice, an impersonated institution bank account, or a relative inside the institution | M | H | Institution verified by two staff with the account name checked (US-FEE-001). Payee name match block on every release (US-ESC-015). Invoice confirmed with the named contact (US-FEE-002). Receipt chased within a target (US-FEE-004). There is no cash path: an institution that cannot receive a bank transfer is marked not eligible (US-FEE-006) | Operations, reviewer |
 | DR-27 | Insurer licence (C-11): Fidero needs an intermediary licence it does not hold, or no insurer signs (AS-11) | H | M | EN-55 before any EP-INS build. EP-INS planned last, in R2-D. The line stays off by configuration until the licence and agreement exist. No premium ever reaches Fidero (US-INS-002) | Founder, with the lawyer |
 | DR-28 | Country 2 partner dependencies: no bank or escrow agent, no insurer, licensed professionals hard to contract, a land registry process that differs from Ghana's | H | M | Manual phase first (EN-44) proves partners before any software. EN-50 talks from month 6. Entry criteria from the decision record checked at G-C2. The gate can fail without touching Ghana | Country 2 lead |
 | DR-29 | Field capacity outside Accra: care visits, errands and institution checks in Kumasi, Tema and rural areas need runners, carers and agents Fidero does not have | H | M | Lines open area by area as configuration. Vetted panel per area with target times per area in the catalogue (US-TSK-001). R0 data on where clients' families live `[TO VERIFY]`. Partner agencies where the panel is thin | Operations |
 | DR-30 | Team stretch across two countries: the founder, operations and one engineering team serve Ghana and country 2 at once from month 6 | H | H | Country 2 lead owns the manual phase (EN-47). Country as configuration keeps engineering to one codebase. No country 2 software before G-C2. Monthly steering reviews the stretch and can pause country 2 | Founder |
-| DR-31 | Runner cash path (FR-FEE-006) conflicts with "Fidero never holds client money" (C-01), or the bank refuses vouchers | M | M | Lawyer's and bank's view before US-FEE-006 is built (issue I-18). The story is Should and sits low on the cut line. Direct payment is the default | Founder, with the lawyer |
+| DR-31 | Institutions not eligible for direct payment reduce the line's reach (AS-10, FR-FEE-006). The runner cash path was removed in 01 v0.4 | M | M | No cash route by design. Ask the largest schools and hospitals to accept transfers first. Track the share of requested institutions marked not eligible each month (US-FEE-006) and report it at gate G1 | Founder, with operations |
 | DR-32 | Property management or errand work needs a licence (Q-18, Act 1047) | M | M | EN-56 before EP-PMG and EP-TSK go live. Both behind a switch. Property management may run through a licensed agency partner if needed | Founder, with the lawyer |
 | DR-33 | Must-on-Should dependencies in 01 version 0.3 (FR-FEE-007 on FR-ACC-012, FR-CTY-003 on FR-ANL-001, FR-PMG-005 on FR-PMG-004, FR-TSK-002 on FR-TSK-001, FR-INS-002 on FR-INS-001) | H | L | This plan pulls US-ANL-001 into the R1 Must plan and builds the minimum the Must needs for the others. Issue I-19 asks the product owner for a priority decision | Engineering lead |
 | DR-34 | Recurring lines create daily operations load (invoice checks, receipt chasing, visit confirmations) that the Accra team cannot absorb while running land cases | M | M | Operations headcount in the budget `[TO VERIFY]`. Automation first: institution contacts confirm in the portal (US-ACC-011), family confirms by one tap (US-CARE-004), alerts not spreadsheets (US-CARE-005, US-PMG-003). Metrics in A9 watched fortnightly | Operations |
@@ -2011,7 +2024,7 @@ Stories whose source in 01 is a business rule, constraint or assumption rather t
 | RUL-19 | US-BLD-008 |
 | RUL-20 | US-ACC-005, US-RPT-005 |
 | RUL-21 | US-PRJ-003 |
-| RUL-22 | US-ESC-015, US-EVT-002, US-FEE-001, US-FEE-003, US-PMG-005, US-TSK-003 |
+| RUL-22 | US-ESC-015, US-EVT-002, US-FEE-001, US-FEE-003, US-FEE-006, US-PMG-005, US-TSK-003 |
 | RUL-23 | US-CARE-003, US-CARE-004, US-MOB-012, US-TSK-003, US-TSK-004 |
 | RUL-24 | US-PMG-002 |
 | RUL-25 | US-INS-001, US-INS-002, US-INS-004 |
@@ -2032,7 +2045,9 @@ These were found while building the backlog against 01 version 0.3. Document 01 
 | I-12 | R3 gate did not mention the second country's manual phase | B4 R3 row now needs "country 2 day-90 gate passed and its software live". C-13 makes the rule general |
 | I-14 | Accessibility NFR shared the code ACC with accounts | The NFR is now NFR-A11Y-01 |
 
-### 14.2 Open
+### 14.2 Open, and resolved by 01 version 0.4
+
+Items resolved by 01 version 0.4 stay in this table, marked resolved, so their numbers remain traceable.
 
 | ID | Where in 01 | Issue | Effect on this plan | Proposed fix |
 |---|---|---|---|---|
@@ -2046,16 +2061,16 @@ These were found while building the backlog against 01 version 0.3. Document 01 
 | I-15 | B4 R1 row, AS-02, BO-03 | Gate G1 needs 50 escrows by month 9, but the bank may only sign by month 6. 01 does not say whether escrows run at the bank before the tracker goes live count, or how they are tracked | Gate G1 may be judged on unclear numbers | State that escrows count from the bank's records, tracked manually until US-ESC-004 is live |
 | I-16 | FR-LST-010 | The FR includes a performance target (3 seconds on 3G), which belongs in the NFRs | Tested twice under two IDs | Move the target to an NFR and keep FR-LST-010 for indexing |
 | I-17 | FR-CTY-002, FR-CTY-004, releases table, B4 | Country 2 software is "from month 12 if its gate passes", which is the middle of R2 (months 9 to 18), but FR-CTY-002 and FR-CTY-004 only say "R2". Nothing says they are needed by month 12 | This plan puts them in R2-B (months 10 to 13) with EN-59 | Say "R2, by month 12" on the two FRs, or add the date to BO-08 |
-| I-18 | FR-FEE-006, C-01, RUL-01, RUL-22, AS-10 | The runner draws cash from the bank against a voucher and pays the institution in person. Cash in a Fidero runner's hands is close to Fidero holding client money, and RUL-22 says money goes only to an account in the payee's name | US-FEE-006 is Should and planned after the direct path. DR-31 | Lawyer and bank confirm the cash path is allowed, or withdraw FR-FEE-006 and change AS-10's fallback |
-| I-19 | FR-FEE-007 and FR-ACC-012; FR-CTY-003 and FR-ANL-001; FR-PMG-005 and FR-PMG-004; FR-TSK-002 and FR-TSK-001; FR-INS-002 and FR-INS-001 | Must requirements depend on Should or Could requirements | US-ANL-001 is pulled into the R1 Must plan (8 points). The other Musts are built with the minimum they need. DR-33 | For each pair, make the dependency a Must or the dependent a Should |
-| I-20 | FR-MOB-001, FR-MOB-010, FR-MOB-012, C1 | FR-MOB-001 lets contractors, inspectors, runners and surveyors sign in to the app. Carers and errand agents are not listed, yet FR-MOB-010 and FR-MOB-012 need them in the app and C1 names them as field app users | US-MOB-001 acceptance in document 05 should cover carers and agents | Add carers and errand agents to FR-MOB-001 |
-| I-21 | FR-PMG-003, RUL-24, IF-01, AS-03 | Rent is paid to the owner's own account, not to an escrow. Tracking it "from the bank's statement" needs the owner's consent and the bank to share that account's statement, which IF-01 and AS-03 do not cover | US-PMG-003 falls back to manual confirmation with a second check | Add the owner's account statement, with consent, to IF-01 or an assumption, and say so in FR-PMG-003 |
+| I-18 | FR-FEE-006, C-01, RUL-01, RUL-22, AS-10 | The runner draws cash from the bank against a voucher and pays the institution in person. Cash in a Fidero runner's hands is close to Fidero holding client money, and RUL-22 says money goes only to an account in the payee's name | US-FEE-006 is Should and planned after the direct path. DR-31 | **Resolved by 01 v0.4.** FR-FEE-006 removes the cash route: an institution that cannot receive a bank transfer is marked not eligible for direct payment, and a runner may only collect the invoice and deliver the receipt. AS-10's fallback changed to match. US-FEE-006 and DR-31 rewritten |
+| I-19 | FR-FEE-007 and FR-ACC-012; FR-CTY-003 and FR-ANL-001; FR-PMG-005 and FR-PMG-004; FR-TSK-002 and FR-TSK-001; FR-INS-002 and FR-INS-001 | Must requirements depend on Should or Could requirements | US-ANL-001 is pulled into the R1 Must plan (8 points). The other Musts are built with the minimum they need. DR-33 | **Partly resolved by 01 v0.4.** The new priority note says a Must inside a Should or Could feature is required only if that feature ships, and then blocks the feature, not the release. That covers the PMG, TSK and INS pairs. FR-FEE-007 with FR-ACC-012 and FR-CTY-003 with FR-ANL-001 cross features and stay open |
+| I-20 | FR-MOB-001, FR-MOB-010, FR-MOB-012, C1 | FR-MOB-001 lets contractors, inspectors, runners and surveyors sign in to the app. Carers and errand agents are not listed, yet FR-MOB-010 and FR-MOB-012 need them in the app and C1 names them as field app users | US-MOB-001 acceptance in document 05 should cover carers and agents | **Resolved by 01 v0.4.** FR-MOB-001 now lists carers and errand agents, and the module is renamed Field app (MOB). US-MOB-001 updated |
+| I-21 | FR-PMG-003, RUL-24, IF-01, AS-03 | Rent is paid to the owner's own account, not to an escrow. Tracking it "from the bank's statement" needs the owner's consent and the bank to share that account's statement, which IF-01 and AS-03 do not cover | US-PMG-003 falls back to manual confirmation with a second check | **Resolved by 01 v0.4.** FR-PMG-003 now reads the bank's statement lines for that account only, under the owner's written mandate. US-PMG-003 updated. Whether the bank will share lines stays a delivery risk (DR-02) |
 | I-22 | C-04, Q-18, FR-PMG | C-04 covers listing and brokering under Act 1047. Property management may also fall under the Act, but C-04 and the R2 gate do not mention it | EN-56; EP-PMG behind a switch. DR-32 | Extend C-04 to property management once the lawyer answers Q-18 |
-| I-23 | FR-INS-002, C-11, AS-11, B4 | FR-INS-002 is Must R2, but the whole line depends on a licence Fidero may not hold (C-11 `[TO VERIFY]`) and on an insurer signing (AS-11). A Must cannot depend on an unresolved constraint | EP-INS planned last in R2-D behind EN-55. DR-27 | Make the EP-INS Musts conditional on C-11 in B4, or set the line to Should |
+| I-23 | FR-INS-002, C-11, AS-11, B4 | FR-INS-002 is Must R2, but the whole line depends on a licence Fidero may not hold (C-11 `[TO VERIFY]`) and on an insurer signing (AS-11). A Must cannot depend on an unresolved constraint | EP-INS planned last in R2-D behind EN-55. DR-27 | **Resolved by 01 v0.4.** Under the new priority note, FR-INS-002 is required only if F-33 (Could) ships, so EP-INS stays off by configuration without blocking R2. FR-INS-002 also now names the two premium routes |
 | I-24 | A4, C4.1, C4.7, C4.9, C4.28 | New IDs are inserted out of numeric order: BR-17 to BR-22 before BR-15; FR-ACC-012 before FR-ACC-009; FR-ESC-014 and FR-ESC-015 before FR-ESC-011; FR-MOB-012 before FR-MOB-011; FR-CTY-004 before FR-CTY-002 | Readers may miss them. No effect on the backlog | Sort the tables by ID in the next version |
 | I-25 | A9, FR-FEE-004 | A9 asks for the share of institution payments "with receipt returned within target", but no target is set anywhere | US-FEE-004 uses a configured target `[TO VERIFY]` | Add the target to FR-FEE-004 or to the configurable values in FR-ADM-005 |
-| I-26 | B5 F-35, FR-ACC-012, C4.19 | F-35 (unified home dashboard, Should R1) maps to ACC and ANL, but only FR-ACC-012 implements it. FR-ANL has no client-facing requirement | US-ACC-012 carries the whole feature | Map F-35 to ACC only, or add a client dashboard FR under ANL |
+| I-26 | B5 F-35, FR-ACC-012, C4.19 | F-35 (unified home dashboard, Should R1) maps to ACC and ANL, but only FR-ACC-012 implements it. FR-ANL has no client-facing requirement | US-ACC-012 carries the whole feature | **Resolved by 01 v0.4.** F-35 now maps to ACC only |
 | I-27 | FR-CARE-004, FR-ESC-010, FR-ESC-014, C5.1 | Carers are paid "only for confirmed visits", but 01 does not say where the money is held before payment or how often carers are paid. The Care plan and visit entity has no payment fields | US-CARE-004 assumes a configured pay period and a release from the held balance (FR-ESC-014) | State the carer payment cycle and the held-balance source in FR-CARE-004 |
 | I-28 | B4 R2 row, BO-09 | The R2 finish gate adds "40% of clients with a recurring line", but the R2 start gate does not require the fees line (R1) to have run. If EP-FEE slips to S13 or later, the 40% target has little time | M-26 at month 9 is on the critical path for G2 | Add "fees to institutions live" to the R1 finish gate |
 
-**Note on other documents.** `docs/proposal.md` (section 3) says escrow release keeps "one human approval". 01 (RUL-05) requires two Fidero staff. This plan follows 01. The proposal and the business plan doc should be aligned. Documents 02, 03, 05 and 06 were written against 01 version 0.1 and need the same update as this one: the new modules, roles, state (Client approved, held balance), country configuration from R1, and the new test cases for RUL-22 to RUL-25.
+**Note on other documents.** `docs/proposal.md` (section 3) says escrow release keeps "one human approval". 01 (RUL-05) requires two Fidero staff. This plan follows 01. The proposal and the business plan doc should be aligned. Documents 02, 03, 05 and 06 are aligned to 01 version 0.4, as this one is.
