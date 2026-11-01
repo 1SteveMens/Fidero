@@ -1131,7 +1131,7 @@ CREATE TABLE acc_role_grant (
   approval_request_id uuid REFERENCES core_approval_request(id),  -- required when release_rights
   valid_from  timestamptz NOT NULL DEFAULT now(),
   valid_to    timestamptz,
-  CHECK (NOT release_rights OR role = 'reviewer'),  -- 01 C2: case managers cannot approve a release
+  CHECK (NOT release_rights OR role = 'reviewer'),  -- 01 C2: case managers cannot approve; senior staff named by the founder get a reviewer grant
   CHECK (NOT release_rights OR approval_request_id IS NOT NULL),
   CHECK (role NOT IN ('family_member','institution_contact','carer','errand_agent','tenant','insurer_partner')
          OR scope_id IS NOT NULL)                   -- these roles are always scoped
