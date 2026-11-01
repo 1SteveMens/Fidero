@@ -1,6 +1,6 @@
 # Proposed architecture
 
-This is a proposal for the Fidero product. Nothing here is built. The manual service runs first with documents, spreadsheets and messaging. Software is added in the order the roadmap needs it: client portal and report workflow in months 3-9, escrow status in months 3-9, milestone photo app in months 9-18.
+This is the early architecture proposal. The detailed design is in `docs/specs/02-architecture-and-technical-design.md`, which supersedes this document where they differ. Nothing here is built. The manual service runs first with documents, spreadsheets and messaging. Software is added in the order the roadmap needs it: client portal and report workflow in months 3-9, escrow status in months 3-9, milestone photo app in months 9-18.
 
 Principles:
 
@@ -22,6 +22,10 @@ Principles:
 | Partner API | Bank and developer collateral checks | 3 |
 | Verified listings (web) | Sellers list verified plots and properties; buyers browse, see the full report and buy through escrow | 3 |
 | Overlay and satellite checks | Map layers checked as soon as coordinates are entered; alerts when new structures appear on a listed plot | 2 |
+| Payments to institutions | Verified schools, hospitals and agencies paid direct from the bank against an invoice; receipt returned | 2 |
+| Care visits, property management, errands | Care plans, check-in and check-out, tenancies and rent matching, repair quotes, errand catalogue and progress, all on the same case and release engine | 3 |
+| Insurer partner lines | Applications passed to the insurer; premiums paid to the insurer; policy wallet | 3 |
+| Country configuration | Templates, scope statement, overlay layers, currency, partners, licence bodies, legal texts, holiday calendar and data location per country | 2 |
 
 ## 2. Client portal
 
@@ -78,9 +82,9 @@ Integration options, in order of preference:
 
 Release is a two-person action at Fidero and is recorded with both names. The client sees every condition and its status.
 
-## 5. Milestone photo app
+## 5. Field app (milestone photo app)
 
-Users: contractors, inspectors and Fidero field staff. Android first `[TO VERIFY]` the share of iPhone users among contractors.
+Users: contractors, inspectors, Fidero field staff, and from phase 3 carers and errand agents, who use the same check-in, evidence and task features. Android first `[TO VERIFY]` the share of iPhone users among contractors.
 
 Requirements:
 
@@ -114,11 +118,12 @@ Flagged evidence goes to a Fidero reviewer before the inspector visit.
 
 Every product line runs on the same three parts: a case that verifies an asset or the people involved, an escrow with release conditions, and a milestone schedule with evidence. A new line is a new case template, a new condition set and a new milestone schedule, not new software.
 
-Main entities: client, seller, listing, asset (a plot, a building or an off-plan unit), project (a construction or a funded project with its budget), supplier, plot, report case, report section, evidence, escrow, condition, project, milestone, submission, inspection, defect, contractor, inspector, professional, audit event.
+Main entities: country, client, family member, seller, listing, asset (a plot, a building or an off-plan unit), project (a construction or a funded project with its budget), supplier, institution, institution payment, care plan, visit, carer, managed property, tenancy, repair, errand, policy, event, report case, report section, evidence, escrow, condition, milestone, submission, inspection, defect, contractor, inspector, professional, payee, audit event.
 
 - One backend, one database. Keep it boring: a relational database and a web framework the team knows.
 - All actions go through the API and are written to an audit log that cannot be edited by application users.
-- Roles: client, Fidero staff, Fidero reviewer, lawyer, surveyor, runner, contractor, inspector, partner. Each sees only the cases or projects assigned to them.
+- Roles: client, family member, Fidero staff, Fidero reviewer, lawyer, surveyor, runner, contractor, inspector, carer, errand agent, institution contact, tenant, insurer, partner. Each sees only the cases or projects assigned to them.
+- Every release goes to a verified payee: an institution, supplier, vendor or professional with a bank account in that name. There is no path to pay a relative.
 
 ## 8. Partner API
 
@@ -153,8 +158,8 @@ Measures:
 
 ## 11. Build order
 
-1. Phase 2 (months 3-9): core API, report workflow, evidence store, client portal with report status and download, escrow tracker with manual entry.
-2. Phase 3 (months 9-18): milestone photo app, inspector mode, build dashboard, bank statement or API integration, partner API, verified listings for developers.
-3. Phase 4 (months 18-36): traditional authority records module, family and stool listings, materials ordering, multi-country support for the Nigeria pilot.
+1. Phase 2 (months 3-9): core API with country configuration, report workflow, evidence store, client portal with report status and download, escrow tracker with manual entry, payments to institutions.
+2. Phase 3 (months 9-18): field app with inspector and carer modes, build dashboard, bank statement or API integration, partner API, verified listings for developers, property management, care visits, errands, insurer partner lines, country 2 localisation.
+3. Phase 4 (months 18-36): events, traditional authority records module, family and stool listings, materials ordering, country 3.
 
 Team for phase 2: one product and engineering lead plus one or two developers `[TO VERIFY]` against the budget in `docs/proposal.md`.

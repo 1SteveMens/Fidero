@@ -1,6 +1,6 @@
 # Partners and first asks
 
-Fidero depends on partners for money handling, legal work, surveying, building, distribution and insurance. This page lists each partner type, why Fidero needs them, what they get, and the first ask.
+Fidero depends on partners for money handling, legal work, surveying, building, institutions that receive payments, care, insurance and distribution. This page lists each partner type, why Fidero needs them, what they get, and the first ask.
 
 All figures are assumptions. Unknown numbers are `[TO VERIFY]`.
 
@@ -80,6 +80,12 @@ All figures are assumptions. Unknown numbers are `[TO VERIFY]`.
 
 ## 8. Partners for the product lines beyond land
 
+- **Schools, hospitals, clinics and pharmacies.** Receive payments direct from the partner bank against an invoice or student reference and return a receipt. First ask: a named finance contact, the institution's bank account details in its own name, and agreement to confirm enrolment or treatment to the paying client. Start with the institutions existing clients already pay. Phase 2.
+- **Government agencies.** Passport office, National Identification Authority, Lands Commission client service, Registrar General, Ghana Revenue Authority. Fidero's agents pay official fees and lodge applications. First ask: confirmation of the fee schedule, accepted payment methods and a receipt format. Phase 3.
+- **Carers and home-care agencies.** Visit elderly or unwell relatives under a care plan. First ask: a vetting standard (identity, references, background check, basic training), a per-visit fee `[TO VERIFY]`, and acceptance of check-in and family confirmation as the basis for payment. Phase 3.
+- **Insurers.** Health and funeral cover for relatives at home, sold as the insurer's own policy. First ask: a referral or intermediary agreement, premium paid straight to the insurer, policy documents and claim status returned to Fidero. Candidates in Ghana: Enterprise Life (AkwantuPa), others `[TO VERIFY]`. Phase 3.
+- **Property managers and letting agents.** Where Fidero does not manage a property itself. First ask: rent paid to the owner's own bank account, periodic inspection with photos, repairs through Fidero's quote and inspection process. Phase 3.
+
 - **Structural engineers and building inspectors.** Inspect existing buildings before purchase. First ask: a per-inspection fee [TO VERIFY] and a standard inspection report. Phase 2.
 - **Developers.** Sell off-plan homes with stage payments held in escrow, and list verified units. First ask: a pilot estate with escrowed stage payments. Phase 3.
 - **Suppliers.** Paid directly for project funds and construction materials. First ask: accept direct payment against invoices and deliver to site with proof of delivery. Phase 3.
@@ -90,6 +96,8 @@ All figures are assumptions. Unknown numbers are `[TO VERIFY]`.
 - **Lands Commission.** Formal access to searches or data `[TO VERIFY]`. Approach once volumes justify it.
 - **Materials suppliers.** Bulk supply at a margin of 3-7% (assumption). Approach in phase 3.
 - **Mortgage lenders and developers.** Collateral checks and clean-title land. Approach with the first bank contract in phase 3.
+- **Country 2 partners.** A bank or licensed escrow agent, a law firm, licensed surveyors, an insurer and diaspora associations in the second country, assumed to be Nigeria `[TO VERIFY]`. Approach from month 6 with the Ghana numbers.
+- **Event vendors and freight forwarders.** For events and relocation in phase 4.
 
 ## Partner tracker
 

@@ -4,13 +4,17 @@ Status: working draft. Every figure in this document is an assumption unless mar
 
 ## 1. Executive summary
 
-Fidero is a land verification, escrow and construction management platform for Ghana. It serves Ghanaians abroad first, then local buyers, banks and developers.
+Fidero is the trusted agent at home for people abroad. Anyone in the diaspora who needs something done in their home country, from buying a plot to paying a parent's hospital bill, can have it checked, paid against proof and shown to them. Ghana is the launch market. Land verification is the launch product. The redefinition from a land platform to a diaspora platform is recorded in `docs/decisions/2026-11-01-diaspora-platform.md`.
 
-The product is one pipeline with three steps. Verify a plot before money changes hands. Hold purchase money in escrow until conditions are met. Build with vetted contractors, paying only at inspected milestones.
+Every line runs on one engine. Verify the asset or the people. A licensed bank or escrow agent holds the money. Release it only against evidence, and only to a verified institution, supplier, vendor or professional, never as cash to a relative. Show the client every step.
 
-Verification starts as a manual service run by a lawyer, a licensed surveyor and a field runner. That means revenue from month one and no software risk at launch. Escrow and construction management follow once the service has a client base.
+Three product families: Property (land, buildings, construction, off-plan homes, verified listings, property management), Family (payments direct to schools and hospitals, care visits, health and funeral cover through insurer partners), and Projects and errands (project funds, paperwork and errands, events).
 
-The pre-seed ask is $400k (assumption) for 18 months. Illustrative year 3 revenue is about $1.9M a year (assumption), mostly in hard currency.
+Verification starts as a manual service run by a lawyer, a licensed surveyor and a field runner. That means revenue from month one and no software risk at launch. Payments to institutions join in the first software release because they are simple and recurring. The other lines follow once the field team and the bank partnership exist.
+
+Ghana first. A second country starts its manual phase from about month 6 and runs its own 90-day validation. Country is configuration in the software from the first release.
+
+The pre-seed ask is $400k (assumption) for 18 months `[TO VERIFY]` against the wider scope. Illustrative year 3 revenue is `[TO VERIFY]`, to be rebuilt from the validation numbers and the new lines.
 
 ## 2. Problem
 
@@ -29,13 +33,33 @@ Most land is held under customary ownership by stools, skins and families. Recor
 
 Ghanaians abroad send roughly $4-5B a year home (assumption, source `[TO VERIFY]`). Much of it goes to land and building. A buyer abroad cannot visit the site, check the records or watch the builder. Money sent to relatives or contractors is often diverted. Projects stall for years. Houses are built on plots the buyer never owned.
 
+### Everything else sent home
+
+The same problem applies to the rest of what the diaspora pays for. In rough order of demand:
+
+| Need | Pain today | Who already does it |
+|---|---|---|
+| Family upkeep | Cheap transfer exists. Did the money go where it was meant to? | Every remittance company |
+| Healthcare for parents | Emergencies arrive by WhatsApp with no bill | Susu (Francophone), Fleri (Accra) |
+| School fees | Paid through a relative, not to the school | Flutterwave pay-to-school |
+| Funerals | Largest sudden cost | Enterprise Life AkwantuPa, Diaspora Insurance |
+| Land, houses, building | Fraud, double sales, diverted money | Fidero. No scaled player |
+| Business and projects | Cash to a relative with no accountability | Almost nobody |
+| Paperwork at home | Needs a trusted person physically present | Informal fixers |
+| Property management | Relatives living rent-free, repairs never done | Small agents, informal |
+| Elder care | No trusted provider, no proof of visits | Fragmented |
+| Events and ceremonies | Budget blows up, no receipts | Nobody |
+| Returning home, shipping | Customs, duty, fraud at the port | Freight forwarders |
+
+Each existing player fixes one vertical. Nobody is the trusted operator for everything a person abroad needs done at home.
+
 ### Why it is not solved
 
-Lawyers and surveyors exist, but a buyer abroad has no way to find trustworthy ones, no single report that pulls every check together, and no way to tie payment to proof. Banks run collateral checks slowly and by hand. No one holds the construction money in a neutral place.
+Lawyers and surveyors exist, but a buyer abroad has no way to find trustworthy ones, no single report that pulls every check together, and no way to tie payment to proof. Banks run collateral checks slowly and by hand. No one holds the construction money in a neutral place. For school fees, hospital bills, care and errands, the only option is a relative.
 
 ## 3. Solution
 
-Fidero sells trust at three points where money is at risk.
+Fidero sells trust wherever money sent home is at risk. The engine is the same for every line: verify, hold, release against evidence, show. Land is described first because it is the launch product.
 
 ### Verify
 
@@ -61,28 +85,38 @@ Fidero vets contractors. A quantity surveyor produces a bill of quantities. Paym
 
 Over time Fidero digitises allocation records with traditional authorities under a revenue share. This makes future verifications faster and gives the authorities a clean register.
 
-### Product lines beyond land
+### Product families
 
-Fidero is not limited to land. Every line uses the same engine: verify, hold, release. Each line reuses the same field team, escrow partner and evidence app.
+Fidero is not limited to land. Every line uses the same engine: verify, hold, release. Each line reuses the same field team, escrow partner and evidence app. A new line is a new case template, condition set and schedule, not new software.
 
 | Line | What Fidero verifies | What releases the money | Phase |
 |---|---|---|---|
-| Land | Searches, survey, overlays, seller authority and consent | Report conditions met and indenture signed | 1 |
+| **Property.** Land | Searches, survey, overlays, seller authority and consent | Report conditions met and indenture signed | 1 |
 | Existing buildings: houses, apartments, commercial property | The land checks, plus building permit, structural inspection, occupants and tenancies, unpaid property rates and utility bills | Report conditions met, transfer documents signed, keys and vacant possession handed over | 2 |
 | Construction on the buyer's own plot | Contractor vetting and the bill of quantities | Inspected milestones | 3 |
 | Off-plan homes from developers | The developer's title to the estate land, permits, company registration and track record | Construction stages confirmed by app evidence and an inspector | 3 |
-| Project funds: businesses, renovations, farms, family and community projects | The budget, the person running the project, and the suppliers | Suppliers paid directly against invoices, each stage confirmed by receipts, photos and visits | 3 |
-| Later candidates: vehicles, equipment, buying a business | Demand `[TO VERIFY]` | To be designed | 4 |
+| Verified listings | Plot or property verified once, badge with date | Fresh search, then escrow | 3 |
+| Property management | Tenant, agreement, condition of the property | Rent paid by the tenant to the owner's own account; repairs paid against quotes, photos and inspection | 3 |
+| **Family.** Fees to institutions: schools, hospitals, clinics, pharmacies, agencies | The institution, its bank account in its own name, the invoice | Paid direct to the institution against the invoice, receipt returned to the client | 2 |
+| Care visits to a parent or relative | The carer and the care plan | Visit confirmed by geotagged check-in, photos and the family's confirmation | 3 |
+| Health and funeral cover | The licensed insurer and the policy | Premiums paid to the insurer, claims paid by the insurer. Fidero holds no risk | 3 |
+| **Projects and errands.** Project funds: businesses, renovations, farms, family and community projects | The budget, the person running the project, and the suppliers | Suppliers paid directly against invoices, each stage confirmed by receipts, photos and visits | 3 |
+| Paperwork and errands: identity documents, passports, title steps, probate, company registration, tax, utilities | The agency, the vetted agent, the document checklist | Official fees paid to the agency; completion confirmed by the resulting document | 3 |
+| Events and ceremonies: funerals, weddings, outdoorings | Vendors and the budget | Vendors paid against invoices and delivery evidence | 4 |
+| **Later.** Relocation and shipping, vehicles, equipment, buying a business, investing | Demand `[TO VERIFY]` | To be designed | 4 or later |
 
-Project funds are the widest new line. Money sent to a relative for a business, farm or renovation is often diverted, just like construction money. Fidero pays suppliers directly against invoices and confirms each stage. It does not advise on whether a project or property is a good investment and does not guarantee returns.
+Rules for every line. Money goes only to a verified institution, supplier, vendor or professional with a bank account in that name, never as cash to a relative. Fidero confirms the money was spent as agreed. It does not advise on whether a project, property or investment is a good idea and does not guarantee returns. Lines that need a licence Fidero does not hold run through licensed partners: insurance through insurers, cross-border transfer through payment providers, listings through a licensed agent if Act 1047 requires it.
 
-Each line opens only after the previous phase passes its gate. Pricing for the new lines is `[TO VERIFY]`.
+Fees to institutions open early because they are simple, recurring and low-risk, and they create monthly contact with clients who would otherwise return once every few years for a plot. The other lines open after the field team and the bank partnership exist. Each line opens only after the previous phase passes its gate. Pricing for the new lines is `[TO VERIFY]`.
 
 Regulation to check for the wider lines:
 
 - Verified listings of plots and buildings, or brokering their sale, may bring Fidero under the Real Estate Agency Act 2020 (Act 1047). Whether a licence is needed is `[TO VERIFY]`.
 - Project funds stay with the licensed partner bank. Anti-money laundering checks are stricter, because the money is not tied to one asset.
 - Professional indemnity cover must be extended to building inspections and project funds `[TO VERIFY]`.
+- Selling insurer partners' policies may need an intermediary licence `[TO VERIFY]`.
+- Property management and errand work may need a licence in some countries `[TO VERIFY]`.
+- Care visits involve vulnerable people. Carers are vetted, insured `[TO VERIFY]` and never left as the only contact.
 
 ### Verified listings
 
@@ -127,13 +161,14 @@ Listings add a second source of revenue. Sellers pay a listing fee and a success
 ### Segments
 
 1. **Diaspora buyers and home builders.** UK, US, Canada, Germany, Netherlands. They have hard currency, high stakes and no way to check the ground. First target.
-2. **Local professionals.** Salaried buyers in Accra, Kumasi and other cities who want a plot checked before paying.
-3. **Banks and mortgage lenders.** They need collateral checks on land offered as security. Sold as an API or a batch service.
-4. **Developers.** They need clean title on the land they build on and a trusted channel to diaspora buyers.
+2. **Diaspora family supporters.** The same people, and many more, who pay school fees and hospital bills, look after parents and own a house at home. The recurring lines are sold to them from the first software release.
+3. **Local professionals.** Salaried buyers in Accra, Kumasi and other cities who want a plot checked before paying.
+4. **Banks and mortgage lenders.** They need collateral checks on land offered as security. Sold as an API or a batch service.
+5. **Developers, schools, hospitals and insurers.** They want a trusted channel to diaspora money.
 
 ### Size
 
-Diaspora remittances to Ghana: roughly $4-5B a year (assumption). Share going to land and building: `[TO VERIFY]`. Number of land transactions a year: `[TO VERIFY]`. Number of diaspora construction projects a year: `[TO VERIFY]`. These numbers are needed before the market size can be stated with confidence.
+Diaspora remittances to Ghana: about $7.8B in 2025 and to Nigeria about $21.8B, per press reports of central bank figures `[TO VERIFY]`. Sub-Saharan Africa as a whole received about $56B in 2024 `[TO VERIFY]`. Share going to land and building: `[TO VERIFY]`. Number of land transactions a year: `[TO VERIFY]`. Number of diaspora construction projects a year: `[TO VERIFY]`. These numbers are needed before the market size can be stated with confidence.
 
 ### Why they buy
 
@@ -141,7 +176,7 @@ A verification report costs a small fraction of a plot. Losing the plot costs ev
 
 ### Expansion beyond Ghana
 
-Fidero starts in Ghana and extends to other countries where the same three problems exist: customary or poorly recorded land ownership, a large diaspora sending money home for land and building, and no neutral party tying payment to proof. The first expansion market is Nigeria, as a pilot in months 18-36. Further markets are `[TO VERIFY]`.
+Fidero starts in Ghana and extends to other countries where the same problems exist: a large diaspora sending money home, poorly recorded land ownership, and no neutral party tying payment to proof. A second country starts its manual phase from about month 6, once Ghana has passed its day-90 gate, and its software opens from about month 12 if its own gate passes. A third country starts its manual phase in months 9-18. The assumed order is Ghana, Nigeria, Kenya `[TO VERIFY]`. Country is configuration in the software from the first release, so opening a country is a field and partner exercise, not a software project.
 
 A country qualifies for entry when it meets all of these criteria:
 
@@ -151,7 +186,7 @@ A country qualifies for entry when it meets all of these criteria:
 4. A partner bank willing to run escrow and a professional indemnity insurer willing to cover reports.
 5. Field safety conditions that allow site visits under Fidero's safety rules.
 
-Each new country repeats phase 1: a manual verification service with local professionals, a country-specific report template and scope statement, and a 90-day validation before any software is localised. Ghana must have passed its construction gate before the first expansion market opens.
+Each new country repeats phase 1: a manual verification service with local professionals, a country-specific report template and scope statement, and a 90-day validation before any software is localised. Ghana must have passed its day-90 gate before the second country's manual phase starts.
 
 ## 5. Business model and pricing
 
@@ -168,6 +203,12 @@ All prices are assumptions to be tested in the first 90 days. See `docs/validati
 | Materials margin | 3-7% | On bulk materials bought for the build |
 | Bank and developer API checks | `[TO VERIFY]` per check | Volume pricing |
 | Extra inspections | $50-100 each | Beyond the standard milestone inspections |
+| Payment to an institution | Flat fee per payment or a monthly plan `[TO VERIFY]` | School fees, hospital bills, agency fees |
+| Care visits | Per visit or a monthly plan `[TO VERIFY]` | Carer paid from it for confirmed visits |
+| Property management | Share of rent `[TO VERIFY]` plus a repair management fee | Rent itself goes to the owner's account |
+| Paperwork and errands | Per errand `[TO VERIFY]` | Official fees passed through at cost |
+| Insurer partner lines | Commission from the insurer `[TO VERIFY]` | Fidero holds no risk |
+| Events | Share of budget `[TO VERIFY]` | Vendors paid against evidence |
 | Verified listing, paid by the seller | `[TO VERIFY]` per plot, unit or estate | From month 9, developers first |
 | Success fee on a listed sale, paid by the seller | `[TO VERIFY]` | Charged when escrow releases |
 | Traditional authority records | Revenue share `[TO VERIFY]` | Later phase |
@@ -185,7 +226,7 @@ All prices are assumptions to be tested in the first 90 days. See `docs/validati
 
 ### Illustrative year 3 (assumption)
 
-About $1.9M a year, mostly in hard currency. The mix assumed is verification plus escrow on a share of verified plots, plus construction management on a smaller share. The underlying volumes are `[TO VERIFY]` and should be rebuilt from the 90-day validation numbers.
+`[TO VERIFY]`. The earlier land-only figure of about $1.9M a year assumed verification plus escrow on a share of verified plots and construction management on a smaller share. The family lines add many small recurring fees, and the second country adds a second market. The figure should be rebuilt from the 90-day validation numbers and the first six months of institution payments.
 
 ## 6. Go-to-market and roadmap
 
@@ -201,10 +242,10 @@ About $1.9M a year, mostly in hard currency. The mix assumed is verification plu
 
 | Phase | Months | Goal | Target |
 |---|---|---|---|
-| Manual service | 0-3 | Launch verification with a lawyer, a surveyor and a runner | 50 paid reports |
-| Escrow and portal | 3-9 | Sign an escrow partner bank, launch the client portal | 300 reports, 50 escrows |
-| Construction | 9-18 | Launch construction management, the milestone photo app and verified listings for developers | 40 active builds, one bank contract |
-| Scale | 18-36 | Traditional authority records, family and stool listings, bulk materials, Nigeria pilot | `[TO VERIFY]` |
+| Manual service | 0-3 | Launch verification with a lawyer, a surveyor and a runner. Pay institutions by hand for existing clients | 50 paid reports |
+| Escrow and portal | 3-9 | Sign an escrow partner bank, launch the client portal, payments direct to institutions, country as configuration. Country 2 manual phase starts at month 6 | 300 reports, 50 escrows, `[TO VERIFY]` institution payments |
+| Construction and family | 9-18 | Construction management, the field app, verified listings for developers, property management, care visits, paperwork and errands, insurer partner lines. Country 2 software from month 12 if its gate passes. Country 3 manual phase | 40 active builds, one bank contract, 40% of clients with a recurring line `[TO VERIFY]` |
+| Scale | 18-36 | Events, relocation and shipping, traditional authority records, family and stool listings, bulk materials, investing partners. Countries 2 and 3 live | `[TO VERIFY]` |
 
 All targets are assumptions.
 
@@ -216,10 +257,14 @@ All targets are assumptions.
 | Relatives on the ground | Visit the site, talk to the seller | No records access, conflict of interest, no proof |
 | Lands Commission search alone | Confirms registered interests | Misses customary ownership, ground truth and seller authority |
 | Real estate agents and developers | Sell plots and houses | They are the counterparty, not an independent check |
-| Remittance companies | Move money | Do not hold it against conditions |
+| Remittance companies | Move money | Do not hold it against conditions. Fidero sits on top of them as the "spend it right" layer, and they are a channel |
+| Diaspora health cover: Susu, Fleri | Health insurance for relatives, paid from abroad | One vertical. Fidero partners with insurers rather than competing |
+| Diaspora funeral cover: Enterprise Life AkwantuPa, Diaspora Insurance | Funeral policies for relatives | One vertical. Partner, not compete |
+| Pay-to-school tools: Flutterwave | Fees paid to institutions | Payment only. No verification of the institution, no receipt back, no other lines |
+| Concierge and errand services | Paperwork and purchases on request | Informal, no escrow, no evidence standard |
 | Other land verification or proptech startups in Ghana | `[TO VERIFY]` | Map them in the first 90 days |
 
-Fidero's edge is the full pipeline. The report feeds the escrow, and the escrow feeds the build. Each step makes the next one safer and cheaper to sell.
+Fidero's edge is one trusted operator across every need. The report feeds the escrow, the escrow feeds the build, and the client who bought a plot pays school fees and arranges care visits through the same account. Each line makes the next one cheaper to sell and harder to leave.
 
 ## 8. Financials and use of funds
 
@@ -238,11 +283,12 @@ $400k for 18 months.
 | Sales and diaspora marketing | `[TO VERIFY]` | Travel to associations, webinars |
 | Professional indemnity insurance and legal | `[TO VERIFY]` | |
 | Escrow partner integration | `[TO VERIFY]` | |
+| Country 2 manual phase: professionals, template, partner talks | `[TO VERIFY]` | From month 6 |
 | Reserve | `[TO VERIFY]` | Cedi swings, slow searches |
 
 ### Revenue timing
 
-Verification revenue starts in month one because the service is manual. Escrow revenue starts after the partner bank signs. Construction revenue starts after month 9.
+Verification revenue starts in month one because the service is manual. Institution payment fees start with the portal in month 3-9. Escrow revenue starts after the partner bank signs. Construction, care, property management and errand revenue start after month 9. Country 2 revenue starts with its manual phase at month 6.
 
 ### Currency
 
@@ -260,10 +306,12 @@ Most revenue is in hard currency from diaspora clients. Most costs are in cedis.
 | Field runner | To contract `[TO VERIFY]` |
 | Product and engineering lead | To hire in phase 2 |
 | Quantity surveyor and inspectors | To contract in phase 3 |
+| Carers and errand agents | To recruit and vet in phase 3 |
+| Country 2 lead, lawyer, surveyor and runner | To contract from month 6 `[TO VERIFY]` |
 
 ### Partners
 
-Escrow partner bank or licensed escrow agent, law firms, licensed surveyors, contractors, diaspora associations, remittance companies and a professional indemnity insurer. The first ask to each is in `docs/partners.md`.
+Escrow partner bank or licensed escrow agent, law firms, licensed surveyors, contractors, schools and hospitals, insurers, diaspora associations, remittance companies and a professional indemnity insurer. The first ask to each is in `docs/partners.md`.
 
 ## 10. Regulation
 
@@ -271,6 +319,8 @@ Escrow partner bank or licensed escrow agent, law firms, licensed surveyors, con
 - **Bank of Ghana guidance** means escrow must run through a licensed bank or a licensed escrow agent. Fidero does not hold client money itself.
 - **Data Protection Act 2012 (Act 843)** governs client data, seller data and recordings. Fidero registers with the Data Protection Commission `[TO VERIFY]`.
 - Licensing for surveyors and lawyers is handled by their professional bodies. Fidero contracts only licensed professionals.
+- **Insurance Act 2021 (Act 1061)** `[TO VERIFY]`: selling insurer partners' policies may need an intermediary licence. Fidero holds no insurance risk.
+- Each new country has its own equivalents. They are checked in that country's manual phase before any money moves.
 
 ## 11. Risks
 
@@ -285,3 +335,7 @@ Escrow partner bank or licensed escrow agent, law firms, licensed surveyors, con
 | Seller or family disputes consent after the sale | Medium | Signed and video-recorded consent, witnesses, lawyer present |
 | Data breach of client or seller records | High | Data protection measures in `docs/product/architecture.md` |
 | Branding confused with land guards | Low | Never use "guard" in any name or product |
+| Fake institution or tampered invoice | High | Institution verified before any payment: registration, bank account in its own name, named contact. Payee account name checked at release |
+| Harm to a vulnerable person during a care visit | High | Carers vetted and trained, check-in and check-out, family confirmation, same-day concern route, never the only contact |
+| Stretching a small team across lines and countries | High | Lines and countries open only after gates. Country 2 has its own lead. Field capacity is the real constraint and is tracked |
+| Insurer or payment partner fails or withdraws | Medium | Partner lines run as the partner's product; two partners per line where possible |

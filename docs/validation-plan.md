@@ -1,6 +1,6 @@
 # 90-day validation plan: manual verification service
 
-Goal: launch land verification as a manual service, deliver paid reports to diaspora clients, and learn whether the price, cost and turnaround work before building software.
+Goal: launch land verification as a manual service, deliver paid reports to diaspora clients, and learn whether the price, cost and turnaround work before building software. Alongside it, offer existing clients one recurring service by hand, paying a school or hospital directly against an invoice, to test demand for the family lines before the portal exists.
 
 All numbers are assumptions unless marked otherwise. Unknown numbers are `[TO VERIFY]`.
 
@@ -73,6 +73,7 @@ Every lead goes into a simple spreadsheet: source, date, price offered, outcome,
 | Lead to paid conversion | `[TO VERIFY]` | Leads spreadsheet |
 | Client satisfaction | Would recommend, yes or no | One question after delivery |
 | Safety incidents | Zero | Log every threat or confrontation |
+| Clients who take up a direct institution payment | `[TO VERIFY]`, test with the first 20 | Count. Record which institutions accepted direct payment and returned a receipt |
 | Lands Commission search time | Days per search | Log per search |
 
 Review the numbers every two weeks.
@@ -88,6 +89,7 @@ Go to phase 2 (escrow partner and client portal) if all of these hold:
 - At least 30% of green-report clients ask for escrow or a safe way to pay.
 - No safety incident that could not be managed by the withdraw rule.
 - Professional indemnity cover in place.
+- At least 5 institution payments made by hand with a receipt returned, so the family line has a known process `[TO VERIFY]`.
 
 Pause and rework if:
 
@@ -107,4 +109,5 @@ Stop if:
 | 1-2 | Contract lawyer, surveyor, runner. Finalise report template and scope wording. Get insurance quote. Register data protection `[TO VERIFY]`. Build leads spreadsheet. |
 | 2-4 | First webinar. First 5 reports at test prices. Time every step. |
 | 5-8 | Three more webinars. Approach remittance companies. Reports 6-25. First case study. |
-| 9-12 | Referral push. Approach escrow banks with the report numbers. Reports 26-50. Day 90 review against the criteria above. |
+| 5-8 | Offer a direct school or hospital payment to the first 20 clients. Verify each institution by hand: registration, bank account in its own name, named contact. |
+| 9-12 | Referral push. Approach escrow banks with the report numbers. Reports 26-50. Day 90 review against the criteria above. Draft the country 2 plan from the Ghana numbers. |

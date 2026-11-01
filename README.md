@@ -1,37 +1,47 @@
 # Fidero
 
-Fidero (from *fides*, trust) is a land verification, escrow and diaspora construction platform. It lets someone abroad buy a plot at home and build a house without being cheated or losing track of the money. Ghana is the launch market. Fidero then extends to other countries with customary land tenure and large diasporas, starting with a Nigeria pilot.
+Fidero (from *fides*, trust) is the trusted agent at home for people abroad. Anyone in the diaspora who needs something done in their home country, from buying a plot to paying a parent's hospital bill, can have it checked, paid against proof, and shown to them. Ghana is the launch market. Land verification is the launch product. Other countries follow, starting with a second country whose manual phase begins around month 6.
 
 All figures in this repository are working assumptions, not verified data. Unknown numbers are marked `[TO VERIFY]`.
 
 ## The problem
 
-Most land in Ghana is held under customary ownership by stools, skins and families. Records are scattered. The same plot is sold several times. Sellers lack authority. Site plans do not match the ground. Plots sit inside government acquisitions or road reserves. Land guards intimidate buyers. Title registration is slow.
+People abroad cannot see, verify or control what happens at home. They send money to a relative and hope.
 
-Ghanaians abroad send roughly $4-5B a year home. Much of it goes to land and building. Money sent to relatives or contractors for construction is often diverted, and projects stall.
+- Land is sold twice. Sellers lack authority. Site plans do not match the ground. Plots sit inside acquisitions or road reserves. Land guards intimidate buyers.
+- Building money is diverted. Projects stall.
+- School fees never reach the school. Hospital bills arrive by WhatsApp at 2am with no invoice. Nobody checks on an elderly parent. A house at home is lived in rent-free by relatives. Paperwork needs someone trusted to stand in a queue.
 
-## The solution: one pipeline
+Ghanaians abroad sent home about $7.8B in 2025 and Nigerians about $21.8B (press reports of central bank figures, `[TO VERIFY]`). Most of it passes through relatives with no accountability.
 
-1. **Verify.** A land due-diligence report in 2-4 weeks. Lands Commission searches, an independent licensed surveyor check against the site plan, Ghana Post GPS and satellite images, overlay checks (acquisitions, wetlands, road reserves, flood zones, dispute areas), and confirmation of the seller's authority with the stool or family, with signed and video-recorded consent. Output is a red, amber or green report.
-2. **Buy.** Purchase money is held in escrow with a partner bank or licensed escrow agent and released only when conditions are met. Optional conveyancing and title registration tracking.
-3. **Build.** Vetted contractors, a quantity surveyor's bill of quantities, and payments released only at milestones (foundation, blocks, lintel, roof, finishing). Each milestone is confirmed by geotagged, time-stamped photos and video plus an independent inspector. Bulk materials are delivered to site. The owner sees budget against actual and a photo timeline on a dashboard.
+## The solution: one engine
 
-Over time, Fidero digitises allocation records with traditional authorities under a revenue share.
+Every Fidero line works the same way.
 
-## Beyond land
+1. **Verify** the asset or the people: the plot, the seller, the school, the hospital, the carer, the contractor, the tenant.
+2. **Hold** the money with a licensed partner bank or escrow agent. Fidero never holds client money.
+3. **Release** it only against evidence, and only to a verified institution, supplier, vendor or professional. Never as cash to a relative.
+4. **Show** the client every step in plain language.
 
-Fidero is not limited to land. Every product line uses the same engine: verify the asset or the people involved, hold the money with a partner bank, and release it only against evidence. Land is the launch product.
+## Product families
 
-| Line | What Fidero verifies | What releases the money | Phase |
-|---|---|---|---|
-| Land | Searches, survey, overlays, seller authority and consent | Report conditions met and indenture signed | 1 |
-| Existing buildings: houses, apartments, commercial property | The land checks, plus building permit, structural inspection, occupants and tenancies, unpaid property rates and utility bills | Report conditions met, transfer documents signed, keys and vacant possession handed over | 2 |
-| Construction on the buyer's own plot | Contractor vetting and the bill of quantities | Inspected milestones | 3 |
-| Off-plan homes from developers | The developer's title to the estate land, permits, company registration and track record | Construction stages confirmed by app evidence and an inspector | 3 |
-| Project funds: businesses, renovations, farms, family and community projects | The budget, the person running the project, and the suppliers | Suppliers paid directly against invoices, each stage confirmed by receipts, photos and visits | 3 |
-| Later candidates: vehicles, equipment, buying a business | Demand `[TO VERIFY]` | To be designed | 4 |
+| Family | Line | What Fidero verifies | What releases the money | Release |
+|---|---|---|---|---|
+| **Property** | Land verification | Searches, survey, overlays, seller authority and consent | Report conditions met and indenture signed | R1 |
+| | Building verification | Land checks plus permit, structural inspection, occupancy, rates and utilities | Conditions met, transfer signed, keys handed over | R1 |
+| | Construction on own plot | Contractor, bill of quantities | Inspected milestones | R2 |
+| | Off-plan homes | Developer title, permits, company, track record | Stages confirmed by app evidence and inspector | R2 |
+| | Verified listings | Plot or property verified once, badge with date | Fresh search, then escrow | R2 |
+| | Property management | Tenant, agreement, condition | Rent paid to the owner's own account; repairs paid against quotes and inspection | R2 |
+| **Family** | Fees to institutions | The school, hospital, clinic or agency and its invoice | Paid direct to the institution, receipt returned | R1 |
+| | Care visits | The carer and the care plan | Visit confirmed by check-in, photos and the family | R2 |
+| | Health and funeral cover | The licensed insurer and the policy | Premiums paid to the insurer; claims paid by the insurer | R2 |
+| **Projects and errands** | Project funds | Budget, person running it, suppliers | Suppliers paid against invoices; stages confirmed | R2 |
+| | Paperwork and errands | The agency, the agent, the checklist | Fees paid to the agency; completion confirmed by the document | R2 |
+| | Events and ceremonies | Vendors and the budget | Vendors paid against invoices and delivery evidence | R3 |
+| **Later** | Relocation and shipping, vehicles, investing | Demand `[TO VERIFY]` | To be designed | R3 or later |
 
-Project funds cover money sent home for a shop, a farm, a renovation or a family project. Fidero pays suppliers and workers directly instead of handing cash to someone on the ground. It confirms the money was spent as agreed. It does not judge whether the project will succeed.
+Land is the launch product because it is the highest-value, least-served problem and it builds the field team and the bank partnership that every other line uses. The family lines create monthly contact with clients.
 
 ## Verified listings
 
@@ -39,10 +49,14 @@ From month 9, sellers can pay to have a plot or property verified once and liste
 
 ## Customers
 
-- Diaspora buyers and home builders in the UK, US, Canada, Germany and the Netherlands. First target.
+- People abroad in the UK, US, Canada, Germany and the Netherlands with family, property or plans at home. First target.
 - Local professionals buying land.
 - Banks and mortgage lenders needing collateral checks.
-- Developers.
+- Developers, schools, hospitals and insurers who want a trusted channel to the diaspora.
+
+## Countries
+
+Ghana first. Country is configuration in the software from the first release. A second country starts its manual phase from about month 6 and runs its own 90-day validation before any software is localised. Assumed order: Ghana, Nigeria, Kenya `[TO VERIFY]`. The decision is recorded in `docs/decisions/2026-11-01-diaspora-platform.md`.
 
 ## Revenue model (assumptions)
 
@@ -54,16 +68,20 @@ From month 9, sellers can pay to have a plot or property verified once and liste
 | Conveyancing | $300-800 |
 | Construction management | 5-8% of build value |
 | Materials margin | 3-7% |
-| Bank and developer API checks | Per check, price [TO VERIFY] |
-| Building verification, off-plan escrow, project funds management | [TO VERIFY] |
+| Payment to an institution | Flat fee per payment or monthly plan `[TO VERIFY]` |
+| Care visits | Per visit or monthly plan `[TO VERIFY]` |
+| Property management | Share of rent `[TO VERIFY]` plus repair management fee |
+| Paperwork and errands | Per errand `[TO VERIFY]` plus official fees at cost |
+| Insurer partner lines | Commission from the insurer `[TO VERIFY]` |
+| Bank and developer API checks | Per check, price `[TO VERIFY]` |
+| Verified listing and success fee, paid by the seller | `[TO VERIFY]` |
 | Extra inspections | $50-100 each |
-| Verified listing and success fee, paid by the seller | [TO VERIFY] |
 
-Illustrative year 3 revenue: about $1.9M a year, mostly in hard currency. Verification starts as a manual service, so revenue begins in month one.
+Illustrative year 3 revenue: `[TO VERIFY]`, to be rebuilt from the 90-day validation numbers and the new lines. Verification starts as a manual service, so revenue begins in month one.
 
 ## The ask
 
-Pre-seed: $400k for 18 months. It funds the manual verification service, the escrow partnership and client portal, and the construction management product with the milestone photo app.
+Pre-seed: $400k for 18 months `[TO VERIFY]` against the wider scope. It funds the manual verification service, the escrow partnership and client portal, payments to institutions, the field app, and the second country's manual phase.
 
 ## Repository map
 
@@ -71,12 +89,13 @@ Pre-seed: $400k for 18 months. It funds the manual verification service, the esc
 |---|---|
 | `README.md` | This summary |
 | `CLAUDE.md` | Context and writing rules for Claude sessions working on Fidero |
+| `docs/decisions/` | Decision records. Start with `2026-11-01-diaspora-platform.md` |
 | `docs/proposal.md` | Full business proposal |
 | `docs/validation-plan.md` | 90-day plan to launch the manual verification service |
 | `docs/partners.md` | Partner types and the first ask to each |
 | `docs/operations/verification-report-template.md` | Structure of the red/amber/green land verification report |
 | `docs/operations/milestone-schedule.md` | Construction milestone schedule, release evidence and inspector checklists |
-| `docs/product/architecture.md` | Proposed architecture for the portal, report workflow, escrow tracking and milestone photo app |
+| `docs/product/architecture.md` | Early architecture proposal. Superseded in detail by `docs/specs/02` |
 | `docs/specs/` | Product specification set: requirements (BRD, PRD, SRS), architecture, UI/UX, project plan and backlog, testing, deployment and operations |
 
 ## Naming note
