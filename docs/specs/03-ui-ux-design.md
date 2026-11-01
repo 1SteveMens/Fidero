@@ -579,6 +579,134 @@ flowchart TD
     H4c -->|"Yes"| H5(["Release as J-02"])
 ```
 
+### 3.9 J-09 Pay a school or hospital directly (R1)
+
+```mermaid
+flowchart TD
+    I0(["Kwabena opens Family on the dashboard · SCR-PTL-36"]) --> I1["Add his mother as a family member · SCR-PTL-38"]
+    I1 --> I2["Add Komfo Anokye Teaching Hospital as an institution · SCR-PTL-39"]
+    I2 --> I2k{"Already verified by Fidero?"}
+    I2k -->|"Yes"| I3
+    I2k -->|"No"| I2v["Fidero verifies: registration, bank account in the hospital's name, named contact · SCR-BO-27 · FR-FEE-001"]
+    I2v --> I2r{"Verification result"}
+    I2r -->|"Fails: account not in the institution's name, or registration not found"| I2x["Blocked: institution card shows 'Not verified' with the reason. No invoice can be paid to it · RUL-22. Fidero asks the institution for the right account"]
+    I2x --> I2v
+    I2r -->|"Passes"| I3["Institution card: Verified on [date], account ending 4471 · CMP-26"]
+    I3 --> I4["Invoice arrives: Kwabena uploads it, or the hospital sends it to Fidero's reference · SCR-PTL-40 · FR-FEE-002"]
+    I4 --> I5["Fidero checks: institution matches, patient matches the family member, amount and reference readable · SCR-BO-30"]
+    I5 --> I5c{"Checks pass?"}
+    I5c -->|"Mismatch: patient name or institution differs"| I5x["Blocked: 'The invoice names a different patient. Check with the hospital.' Kwabena can upload a corrected invoice. Nothing is paid"]
+    I5x --> I4
+    I5c -->|"Unreadable"| I5u["Document request: 'We could not read the amount. Please photograph the whole invoice.'"]
+    I5u --> I4
+    I5c -->|"Yes"| I6["Kwabena approves with a one-time code and pays into Partner Bank, or uses his held balance · FR-FEE-003, FR-ESC-014, RUL-11"]
+    I6 --> I6d{"Bank confirms the money?"}
+    I6d -->|"Not yet"| I6w["Waiting: 'Partner Bank has not confirmed your payment yet. We check every hour.'"]
+    I6w --> I6d
+    I6d -->|"Yes"| I7["Two Fidero staff approve. Instruction to pay the hospital's account only · FR-ESC-015, RUL-05"]
+    I7 --> I7p{"Payee account matches the verified institution?"}
+    I7p -->|"No"| I7x["Blocked by the system. Reviewer told. Nothing moves · FR-ESC-015"]
+    I7p -->|"Yes"| I8["Bank pays. Status: 'Paid to Komfo Anokye Teaching Hospital, account ending 4471, on 15 Aug'"]
+    I8 --> I9{"Direct payment possible?"}
+    I9 -->|"No: institution takes cash only"| I9r["Runner pays in person against a signed voucher; receipt uploaded within 2 working days · FR-FEE-006, DA-10"]
+    I9 -->|"Yes"| I10
+    I9r --> I10["Receipt and, where allowed, discharge note returned to the statement · SCR-PTL-42 · FR-FEE-004"]
+    I10 --> I11(["Statement updated: invoice, payment, receipt, balance held at Partner Bank · FR-FEE-007"])
+    I3 -.->|"School fees"| I12["Recurring schedule per term with reminder and enrolment confirmation · SCR-PTL-41 · FR-FEE-005"]
+    I12 -.-> I6
+```
+
+Edge states: an institution's verification lapses (bank account changed): the card turns to "Re-verifying" and payments pause until a second staff member confirms the new account (FR-ADM-003). A recurring payment is never taken without Kwabena's approval for that term (FR-FEE-005, RUL-11).
+
+### 3.10 J-10 Arrange care visits (R2)
+
+```mermaid
+flowchart TD
+    K0(["Kwabena sets up a care plan for his mother · SCR-PTL-43 · FR-CARE-001"]) --> K1["Fidero assigns a vetted carer from the panel · SCR-BO-28 · FR-CARE-002"]
+    K1 --> K1c{"Vetted carer available in Kumasi?"}
+    K1c -->|"No"| K1x["Plan saved as 'Waiting for a carer'. Expected date shown. Nothing is charged"]
+    K1x --> K1
+    K1c -->|"Yes"| K2["Family told who to expect: name, photo, carer ID · FR-NTF-001"]
+    K2 --> K3["Carer checks in at the registered address · SCR-MOB-14 · FR-MOB-012"]
+    K3 --> K3g{"Position within the address buffer?"}
+    K3g -->|"No"| K3x["Check-in recorded as 'away from the address, 410 m'. Carer must explain. Visit flagged for review"]
+    K3x --> K4
+    K3g -->|"Yes"| K4["Plan items done, agreed photos and readings captured in app · SCR-MOB-15 · FR-CARE-003"]
+    K4 --> K5["Check out. Carer reads the 4-digit code to the family · SCR-MOB-16"]
+    K5 --> K6["Family member gets a one-time link: 'Did Grace visit today?' · SCR-PTL-45 · FR-CARE-004, DA-07"]
+    K6 --> K6c{"Confirmed within 24 hours?"}
+    K6c -->|"Yes, with code"| K7["Visit: Confirmed. Carer paid for this visit from the held balance after Fidero's approval · RUL-23"]
+    K6c -->|"Family says it did not happen"| K6n["Visit: Disputed. Carer not paid. Reviewer compares check-in, photos and the family's account the same day"]
+    K6c -->|"No answer after 24 hours"| K6u["Alert to Kwabena and Fidero: 'Visit on 15 Aug is not yet confirmed' · FR-CARE-005. Fidero calls the family. Carer not paid until confirmed"]
+    K6u --> K6c
+    K7 --> K8(["Visit card on Kwabena's dashboard: check-in 09:02, check-out 10:15, 3 photos, confirmed by Comfort · SCR-PTL-44 · CMP-27"])
+    K3 -.->|"Carer does not check in by the planned time plus 60 minutes [TO VERIFY]"| K9["Missed-visit alert to Kwabena and Fidero · FR-CARE-005. Fidero reassigns or reschedules"]
+    K4 -.->|"Carer raises a concern"| K10["Concern to Kwabena and a reviewer the same day · FR-CARE-006"]
+```
+
+Edge state: the family member cannot use a phone. DA-07's fallback is a call from Fidero to a second named family member; the confirmation records "confirmed by call with [name]".
+
+### 3.11 J-11 Manage a property (R2)
+
+```mermaid
+flowchart TD
+    L0(["Akosua registers her house in Tema · SCR-PTL-46 · FR-PMG-001"]) --> L1["Fidero inspects and records the condition with photos · SCR-MOB-18"]
+    L1 --> L2["Tenant found or existing tenant verified; agreement checked · FR-PMG-002"]
+    L2 --> L2c{"Agreement and tenant pass checks?"}
+    L2c -->|"No"| L2x["Blocked: 'The agreement names a different landlord.' Management does not start until fixed"]
+    L2x --> L2
+    L2c -->|"Yes"| L3["Rent set to be paid by the tenant to Akosua's own account at Partner Bank. Fidero never receives rent · RUL-24"]
+    L3 --> L4["Each month: rent due date on the dashboard · SCR-PTL-47 · FR-PMG-003"]
+    L4 --> L4c{"Rent received by the due date?"}
+    L4c -->|"Yes"| L4y["'Paid by tenant to your account at Partner Bank, 1 Sept, GHS 4,500.00'"]
+    L4c -->|"No, 5 days late [TO VERIFY]"| L4x["Alert to Akosua and Fidero: 'Rent for September is late.' Fidero contacts the tenant. Record shows 'Late since 6 Sept'"]
+    L4x --> L4c
+    L4y --> L5
+    L4c -.->|"Bank statement not yet matched"| L4m["Shown as 'Not yet confirmed by the bank', never as missing"]
+    L4m --> L4c
+    L5["Tenant or inspector reports a repair · SCR-PTL-54 · FR-PMG-004"] --> L6["Fidero collects at least two quotes from vetted contractors"]
+    L6 --> L7["Akosua compares and approves one quote with a one-time code · SCR-PTL-48 · RUL-11"]
+    L7 --> L7c{"Decision"}
+    L7c -->|"Rejects both"| L7x["Quotes rejected with a reason. Fidero seeks new quotes. Repair stays 'Open: new quotes expected by [date]'"]
+    L7x --> L6
+    L7c -->|"Approves one"| L8["Repair money held at Partner Bank against the quote · FR-PMG-005"]
+    L8 --> L9["Contractor does the work; inspector checks with photos · SCR-MOB-18"]
+    L9 --> L9c{"Inspection result"}
+    L9c -->|"Fail"| L9x["Not paid. Contractor fixes. Akosua sees the inspector's photos and reason"]
+    L9x --> L9
+    L9c -->|"Pass"| L10["Two Fidero approvals. Bank pays the contractor, account ending [nnnn] · RUL-22"]
+    L10 --> L11(["Dashboard timeline: rent, repairs, inspections, photos · FR-PMG-006"])
+```
+
+### 3.12 J-12 Get paperwork done (R2)
+
+```mermaid
+flowchart TD
+    M0(["Ama opens the errand catalogue for Ghana · SCR-PTL-49 · FR-TSK-001"]) --> M1["Picks 'Ghana Card renewal' and 'Land title application'. Sees checklist, official fees, Fidero's charge, target time"]
+    M1 --> M2["Uploads checklist documents · SCR-PTL-50 · FR-TSK-002"]
+    M2 --> M2c{"Checklist complete and readable?"}
+    M2c -->|"No"| M2x["Errand stays 'Waiting for your documents: 2 missing'. Nothing is paid"]
+    M2x --> M2
+    M2c -->|"Yes"| M3["Pays official fees and Fidero's charge into Partner Bank"]
+    M3 --> M4["Vetted agent assigned · SCR-BO-28, SCR-BO-32 · FR-TSK-003"]
+    M4 --> M5["Agent lodges the application · SCR-MOB-17. Official fee paid to the agency's account only; receipt uploaded · RUL-22"]
+    M5 --> M5c{"Agency accepts the application?"}
+    M5c -->|"Rejected: document missing or out of date"| M5x["Step shows 'Rejected by the agency: passport photo out of date.' Document request to Ama. Agent retries when it arrives. Fidero's charge not taken twice"]
+    M5x --> M2
+    M5c -->|"Accepted"| M6["Each step shown in plain language with its receipt or acknowledgement"]
+    M6 --> M7{"Resulting document ready?"}
+    M7 -->|"Delayed past target time"| M7x["Status: 'The agency is late. New expected date [date]. We are chasing.' Target times are assumptions"]
+    M7x --> M7
+    M7 -->|"Yes"| M8["Agent collects it. Fidero checks the document · FR-TSK-004"]
+    M8 --> M8c{"Document correct?"}
+    M8c -->|"Wrong name or details"| M8x["Completion refused. Agent returns to the agency. Ama told plainly"]
+    M8x --> M5
+    M8c -->|"Yes"| M9["Handover to Ama's representative or courier, with signature or photo · FR-TSK-005"]
+    M9 --> M10(["Errand: Complete. Fees, receipts and the document on the dashboard · RUL-23"])
+```
+
+Agent payment follows RUL-23: Fidero's charge is released to the agency only when the errand is complete and the document is checked.
+
 ---
 
 ## 4. Wireframes
@@ -904,6 +1032,9 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | [v] Seller's tax clearance closed 6 May|
 | Fresh search (within window) [v] 2 May |
 |                                        |
+| Your approval                          |
+| (v) You approved the release 6 May     |
+|     14:00 GMT (code verified)          |
 | Release approvals   [ 1 of 2 ]         |
 | (v) K. Boateng, reviewer, 6 May 15:20  |
 | ( ) Second approver                    |
@@ -911,11 +1042,11 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 +----------------------------------------+
 ```
 
-- **Content.** Status sentence, bank and amount, conditions with closing dates, fresh search, approvals, next step. An open condition shows its owner and due date instead of a closing date: "Seller's tax clearance. Owner: seller's lawyer. Due 6 May."
-- **Actions.** View evidence for a closed condition; open a dispute (R2); view bank instructions.
-- **States.** Proposed (waiting for parties), Agreed (waiting for deposit), Funded (conditions closing; approvals show "Start when every condition is closed"), Ready to release, Release approved, Released, Frozen ("A dispute was opened on 4 May. No money can move until it is resolved."), Cancelled.
-- **Rules.** No approval or release while any condition is open (RUL-06); fresh search must be in date (RUL-07); approver names shown (RUL-05).
-- **Satisfies.** FR-ESC-004 to FR-ESC-009, RUL-05, RUL-06, RUL-07, RUL-15, J-02.
+- **Content.** Status sentence, bank and amount, conditions with closing dates, fresh search, the client's own approval, Fidero's two approvals, next step. An open condition shows its owner and due date instead of a closing date: "Seller's tax clearance. Owner: seller's lawyer. Due 6 May."
+- **Actions.** Approve the release once every condition is closed (one-time code, DA-01, RUL-11); view evidence for a closed condition; open a dispute (R2); view bank instructions.
+- **States.** Proposed (waiting for parties), Agreed (waiting for deposit), Funded (conditions closing; approvals show "Start when every condition is closed"), Ready to release ("Your approval is needed. Fidero staff approve after you."), Client approved, Release approved, Released, Frozen ("A dispute was opened on 4 May. No money can move until it is resolved."), Cancelled. No response from the client: reminders; silence is never approval.
+- **Rules.** No approval or release while any condition is open (RUL-06); fresh search must be in date (RUL-07); client approves first and cannot release alone (RUL-11); approver names shown (RUL-05).
+- **Satisfies.** FR-ESC-004 to FR-ESC-009, RUL-05, RUL-06, RUL-07, RUL-11, RUL-15, J-02.
 
 ### W-10 Bank payment instructions · SCR-PTL-18
 
@@ -1236,7 +1367,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 
 - **Content.** Inspector result, re-pricing with old and new amounts, reason, defect hold-back, amount to pay now.
 - **Actions.** Approve (with one-time code, DA-01), question, dispute.
-- **States.** Approval window: "If you do nothing by 21 Aug, ..." text depends on the open question in issue I-14. Fail result: no approve button; "No payment. The contractor must fix and resubmit."
+- **States.** Approval window: "If you do nothing by 21 Aug, we remind you. Nothing is paid until you approve." (01 v0.2 Milestone model: silence is never approval; issue I-14 closed.) Fail result: no approve button; "No payment. The contractor must fix and resubmit."
 - **Rules.** RUL-18 change shown before approval; RUL-11 client approval does not release on its own.
 - **Satisfies.** FR-BLD-005 to FR-BLD-007, RUL-09, RUL-11, RUL-18.
 
@@ -1352,6 +1483,521 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 - **Rules.** RUL-16; default is the most private level.
 - **Satisfies.** FR-PTR-002, FR-RPT-011, J-06.
 
+### W-25 Home dashboard · SCR-PTL-36
+
+```text
++----------------------------------------+
+| FIDERO            Ghana · GHS   Ama (v)|
++----------------------------------------+
+| At home                                |
+| 2 things need you. 5 running.          |
+|                                        |
+| PROPERTY (3)                     See > |
+| +------------------------------------+ |
+| | Plot 14, Kasoa · Land check        | |
+| | Searches lodged 12 Mar. Results    | |
+| | expected by 2 Apr.                 | |
+| +------------------------------------+ |
+| | Escrow ESC-2027-0031 · Partner Bank| |
+| | ! Your approval is needed.         | |
+| +------------------------------------+ |
+| | House, Tema · Rent due 1 Sept      | |
+| | Paid by tenant to your account at  | |
+| | Partner Bank, 1 Aug, GHS 4,500.00  | |
+| +------------------------------------+ |
+| FAMILY (3)                       See > |
+| +------------------------------------+ |
+| | Mother · Komfo Anokye Teaching     | |
+| | Hospital                           | |
+| | ! Invoice GHS 3,850.00 waiting for | |
+| |   your approval.                   | |
+| +------------------------------------+ |
+| | Kofi and Yaw · Sample School, fees | |
+| | Term 1 paid to Sample School,      | |
+| | account ending 2210. Term 2 due    | |
+| | 5 Jan.                             | |
+| +------------------------------------+ |
+| | Mother · care visits (2 a week)    | |
+| | Visit confirmed Tue 09:02-10:15.   | |
+| | Next: Fri 15 Aug.                  | |
+| +------------------------------------+ |
+| PROJECTS AND ERRANDS (1)         See > |
+| +------------------------------------+ |
+| | Ghana Card renewal · Errand        | |
+| | Lodged at the agency 11 Aug.       | |
+| | Card expected by 9 Sept.           | |
+| +------------------------------------+ |
+| Held at Partner Bank for you           |
+| GHS 5,000.00  Statement >              |
+| [ + Add something at home ]            |
++----------------------------------------+
+| Home   Property   Family  Projects Acct|
++----------------------------------------+
+```
+
+- **Content.** Country and currency in the header (from configuration, DA-09). One line that counts what needs the client. One section per product family, in the order Property, Family, Projects and errands. Each item is a card with the object's name and one status sentence (CMP-06 pattern). Items that need the client come first in their section and carry "!" with the word. The held balance (FR-ESC-014) shows as money at the bank with a statement link, never as a wallet (DA-08).
+- **Actions.** Open any item; "See" per section; add something at home (opens a chooser: a check on land or a building, a family member, an institution, a property, an errand, a project).
+- **States.** Empty section: hidden. First use: one card, "Nothing running yet. Start with a check on a plot, or add a family member to pay a school or hospital directly." Two countries: a country chip on each card and a grouping control. Error: last good data with its time.
+- **Rules.** Every money line names who was paid and where it is held (RUL-22, RUL-24, rule 7). No amounts in push, SMS or WhatsApp above the threshold (FR-NTF-004). Status sentences from templates (FR-CASE-007).
+- **Satisfies.** F-35, FR-ACC-012, FR-CASE-007, FR-ESC-014, FR-CTY-001, RUL-22, RUL-24.
+
+### W-26 Add an institution · SCR-PTL-39
+
+```text
++----------------------------------------+
+| <- Family                              |
+| Add a school, hospital or agency       |
+| Search Fidero's verified list          |
+| [ Komfo Anokye_________________ ] Find |
+| +------------------------------------+ |
+| | (v) VERIFIED by Fidero 12 Jan 2027 | |
+| | Komfo Anokye Teaching Hospital     | |
+| | Kumasi · Hospital                  | |
+| | Registration checked               | |
+| | Bank account in the hospital's     | |
+| | name, ending 4471                  | |
+| | Contact: Accounts office           | |
+| | [ Use this institution ]           | |
+| +------------------------------------+ |
+| Not listed?                            |
+| [ Propose an institution ]             |
+| We verify it before any payment:       |
+| registration, an account in its own    |
+| name, and a named contact. About 5     |
+| working days (sample).                 |
++----------------------------------------+
+| PROPOSED (status card)                 |
+| (o) Sample Clinic, Tema                |
+|     Checking. Started 3 Aug. Expected  |
+|     by 10 Aug. No payment until done.  |
++----------------------------------------+
+| NOT VERIFIED (status card)             |
+| (x) Sample Pharmacy, Kumasi            |
+|     The bank account given is in a     |
+|     person's name, not the pharmacy's. |
+|     We cannot pay it. We have asked    |
+|     the pharmacy for its own account.  |
++----------------------------------------+
+```
+
+- **Content.** Institution card (CMP-26) with verified status and date, type, what was checked, the account's last four digits, named contact role (not a person's name, NFR-PRIV-02).
+- **Actions.** Search the verified list; use an institution; propose a new one (name, type, town, contact, any invoice).
+- **States.** Verified, Checking (with expected date), Not verified (with the reason in words and what Fidero is doing), Re-verifying (account changed; payments paused).
+- **Rules.** No payment to an institution that is not Verified (RUL-22, FR-ESC-015). Account changes need a second staff member (FR-ADM-003).
+- **Satisfies.** FR-FEE-001, RUL-22, J-09.
+
+### W-27 Pay an invoice · SCR-PTL-40
+
+```text
++----------------------------------------+
+| <- Mother's statement                  |
+| Pay an invoice                         |
+| Komfo Anokye Teaching Hospital         |
+| (v) Verified · account ending 4471     |
+| For: Comfort Mensah (your mother)      |
+|                                        |
+| Invoice                                |
+| (*) Sent by the hospital to Fidero     |
+|     KATH-2027-08812 · 14 Aug           |
+| ( ) Upload an invoice [ Choose file ]  |
+| +------------------------------------+ |
+| | Patient ......... Comfort Mensah   | |
+| | Ward, 3 nights; medicines; tests   | |
+| | Amount .......... GHS 3,850.00     | |
+| | Due ............. 20 Aug           | |
+| +------------------------------------+ |
+| Our checks                             |
+| (v) Hospital matches the verified      |
+|     institution                        |
+| (v) Patient matches your family member |
+| (v) Amount and reference readable      |
+|                                        |
+| How to pay                             |
+| (*) From the money held for you at     |
+|     Partner Bank (GHS 5,000.00)        |
+| ( ) Pay GHS 3,850.00 into Partner Bank |
+|     now (card or mobile money)         |
+| Fidero's charge   GHS 40.00 (sample)   |
+|                                        |
+| Who gets paid                          |
+| GHS 3,850.00 to Komfo Anokye Teaching  |
+| Hospital, account ending 4471. Nobody  |
+| else can be paid from this invoice.    |
+|                                        |
+| [x] I have checked this invoice        |
+| Code sent to your phone [______]       |
+| [ Approve: pay GHS 3,850.00 to Komfo   |
+|   Anokye Teaching Hospital ]           |
+| After you approve, two Fidero staff    |
+| approve and Partner Bank pays. The     |
+| receipt comes back to your statement.  |
++----------------------------------------+
+```
+
+- **Content.** Institution and family member on top with verified status. Invoice source (institution-sent or uploaded). Invoice details. The three checks in words. Payment source: held balance or a new payment into the bank. The payee line (CMP-30) before the button. Fidero's charge shown separately.
+- **Actions.** Choose invoice source; upload; approve with one-time code (DA-01); question the invoice.
+- **States.** Check fails: that line turns to "(x) The patient on this invoice is Kwame Mensah, not Comfort Mensah. Check with the hospital." and the approve button is replaced by "Upload a corrected invoice" and "Ask Fidero". Unreadable: document request. Held balance short: "GHS 1,150.00 more is needed. Pay the difference into Partner Bank." Approved: receipt state "You approved GHS 3,850.00 on 15 Aug 09:40 GMT. Next: Fidero approvals, then Partner Bank pays the hospital."
+- **Rules.** Payee is fixed to the verified institution's account (RUL-22, FR-ESC-015). Client approval alone releases nothing (RUL-11). Money is at the bank (RUL-01).
+- **Satisfies.** FR-FEE-002, FR-FEE-003, FR-ESC-014, FR-ESC-015, RUL-11, RUL-22, J-09.
+
+### W-28 Family-member statement · SCR-PTL-42
+
+```text
++----------------------------------------+
+| <- Family                              |
+| Comfort Mensah (your mother)           |
+| Kumasi · Ghana · GHS                   |
+| +------------------------------------+ |
+| | NOW: Partner Bank paid Komfo       | |
+| | Anokye Teaching Hospital on 15 Aug | |
+| | at 10:12 GMT. Receipt attached.    | |
+| +------------------------------------+ |
+| Held at Partner Bank for you           |
+| GHS 1,150.00     [ Add money ]         |
+|                                        |
+| Statement                              |
+| 15 Aug  Paid to Komfo Anokye Teaching  |
+|         Hospital, acct ending 4471     |
+|         Invoice KATH-2027-08812        |
+|         -GHS 3,850.00   Receipt (pdf) >|
+|         Discharge note (hospital) >    |
+| 15 Aug  Fidero's charge                |
+|         -GHS 40.00      Receipt >      |
+| 2 Aug   You paid into Partner Bank     |
+|         +GHS 5,000.00   Bank ref >     |
+| 14 Jul  Paid to Sample Pharmacy, acct  |
+|         ending 0932 · in person by a   |
+|         Fidero runner, receipt attached|
+|         -GHS 210.00     Receipt >      |
+| Balance held 1 Jul .... GHS 1,360.00   |
+|                                        |
+| Care visits (R2)   Insurance (R2) >    |
+| [ Download statement (PDF) ]           |
++----------------------------------------+
+```
+
+- **Content.** Status sentence. Held balance at the bank. Statement rows (CMP-25): date, payee with account ending, invoice reference, amount with sign, links to receipt and any confirmation the institution agreed to share. The in-person exception (FR-FEE-006) is spelled out on its row (DA-10).
+- **Actions.** Add money (bank instructions, SCR-PTL-18 pattern); open receipts; download PDF; filter by institution.
+- **States.** Payment pending: row shows "Approved by you 15 Aug. Waiting for Fidero approvals." in place of the receipt link. Receipt not yet returned: "Receipt expected from the hospital by 18 Aug." Empty: "No payments yet. Add an institution to start."
+- **Rules.** Every row names the payee (RUL-22). The balance is described as held by the bank (RUL-01, DA-08). Health details appear only where the institution agreed and the client asked (FR-FEE-004, NFR-PRIV-02).
+- **Satisfies.** FR-FEE-004, FR-FEE-006, FR-FEE-007, FR-ESC-014, RUL-22, J-09.
+
+### W-29 Care plan setup · SCR-PTL-43
+
+```text
++----------------------------------------+
+| <- Family                              |
+| Care visits for Comfort Mensah         |
+| Address                                |
+| [ House 12, Ahodwo, Kumasi______ ]     |
+| Ghana Post GPS (if known) [AK-___-___] |
+| How often?                             |
+| ( ) Weekly  (*) Twice a week ( ) Daily |
+| Days  [x] Tue [x] Fri   Time <morning> |
+| What should the carer do?              |
+| [x] Pick up and check medicines        |
+| [x] Blood pressure reading             |
+| [ ] Prepare a meal                     |
+| [x] Companionship, 30 minutes          |
+| [ ] Transport to an appointment        |
+| Photos agreed with the family          |
+| [x] Medicines laid out                 |
+| [x] Blood pressure monitor reading     |
+| [ ] Photo of your mother (ask her)     |
+| Who may confirm a visit?               |
+| [x] Comfort Mensah (by call or code)   |
+| [x] Akua Mensah, sister, +233 24...    |
+| Price per visit  GHS 120.00 (sample)   |
+| Fidero's charge  included              |
+| Paid to the carer only after the       |
+| family confirms the visit.             |
+| [ Set up care visits ]                 |
++----------------------------------------+
+```
+
+- **Content.** Address, frequency, plan items, agreed photos (consent is explicit), confirmers, price, the payment rule in words.
+- **Actions.** Save; edit later; pause visits (holiday).
+- **States.** No carer yet: "We are finding a vetted carer in Kumasi. Expected by 20 Aug. Nothing is charged until the first confirmed visit." Carer assigned: card with name, photo and Fidero ID, sent to the family too.
+- **Rules.** RUL-23: payment only on confirmed visits. Photos of a person need their consent (FR-DPR-002 practice).
+- **Satisfies.** FR-CARE-001, FR-CARE-002, RUL-23, J-10.
+
+### W-30 Carer visit on the field app · SCR-MOB-14 to 16
+
+```text
++--------------------------------+   +--------------------------------+
+| Today · Tue 12 Aug             |   | <- Visit · Comfort Mensah      |
+| Comfort Mensah, Ahodwo         |   | Checked in 09:02 · at address  |
+| Planned 09:00 to 10:00         |   | Plan (2 of 4 done)             |
+| You are 40 m from the address. |   | [v] Medicines checked          |
+|                                |   |     (camera) photo 09:10       |
+| [ Check in ]                   |   | [v] Blood pressure 128/82      |
+|                                |   |     (camera) monitor 09:21     |
+| If you cannot reach the house, |   | [ ] Companionship 30 min       |
+| tap "Raise a concern".         |   | [ ] Ask about appointment      |
+| [ Raise a concern ]            |   | [ Raise a concern ]            |
++--------------------------------+   | [ Check out ] (2 items left)   |
+                                     +--------------------------------+
++--------------------------------+
+| Check out · 10:15              |
+| Visit lasted 1 h 13 min.       |
+| Read this code to the family:  |
+|          4 7 2 9               |
+| They confirm by tapping the    |
+| link we sent, or by phone.     |
+| Paid after the family confirms.|
+| [ Finish ]                     |
+| (!) Offline: saved on phone.   |
++--------------------------------+
+```
+
+- **Content.** One visit at a time. Distance to the address before check-in. Plan items with in-app photos where agreed. Code at check-out. The payment rule in one line.
+- **Actions.** Check in; tick items; capture (camera only); raise a concern (health, safety, welfare); check out; finish.
+- **States.** Too far from the address: check-in allowed but marked "410 m from the address. Say why." with a required note; the visit is flagged for review. Items left at check-out: allowed with a reason ("Mother was asleep"); shown to the client. Offline: queue as W-17.
+- **Rules.** Check-in and out with GPS (FR-MOB-012). Camera only (RUL-08 applied to visits through FR-MOB-010). The carer never sees the client's payment details.
+- **Satisfies.** FR-MOB-010, FR-MOB-012, FR-CARE-003, FR-CARE-006, RUL-23, J-10.
+
+### W-31 Family confirmation · SCR-PTL-45
+
+```text
++----------------------------------------+
+| FIDERO                                 |
+| Did Grace visit Comfort today?         |
+| Tuesday 12 August, about 09:00-10:15   |
+|                                        |
+| Code Grace read to you                 |
+| [ _ _ _ _ ]                            |
+|                                        |
+| [       Yes, the visit happened   ]    |
+|                                        |
+| [ No, nobody came ]                    |
+|                                        |
+| This link works for 24 hours. Kwabena  |
+| in New Jersey sees your answer. You    |
+| can also call Fidero: 030 000 0000     |
+| (sample).                              |
++----------------------------------------+
+| AFTER "YES"                            |
+| (v) Thank you. Visit confirmed 10:20.  |
++----------------------------------------+
+| AFTER "NO"                             |
+| We are sorry. Fidero will call you     |
+| today. The carer is not paid for this  |
+| visit.                                 |
++----------------------------------------+
+```
+
+- **Content.** One question, the carer's first name, the time, a 4-digit code field (CMP-28), two buttons, a plain line on who sees the answer.
+- **Actions.** Confirm with code; say the visit did not happen; call Fidero.
+- **States.** Wrong code: "That code does not match. Ask Grace to read it again, or tap 'No, nobody came'." Link expired: "This link has expired. Fidero will call you." Already answered: shows the answer and time.
+- **Rules.** No account needed (DA-07). Large text (20 px body), 56 px buttons, works on a basic phone browser. No amounts shown.
+- **Satisfies.** FR-CARE-004, RUL-23, J-10.
+
+### W-32 Property dashboard with rent and repairs · SCR-PTL-47
+
+```text
++----------------------------------------+
+| <- Property                            |
+| House, Community 4, Tema  PMG-2027-003 |
+| Ghana · GHS                            |
+| +------------------------------------+ |
+| | NOW: Rent for August was paid by   | |
+| | the tenant to your account at      | |
+| | Partner Bank on 1 Aug. Repair      | |
+| | quotes are waiting for you.        | |
+| +------------------------------------+ |
+| ! Approve a repair quote   [ Review ]  |
+|                                        |
+| Tenancy                                |
+| Tenant ....... Verified, since 1 Mar   |
+| Agreement .... Checked, 12 months >    |
+| Rent ......... GHS 4,500.00 a month    |
+| Paid to ...... your account at Partner |
+|                Bank, ending 8820       |
+| Fidero never receives your rent.       |
+|                                        |
+| Rent record                            |
+| Aug  (v) Paid 1 Aug  GHS 4,500.00      |
+| Jul  (v) Paid 3 Jul  GHS 4,500.00      |
+| Jun  (!) Late, paid 9 Jun (8 days)     |
+| May  (v) Paid 1 May                    |
+|                                        |
+| Repairs                                |
+| (!) Leaking roof, bedroom 2            |
+|     2 quotes ready. Approve one >      |
+| (v) Water pump · paid to Sample        |
+|     Plumbing Ltd, acct ending 1177,    |
+|     14 Jun, after inspection           |
+| Inspections   Next: 15 Sept            |
+| Photo timeline  [img][img][img] >      |
++----------------------------------------+
+```
+
+- **Content.** Status sentence. Tenancy summary with where rent goes (RUL-24). Rent record by month with the state in words. Repairs with payee named. Inspections and photo timeline.
+- **Actions.** Review quotes; see the agreement; report a repair; order an extra inspection; see photos.
+- **States.** Rent late: "(!) Late since 6 Sept. Fidero contacted the tenant on 7 Sept." Not yet confirmed by the bank: "(o) Not yet confirmed by the bank" (never shown as missing). Vacant: "No tenant. Fidero is finding one."
+- **Rules.** Rent to the owner's own account, never Fidero (RUL-24). Repair contractors paid only after inspection (FR-PMG-005, RUL-22).
+- **Satisfies.** FR-PMG-002, FR-PMG-003, FR-PMG-005, FR-PMG-006, RUL-22, RUL-24, J-11.
+
+### W-33 Repair quote approval · SCR-PTL-48
+
+```text
++----------------------------------------+
+| <- House, Tema                         |
+| Leaking roof, bedroom 2                |
+| Reported by the tenant 2 Aug · photos >|
+| Inspector's note: flashing failed,     |
+| about 4 m2 of sheets to replace.       |
+|                                        |
+| Quotes from vetted contractors         |
+| +------------------------------------+ |
+| |(*) Sample Roofing Ltd              | |
+| |    GHS 6,200.00 · 3 days           | |
+| |    Track record: 9 repairs, 0      | |
+| |    disputes · Quote (pdf) >        | |
+| +------------------------------------+ |
+| |( ) Sample Builders Ltd             | |
+| |    GHS 7,450.00 · 5 days           | |
+| |    Track record: 14 repairs, 1     | |
+| |    dispute (resolved) · Quote >    | |
+| +------------------------------------+ |
+| ( ) Neither. Ask for new quotes        |
+|     Why? [_______________________]     |
+|                                        |
+| If you approve                         |
+| GHS 6,200.00 is held at Partner Bank   |
+| until an inspector passes the work.    |
+| Then Partner Bank pays Sample Roofing  |
+| Ltd, account ending 3301.              |
+| Fidero's charge  GHS 150.00 (sample)   |
+| Code sent to your phone [______]       |
+| [ Approve Sample Roofing, GHS 6,200 ]  |
++----------------------------------------+
+```
+
+- **Content.** The problem with evidence, at least two quotes as radio cards with price, time and track record, a rejection option with reason, the payee line and the hold rule.
+- **Actions.** Approve one quote with a code (DA-01); reject both with a reason; ask a question.
+- **States.** Only one quote in: approve button disabled with "We need at least two quotes (FR-PMG-004). Second quote expected by 9 Aug." Rejected: "New quotes expected by [date]." Approved: "Held at Partner Bank. Work starts about 12 Aug. Inspection after."
+- **Rules.** Two quotes minimum (FR-PMG-004). Money held until inspection (FR-PMG-005). Payee named (RUL-22). Client approval is not a release (RUL-11).
+- **Satisfies.** FR-PMG-004, FR-PMG-005, FR-RAT-003, RUL-11, RUL-22, J-11.
+
+### W-34 Errand progress · SCR-PTL-50
+
+```text
++----------------------------------------+
+| <- Projects and errands                |
+| Ghana Card renewal      TSK-2027-0088  |
+| Ghana · GHS · agent: Fidero-vetted     |
+| +------------------------------------+ |
+| | NOW: Lodged at the NIA office on   | |
+| | 11 Aug. Receipt attached. Card     | |
+| | expected by 9 Sept (target,        | |
+| | assumption).                       | |
+| +------------------------------------+ |
+| Checklist (4 of 4 received)            |
+| [v] Old Ghana Card photo  [v] Proof of |
+|     address  [v] Passport photo        |
+| [v] Signed form                        |
+| Fees                                   |
+| Official fee  GHS 125.00 (sample)      |
+|   Paid to National Identification      |
+|   Authority, acct ending 0450, 11 Aug  |
+|   Receipt >                            |
+| Fidero's charge  GHS 180.00 (sample)   |
+|   Held at Partner Bank until the card  |
+|   is in your representative's hands.   |
+| Steps                                  |
+| (v) Documents checked ....... 8 Aug    |
+| (v) Fees paid into Partner Bank 9 Aug  |
+| (v) Lodged, receipt uploaded . 11 Aug  |
+| ( ) Card ready ....... expected 9 Sept |
+| ( ) Fidero checks the card             |
+| ( ) Handed to Kofi A. (your rep)       |
+| Messages >   Receipts (2) >            |
++----------------------------------------+
+```
+
+- **Content.** Status sentence, checklist, fees with payees, steps with evidence. The agency is named as payee; the agent is never a payee.
+- **Actions.** Upload a missing document; see receipts; message Fidero; change the representative.
+- **States.** Rejected by the agency: "(x) Rejected by the NIA on 12 Aug: passport photo out of date. We need a new photo from you by 19 Aug." Late: "The agency is late. New expected date 23 Sept. We are chasing." Complete: "Handed to Kofi A. on 10 Sept, signed for. Photo of the card >". Document wrong at check: "The card shows the wrong date of birth. Our agent has returned it to the agency."
+- **Rules.** Official fees to the agency's account only (RUL-22, FR-TSK-003). Completion only on the checked document (FR-TSK-004). Fidero's charge released on completion (RUL-23).
+- **Satisfies.** FR-TSK-002 to FR-TSK-005, RUL-22, RUL-23, J-12.
+
+### W-35 Insurer product page · SCR-PTL-51
+
+```text
++----------------------------------------+
+| <- Family                              |
+| Health cover for a parent in Ghana     |
+| +------------------------------------+ |
+| |  SAMPLE INSURER GHANA LTD          | |
+| |  Licensed insurer, NIC licence     | |
+| |  no. [TO VERIFY]                   | |
+| |  A policy from Sample Insurer.     | |
+| |  Fidero does not hold the risk.    | |
+| +------------------------------------+ |
+| Family Health Plan (sample)            |
+| Covers: in-patient care, consultations,|
+| medicines up to GHS 20,000 a year      |
+| (sample). Waiting period 30 days.      |
+| Does not cover: ... Read the policy    |
+| wording (Sample Insurer) >             |
+| Premium   GHS 95.00 a month (sample)   |
+|   Paid to Sample Insurer Ghana Ltd,    |
+|   account ending 6610. Never to Fidero.|
+| Claims     Decided and paid by Sample  |
+|   Insurer. Fidero helps you start one  |
+|   and tracks the insurer's answer.     |
+| Fidero's role  We check the insurer is |
+|   licensed, pass on your application   |
+|   and keep your policy documents.      |
+|   Fidero is not the insurer.           |
+| [ Apply with Sample Insurer ]          |
+| Insurance is regulated by the National |
+| Insurance Commission [TO VERIFY].      |
++----------------------------------------+
+```
+
+- **Content.** The insurer's name and licence first and largest (CMP-31). The fixed line "A policy from [insurer]. Fidero does not hold the risk." What is covered, what is not, the premium with its payee, how claims work, Fidero's role in three sentences.
+- **Actions.** Read the insurer's policy wording; apply (application is passed to the insurer); compare plans from other insurers if more than one partner.
+- **States.** No partner insurer in this country: page not shown; dashboard shows no insurance section. Application sent: "Sent to Sample Insurer on 3 Sept. The insurer decides within 5 working days (sample)." Declined by the insurer: shown with the insurer's reason and contact.
+- **Rules.** The insurer's name appears before Fidero's on the page (RUL-25). Premiums go to the insurer's account (FR-INS-002). No Fidero brand colour on the product name; the product is the insurer's.
+- **Satisfies.** FR-INS-001, FR-INS-002, RUL-25.
+
+### W-36 Admin: country configuration · SCR-BO-29
+
+```text
++------------------------------------------------------------------------------------+
+| Admin > Countries        [ Ghana · Live v ]   [ + Open a new country ]             |
++------------------------------------------------------------------------------------+
+| Ghana (GH)    Configuration v1.4, live since 3 Mar 2027    [ Compare with v1.3 ]   |
+| Section                 Status      Last change                Owner               |
+| Currency and rates      GHS; USD guide; GBP, EUR, CAD guides   Admin, 1 Mar        |
+| Holiday calendar        14 days 2027 [TO VERIFY]  Admin, 1 Feb                     |
+| Working-day rules       Mon-Fri, excludes calendar             Admin               |
+| Partner bank            Partner Bank (SAMPLE); account changes need 2 admins       |
+| Insurer partners        Sample Insurer Ghana Ltd (health, funeral) · licence file  |
+| Licence bodies          Ghana Bar Association; Licensed Surveyors Association      |
+| Case templates          Land v1.3, Building v1.1 (see Templates)                   |
+| Report scope statement  v1.0 (locked; lawyer and insurer approval on file)         |
+| Overlay layers          Acquisitions v3, Road reserves v2, Wetlands v1, Flood v1   |
+| Institution types       School, Hospital, Clinic, Pharmacy, Agency, Utility        |
+| Errand catalogue        12 items (Ghana Card, passport, title, probate ...) v1.0   |
+| Legal texts             Privacy notice v2, Terms v1.0, Escrow terms v1.0           |
+| Data location           Region: [TO VERIFY] · backups: [TO VERIFY] (Q-11)          |
+| Languages               English (Ghana). Twi, Ga, Ewe: not enabled                 |
++------------------------------------------------------------------------------------+
+| Nigeria (NG)  Draft, copied from Ghana v1.4 on 1 Nov 2026  [ Edit ] [ Checklist ] |
+| 9 of 14 sections still carry Ghana values. Cannot go live until all are reviewed   |
+| and the data location is set (FR-CTY-002). Manual phase gate: not yet passed.      |
++------------------------------------------------------------------------------------+
+```
+
+- **Content.** One record per country with every configurable section from FR-CTY-001, each with status, version and owner. A draft country shows how many sections still hold copied values.
+- **Actions.** Edit a section (versioned, logged); compare versions; open a new country by copying (FR-CTY-004, R2); run the go-live checklist.
+- **States.** Live, Draft, Manual phase (no software yet; configuration being prepared), Suspended. A value that affects a release needs a second administrator (FR-ADM-005). `[TO VERIFY]` values show a warning chip.
+- **Rules.** Nothing about Ghana is hard-coded (B2.9). Bank and insurer account changes need two administrators (FR-ADM-003). A country cannot go live until its data location is set and its manual phase gate is recorded as passed (C-13).
+- **Satisfies.** FR-CTY-001, FR-CTY-002, FR-CTY-004, FR-ADM-003, FR-ADM-005.
+
 ---
 
 ## 5. Interaction and content design
@@ -1372,6 +2018,17 @@ Every case, escrow, milestone, listing and dispute shows one status sentence at 
 | Blocked money | "The release is waiting for one condition: the seller's tax clearance. The seller's lawyer expects it by 6 May." |
 | Frozen | "A dispute was opened on 4 May. No money can move until it is decided. Decision due by 8 June." |
 | Done | "Partner Bank paid the seller on 7 May at 11:05 GMT. Your purchase is complete." |
+| Institution paid (J-09) | "Partner Bank paid Komfo Anokye Teaching Hospital, account ending 4471, on 15 August at 10:12 GMT. Receipt attached." |
+| Invoice mismatch | "The invoice names a different patient. Nothing has been paid. Check with the hospital and upload a corrected invoice." |
+| Recurring fee due | "Term 2 fees for Kofi and Yaw are due to Sample School by 5 January. Approve the payment by 29 December." |
+| Visit confirmed (J-10) | "Grace visited your mother on Tuesday from 09:02 to 10:15. Comfort confirmed the visit at 10:20." |
+| Visit unconfirmed | "Tuesday's visit is not yet confirmed. We have asked the family. The carer is not paid until it is." |
+| Visit missed | "The carer did not check in for Friday's visit. We called the family at 10:30 and are arranging another visit." |
+| Rent paid (J-11) | "August rent was paid by the tenant to your account at Partner Bank on 1 August." |
+| Rent late | "September rent is late. It was due on 1 September. Fidero contacted the tenant on 7 September." |
+| Quote rejected | "You rejected both quotes on 8 August. New quotes expected by 15 August." |
+| Errand rejected (J-12) | "The agency rejected the application on 12 August: the passport photo is out of date. We need a new photo from you by 19 August." |
+| Errand complete | "Your Ghana Card was handed to Kofi A. on 10 September and signed for. The errand is complete." |
 
 Rules:
 
@@ -1399,7 +2056,7 @@ Rules:
 
 ### 5.3 Confirmation of irreversible actions
 
-Irreversible actions: pay a fee, accept escrow terms, sign a report section, release a report, approve a release or refund, submit a milestone, submit an inspection result, open a dispute, publish a template, approve a bulk export.
+Irreversible actions: pay a fee, accept escrow terms, approve an escrow release as the client, sign a report section, release a report, approve a release or refund, submit a milestone, submit an inspection result, approve an invoice payment, approve a repair quote, confirm or deny a care visit, apply for an insurer's policy, open a dispute, publish a template or a country configuration, approve a bulk export.
 
 Pattern:
 
@@ -1447,6 +2104,27 @@ Verdicts are never colour alone (WCAG 1.4.1). Each uses a distinct **shape**, a 
 - Cedi re-pricing (RUL-18, FR-BLD-007) shows the agreed amount, the new amount, the change as amount and percentage, the reason, the source of the guide and its date, then the amount to pay now. The client ticks "I have seen the new price" before approving.
 - Amounts are not animated and do not count up.
 - SMS and WhatsApp never include amounts above the threshold (FR-NTF-004).
+- **Say who gets paid (RUL-22).** Every paid or planned payment on any line carries the payee line (CMP-30): `Paid to <institution, supplier, vendor or professional>, account ending <nnnn>`. Planned: `Will be paid to Komfo Anokye Teaching Hospital, account ending 4471`. Paid: `Paid to Komfo Anokye Teaching Hospital, account ending 4471, 15 Aug`. The payee is the verified organisation's registered name, never a person's name, never a relative, never "the carer" or "the agent". The only exception is a licensed professional paid in their own name (lawyer, surveyor, inspector), shown with their licence number.
+- **In-person payment (FR-FEE-006, DA-10).** `Paid in person by a Fidero runner to Sample Pharmacy, receipt attached. Cash drawn from Partner Bank against a signed voucher.` Never shortened to "paid in cash".
+- **Rent (RUL-24).** `Paid by tenant to your account at Partner Bank, ending 8820`. The word "Fidero" never appears next to a rent amount except in the fixed line "Fidero never receives your rent."
+- **Held balance (FR-ESC-014, DA-08).** `Held at Partner Bank for you: GHS 1,150.00`. Never "balance", "wallet", "credit" or "your Fidero account".
+- **Insurance (RUL-25).** Premiums: `Paid to Sample Insurer Ghana Ltd, account ending 6610. Never to Fidero.` Claims: `Decided and paid by Sample Insurer.`
+- **Fidero's own charge.** Always a separate line labelled "Fidero's charge", with its own receipt, so a client can see what Fidero earned on any item (FR-PAY-003).
+
+### 5.6a Fixed lines for partner products and other lines
+
+These sentences are locked text, held in translation files and changed only with the lawyer's agreement. They appear exactly as written on the screens listed.
+
+| Line | Fixed text | Where |
+|---|---|---|
+| Insurer products (RUL-25) | "A policy from [insurer]. Fidero does not hold the risk." | Insurer product page (SCR-PTL-51), policy wallet (SCR-PTL-52), dashboard insurance cards, every email about a policy |
+| Insurer claims (RUL-25) | "[Insurer] decides and pays claims. Fidero helps you start a claim and tracks the insurer's answer." | SCR-PTL-52 |
+| Rent (RUL-24) | "Rent is paid by your tenant to your own account at [bank]. Fidero never receives your rent." | SCR-PTL-46, SCR-PTL-47, tenant view (SCR-PTL-54) |
+| Institution payments (RUL-22) | "Fidero pays the school, hospital or agency directly. Money never goes to a relative or a go-between." | SCR-PTL-39, SCR-PTL-40, Family section empty state |
+| Care visits (RUL-23) | "The carer is paid only for visits the family confirms." | SCR-PTL-43, SCR-PTL-44, SCR-MOB-16 |
+| Errands (RUL-23) | "Official fees go to the agency. Fidero's charge is released when the finished document is checked." | SCR-PTL-49, SCR-PTL-50 |
+| Project funds and events (RUL-21, RUL-22) | "Suppliers and vendors are paid directly against invoices. Fidero confirms the money was spent as agreed. It does not judge whether the plan will succeed." | SCR-PTL-30, SCR-PTL-53 |
+| Country (B2.9) | "Showing your things in [country]. Prices in [currency]." | Dashboard header when the client has more than one country |
 
 ### 5.7 Voice and tone
 
@@ -1601,6 +2279,14 @@ Each component lists its states, usage rules, accessibility notes and Android Co
 | CMP-22 | Tabs and segmented control | List or map; sections of a case | 2 to 5 options. | ARIA tabs pattern with arrow keys. | `TabRow` |
 | CMP-23 | Fidero Verified badge | Valid, expiring in 14 days, expired, suspended | Always with check date; expiry on detail page; links to the report. Never shown on a listing that is not Live. | Text label, not an image. | `FideroVerifiedBadge(state, checkedOn, validUntil)` |
 | CMP-24 | One-time code input | Empty, typing, error, expired, resend timer | One field, not 6 boxes; numeric keyboard; paste allowed. | `autocomplete="one-time-code"`; timer not announced every second. | `OutlinedTextField` with `KeyboardType.NumberPassword` |
+| CMP-25 | Statement row | Payment out, payment in, Fidero's charge, pending, in-person exception, receipt missing | Date, payee line (CMP-30), reference, signed amount, receipt link. Newest first. Running balance line after each month. Used for family-member statements, held balances, project funds and events. | `<table>` on laptop, stacked list on phone; amount has `aria-label` with the full currency name; sign read as "paid" or "received". | `LazyColumn` of `ListItem` with trailing `FideroMoney` |
+| CMP-26 | Institution card | Verified (with date), Checking (with expected date), Not verified (with reason), Re-verifying, Suspended | Name, type, town, what was checked, account ending, contact role. Verified status is word plus tick icon, never a colour alone. A card that is not Verified has no "pay" action. | Status is the first text in the card; `aria-describedby` links the reason. | `Card` with `FideroStatusChip` |
+| CMP-27 | Visit card | Planned, Checked in, Checked out awaiting confirmation, Confirmed, Disputed, Missed, Late | Carer first name, planned window, check-in and check-out times with "at address" or distance, plan items done of total, photo thumbnails (CMP-09), confirmation line ("Confirmed by Comfort, 10:20"). | List item with a summary sentence for screen readers ("Visit Tuesday, confirmed, 09:02 to 10:15"). | `Card` with `Row` of times and `FlowRow` of thumbnails |
+| CMP-28 | Confirmation code entry | Empty, typing, match, no match, expired, answered | Four large digit cells on the family's page (SCR-PTL-45) and a large read-out on the carer's phone (SCR-MOB-16). 20 px text, 56 px targets. Two buttons: confirm, deny. | Single input with `inputmode="numeric"`, `autocomplete="off"`; result in `role="status"`. | `OutlinedTextField` on the carer side only; the family side is web |
+| CMP-29 | Country selector | Default from phone number country, chosen, single country (read only), adding a second country | List of open countries with flag-free text labels ("Ghana · GHS"), a short line on what changes (currency, calendar, partners). Shown at onboarding and in Account. Never a free-text field. | Native `<select>` or radio group; the consequence line is `aria-describedby`. | `ExposedDropdownMenuBox` in the app's account screen |
+| CMP-30 | Payee line | Planned, paid, in person (exception), blocked | "Paid to [name], account ending [nnnn]" per section 5.6. Sits directly above any approve button and on every statement row. Blocked variant: "Cannot be paid: account not in the institution's name." | Plain text; the account digits are read as digits. | `Text` composed by `FideroPayee(name, last4, state)` |
+| CMP-31 | Partner notice | Insurer, bank, agency | Fixed-text panel from section 5.6a with the partner's name first and larger than Fidero's. No Fidero brand colour on the partner's product name. | `<aside aria-label="About this partner">`. | `Surface` with partner `Text` at `--text-xl` |
+| CMP-32 | Dashboard section | Property, Family, Projects and errands; collapsed, expanded, empty (hidden), with items needing action | Heading with count and "See" link; items needing the client first, each with "!" and a word; status sentence per item (CMP-06 pattern); at most 3 items shown, then "See all". | `<section>` with `<h2>`; counts in text. | `LazyColumn` section with sticky header |
 
 ---
 
@@ -1608,7 +2294,7 @@ Each component lists its states, usage rules, accessibility notes and Android Co
 
 ### 7.1 WCAG 2.2 AA checklist mapped to components
 
-NFR-A11Y-01 requires WCAG 2.2 AA on the portal and back office. This document applies the same bar to the Android app (DA-06). Each item is tested in document 05.
+NFR-A11Y-01 (01 v0.3) requires WCAG 2.2 AA on the portal and back office from R1 and on the Android field app from R2, using Android's accessibility guidance. The family confirmation page (SCR-PTL-45) is held to the same bar with larger text and targets, because its users are often elderly. Each item is tested in document 05.
 
 | SC | Requirement | How Fidero meets it | Components and screens |
 |---|---|---|---|
@@ -1696,13 +2382,14 @@ NFR-LOC-01 requires every user-facing string in translation files. English (Ghan
 | Candidate languages | Twi, Ga, Ewe, Hausa for Ghana; Nigeria pilot languages per FR-CTY-001. Demand `[TO VERIFY]` from R0 and R1 data. Legal texts stay in English until translated texts are approved by the lawyer. |
 | Dates | `12 March 2027` (day, month name, year). Short form `12 Mar 2027`. Never `03/12/27`, which reads differently in the US. |
 | Times | 24-hour clock with zone: `14:05 GMT`. Ghana uses GMT all year with no daylight saving. For users abroad, add their local time: `14:05 GMT (15:05 in London)`. Deadlines are always stated in Ghana time first (C3). |
-| Working days | Deadlines in working days (FR-DSP-003) exclude weekends and Ghana public holidays. The holiday calendar must be configurable per country `[TO VERIFY]` (issue I-10). |
-| Currency | ISO code, then amount: `GHS 5,400.00`, `USD 450.00`. Comma for thousands, point for decimals. Screen readers get the full currency name. Naira (`NGN`) added in R3. |
+| Working days | Deadlines in working days (FR-DSP-003) exclude weekends and the public holidays in the country's holiday calendar, which the administrator maintains (01 C3, FR-CTY-001; issue I-10 closed). |
+| Currency | ISO code, then amount: `GHS 5,400.00`, `USD 450.00`. Comma for thousands, point for decimals. Screen readers get the full currency name. Each country's currency comes from its configuration; naira (`NGN`) is assumed first when country 2 goes live on the platform, from about month 12 `[TO VERIFY]`. |
 | Numbers and sizes | Plot sizes in feet as sold locally ("100 x 70 ft") with square metres in brackets. Distances in metres. |
 | Phone numbers | Stored in E.164. Shown with country code: `+233 24 123 4567`. Default country from locale, editable. |
 | Names | One full-name field plus an optional "what should we call you" field. No assumption of first and last name order. |
 | Addresses | Ghana Post GPS (`AA-NNN-NNNN`) plus free-text locality. No postcode field for Ghana. |
-| Country configuration | Templates, scope statement, currency, partners and licence bodies come from country configuration (FR-CTY-001); the UI never hard-codes "Lands Commission" outside Ghana templates. |
+| Country configuration | Templates, scope statement, currency, holiday calendar, partners, licence bodies, institution types, errand catalogue and legal texts come from country configuration (FR-CTY-001, R1); the UI never hard-codes "Lands Commission", "Ghana Card" or "NIA" outside Ghana configuration. Status templates take the institution's name as a variable. A second country's manual phase starts from about month 6; its screens are the same screens with its configuration. |
+| Institution names | Shown as registered, in the country's official language, with no translation. Abbreviations (KATH, NIA) are shown only after the full name on the same screen. |
 
 ---
 
@@ -1714,22 +2401,27 @@ File: `docs/specs/03-prototype/index.html`. One self-contained HTML file. No bui
 
 | Flow | Screens in the prototype | Spec screens |
 |---|---|---|
+| H. Home dashboard (F-35) | One screen with the country (Ghana), sections for Property, Family, and Projects and errands, sample items with status sentences, the held balance at the bank, and links into the other flows. First in the switcher and the screen the prototype opens on | SCR-PTL-36 |
 | A. Order a report (J-01) | What to check → the plot → documents → check and agree → pay → payment confirmed → case tracker → released report with verdict and hash check | SCR-PTL-06 to 12, SCR-PTL-14 |
-| B. Escrow (J-02) | Escrow tracker with conditions closing, fresh search and approvals 1 of 2; bank instructions panel | SCR-PTL-17, SCR-PTL-18 |
-| C. Back office release | Two-person release approval with gates, second-factor field, and a switch to see the screen as approver 1 | SCR-BO-12 |
+| B. Escrow (J-02) | Escrow tracker with conditions closing, fresh search, the client's own approval with a code, and Fidero approvals 1 of 2; bank instructions panel | SCR-PTL-17, SCR-PTL-18 |
+| C. Back office release | Two-person release approval with gates (including "client approved"), second-factor field, and a switch to see the screen as approver 1 | SCR-BO-12 |
 | D. Listings (J-04) | Search with list and map views → listing detail with Fidero Verified badge, check date, expiry and report link; one expired example | SCR-PTL-26, SCR-PTL-27 |
 | E. Build dashboard (J-03) | Budget against actual, milestone list, photo timeline placeholders, re-pricing note | SCR-PTL-22, SCR-PTL-23 (summary) |
-| F. Android contractor app | Phone frame with evidence checklist, offline banner and upload queue; a switch to go online and watch the queue send | SCR-MOB-04, SCR-MOB-07, SCR-MOB-08 |
+| F. Android field app | Phone frame with evidence checklist, offline banner and upload queue; a switch to go online and watch the queue send | SCR-MOB-04, SCR-MOB-07, SCR-MOB-08 |
+| G. Family: pay a hospital bill (J-09) | Kwabena's view: verified institution card → invoice sent by the hospital, with the three checks and a mismatch state to try → approve with a code, payee named → paid to the institution → receipt and family-member statement | SCR-PTL-39, SCR-PTL-40, SCR-PTL-42 |
 
 How to use it:
 
-- The top bar has a **flow switcher** (A to F) and a **theme switch** (system, light, dark).
+- The top bar has a **flow switcher** (H first, then A to G) and a **theme switch** (system, light, dark).
 - Within flow A, buttons move forward and back as in the real product. The step indicator is clickable for completed steps.
 - The hash check in flow A really computes SHA-256 in the browser for any file you choose, and compares it with the sample hash. "Download report (sample file)" saves a small text file that matches; "Use the sample report" shows the match state in one click. Any other file shows the no-match state.
+- In flow B, after the last condition closes, the client approves the release with any 6 digits. Only then does the back office (flow C) show the gate "Client approved" as passed.
 - The release approval in flow C is blocked until you tick the statement and type any 6 digits. The "View as Kofi Boateng" switch shows the "different person" rule.
 - In flow F, "Go online" sends queued items one by one; "Go offline" stops the queue.
+- In flow G, "Simulate a mismatched invoice" shows the blocked state where the patient on the invoice is not the family member. Nothing can be approved until a corrected invoice is chosen.
+- The dashboard in flow H combines Ama's property items and Kwabena's family items so that every section has something in it. In the real product each client sees only their own things. The signed-in name at the top changes with the flow.
 
-What it does not cover: sign-up and identity check, the back-office queue and report builder, disputes and admin screens. These are in the wireframes.
+What it does not cover: sign-up, the country selector and identity check, the back-office queue, report builder and institution verification, care visits, property management, errands, insurer pages, disputes and admin screens. These are in the wireframes.
 
 ### 9.2 Usability test plan
 
@@ -1753,12 +2445,16 @@ Tasks:
 | T4 Check the report file | "Check that the PDF you downloaded is the real one." | Finds and completes the hash check |
 | T5 Where does the money go | "You are ready to pay for the plot. Who do you pay?" | Names the partner bank, not Fidero (critical, RUL-01) |
 | T6 Listing trust (R2 round) | "Is this listing checked, and when?" | Reads badge, check date and opens the report |
+| T7 Pay a hospital bill | "Your mother's hospital has sent a bill. Pay it, and tell me who receives the money." | Approves the invoice unaided; names the hospital, not a relative or Fidero (critical, RUL-22) |
+| T8 Read the dashboard | "Open your home page. What needs you today?" | Names the two items marked as needing action, in any order |
+
+Participants for T7 and T8 include at least 2 who send money home for fees or bills today (persona P-15).
 
 Measures:
 
-- Completion rate and time for T1. **NFR-USE-01 pass: all 5 participants complete T1 unaided in under 10 minutes.** (Interpretation, see issue I-13.)
+- Completion rate and time for T1. **NFR-USE-01 pass (01 v0.3): at least 4 of 5 participants complete T1 unaided, with a median time under 10 minutes.** (Issue I-13 closed.)
 - Errors and recoveries per task.
-- T5 must be 5 of 5. Any failure is a release blocker, because paying the wrong party is the highest-harm error.
+- T5 and T7 must be 5 of 5. Any failure is a release blocker, because paying the wrong party is the highest-harm error.
 - Single Ease Question (1 to 7) after each task; target median 6 or above (assumption).
 - Comprehension: participants explain the status sentence and verdict in their own words.
 - Findings are logged with severity and the screen ID, fixed, and retested in the next round.
@@ -1775,7 +2471,7 @@ Screen to requirement to journey. Rules (`RUL-`) follow the FR IDs where a scree
 | SCR-PTL-02 | FR-ACC-001, FR-DPR-001 | J-01 | W-01 |
 | SCR-PTL-03 | FR-ACC-002, FR-ACC-009 | J-01 | - |
 | SCR-PTL-04 | FR-ACC-004 | J-01, J-02 | W-02 |
-| SCR-PTL-05 | FR-CASE-007 | J-01, J-02, J-03 | - |
+| SCR-PTL-05 | Retired; see SCR-PTL-36 | - | - |
 | SCR-PTL-06 | FR-ORD-001, FR-ORD-002 | J-01, J-08 | W-03 |
 | SCR-PTL-07 | FR-ORD-001, FR-GEO-008 | J-01, J-08 | W-04 |
 | SCR-PTL-08 | FR-ORD-001, FR-EVD-001, FR-EVD-005 | J-01, J-08 | - |
@@ -1787,7 +2483,7 @@ Screen to requirement to journey. Rules (`RUL-`) follow the FR IDs where a scree
 | SCR-PTL-14 | FR-RPT-005, FR-RPT-007, FR-RPT-008, FR-RPT-010 | J-01, J-08 | W-08 |
 | SCR-PTL-15 | FR-RPT-008 | J-01 | - |
 | SCR-PTL-16 | FR-ESC-001, FR-ESC-002, FR-RPT-009 | J-02, J-08 | - |
-| SCR-PTL-17 | FR-ESC-004 to FR-ESC-009; RUL-06, RUL-07 | J-02, J-04, J-08 | W-09 |
+| SCR-PTL-17 | FR-ESC-004 to FR-ESC-009; RUL-06, RUL-07, RUL-11 | J-02, J-04, J-08 | W-09 |
 | SCR-PTL-18 | FR-ESC-003; RUL-01 | J-02, J-04 | W-10 |
 | SCR-PTL-19 | FR-CASE-015 | J-01 | - |
 | SCR-PTL-20 | FR-ACC-008, FR-ACC-010, FR-NTF-001 | J-01 | - |
@@ -1806,7 +2502,26 @@ Screen to requirement to journey. Rules (`RUL-`) follow the FR IDs where a scree
 | SCR-PTL-33 | FR-RAT-002 | J-01, J-03 | - |
 | SCR-PTL-34 | FR-DPR-003 | None (data rights) | - |
 | SCR-PTL-35 | FR-REC-004 | None (records, R3) | - |
-| SCR-BO-01 | FR-ACC-003, FR-ACC-009, FR-SEC-02 | All | - |
+| SCR-PTL-36 | FR-ACC-012, FR-CASE-007, FR-ESC-014, FR-CTY-001; RUL-22, RUL-24 | J-01, J-02, J-03, J-05, J-09, J-10, J-11, J-12 | W-25 |
+| SCR-PTL-37 | FR-CTY-001, FR-ACC-001 | J-01, J-09 | - |
+| SCR-PTL-38 | FR-ACC-012, FR-CARE-001 | J-09, J-10 | - |
+| SCR-PTL-39 | FR-FEE-001; RUL-22 | J-09 | W-26 |
+| SCR-PTL-40 | FR-FEE-002, FR-FEE-003, FR-ESC-014, FR-ESC-015; RUL-11, RUL-22 | J-09 | W-27 |
+| SCR-PTL-41 | FR-FEE-004, FR-FEE-005; RUL-11 | J-09 | - |
+| SCR-PTL-42 | FR-FEE-004, FR-FEE-006, FR-FEE-007, FR-ESC-014; RUL-22 | J-09 | W-28 |
+| SCR-PTL-43 | FR-CARE-001, FR-CARE-002; RUL-23 | J-10 | W-29 |
+| SCR-PTL-44 | FR-CARE-003, FR-CARE-005, FR-CARE-006; RUL-23 | J-10 | - |
+| SCR-PTL-45 | FR-CARE-004; RUL-23 | J-10 | W-31 |
+| SCR-PTL-46 | FR-PMG-001; RUL-24 | J-11 | - |
+| SCR-PTL-47 | FR-PMG-002, FR-PMG-003, FR-PMG-005, FR-PMG-006; RUL-22, RUL-24 | J-11 | W-32 |
+| SCR-PTL-48 | FR-PMG-004, FR-PMG-005, FR-RAT-003; RUL-11, RUL-22 | J-11 | W-33 |
+| SCR-PTL-49 | FR-TSK-001, FR-CTY-001 | J-12 | - |
+| SCR-PTL-50 | FR-TSK-002 to FR-TSK-005; RUL-22, RUL-23 | J-12 | W-34 |
+| SCR-PTL-51 | FR-INS-001, FR-INS-002; RUL-25 | None (insurer line) | W-35 |
+| SCR-PTL-52 | FR-INS-003, FR-INS-004; RUL-25 | None (insurer line) | - |
+| SCR-PTL-53 | FR-EVT-001 to FR-EVT-003; RUL-22 | None (events, R3) | - |
+| SCR-PTL-54 | FR-PMG-002, FR-PMG-004 | J-11 | - |
+| SCR-BO-01 | FR-ACC-003, FR-ACC-009, NFR-SEC-02 | All | - |
 | SCR-BO-02 | FR-CASE-005, FR-NTF-003 | J-01, J-08 | W-11 |
 | SCR-BO-03 | FR-CASE-001 to FR-CASE-004, FR-CASE-007, FR-CASE-008, FR-CASE-011, FR-CASE-012, FR-CASE-013 | J-01, J-08 | W-12 |
 | SCR-BO-04 | FR-CASE-004, FR-CASE-006, FR-CASE-010, FR-EVD-001 | J-01, J-08 | - |
@@ -1817,7 +2532,7 @@ Screen to requirement to journey. Rules (`RUL-`) follow the FR IDs where a scree
 | SCR-BO-09 | FR-RPT-006, FR-RPT-007, FR-RPT-010; RUL-03 | J-01, J-08 | - |
 | SCR-BO-10 | FR-ESC-001, FR-ESC-006 | J-02 | - |
 | SCR-BO-11 | FR-ESC-001, FR-ESC-002, FR-ESC-004, FR-ESC-005, FR-ESC-006; RUL-06, RUL-07, RUL-15 | J-02, J-04, J-08 | - |
-| SCR-BO-12 | FR-ESC-006 to FR-ESC-009, FR-ESC-013; RUL-05, RUL-06, RUL-07 | J-02, J-03, J-05 | W-15 |
+| SCR-BO-12 | FR-ESC-006 to FR-ESC-009, FR-ESC-013, FR-ESC-015; RUL-05, RUL-06, RUL-07, RUL-11, RUL-22 | J-02, J-03, J-05, J-09, J-11, J-12 | W-15 |
 | SCR-BO-13 | FR-PAY-004, FR-PAY-006, FR-ESC-011 | J-01, J-02 | - |
 | SCR-BO-14 | FR-BLD-005, FR-BLD-010, FR-MOB-011, FR-EVD-006 | J-03 | - |
 | SCR-BO-15 | FR-BLD-003, FR-BLD-004, FR-RAT-001; RUL-10 | J-03 | - |
@@ -1832,7 +2547,13 @@ Screen to requirement to journey. Rules (`RUL-`) follow the FR IDs where a scree
 | SCR-BO-24 | FR-DPR-003 to FR-DPR-005 | None (data rights) | - |
 | SCR-BO-25 | FR-NTF-002, FR-NTF-004, FR-NTF-005 | All | - |
 | SCR-BO-26 | FR-REC-001 to FR-REC-003 | None (records, R3) | - |
-| SCR-MOB-01 | FR-MOB-001, FR-MOB-004 | J-03 | - |
+| SCR-BO-27 | FR-FEE-001, FR-ESC-015, FR-ADM-003; RUL-22 | J-09 | - |
+| SCR-BO-28 | FR-CARE-002, FR-CARE-005, FR-CARE-006, FR-TSK-003; RUL-23 | J-10, J-12 | - |
+| SCR-BO-29 | FR-CTY-001, FR-CTY-002, FR-CTY-004, FR-ADM-003, FR-ADM-005 | All | W-36 |
+| SCR-BO-30 | FR-FEE-002, FR-FEE-003, FR-FEE-006, FR-ESC-014, FR-ESC-015; RUL-22 | J-09 | - |
+| SCR-BO-31 | FR-PMG-003, FR-PMG-004, FR-PMG-006; RUL-24 | J-11 | - |
+| SCR-BO-32 | FR-TSK-003, FR-TSK-004, FR-TSK-005 | J-12 | - |
+| SCR-MOB-01 | FR-MOB-001, FR-MOB-004 | J-03, J-10, J-12 | - |
 | SCR-MOB-02 | FR-MOB-001 | J-03 | - |
 | SCR-MOB-03 | FR-BLD-005 | J-03 | - |
 | SCR-MOB-04 | FR-MOB-006 | J-03 | - |
@@ -1845,6 +2566,13 @@ Screen to requirement to journey. Rules (`RUL-`) follow the FR IDs where a scree
 | SCR-MOB-11 | FR-MOB-007; RUL-09 | J-03 | W-18 |
 | SCR-MOB-12 | FR-MOB-010, FR-CASE-010 | J-01, J-02 | - |
 | SCR-MOB-13 | FR-MOB-008, FR-MOB-009 | J-03 | - |
+| SCR-MOB-14 | FR-MOB-012, FR-CARE-003; RUL-23 | J-10 | W-30 |
+| SCR-MOB-15 | FR-CARE-003, FR-MOB-002, FR-MOB-010 | J-10 | W-30 |
+| SCR-MOB-16 | FR-MOB-012, FR-CARE-004, FR-CARE-006 | J-10 | W-30 |
+| SCR-MOB-17 | FR-TSK-003, FR-TSK-005, FR-MOB-010 | J-12 | - |
+| SCR-MOB-18 | FR-PMG-001, FR-PMG-005, FR-MOB-012 | J-11 | - |
+
+Modules with no screen of their own: FR-ANL (F-35 draws on it for the dashboard counts; the operating dashboard is SCR-BO-23), FR-AUD, FR-NTF and FR-DPR are cross-cutting and listed on the screens above.
 
 ---
 
@@ -1866,26 +2594,39 @@ Screen to requirement to journey. Rules (`RUL-`) follow the FR IDs where a scree
 | DQ-10 | Should the public hash check (SCR-PTL-15) show the report's verdict, or only "match" and the release date? This design shows only match, reference, version and release date. | Founder, lawyer | R1 |
 | DQ-11 | How is a listing's badge shown on social media shares, where it can be screenshotted after expiry? A live verification link with the expiry date is proposed. | Product lead | R2 |
 | DQ-12 | Do we recruit colour-blind participants specifically for the verdict test? Recommended. | Designer | R1 usability round |
+| DQ-13 | Does the dashboard show one country at a time with a switcher, or all countries in one list with a chip per item? This document assumes one list with chips until a client has more than about 10 items `[TO VERIFY]`. | Designer, founder | R1 |
+| DQ-14 | Should institution-sent invoices (IF-10) appear on the dashboard before Fidero's checks run, marked "Not yet checked", or only after? This document shows them after the checks, to avoid a client approving an unchecked bill. | Product lead, operations | R1 |
+| DQ-15 | What does the family member's confirmation page show when the client has asked for photos of the parent: the photos, or only that photos were taken? Privacy of the parent against reassurance of the family. | Lawyer, designer | R2 |
+| DQ-16 | Is the insurer's own application form embedded, or does Fidero collect the fields and pass them on (FR-INS-002)? Each insurer may differ `[TO VERIFY]`. | Founder, insurer partner | R2 |
+| DQ-17 | What is the late-rent grace period before an alert (FR-PMG-003), and the missed-visit window before an alert (FR-CARE-005)? This document uses 5 days and 60 minutes as samples `[TO VERIFY]`. | Operations | R2 |
 
 ### 11.2 Issues found in document 01
 
-Document 01 has not been edited. These need a decision by its owner.
+Document 01 has not been edited. Items marked **Closed** were fixed in 01 v0.2 or v0.3 and are kept here for one version so document 05 can retire its tests against them. The rest need a decision by the owner of 01.
 
-| ID | Where in 01 | Issue | Design assumption used here |
-|---|---|---|---|
-| I-01 | RUL-02, FR-RPT-003 | 01 says green is blocked if any section from **4 to 10** is red. The report template says **4 to 9**. The architecture note says "any section". | Sections 4 to 10, as 01 states. Template and architecture should be aligned. |
-| I-02 | RUL-11 against J-02 and the Escrow state model (C8) | RUL-11 says "A client approves; Fidero staff approve; the bank pays". J-02 and the Escrow states have no client approval step for a purchase release. | Client approval shown for milestones (J-03). For purchase escrows, the tracker shows conditions but asks for no client approval. Needs a decision. |
-| I-03 | Milestone state model (C8) against FR-BLD-005, FR-BLD-006, FR-BLD-012 | States miss "Inspection scheduled" (in FR-BLD-005), the move from Returned back to Submitted, defect hold-back and defect closed, and retention held and released. | UI shows these as sub-states. The model should list them so document 05 can test them. |
-| I-04 | Escrow state model (C8) | No move to Frozen from Release approved (dispute raised after approval but before the bank pays). No Frozen to Cancelled when a dispute ends in cancellation. No states for partial releases (FR-ESC-010). No "manual mode" when no bank agreement exists (AS-02). | UI allows freeze until the bank confirms payment, and shows partial releases as a list under Funded. |
-| I-05 | FR-ACC-003 against RUL-11 | MFA is required for "any user who approves a release". Clients approve milestones but do not release. It is unclear whether client approvals need MFA. | DA-01: one-time code for client approvals. |
-| I-06 | NFR-A11Y-01 | WCAG 2.2 AA applies only to the portal and back office. The Android app has no accessibility requirement. | DA-06: same bar for the app. |
-| I-07 | C2 user roles | Roles are missing for: quantity surveyor (FR-BLD-002), client representative (FR-ACC-008), traditional authority representative (FR-REC-004), project-run person and supplier (FR-PRJ-001). Sellers must accept escrow terms in R1 (FR-ESC-002), but seller features are mostly R2. | Screens assume these roles exist with minimal rights. |
-| I-08 | FR-NTF-004 | "Money amounts above a threshold" has no threshold and no `[TO VERIFY]` marker. FR-ADM-005 does not list it as a configurable value. | Treated as a configurable value. |
-| I-09 | FR-ORD-002 against C3 | FR-ORD-002 shows "the price in the client's currency". C3 says GBP, EUR and CAD are guides only. It is unclear which currency is charged. | DA-02: charge in USD (card) or GHS (mobile money); show others as guides. |
-| I-10 | FR-DSP-003, FR-ADM-005 | Deadlines in working days need a public holiday calendar per country. No requirement covers it. | Holiday calendar treated as country configuration. |
-| I-11 | FR-CASE-006, RUL-08, FR-EVD-006 | In R1, field staff upload verification evidence through a phone browser, which allows gallery uploads. RUL-08 covers only milestones, and app-capture marking (FR-EVD-006) is R2. R1 site photos therefore have weaker proof of time and place. | UI marks R1 uploads as "Uploaded" with metadata shown. The gap should be accepted in writing or covered by a rule. |
-| I-12 | Listing state model (C8), RUL-13 | No transition for a Reserved listing whose badge expires or that gets a monitoring alert during the fresh search. | Reserved listing stays reserved; the fresh search decides. Needs confirmation. |
-| I-13 | NFR-USE-01 | The pass mark is unclear: all 5 participants, most of them, or the median time. | Section 9.2 uses the strict reading: all 5 unaided in under 10 minutes. |
-| I-14 | Milestone state model "approval window lapses" against RUL-18 | If the approval window lapses after a cedi re-pricing, an automatic approval would skip the client seeing the change. | No automatic approval when the price changed. Needs a rule. |
-| I-15 | Dispute state model (C8), FR-DSP-004 | No "Withdrawn" state. The model does not say what happens to frozen releases for each outcome. | UI offers withdraw and shows the money outcome in the decision. |
-| I-16 | FR-RPT-008 | "Anyone" can check a PDF against the hash, but 01 does not say what the check may reveal about the report. | DA-04 and DQ-10: in-browser hash, reveal only match, reference, version and release date. |
+| ID | Where in 01 | Issue | Status | Design assumption used here |
+|---|---|---|---|---|
+| I-01 | RUL-02, FR-RPT-003 | 01 says green is blocked if any section from 4 to 10 is red; the report template said 4 to 9. | **Closed.** The template now reads "sections 4 to 10". | Sections 4 to 10. |
+| I-02 | RUL-11 against J-02 and the Escrow state model | No client approval step for a purchase release. | **Closed** in v0.2: the Escrow model has Ready to release → Client approved. J-02 step 6 still omits the client's step in its prose; a one-line edit would align it. | W-09, flow 3.2 and prototype flow B show the client approval. |
+| I-03 | Milestone state model against FR-BLD-005, FR-BLD-006, FR-BLD-012 | Missing states for inspection scheduled, returned to submitted, defect hold-back, retention. | **Mostly closed** in v0.2. Retention held and released (FR-BLD-012) still has no state. | UI shows retention as a final milestone line ("Handover and retention"). |
+| I-04 | Escrow state model | No Frozen from Release approved; no Frozen to Cancelled; no partial releases; no manual mode. | **Closed** in v0.2 (Frozen from Release approved with Q-12; Frozen → Cancelled; Partly released). Manual mode is covered by FR-ESC-004's manual entry. | As 01. |
+| I-05 | FR-ACC-003 against RUL-11 | MFA is required for "any user who approves a release". Clients approve but do not release. It is unclear whether client approvals need MFA. | Open. | DA-01: one-time code for client approvals, now also for invoices (FR-FEE-003), repair quotes (FR-PMG-004) and the escrow release. |
+| I-06 | NFR-A11Y-01 | The Android app had no accessibility requirement. | **Closed** in v0.3: the field app meets WCAG 2.2 AA from R2. | DA-06 retired. |
+| I-07 | C2 user roles | Missing roles for quantity surveyor, client representative, authority representative, project runner, supplier; seller in R1. | **Closed** in v0.2 and v0.3. | As 01. |
+| I-08 | FR-NTF-004 | No threshold for amounts in SMS and WhatsApp. | **Closed** in v0.2: FR-ADM-005 lists it as a configurable value. | As 01. |
+| I-09 | FR-ORD-002 against C3 | Unclear which currency is charged. | **Closed** in v0.2: USD for cards, GHS for mobile money. | DA-02 kept as the display rule. |
+| I-10 | FR-DSP-003, FR-ADM-005 | No holiday calendar per country. | **Closed** in v0.3: C3 and FR-CTY-001 name the holiday calendar. | As 01. |
+| I-11 | FR-CASE-006, RUL-08, FR-EVD-006 | In R1, field staff upload verification evidence through a phone browser, which allows gallery uploads. RUL-08 covers only milestones. R1 site photos have weaker proof of time and place. | Open. Now also applies to R1 institution receipts uploaded by runners (FR-FEE-006). | UI marks R1 uploads as "Uploaded" with metadata shown. |
+| I-12 | Listing state model, RUL-13 | No transition for a Reserved listing whose badge expires or that gets an alert. | **Closed** in v0.2: Live or Reserved → Suspended or Expired; Reserved → Live. | As 01. |
+| I-13 | NFR-USE-01 | Pass mark unclear. | **Closed** in v0.2: at least 4 of 5, median under 10 minutes. | Section 9.2 updated. |
+| I-14 | Milestone "approval window lapses" against RUL-18 | Automatic approval would skip the client seeing a re-pricing. | **Closed** in v0.2: silence is never approval (Q-13 remains open on what happens next). | W-20 updated. |
+| I-15 | Dispute state model, FR-DSP-004 | No "Withdrawn" state. The model does not say what happens to frozen releases for each outcome. | Open. | UI offers withdraw and shows the money outcome in the decision. |
+| I-16 | FR-RPT-008 | What the public hash check may reveal is not stated. | Open. | DA-04 and DQ-10. |
+| I-17 | C8 state models against FEE, CARE, PMG, TSK, INS, EVT | 01 v0.3 adds six modules but no state models for an institution payment, a care visit, a repair, an errand, a policy or an event. Document 05 cannot test transitions that are not written down. | Open. | This document uses these states in words: institution payment (Received, Checked, Blocked, Approved by client, Release approved, Paid, Receipt returned); visit (Planned, Checked in, Checked out, Confirmed, Disputed, Missed); repair (Reported, Quotes in, Approved, Held, Inspected, Paid); errand (Documents, Paid in, Lodged, Rejected, Ready, Checked, Handed over, Complete). |
+| I-18 | Priorities in FEE, CARE, PMG, TSK, INS | Must requirements sit under Should or Could parents: FR-INS-002 (Must) under F-33 (Could) and FR-INS-001 (Could); FR-TSK-002 to 004 (Must) under FR-TSK-001 (Should); FR-CARE-003 and 004 (Must) under FR-CARE-001 (Should); FR-PMG-002, 003 and 005 (Must) under FR-PMG-001 (Should). A Must that depends on a Should cannot ship on its own. | Open. | Screens follow the parent feature's release and priority. |
+| I-19 | FR-CARE-004, C2 "Family member" | The family member confirms a visit "by a one-tap code, a call or the app", but 01 gives family members no sign-up or authentication path, and FR-ACC-012 only lets the client add them. | Open. | DA-07: one-time link, no account; call as fallback. |
+| I-20 | FR-FEE-006 against RUL-22 and RUL-01 | A runner draws cash from the bank against a voucher and pays an institution in person. This is the only place cash moves, and no rule names it as an exception the way RUL-09 names mobilisation. | Open. | DA-10: shown plainly as an exception with voucher and receipt. |
+| I-21 | FR-PMG-003 against RUL-24 | Rent goes to the owner's own account at the partner bank and Fidero "tracks rent received from the bank's statement". 01 does not say how Fidero may read the owner's account (consent, a mandate, or a view-only product `[TO VERIFY]`). | Open. | UI shows "Not yet confirmed by the bank" rather than "missing" when the statement is not available, and asks the owner for consent to view at SCR-PTL-46. |
+| I-22 | FR-ACC-012 (Should) against FR-FEE-002 (Must) | Checking an invoice "against the named family member" is Must in R1, but adding a family member is Should. | Open. | SCR-PTL-38 is treated as Must for R1. |
+| I-23 | FR-CARE-004, FR-CARE-005, RUL-23 | If the family never confirms and never denies a visit, the carer is unpaid for ever. 01 sets a 24-hour alert but no end state. | Open. Linked to Q-19. | After the alert, Fidero calls the family; a reviewer may record "confirmed by call" or "not confirmed", which decides payment. |
+| I-24 | C2 "Tenant" and "Institution contact", FR-ACC-011 | Tenants and institution contacts have roles but no sign-up path in R1 (organisation accounts are R2). | Open. | Tenant view (SCR-PTL-54) is R2; institution contacts work by email and the back office in R1 (IF-10). |

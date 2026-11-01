@@ -292,6 +292,33 @@ summary{cursor:pointer;font-weight:600;min-height:28px}
 blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px solid var(--color-border-strong);font-size:var(--text-sm);color:var(--color-text)}
 .row{display:flex;gap:var(--space-3);flex-wrap:wrap;align-items:center}
 .spread{display:flex;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap;align-items:baseline}
+
+/* Home dashboard CMP-32, institution card CMP-26, statement row CMP-25, payee line CMP-30 */
+.country{display:inline-flex;align-items:center;gap:6px;font-size:var(--text-sm);font-weight:600;color:var(--color-text);background:var(--color-surface-2);border:1px solid var(--color-border-strong);border-radius:var(--radius-pill);padding:2px 10px}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:var(--space-3);margin:var(--space-5) 0 var(--space-2)}
+.sec-head h2{font-size:var(--text-sm);letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-muted);margin:0}
+.item{display:block;width:100%;text-align:left;font:inherit;color:inherit;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);margin-bottom:var(--space-2);cursor:pointer;box-shadow:var(--elev-1);text-decoration:none}
+.item:hover{border-color:var(--color-primary)}
+.item .t{font-weight:700;display:flex;justify-content:space-between;gap:var(--space-2);flex-wrap:wrap}
+.item .s{display:block;font-size:var(--text-sm);margin-top:2px}
+.item.need{border-left:6px solid var(--color-primary);padding-left:calc(var(--space-4) - 5px)}
+.need-tag{font-size:var(--text-xs);font-weight:700;color:var(--color-primary);background:var(--color-primary-subtle);border-radius:var(--radius-pill);padding:1px 8px;white-space:nowrap}
+.inst{border:2px solid var(--verdict-green-fg);border-radius:var(--radius-lg);padding:var(--space-4);background:var(--color-surface);margin-bottom:var(--space-4)}
+.inst .vstat{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:var(--text-sm);letter-spacing:.04em;color:var(--verdict-green-fg);margin-bottom:var(--space-2)}
+.inst.notok{border-color:var(--verdict-red-fg)}
+.inst.notok .vstat{color:var(--verdict-red-fg)}
+.payee{display:flex;gap:var(--space-2);align-items:flex-start;font-weight:600;background:var(--color-surface-2);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);margin:var(--space-3) 0}
+.payee .icon{color:var(--color-primary);margin-top:2px}
+.stmt{list-style:none;margin:0;padding:0}
+.stmt li{display:grid;grid-template-columns:56px 1fr auto;gap:var(--space-2);padding:var(--space-3) 0;border-bottom:1px solid var(--color-border);font-size:var(--text-sm);align-items:start}
+.stmt li:last-child{border-bottom:0}
+.stmt .d{color:var(--color-text-muted)}
+.stmt .amt{font-variant-numeric:tabular-nums;font-weight:700;text-align:right;white-space:nowrap}
+.stmt .amt.in{color:var(--verdict-green-fg)}
+.stmt .sub{display:block;color:var(--color-text-muted)}
+.checks{list-style:none;margin:0;padding:0}
+.checks li{display:flex;gap:var(--space-2);align-items:flex-start;padding:var(--space-2) 0;border-bottom:1px solid var(--color-border)}
+.checks li:last-child{border-bottom:0}
 </style>
 </head>
 <body>
@@ -319,6 +346,8 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   <symbol id="i-build" viewBox="0 0 24 24"><path d="M4 20.5V10l8-6 8 6v10.5"/><path d="M9 20.5v-6h6v6"/></symbol>
   <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="4"/><path d="M4 20.5a8 8 0 0116 0"/></symbol>
   <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0113 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+  <symbol id="i-people" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><circle cx="17" cy="9.5" r="2.5"/><path d="M15.5 14.5a5 5 0 016 5.5"/></symbol>
+  <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 2.5h12v19l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h4"/></symbol>
   <symbol id="logo" viewBox="0 0 32 32"><rect style="stroke:var(--color-primary)" x="4" y="4" width="24" height="24" rx="3" fill="none" stroke-width="3"/><path style="stroke:var(--color-accent)" d="M14 24l10-12" stroke-width="3" fill="none" stroke-linecap="round"/><path style="stroke:var(--color-accent)" d="M9 19l5 5" stroke-width="3" fill="none" stroke-linecap="round"/></symbol>
 </svg>
 
@@ -327,12 +356,14 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     <span class="proto-tag">PROTOTYPE · sample data · all prices are samples</span>
     <nav aria-label="Prototype flows">
       <ul class="flows">
+        <li><button type="button" data-flow="H" data-go="h1">H · Home dashboard</button></li>
         <li><button type="button" data-flow="A" data-go="a1">A · Order a report</button></li>
         <li><button type="button" data-flow="B" data-go="b1">B · Escrow</button></li>
         <li><button type="button" data-flow="C" data-go="c1">C · Release approval</button></li>
         <li><button type="button" data-flow="D" data-go="d1">D · Listings</button></li>
         <li><button type="button" data-flow="E" data-go="e1">E · Build</button></li>
-        <li><button type="button" data-flow="F" data-go="f1">F · Android app</button></li>
+        <li><button type="button" data-flow="F" data-go="f1">F · Field app</button></li>
+        <li><button type="button" data-flow="G" data-go="g1">G · Family: pay a hospital bill</button></li>
       </ul>
     </nav>
     <label class="theme-pick">Theme
@@ -350,13 +381,63 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
 <!-- ================= PORTAL ================= -->
 <div id="portal" class="shell">
   <div class="app-head">
-    <a class="logo" href="#a1" data-go="a1"><svg aria-hidden="true"><use href="#logo"/></svg>Fidero</a>
-    <span class="who">Signed in as Ama M. (sample)</span>
+    <a class="logo" href="#h1" data-go="h1"><svg aria-hidden="true"><use href="#logo"/></svg>Fidero</a>
+    <span class="country" id="country-chip">Ghana · GHS</span>
+    <span class="who" id="who">Signed in as Ama M. (sample)</span>
   </div>
 
+  <!-- H1 Home dashboard (SCR-PTL-36, F-35) -->
+  <section class="screen" id="h1" data-flow="H" data-tab="home" aria-labelledby="h1h" hidden>
+    <h1 id="h1h" tabindex="-1">At home</h1>
+    <p class="ref">Ghana · prices in GHS · country set at sign-up (sample)</p>
+    <div class="status" role="status"><span class="now">Today</span><p id="h1-need">2 things need you. 5 running.</p></div>
+
+    <div class="sec-head"><h2>Property (3)</h2><a href="#a7" data-go="a7">See all</a></div>
+    <a class="item" href="#a7" data-go="a7">
+      <span class="t"><span>Plot 14, Kasoa · Land check</span><span class="ref">FID-2027-0142</span></span>
+      <span class="s">Searches lodged at the Lands Commission on 12 March. Results expected by 2 April.</span>
+    </a>
+    <a class="item need" href="#b1" data-go="b1" id="h-esc">
+      <span class="t"><span>Escrow, Plot 14 · held by Partner Bank</span><span class="need-tag" id="h-esc-tag">Needs you</span></span>
+      <span class="s" id="h-esc-s">All 4 conditions closed. Your approval is needed before Fidero staff can approve the release.</span>
+    </a>
+    <a class="item" href="#e1" data-go="e1">
+      <span class="t"><span>House on Plot 14 · Build</span><span class="ref">BLD-2027-0007</span></span>
+      <span class="s">Blocks passed inspection on 14 August with 1 defect. Waiting for your approval by 21 August.</span>
+    </a>
+
+    <div class="sec-head"><h2>Family (3)</h2><a href="#g5" data-go="g5">See all</a></div>
+    <a class="item need" href="#g1" data-go="g1" id="h-fee">
+      <span class="t"><span>Mother · Komfo Anokye Teaching Hospital</span><span class="need-tag" id="h-fee-tag">Needs you</span></span>
+      <span class="s" id="h-fee-s">Invoice GHS 3,850.00 is waiting for your approval. Nothing is paid until you approve.</span>
+    </a>
+    <a class="item" href="#h1" data-toast="Recurring fee schedule (SCR-PTL-41) is in the wireframes, not this prototype.">
+      <span class="t"><span>Kofi and Yaw · Sample School fees</span><span class="ref">per term</span></span>
+      <span class="s">Term 1 paid to Sample School, account ending 2210, on 8 September. Term 2 due 5 January.</span>
+    </a>
+    <a class="item" href="#h1" data-toast="Care visits (SCR-PTL-44, R2) are in the wireframes, not this prototype.">
+      <span class="t"><span>Mother · care visits, twice a week</span><span class="ref">R2</span></span>
+      <span class="s">Grace visited on Tuesday from 09:02 to 10:15. Comfort confirmed the visit. Next visit Friday 15 August.</span>
+    </a>
+
+    <div class="sec-head"><h2>Projects and errands (1)</h2><a href="#h1" data-toast="Errands (SCR-PTL-50, R2) are in the wireframes, not this prototype.">See all</a></div>
+    <a class="item" href="#h1" data-toast="Errand progress (SCR-PTL-50, R2) is in the wireframes, not this prototype.">
+      <span class="t"><span>Ghana Card renewal · Errand</span><span class="ref">TSK-2027-0088</span></span>
+      <span class="s">Lodged at the agency on 11 August. Official fee paid to the National Identification Authority, account ending 0450. Card expected by 9 September.</span>
+    </a>
+
+    <div class="card" style="margin-top:var(--space-5)">
+      <div class="spread"><span>Held at Partner Bank for you</span><span class="big-money" id="h-held">GHS 5,000.00</span></div>
+      <p class="held" style="margin:var(--space-2) 0 0"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg>Held by Partner Bank, not by Fidero. Used only for payments you approve.</p>
+      <button class="btn btn-quiet small" data-go="g5">See the statement</button>
+    </div>
+    <button class="btn btn-secondary block" data-toast="Chooser: a check on land or a building, a family member, an institution, a property, an errand, a project. Not part of this prototype.">+ Add something at home</button>
+    <div class="proto-note"><strong>Prototype:</strong> this dashboard combines Ama's property items and Kwabena's family items so every section has something in it. In the real product each client sees only their own things (SCR-PTL-36).</div>
+  </section>
+
   <!-- A1 Order step 1 -->
-  <section class="screen" id="a1" data-flow="A" data-tab="orders" aria-labelledby="a1h" hidden>
-    <a href="#home" class="back" data-toast="Home is not part of this prototype."><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Cancel</a>
+  <section class="screen" id="a1" data-flow="A" data-tab="property" aria-labelledby="a1h" hidden>
+    <a href="#h1" class="back" data-go="h1"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Cancel</a>
     <ol class="stepper" aria-label="Order steps">
       <li aria-current="step">What</li><li>Plot</li><li>Docs</li><li>Agree</li>
     </ol>
@@ -388,7 +469,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   </section>
 
   <!-- A2 Order step 2 -->
-  <section class="screen" id="a2" data-flow="A" data-tab="orders" aria-labelledby="a2h" hidden>
+  <section class="screen" id="a2" data-flow="A" data-tab="property" aria-labelledby="a2h" hidden>
     <a href="#a1" class="back" data-go="a1"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Back</a>
     <ol class="stepper" aria-label="Order steps">
       <li class="done"><button type="button" data-go="a1">What</button></li><li aria-current="step">Plot</li><li>Docs</li><li>Agree</li>
@@ -419,7 +500,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   </section>
 
   <!-- A3 Order step 3 -->
-  <section class="screen" id="a3" data-flow="A" data-tab="orders" aria-labelledby="a3h" hidden>
+  <section class="screen" id="a3" data-flow="A" data-tab="property" aria-labelledby="a3h" hidden>
     <a href="#a2" class="back" data-go="a2"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Back</a>
     <ol class="stepper" aria-label="Order steps">
       <li class="done"><button type="button" data-go="a1">What</button></li><li class="done"><button type="button" data-go="a2">Plot</button></li><li aria-current="step">Docs</li><li>Agree</li>
@@ -439,7 +520,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   </section>
 
   <!-- A4 Order step 4 -->
-  <section class="screen" id="a4" data-flow="A" data-tab="orders" aria-labelledby="a4h" hidden>
+  <section class="screen" id="a4" data-flow="A" data-tab="property" aria-labelledby="a4h" hidden>
     <a href="#a3" class="back" data-go="a3"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Back</a>
     <ol class="stepper" aria-label="Order steps">
       <li class="done"><button type="button" data-go="a1">What</button></li><li class="done"><button type="button" data-go="a2">Plot</button></li><li class="done"><button type="button" data-go="a3">Docs</button></li><li aria-current="step">Agree</li>
@@ -477,7 +558,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   </section>
 
   <!-- A5 Pay -->
-  <section class="screen" id="a5" data-flow="A" data-tab="orders" aria-labelledby="a5h" hidden>
+  <section class="screen" id="a5" data-flow="A" data-tab="property" aria-labelledby="a5h" hidden>
     <a href="#a4" class="back" data-go="a4"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Back</a>
     <h1 id="a5h" tabindex="-1">Pay Fidero's fee</h1>
     <div class="card">
@@ -506,7 +587,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   </section>
 
   <!-- A6 Payment result -->
-  <section class="screen" id="a6" data-flow="A" data-tab="orders" aria-labelledby="a6h" hidden>
+  <section class="screen" id="a6" data-flow="A" data-tab="property" aria-labelledby="a6h" hidden>
     <div class="alert success"><svg class="icon lg" aria-hidden="true"><use href="#i-green"/></svg><div><h1 id="a6h" tabindex="-1" style="margin-bottom:var(--space-1)">Payment received</h1><p>Thank you, Ama. Your case reference is <strong class="mono">FID-2027-0142</strong>.</p></div></div>
     <div class="card">
       <h2>Receipt</h2>
@@ -528,8 +609,8 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   </section>
 
   <!-- A7 Case tracker -->
-  <section class="screen" id="a7" data-flow="A" data-tab="orders" aria-labelledby="a7h" hidden>
-    <a href="#home" class="back" data-toast="Home is not part of this prototype."><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Home</a>
+  <section class="screen" id="a7" data-flow="A" data-tab="property" aria-labelledby="a7h" hidden>
+    <a href="#h1" class="back" data-go="h1"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Home</a>
     <h1 id="a7h" tabindex="-1">Plot 14, Kasoa Millennium City</h1>
     <p class="ref">Land check · FID-2027-0142</p>
     <div class="status" role="status"><span class="now">Now</span><p>Searches lodged at the Lands Commission on 12 March. Results expected by 2 April.</p></div>
@@ -558,7 +639,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   </section>
 
   <!-- A8 Report viewer -->
-  <section class="screen" id="a8" data-flow="A" data-tab="orders" aria-labelledby="a8h" hidden>
+  <section class="screen" id="a8" data-flow="A" data-tab="property" aria-labelledby="a8h" hidden>
     <a href="#a7" class="back" data-go="a7"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Case FID-2027-0142</a>
     <h1 id="a8h" tabindex="-1">Your report</h1>
     <p class="ref">Plot 14, Kasoa Millennium City · Version 1 · released 10 April 2027</p>
@@ -621,7 +702,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   </section>
 
   <!-- B1 Escrow tracker -->
-  <section class="screen" id="b1" data-flow="B" data-tab="escrow" aria-labelledby="b1h" hidden>
+  <section class="screen" id="b1" data-flow="B" data-tab="property" aria-labelledby="b1h" hidden>
     <a href="#a8" class="back" data-go="a8"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Report</a>
     <h1 id="b1h" tabindex="-1">Escrow for Plot 14, Kasoa</h1>
     <p class="ref">ESC-2027-0031 · held by Partner Bank (sample)</p>
@@ -643,10 +724,14 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
       </ul>
       <div class="sum-row" style="margin-top:var(--space-2)"><span><svg class="icon gate-ok" aria-hidden="true"><use href="#i-green"/></svg> Fresh search and site check</span><span class="small">Done 2 May · in date</span></div>
     </div>
+    <div class="card" id="client-appr-card">
+      <h2>Your approval</h2>
+      <div id="client-appr"></div>
+    </div>
     <div class="card">
       <h2 class="spread"><span>Release approvals</span><span class="pill primary" id="appr-count">0 of 2</span></h2>
       <ul class="conds" id="appr-list"></ul>
-      <p class="small muted" style="margin:var(--space-2) 0 0">Two different Fidero staff must approve. Then the bank pays the seller and confirms. You cannot release money alone, and nor can anyone else.</p>
+      <p class="small muted" style="margin:var(--space-2) 0 0">You approve first. Then two different Fidero staff approve, and the bank pays the seller and confirms. You cannot release money alone, and nor can anyone else.</p>
     </div>
     <div class="proto-note" id="b1-proto"><strong>Prototype:</strong> <span id="b1-proto-text">close the last condition and watch the release become ready.</span><br>
       <button class="btn btn-secondary small" id="close-cond">Seller's tax clearance arrives (6 May)</button>
@@ -655,7 +740,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   </section>
 
   <!-- B2 Bank instructions -->
-  <section class="screen" id="b2" data-flow="B" data-tab="escrow" aria-labelledby="b2h" hidden>
+  <section class="screen" id="b2" data-flow="B" data-tab="property" aria-labelledby="b2h" hidden>
     <a href="#b1" class="back" data-go="b1"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Escrow ESC-2027-0031</a>
     <h1 id="b2h" tabindex="-1">Pay the purchase price to the bank</h1>
     <div class="alert info"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg><p><strong>These are the bank's details, not Fidero's.</strong> Fidero never asks you to pay land money to Fidero.</p></div>
@@ -713,7 +798,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   </section>
 
   <!-- E1 Build dashboard -->
-  <section class="screen" id="e1" data-flow="E" data-tab="build" aria-labelledby="e1h" hidden>
+  <section class="screen" id="e1" data-flow="E" data-tab="property" aria-labelledby="e1h" hidden>
     <h1 id="e1h" tabindex="-1">House on Plot 14, Kasoa</h1>
     <p class="ref">Build BLD-2027-0007 · contractor: Sample Builders Ltd</p>
     <div class="status" role="status"><span class="now">Now</span><p id="e1-status">Blocks passed inspection on 14 August with 1 defect. Waiting for your approval by 21 August.</p></div>
@@ -769,6 +854,130 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
       </div>
       <p class="small muted" style="margin:0">All photos were taken with the Fidero app on site. Small previews load first; tap for a larger image.</p>
     </div>
+  </section>
+
+  <!-- ================= FLOW G: Family, pay a hospital bill (J-09) ================= -->
+  <!-- G1 Institution card (SCR-PTL-39) -->
+  <section class="screen" id="g1" data-flow="G" data-tab="family" aria-labelledby="g1h" hidden>
+    <a href="#h1" class="back" data-go="h1"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Home</a>
+    <h1 id="g1h" tabindex="-1">Comfort Mensah (your mother)</h1>
+    <p class="ref">Kumasi · Ghana · GHS · family member since 12 Jan 2027</p>
+    <div class="status" role="status"><span class="now">Now</span><p>Komfo Anokye Teaching Hospital sent an invoice for GHS 3,850.00 on 14 August. It is waiting for your approval.</p></div>
+    <h2>Institution</h2>
+    <div class="inst">
+      <div class="vstat"><svg class="icon" aria-hidden="true"><use href="#i-green"/></svg>VERIFIED BY FIDERO · 12 Jan 2027</div>
+      <h3 style="margin-bottom:var(--space-1)">Komfo Anokye Teaching Hospital</h3>
+      <p class="small muted" style="margin-bottom:var(--space-2)">Kumasi · Hospital</p>
+      <dl class="kv">
+        <dt>Registration</dt><dd>Checked (sample)</dd>
+        <dt>Bank account</dt><dd>In the hospital's name, ending 4471</dd>
+        <dt>Contact</dt><dd>Accounts office</dd>
+      </dl>
+      <p class="small" style="margin:var(--space-3) 0 0">Fidero pays the hospital directly. Money never goes to a relative or a go-between.</p>
+    </div>
+    <button class="btn btn-primary block" data-go="g2">See the invoice</button>
+    <div class="row" style="margin-top:var(--space-3)"><button class="btn btn-quiet small" data-go="g5">Statement</button><button class="btn btn-quiet small" data-toast="Adding an institution (SCR-PTL-39) is in the wireframes (W-26).">Add another institution</button></div>
+    <div class="proto-note"><strong>Prototype:</strong> the card shows the verified state. The "Checking" and "Not verified" states are in wireframe W-26.</div>
+  </section>
+
+  <!-- G2 Invoice (SCR-PTL-40, part 1) -->
+  <section class="screen" id="g2" data-flow="G" data-tab="family" aria-labelledby="g2h" hidden>
+    <a href="#g1" class="back" data-go="g1"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Comfort Mensah</a>
+    <h1 id="g2h" tabindex="-1">Invoice from the hospital</h1>
+    <p class="ref">Komfo Anokye Teaching Hospital · verified · account ending 4471</p>
+    <fieldset>
+      <legend>Where is the invoice from?</legend>
+      <label class="rcard"><input type="radio" name="invsrc" value="sent" checked><span class="r-body"><span class="r-title">Sent by the hospital to Fidero</span><span class="small muted">KATH-2027-08812 · received 14 August</span></span></label>
+      <label class="rcard"><input type="radio" name="invsrc" value="upload"><span class="r-body"><span class="r-title">Upload an invoice</span><span class="small muted">Photo or PDF. We check it against the hospital and your mother.</span></span></label>
+    </fieldset>
+    <div id="inv-upload" class="field" hidden><label for="inv-file">Invoice file</label><input id="inv-file" type="file"></div>
+    <div class="card">
+      <h2>Invoice <span class="mono small muted" style="font-weight:400">KATH-2027-08812</span></h2>
+      <dl class="kv">
+        <dt>Patient</dt><dd id="inv-patient">Comfort Mensah</dd>
+        <dt>For</dt><dd>Ward, 3 nights; medicines; tests (sample)</dd>
+        <dt>Amount</dt><dd class="money">GHS 3,850.00</dd>
+        <dt>Due</dt><dd>20 August 2027</dd>
+      </dl>
+    </div>
+    <div class="card">
+      <h2>Our checks</h2>
+      <ul class="checks" id="inv-checks"></ul>
+    </div>
+    <div id="inv-blocked" class="alert error" hidden role="alert"><svg class="icon" aria-hidden="true"><use href="#i-red"/></svg><p><strong>Nothing has been paid.</strong> The patient on this invoice is Kwame Mensah, not Comfort Mensah. Check with the hospital. Upload a corrected invoice, or ask Fidero to look into it.</p></div>
+    <button class="btn btn-primary block" id="inv-next" data-go="g3">Approve and pay</button>
+    <div class="row" id="inv-alt" hidden style="margin-top:var(--space-2)"><button class="btn btn-secondary small" data-toast="Upload opens the file picker in the real product.">Upload a corrected invoice</button><button class="btn btn-quiet small" data-toast="Messages go to your case manager. Not part of this prototype.">Ask Fidero</button></div>
+    <div class="proto-note"><strong>Prototype:</strong> try the blocked state.<br><button class="btn btn-secondary small" id="sim-mismatch" aria-pressed="false">Simulate a mismatched invoice</button></div>
+  </section>
+
+  <!-- G3 Approve and pay (SCR-PTL-40, part 2) -->
+  <section class="screen" id="g3" data-flow="G" data-tab="family" aria-labelledby="g3h" hidden>
+    <a href="#g2" class="back" data-go="g2"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Invoice</a>
+    <h1 id="g3h" tabindex="-1">Approve the payment</h1>
+    <p class="ref">Invoice KATH-2027-08812 · for Comfort Mensah</p>
+    <fieldset>
+      <legend>How to pay</legend>
+      <label class="rcard"><input type="radio" name="paysrc" value="held" checked><span class="r-body"><span class="r-title"><span>From the money held for you at Partner Bank</span><span class="money">GHS 5,000.00</span></span><span class="small muted">Leaves GHS 1,110.00 held after this payment and Fidero's charge.</span></span></label>
+      <label class="rcard"><input type="radio" name="paysrc" value="new"><span class="r-body"><span class="r-title">Pay GHS 3,850.00 into Partner Bank now</span><span class="small muted">Card or mobile money. The bank confirms, then Fidero instructs the payment.</span></span></label>
+    </fieldset>
+    <div class="card">
+      <div class="sum-row"><span>Invoice</span><span class="money">GHS 3,850.00</span></div>
+      <div class="sum-row"><span>Fidero's charge (sample)</span><span class="money">GHS 40.00</span></div>
+      <div class="total"><span>Total</span><span class="money">GHS 3,890.00</span></div>
+      <p class="small muted" style="margin:var(--space-2) 0 0">About USD 251 (guide only, sample rate)</p>
+    </div>
+    <div class="payee"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg><span>Who gets paid: <strong>GHS 3,850.00 to Komfo Anokye Teaching Hospital, account ending 4471.</strong> Nobody else can be paid from this invoice.</span></div>
+    <div class="check"><input type="checkbox" id="inv-ok"><label for="inv-ok">I have checked this invoice</label></div>
+    <div class="field"><label for="inv-code">Code sent to your phone</label><span class="hint" id="ic-hint">Any 6 digits work in this prototype.</span><input id="inv-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-describedby="ic-hint"></div>
+    <p id="inv-err" class="field-error" hidden role="alert"></p>
+    <button class="btn btn-primary block" id="inv-approve">Approve: pay GHS 3,850.00 to Komfo Anokye Teaching Hospital</button>
+    <p class="small muted" style="margin-top:var(--space-2)">After you approve, two Fidero staff approve and Partner Bank pays the hospital. Your approval alone does not move money. The receipt comes back to your statement.</p>
+  </section>
+
+  <!-- G4 Paid (SCR-PTL-40 result) -->
+  <section class="screen" id="g4" data-flow="G" data-tab="family" aria-labelledby="g4h" hidden>
+    <div class="alert success"><svg class="icon lg" aria-hidden="true"><use href="#i-green"/></svg><div><h1 id="g4h" tabindex="-1" style="margin-bottom:var(--space-1)">Paid to the hospital</h1><p>Partner Bank paid <strong>Komfo Anokye Teaching Hospital, account ending 4471</strong>, GHS 3,850.00 on 15 August at 10:12 GMT.</p></div></div>
+    <div class="card">
+      <h2>How it happened</h2>
+      <ol class="timeline">
+        <li class="done"><span class="dot"><svg class="icon" aria-hidden="true"><use href="#i-tick"/></svg></span><span>You approved the invoice<span class="state">Code verified</span></span><span class="when">15 Aug 09:40</span></li>
+        <li class="done"><span class="dot"><svg class="icon" aria-hidden="true"><use href="#i-tick"/></svg></span><span>Fidero approval 1: Kofi Boateng, reviewer<span class="state">Done</span></span><span class="when">15 Aug 09:55</span></li>
+        <li class="done"><span class="dot"><svg class="icon" aria-hidden="true"><use href="#i-tick"/></svg></span><span>Fidero approval 2: Abena Owusu, reviewer<span class="state">Done · payee account matches the verified hospital</span></span><span class="when">15 Aug 10:01</span></li>
+        <li class="done"><span class="dot"><svg class="icon" aria-hidden="true"><use href="#i-tick"/></svg></span><span>Partner Bank paid the hospital<span class="state">Bank reference PB-SAMPLE-4410</span></span><span class="when">15 Aug 10:12</span></li>
+        <li class="current"><span class="dot"></span><span>Receipt from the hospital<span class="state">Received</span></span><span class="when">15 Aug 10:40</span></li>
+      </ol>
+    </div>
+    <div class="card">
+      <h2>Receipt</h2>
+      <dl class="kv">
+        <dt>From</dt><dd>Komfo Anokye Teaching Hospital, Accounts office</dd>
+        <dt>Receipt no.</dt><dd class="mono">KATH-R-2027-31207 (sample)</dd>
+        <dt>Paid by</dt><dd>Partner Bank, on Fidero's instruction, for Kwabena Osei</dd>
+        <dt>Amount</dt><dd class="money">GHS 3,850.00</dd>
+        <dt>Also returned</dt><dd>Discharge note (the hospital agreed to share it with you)</dd>
+      </dl>
+      <div class="row" style="margin-top:var(--space-3)"><button class="btn btn-secondary small" data-toast="In the real product this opens the hospital's receipt (PDF)."><svg class="icon" aria-hidden="true"><use href="#i-receipt"/></svg>Open receipt</button><button class="btn btn-quiet small" data-toast="In the real product this opens the discharge note. Shown only because the hospital agreed and you asked.">Discharge note</button></div>
+    </div>
+    <button class="btn btn-primary block" data-go="g5">See your mother's statement</button>
+  </section>
+
+  <!-- G5 Family-member statement (SCR-PTL-42) -->
+  <section class="screen" id="g5" data-flow="G" data-tab="family" aria-labelledby="g5h" hidden>
+    <a href="#h1" class="back" data-go="h1"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Home</a>
+    <h1 id="g5h" tabindex="-1">Comfort Mensah: statement</h1>
+    <p class="ref">Kumasi · Ghana · GHS</p>
+    <div class="status" role="status"><span class="now">Now</span><p id="g5-status"></p></div>
+    <div class="card">
+      <div class="spread"><span>Held at Partner Bank for you</span><span class="big-money" id="g5-held"></span></div>
+      <p class="held" style="margin:var(--space-2) 0 0"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg>Held by Partner Bank, not by Fidero.</p>
+      <button class="btn btn-quiet small" data-toast="Bank payment instructions follow the escrow pattern (SCR-PTL-18). Not part of this flow.">Add money</button>
+    </div>
+    <div class="card">
+      <h2>Statement</h2>
+      <ul class="stmt" id="g5-rows"></ul>
+    </div>
+    <div class="row"><button class="btn btn-secondary" data-toast="PDF statement not part of this prototype.">Download statement (PDF)</button><button class="btn btn-quiet" data-go="g1">Back to the institution</button></div>
+    <div class="proto-note"><strong>Prototype:</strong> <span id="g5-proto">the statement shows the position before the hospital bill is approved. Approve it in this flow to see the new rows.</span><br><button class="btn btn-secondary small" id="reset-g">Reset this flow</button></div>
   </section>
 </div>
 
@@ -837,8 +1046,8 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
 <!-- ================= ANDROID APP (phone frame) ================= -->
 <div id="mob" class="shell wide" hidden>
   <section class="screen" id="f1" data-flow="F" aria-labelledby="f1h" hidden>
-    <h1 id="f1h" tabindex="-1">Android milestone app: contractor submission</h1>
-    <p class="small muted">Phone-frame mock. The real app is native Android (Kotlin and Jetpack Compose). Shown in HTML for review only. Screens SCR-MOB-04, 07 and 08.</p>
+    <h1 id="f1h" tabindex="-1">Android field app: contractor milestone submission</h1>
+    <p class="small muted">Phone-frame mock. The real app is native Android (Kotlin and Jetpack Compose) and also serves inspectors, runners, surveyors, carers and errand agents. Shown in HTML for review only. Screens SCR-MOB-04, 07 and 08.</p>
     <div class="phone-wrap">
       <div class="phone" aria-label="Android phone mock">
         <div class="p-status" aria-hidden="true"><span>10:24</span><span id="p-signal">No signal · 41%</span></div>
@@ -879,10 +1088,10 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
 
 <nav class="tabbar" id="tabbar" aria-label="Main">
   <ul>
-    <li><a href="#home" data-tabname="home" data-toast="Home is not part of this prototype."><svg class="icon" aria-hidden="true"><use href="#i-home"/></svg>Home</a></li>
-    <li><a href="#a7" data-tabname="orders" data-go="a7"><svg class="icon" aria-hidden="true"><use href="#i-list"/></svg>Orders</a></li>
-    <li><a href="#b1" data-tabname="escrow" data-go="b1"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg>Escrow</a></li>
-    <li><a href="#e1" data-tabname="build" data-go="e1"><svg class="icon" aria-hidden="true"><use href="#i-build"/></svg>Build</a></li>
+    <li><a href="#h1" data-tabname="home" data-go="h1"><svg class="icon" aria-hidden="true"><use href="#i-home"/></svg>Home</a></li>
+    <li><a href="#a7" data-tabname="property" data-go="a7"><svg class="icon" aria-hidden="true"><use href="#i-build"/></svg>Property</a></li>
+    <li><a href="#g1" data-tabname="family" data-go="g1"><svg class="icon" aria-hidden="true"><use href="#i-people"/></svg>Family</a></li>
+    <li><a href="#proj" data-tabname="projects" data-toast="Projects and errands are in the wireframes (W-34), not this prototype."><svg class="icon" aria-hidden="true"><use href="#i-list"/></svg>Projects</a></li>
     <li><a href="#acct" data-tabname="account" data-toast="Account is not part of this prototype."><svg class="icon" aria-hidden="true"><use href="#i-user"/></svg>Account</a></li>
   </ul>
 </nav>
@@ -917,8 +1126,10 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   ];
   var EXPIRED = {id:9, type:'plot', title:'Plot, 70 x 100 ft (about 650 m²)', place:'Oyarifa, Accra', price:'USD 18,500', checked:'12 February 2027', until:'13 May 2027', seller:'Sample Estates Ltd · 12 sales through Fidero, 0 disputes', expired:true};
 
-  var S = { line:'land', tier:'standard', cur:'USD', condClosed:false, appr2:false, bankDone:false, viewAs:'abena', dispute:false,
-            online:false, captured:false, submitted:false, queue:[], sending:false, view:'jobs', msApproved:false };
+  var S = { line:'land', tier:'standard', cur:'USD', condClosed:false, clientOk:false, appr2:false, bankDone:false, viewAs:'abena', dispute:false,
+            online:false, captured:false, submitted:false, queue:[], sending:false, view:'jobs', msApproved:false,
+            gMismatch:false, gPaid:false };
+  var WHO = { G:'Signed in as Kwabena O. (sample)', H:'Signed in as a sample client' };
 
   /* ---------- Helpers ---------- */
   function $(s,r){return (r||document).querySelector(s);}
@@ -937,13 +1148,14 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   /* ---------- Router ---------- */
   var current=null;
   function show(id,noFocus){
-    var el=document.getElementById(id); if(!el||!el.classList.contains('screen')) {id='a1'; el=document.getElementById('a1');}
+    var el=document.getElementById(id); if(!el||!el.classList.contains('screen')) {id='h1'; el=document.getElementById('h1');}
     $$('.screen').forEach(function(s){s.hidden=(s!==el);});
     var flow=el.getAttribute('data-flow');
-    $('#portal').hidden = !/[ABDE]/.test(flow);
+    $('#portal').hidden = !/[ABDEGH]/.test(flow);
     $('#bo').hidden = flow!=='C';
     $('#mob').hidden = flow!=='F';
-    $('#tabbar').hidden = !/[ABE]/.test(flow);
+    $('#tabbar').hidden = !/[ABEGH]/.test(flow);
+    $('#who').textContent = WHO[flow] || 'Signed in as Ama M. (sample)';
     $$('.flows button').forEach(function(b){b.setAttribute('aria-current', b.getAttribute('data-flow')===flow ? 'true':'false');});
     var tab=el.getAttribute('data-tab');
     $$('.tabbar a').forEach(function(a){ if(a.getAttribute('data-tabname')===tab){a.setAttribute('aria-current','page');}else{a.removeAttribute('aria-current');} });
@@ -1081,6 +1293,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     if(S.dispute) return 'Frozen';
     if(S.bankDone) return 'Released';
     if(S.appr2) return 'Release approved';
+    if(S.clientOk) return 'Client approved';
     if(S.condClosed) return 'Ready to release';
     return 'Funded';
   }
@@ -1088,7 +1301,8 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     var st=escrowState();
     var msg={
       'Funded':'3 of 4 conditions closed. We are waiting for the seller\'s tax clearance, expected by 6 May. Fresh search done on 2 May.',
-      'Ready to release':'All 4 conditions closed. Fresh search done on 2 May. Release is waiting for a second Fidero approval.',
+      'Ready to release':'All 4 conditions closed. Fresh search done on 2 May. Your approval is needed before Fidero staff can approve the release.',
+      'Client approved':'You approved the release on 6 May. Fidero approval 1 of 2 given. Waiting for a second Fidero approval.',
       'Release approved':'Both Fidero approvals given on 7 May. The instruction went to Partner Bank at 11:02 GMT. Waiting for the bank to pay the seller.',
       'Released':'Partner Bank paid the seller on 7 May at 11:05 GMT. Your purchase is complete.',
       'Frozen':'A dispute was opened on 6 May. No money can move until it is decided. Decision due by 8 June.'
@@ -1099,9 +1313,33 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
       ? '<span class="c-done">'+icon('i-green')+'</span><span>Seller\'s tax clearance<span class="meta">Closed 6 May · certificate</span></span>'
       : '<span class="c-open">'+icon('i-clock')+'</span><span>Seller\'s tax clearance<span class="meta">Open · owner: seller\'s lawyer · expected by 6 May</span></span>';
     $('#cond-count').textContent=(S.condClosed?4:3)+' of 4 closed';
+    /* Client approval (RUL-11, Escrow state Ready to release -> Client approved) */
+    var ca=$('#client-appr');
+    if(S.clientOk){
+      ca.innerHTML='<p style="margin:0">'+icon('i-green','gate-ok')+' <strong>You approved the release</strong> on 6 May 2027 at 14:00 GMT (code verified).</p><p class="small muted" style="margin:var(--space-1) 0 0">Your approval alone does not release money. Two Fidero staff approve next.</p>';
+    } else if(!S.condClosed){
+      ca.innerHTML='<p style="margin:0">'+icon('i-lock')+' Your approval starts when every condition is closed. Nothing is paid until you approve.</p>';
+    } else if(S.dispute){
+      ca.innerHTML='<p style="margin:0">'+icon('i-lock')+' A dispute is open. You cannot approve until it is decided.</p>';
+    } else {
+      ca.innerHTML='<div class="payee">'+icon('i-bank')+'<span>If you approve: Partner Bank pays <strong>USD 18,000.00 to Kofi Asante (seller), account ending 4471</strong>, after two Fidero approvals.</span></div>'+
+        '<div class="check"><input type="checkbox" id="esc-ok"><label for="esc-ok">I have seen the evidence for all 4 conditions and the fresh search</label></div>'+
+        '<div class="field"><label for="esc-code">Code sent to your phone</label><span class="hint" id="ec-hint">Any 6 digits work in this prototype.</span><input id="esc-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-describedby="ec-hint"></div>'+
+        '<p id="esc-err" class="field-error" role="alert" hidden></p>'+
+        '<button class="btn btn-primary block" id="esc-approve">Approve the release of USD 18,000.00</button>'+
+        '<p class="small muted" style="margin:var(--space-2) 0 0">If you do nothing, we remind you. Silence is never approval.</p>';
+      $('#esc-approve').addEventListener('click',function(){
+        var a=$('#esc-ok').checked, b=/^\d{6}$/.test($('#esc-code').value.trim()), err=$('#esc-err');
+        if(!a||!b){err.hidden=false; err.innerHTML=icon('i-red')+'Error: '+(!a?'tick the statement. ':'')+(!b?'enter the 6-digit code.':''); (!a?$('#esc-ok'):$('#esc-code')).focus(); return;}
+        S.clientOk=true; render(); toast('Your approval is recorded. Two Fidero staff approve next.');
+        var c=$('#client-appr-card'); c.setAttribute('tabindex','-1'); c.focus();
+      });
+    }
     var al=$('#appr-list'), n=0;
     if(!S.condClosed){
       al.innerHTML='<li><span class="c-open">'+icon('i-lock')+'</span><span>Approvals start when every condition is closed<span class="meta">Rule: no release while a condition is open</span></span></li>';
+    } else if(!S.clientOk){
+      al.innerHTML='<li><span class="c-open">'+icon('i-lock')+'</span><span>Fidero approvals start after your approval<span class="meta">Rule: the client approves first (RUL-11)</span></span></li>';
     } else {
       n=1+(S.appr2?1:0);
       al.innerHTML='<li><span class="c-done">'+icon('i-green')+'</span><span>Approval 1: Kofi Boateng, reviewer<span class="meta">6 May 2027, 15:20 GMT</span></span></li>'+
@@ -1111,20 +1349,24 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     }
     $('#appr-count').textContent=n+' of 2';
     $('#close-cond').hidden=S.condClosed;
-    $('#to-c1').hidden=!S.condClosed || S.appr2;
-    $('#b1-proto-text').textContent = !S.condClosed ? 'close the last condition and watch the release become ready.' : (S.appr2 ? 'the release has been approved in the back office. Check the status above.' : 'now give approval 2 in the back office.');
+    $('#to-c1').hidden=!S.clientOk || S.appr2;
+    $('#b1-proto-text').textContent = !S.condClosed ? 'close the last condition and watch the release become ready.' : (!S.clientOk ? 'now approve the release above, as the client.' : (S.appr2 ? 'the release has been approved in the back office. Check the status above.' : 'now give approval 2 in the back office.'));
+    /* Home dashboard card for the escrow */
+    var hs=$('#h-esc-s'), ht=$('#h-esc-tag'), he=$('#h-esc');
+    if(hs){ hs.textContent=msg; var need=(st==='Ready to release'); he.classList.toggle('need',need); ht.hidden=!need; }
   }
-  $('#close-cond').addEventListener('click',function(){S.condClosed=true; render(); toast('Condition closed with evidence. The release is ready for approval.');});
+  $('#close-cond').addEventListener('click',function(){S.condClosed=true; render(); toast('Condition closed with evidence. Your approval is needed next.');});
 
   function gate(ok,text){return '<li>'+(ok?icon('i-green','gate-ok'):icon('i-red','gate-bad'))+'<span>'+(ok?'':'<strong>Blocked: </strong>')+text+'</span></li>';}
   function renderApproval(){
-    var gatesOk = S.condClosed && !S.dispute;
+    var gatesOk = S.condClosed && S.clientOk && !S.dispute;
     $('#gates').innerHTML =
       gate(S.condClosed, S.condClosed?'All 4 conditions closed with evidence':'1 condition open: seller\'s tax clearance (RUL-06)')+
       gate(true,'Fresh search 2 May, inside the 14-day window [TO VERIFY] (RUL-07)')+
+      gate(S.clientOk, S.clientOk?'Client approved the release on 6 May, 14:00 GMT (RUL-11)':'Client has not approved the release yet (RUL-11)')+
       gate(!S.dispute, S.dispute?'Dispute DSP-2027-0004 is open. Release frozen (RUL-15)':'No open dispute')+
       gate(true,'Deposit confirmed by the bank on 22 Apr: USD 18,000.00')+
-      gate(true,'Payee matches the escrow terms, version 1.0');
+      gate(true,'Payee matches the escrow terms, version 1.0: Kofi Asante (seller), account ending 4471 (RUL-22)');
     var st=escrowState();
     $('#c1-state').textContent = st==='Funded' ? 'Blocked' : st;
     $('#bo-who').textContent = S.viewAs==='kofi' ? 'Kofi Boateng · reviewer' : 'Abena Owusu · reviewer';
@@ -1139,7 +1381,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
       $('#bank-ok').addEventListener('click',function(){S.bankDone=true; render(); toast('Bank confirmation recorded. Client, seller and staff notified.');});
     } else if(!gatesOk){
       s2.className='slot';
-      s2.innerHTML=h+'<div class="alert error" style="margin:0">'+icon('i-red')+'<p><strong>Release blocked.</strong> '+(S.dispute?'A dispute is open. No approval can be given until it is decided.':'1 condition is still open. Approval starts when every condition is closed.')+'</p></div>';
+      s2.innerHTML=h+'<div class="alert error" style="margin:0">'+icon('i-red')+'<p><strong>Release blocked.</strong> '+(S.dispute?'A dispute is open. No approval can be given until it is decided.':(!S.condClosed?'1 condition is still open. Approval starts when every condition is closed.':'The client has not approved the release yet. Fidero approvals start after the client approves (RUL-11).'))+'</p></div>';
     } else if(S.viewAs==='kofi'){
       s2.className='slot';
       s2.innerHTML=h+'<div class="alert locked" style="margin:0">'+icon('i-lock')+'<p>You gave approval 1. <strong>A different person must give approval 2</strong> (RUL-05).</p></div>';
@@ -1169,7 +1411,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     S.dispute=this.checked; render();
   });
   $('#c1-close-cond').addEventListener('click',function(){S.condClosed=true; render(); toast('Condition closed. Gates re-checked.');});
-  $('#reset-c').addEventListener('click',function(){S.condClosed=false;S.appr2=false;S.bankDone=false;S.dispute=false;$('#sim-dispute').checked=false; render(); toast('Escrow flow reset.');});
+  $('#reset-c').addEventListener('click',function(){S.condClosed=false;S.clientOk=false;S.appr2=false;S.bankDone=false;S.dispute=false;$('#sim-dispute').checked=false; render(); toast('Escrow flow reset.');});
 
   /* ---------- Flow D: listings ---------- */
   var mapMode=false;
@@ -1316,11 +1558,62 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   $('#p-queue').addEventListener('click',function(){S.view='queue';renderPhone();});
   $('#reset-f').addEventListener('click',function(){S.online=false;S.captured=false;S.submitted=false;S.sending=false;S.view='jobs';initQueue();var n=$('#net-toggle');n.setAttribute('aria-pressed','false');n.textContent='Go online';renderPhone();toast('Phone reset.');});
 
+  /* ---------- Flow G: family, pay a hospital bill (J-09) ---------- */
+  function chk(ok,text){return '<li>'+(ok?icon('i-green','gate-ok'):icon('i-red','gate-bad'))+'<span>'+text+'</span></li>';}
+  function renderG(){
+    var mm=S.gMismatch;
+    $('#inv-patient').textContent = mm ? 'Kwame Mensah' : 'Comfort Mensah';
+    $('#inv-checks').innerHTML =
+      chk(true,'The hospital matches the verified institution (account ending 4471)')+
+      chk(!mm, mm?'<strong>The patient does not match.</strong> The invoice names Kwame Mensah; your family member is Comfort Mensah.':'The patient matches your family member, Comfort Mensah')+
+      chk(true,'Amount and reference are readable: GHS 3,850.00, KATH-2027-08812');
+    $('#inv-blocked').hidden=!mm;
+    $('#inv-next').hidden=mm;
+    $('#inv-alt').hidden=!mm;
+    $('#sim-mismatch').setAttribute('aria-pressed',String(mm));
+    $('#sim-mismatch').textContent = mm ? 'Use the correct invoice again' : 'Simulate a mismatched invoice';
+    /* Statement (SCR-PTL-42) */
+    var rows=[
+      {d:'14 Jul', t:'Paid to Sample Pharmacy, account ending 0932', sub:'In person by a Fidero runner, receipt attached. Cash drawn from Partner Bank against a signed voucher.', amt:'−GHS 210.00'},
+      {d:'14 Jul', t:'Fidero\'s charge', sub:'Receipt R-2027-0388-2', amt:'−GHS 20.00'},
+      {d:'1 Jul', t:'Balance held at Partner Bank', sub:'', amt:'GHS 1,360.00', bal:true}
+    ];
+    rows.unshift({d:'2 Aug', t:'You paid into Partner Bank', sub:'Bank reference PB-SAMPLE-3301', amt:'+GHS 3,870.00', inn:true});
+    if(S.gPaid){
+      rows.unshift({d:'15 Aug', t:'Fidero\'s charge', sub:'Receipt R-2027-0412-2', amt:'−GHS 40.00'});
+      rows.unshift({d:'15 Aug', t:'Paid to Komfo Anokye Teaching Hospital, account ending 4471', sub:'Invoice KATH-2027-08812 · receipt KATH-R-2027-31207 · discharge note', amt:'−GHS 3,850.00'});
+    } else {
+      rows.unshift({d:'14 Aug', t:'Invoice from Komfo Anokye Teaching Hospital', sub:'KATH-2027-08812 · waiting for your approval · nothing paid', amt:'GHS 3,850.00', pend:true});
+    }
+    $('#g5-rows').innerHTML=rows.map(function(r){
+      return '<li><span class="d">'+r.d+'</span><span>'+(r.bal?'<strong>'+r.t+'</strong>':r.t)+(r.sub?'<span class="sub">'+r.sub+'</span>':'')+'</span><span class="amt'+(r.inn?' in':'')+(r.pend?' muted':'')+'">'+r.amt+'</span></li>';
+    }).join('');
+    var held = S.gPaid ? 'GHS 1,110.00' : 'GHS 5,000.00';
+    $('#g5-held').textContent=held; var hh=$('#h-held'); if(hh) hh.textContent=held;
+    $('#g5-status').textContent = S.gPaid
+      ? 'Partner Bank paid Komfo Anokye Teaching Hospital, account ending 4471, on 15 August at 10:12 GMT. Receipt attached.'
+      : 'Komfo Anokye Teaching Hospital sent an invoice for GHS 3,850.00 on 14 August. It is waiting for your approval. Nothing is paid until you approve.';
+    $('#g5-proto').textContent = S.gPaid ? 'the hospital bill has been paid. Reset to see the statement before approval.' : 'the statement shows the position before the hospital bill is approved. Approve it in this flow to see the new rows.';
+    /* Home dashboard card for the invoice */
+    var hf=$('#h-fee'), hs=$('#h-fee-s'), ht=$('#h-fee-tag');
+    if(hf){ hf.classList.toggle('need',!S.gPaid); ht.hidden=S.gPaid; hs.textContent = S.gPaid ? 'Paid to Komfo Anokye Teaching Hospital, account ending 4471, on 15 August. Receipt attached.' : 'Invoice GHS 3,850.00 is waiting for your approval. Nothing is paid until you approve.'; }
+    var needs = (S.gPaid?0:1) + (escrowState()==='Ready to release'?1:0) + 1; /* build approval always needs you in this sample */
+    $('#h1-need').textContent = needs+' thing'+(needs===1?'':'s')+' need'+(needs===1?'s':'')+' you. '+(7-needs)+' running.';
+  }
+  $$('input[name=invsrc]').forEach(function(r){r.addEventListener('change',function(){ $('#inv-upload').hidden = r.value!=='upload'; });});
+  $('#sim-mismatch').addEventListener('click',function(){ S.gMismatch=!S.gMismatch; renderG(); toast(S.gMismatch?'The invoice now names a different patient. Approval is blocked.':'The correct invoice is back.'); if(S.gMismatch){var b=$('#inv-blocked'); b.setAttribute('tabindex','-1'); b.focus();} });
+  $('#inv-approve').addEventListener('click',function(){
+    var a=$('#inv-ok').checked, b=/^\d{6}$/.test($('#inv-code').value.trim()), err=$('#inv-err');
+    if(!a||!b){err.hidden=false; err.innerHTML=icon('i-red')+'Error: '+(!a?'tick "I have checked this invoice". ':'')+(!b?'enter the 6-digit code.':''); (!a?$('#inv-ok'):$('#inv-code')).focus(); return;}
+    S.gPaid=true; renderG(); show('g4'); toast('Approved. Two Fidero staff approved and Partner Bank paid the hospital (prototype skips ahead).');
+  });
+  $('#reset-g').addEventListener('click',function(){ S.gPaid=false; S.gMismatch=false; $('#inv-ok').checked=false; $('#inv-code').value=''; $('#inv-err').hidden=true; renderG(); toast('Family flow reset.'); });
+
   /* ---------- Render all ---------- */
-  function render(){ renderPrices(); renderEscrow(); renderApproval(); renderPhone(); }
+  function render(){ renderPrices(); renderEscrow(); renderApproval(); renderPhone(); renderG(); }
   initQueue();
   renderListings();
-  show(location.hash.slice(1)||'a1', true);
+  show(location.hash.slice(1)||'h1', true);
 })();
 </script>
 </body>

@@ -589,8 +589,18 @@ Each test case also verifies the acceptance criteria of the user story with the 
 | TC-ESC-008-03 | FR-ESC-008 | Channel failure | Channel down | Send | Retry with backoff; never sent twice (idempotency key); case manager alerted | P1 | Y | R1 |
 | TC-ESC-009-01 | FR-ESC-009 | Bank confirmation shown to parties | Instruction sent | Record bank confirmation | Released; all parties see it and are notified | P1 | Y | R1 |
 | TC-ESC-009-02 | FR-ESC-009 | Confirmation mismatch | Confirmation amount or reference differs | Record | Flagged; state not Released until reviewer resolves | P1 | Y | R1 |
-| TC-ESC-010-01 | FR-ESC-010 | Partial release per milestone | Construction escrow with milestones | Release milestone 1 | Partial instruction; balance updated; escrow stays open | P1 | Y | R2 |
+| TC-ESC-010-01 | FR-ESC-010 | Partial release per milestone | Construction escrow with milestones | Release milestone 1 | Partial instruction; state Partly released; balance updated; escrow stays open | P1 | Y | R2 |
 | TC-ESC-010-02 | FR-ESC-010 | Partial releases exceed held amount | Remaining balance less than request | Request | Blocked; sum of releases never exceeds confirmed deposits (property test) | P1 | Y | R2 |
+| TC-ESC-010-03 | FR-ESC-010 | Partial release on every line type | Off-plan stage, project stage, care visit, errand step, property repair, event vendor escrows | Release one unit on each | Each follows the same chain: evidence, client approval, two staff, instruction, bank confirmation; each payee verified (RUL-22) | P1 | Y | R2 (event R3) |
+| TC-ESC-010-04 | FR-ESC-010 | Partial release against an unconfirmed unit | Visit unconfirmed; errand step without receipt; repair without inspection | Request | Blocked with the missing evidence named | P1 | Y | R2 |
+| TC-ESC-014-01 | FR-ESC-014 | Held balance with several small releases | Client deposits a balance for school fees and visits | Release three invoices over three months | Each release follows the full chain; running statement shows deposits, releases and balance; totals reconcile to the bank | P1 | Y | R1 |
+| TC-ESC-014-02 | FR-ESC-014 | Release exceeds held balance | Balance lower than invoice | Approve | Blocked; client asked to top up; no instruction | P1 | Y | R1 |
+| TC-ESC-014-03 | FR-ESC-014 | Top-up and statement | Partly used balance | Client deposits more; bank confirms | Balance increased only after bank confirmation; statement line added; two deposits never double-counted (duplicate confirmation) | P1 | Y | R1 |
+| TC-ESC-014-04 | FR-ESC-014 | Balance refund | Client closes the balance | Two-person cancellation and refund (FR-ESC-013) | Refund instruction for the exact remaining balance; statement closes at zero | P1 | Y | R1 |
+| TC-ESC-015-01 | FR-ESC-015 | Payee name matches | Verified institution; account name equal after normalising case and spacing | Approve release | Allowed (TC-RUL-22-01) | P1 | Y | R1 |
+| TC-ESC-015-02 | FR-ESC-015 | Payee name mismatch | Account name differs | Approve release through UI and API | Blocked; reviewer alerted (TC-RUL-22-02) | P1 | Y | R1 |
+| TC-ESC-015-03 | FR-ESC-015 | Payee substituted after approval | Release approved; payee account edited before sending | Send | Approvals invalidated; send blocked; alert (TC-SEC-35) | P1 | Y | R1 |
+| TC-ESC-015-04 | FR-ESC-015 | Matching method boundary | Names differing by abbreviation, punctuation, order of words | Approve | Behaviour per the configured matching rule; anything not an exact normalised match goes to a reviewer, never auto-released (see section 16) | P1 | Y | R1 |
 | TC-ESC-011-01 | FR-ESC-011 | Statement file import and match | Statement fixtures | Import | Matches linked; unmatched listed | P2 | Y | R2 |
 | TC-ESC-011-02 | FR-ESC-011 | Bad, duplicate and ambiguous lines | Fixture set in 2.7 | Import | Bad file rejected; duplicates ignored; ambiguous lines go to manual match, never auto-matched | P2 | Y | R2 |
 | TC-ESC-012-01 | FR-ESC-012 | Bank API status | Bank sandbox `[TO VERIFY]` | Poll or receive callback | Deposit and release status updated; signature on callback verified | P3 | Y | R2 |
@@ -639,8 +649,15 @@ Each test case also verifies the acceptance criteria of the user story with the 
 | TC-MOB-009-01 | FR-MOB-009 | Device storage encrypted and cleared | Items queued | Inspect app storage on rooted test device; upload | Files unreadable without key; removed after server confirmation | P1 | P | R2 |
 | TC-MOB-009-02 | FR-MOB-009 | No evidence in shared storage or backups | Items queued | Check shared media folders and Android backup | No evidence files present; backup excludes evidence | P1 | P | R2 |
 | TC-MOB-010-01 | FR-MOB-010 | Runner captures case evidence | Runner with site visit task | Capture photos for task | Linked to case task as app-captured | P2 | Y | R2 |
+| TC-MOB-010-02 | FR-MOB-010 | Carer and errand agent capture evidence the same way | Carer on a visit; agent on an errand step | Capture agreed photos, a reading, a receipt | Items app-captured, signed and linked to the visit or step; same fraud checks as milestones (FR-MOB-011) | P2 | Y | R2 |
+| TC-MOB-010-03 | FR-MOB-010 | Carer sees only assigned visits | Carer with two families | Deep link to another carer's visit | Not shown; API 404; no family address leaked | P2 | Y | R2 |
 | TC-MOB-011-01 | FR-MOB-011 | Clean submission passes server checks | Valid submission | Upload | Signature verified; server time stored; no flags | P1 | Y | R2 |
-| TC-MOB-011-02 | FR-MOB-011 | Each fraud flag raised | Fixtures: outside buffer; clock gap; capture before previous pass; hash reused on another project; metadata mismatch | Upload each | Matching flag raised; submission routed to reviewer | P1 | Y | R2 |
+| TC-MOB-011-02 | FR-MOB-011 | Each fraud flag raised | Fixtures: outside buffer; clock gap above the configured value; capture before previous pass; hash reused on another project; metadata not matching the registered device | Upload each | Matching flag raised; submission routed to reviewer | P1 | Y | R2 |
+| TC-MOB-011-03 | FR-MOB-011 | Device key revoked | Reviewer revokes a device key | Revoke | All evidence signed by that key re-flagged for review; device cannot upload | P1 | Y | R2 |
+| TC-MOB-012-01 | FR-MOB-012 | Check-in and check-out at a registered address | Carer at the family address; inspector at a site | Check in; complete; check out | Both events stored with GPS position, accuracy and time; within the configured radius; visit duration computed | P1 | Y | R2 |
+| TC-MOB-012-02 | FR-MOB-012 | Check-in away from the address or with poor accuracy | Mock location 2 km away; accuracy 300 m | Check in | Check-in recorded but flagged "outside radius" or "accuracy too low"; visit not payable without review | P1 | Y | R2 |
+| TC-MOB-012-03 | FR-MOB-012 | Check-in without GPS or offline | GPS denied; airplane mode | Check in | Without GPS: blocked with instruction to enable; offline: queued with device time and uploaded later, flagged if the time gap is above the configured value | P1 | Y | R2 |
+| TC-MOB-012-04 | FR-MOB-012 | Missing check-out | Checked in; app closed | Run end-of-day job | Visit marked "no check-out"; carer and client alerted (FR-CARE-005) | P1 | Y | R2 |
 
 ### 4.10 Construction, off-plan and buildings (BLD)
 
@@ -654,8 +671,9 @@ Each test case also verifies the acceptance criteria of the user story with the 
 | TC-BLD-003-02 | FR-BLD-003 | Unvetted contractor not selectable | Contractor pending | Client chooses contractor | Not offered | P1 | Y | R2 |
 | TC-BLD-004-01 | FR-BLD-004 | Unconflicted inspector assigned | No links | Assign | Allowed (TC-RUL-10-01) | P1 | Y | R2 |
 | TC-BLD-004-02 | FR-BLD-004 | Conflicted inspector blocked | Recorded link | Assign | Blocked (TC-RUL-10-02) | P1 | Y | R2 |
-| TC-BLD-005-01 | FR-BLD-005 | Milestone route in order | Submitted milestone | Walk each step | Each state reached in order; each change audited | P1 | Y | R2 |
-| TC-BLD-005-02 | FR-BLD-005 | Skip a step | Submitted milestone | Call client-approve or release-approve before inspection | Rejected (see section 5.3) | P1 | Y | R2 |
+| TC-BLD-005-01 | FR-BLD-005 | Milestone route in order | Submitted milestone | Walk: submitted, evidence checked, inspection scheduled, inspected, client approved, release approved, released | Each state reached in order; each change audited; client status message at each step | P1 | Y | R2 |
+| TC-BLD-005-02 | FR-BLD-005 | Skip a step | Submitted milestone | Call inspected, client-approve or release-approve before the previous state | Rejected (see section 5.4) | P1 | Y | R2 |
+| TC-BLD-005-03 | FR-BLD-005 | Inspection scheduled needs an inspector and a date | Evidence checked | Schedule without inspector, or with a conflicted inspector, or without a date | Rejected (FR-BLD-004) | P1 | Y | R2 |
 | TC-BLD-006-01 | FR-BLD-006 | Defect value held then released | Pass with defects | Release; close defect with evidence; inspector confirms | Held value released after closure | P1 | Y | R2 |
 | TC-BLD-006-02 | FR-BLD-006 | Defect closed without evidence | Open defect | Close without evidence | Rejected; value stays held | P1 | Y | R2 |
 | TC-BLD-007-01 | FR-BLD-007 | Re-price and show change | Rate changed | Open approval | Change shown (TC-RUL-18-01) | P1 | Y | R2 |
@@ -763,12 +781,17 @@ Each test case also verifies the acceptance criteria of the user story with the 
 | TC-ADM-001-02 | FR-ADM-001 | Edit a published version | Admin | Edit v1 in place | Rejected; must create v2 | P1 | Y | R1 |
 | TC-ADM-002-01 | FR-ADM-002 | Prices, tiers, currencies, rate guides | Admin | Change diaspora price; add rate guide | New orders use new price; open orders unchanged | P1 | Y | R1 |
 | TC-ADM-002-02 | FR-ADM-002 | Invalid price or rate | Admin | Negative price; zero rate | Rejected | P1 | Y | R1 |
-| TC-ADM-003-01 | FR-ADM-003 | Manage partners | Admin | Add bank, supplier, API partner | Created with status | P1 | Y | R1 |
-| TC-ADM-003-02 | FR-ADM-003 | Bank account change on partner | Admin | Change bank account details | Needs second admin approval `[TO VERIFY]`; audited (see section 16) | P1 | Y | R1 |
+| TC-ADM-003-01 | FR-ADM-003 | Manage partners | Admin | Add bank, professional, contractor, inspector, supplier, API partner | Created with status | P1 | Y | R1 |
+| TC-ADM-003-02 | FR-ADM-003 | Bank account change needs a second administrator | Admin A | Change a partner's bank account details; admin B approves | Change pending until B approves; old details used until then; both names audited; founder alerted (TC-SEC-21) | P1 | Y | R1 |
+| TC-ADM-003-03 | FR-ADM-003 | Same administrator or non-administrator approves | Admin A | A approves own change; case manager approves | Rejected in both paths; change stays pending | P1 | Y | R1 |
+| TC-ADM-003-04 | FR-ADM-003 | Non-bank partner fields need one administrator | Admin A | Change a supplier's phone number | Applied at once; audited; no second approval asked | P1 | Y | R1 |
 | TC-ADM-004-01 | FR-ADM-004 | Scope change with two admins and approvals | Lawyer and insurer approvals uploaded | Admin A proposes; admin B approves | New version active for new reports only | P1 | Y | R1 |
 | TC-ADM-004-02 | FR-ADM-004 | Scope change by one admin or without approvals | Admin | Approve own change; omit insurer approval | Rejected | P1 | Y | R1 |
-| TC-ADM-005-01 | FR-ADM-005 | Configurable values | Admin | Set fresh-search window, badge validity, buffers, deadlines | Values used by rules; change audited | P1 | Y | R1 |
+| TC-ADM-005-01 | FR-ADM-005 | Configurable values | Admin | Set every value listed in FR-ADM-005 | Values used by rules; change audited | P1 | Y | R1 |
 | TC-ADM-005-02 | FR-ADM-005 | Unsafe values | Admin | Set window to 0 or negative; buffer above maximum | Rejected with allowed range | P1 | Y | R1 |
+| TC-ADM-005-03 | FR-ADM-005 | Release-affecting value needs a second administrator | Admin A | Change fresh-search window, listing report age, badge validity, dispute deadlines, approval reminder period or project fund threshold; admin B approves | Pending until B approves; rules use the old value until then; both audited | P1 | Y | R1 |
+| TC-ADM-005-04 | FR-ADM-005 | Second administrator missing or the same person | Admin A | A approves own change; no B | Not applied; pending list shows it | P1 | Y | R1 |
+| TC-ADM-005-05 | FR-ADM-005 | Value that does not affect a release | Admin A | Change the SMS money threshold | Applied by one administrator; audited (classification of each value, see section 16) | P1 | Y | R1 |
 
 ### 4.18 Audit (AUD)
 
@@ -806,7 +829,119 @@ Each test case also verifies the acceptance criteria of the user story with the 
 | TC-DPR-005-01 | FR-DPR-005 | Bulk export with two approvals | Admins A and B | A requests; B approves | Export produced, logged, link expires | P1 | Y | R1 |
 | TC-DPR-005-02 | FR-DPR-005 | Single-person bulk export | Admin A | Approve own request; use CSV export to pull all clients | Blocked; ANL export cannot exceed role or size limit | P1 | Y | R1 |
 
-### 4.21 Records programme (REC)
+### 4.21 Payments to institutions (FEE)
+
+The R1 money line for family supporters (P-15). Every test here also serves RUL-22.
+
+| TC ID | FR | Title | Preconditions | Steps | Expected result | Pri | Auto | Rel |
+|---|---|---|---|---|---|---|---|---|
+| TC-FEE-001-01 | FR-FEE-001 | Register and verify an institution | Client signed in; institution fixture with registration, account in its name, contact | Client registers; staff verify | Institution status Verified with the three checks recorded, who verified and when; client told | P1 | Y | R1 |
+| TC-FEE-001-02 | FR-FEE-001 | Payment blocked before verification | Institution pending or failed | Submit and approve an invoice | Invoice accepted for later; approval and payment blocked with "institution not verified" | P1 | Y | R1 |
+| TC-FEE-001-03 | FR-FEE-001 | Verification fails on any check | Registration not found; account in a person's name; no named contact | Verify | Each fails with the check named; institution not verified (TC-RUL-22-03) | P1 | Y | R1 |
+| TC-FEE-001-04 | FR-FEE-001 | Duplicate and look-alike institutions | Institution already verified | Register the same registration number again; register a name one letter different with a different account | Duplicate linked to the existing record; look-alike flagged for a reviewer (TC-SEC-33) | P1 | Y | R1 |
+| TC-FEE-001-05 | FR-FEE-001 | All institution types | School, hospital, clinic, pharmacy, government agency, utility | Register one of each | Each type available with its own fields; same verification steps | P1 | Y | R1 |
+| TC-FEE-002-01 | FR-FEE-002 | Client uploads an invoice | Verified institution; family member on account | Upload invoice with reference | Invoice stored, hashed, linked to institution and family member; checks pass | P1 | Y | R1 |
+| TC-FEE-002-02 | FR-FEE-002 | Institution submits an invoice to Fidero's reference | Institution contact signed in (R2) or file received (R1 manual upload by staff, IF-10) | Submit | Invoice linked to the right client and family member by reference; client notified; nothing shown to the institution beyond its own invoices | P1 | Y | R1 |
+| TC-FEE-002-03 | FR-FEE-002 | Invoice fails the checks | Invoice names a different patient or student; institution name differs; amount altered after upload; reference reused | Submit each | Each flagged with reason; cannot be approved until a staff member resolves it (TC-SEC-34) | P1 | Y | R1 |
+| TC-FEE-003-01 | FR-FEE-003 | Client approves and pays into the partner bank | Checked invoice | Client approves; bank payment instructions shown; deposit confirmed | Payment page shows the bank's details only (TC-RUL-01-01); after deposit, two staff approve; instruction names the institution's verified account | P1 | Y | R1 |
+| TC-FEE-003-02 | FR-FEE-003 | Payment to any other account blocked | Checked invoice | Change payee to the family member, the client's representative or an unverified account, through UI and API | Rejected (TC-RUL-22-02, TC-RUL-22-05); audited | P1 | Y | R1 |
+| TC-FEE-003-03 | FR-FEE-003 | Payment without client approval | Checked invoice; client has not approved | Staff approve | Blocked (RUL-11) | P1 | Y | R1 |
+| TC-FEE-003-04 | FR-FEE-003 | Payment from a held balance | Client holds a balance (FR-ESC-014) | Approve invoice | Released from the balance; statement updated; blocked if balance short | P1 | Y | R1 |
+| TC-FEE-004-01 | FR-FEE-004 | Receipt returned to the dashboard | Payment confirmed by the bank | Institution returns receipt; staff or institution upload it | Receipt hashed and linked to the payment; client notified; shows on the family member statement | P1 | Y | R1 |
+| TC-FEE-004-02 | FR-FEE-004 | Receipt missing past the target | Payment confirmed; no receipt within the configured target `[TO VERIFY]` | Run job | Payment marked "receipt overdue"; case manager task to chase; client told; A9 metric counts it | P1 | Y | R1 |
+| TC-FEE-004-03 | FR-FEE-004 | Confirmation of enrolment or treatment only with the institution's agreement | Institution flagged "does not share confirmations" | Request confirmation | Not requested; client sees receipt only; no health detail stored | P1 | Y | R1 |
+| TC-FEE-005-01 | FR-FEE-005 | Recurring fee schedule with approval each time | Per-term schedule | Clock to reminder date; client approves; pay | Reminder sent; payment only after this term's approval; schedule advances | P2 | Y | R1 |
+| TC-FEE-005-02 | FR-FEE-005 | No approval, no payment | Schedule due; client silent | Clock past due date | Nothing paid; reminders sent; silence is never approval (RUL-11) | P2 | Y | R1 |
+| TC-FEE-006-01 | FR-FEE-006 | Runner pays in person against a voucher | Institution accepts cash only | Two staff approve voucher; bank releases cash; runner pays; uploads receipt | Receipt linked; voucher reconciled within 2 working days; difference zero | P2 | Y | R1 |
+| TC-FEE-006-02 | FR-FEE-006 | Voucher abuse | Voucher approved | No receipt within 2 working days; receipt amount lower than voucher; same receipt on two vouchers | Each flagged; runner's further vouchers blocked until resolved; reviewer alerted | P2 | Y | R1 |
+| TC-FEE-007-01 | FR-FEE-007 | Statement per family member | Family member with 3 invoices, 2 payments, 2 receipts | Open statement | Invoices, payments, receipts and balance held correct; totals match the escrow tracker | P1 | Y | R1 |
+| TC-FEE-007-02 | FR-FEE-007 | Statement for another client's family member | Client B | Open client A's family member statement | 404 | P1 | Y | R1 |
+
+### 4.22 Care visits (CARE)
+
+Safety of a vulnerable person is the impact here. Tests that affect safety alerts are P1 even where the FR is Should.
+
+| TC ID | FR | Title | Preconditions | Steps | Expected result | Pri | Auto | Rel |
+|---|---|---|---|---|---|---|---|---|
+| TC-CARE-001-01 | FR-CARE-001 | Create a care plan | Client with family member | Enter address, two visits a week, tasks, two confirmers | Plan created; schedule generated; family member and confirmers notified | P2 | Y | R2 |
+| TC-CARE-001-02 | FR-CARE-001 | Plan without a confirmer or address | Client | Omit confirmer; omit address | Rejected; at least one confirmer and one registered address required | P1 | Y | R2 |
+| TC-CARE-002-01 | FR-CARE-002 | Vetted carer panel and assignment | Carer with identity, references, background check, training | Add to panel; assign to plan | Status Vetted; assignment allowed; family told who to expect with photo | P1 | Y | R2 |
+| TC-CARE-002-02 | FR-CARE-002 | Unvetted or lapsed carer cannot be assigned | Background check pending, failed or expired | Assign through UI and API | Blocked with reason; existing assignments suspended when a check expires | P1 | Y | R2 |
+| TC-CARE-003-01 | FR-CARE-003 | Carer completes a visit in the field app | Assigned visit | Check in; tick plan items; attach agreed photos and a reading; check out | Visit submitted with all items; evidence app-captured and signed | P1 | Y | R2 |
+| TC-CARE-003-02 | FR-CARE-003 | Visit incomplete | Assigned visit | Skip a plan item; attach a gallery photo; skip check-out | Submission blocked until items done; gallery blocked (RUL-08); missing check-out flagged | P1 | Y | R2 |
+| TC-CARE-003-03 | FR-CARE-003 | Photos limited to those agreed | Plan allows "medicine and meal" photos | Capture extra photos of the person | Only the agreed photo types can be attached; others rejected with a privacy message | P1 | Y | R2 |
+| TC-CARE-004-01 | FR-CARE-004 | Family confirms by code, call or app | Visit submitted | Confirm by one-tap code; by call logged by staff; by app | Each path records who confirmed and how; carer payable | P1 | Y | R2 |
+| TC-CARE-004-02 | FR-CARE-004 | Unconfirmed visit not paid | Visit submitted; no confirmation | Run carer payment | Not paid (TC-RUL-23-04) | P1 | Y | R2 |
+| TC-CARE-004-03 | FR-CARE-004 | Confirmation by the wrong person | Family member not marked "may confirm"; the carer; the client's representative | Confirm | Rejected; flagged (TC-RUL-23-02) | P1 | Y | R2 |
+| TC-CARE-004-04 | FR-CARE-004 | Confirmation code guessed | Attacker tries codes | Enter wrong codes | Code locked after 3 attempts (assumption); new code issued by Fidero only; alert (TC-SEC-37) | P1 | Y | R2 |
+| TC-CARE-005-01 | FR-CARE-005 | Missed, late and unconfirmed visit alerts | Scheduled visit | No check-in by schedule plus grace; check-in late; no confirmation after 24 hours | Client and Fidero alerted in each case within the configured time; alert names the person and plan | P1 | Y | R2 |
+| TC-CARE-005-02 | FR-CARE-005 | No false alerts and no missed alerts | Visit on time and confirmed; alert job fails once | Run | No alert for the good visit; failed job retried and alert still sent (property test on schedules across holidays and time zones) | P1 | Y | R2 |
+| TC-CARE-006-01 | FR-CARE-006 | Carer raises a concern | Carer on a visit | Raise health, safety or welfare concern with a note and photo | Client and a Fidero reviewer notified the same day; concern in a restricted log; follow-up task created | P1 | Y | R2 |
+| TC-CARE-006-02 | FR-CARE-006 | Concern not visible to the wrong people | Concern raised | Tenant, other carers, institution contact, other clients | Not visible; 404 | P1 | Y | R2 |
+
+### 4.23 Property management (PMG)
+
+| TC ID | FR | Title | Preconditions | Steps | Expected result | Pri | Auto | Rel |
+|---|---|---|---|---|---|---|---|---|
+| TC-PMG-001-01 | FR-PMG-001 | Register a property and record its condition | Owner signed in | Register house in Tema; inspector records condition with photos | Property registered; inspection report with app-captured photos before management starts | P2 | Y | R2 |
+| TC-PMG-001-02 | FR-PMG-001 | Management cannot start without an inspection | Property registered; no inspection | Add tenant | Blocked until the condition inspection is recorded | P2 | Y | R2 |
+| TC-PMG-002-01 | FR-PMG-002 | Tenant, agreement, rent and owner's account recorded | Property inspected | Enter tenant, agreement, rent, owner's account at the partner bank | Recorded; account verified in the owner's name; tenant sees agreement and rent account | P1 | Y | R2 |
+| TC-PMG-002-02 | FR-PMG-002 | Rent account not in the owner's name | Property | Enter a Fidero account, a staff account, the tenant's account, an uncle's account | Rejected each time (TC-RUL-24-02) | P1 | Y | R2 |
+| TC-PMG-002-03 | FR-PMG-002 | Agreement missing | Property | Add tenant without an agreement document | Rejected | P1 | Y | R2 |
+| TC-PMG-003-01 | FR-PMG-003 | Rent due and received | Statement fixture with the tenant's payment | Import statement | Rent marked received on the right month; owner's timeline updated | P1 | Y | R2 |
+| TC-PMG-003-02 | FR-PMG-003 | Late rent alert | Due date passed; no line | Run job | Owner and Fidero alerted; no alert when paid on time (boundary: due date, one day after) | P1 | Y | R2 |
+| TC-PMG-003-03 | FR-PMG-003 | Statement shows only the owner's rent lines | Owner's statement with unrelated lines `[TO VERIFY]` whether the bank filters | Import | Only lines matching the tenancy reference are stored; others discarded and not logged in full (see section 16) | P1 | P | R2 |
+| TC-PMG-004-01 | FR-PMG-004 | Repair with two quotes and owner approval | Tenant reports a leak | Two vetted contractors quote; owner approves one | Repair approved with the chosen quote; money request created | P2 | Y | R2 |
+| TC-PMG-004-02 | FR-PMG-004 | One quote or unvetted contractor | Repair reported | Approve with one quote; add an unvetted contractor | Blocked until two quotes from vetted contractors, unless a reviewer records an exception with reason | P2 | Y | R2 |
+| TC-PMG-005-01 | FR-PMG-005 | Repair paid after inspection | Money held at the bank; work done | Inspector records completion with photos; owner approves; two staff approve | Contractor paid; receipt and photos on the timeline | P1 | Y | R2 |
+| TC-PMG-005-02 | FR-PMG-005 | Repair release without inspection or to the wrong payee | Money held | Request release before inspection; change payee to the tenant or the uncle | Blocked in each case (RUL-22) | P1 | Y | R2 |
+| TC-PMG-006-01 | FR-PMG-006 | Periodic inspections and timeline | Property under management | Clock through two periods | Inspection tasks created on schedule; timeline shows rent, repairs and inspections in order | P2 | Y | R2 |
+| TC-PMG-006-02 | FR-PMG-006 | Tenant and owner views separated | Tenant signed in | Open owner's timeline and other properties | Tenant sees own agreement, rent record and repair requests only | P2 | Y | R2 |
+
+### 4.24 Paperwork and errands (TSK)
+
+| TC ID | FR | Title | Preconditions | Steps | Expected result | Pri | Auto | Rel |
+|---|---|---|---|---|---|---|---|---|
+| TC-TSK-001-01 | FR-TSK-001 | Errand catalogue per country | Ghana and Testland catalogues | Client in each country opens catalogue | Own country's errands only, each with checklist, official fees, Fidero's charge and target time | P2 | Y | R2 |
+| TC-TSK-001-02 | FR-TSK-001 | Catalogue item incomplete | Admin | Publish an errand without fees or checklist | Rejected | P2 | Y | R2 |
+| TC-TSK-002-01 | FR-TSK-002 | Upload checklist documents and pay | Errand ordered | Upload each document; pay official fees and charge into the partner bank | Documents hashed and linked; bank details only (RUL-01); errand funded after bank confirmation | P1 | Y | R2 |
+| TC-TSK-002-02 | FR-TSK-002 | Checklist incomplete or payment short | Errand ordered | Omit one document; deposit less than fees plus charge | Errand cannot be assigned; client told what is missing | P1 | Y | R2 |
+| TC-TSK-002-03 | FR-TSK-002 | Identity documents protected | Documents uploaded | Agent, other clients and institution contact try to open them | Agent sees only the documents the step needs, by signed link; others 404 | P1 | Y | R2 |
+| TC-TSK-003-01 | FR-TSK-003 | Vetted agent assigned; fees paid to the agency | Funded errand; agency verified | Assign; agent lodges application; receipt uploaded | Official fee instruction names the agency's verified account; step recorded with receipt | P1 | Y | R2 |
+| TC-TSK-003-02 | FR-TSK-003 | Fee to the agent or an unverified agency | Funded errand | Payee set to the agent's personal account; agency unverified | Blocked (RUL-22); agent asking for cash recorded as a flag | P1 | Y | R2 |
+| TC-TSK-003-03 | FR-TSK-003 | Unvetted agent | Agent vetting pending | Assign | Blocked | P1 | Y | R2 |
+| TC-TSK-003-04 | FR-TSK-003 | Step without receipt | Agent marks step done | No receipt or acknowledgement attached | Step not recorded as done; client status unchanged | P1 | Y | R2 |
+| TC-TSK-004-01 | FR-TSK-004 | Completion confirmed by the resulting document | All steps done | Agent uploads the new Ghana Card image; staff check it | Errand Complete; Fidero's charge release allowed; client notified | P1 | Y | R2 |
+| TC-TSK-004-02 | FR-TSK-004 | Completion without the document or without Fidero's check | Steps done | Agent marks complete with no document; document uploaded but unchecked | Not Complete in either case (TC-RUL-23-05) | P1 | Y | R2 |
+| TC-TSK-004-03 | FR-TSK-004 | Reused or altered document | Document image reused from another errand; image metadata altered | Upload | Flagged; not confirmed (TC-RUL-23-06) | P1 | Y | R2 |
+| TC-TSK-005-01 | FR-TSK-005 | Handover recorded | Errand complete | Hand to the representative with signature; courier with photo of the waybill | Handover stored with signature or photo and time; client sees it | P2 | Y | R2 |
+| TC-TSK-005-02 | FR-TSK-005 | Handover to an unnamed person | Errand complete | Record handover to someone not the named representative or courier | Rejected | P2 | Y | R2 |
+
+### 4.25 Insurer partner lines (INS)
+
+| TC ID | FR | Title | Preconditions | Steps | Expected result | Pri | Auto | Rel |
+|---|---|---|---|---|---|---|---|---|
+| TC-INS-001-01 | FR-INS-001 | Products shown as the insurer's | Insurer configured with two products | Client opens cover page | Insurer's name, policy terms and "this policy is issued by" text shown for each product (TC-RUL-25-04) | P3 | Y | R2 |
+| TC-INS-001-02 | FR-INS-001 | Unlicensed or unconfigured insurer | Insurer without licence record for the country | Publish product | Rejected (C-11) | P3 | Y | R2 |
+| TC-INS-002-01 | FR-INS-002 | Application passed to the insurer; premium to the insurer's account | Client applies | Submit; pay premium | Application sent to the insurer (IF-11); premium instruction names the insurer's verified account; nothing enters a Fidero account | P1 | Y | R2 |
+| TC-INS-002-02 | FR-INS-002 | Premium to Fidero blocked | Admin or staff | Set premium account to a Fidero account; create a fee order of type "premium" | Rejected (TC-RUL-25-02) | P1 | Y | R2 |
+| TC-INS-002-03 | FR-INS-002 | Application data goes to the right insurer only | Two insurers configured | Apply for insurer A's product | Insurer B cannot see the application; insurer A sees only applicants for its products | P1 | Y | R2 |
+| TC-INS-003-01 | FR-INS-003 | Policy document, renewal and claim contact stored | Policy issued | Insurer returns policy | Document hashed and shown; renewal reminder sent at the configured lead time; claim contact shown | P2 | Y | R2 |
+| TC-INS-003-02 | FR-INS-003 | Renewal lapses | Renewal date passed; no premium | Clock past date | Policy shown as lapsed per the insurer's response; no cover implied by Fidero | P2 | Y | R2 |
+| TC-INS-004-01 | FR-INS-004 | Client starts a claim; insurer's response tracked | Active policy | Start claim; insurer records outcome | Claim status follows the insurer's responses; Fidero records only | P3 | Y | R2 |
+| TC-INS-004-02 | FR-INS-004 | Fidero cannot decide a claim | Open claim | Staff tries to approve or pay a claim | No such function (TC-RUL-25-03) | P1 | Y | R2 |
+
+### 4.26 Events and ceremonies (EVT)
+
+| TC ID | FR | Title | Preconditions | Steps | Expected result | Pri | Auto | Rel |
+|---|---|---|---|---|---|---|---|---|
+| TC-EVT-001-01 | FR-EVT-001 | Event with budget and verified vendors | Client | Create event; add three vendors | Each vendor's registration and account verified before any payment; event budget set | P3 | Y | R3 |
+| TC-EVT-001-02 | FR-EVT-001 | Unverified vendor | Vendor fails verification | Add to event | Vendor listed as unverified; no payment possible | P3 | Y | R3 |
+| TC-EVT-002-01 | FR-EVT-002 | Vendor paid against invoice and delivery evidence; deposit against signed quote | Funded event | Deposit with signed quote; final payment with invoice, photos, delivery note, family confirmation | Both released through the full chain to the vendor's verified account | P3 | Y | R3 |
+| TC-EVT-002-02 | FR-EVT-002 | Payment without evidence or to a relative | Funded event | Final payment with no delivery evidence; payee set to a family member | Blocked (RUL-22) | P3 | Y | R3 |
+| TC-EVT-003-01 | FR-EVT-003 | Budget against actual and receipts | Two payments made | Open event dashboard | Budget, actual and a receipt per payment shown | P3 | Y | R3 |
+
+### 4.27 Records programme (REC)
 
 | TC ID | FR | Title | Preconditions | Steps | Expected result | Pri | Auto | Rel |
 |---|---|---|---|---|---|---|---|---|
@@ -816,16 +951,24 @@ Each test case also verifies the acceptance criteria of the user story with the 
 | TC-REC-003-01 | FR-REC-003 | Revenue share | Cases used records | Run calculation | Share per authority correct | P2 | Y | R3 |
 | TC-REC-004-01 | FR-REC-004 | Authority representative views own records | Representative | View and confirm | Only own authority's records visible | P2 | Y | R3 |
 
-### 4.22 Multi-country (CTY)
+### 4.28 Multi-country (CTY)
+
+Country is configuration from R1 (BR-14, FR-CTY-001). Tests use the synthetic test country "Testland" (section 2.7) until the founder confirms country 2 (Q-15). A real country-2 configuration replaces Testland in staging once that country passes its day-90 gate (AS-13, C-13).
 
 | TC ID | FR | Title | Preconditions | Steps | Expected result | Pri | Auto | Rel |
 |---|---|---|---|---|---|---|---|---|
-| TC-CTY-001-01 | FR-CTY-001 | Country as configuration | Nigeria configuration in staging | Create Nigerian case | Nigerian template, scope, layers, NGN, partners and licence bodies used; no code change | P1 | Y | R3 |
-| TC-CTY-001-02 | FR-CTY-001 | Mixing countries | Ghana case | Use Nigerian scope text or licence body | Rejected | P1 | Y | R3 |
-| TC-CTY-002-01 | FR-CTY-002 | Data location per country | Data location rules `[TO VERIFY]` | Create Nigerian case with evidence | Stored in required location; data location register updated | P1 | P | R3 |
-| TC-CTY-002-02 | FR-CTY-002 | No cross-country leakage | Nigerian evidence | Check backups, logs, analytics stores | No copy outside allowed locations | P1 | P | R3 |
-| TC-CTY-003-01 | FR-CTY-003 | Metrics by country | Two countries seeded | Open dashboard | Every metric splits by country | P1 | Y | R3 |
-| TC-CTY-003-02 | FR-CTY-003 | Currency not mixed | GHS and NGN orders | View revenue metric | Shown per currency or converted with stated rate; never summed raw | P1 | Y | R3 |
+| TC-CTY-001-01 | FR-CTY-001 | Country as configuration | Testland configuration in staging | Create a Testland case, institution payment and errand | Testland template, scope, layers, currency, partners, licence bodies, legal texts, holiday calendar and errand catalogue used; no code change | P1 | Y | R1 |
+| TC-CTY-001-02 | FR-CTY-001 | Mixing countries | Ghana case | Use Testland scope text, licence body or holiday calendar | Rejected | P1 | Y | R1 |
+| TC-CTY-001-03 | FR-CTY-001 | Country isolation: a Ghana user cannot see country-2 data | Ghana case manager, reviewer, client, lawyer; Testland data seeded | List, search, open by ID, export, dashboard, partner API | No Testland object returned in any path; 404 on direct IDs; generated matrix over every object type and role | P1 | Y | R1 |
+| TC-CTY-001-04 | FR-CTY-001 | Every object belongs to one country | API client | Create a case, payment, listing or user with no country, or with two | Rejected; country taken from configuration, never from the request body alone | P1 | Y | R1 |
+| TC-CTY-001-05 | FR-CTY-001 | Nothing about Ghana is hard-coded | Build | Run the hard-coded country check (section 2.9); run the full `rul` suite under Testland settings | No hard-coded country values; every rule passes under Testland | P1 | Y | R1 |
+| TC-CTY-002-01 | FR-CTY-002 | Data location per country | Data location rules `[TO VERIFY]` | Create a Testland case with evidence | Stored in the configured location; data location register updated | P1 | P | R2 |
+| TC-CTY-002-02 | FR-CTY-002 | No cross-country leakage | Testland evidence | Check backups, logs, analytics stores, search indexes | No copy outside allowed locations | P1 | P | R2 |
+| TC-CTY-003-01 | FR-CTY-003 | Metrics by country | Two countries seeded | Open dashboard | Every A9 metric splits by country; a Ghana-scoped viewer sees Ghana only | P1 | Y | R1 |
+| TC-CTY-003-02 | FR-CTY-003 | Currency not mixed | GHS and Testland currency orders | View revenue metric | Shown per currency or converted with stated rate; never summed raw | P1 | Y | R1 |
+| TC-CTY-004-01 | FR-CTY-004 | Open a new country by copying another | Admin | Copy Ghana configuration to a new country; edit currency, templates, partners | New country created in a "not open" state; configuration version recorded; no code change other than integrations | P1 | Y | R2 |
+| TC-CTY-004-02 | FR-CTY-004 | Country cannot open before its gate | New country configured | Set to open without the gate record (manual phase and 90-day validation, C-13) | Blocked; needs two administrators and the founder's recorded gate decision | P1 | Y | R2 |
+| TC-CTY-004-03 | FR-CTY-004 | Copy does not carry Ghana data or partners' bank details | Copy made | Inspect new country | Templates and settings copied; no cases, users, bank accounts or licence records copied; bank details must be re-entered and approved (FR-ADM-003) | P1 | Y | R2 |
 
 ---
 
@@ -865,24 +1008,31 @@ Concurrency: every money-moving transition is also tested with two parallel requ
 | ID | From | To | Valid | Steps | Expected result | Auto | Rel |
 |---|---|---|---|---|---|---|---|
 | TC-STM-ESC-01 | Proposed | Agreed | Yes | All parties accept current terms | Agreed | Y | R1 |
-| TC-STM-ESC-02 | Agreed | Funded | Yes | Bank deposit confirmation recorded | Funded | Y | R1 |
-| TC-STM-ESC-03 | Funded | Ready to release | Yes | Last condition closed; fresh search in date | Ready to release | Y | R1 |
-| TC-STM-ESC-04 | Ready to release | Release approved | Yes | Two different staff approve with MFA | Release approved; instruction generated | Y | R1 |
-| TC-STM-ESC-05 | Release approved | Released | Yes | Bank confirms payment | Released; parties notified | Y | R1 |
-| TC-STM-ESC-06 | Funded | Frozen | Yes | Dispute opened | Frozen | Y | R1 |
-| TC-STM-ESC-07 | Ready to release | Frozen | Yes | Dispute opened | Frozen; any partial approval cleared | Y | R1 |
-| TC-STM-ESC-08 | Frozen | Funded | Yes | Dispute resolved | Funded; conditions and fresh search re-checked before Ready | Y | R2 |
-| TC-STM-ESC-09 | Agreed | Cancelled | Yes | Two-person approved cancellation | Cancelled (no money held) | Y | R1 |
-| TC-STM-ESC-10 | Funded | Cancelled | Yes | Two-person cancellation; bank confirms refund | Cancelled only after bank refund confirmation | Y | R1 |
-| TC-STM-ESC-11 | Proposed | Funded | No | Record deposit before agreement | Rejected; deposit held as unmatched for review | Y | R1 |
-| TC-STM-ESC-12 | Agreed | Ready to release | No | Close all conditions before funding | Stays Agreed | Y | R1 |
-| TC-STM-ESC-13 | Funded | Release approved | No | Approve with open condition | Rejected | Y | R1 |
-| TC-STM-ESC-14 | Frozen | Release approved, Released | No | Approve or confirm release while frozen | Rejected | Y | R2 |
-| TC-STM-ESC-15 | Released | Any | No | Cancel, freeze or approve again | Rejected | Y | R1 |
-| TC-STM-ESC-16 | Cancelled | Any | No | Fund or release | Rejected | Y | R1 |
-| TC-STM-ESC-17 | Release approved | Frozen | Not in C8 | Dispute opened after approvals, before bank confirms | Behaviour per resolution of section 16 item; test expects send blocked and state Frozen | Y | R2 |
-| TC-STM-ESC-18 | Ready to release | Release approved | Race | Two second-approvals in parallel | One instruction only | Y | R1 |
-| TC-STM-ESC-19 | Release approved | Released | Race | Bank confirmation received twice | Recorded once; duplicate logged | Y | R1 |
+| TC-STM-ESC-02 | Agreed | Funded | Yes | Bank deposit confirmation recorded (manual entry checked by a second person) | Funded | Y | R1 |
+| TC-STM-ESC-03 | Funded | Ready to release | Yes | Last condition closed; fresh search in date | Ready to release; client asked to approve | Y | R1 |
+| TC-STM-ESC-04 | Ready to release | Client approved | Yes | Client approves the release (RUL-11) | Client approved; staff notified | Y | R1 |
+| TC-STM-ESC-05 | Client approved | Release approved | Yes | Two different staff approve with MFA | Release approved; instruction generated with the verified payee (FR-ESC-015) | Y | R1 |
+| TC-STM-ESC-06 | Release approved | Released | Yes | Bank confirms the final payment | Released; parties notified | Y | R1 |
+| TC-STM-ESC-07 | Release approved | Partly released | Yes | Bank confirms a stage, milestone, visit or invoice payment and money remains | Partly released; balance and running statement updated (FR-ESC-010, FR-ESC-014) | Y | R1 (held balance), R2 (milestones) |
+| TC-STM-ESC-08 | Partly released | Ready to release | Yes | Conditions for the next stage closed | Ready to release; client asked to approve the next stage | Y | R1 |
+| TC-STM-ESC-09 | Funded, Ready to release, Client approved, Release approved, Partly released | Frozen | Yes | Dispute opened, from each of the five states | Frozen; state it came from recorded; any approvals cleared; a Release approved instruction not yet confirmed is recalled per Q-12 `[TO VERIFY]` | Y | R2 |
+| TC-STM-ESC-10 | Frozen | The state it came from | Yes | Dispute resolved in favour of continuing, from each origin | Returns to the recorded origin; conditions, fresh search and client approval re-checked before any release | Y | R2 |
+| TC-STM-ESC-11 | Frozen | Cancelled | Yes | Dispute resolved in favour of a refund; two-person approval; bank confirms refund | Cancelled only after bank refund confirmation | Y | R2 |
+| TC-STM-ESC-12 | Agreed | Cancelled | Yes | Two-person approved cancellation | Cancelled (no money held) | Y | R1 |
+| TC-STM-ESC-13 | Funded, Ready to release, Partly released | Cancelled | Yes | Two-person cancellation; bank confirms refund of the remaining balance | Cancelled only after bank refund confirmation; refund equals the remaining balance | Y | R1 |
+| TC-STM-ESC-14 | Proposed | Funded | No | Record deposit before agreement | Rejected; deposit held as unmatched for review | Y | R1 |
+| TC-STM-ESC-15 | Agreed | Ready to release | No | Close all conditions before funding | Stays Agreed | Y | R1 |
+| TC-STM-ESC-16 | Funded | Release approved | No | Approve with open condition | Rejected | Y | R1 |
+| TC-STM-ESC-17 | Ready to release | Release approved | No (trigger missing) | Two staff approve without the client's approval | Rejected (TC-RUL-11-04) | Y | R1 |
+| TC-STM-ESC-18 | Client approved | Released | No | Record bank payment without staff approvals | Rejected; alert | Y | R1 |
+| TC-STM-ESC-19 | Client approved, Release approved | Cancelled | No (not in C8) | Two-person cancellation | Rejected; the escrow must first be frozen or returned to Ready to release (see section 16) | Y | R1 |
+| TC-STM-ESC-20 | Frozen | Release approved, Released, Partly released | No | Approve or confirm release while frozen | Rejected | Y | R2 |
+| TC-STM-ESC-21 | Partly released | Released | No (trigger missing) | Bank confirms a payment while conditions for the last stage are open | Rejected; recorded as unmatched; alert | Y | R2 |
+| TC-STM-ESC-22 | Released | Any | No | Cancel, freeze or approve again | Rejected | Y | R1 |
+| TC-STM-ESC-23 | Cancelled | Any | No | Fund or release | Rejected | Y | R1 |
+| TC-STM-ESC-24 | Client approved | Release approved | Race | Two second-approvals in parallel | One instruction only | Y | R1 |
+| TC-STM-ESC-25 | Release approved | Released or Partly released | Race | Bank confirmation received twice | Recorded once; duplicate logged | Y | R1 |
+| TC-STM-ESC-26 | Release approved | Frozen then Released | Race | Dispute opened and bank confirmation arrive together | Exactly one outcome; if the bank paid first, state Released and the dispute is recorded against a released escrow with an alert | Y | R2 |
 
 ### 5.4 Milestone
 
@@ -892,20 +1042,28 @@ Concurrency: every money-moving transition is also tested with two parallel requ
 | TC-STM-MIL-02 | Submitted | Evidence checked | Yes | No flags; Fidero accepts | Evidence checked | Y | R2 |
 | TC-STM-MIL-03 | Submitted | Evidence checked | Yes | Flags present; reviewer clears each | Evidence checked; reviewer recorded | Y | R2 |
 | TC-STM-MIL-04 | Submitted | Returned | Yes | Evidence incomplete or flag upheld | Returned with reasons | Y | R2 |
-| TC-STM-MIL-05 | Evidence checked | Inspected | Yes | Inspector records outcome | Inspected with outcome | Y | R2 |
-| TC-STM-MIL-06 | Inspected (fail) | Returned | Yes | Fail recorded | Returned; contractor told what to fix | Y | R2 |
-| TC-STM-MIL-07 | Inspected (pass, pass with defects) | Client approved | Yes | Client approves | Client approved | Y | R2 |
-| TC-STM-MIL-08 | Inspected (pass) | Client approved | Yes | Approval window lapses `[TO VERIFY]` | Client approved (lapsed) recorded distinctly from explicit approval | Y | R2 |
-| TC-STM-MIL-09 | Client approved | Release approved | Yes | Two staff approve | Release approved | Y | R2 |
-| TC-STM-MIL-10 | Release approved | Paid | Yes | Bank confirms | Paid; dashboard updated | Y | R2 |
-| TC-STM-MIL-11 | Returned | Submitted | Not in C8 | Contractor resubmits | Expected allowed (milestone schedule step 6); see section 16 | Y | R2 |
-| TC-STM-MIL-12 | Not started | Evidence checked, Inspected | No | Skip submission | Rejected | Y | R2 |
-| TC-STM-MIL-13 | Submitted (flagged) | Evidence checked | No (trigger missing) | Case manager accepts without reviewer | Rejected | Y | R2 |
-| TC-STM-MIL-14 | Inspected (fail) | Client approved | No | Client approves a fail | Rejected | Y | R2 |
-| TC-STM-MIL-15 | Evidence checked | Client approved | No | Approve before inspection | Rejected | Y | R2 |
-| TC-STM-MIL-16 | Client approved | Paid | No | Record bank payment without staff approvals | Rejected; alert | Y | R2 |
-| TC-STM-MIL-17 | Paid | Any | No | Resubmit or re-approve | Rejected | Y | R2 |
-| TC-STM-MIL-18 | Not started | Submitted | No (order) | Submit milestone 3 before milestone 2 passed | Rejected, or flagged per FR-MOB-011 | Y | R2 |
+| TC-STM-MIL-05 | Returned | Submitted | Yes | Contractor resubmits | Submitted; resubmission count and earlier reasons kept | Y | R2 |
+| TC-STM-MIL-06 | Evidence checked | Inspection scheduled | Yes | Unconflicted inspector assigned with a visit date | Inspection scheduled; inspector and client notified | Y | R2 |
+| TC-STM-MIL-07 | Inspection scheduled | Inspected | Yes | Inspector records outcome | Inspected with outcome | Y | R2 |
+| TC-STM-MIL-08 | Inspected (fail) | Returned | Yes | Fail recorded | Returned; contractor told what to fix | Y | R2 |
+| TC-STM-MIL-09 | Inspected (pass, pass with defects) | Client approved | Yes | Client approves; re-priced amount shown (RUL-18) | Client approved | Y | R2 |
+| TC-STM-MIL-10 | Client approved | Release approved | Yes | Two staff approve | Release approved | Y | R2 |
+| TC-STM-MIL-11 | Release approved | Paid | Yes | Bank confirms | Paid; any defect value stays held (FR-BLD-006); dashboard updated | Y | R2 |
+| TC-STM-MIL-12 | Not started (milestone 0, mobilisation) | Client approved | Yes | Contract signed; Fidero staff confirm site handover | Client approved without evidence or inspection (RUL-09 exception); then normal staff approvals | Y | R2 |
+| TC-STM-MIL-13 | Any before Paid | Frozen | Yes | Dispute opened, from each state | Frozen; origin recorded; scheduled inspection kept or cancelled per reviewer | Y | R2 |
+| TC-STM-MIL-14 | Frozen | The state it came from | Yes | Dispute resolved | Returns to origin; approvals re-checked | Y | R2 |
+| TC-STM-MIL-15 | Inspected (pass) | Inspected (pass) | Yes (no change) | Client silent past the configured reminder period (Q-13) | Stays Inspected; reminders sent; silence is never approval (RUL-11); escalation per Q-13 `[TO VERIFY]` | Y | R2 |
+| TC-STM-MIL-16 | Not started (milestone 1 or later) | Client approved | No | Apply the mobilisation shortcut to any milestone other than 0 | Rejected (TC-RUL-09-07) | Y | R2 |
+| TC-STM-MIL-17 | Not started | Evidence checked, Inspection scheduled, Inspected | No | Skip submission | Rejected | Y | R2 |
+| TC-STM-MIL-18 | Submitted (flagged) | Evidence checked | No (trigger missing) | Case manager accepts without reviewer | Rejected | Y | R2 |
+| TC-STM-MIL-19 | Evidence checked | Inspected | No | Record outcome without scheduling, or by an unassigned inspector | Rejected | Y | R2 |
+| TC-STM-MIL-20 | Inspected (fail) | Client approved | No | Client approves a fail | Rejected | Y | R2 |
+| TC-STM-MIL-21 | Evidence checked, Inspection scheduled | Client approved | No | Approve before inspection | Rejected | Y | R2 |
+| TC-STM-MIL-22 | Client approved | Paid | No | Record bank payment without staff approvals | Rejected; alert | Y | R2 |
+| TC-STM-MIL-23 | Frozen | Release approved, Paid | No | Approve or pay while frozen | Rejected | Y | R2 |
+| TC-STM-MIL-24 | Paid | Any | No | Resubmit or re-approve | Rejected | Y | R2 |
+| TC-STM-MIL-25 | Not started | Submitted | No (order) | Submit milestone 3 before milestone 2 passed | Rejected, or flagged per FR-MOB-011 | Y | R2 |
+| TC-STM-MIL-26 | Client approved | Release approved | Race | Two second-approvals in parallel | One instruction only | Y | R2 |
 
 ### 5.5 Listing
 
@@ -914,19 +1072,23 @@ Concurrency: every money-moving transition is also tested with two parallel requ
 | TC-STM-LST-01 | Draft | In verification | Yes | Listing fee paid | In verification | Y | R2 |
 | TC-STM-LST-02 | In verification | Rejected | Yes | Report amber or red | Rejected; seller told why | Y | R2 |
 | TC-STM-LST-03 | In verification | Live | Yes | Report green and in date | Live with badge | Y | R2 |
-| TC-STM-LST-04 | Live | Suspended | Yes | Monitoring alert, dispute, or misconduct (three sub-cases) | Suspended; badge hidden | Y | R2 |
-| TC-STM-LST-05 | Suspended | Live | Yes | Issue resolved and report still in date | Live | Y | R2 |
-| TC-STM-LST-06 | Live | Expired | Yes | Badge validity ends | Expired | Y | R2 |
-| TC-STM-LST-07 | Expired | In verification | Yes | Seller orders re-verification | In verification | Y | R2 |
-| TC-STM-LST-08 | Live | Reserved | Yes | Buyer reserves | Reserved; fresh search started | Y | R2 |
-| TC-STM-LST-09 | Reserved | Sold | Yes | Escrow released | Sold | Y | R2 |
-| TC-STM-LST-10 | Reserved | Live | Yes | Reservation lapses or fresh search fails | Live (lapse); on failed fresh search see section 16 | Y | R2 |
-| TC-STM-LST-11 | Draft | Live | No | Publish without fee or verification | Rejected | Y | R2 |
-| TC-STM-LST-12 | Rejected, Expired | Live | No | Republish directly | Rejected | Y | R2 |
-| TC-STM-LST-13 | Suspended | Live | No (trigger missing) | Seller lifts suspension | Rejected; reviewer only | Y | R2 |
-| TC-STM-LST-14 | Suspended | Reserved | No | Buyer reserves suspended listing | Rejected | Y | R2 |
-| TC-STM-LST-15 | Sold | Any | No | Relist the same listing | Rejected; new listing needed | Y | R2 |
-| TC-STM-LST-16 | Live | Reserved | Race | Two buyers reserve at once | One reservation | Y | R2 |
+| TC-STM-LST-04 | Live | Suspended | Yes | Monitoring alert, dispute, failed fresh search, or misconduct (four sub-cases) | Suspended; badge hidden | Y | R2 |
+| TC-STM-LST-05 | Reserved | Suspended | Yes | Fresh search fails after reservation, or monitoring alert, dispute or misconduct | Suspended; reservation ended; buyer told; proposed escrow cancelled before funding | Y | R2 |
+| TC-STM-LST-06 | Suspended | Live | Yes | Issue resolved and report still in date | Live | Y | R2 |
+| TC-STM-LST-07 | Live | Expired | Yes | Badge validity ends | Expired | Y | R2 |
+| TC-STM-LST-08 | Reserved | Expired | Yes | Badge validity ends while reserved | Expired; reservation ended; buyer told to wait for re-verification | Y | R2 |
+| TC-STM-LST-09 | Expired | In verification | Yes | Seller orders re-verification | In verification | Y | R2 |
+| TC-STM-LST-10 | Live | Reserved | Yes | Buyer reserves | Reserved; fresh search started | Y | R2 |
+| TC-STM-LST-11 | Reserved | Sold | Yes | Escrow released | Sold | Y | R2 |
+| TC-STM-LST-12 | Reserved | Live | Yes | Buyer withdraws or reservation lapses, with the fresh search passed | Live; the passed fresh search date shown on the listing | Y | R2 |
+| TC-STM-LST-13 | Reserved | Live | No (trigger missing) | Buyer withdraws before the fresh search result, or after it failed | Rejected; stays Reserved until the search result, or goes to Suspended on a fail | Y | R2 |
+| TC-STM-LST-14 | Draft | Live | No | Publish without fee or verification | Rejected | Y | R2 |
+| TC-STM-LST-15 | Rejected, Expired | Live | No | Republish directly | Rejected | Y | R2 |
+| TC-STM-LST-16 | Suspended | Live | No (trigger missing) | Seller lifts suspension | Rejected; reviewer only | Y | R2 |
+| TC-STM-LST-17 | Suspended, Expired | Reserved | No | Buyer reserves | Rejected | Y | R2 |
+| TC-STM-LST-18 | Sold | Any | No | Relist the same listing | Rejected; new listing needed | Y | R2 |
+| TC-STM-LST-19 | Live | Reserved | Race | Two buyers reserve at once | One reservation | Y | R2 |
+| TC-STM-LST-20 | Reserved | Sold then Expired | Race | Escrow release and badge expiry on the same day | Sold wins if the bank confirmed before expiry; otherwise Expired and the escrow needs re-verification before release | Y | R2 |
 
 ### 5.6 Dispute
 
@@ -936,19 +1098,22 @@ Concurrency: every money-moving transition is also tested with two parallel requ
 | TC-STM-DSP-02 | Awaiting response | Evidence | Yes | Response received | Evidence | Y | R2 |
 | TC-STM-DSP-03 | Awaiting response | Evidence | Yes | Response deadline passes | Evidence; non-response recorded | Y | R2 |
 | TC-STM-DSP-04 | Evidence | Decision | Yes | Evidence deadline passes | Decision | Y | R2 |
-| TC-STM-DSP-05 | Decision | Closed | Yes | Decision recorded and notified | Closed; linked freezes lifted or outcome applied | Y | R2 |
-| TC-STM-DSP-06 | Open, Awaiting response, Evidence, Decision | Referred | Yes | Reviewer refers to mediation, from each state | Referred; releases stay frozen | Y | R2 |
-| TC-STM-DSP-07 | Referred | Closed | Yes | Mediation outcome recorded | Closed | Y | R2 |
-| TC-STM-DSP-08 | Open | Decision, Closed | No | Decide before response stage | Rejected | Y | R2 |
-| TC-STM-DSP-09 | Evidence | Decision | No (early) | All parties finished early | Rejected under current C8; see section 16 | Y | R2 |
-| TC-STM-DSP-10 | Decision | Closed | No (trigger missing) | Close with no reasons or no notification | Rejected | Y | R2 |
-| TC-STM-DSP-11 | Closed | Any, including Referred | No | Reopen or refer | Rejected; new dispute needed (C8 "Any" read as "any open state", see section 16) | Y | R2 |
+| TC-STM-DSP-05 | Evidence | Decision | Yes (early) | All parties confirm their evidence is complete before the deadline | Decision; early move recorded with each party's confirmation | Y | R2 |
+| TC-STM-DSP-06 | Decision | Closed | Yes | Decision recorded and notified | Closed; linked freezes lifted or outcome applied | Y | R2 |
+| TC-STM-DSP-07 | Decision | Decision (escalated) | Yes (no state change) | Decision deadline passes | Stays in Decision; escalated to the founder; escalation and date recorded; parties told | Y | R2 |
+| TC-STM-DSP-08 | Open, Awaiting response, Evidence, Decision | Referred | Yes | Reviewer refers to mediation, from each state | Referred; releases stay frozen | Y | R2 |
+| TC-STM-DSP-09 | Referred | Closed | Yes | Mediation outcome recorded | Closed | Y | R2 |
+| TC-STM-DSP-10 | Open | Decision, Closed | No | Decide before response stage | Rejected | Y | R2 |
+| TC-STM-DSP-11 | Evidence | Decision | No (trigger missing) | One party confirms complete; the other has not and the deadline has not passed | Rejected; stays in Evidence | Y | R2 |
+| TC-STM-DSP-12 | Decision | Closed | No (trigger missing) | Close with no reasons or no notification | Rejected | Y | R2 |
+| TC-STM-DSP-13 | Decision | Closed | No (conflict) | Decider is a party or approved the disputed release | Rejected (TC-DSP-004-02) | Y | R2 |
+| TC-STM-DSP-14 | Closed | Any, including Referred | No | Reopen or refer | Rejected; new dispute needed | Y | R2 |
 
 ---
 
 ## 6. End-to-end journey tests
 
-Run in Playwright on staging against provider sandboxes. Mobile steps in J-03 and J-05 run with the app on an emulator or real device. Each journey has a happy path (`-01`) and unhappy paths.
+Run in Playwright on staging against provider sandboxes. Mobile steps in J-03, J-05, J-10, J-11 and J-12 run with the field app on an emulator or real device. Each journey has a happy path (`-01`) and unhappy paths. J-09 to J-12 come from the redefinition in `docs/decisions/2026-11-01-diaspora-platform.md`; their unhappy paths are the abuse cases that matter most: money reaching a relative, a visit or errand that did not happen, and rent or premiums touching a Fidero account.
 
 | ID | Journey | Scenario | Personas | Steps (short) | Expected result | Auto | Rel |
 |---|---|---|---|---|---|---|---|
@@ -993,6 +1158,34 @@ Run in Playwright on staging against provider sandboxes. Mobile steps in J-03 an
 | TC-E2E-J08-01 | J-08 | Existing building verified | P-01 | Order building check; extra steps done | Report includes permit, structural, occupancy, rates and bills | Y | R1 |
 | TC-E2E-J08-02 | J-08 | Tenant found | P-01, P-03 | Tenancy found | Amber with vacant possession condition | Y | R1 |
 | TC-E2E-J08-03 | J-08 | Release needs keys and vacant possession | P-03, P-04 | Close all but vacant possession | Release blocked until keys and vacant possession evidence closed | Y | R1 |
+| TC-E2E-J09-01 | J-09 | Pay a hospital bill directly, receipt returned | P-15, P-03, P-04, institution contact | Add mother and hospital; staff verify institution; upload bill; checks pass; Kwabena approves; pays partner bank; two staff approve; bank pays hospital; receipt uploaded | Every step on the dashboard; hospital's account only; receipt on the family member statement; no Fidero account shown | Y | R1 |
+| TC-E2E-J09-02 | J-09 | School fees each term | P-15 | Set per-term schedule; two terms pass | Reminder each term; payment only after approval; enrolment confirmation returned where the school agrees | Y | R1 |
+| TC-E2E-J09-03 | J-09 | Payee account name mismatch | P-15, P-03 | Institution's account name is a person's name | Verification fails; invoice cannot be approved; client told why in plain words | Y | R1 |
+| TC-E2E-J09-04 | J-09 | Fake institution | Attacker as "institution" | Register a clinic with a copied name and a registration number from another body | Verification fails; look-alike flagged; nothing payable (TC-SEC-33) | Y | R1 |
+| TC-E2E-J09-05 | J-09 | Invoice for the wrong patient or altered | P-15 | Upload a bill naming another patient; upload a bill with the amount edited | Both flagged; approval blocked until staff resolve; original hash kept (TC-SEC-34) | Y | R1 |
+| TC-E2E-J09-06 | J-09 | Receipt never returned | P-03 | Payment confirmed; institution silent past the target | Payment marked receipt overdue; chase task; client told; metric updated | Y | R1 |
+| TC-E2E-J09-07 | J-09 | Institution accepts cash only | P-07, P-03 | Runner pays in person against a two-person voucher | Receipt uploaded; voucher reconciled within 2 working days; unreconciled voucher alerts | P | R1 |
+| TC-E2E-J09-08 | J-09 | Family member asks for money instead | P-15 | Kwabena tries to add his nephew as a payee | Rejected: Fidero pays institutions only; plain explanation (RUL-22) | Y | R1 |
+| TC-E2E-J10-01 | J-10 | Care visits confirmed and paid | P-15, P-17, family member, P-03 | Create care plan; vetted carer assigned; carer checks in, completes items, photos, checks out; mother confirms with one-tap code; carer paid for confirmed visits | Dashboard shows each visit with time, items and photos; carer paid only for confirmed visits | P | R2 |
+| TC-E2E-J10-02 | J-10 | Carer confirms own visit | P-17 | Carer enters the family code from own phone | Rejected; flagged; client told (TC-RUL-23-02) | Y | R2 |
+| TC-E2E-J10-03 | J-10 | Missed visit | P-15 | Carer does not check in | Alert to Kwabena and Fidero within the configured time; visit not paid; replacement visit offered | Y | R2 |
+| TC-E2E-J10-04 | J-10 | Check-in from the wrong place | P-17 | Mock location at the address while 3 km away | Flagged; visit not payable without review (TC-SEC-36) | P | R2 |
+| TC-E2E-J10-05 | J-10 | Family does not confirm | Family member | No confirmation within the configured period | Visit unconfirmed; carer not paid; client and Fidero alerted; reviewer decides | Y | R2 |
+| TC-E2E-J10-06 | J-10 | Carer raises a welfare concern | P-17, P-04 | Carer finds the mother unwell | Client and reviewer notified same day; concern in restricted log; follow-up recorded | Y | R2 |
+| TC-E2E-J10-07 | J-10 | Carer's vetting lapses mid-plan | P-03 | Background check expires | Assignments suspended; family told who the replacement is; no visit by the lapsed carer is payable | Y | R2 |
+| TC-E2E-J11-01 | J-11 | Property managed: rent to owner, repair paid after inspection | P-16, tenant, P-09, P-08, P-03, P-04 | Register house; condition inspection; tenant and agreement; rent account is Akosua's own; rent lines imported; repair reported; two quotes; Akosua approves; money held; work inspected; two staff approve; contractor paid | Dashboard shows rent received, repair, inspection and photo timeline; rent never touches Fidero | P | R2 |
+| TC-E2E-J11-02 | J-11 | Rent routed to a Fidero account | Staff | Set rent account to a Fidero fee account | Rejected; alert (TC-RUL-24-02) | Y | R2 |
+| TC-E2E-J11-03 | J-11 | Rent routed to the uncle | P-16 | Enter the uncle's account as the rent account | Rejected: account must be in the owner's name | Y | R2 |
+| TC-E2E-J11-04 | J-11 | Repair with one quote or without inspection | P-03 | Approve with one quote; release before inspection | Both blocked | Y | R2 |
+| TC-E2E-J11-05 | J-11 | Late rent | Tenant | No rent line by due date | Owner and Fidero alerted; tenant reminded | Y | R2 |
+| TC-E2E-J11-06 | J-11 | Tenant tries to see owner data | Tenant | Open owner's dashboard, other properties, repair quotes | 404 | Y | R2 |
+| TC-E2E-J12-01 | J-12 | Ghana Card renewal and title application lodged | P-01, P-17, P-03 | Order two errands; checklist and fees shown; upload documents; pay into partner bank; agent lodges; fees paid to the agency; receipts uploaded; finished document uploaded and checked; handover to representative | Each step in plain language; agency paid only; completion only on the checked document | P | R2 |
+| TC-E2E-J12-02 | J-12 | Agent asks for cash or own account as payee | P-17 | Payee set to the agent | Rejected (RUL-22); flagged | Y | R2 |
+| TC-E2E-J12-03 | J-12 | Completion without the document | P-17 | Agent marks errand complete; no document | Not complete; Fidero's charge not released (RUL-23) | Y | R2 |
+| TC-E2E-J12-04 | J-12 | Reused acknowledgement | P-17 | Upload an acknowledgement image used on another errand | Flagged; step not recorded | Y | R2 |
+| TC-E2E-J12-05 | J-12 | Documents missing from checklist | P-01 | Omit one required document | Errand not assigned; client told what is missing | Y | R2 |
+| TC-E2E-J12-06 | J-12 | Official fee changes after order | P-03 | Agency fee differs from catalogue | Client shown the difference and approves before payment; catalogue update task raised | Y | R2 |
+| TC-E2E-J12-07 | J-12 | Errand in the test country | P-14, P-03 | Order a Testland errand | Testland catalogue, currency and agency used; Ghana staff cannot see it | Y | R2 |
 
 ---
 
@@ -1002,12 +1195,13 @@ Run in Playwright on staging against provider sandboxes. Mobile steps in J-03 an
 |---|---|---|---|---|---|---|---|
 | TC-NFR-PERF-01-01 | NFR-PERF-01 | Load key portal pages on throttled profile, 20 runs each | Playwright with network throttling; Lighthouse CI | Useful content (largest contentful paint) under 3 s at p75 on 1.6 Mbps, 300 ms latency | staging | p75 under 3 s on every P1 page | R1 |
 | TC-NFR-PERF-02-01 | NFR-PERF-02 | Measure transferred bytes on first load, cache empty | Lighthouse CI budgets; Playwright request log | Under 500 KB excluding user-opened images | CI and staging | Budget check fails the build when exceeded | R1 |
-| TC-NFR-PERF-03-01 | NFR-PERF-03 | Load test mixed read and write traffic | k6 | Reads p95 under 500 ms; writes p95 under 1 s at 10 times expected R1 load `[TO VERIFY]` load model | staging sized like production | Targets met for 30 minutes steady state; error rate under 0.1% (assumption) | R1 |
-| TC-NFR-PERF-03-02 | NFR-PERF-03 | Soak test | k6 | Expected load for 8 hours | staging | No memory growth trend; no latency drift above target | R1 |
+| TC-NFR-PERF-03-01 | NFR-PERF-03 | Load test mixed read and write traffic | k6 | Reads p95 under 500 ms; writes p95 under 1 s at 10 times the stated R1 load: 20,000 client accounts, 1,500 open cases, 500 users at once (10 times 2,000, 150 and 50 in NFR-PERF-03). Traffic mix adds institution payments and dashboard loads (assumption) | staging sized like production | Targets met for 30 minutes steady state; error rate under 0.1% (assumption) | R1 |
+| TC-NFR-PERF-03-02 | NFR-PERF-03 | Soak test | k6 | Expected R1 load (2,000 accounts, 150 open cases, 50 users at once) for 8 hours | staging | No memory growth trend; no latency drift above target | R1 |
 | TC-NFR-PERF-04-01 | NFR-PERF-04 | Save polygons with all layers loaded, single and concurrent | pytest timing; k6 | Overlay results within 30 s | staging with full layer set | 95% (assumption) under 30 s; none lost | R1 |
 | TC-NFR-PERF-05-01 | NFR-PERF-05 | Measure cold start and install size on reference 2 GB device | Android macrobenchmark; APK analyser | Start under 3 s; install under 30 MB | Physical device lab | Median cold start under 3 s over 10 runs; release build under 30 MB | R2 |
-| TC-NFR-AVL-01-01 | NFR-AVL-01 | External uptime checks every minute | Synthetic monitoring `[TO VERIFY]` tool | 99.5% monthly | production | Monthly report shows at least 99.5%; checked at R1 go-live plus 1 month as part of acceptance | R1 |
+| TC-NFR-AVL-01-01 | NFR-AVL-01 | External uptime checks every minute | Synthetic monitoring `[TO VERIFY]` tool | 99.5% monthly, excluding announced maintenance | production | Monthly report shows at least 99.5%; checked at R1 go-live plus 1 month as part of acceptance | R1 |
 | TC-NFR-AVL-01-02 | NFR-AVL-01 | Fail one instance and one availability zone | AWS fault injection `[TO VERIFY]` | Service continues | staging | No user-visible outage beyond health-check failover time | R1 |
+| TC-NFR-AVL-01-03 | NFR-AVL-01 | Maintenance cap and notice | Maintenance log and announcement records | Maintenance announced 48 hours ahead; at most 4 hours a month excluded | production | Monthly report excludes only windows announced 48 hours ahead; excluded time never above 4 hours; anything beyond counts as downtime | R1 |
 | TC-NFR-AVL-02-01 | NFR-AVL-02 | Restore database and storage to a point in time | Runbook in document 06 | RPO 1 hour; RTO 4 hours | Isolated restore account | Data loss at most 1 hour; service usable within 4 hours (OAT-02) | R1 |
 | TC-NFR-AVL-03-01 | NFR-AVL-03 | Inspect storage replication and object lock | AWS config checks | Two copies in separate locations | staging and production | Replication on; test object present in both locations; deletion of primary leaves copy | R1 |
 | TC-NFR-SEC-01-01 | NFR-SEC-01 | Scan endpoints for protocol versions; check storage and database encryption settings | testssl.sh; AWS config rules | TLS 1.2 or later; encryption at rest on | staging and production | No TLS below 1.2; every store encrypted | R1 |
@@ -1017,15 +1211,17 @@ Run in Playwright on staging against provider sandboxes. Mobile steps in J-03 an
 | TC-NFR-SEC-05-01 | NFR-SEC-05 | ASVS L2 checklist verification (section 8.3) | Checklist plus ZAP and manual tests | All applicable L2 items pass | staging | Every applicable item has evidence; failures closed or accepted by product owner in writing | R1 |
 | TC-NFR-PRIV-01-01 | NFR-PRIV-01 | Audit every service against the data location register | Infrastructure inventory script | All personal data in accepted locations `[TO VERIFY]` | production | Register complete; no store outside accepted regions | R1 |
 | TC-NFR-PRIV-02-01 | NFR-PRIV-02 | Compare schema fields to data catalogue | Schema diff script in CI | Each personal field has a purpose | CI | Build fails on a new personal field without a catalogue entry | R1 |
-| TC-NFR-USE-01-01 | NFR-USE-01 | Moderated usability test (section 10.2) | Remote session recording | 5 diaspora users order on own phone, unaided | staging with sandbox payment | Each of 5 completes in under 10 minutes without help (see section 16 on interpretation) | R1 |
-| TC-NFR-USE-02-01 | NFR-USE-02 | Readability score on all status templates | Script using a readability formula `[TO VERIFY]` choice | Reading age 12 or lower | CI | Every status template scores within target; failures listed | R1 |
-| TC-NFR-USE-02-02 | NFR-USE-02 | Plain English review | Manual review by 3 users from P-01 and P-02 groups | Understood without help | staging | Each user restates meaning correctly for 10 sample messages | R1 |
-| TC-NFR-A11Y-01-01 | NFR-A11Y-01 | Automated checks on every page and state | axe-core in Playwright | WCAG 2.2 AA | CI and staging | Zero serious or critical violations | R1 |
-| TC-NFR-A11Y-01-02 | NFR-A11Y-01 | Manual audit (section 10.1) | Screen readers, keyboard, zoom | WCAG 2.2 AA | staging | No open AA failures on P1 journeys | R1 |
+| TC-NFR-USE-01-01 | NFR-USE-01 | Moderated usability test (section 10.2) | Remote session recording | 5 diaspora users order on own phone, unaided | staging with sandbox payment | At least 4 of 5 complete without help; median time of completed runs under 10 minutes | R1 |
+| TC-NFR-USE-02-01 | NFR-USE-02 | Flesch-Kincaid grade on all status templates | Script computing the Flesch-Kincaid grade level | Grade 7 or lower | CI | Every status and notification template scores grade 7 or lower; failures listed and fail the build | R1 |
+| TC-NFR-USE-02-02 | NFR-USE-02 | Plain English review | Manual review by 3 users from P-01, P-02 and P-15 groups | Understood without help | staging | Each user restates meaning correctly for 10 sample messages, including institution payment and care visit messages | R1 |
+| TC-NFR-A11Y-01-01 | NFR-A11Y-01 | Automated checks on every web page and state | axe-core in Playwright | WCAG 2.2 AA | CI and staging | Zero serious or critical violations | R1 |
+| TC-NFR-A11Y-01-02 | NFR-A11Y-01 | Manual web audit (section 10.1) | Screen readers, keyboard, zoom | WCAG 2.2 AA | staging | No open AA failures on P1 journeys | R1 |
+| TC-NFR-A11Y-01-03 | NFR-A11Y-01 | Android app audit against WCAG 2.2 AA using Android's accessibility guidance | Accessibility Scanner; TalkBack; Espresso accessibility checks | Same level as web, mapped to Android checks (section 10.1) | Device lab | No open failure on capture, checklist, check-in and submission screens; contractors and carers with low vision complete a visit with TalkBack | R2 |
 | TC-NFR-OBS-01-01 | NFR-OBS-01 | Check trace IDs and alerts | Integration test; alert drills | Trace ID on every request; alerts on errors, latency, upload queue, job failures | staging | Trace ID in logs for API, worker and app upload; each alert fires in a drill within 5 minutes (assumption) | R1 |
-| TC-NFR-MNT-01-01 | NFR-MNT-01 | Coverage report; RUL coverage check | coverage.py; script mapping `rul` tags to RUL IDs | 80% lines of core API; every RUL tested | CI | Gate fails below 80% or if any RUL-nn has no passing test | R1 |
-| TC-NFR-MNT-02-01 | NFR-MNT-02 | Add a test product line and a test country through configuration only | Admin UI; diff of code repository | No code change outside integrations | staging | Line works end to end; code diff empty apart from new integration adapters | R2 |
-| TC-NFR-SCL-01-01 | NFR-SCL-01 | Load test on `seed-scale` data | k6; PostgreSQL query plans | 2,000 open cases, 500 projects, 20,000 listings | staging | NFR-PERF-03 targets still met; no table scans on hot paths | R2 |
+| TC-NFR-MNT-01-01 | NFR-MNT-01 | Coverage report; RUL coverage check | coverage.py; script mapping `rul` tags to RUL IDs | 80% lines of core API; every RUL-01 to RUL-25 tested | CI | Gate fails below 80% or if any RUL-nn has no passing test | R1 |
+| TC-NFR-MNT-02-01 | NFR-MNT-02 | Add a test country through configuration only | Admin UI; diff of code repository | No code change outside integrations | staging | Testland case, payment and dashboard work end to end; code diff empty apart from new integration adapters (TC-CTY-001-01) | R1 |
+| TC-NFR-MNT-02-02 | NFR-MNT-02 | Add a test product line through configuration only | Admin UI: case template, condition set, schedule | No code change | staging | A new line (for example "borehole project") runs verify, hold, release end to end with no code change | R2 |
+| TC-NFR-SCL-01-01 | NFR-SCL-01 | Load test on `seed-scale` data | k6; PostgreSQL query plans | 2,000 open cases, 500 projects, 20,000 listings, plus 5,000 institution payments and 2,000 visits a month (assumption) | staging | NFR-PERF-03 targets still met; no table scans on hot paths | R2 |
 | TC-NFR-LOC-01-01 | NFR-LOC-01 | Static scan for hard-coded user-facing strings; pseudo-locale run | i18n lint; pseudo-localisation | All strings in translation files | CI | Zero hard-coded strings; pseudo-locale shows no untranslated text | R1 |
 | TC-NFR-AUD-01-01 | NFR-AUD-01 | Read audit entries for archived data near retention end | Integration test with clock | Readable for full retention | staging | Entries for records at retention minus one day are readable and chain-verifiable | R1 |
 
@@ -1035,7 +1231,7 @@ Run in Playwright on staging against provider sandboxes. Mobile steps in J-03 an
 
 ### 8.1 Approach
 
-Security testing is threat-driven. The main threats are people who want money released without proof, want evidence to look real when it is not, or want personal data. Each threat below has a test. Threat cases run in staging. Automated ones run nightly. Manual ones run before each release and are repeated by the penetration tester.
+Security testing is threat-driven. The main threats are people who want money released without proof, want money to reach a relative or themselves instead of a verified institution, want evidence to look real when it is not, or want personal data. The redefinition adds threats around institutions, invoices, payees, check-ins, confirmation codes and country separation. Each threat below has a test. Threat cases run in staging. Automated ones run nightly. Manual ones run before each release and are repeated by the penetration tester.
 
 ### 8.2 Threat-driven test cases
 
@@ -1045,7 +1241,7 @@ Security testing is threat-driven. The main threats are people who want money re
 | TC-SEC-02 | Bypass two-person release with two accounts owned by one person | RUL-05 | Create two staff accounts with same phone or device; approve | Rejected or flagged; staff onboarding requires identity link (TC-RUL-05-04) | P | R1 |
 | TC-SEC-03 | Send instruction by calling the send endpoint directly | RUL-05, RUL-06 | Call send with valid staff token on Ready to release escrow | Rejected; send only from Release approved state | Y | R1 |
 | TC-SEC-04 | Change release amount or payee between approval and sending | FR-ESC-008 | Modify instruction record or file in storage | Signature check fails; send blocked; alert | Y | R1 |
-| TC-SEC-05 | Social engineering: forged bank confirmation uploaded to mark Funded or Released | FR-ESC-004, FR-ESC-009 | Upload edited bank letter | Manual entry flagged for second check against bank channel `[TO VERIFY]` procedure (see section 16) | N | R1 |
+| TC-SEC-05 | Social engineering: forged bank confirmation uploaded to mark Funded or Released | FR-ESC-004, FR-ESC-009 | Upload edited bank letter as case manager A | Not Funded or Released until a second staff member checks it against the bank channel (FR-ESC-004); the checker's procedure requires contact with the bank, not just the letter `[TO VERIFY]` with the bank | P | R1 |
 | TC-SEC-06 | Replay signed milestone evidence from a past milestone or another project | FR-MOB-004, FR-MOB-011 | Resubmit a previously accepted signed item | Hash already seen; flagged; not counted | Y | R2 |
 | TC-SEC-07 | Gallery upload spoofing: inject a pre-made photo into the capture pipeline | RUL-08, FR-MOB-002 | Hook camera API on rooted device; use virtual camera app; intercept upload and swap file | Hash or signature mismatch, or device integrity check fails `[TO VERIFY]` Play Integrity use; item flagged | P | R2 |
 | TC-SEC-08 | GPS spoofing with mock location apps | FR-MOB-003, FR-MOB-011 | Enable mock location; capture on site coordinates from far away | Mock location detected and flagged; cross-check with network position and image metadata where possible | P | R2 |
@@ -1061,7 +1257,7 @@ Security testing is threat-driven. The main threats are people who want money re
 | TC-SEC-18 | Account takeover by SIM swap on one-time codes | FR-ACC-002, FR-ACC-003 | Use one-time code sign-in for a staff user | Staff and approvers cannot sign in with SMS code alone; authenticator app or key required `[TO VERIFY]` design choice | Y | R1 |
 | TC-SEC-19 | Lockout abuse to stop approvers working | FR-ACC-009 | Lock a known approver by failed attempts | Lockout happens as specified; alert to admin; second approver pool exists (see section 16) | Y | R1 |
 | TC-SEC-20 | Payment webhook forgery | FR-ORD-004, FR-PAY-001 | Send unsigned or wrongly signed webhook | Rejected; no case created | Y | R1 |
-| TC-SEC-21 | Escrow bank details changed by an insider | FR-ESC-003, FR-ADM-003 | Change bank account on bank partner record | Needs second admin and alert to founder; client-facing details show change history | Y | R1 |
+| TC-SEC-21 | Escrow bank details changed by an insider | FR-ESC-003, FR-ADM-003 | Change bank account on bank partner record as one administrator | Pending until a second administrator approves; founder alerted; client-facing details show change history; old details used until approval | Y | R1 |
 | TC-SEC-22 | Malicious file upload: malware, polyglot, XXE in office files, oversized images | FR-EVD-005 | Upload fixtures | Rejected or safely stored and never rendered inline | Y | R1 |
 | TC-SEC-23 | Stored cross-site scripting through case messages, listing text and file names | FR-CASE-015, FR-LST-001 | Inject payloads | Escaped everywhere; content security policy blocks inline script | Y | R1 |
 | TC-SEC-24 | Locked scope text changed through template import | RUL-04 | Import template with altered section 12 | Rejected | Y | R1 |
@@ -1072,7 +1268,15 @@ Security testing is threat-driven. The main threats are people who want money re
 | TC-SEC-29 | Incident log exposure | FR-CASE-010 | Access as every role except safety roles | Refused | Y | R1 |
 | TC-SEC-30 | Secrets in mobile app | NFR-SEC-04 | Decompile APK; search for keys | No secrets; only public configuration | Y | R2 |
 | TC-SEC-31 | Cross-tenant access between developer organisations | FR-ACC-011 | Developer A user opens developer B listing admin | Refused | Y | R2 |
-| TC-SEC-32 | Country data leakage | FR-CTY-002 | Nigerian user queries Ghana data and the reverse | Refused where roles do not span countries | Y | R3 |
+| TC-SEC-32 | Cross-country data access through the application | FR-CTY-001, FR-ACC-007 | Testland staff and clients query Ghana data and the reverse: list, search, direct ID, export, dashboard, partner API, evidence links, notifications | Refused in every path; 404 on IDs; generated matrix over every object type, role and country passes 100% | Y | R1 |
+| TC-SEC-33 | Institution impersonation: an attacker registers a fake school, clinic or agency, or copies a real one's name, to receive a client's payment | RUL-22, FR-FEE-001 | Register with a made-up registration number; with a registration number from a different body; with a real institution's name and a new account; with the contact's phone matching a family member on the account | Verification fails or is flagged in every case; no invoice can be approved; look-alike names routed to a reviewer; attempts audited | P | R1 |
+| TC-SEC-34 | Invoice tampering: amount, payee or patient changed after upload or in transit | FR-FEE-002, FR-EVD-001 | Edit the stored invoice file; replay the upload with a changed amount; submit an invoice PDF with hidden layers; change the reference to another family member | Stored hash mismatch detected; a changed invoice is a new version needing re-approval; hidden-layer PDF flattened or rejected; reference mismatch flagged | Y | R1 |
+| TC-SEC-35 | Payee substitution at release time: the payee account is changed between approval and sending, or the instruction is built from a stale payee record | FR-ESC-015, FR-ESC-008 | Edit the institution or supplier account after two approvals; race an account edit against instruction generation; change the account in the instruction file | Approvals invalidated on any payee change; instruction built only from the payee version that was approved; signature check fails on a changed file; alert raised | Y | R1 |
+| TC-SEC-36 | Carer check-in GPS spoofing | FR-MOB-012, FR-CARE-003, RUL-23 | Mock location app; replay of an earlier check-in payload; check-in from a second device at the address while the carer is elsewhere | Mock location detected and flagged; replayed payload rejected (nonce and server time); device not matching the carer's registered device flagged; visit not payable without review; network position cross-check where possible | P | R2 |
+| TC-SEC-37 | Family confirmation code brute force or theft | FR-CARE-004, RUL-23 | Enumerate one-tap codes; reuse a code from an earlier visit; enter the code from the carer's device or IP; intercept the SMS carrying the code `[TO VERIFY]` channel | Code locked after 3 attempts (assumption) and rate limited per visit and per device; codes single-use and bound to the visit; code accepted only from the family member's registered channel; alert on lockout | Y | R2 |
+| TC-SEC-38 | Cross-country data access through infrastructure and jobs | FR-CTY-002, NFR-PRIV-01 | Inspect backups, search indexes, analytics stores, log pipelines, retention and reminder jobs for Testland data in Ghana stores and the reverse | No cross-country copy; jobs scoped per country; data location register matches reality | P | R2 |
+| TC-SEC-39 | Rent or premium diverted to a Fidero or staff account | RUL-24, RUL-25, FR-PMG-002, FR-INS-002 | Set the rent or premium account to a Fidero fee account, a staff account or an account with a near-match name; create a fee order type for rent or premium | Rejected by deny list, name check and order-type allow list; alert raised | Y | R2 |
+| TC-SEC-40 | Vulnerable person's data exposed: care plan, address, health readings | FR-CARE-001, FR-CARE-003, FR-CARE-006, FR-ACC-007 | Access as every role other than the client, the assigned carer and the reviewer; search exports; notification content | Refused; readings and concerns never in SMS or WhatsApp (FR-NTF-004); family address shown to the assigned carer only for the visit window | Y | R2 |
 
 ### 8.3 OWASP ASVS level 2 verification (NFR-SEC-05)
 
@@ -1100,9 +1304,9 @@ The ASVS version to use is the latest stable version at R1 start `[TO VERIFY]`.
 
 | Release | When | Scope |
 |---|---|---|
-| R1 | After feature freeze, at least 4 weeks (assumption) before go-live, then retest | Portal, back office, core API, evidence storage, payment and identity integrations, escrow release flow, infrastructure configuration on AWS |
-| R2 | Before R2 go-live | R1 scope regression plus milestone app (static, dynamic, rooted device), partner API, bank statement and API integration, listings, disputes |
-| R3 | Before R3 go-live | R2 scope regression plus records module, family and stool listings, country data separation |
+| R1 | After feature freeze, at least 4 weeks (assumption) before go-live, then retest | Portal, back office, core API, evidence storage, payment and identity integrations, escrow release flow including held balances and payee verification, institution registration and invoice flow, country separation at application level, infrastructure configuration on AWS |
+| R2 | Before R2 go-live | R1 scope regression plus field app (static, dynamic, rooted device, check-in spoofing), partner API, bank statement and API integration, listings, disputes, care visits and confirmation codes, property management, errands, institution and insurer interfaces (IF-10, IF-11), country-2 configuration and data location |
+| R3 | Before R3 go-live | R2 scope regression plus records module, family and stool listings, events, live country data separation across three countries |
 | Any | After a major change to release, evidence, or access control code | Targeted test of the change |
 
 Rules:
@@ -1118,12 +1322,12 @@ Rules:
 
 ### 9.1 Device matrix (R2)
 
-Minimum and reference devices are assumptions until operations surveys contractors' phones (Q-09, AS-08).
+Minimum and reference devices are assumptions until operations surveys the phones of contractors, carers and errand agents (Q-09, AS-08, AS-12). Carers and agents are likely to have cheaper phones than contractors `[TO VERIFY]`, so the minimum tier matters more from R2.
 
 | Tier | Specification | Purpose |
 |---|---|---|
-| Minimum | 2 GB RAM, Android 8.0 `[TO VERIFY]`, 16 GB storage, mid-range camera | Must pass all P1 tests; NFR-PERF-05 measured here |
-| Reference | 3 GB RAM, Android 11 `[TO VERIFY]`, a common phone brand among Ghanaian contractors `[TO VERIFY]` | Main test device |
+| Minimum | 2 GB RAM, Android 8.0 `[TO VERIFY]`, 16 GB storage, mid-range camera | Must pass all P1 tests; NFR-PERF-05 measured here; carer check-in tests run here first |
+| Reference | 3 GB RAM, Android 11 `[TO VERIFY]`, a common phone brand among Ghanaian contractors and carers `[TO VERIFY]` | Main test device |
 | Current | Recent Android version, mid-range | Compatibility with new OS behaviour on permissions, background work and storage |
 | Low storage | Minimum device with under 500 MB free | Queue and capture behaviour when storage is short |
 | Inspector tablet | `[TO VERIFY]` if inspectors use tablets | Layout and checklist use |
@@ -1160,6 +1364,11 @@ Tools: Android emulator network shaping, a network-shaping proxy on a test Wi-Fi
 | TC-FLD-11 | Lost phone | Admin revokes device | Pending items cannot be uploaded under the revoked key; local data wiped on next start | Y | R2 |
 | TC-FLD-12 | Memory pressure | Run on 2 GB device with other apps open | No crash during capture; app restores state | Y | R2 |
 | TC-FLD-13 | Phone-browser tasks for runners (R1) | Runner completes task on 3G profile on a 2 GB device | Works without the app | Y | R1 |
+| TC-FLD-14 | Check-in at a registered address in a dense neighbourhood | Carer checks in at a house in a compound with weak GPS | Position within the configured radius or a clear "move outside and retry" message; no false "outside radius" on a good check-in | N | R2 |
+| TC-FLD-15 | Check-in with GPS off, denied or spoofed | Carer turns GPS off; denies permission; runs a mock location app | Check-in blocked or flagged as in TC-MOB-012-02 and -03; message tells the carer what to do | Y | R2 |
+| TC-FLD-16 | Visit completed offline then uploaded | Carer completes a visit in a house with no signal; uploads later from the street | Check-in, items, photos and check-out arrive in order with device times; time gap flagged only if above the configured value | Y | R2 |
+| TC-FLD-17 | Errand agent's day at an agency | Agent queues for hours; captures receipts and acknowledgements; phone battery low | Queue survives; receipts legible at the compressed size; steps recorded in order | N | R2 |
+| TC-FLD-18 | One-tap confirmation on the family's phone | Family member on a basic Android or a feature phone `[TO VERIFY]` confirms by SMS code or call | Confirmation works without the app; code single-use; reaches the server within the configured period | N | R2 |
 
 ### 9.4 Field trials
 
@@ -1168,13 +1377,16 @@ Tools: Android emulator network shaping, a network-shaping proxy on a test Wi-Fi
 | Internal field trial | R2 beta, first 4 weeks (assumption) | Fidero field staff, 2 surveyors, 2 runners | 3 sites in Greater Accra and Central Region with known poor signal `[TO VERIFY]` sites | All P1 mobile tests pass in the field; no lost evidence |
 | Contractor pilot | After internal trial | 3 to 5 vetted contractors on real builds `[TO VERIFY]` | Real build sites | Each submits at least 2 milestones; time to submit recorded; contractor feedback logged |
 | Inspector pilot | Same period | 2 to 3 independent inspectors | Same sites | Checklists completed in app; defects valued; no paper fallback needed |
-| Fraud drill | During pilot | QA with operations | One site | Planted fraud attempts (gallery image, off-site capture, reused photo) are all flagged |
+| Carer field trial | R2 beta, 4 weeks (assumption), after Q-19 vetting and care plan content are set | 3 to 5 vetted carers; 3 to 5 families who consent, recruited from R1 clients with a recurring institution payment `[TO VERIFY]` | Family homes in Greater Accra and Kumasi `[TO VERIFY]` | At least 20 visits completed; every visit has check-in, items, agreed photos and check-out; family confirmation rate and time measured; zero unconfirmed visits paid; carers and families understand the confirmation step; no safety incident |
+| Errand agent trial | Same period | 2 to 3 vetted agents from one agency `[TO VERIFY]` | Ghana Card office, Lands Commission, a district assembly `[TO VERIFY]` | At least 10 errands completed; every official fee paid to the agency account; every step has a receipt or acknowledgement; completion only on the checked document; median days to completion recorded against the catalogue target |
+| Fraud drill | During pilot | QA with operations | One build site, one family home (with the family's consent), one agency | Planted fraud attempts (gallery image, off-site capture, reused photo, carer self-confirmation, mock location check-in, reused acknowledgement) are all flagged |
 
 Field trial rules:
 
 - Every field visit follows the risk screen (RUL-17). Trials do not use disputed plots.
 - Test devices carry no personal data apart from the trial users' own sign-in.
-- Contractors and inspectors in the trial sign a consent and data agreement.
+- Contractors, inspectors, carers, agents and the families in the carer trial sign a consent and data agreement. Families may withdraw at any time and their data is deleted at the end of the trial.
+- The carer trial pays carers for confirmed visits at the normal rate (assumption). It never leaves a vulnerable person without a visit because of a test: a missed test visit is made up by Fidero staff the same day.
 - Findings become defects with photos and device logs attached.
 
 ---
@@ -1183,7 +1395,7 @@ Field trial rules:
 
 ### 10.1 Accessibility testing (NFR-A11Y-01, WCAG 2.2 AA)
 
-Scope: portal, back office and listing pages. The milestone app follows Android accessibility guidance and is checked with TalkBack and Accessibility Scanner, but WCAG conformance is claimed for the web only.
+Scope: portal, back office and listing pages from R1. From R2, the field app as well: NFR-A11Y-01 now requires the same level for the app, using Android's accessibility guidance. The app is checked with Accessibility Scanner, TalkBack and Espresso accessibility checks, with each WCAG 2.2 AA criterion mapped to an Android check or marked as not applicable to a native app (see section 16 on how conformance is claimed for the app).
 
 Method:
 
@@ -1210,8 +1422,9 @@ Pass criterion: no open AA failure on any P1 journey. Other AA failures need a f
 | Task | "You want a plot near Kasoa checked before you pay the seller. Order a report." Participant receives a fixture site plan and seller details beforehand |
 | Moderation | Remote, recorded with consent. Moderator does not help. Any help given counts as a failure for that participant |
 | Timer | From opening the portal link to seeing the order confirmation and case reference |
-| Pass | Each of the 5 completes without help in under 10 minutes (proposed reading of NFR-USE-01, see section 16) |
+| Pass | At least 4 of the 5 complete without help, and the median time of the completed runs is under 10 minutes (NFR-USE-01) |
 | Also measured | Errors, hesitations over 30 seconds, understanding of tier choice, scope statement and price, confidence score (1 to 5) |
+| Second task (R1, informal) | "Pay your mother's hospital bill through Fidero." Same method with 5 family supporters (P-15). No pass target in 01; results feed the FEE flow design and are reported with the main test |
 | When | Prototype stage (informal), R1 beta (formal), and after any change to the order flow |
 | Output | Short report with times, issues, severity and fixes. Failures become S2 defects if they block the task |
 
@@ -1247,6 +1460,13 @@ Supporting checks: TC-NFR-USE-02-01 and TC-NFR-USE-02-02 for status message plai
 | P-12 Bank credit officer | Partner bank staff `[TO VERIFY]` | R2 |
 | P-13 Project fund owner | 1 or 2 diaspora clients | R2 |
 | P-14 Administrator | Fidero administrator | R1, R2, R3 |
+| P-15 Family supporter | 3 to 5 diaspora clients who paid institution fees by hand in R0, with consent | R1, R2 |
+| P-16 Property owner abroad | 1 or 2 diaspora clients with a rented property `[TO VERIFY]` | R2 |
+| P-17 Carer or errand agent | 2 vetted carers and 1 or 2 errand agents from the field trials | R2 |
+| Institution contact | Finance or admissions staff at one school and one hospital that accept direct payment (Q-16) `[TO VERIFY]` | R1, R2 |
+| Family member | A relative in Ghana of a P-15 participant, who confirms visits | R2 |
+| Tenant | The tenant of a P-16 participant's property, with consent `[TO VERIFY]` | R2 |
+| Insurer partner | Staff of the first insurer partner (Q-17) `[TO VERIFY]` | R2 |
 
 ### 11.3 UAT scenarios
 
@@ -1275,7 +1495,18 @@ Supporting checks: TC-NFR-USE-02-01 and TC-NFR-USE-02-02 for status message plai
 | UAT-21 | Raise and decide a dispute | P-01, seller, P-04 | J-07 | Release frozen; deadlines shown; decision and reasons sent to all | R2 |
 | UAT-22 | Off-plan stage payment | P-01, P-10, P-09 | F-17 | Stage released only with app evidence and inspector pass | R2 |
 | UAT-23 | Capture traditional authority records and use them in a case | P-11, P-03 | F-25 | Records captured; matching case pre-filled; authority confirms own records | R3 |
-| UAT-24 | Run a Nigerian pilot case end to end | P-03, P-14, Nigerian professionals `[TO VERIFY]` | F-28 | Nigerian template, currency, partners and data location used; no code change | R3 |
+| UAT-24 | Run a country-2 pilot case end to end on the platform | P-03, P-14, country-2 professionals `[TO VERIFY]` | F-28, FR-CTY-004 | Country-2 template, currency, partners, holiday calendar and data location used; no code change; Ghana staff cannot see the case; runs only after the country-2 gate (C-13) | R2 (if the gate passes), else R3 |
+| UAT-25 | Pay a parent's hospital bill directly from abroad | P-15 | J-09, F-29, RUL-22 | Institution added and verified; bill uploaded and approved on a phone; bank details only; receipt appears on the family statement; participant understands why a relative cannot be paid | R1 |
+| UAT-26 | Set up and run a term's school fees | P-15, institution contact | J-09, F-29 | Reminder arrives; approval needed each term; school receives payment to its own account and returns receipt and enrolment confirmation | R1 |
+| UAT-27 | Confirm an invoice and return a receipt as an institution | Institution contact | FR-FEE-002, FR-FEE-004, IF-10 | Contact can confirm the invoice and return the receipt with no access to the client's other activity; the steps fit the institution's own process | R1 (manual upload), R2 (portal) |
+| UAT-28 | See everything running at home in one place | P-15, P-01 | F-35, FR-ACC-012 | Case, payments, visits and property on one dashboard with plain status; nothing confusing about what Fidero does and does not do | R1 |
+| UAT-29 | Arrange care visits for a parent and get proof | P-15, family member | J-10, F-30, RUL-23 | Care plan set up; family knows who to expect; each visit shows check-in, items and photos; family confirms with one tap; participant trusts the proof | R2 |
+| UAT-30 | Do a care visit as a carer | P-17 | J-10, FR-CARE-003, FR-MOB-012 | Carer checks in, completes the plan and checks out on own phone without help; understands why an unconfirmed visit is not paid; can raise a concern | R2 |
+| UAT-31 | Have a rented house managed from abroad | P-16, tenant | J-11, F-31, RUL-24 | Rent arrives in the owner's own account and shows on the timeline; repair needs two quotes and inspection; tenant can report a repair and see the agreement, nothing else | R2 |
+| UAT-32 | Get a document renewed through an errand agent | P-01, P-17 | J-12, F-32, RUL-23 | Checklist and fees clear; fees paid to the agency only; each step shows in plain language; completion only when the document is uploaded and checked; agent finds the steps workable | R2 |
+| UAT-33 | Buy health or funeral cover for a relative through an insurer partner | P-15, insurer partner | F-33, RUL-25 | Policy clearly the insurer's; premium paid to the insurer; policy document and claim contact on the dashboard; insurer receives the application in a usable form | R2 |
+| UAT-34 | Approve a bank detail change and a release-affecting setting as two administrators | P-14 (two people) | FR-ADM-003, FR-ADM-005 | One administrator cannot apply either change alone; pending changes visible; old values used until approval | R1 |
+| UAT-35 | Fund a family event with vendors paid against evidence | P-15 | F-34 | Vendors verified; deposits against signed quotes; final payments against invoices and delivery evidence; budget against actual clear | R3 |
 
 ### 11.4 UAT sign-off form
 
@@ -1318,7 +1549,10 @@ Runbooks and procedures are in document 06. OAT proves they work.
 | OAT-08 | Retention job dry run on production metadata | Lists items that would be deleted; matches expected classes; nothing deleted in dry run | R1 |
 | OAT-09 | App release, staged rollout and remote device revocation | Staged rollout works; revoked device cannot upload | R2 |
 | OAT-10 | Statement file arrival monitoring | Missing or late file alerts | R2 |
-| OAT-11 | Country-specific hosting and backup location | Each country's data and backups in its required location | R3 |
+| OAT-11 | Country-specific hosting and backup location | Each country's data and backups in its required location | R2 (country 2), R3 (country 3) |
+| OAT-12 | Receipt-overdue and voucher-unreconciled alerts | Both alerts fire in a drill; chase runbook followed; a cash voucher past 2 working days blocks the runner's next voucher | R1 |
+| OAT-13 | Missed-visit and welfare-concern drill | A planted missed visit and a planted concern reach the on-call reviewer and the client within the configured time; the runbook names who calls the family | R2 |
+| OAT-14 | Opening a new country | Runbook to copy and open a country executed on staging by someone who did not write it; gate record required; data location set before any user is created | R2 |
 
 ### 11.6 Partner acceptance with the escrow bank (PAT)
 
@@ -1336,8 +1570,35 @@ Run with the partner bank or licensed escrow agent once the agreement is signed 
 | PAT-08 | Partial releases | Send milestone partial instructions | Bank pays partial amounts and reports balances that match the tracker | R2 |
 | PAT-09 | Cut-off times and holidays | Send instructions near cut-off and on a public holiday | Behaviour matches the agreement; client-facing dates correct | R1 |
 | PAT-10 | Bank sign-off | Bank's operations and compliance review results | Written acceptance from the bank | R1, R2 |
+| PAT-11 | Held balance with several small releases | Client deposits a balance; Fidero sends 5 small instructions over 5 test days to 3 institutions | Bank pays each to the named institution account; balance reported by the bank matches the running statement (FR-ESC-014) | R1 |
+| PAT-12 | Payee name check at the bank | Send a test instruction whose payee name does not match the account | Bank rejects or queries it; Fidero records the rejection; confirms whether the bank offers an account-name check service `[TO VERIFY]` (FR-ESC-015) | R1 |
+| PAT-13 | Owner's rent account | Tenant test payment to an owner's account at the bank; statement line supplied | Line matched to the tenancy; Fidero never receives the money; the bank confirms what it will share about the owner's account (RUL-24, FR-PMG-003) | R2 |
 
-Other partners get a shorter acceptance: the payment provider (sandbox to live switch, settlement file), the identity provider (pass, fail, manual review), messaging providers (delivery reports, sender ID), and partner API customers (UAT-20 plus their own integration test).
+### 11.7 Partner acceptance with an institution (PAT, receipt return)
+
+Run with at least one school and one hospital that accept direct payment with an invoice reference (Q-16, AS-10) `[TO VERIFY]`. In R1 the exchange is manual (IF-10). A portal or file exchange, if the institution offers one, is tested in R2.
+
+| ID | Test | Steps | Pass criterion | Rel |
+|---|---|---|---|---|
+| PAT-14 | Institution verification | Fidero verifies the institution's registration, account name and named contact with the institution | The institution confirms all three; the account is in the institution's name; the contact is a real role at the institution | R1 |
+| PAT-15 | Invoice reference and payment | Institution issues a test invoice; Fidero pays it through the bank with the reference | Institution matches the payment to the invoice without manual chasing; reference format agreed | R1 |
+| PAT-16 | Receipt return | Institution returns the receipt and, if it agrees, an enrolment or treatment confirmation | Receipt received within the agreed target `[TO VERIFY]` and linked to the payment; the institution's process for returning it is written down | R1 |
+| PAT-17 | Institution portal or file (if offered) | Institution submits an invoice and returns a receipt through the R2 interface | Contract tests pass; the institution contact sees only its own invoices | R2 |
+| PAT-18 | Institution sign-off | Institution's finance lead reviews | Written acceptance that the process fits their rules | R1 |
+
+### 11.8 Partner acceptance with an insurer (PAT, premium routing)
+
+Run with the first licensed insurer partner per country (Q-17, AS-11, C-11) `[TO VERIFY]` before the INS line opens.
+
+| ID | Test | Steps | Pass criterion | Rel |
+|---|---|---|---|---|
+| PAT-19 | Product presentation | Insurer reviews the product pages and policy wording as shown by Fidero | Insurer confirms the policy is presented as its own and the wording is approved (RUL-25) | R2 |
+| PAT-20 | Application hand-off | Fidero sends 5 test applications through IF-11 | Insurer receives complete applications; data fields agreed; nothing missing or extra | R2 |
+| PAT-21 | Premium routing | Client pays a test premium through the partner bank | Premium lands in the insurer's account; nothing enters a Fidero account; insurer confirms receipt and policy issue | R2 |
+| PAT-22 | Policy and claim return | Insurer returns the policy document, renewal date and a test claim outcome | Documents hashed and shown to the client; claim outcome recorded as the insurer's decision | R2 |
+| PAT-23 | Insurer and licence sign-off | Insurer's compliance reviews; lawyer confirms Fidero's intermediary position for the country | Written acceptance from the insurer; lawyer's note on C-11 | R2 |
+
+Other partners get a shorter acceptance: the payment provider (sandbox to live switch, settlement file), the identity provider (pass, fail, manual review), messaging providers (delivery reports, sender ID), agencies for errands (fee account verification, receipt format), and partner API customers (UAT-20 plus their own integration test).
 
 ---
 
@@ -1409,79 +1670,87 @@ Also:
 
 | Criterion | Evidence |
 |---|---|
-| All R1 Must FRs pass (ACC, ORD, PAY, CASE, RPT, GEO, ESC R1 items, EVD R1 items, NTF, ADM, AUD, ANL-003, DPR) | Test report against section 4 |
-| All R1 business rules pass: RUL-01 to RUL-07, RUL-11 (staff side), RUL-15 (release block where a dispute flag exists), RUL-17, RUL-20 | `rul` suite report, zero skips |
-| State-transition matrix for Case and Escrow passes | Section 5 report |
-| J-01, J-02 and J-08 E2E pass, including unhappy paths | Section 6 report |
-| R1 NFRs pass: PERF-01 to 04, AVL-01 to 03, SEC-01 to 05, PRIV-01 and 02, USE-01 and 02, ACC-01, OBS-01, MNT-01, LOC-01, AUD-01 | Section 7 report; NFR-AVL-01 confirmed after first live month |
-| Penetration test retest letter: no open high or critical | Tester's letter |
+| All R1 Must FRs pass (ACC, ORD, PAY, CASE, RPT, GEO, ESC R1 items including FR-ESC-014 and FR-ESC-015, EVD R1 items, NTF, ADM, AUD, ANL-003, DPR, FEE Musts, FR-CTY-001 and FR-CTY-003) | Test report against section 4 |
+| All R1 business rules pass: RUL-01 to RUL-07, RUL-11, RUL-17, RUL-20, RUL-22 | `rul` suite report, zero skips |
+| State-transition matrix for Case and Escrow passes, including Client approved, Partly released (held balances) and cancellation paths | Section 5 report |
+| J-01, J-02, J-08 and J-09 E2E pass, including unhappy paths | Section 6 report |
+| R1 NFRs pass: PERF-01 to 04, AVL-01 to 03, SEC-01 to 05, PRIV-01 and 02, USE-01 and 02, A11Y-01 (web), OBS-01, MNT-01, MNT-02 (country), LOC-01, AUD-01 | Section 7 report; NFR-AVL-01 confirmed after first live month |
+| Country isolation tests pass with Ghana and the test country (TC-CTY-001-03, TC-SEC-32); no hard-coded country values | Section 4.28 and 8.2 reports; CI check |
+| Penetration test retest letter: no open high or critical, scope including payee verification and institution flow | Tester's letter |
 | ASVS L2 checklist complete | Checklist |
-| Usability test with 5 diaspora users passes | Usability report |
-| UAT-01 to UAT-12 accepted | Signed forms |
-| OAT-01 to OAT-08 pass | OAT report |
-| PAT-01 to PAT-05, PAT-09 and PAT-10 pass with the escrow bank, or escrow features ship switched off with manual tracking (AS-02) | Bank acceptance letter or product owner decision |
+| Usability test passes NFR-USE-01 (4 of 5, median under 10 minutes) | Usability report |
+| UAT-01 to UAT-12, UAT-25 to UAT-28 and UAT-34 accepted | Signed forms |
+| OAT-01 to OAT-08 and OAT-12 pass | OAT report |
+| PAT-01 to PAT-05, PAT-09 to PAT-12 pass with the escrow bank, or escrow and institution payment features ship switched off with manual tracking (AS-02) | Bank acceptance letter or product owner decision |
+| PAT-14 to PAT-16 and PAT-18 pass with at least one school and one hospital, or the FEE line runs with runner payment only (FR-FEE-006, AS-10) | Institution letters or product owner decision |
 | Insurer approves the platform report process (01 B4) | Insurer letter |
 | Data location confirmed (Q-07) and Data Protection Commission registration in place `[TO VERIFY]` | Lawyer's note |
-| Configurable values set and approved: fresh-search window (Q-04), retention periods (Q-08) | Configuration export signed by lawyer |
+| Configurable values set and approved: fresh-search window (Q-04), retention periods (Q-08), receipt return target, payee matching rule | Configuration export signed by lawyer |
+| Pricing for the FEE line set (Q-20) | Founder's decision |
 | No open S1 or S2 | Defect report |
 
-### 13.2 R2 Construction
+### 13.2 R2 Construction and family
 
 | Criterion | Evidence |
 |---|---|
-| All R2 Must FRs pass (MOB, BLD, ESC-010, EVD-006, LST Musts, DSP Musts, PTR-002, PRJ-005) and all R1 regression | Test report |
-| R2 business rules pass: RUL-08, RUL-09, RUL-10, RUL-11, RUL-12, RUL-13, RUL-14, RUL-15, RUL-16, RUL-18, RUL-19, RUL-21, plus R1 rules regression | `rul` suite report |
-| Milestone, Listing and Dispute state matrices pass; Escrow matrix re-run with partial releases and freezes | Section 5 report |
-| J-03 to J-07 E2E pass | Section 6 report |
-| NFR-PERF-05, NFR-MNT-02, NFR-SCL-01 pass; R1 NFRs regression | Section 7 report |
-| Device matrix and TC-FLD tests pass; field trials meet exit criteria | Section 9 report; field trial notes |
-| Penetration test covers app and partner API; no open high or critical | Tester's letter |
-| UAT-13 to UAT-22 accepted | Signed forms |
-| OAT-09 and OAT-10 pass | OAT report |
-| PAT-06 to PAT-08 and PAT-10 pass | Bank acceptance letter |
-| Act 1047 position known before listings go live (C-04, Q-06); badge validity set (Q-05) | Lawyer's note |
-| Professional indemnity covers inspections and project funds (AS-09), or those lines stay off | Insurer letter |
+| All R2 Must FRs pass (MOB including FR-MOB-012, BLD, ESC-010, EVD-006, LST Musts, DSP Musts, PTR-002, PRJ-005, CARE Musts, PMG Musts, TSK Musts, FR-INS-002, FR-ACC-011 if shipped, FR-CTY-002, FR-CTY-004) and all R1 regression | Test report |
+| R2 business rules pass: RUL-08, RUL-09 including the mobilisation exception, RUL-10, RUL-11, RUL-12, RUL-13, RUL-14, RUL-15, RUL-16, RUL-18, RUL-19, RUL-21, RUL-23, RUL-24, RUL-25, plus R1 rules regression; RUL-22 re-run on every new line | `rul` suite report |
+| Milestone, Listing and Dispute state matrices pass; Escrow matrix re-run with partial releases on every line type, freezes from all five states, Frozen to Cancelled | Section 5 report |
+| J-03 to J-07 and J-10 to J-12 E2E pass, including the abuse paths | Section 6 report |
+| NFR-PERF-05, NFR-MNT-02 (lines), NFR-SCL-01, NFR-A11Y-01 (app) pass; R1 NFRs regression | Section 7 report |
+| Device matrix and TC-FLD tests pass; contractor, inspector, carer and errand agent field trials meet exit criteria; fraud drill flags every planted attempt | Section 9 report; field trial notes |
+| Penetration test covers app, check-in, confirmation codes, partner API, institution and insurer interfaces; no open high or critical | Tester's letter |
+| UAT-13 to UAT-22 and UAT-29 to UAT-33 accepted; UAT-24 accepted if country 2 opens in R2 | Signed forms |
+| OAT-09, OAT-10, OAT-13 and OAT-14 pass; OAT-11 for country 2 if it opens | OAT report |
+| PAT-06 to PAT-08, PAT-10 and PAT-13 pass with the bank; PAT-17 with an institution if offered | Bank and institution letters |
+| PAT-19 to PAT-23 pass with the insurer, or the INS line stays off (AS-11, C-11) | Insurer letter; lawyer's note |
+| Act 1047 position known before listings go live (C-04, Q-06); badge validity set (Q-05); licence position for property management and errands known (Q-18) | Lawyer's note |
+| Professional indemnity covers inspections, project funds, care visits and property management (AS-09), or those lines stay off | Insurer letter |
+| Carer vetting standard and care plan content set (Q-19) before the CARE line opens | Operations note |
+| Country-2 gate: country 2 opens on the platform in R2 only if its manual phase and 90-day validation have passed (C-13, AS-13) and the founder has recorded the decision; otherwise its configuration stays "not open" and country-2 tests are deferred to R3 | Validation report; founder's gate record; FR-CTY-004 test (TC-CTY-004-02) |
 | No open S1 or S2 | Defect report |
 
 ### 13.3 R3 Scale
 
 | Criterion | Evidence |
 |---|---|
-| All R3 Must FRs pass (CTY) and R1 and R2 regression | Test report |
-| Records module (REC) and family and stool listings tested; Should items failing have written agreement | Test report |
-| Nigerian configuration passes the full RUL suite under Nigerian settings | `rul` suite report per country |
-| Country data location tests pass (TC-CTY-002-01, -02; OAT-11) | Infrastructure audit |
-| Nigeria manual verification phase and 90-day validation completed before software is localised (Fidero core design rule) | Validation report |
-| Penetration test including country separation | Tester's letter |
-| UAT-23 and UAT-24 accepted | Signed forms |
-| Partner acceptance with the Nigerian escrow partner (PAT-01 to PAT-06 equivalents) | Partner letter |
+| All R3 Must FRs pass and R1 and R2 regression (R3 has no Must FRs in 01 version 0.3; EVT and REC are Should and Could) | Test report |
+| Records module (REC), events (EVT) and family and stool listings tested; Should items failing have written agreement | Test report |
+| Country-2 and country-3 configurations pass the full RUL suite under their own settings | `rul` suite report per country |
+| Country data location tests pass for every open country (TC-CTY-002-01, -02; TC-SEC-38; OAT-11) | Infrastructure audit |
+| Each country's manual verification phase and 90-day validation completed before its software is localised (C-13) | Validation report per country; founder's gate record |
+| Penetration test including live country separation across three countries | Tester's letter |
+| UAT-23, UAT-35 and, for each new country, UAT-24 accepted | Signed forms |
+| Partner acceptance with each new country's escrow partner (PAT-01 to PAT-06 and PAT-11 equivalents), institutions (PAT-14 to PAT-18) and insurer (PAT-19 to PAT-23) | Partner letters |
 | No open S1 or S2 | Defect report |
 
 ### 13.4 Go/no-go checklist
 
-Used at the go/no-go meeting for every release. Chair: product owner. Attendees: engineering lead, QA lead, operations lead, reviewer lead. Each line is yes or no. Any "no" on lines 1 to 10 means no-go unless the product owner records a written exception that the rule allows (only Should items and S3 or lower defects).
+Used at the go/no-go meeting for every release. Chair: product owner. Attendees: engineering lead, QA lead, operations lead, reviewer lead. Each line is yes or no. Any "no" on lines 1 to 12 means no-go unless the product owner records a written exception that the rule allows (only Should items and S3 or lower defects).
 
 | # | Check | Yes/No |
 |---|---|---|
 | 1 | All Must requirements for this release pass | |
-| 2 | All active `rul` tests pass with zero skips | |
+| 2 | All active `rul` tests pass with zero skips, including RUL-22 on every line that ships | |
 | 3 | No open S1 or S2 defects | |
 | 4 | Penetration test retest: no open high or critical findings | |
 | 5 | UAT scenarios for this release signed | |
 | 6 | OAT passed, including a restore drill in the last 30 days (assumption) | |
 | 7 | Partner acceptance signed by the escrow bank, or escrow features switched off by decision | |
-| 8 | Release candidate on staging is the exact build going to production (same artefact hashes) | |
-| 9 | Rollback plan tested for this release | |
-| 10 | Required legal and insurer approvals on file (scope text, insurer, Act 843, Act 1047 where relevant) | |
-| 11 | Configurable values set to approved numbers, exported and signed | |
-| 12 | Support and operations staff trained; runbooks in document 06 updated | |
-| 13 | Monitoring dashboards and alerts live in production | |
-| 14 | Release notes list known S3 and S4 defects and Should items not delivered | |
-| 15 | Communication to clients and partners ready | |
+| 8 | Partner acceptance signed by each institution and insurer whose line ships, or that line switched off by decision | |
+| 9 | Release candidate on staging is the exact build going to production (same artefact hashes) | |
+| 10 | Rollback plan tested for this release | |
+| 11 | Required legal and insurer approvals on file (scope text, insurer, Act 843, Act 1047 where relevant, C-11 intermediary position, Q-18 licences) | |
+| 12 | Any country opening in this release has its gate record on file (manual phase and 90-day validation, C-13); countries without it stay "not open" | |
+| 13 | Configurable values set to approved numbers, exported and signed | |
+| 14 | Support and operations staff trained; runbooks in document 06 updated, including the missed-visit and receipt-chase runbooks | |
+| 15 | Monitoring dashboards and alerts live in production, split by country | |
+| 16 | Release notes list known S3 and S4 defects and Should items not delivered | |
+| 17 | Communication to clients and partners ready | |
 
 Decision: Go / No-go. Signed by product owner, date and time.
 
-After go-live: production smoke tests within 1 hour; heightened monitoring for 7 days (assumption); first release instruction after go-live is watched end to end by the engineering lead and a reviewer.
+After go-live: production smoke tests within 1 hour; heightened monitoring for 7 days (assumption); the first release instruction and the first institution payment after go-live are watched end to end by the engineering lead and a reviewer, including a manual check of the payee account name against the verified record.
 
 ---
 
@@ -1504,11 +1773,12 @@ Read each row left to right: business requirement, feature, functional requireme
 | BR-05 | BR-05 | F-01 | FR-ACC-004 | Must | R1 | US-ACC-004 | TC-ACC-004-01, TC-ACC-004-02, TC-ACC-004-03 | — |
 | BR-02 | RUL-20 | F-01 | FR-ACC-005 | Must | R1 | US-ACC-005 | TC-ACC-005-01, TC-ACC-005-02 | TC-RUL-20-01, TC-RUL-20-02, TC-RUL-20-03, TC-RUL-20-04 |
 | BR-03 | BR-03 | F-01 | FR-ACC-006 | Must | R1 | US-ACC-006 | TC-ACC-006-01, TC-ACC-006-02 | — |
-| BR-15 | BR-15 | F-01 | FR-ACC-007 | Must | R1 | US-ACC-007 | TC-ACC-007-01, TC-ACC-007-02 | TC-SEC-11 |
+| BR-15 | BR-15 | F-01 | FR-ACC-007 | Must | R1 | US-ACC-007 | TC-ACC-007-01, TC-ACC-007-02, TC-ACC-007-03, TC-ACC-007-04 | TC-SEC-11, TC-SEC-32, TC-SEC-40 |
 | BR-01 | BR-01 | F-01 | FR-ACC-008 | Should | R1 | US-ACC-008 | TC-ACC-008-01, TC-ACC-008-02 | — |
 | BR-15 | BR-15 | F-01 | FR-ACC-009 | Must | R1 | US-ACC-009 | TC-ACC-009-01, TC-ACC-009-02 | TC-SEC-19 |
 | BR-01 | BR-01 | F-01 | FR-ACC-010 | Should | R1 | US-ACC-010 | TC-ACC-010-01 | — |
-| BR-10 | BR-10 | F-01, F-19 | FR-ACC-011 | Should | R2 | US-ACC-011 | TC-ACC-011-01 | TC-SEC-31 |
+| BR-10, BR-17 | BR-10, BR-17 | F-01, F-19, F-29 | FR-ACC-011 | Should | R2 | US-ACC-011 | TC-ACC-011-01, TC-ACC-011-02, TC-ACC-011-03 | TC-SEC-31 |
+| BR-17 | BR-17 | F-35 | FR-ACC-012 | Should | R1 | US-ACC-012 | TC-ACC-012-01, TC-ACC-012-02, TC-ACC-012-03 | — |
 
 **ORD — Orders and leads**
 
@@ -1590,16 +1860,18 @@ Read each row left to right: business requirement, feature, functional requireme
 | BR-05 | BR-05 | F-08 | FR-ESC-001 | Must | R1 | US-ESC-001 | TC-ESC-001-01, TC-ESC-001-02 | — |
 | BR-05 | BR-05 | F-08 | FR-ESC-002 | Must | R1 | US-ESC-002 | TC-ESC-002-01, TC-ESC-002-02 | — |
 | BR-05 | RUL-01 | F-08 | FR-ESC-003 | Must | R1 | US-ESC-003 | TC-ESC-003-01, TC-ESC-003-02 | TC-RUL-01-01, TC-RUL-01-02, TC-RUL-01-03, TC-RUL-01-04, TC-SEC-21 |
-| BR-05 | BR-05 | F-08 | FR-ESC-004 | Must | R1 | US-ESC-004 | TC-ESC-004-01, TC-ESC-004-02 | TC-SEC-05 |
+| BR-05 | BR-05 | F-08 | FR-ESC-004 | Must | R1 | US-ESC-004 | TC-ESC-004-01, TC-ESC-004-02, TC-ESC-004-03, TC-ESC-004-04, TC-ESC-004-05 | TC-SEC-05 |
 | BR-05 | BR-05 | F-08 | FR-ESC-005 | Must | R1 | US-ESC-005 | TC-ESC-005-01, TC-ESC-005-02 | — |
-| BR-05, BR-12 | RUL-06, RUL-07, RUL-15 | F-08 | FR-ESC-006 | Must | R1 | US-ESC-006 | TC-ESC-006-01, TC-ESC-006-02, TC-ESC-006-03, TC-ESC-006-04 | TC-RUL-06-01, TC-RUL-06-02, TC-RUL-06-03, TC-RUL-06-04, TC-RUL-07-01, TC-RUL-07-02, TC-RUL-07-03, TC-RUL-07-04, TC-RUL-15-01, TC-RUL-15-02, TC-RUL-15-03, TC-RUL-15-04 |
+| BR-05, BR-12 | RUL-06, RUL-07, RUL-15 | F-08 | FR-ESC-006 | Must | R1 | US-ESC-006 | TC-ESC-006-01, TC-ESC-006-02, TC-ESC-006-03, TC-ESC-006-04, TC-ESC-006-05, TC-ESC-006-06 | TC-RUL-06-01, TC-RUL-06-02, TC-RUL-06-03, TC-RUL-06-04, TC-RUL-07-01, TC-RUL-07-02, TC-RUL-07-03, TC-RUL-07-04, TC-RUL-11-04, TC-RUL-11-06, TC-RUL-15-01, TC-RUL-15-02, TC-RUL-15-03, TC-RUL-15-04 |
 | BR-05 | RUL-05 | F-08 | FR-ESC-007 | Must | R1 | US-ESC-007 | TC-ESC-007-01, TC-ESC-007-02 | TC-RUL-05-01, TC-RUL-05-02, TC-RUL-05-03, TC-RUL-05-04, TC-RUL-05-05, TC-SEC-01 |
-| BR-05 | BR-05 | F-08 | FR-ESC-008 | Must | R1 | US-ESC-008 | TC-ESC-008-01, TC-ESC-008-02, TC-ESC-008-03 | TC-SEC-04 |
+| BR-05 | BR-05 | F-08 | FR-ESC-008 | Must | R1 | US-ESC-008 | TC-ESC-008-01, TC-ESC-008-02, TC-ESC-008-03 | TC-SEC-04, TC-SEC-35 |
 | BR-05 | BR-05 | F-08 | FR-ESC-009 | Must | R1 | US-ESC-009 | TC-ESC-009-01, TC-ESC-009-02 | TC-SEC-05 |
-| BR-08, BR-09 | BR-08, BR-09 | F-08, F-16, F-17, F-18 | FR-ESC-010 | Must | R2 | US-ESC-010 | TC-ESC-010-01, TC-ESC-010-02 | — |
+| BR-08, BR-09, BR-18, BR-19, BR-20 | BR-08, BR-09, BR-18, BR-19, BR-20 | F-08, F-16, F-17, F-18, F-30, F-31, F-32, F-34 | FR-ESC-010 | Must | R2 | US-ESC-010 | TC-ESC-010-01, TC-ESC-010-02, TC-ESC-010-03, TC-ESC-010-04 | TC-RUL-22-05, TC-RUL-23-05 |
 | BR-05 | BR-05 | F-23 | FR-ESC-011 | Should | R2 | US-ESC-011 | TC-ESC-011-01, TC-ESC-011-02 | — |
 | BR-05 | BR-05 | F-23 | FR-ESC-012 | Could | R2 | US-ESC-012 | TC-ESC-012-01 | — |
 | BR-05 | RUL-05 | F-08 | FR-ESC-013 | Must | R1 | US-ESC-013 | TC-ESC-013-01, TC-ESC-013-02 | TC-RUL-05-01, TC-RUL-05-02, TC-RUL-05-03, TC-RUL-05-04, TC-RUL-05-05 |
+| BR-17 | BR-17 | F-08, F-29, F-30, F-32 | FR-ESC-014 | Must | R1 | US-ESC-014 | TC-ESC-014-01, TC-ESC-014-02, TC-ESC-014-03, TC-ESC-014-04 | PAT-11 |
+| BR-17, BR-10 | RUL-22 | F-08, F-29 | FR-ESC-015 | Must | R1 | US-ESC-015 | TC-ESC-015-01, TC-ESC-015-02, TC-ESC-015-03, TC-ESC-015-04 | TC-RUL-22-01, TC-RUL-22-02, TC-RUL-22-04, TC-RUL-22-06, TC-SEC-35, PAT-12 |
 
 **EVD — Evidence store**
 
@@ -1625,8 +1897,9 @@ Read each row left to right: business requirement, feature, functional requireme
 | BR-08 | RUL-09 | F-15 | FR-MOB-007 | Must | R2 | US-MOB-007 | TC-MOB-007-01, TC-MOB-007-02 | TC-RUL-09-01, TC-RUL-09-02, TC-RUL-09-03, TC-RUL-09-04 |
 | BR-08 | C-08 | F-15 | FR-MOB-008 | Must | R2 | US-MOB-008 | TC-MOB-008-01, TC-MOB-008-02 | — |
 | BR-15 | BR-15 | F-15 | FR-MOB-009 | Must | R2 | US-MOB-009 | TC-MOB-009-01, TC-MOB-009-02 | — |
-| BR-06 | BR-06 | F-15 | FR-MOB-010 | Should | R2 | US-MOB-010 | TC-MOB-010-01 | — |
-| BR-08 | BR-08 | F-15 | FR-MOB-011 | Must | R2 | US-MOB-011 | TC-MOB-011-01, TC-MOB-011-02 | TC-SEC-06, TC-SEC-08, TC-SEC-09 |
+| BR-06, BR-18, BR-20 | BR-06, BR-18, BR-20 | F-15, F-30, F-32 | FR-MOB-010 | Should | R2 | US-MOB-010 | TC-MOB-010-01, TC-MOB-010-02, TC-MOB-010-03 | — |
+| BR-08 | BR-08 | F-15 | FR-MOB-011 | Must | R2 | US-MOB-011 | TC-MOB-011-01, TC-MOB-011-02, TC-MOB-011-03 | TC-SEC-06, TC-SEC-08, TC-SEC-09 |
+| BR-18 | RUL-23 | F-15, F-30 | FR-MOB-012 | Must | R2 | US-MOB-012 | TC-MOB-012-01, TC-MOB-012-02, TC-MOB-012-03, TC-MOB-012-04 | TC-RUL-23-01, TC-RUL-23-03, TC-SEC-36, TC-FLD-14, TC-FLD-15, TC-FLD-16 |
 
 **BLD — Construction, off-plan and buildings**
 
@@ -1636,7 +1909,7 @@ Read each row left to right: business requirement, feature, functional requireme
 | BR-08 | BR-08 | F-16 | FR-BLD-002 | Must | R2 | US-BLD-002 | TC-BLD-002-01, TC-BLD-002-02 | — |
 | BR-08 | BR-08 | F-16 | FR-BLD-003 | Must | R2 | US-BLD-003 | TC-BLD-003-01, TC-BLD-003-02 | — |
 | BR-08 | RUL-10 | F-16 | FR-BLD-004 | Must | R2 | US-BLD-004 | TC-BLD-004-01, TC-BLD-004-02 | TC-RUL-10-01, TC-RUL-10-02, TC-RUL-10-03, TC-RUL-10-04 |
-| BR-08 | BR-08 | F-16 | FR-BLD-005 | Must | R2 | US-BLD-005 | TC-BLD-005-01, TC-BLD-005-02 | — |
+| BR-08 | BR-08 | F-16 | FR-BLD-005 | Must | R2 | US-BLD-005 | TC-BLD-005-01, TC-BLD-005-02, TC-BLD-005-03 | TC-RUL-09-05, TC-RUL-09-06, TC-RUL-09-07, TC-RUL-11-05 |
 | BR-08 | RUL-09 | F-16 | FR-BLD-006 | Must | R2 | US-BLD-006 | TC-BLD-006-01, TC-BLD-006-02 | TC-RUL-09-01, TC-RUL-09-02, TC-RUL-09-03, TC-RUL-09-04 |
 | BR-08 | RUL-18 | F-16 | FR-BLD-007 | Must | R2 | US-BLD-007 | TC-BLD-007-01, TC-BLD-007-02 | TC-RUL-18-01, TC-RUL-18-02, TC-RUL-18-03 |
 | BR-08 | RUL-19 | F-16 | FR-BLD-008 | Must | R2 | US-BLD-008 | TC-BLD-008-01, TC-BLD-008-02 | TC-RUL-19-01, TC-RUL-19-02, TC-RUL-19-03 |
@@ -1715,9 +1988,9 @@ Read each row left to right: business requirement, feature, functional requireme
 |---|---|---|---|---|---|---|---|---|
 | BR-03 | BR-03 | F-11 | FR-ADM-001 | Must | R1 | US-ADM-001 | TC-ADM-001-01, TC-ADM-001-02 | — |
 | BR-01 | BR-01 | F-11 | FR-ADM-002 | Must | R1 | US-ADM-002 | TC-ADM-002-01, TC-ADM-002-02 | — |
-| BR-03 | BR-03 | F-11 | FR-ADM-003 | Must | R1 | US-ADM-003 | TC-ADM-003-01, TC-ADM-003-02 | TC-SEC-21 |
+| BR-03 | BR-03 | F-11 | FR-ADM-003 | Must | R1 | US-ADM-003 | TC-ADM-003-01, TC-ADM-003-02, TC-ADM-003-03, TC-ADM-003-04 | TC-SEC-21, TC-RUL-22-04 |
 | BR-02 | RUL-04 | F-11 | FR-ADM-004 | Must | R1 | US-ADM-004 | TC-ADM-004-01, TC-ADM-004-02 | TC-RUL-04-01, TC-RUL-04-02, TC-RUL-04-03 |
-| BR-05, BR-10 | RUL-07, RUL-13 | F-11 | FR-ADM-005 | Must | R1 | US-ADM-005 | TC-ADM-005-01, TC-ADM-005-02 | TC-RUL-07-01, TC-RUL-07-02, TC-RUL-07-03, TC-RUL-07-04, TC-RUL-13-01, TC-RUL-13-02, TC-RUL-13-03 |
+| BR-05, BR-10 | RUL-07, RUL-13 | F-11 | FR-ADM-005 | Must | R1 | US-ADM-005 | TC-ADM-005-01, TC-ADM-005-02, TC-ADM-005-03, TC-ADM-005-04, TC-ADM-005-05 | TC-RUL-07-01, TC-RUL-07-02, TC-RUL-07-03, TC-RUL-07-04, TC-RUL-13-01, TC-RUL-13-02, TC-RUL-13-03 |
 
 **AUD — Audit**
 
@@ -1746,6 +2019,67 @@ Read each row left to right: business requirement, feature, functional requireme
 | BR-15 | C-02 | F-14 | FR-DPR-004 | Must | R1 | US-DPR-004 | TC-DPR-004-01, TC-DPR-004-02 | — |
 | BR-15 | C-02 | F-14 | FR-DPR-005 | Must | R1 | US-DPR-005 | TC-DPR-005-01, TC-DPR-005-02 | TC-SEC-28 |
 
+**FEE — Payments to institutions**
+
+| BR | Source in 01 | F | FR | Pri | Rel | US | Test cases | Rule and security tests |
+|---|---|---|---|---|---|---|---|---|
+| BR-17 | BR-17, RUL-22 | F-29 | FR-FEE-001 | Must | R1 | US-FEE-001 | TC-FEE-001-01, TC-FEE-001-02, TC-FEE-001-03, TC-FEE-001-04, TC-FEE-001-05 | TC-RUL-22-03, TC-RUL-22-04, TC-SEC-33, PAT-14 |
+| BR-17 | BR-17 | F-29 | FR-FEE-002 | Must | R1 | US-FEE-002 | TC-FEE-002-01, TC-FEE-002-02, TC-FEE-002-03 | TC-SEC-34, PAT-15 |
+| BR-17 | RUL-22 | F-29 | FR-FEE-003 | Must | R1 | US-FEE-003 | TC-FEE-003-01, TC-FEE-003-02, TC-FEE-003-03, TC-FEE-003-04 | TC-RUL-22-01, TC-RUL-22-02, TC-RUL-22-05, TC-RUL-22-06, TC-RUL-11-04 |
+| BR-17 | BR-17 | F-29 | FR-FEE-004 | Must | R1 | US-FEE-004 | TC-FEE-004-01, TC-FEE-004-02, TC-FEE-004-03 | PAT-16, OAT-12 |
+| BR-17 | BR-17 | F-29 | FR-FEE-005 | Should | R1 | US-FEE-005 | TC-FEE-005-01, TC-FEE-005-02 | — |
+| BR-17 | AS-10 | F-29 | FR-FEE-006 | Should | R1 | US-FEE-006 | TC-FEE-006-01, TC-FEE-006-02 | TC-RUL-22-07, OAT-12 |
+| BR-17 | BR-17 | F-29, F-35 | FR-FEE-007 | Must | R1 | US-FEE-007 | TC-FEE-007-01, TC-FEE-007-02 | — |
+
+**CARE — Care visits**
+
+| BR | Source in 01 | F | FR | Pri | Rel | US | Test cases | Rule and security tests |
+|---|---|---|---|---|---|---|---|---|
+| BR-18 | BR-18 | F-30 | FR-CARE-001 | Should | R2 | US-CARE-001 | TC-CARE-001-01, TC-CARE-001-02 | TC-SEC-40 |
+| BR-18 | BR-18 | F-30 | FR-CARE-002 | Must | R2 | US-CARE-002 | TC-CARE-002-01, TC-CARE-002-02 | — |
+| BR-18 | RUL-23 | F-30, F-15 | FR-CARE-003 | Must | R2 | US-CARE-003 | TC-CARE-003-01, TC-CARE-003-02, TC-CARE-003-03 | TC-RUL-23-01, TC-RUL-23-03, TC-SEC-36, TC-SEC-40 |
+| BR-18 | RUL-23 | F-30 | FR-CARE-004 | Must | R2 | US-CARE-004 | TC-CARE-004-01, TC-CARE-004-02, TC-CARE-004-03, TC-CARE-004-04 | TC-RUL-23-01, TC-RUL-23-02, TC-RUL-23-04, TC-SEC-37 |
+| BR-18 | BR-18 | F-30 | FR-CARE-005 | Must | R2 | US-CARE-005 | TC-CARE-005-01, TC-CARE-005-02 | TC-RUL-23-04, OAT-13 |
+| BR-18 | BR-18 | F-30 | FR-CARE-006 | Must | R2 | US-CARE-006 | TC-CARE-006-01, TC-CARE-006-02 | TC-SEC-40, OAT-13 |
+
+**PMG — Property management**
+
+| BR | Source in 01 | F | FR | Pri | Rel | US | Test cases | Rule and security tests |
+|---|---|---|---|---|---|---|---|---|
+| BR-19 | BR-19 | F-31 | FR-PMG-001 | Should | R2 | US-PMG-001 | TC-PMG-001-01, TC-PMG-001-02 | — |
+| BR-19 | RUL-24 | F-31 | FR-PMG-002 | Must | R2 | US-PMG-002 | TC-PMG-002-01, TC-PMG-002-02, TC-PMG-002-03 | TC-RUL-24-01, TC-RUL-24-02, TC-RUL-24-04, TC-SEC-39 |
+| BR-19 | BR-19 | F-31 | FR-PMG-003 | Must | R2 | US-PMG-003 | TC-PMG-003-01, TC-PMG-003-02, TC-PMG-003-03 | TC-RUL-24-01, TC-RUL-24-03, PAT-13 |
+| BR-19 | BR-19 | F-31 | FR-PMG-004 | Should | R2 | US-PMG-004 | TC-PMG-004-01, TC-PMG-004-02 | — |
+| BR-19 | RUL-22 | F-31, F-08 | FR-PMG-005 | Must | R2 | US-PMG-005 | TC-PMG-005-01, TC-PMG-005-02 | TC-RUL-22-05, TC-ESC-010-03 |
+| BR-19 | BR-19 | F-31 | FR-PMG-006 | Should | R2 | US-PMG-006 | TC-PMG-006-01, TC-PMG-006-02 | — |
+
+**TSK — Paperwork and errands**
+
+| BR | Source in 01 | F | FR | Pri | Rel | US | Test cases | Rule and security tests |
+|---|---|---|---|---|---|---|---|---|
+| BR-20 | BR-20 | F-32 | FR-TSK-001 | Should | R2 | US-TSK-001 | TC-TSK-001-01, TC-TSK-001-02 | — |
+| BR-20 | BR-20 | F-32 | FR-TSK-002 | Must | R2 | US-TSK-002 | TC-TSK-002-01, TC-TSK-002-02, TC-TSK-002-03 | TC-RUL-01-01 |
+| BR-20 | RUL-22, RUL-23 | F-32 | FR-TSK-003 | Must | R2 | US-TSK-003 | TC-TSK-003-01, TC-TSK-003-02, TC-TSK-003-03, TC-TSK-003-04 | TC-RUL-22-05, TC-RUL-23-05 |
+| BR-20 | RUL-23 | F-32 | FR-TSK-004 | Must | R2 | US-TSK-004 | TC-TSK-004-01, TC-TSK-004-02, TC-TSK-004-03 | TC-RUL-23-05, TC-RUL-23-06 |
+| BR-20 | BR-20 | F-32 | FR-TSK-005 | Should | R2 | US-TSK-005 | TC-TSK-005-01, TC-TSK-005-02 | — |
+
+**INS — Insurer partner lines**
+
+| BR | Source in 01 | F | FR | Pri | Rel | US | Test cases | Rule and security tests |
+|---|---|---|---|---|---|---|---|---|
+| BR-21 | BR-21, RUL-25 | F-33 | FR-INS-001 | Could | R2 | US-INS-001 | TC-INS-001-01, TC-INS-001-02 | TC-RUL-25-04, PAT-19 |
+| BR-21 | RUL-25 | F-33 | FR-INS-002 | Must | R2 | US-INS-002 | TC-INS-002-01, TC-INS-002-02, TC-INS-002-03 | TC-RUL-25-01, TC-RUL-25-02, TC-SEC-39, PAT-20, PAT-21 |
+| BR-21 | BR-21 | F-33 | FR-INS-003 | Should | R2 | US-INS-003 | TC-INS-003-01, TC-INS-003-02 | PAT-22 |
+| BR-21 | RUL-25 | F-33 | FR-INS-004 | Could | R2 | US-INS-004 | TC-INS-004-01, TC-INS-004-02 | TC-RUL-25-03 |
+
+**EVT — Events and ceremonies**
+
+| BR | Source in 01 | F | FR | Pri | Rel | US | Test cases | Rule and security tests |
+|---|---|---|---|---|---|---|---|---|
+| BR-22 | BR-22 | F-34 | FR-EVT-001 | Could | R3 | US-EVT-001 | TC-EVT-001-01, TC-EVT-001-02 | — |
+| BR-22 | RUL-22 | F-34 | FR-EVT-002 | Could | R3 | US-EVT-002 | TC-EVT-002-01, TC-EVT-002-02 | TC-RUL-22-05, TC-ESC-010-03 |
+| BR-22 | BR-22 | F-34 | FR-EVT-003 | Could | R3 | US-EVT-003 | TC-EVT-003-01 | — |
+
 **REC — Records programme**
 
 | BR | Source in 01 | F | FR | Pri | Rel | US | Test cases | Rule and security tests |
@@ -1759,9 +2093,10 @@ Read each row left to right: business requirement, feature, functional requireme
 
 | BR | Source in 01 | F | FR | Pri | Rel | US | Test cases | Rule and security tests |
 |---|---|---|---|---|---|---|---|---|
-| BR-14 | BR-14 | F-28 | FR-CTY-001 | Must | R3 | US-CTY-001 | TC-CTY-001-01, TC-CTY-001-02 | — |
-| BR-14 | BR-14 | F-28 | FR-CTY-002 | Must | R3 | US-CTY-002 | TC-CTY-002-01, TC-CTY-002-02 | TC-SEC-32 |
-| BR-14 | BR-14 | F-28 | FR-CTY-003 | Must | R3 | US-CTY-003 | TC-CTY-003-01, TC-CTY-003-02 | — |
+| BR-14 | BR-14 | F-28 | FR-CTY-001 | Must | R1 | US-CTY-001 | TC-CTY-001-01, TC-CTY-001-02, TC-CTY-001-03, TC-CTY-001-04, TC-CTY-001-05 | TC-SEC-32, TC-NFR-MNT-02-01 |
+| BR-14 | BR-14 | F-28 | FR-CTY-002 | Must | R2 | US-CTY-002 | TC-CTY-002-01, TC-CTY-002-02 | TC-SEC-38, OAT-11 |
+| BR-14 | BR-14 | F-28 | FR-CTY-003 | Must | R1 | US-CTY-003 | TC-CTY-003-01, TC-CTY-003-02 | — |
+| BR-14 | BR-14 | F-28 | FR-CTY-004 | Must | R2 | US-CTY-004 | TC-CTY-004-01, TC-CTY-004-02, TC-CTY-004-03 | OAT-14, UAT-24 |
 
 ### 14.2 Business rules
 
@@ -1771,23 +2106,27 @@ Read each row left to right: business requirement, feature, functional requireme
 | RUL-02 | BR-02 | F-04 | FR-RPT-003 | TC-RUL-02-01, TC-RUL-02-02, TC-RUL-02-03, TC-RUL-02-04, TC-RUL-02-05 | TC-E2E-J01-05 |
 | RUL-03 | BR-02 | F-04 | FR-RPT-006 | TC-RUL-03-01, TC-RUL-03-02, TC-RUL-03-03, TC-RUL-03-04 | TC-STM-CASE-07, TC-STM-CASE-12 |
 | RUL-04 | BR-02 | F-04, F-11 | FR-ORD-003, FR-RPT-004, FR-ADM-004 | TC-RUL-04-01, TC-RUL-04-02, TC-RUL-04-03 | TC-SEC-24 |
-| RUL-05 | BR-05 | F-08 | FR-ESC-007, FR-ESC-013 | TC-RUL-05-01, TC-RUL-05-02, TC-RUL-05-03, TC-RUL-05-04, TC-RUL-05-05 | TC-STM-ESC-04, TC-STM-ESC-18, TC-SEC-01, TC-SEC-02, TC-SEC-03 |
-| RUL-06 | BR-05 | F-08 | FR-ESC-006 | TC-RUL-06-01, TC-RUL-06-02, TC-RUL-06-03, TC-RUL-06-04 | TC-STM-ESC-13, TC-E2E-J02-02 |
+| RUL-05 | BR-05 | F-08 | FR-ESC-007, FR-ESC-013 | TC-RUL-05-01, TC-RUL-05-02, TC-RUL-05-03, TC-RUL-05-04, TC-RUL-05-05 | TC-STM-ESC-05, TC-STM-ESC-24, TC-SEC-01, TC-SEC-02, TC-SEC-03 |
+| RUL-06 | BR-05 | F-08 | FR-ESC-006 | TC-RUL-06-01, TC-RUL-06-02, TC-RUL-06-03, TC-RUL-06-04 | TC-STM-ESC-16, TC-E2E-J02-02 |
 | RUL-07 | BR-05 | F-03, F-08 | FR-CASE-014, FR-ESC-006, FR-ADM-005 | TC-RUL-07-01, TC-RUL-07-02, TC-RUL-07-03, TC-RUL-07-04 | TC-E2E-J02-03 |
 | RUL-08 | BR-08 | F-15 | FR-EVD-006, FR-MOB-002 | TC-RUL-08-01, TC-RUL-08-02, TC-RUL-08-03, TC-RUL-08-04 | TC-SEC-07, TC-E2E-J03-04 |
-| RUL-09 | BR-08 | F-15, F-16 | FR-MOB-007, FR-BLD-006 | TC-RUL-09-01, TC-RUL-09-02, TC-RUL-09-03, TC-RUL-09-04 | TC-STM-MIL-14, TC-E2E-J03-03 |
+| RUL-09 | BR-08 | F-15, F-16 | FR-MOB-007, FR-BLD-006, FR-BLD-005 | TC-RUL-09-01, TC-RUL-09-02, TC-RUL-09-03, TC-RUL-09-04, TC-RUL-09-05, TC-RUL-09-06, TC-RUL-09-07 | TC-STM-MIL-12, TC-STM-MIL-16, TC-STM-MIL-20, TC-E2E-J03-03 |
 | RUL-10 | BR-08 | F-16 | FR-BLD-004 | TC-RUL-10-01, TC-RUL-10-02, TC-RUL-10-03, TC-RUL-10-04 | TC-SEC-27, TC-E2E-J03-05 |
-| RUL-11 | BR-05, BR-08 | F-08, F-16 | FR-ESC-007, FR-BLD-005 | TC-RUL-11-01, TC-RUL-11-02, TC-RUL-11-03 | TC-STM-MIL-16 |
+| RUL-11 | BR-05, BR-08, BR-17 | F-08, F-16, F-29 | FR-ESC-006, FR-ESC-007, FR-BLD-005, FR-FEE-003, FR-FEE-005 | TC-RUL-11-01, TC-RUL-11-02, TC-RUL-11-03, TC-RUL-11-04, TC-RUL-11-05, TC-RUL-11-06 | TC-STM-ESC-04, TC-STM-ESC-17, TC-STM-MIL-15, TC-STM-MIL-22, TC-ESC-006-05, TC-FEE-005-02 |
 | RUL-12 | BR-10 | F-19 | FR-LST-002 | TC-RUL-12-01, TC-RUL-12-02, TC-RUL-12-03, TC-RUL-12-04 | TC-STM-LST-03, TC-E2E-J04-02 |
-| RUL-13 | BR-10 | F-19, F-24 | FR-GEO-007, FR-LST-006, FR-ADM-005 | TC-RUL-13-01, TC-RUL-13-02, TC-RUL-13-03 | TC-STM-LST-06, TC-E2E-J04-03 |
+| RUL-13 | BR-10 | F-19, F-24 | FR-GEO-007, FR-LST-006, FR-ADM-005 | TC-RUL-13-01, TC-RUL-13-02, TC-RUL-13-03 | TC-STM-LST-07, TC-STM-LST-08, TC-E2E-J04-03 |
 | RUL-14 | BR-10 | F-19 | FR-LST-003 | TC-RUL-14-01, TC-RUL-14-02 | TC-LST-003-01 |
-| RUL-15 | BR-05, BR-12 | F-08, F-21 | FR-ESC-006, FR-DSP-002 | TC-RUL-15-01, TC-RUL-15-02, TC-RUL-15-03, TC-RUL-15-04 | TC-STM-ESC-06, TC-STM-ESC-07, TC-STM-ESC-14, TC-E2E-J07-01 |
+| RUL-15 | BR-05, BR-12 | F-08, F-21 | FR-ESC-006, FR-DSP-002 | TC-RUL-15-01, TC-RUL-15-02, TC-RUL-15-03, TC-RUL-15-04 | TC-STM-ESC-09, TC-STM-ESC-10, TC-STM-ESC-11, TC-STM-ESC-20, TC-STM-MIL-13, TC-STM-MIL-23, TC-E2E-J07-01 |
 | RUL-16 | BR-11 | F-22 | FR-PTR-002 | TC-RUL-16-01, TC-RUL-16-02, TC-RUL-16-03 | TC-SEC-15, TC-E2E-J06-02 |
 | RUL-17 | BR-03 | F-03 | FR-CASE-009, FR-CASE-010 | TC-RUL-17-01, TC-RUL-17-02, TC-RUL-17-03, TC-RUL-17-04 | TC-E2E-J01-08 |
 | RUL-18 | BR-08 | F-16 | FR-BLD-007 | TC-RUL-18-01, TC-RUL-18-02, TC-RUL-18-03 | TC-E2E-J03-06 |
 | RUL-19 | BR-08 | F-16 | FR-BLD-008 | TC-RUL-19-01, TC-RUL-19-02, TC-RUL-19-03 | TC-BLD-008-02 |
 | RUL-20 | BR-02 | F-01, F-04 | FR-ACC-005, FR-RPT-005 | TC-RUL-20-01, TC-RUL-20-02, TC-RUL-20-03, TC-RUL-20-04 | TC-SEC-26 |
 | RUL-21 | BR-09 | F-18 | FR-PRJ-003 | TC-RUL-21-01, TC-RUL-21-02, TC-RUL-21-03, TC-RUL-21-04 | TC-E2E-J05-03 |
+| RUL-22 | BR-17, BR-19, BR-20, BR-22, BR-10 | F-29, F-31, F-32, F-34, F-08 | FR-FEE-001, FR-FEE-003, FR-ESC-015, FR-PMG-005, FR-TSK-003, FR-EVT-002 | TC-RUL-22-01, TC-RUL-22-02, TC-RUL-22-03, TC-RUL-22-04, TC-RUL-22-05, TC-RUL-22-06, TC-RUL-22-07 | TC-SEC-33, TC-SEC-35, TC-E2E-J09-03, TC-E2E-J09-04, TC-E2E-J09-08, TC-E2E-J12-02, PAT-12 |
+| RUL-23 | BR-18, BR-20 | F-30, F-32, F-15 | FR-CARE-003, FR-CARE-004, FR-MOB-012, FR-TSK-003, FR-TSK-004 | TC-RUL-23-01, TC-RUL-23-02, TC-RUL-23-03, TC-RUL-23-04, TC-RUL-23-05, TC-RUL-23-06 | TC-SEC-36, TC-SEC-37, TC-E2E-J10-02, TC-E2E-J10-05, TC-E2E-J12-03, TC-FLD-15 |
+| RUL-24 | BR-19 | F-31 | FR-PMG-002, FR-PMG-003 | TC-RUL-24-01, TC-RUL-24-02, TC-RUL-24-03, TC-RUL-24-04 | TC-SEC-39, TC-E2E-J11-02, TC-E2E-J11-03, PAT-13 |
+| RUL-25 | BR-21 | F-33 | FR-INS-001, FR-INS-002, FR-INS-004 | TC-RUL-25-01, TC-RUL-25-02, TC-RUL-25-03, TC-RUL-25-04 | TC-SEC-39, PAT-19, PAT-21 |
 
 ### 14.3 Non-functional requirements
 
@@ -1798,22 +2137,22 @@ Read each row left to right: business requirement, feature, functional requireme
 | NFR-PERF-03 | BR-01 | R1 | TC-NFR-PERF-03-01, TC-NFR-PERF-03-02 | — |
 | NFR-PERF-04 | BR-01 | R1 | TC-NFR-PERF-04-01 | — |
 | NFR-PERF-05 | BR-01 | R2 | TC-NFR-PERF-05-01 | TC-FLD-12 |
-| NFR-AVL-01 | BR-15 | R1 | TC-NFR-AVL-01-01, TC-NFR-AVL-01-02 | — |
+| NFR-AVL-01 | BR-15 | R1 | TC-NFR-AVL-01-01, TC-NFR-AVL-01-02, TC-NFR-AVL-01-03 | — |
 | NFR-AVL-02 | BR-15 | R1 | TC-NFR-AVL-02-01 | OAT-02 |
 | NFR-AVL-03 | BR-15 | R1 | TC-NFR-AVL-03-01 | — |
 | NFR-SEC-01 | BR-15 | R1 | TC-NFR-SEC-01-01 | — |
 | NFR-SEC-02 | BR-15 | R1 | TC-NFR-SEC-02-01 | — |
 | NFR-SEC-03 | BR-15 | R1 | TC-NFR-SEC-03-01 | Section 8.5 |
 | NFR-SEC-04 | BR-15 | R1 | TC-NFR-SEC-04-01 | TC-SEC-30, OAT-05 |
-| NFR-SEC-05 | BR-15 | R1 | TC-NFR-SEC-05-01 | Section 8.3, TC-SEC-01 to TC-SEC-32 |
-| NFR-PRIV-01 | BR-15 | R1 | TC-NFR-PRIV-01-01 | TC-CTY-002-01, OAT-11 |
-| NFR-PRIV-02 | BR-15 | R1 | TC-NFR-PRIV-02-01 | — |
-| NFR-USE-01 | BR-01 | R1 | TC-NFR-USE-01-01 | UAT-01, section 10.2 |
+| NFR-SEC-05 | BR-15 | R1 | TC-NFR-SEC-05-01 | Section 8.3, TC-SEC-01 to TC-SEC-40 |
+| NFR-PRIV-01 | BR-15 | R1 | TC-NFR-PRIV-01-01 | TC-CTY-002-01, TC-SEC-38, OAT-11 |
+| NFR-PRIV-02 | BR-15 | R1 | TC-NFR-PRIV-02-01 | TC-ACC-012-02, TC-CARE-003-03 |
+| NFR-USE-01 | BR-01 | R1 | TC-NFR-USE-01-01 | UAT-01, UAT-25, section 10.2 |
 | NFR-USE-02 | BR-01 | R1 | TC-NFR-USE-02-01, TC-NFR-USE-02-02 | — |
-| NFR-A11Y-01 | BR-01 | R1 | TC-NFR-A11Y-01-01, TC-NFR-A11Y-01-02 | Section 10.1 |
-| NFR-OBS-01 | BR-15 | R1 | TC-NFR-OBS-01-01 | OAT-03 |
+| NFR-A11Y-01 | BR-01 | R1 (web), R2 (app) | TC-NFR-A11Y-01-01, TC-NFR-A11Y-01-02, TC-NFR-A11Y-01-03 | Section 10.1 |
+| NFR-OBS-01 | BR-15 | R1 | TC-NFR-OBS-01-01 | OAT-03, OAT-12, OAT-13 |
 | NFR-MNT-01 | BR-14 | R1 | TC-NFR-MNT-01-01 | — |
-| NFR-MNT-02 | BR-14 | R2 | TC-NFR-MNT-02-01 | TC-CTY-001-01 |
+| NFR-MNT-02 | BR-14 | R1 (country), R2 (lines) | TC-NFR-MNT-02-01, TC-NFR-MNT-02-02 | TC-CTY-001-01, TC-CTY-001-05, TC-CTY-004-01 |
 | NFR-SCL-01 | BR-10, BR-08 | R2 | TC-NFR-SCL-01-01 | — |
 | NFR-LOC-01 | BR-14 | R1 | TC-NFR-LOC-01-01 | — |
 | NFR-AUD-01 | BR-15 | R1 | TC-NFR-AUD-01-01 | TC-AUD-004-01, OAT-07 |
@@ -1830,69 +2169,81 @@ Read each row left to right: business requirement, feature, functional requireme
 | J-06 Bank collateral check | F-22 | TC-E2E-J06-01 to TC-E2E-J06-04 | UAT-20 |
 | J-07 Raise and resolve a dispute | F-21 | TC-E2E-J07-01 to TC-E2E-J07-04 | UAT-21 |
 | J-08 Verify an existing building | F-09, F-08 | TC-E2E-J08-01 to TC-E2E-J08-03 | UAT-09 |
+| J-09 Pay a school or hospital directly | F-29, F-08, F-35 | TC-E2E-J09-01 to TC-E2E-J09-08 | UAT-25 to UAT-28 |
+| J-10 Arrange care visits | F-30, F-15, F-08 | TC-E2E-J10-01 to TC-E2E-J10-07 | UAT-29, UAT-30 |
+| J-11 Manage a property | F-31, F-08, F-15 | TC-E2E-J11-01 to TC-E2E-J11-06 | UAT-31 |
+| J-12 Get paperwork done | F-32, F-15, F-08 | TC-E2E-J12-01 to TC-E2E-J12-07 | UAT-32 |
 
 ### 14.5 Coverage summary
 
 Counts are of test cases written in this version of the document.
 
-| Item | In document 01 | Covered by at least one test | Notes |
+| Item | In document 01 version 0.3 | Covered by at least one test | Notes |
 |---|---|---|---|
-| Functional requirements | 159 (108 Must, 43 Should, 8 Could) | 159 | Every Must FR has at least one positive and one negative test |
-| Business rules | 21 | 21 | Every rule has 2 to 5 tests; 78 in total |
-| Non-functional requirements | 24 | 24 | 28 tests |
-| State models | 5 | 5 | 79 named tests plus the generated matrix test per model |
-| Journeys | 8 | 8 | 41 E2E tests |
-| Business requirements | 16 | 16 | Through FRs in section 14.1 |
+| Functional requirements | 195 (129 Must, 53 Should, 13 Could) | 195 | Every Must FR has at least one positive and one negative test |
+| Business rules | 25 | 25 | Every rule has 2 to 7 tests; 105 in total |
+| Non-functional requirements | 24 | 24 | 31 tests |
+| State models | 5 | 5 | 101 named tests plus the generated matrix test per model |
+| Journeys | 12 | 12 | 69 E2E tests |
+| Business requirements | 22 (BR-01 to BR-22) | 22 | Through FRs in section 14.1 |
 
 | Test type | Count |
 |---|---|
-| Functional (`TC-<MODULE>-nnn-xx`) | 295 |
-| Business rule (`TC-RUL-nn-xx`) | 78 |
-| State transition (`TC-STM-…`) | 79 |
-| End-to-end journey (`TC-E2E-J0n-xx`) | 41 |
-| Non-functional (`TC-NFR-…`) | 28 |
-| Security threat (`TC-SEC-nn`) | 32 |
-| Mobile and field (`TC-FLD-nn`) | 13 |
-| User acceptance (`UAT-nn`) | 24 |
-| Operational acceptance (`OAT-nn`) | 11 |
-| Partner acceptance (`PAT-nn`) | 10 |
-| **Total** | **611** |
+| Functional (`TC-<MODULE>-nnn-xx`) | 414 |
+| Business rule (`TC-RUL-nn-xx`) | 105 |
+| State transition (`TC-STM-…`) | 101 |
+| End-to-end journey (`TC-E2E-J0n-xx`) | 69 |
+| Non-functional (`TC-NFR-…`) | 31 |
+| Security threat (`TC-SEC-nn`) | 40 |
+| Mobile and field (`TC-FLD-nn`) | 18 |
+| User acceptance (`UAT-nn`) | 35 |
+| Operational acceptance (`OAT-nn`) | 14 |
+| Partner acceptance (`PAT-nn`) | 23 |
+| **Total** | **850** |
 
-Functional test cases by release: R1 182, R2 100, R3 13.
+Functional test cases by release: R1 231, R2 171, R3 12.
 
 Functional coverage by module:
 
 | Module | FRs | Must FRs | FRs with a test | Functional test cases | Automated (Y) |
 |---|---|---|---|---|---|
-| ACC | 11 | 8 | 11 | 23 | 22 |
+| ACC | 12 | 8 | 12 | 30 | 29 |
 | ORD | 7 | 4 | 7 | 14 | 14 |
 | PAY | 7 | 4 | 7 | 13 | 13 |
 | CASE | 15 | 11 | 15 | 28 | 28 |
 | RPT | 11 | 9 | 11 | 22 | 21 |
 | GEO | 8 | 4 | 8 | 12 | 11 |
-| ESC | 13 | 11 | 13 | 28 | 28 |
+| ESC | 15 | 13 | 15 | 43 | 43 |
 | EVD | 6 | 6 | 6 | 13 | 13 |
-| MOB | 11 | 10 | 11 | 22 | 19 |
-| BLD | 13 | 11 | 13 | 25 | 25 |
+| MOB | 12 | 11 | 12 | 29 | 26 |
+| BLD | 13 | 11 | 13 | 26 | 26 |
 | PRJ | 5 | 1 | 5 | 8 | 8 |
 | LST | 10 | 4 | 10 | 16 | 16 |
 | RAT | 4 | 0 | 4 | 5 | 5 |
 | DSP | 5 | 4 | 5 | 9 | 9 |
 | PTR | 4 | 1 | 4 | 6 | 6 |
 | NTF | 5 | 4 | 5 | 9 | 9 |
-| ADM | 5 | 5 | 5 | 10 | 10 |
+| ADM | 5 | 5 | 5 | 15 | 15 |
 | AUD | 4 | 2 | 4 | 7 | 7 |
 | ANL | 3 | 1 | 3 | 4 | 4 |
 | DPR | 5 | 5 | 5 | 10 | 10 |
+| FEE | 7 | 5 | 7 | 21 | 21 |
+| CARE | 6 | 5 | 6 | 15 | 15 |
+| PMG | 6 | 3 | 6 | 14 | 13 |
+| TSK | 5 | 3 | 5 | 14 | 14 |
+| INS | 4 | 1 | 4 | 9 | 9 |
+| EVT | 3 | 0 | 3 | 5 | 5 |
 | REC | 4 | 0 | 4 | 5 | 5 |
-| CTY | 3 | 3 | 3 | 6 | 4 |
-| **Total** | **159** | **108** | **159** | **295** | **287** |
+| CTY | 4 | 4 | 4 | 12 | 10 |
+| **Total** | **195** | **129** | **195** | **414** | **405** |
+
+Verification of this version: a script compared every `FR-`, `RUL-` and `NFR-` ID in document 01 version 0.3 with this document. Every ID in 01 appears here, no ID here is absent from 01, and every test ID referenced in a table is defined in a table.
 
 ### 14.6 Keeping traceability current
 
 - Each automated test carries markers for its TC ID and the FR, RUL or NFR it covers (for example `@pytest.mark.req("FR-ESC-006")`).
 - A CI script builds this matrix from the markers and from document 01. It fails when an FR or RUL in 01 has no test, or when a test points to an ID that does not exist.
-- When document 01 or document 04 changes, the QA lead updates this document in the same pull request.
+- When document 01 or document 04 changes, the QA lead updates this document in the same pull request. Version 0.3 of document 01 added 36 FRs and 4 rules; this version 0.2 of document 05 is that update.
 
 ---
 
@@ -1912,10 +2263,13 @@ Functional coverage by module:
 | Defect age | Days open, by severity | Within SLAs in 12.4 | Defect tracker |
 | Flaky test rate | Tests that pass and fail on the same code | Under 2% of tests; none in `rul` | CI history |
 | Pipeline time | PR gate duration | Under 15 minutes (assumption) | CI |
-| Automation share | Automated test cases divided by all test cases | About 85% of functional cases (section 14.5 shows 287 of 295 marked Y) | This document |
+| Automation share | Automated test cases divided by all test cases | About 85% of functional cases (section 14.5 shows 405 of 414 marked Y) | This document |
 | Performance trend | p75 page time on 3G, p95 API latency | Within NFR-PERF targets every night | Lighthouse CI, k6 |
 | Field evidence loss | Evidence items captured but never received | Zero | App telemetry and server |
 | Fraud flag accuracy | Flags upheld by reviewers divided by all flags | Watched, no target until R2 data `[TO VERIFY]` | Reviewer decisions |
+| Payee mismatch blocks | Release attempts blocked by FR-ESC-015, by line and by cause | Watched; every block reviewed within 1 working day (assumption) | Release decision log |
+| Unconfirmed visits | Visits submitted but never confirmed, as a share of visits | Watched; target set after the carer field trial `[TO VERIFY]` | CARE data |
+| Country isolation matrix | Share of cross-country access checks passing | 100% every PR | CI |
 
 ### 15.2 Reports
 
