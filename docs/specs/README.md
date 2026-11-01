@@ -1,6 +1,6 @@
 # Fidero product specification set
 
-Six documents that take Fidero from business case to running service. Document 01 is the source of truth. Every other document traces to its IDs.
+Six documents that take Fidero from business case to running service. Document 01 is the source of truth. Every other document traces to its IDs. The business definition they implement is in `../decisions/2026-11-01-diaspora-platform.md`.
 
 | No. | Document | What it covers |
 |---|---|---|
@@ -26,4 +26,4 @@ A user story number always equals the number of the functional requirement it im
 
 ## Status
 
-Version 0.1, working draft, 31 October 2026. All figures are working assumptions. Unknowns are marked `[TO VERIFY]`.
+Working drafts, 1 November 2026. Document 01 is at version 0.3; documents 02 to 06 at 0.2. All figures are working assumptions. Unknowns are marked `[TO VERIFY]`.
