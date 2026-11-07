@@ -23,6 +23,8 @@ Every Fidero line works the same way.
 3. **Release** it only against evidence, and only to a verified institution, supplier, vendor or professional. Never as cash to a relative.
 4. **Show** the client every step in plain language.
 
+Clients use the Fidero app and field staff use the Fidero Field app. Both are on the Apple App Store and Google Play from R2. Before then, and on laptops, clients use the web portal.
+
 ## Product families
 
 | Family | Line | What Fidero verifies | What releases the money | Release |

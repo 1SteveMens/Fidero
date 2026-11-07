@@ -4,6 +4,8 @@ Fidero (from *fides*, trust) is the trusted agent at home for people abroad. Any
 
 Product families: Property (land, buildings, construction, off-plan, listings, property management), Family (payments direct to institutions, care visits, insurer partner cover), Projects and errands (project funds, paperwork and errands, events). The redefinition from a land platform to a diaspora platform is recorded in `docs/decisions/2026-11-01-diaspora-platform.md`. Read it first.
 
+Front ends: a phone-first web portal for clients (from R1), a back office for staff, and two mobile apps on the Apple App Store and Google Play from R2: **Fidero** for clients and families, and **Fidero Field** for field roles. Both apps are built from one React Native codebase for iOS and Android.
+
 The founder is in Ghana and runs three ventures. This repository is only for Fidero. FarmPrint (cocoa traceability) and Kestrels (illegal-mining monitoring) have their own repositories and sessions. Do not work on them here.
 
 ## Where things are
