@@ -1,15 +1,15 @@
 # 03 — UI/UX Design Specification
 
-Information architecture, user flows, wireframes, interaction and content rules, design system and accessibility for the three Fidero front ends: the `portal` web app, the `backoffice` web app and the Android field app (called the milestone app in R2 planning; it serves contractors, inspectors, runners, surveyors, carers and errand agents).
+Information architecture, user flows, wireframes, interaction and content rules, design system and accessibility for the four Fidero front ends: the `portal` web app, the `backoffice` web app, and from R2 two apps published on the Apple App Store and Google Play: **Fidero**, the client app for clients, family members and tenants, and **Fidero Field**, the field app (iOS and Android) for contractors, inspectors, runners, surveyors, carers and errand agents. Both apps come from one React Native codebase (02 ADR-22).
 
 | Item | Value |
 |---|---|
 | Document | 03 of 6 in `docs/specs/` |
-| Version | 0.3 |
-| Date | 1 November 2026 |
+| Version | 0.4 |
+| Date | 7 November 2026 |
 | Status | Draft. For review. Not yet baselined |
 | Owner | Product designer, for the founder as product owner |
-| Source of truth | `01-requirements-and-product-specification.md` v0.4 (personas, features, journeys, rules, FR and NFR IDs, state models) |
+| Source of truth | `01-requirements-and-product-specification.md` v0.6 (personas, features, journeys, rules, FR and NFR IDs, state models) |
 | Other sources | `README.md`, `docs/decisions/2026-11-01-diaspora-platform.md`, `docs/operations/verification-report-template.md`, `docs/operations/milestone-schedule.md`, `docs/product/architecture.md` |
 | Companion | `03-prototype/index.html`, a clickable prototype with sample data |
 
@@ -22,10 +22,11 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | 0.1 | 31 October 2026 | First draft against 01 v0.1. |
 | 0.2 | 1 November 2026 | Redesign for 01 v0.3 and the decision record `docs/decisions/2026-11-01-diaspora-platform.md`: Fidero is the diaspora's trusted agent at home. Adds the principles "Pay the institution, not the relative" and "Country is configuration"; the unified home dashboard (F-35) as the portal home with sections for Property, Family, and Projects and errands; a country selector at onboarding; screens SCR-PTL-36 to SCR-PTL-54, SCR-BO-27 to SCR-BO-32 and SCR-MOB-14 to SCR-MOB-18; flows for J-09 to J-12 with error states; wireframes W-25 to W-36; content rules for who gets paid (RUL-22), rent (RUL-24) and insurer products (RUL-25); components CMP-25 to CMP-32; prototype flows G and H. Client approval added to the escrow flow and tracker (01 v0.2 Escrow state model). Section 11.2 refreshed against 01 v0.3: I-01, I-02, I-03, I-04, I-06, I-07, I-08, I-09, I-10, I-12, I-13 and I-14 closed; I-17 to I-24 added. Design assumptions DA-07 to DA-10 added; DA-06 retired. |
 | 0.3 | 1 November 2026 | Aligned to 01 v0.4: runner cash route removed (DA-10, SCR-BO-30, J-09 flow, W-26, W-28, CMP-25, CMP-30 and content rules now show "not eligible for direct payment"; runners only collect invoices and deliver receipts); standing approvals for care visits and errand steps (W-29, W-34, J-10, J-12); 72-hour reviewer decision, second-person check of call confirmations and code lockout (J-10, W-31, SCR-BO-28); owner's written mandate for rent statement lines (J-11, SCR-PTL-46); premium route stated; "amount held at the bank" wording; issues I-02, I-15, I-18, I-20, I-21 and I-23 closed, I-11 partly closed. Prototype updated to match. |
+| 0.4 | 7 November 2026 | Aligned to 01 v0.6: both app stores, React Native, client app. The field app becomes Fidero Field (iOS and Android); the client app Fidero is added (F-36, FR-APP-001 to FR-APP-006). Adds the client app map with the portal's tabs (2.3a), platform conventions for iOS and Android (2.4a), screens SCR-APP-01 to SCR-APP-06 (push permission explained first, biometric set-up and unlock, account deletion that says what is kept and why, update required, paying Fidero's fee in the app), wireframes W-37 to W-39, a React Native column in the component library, iOS targets and Dynamic Type in the accessibility rules, DA-11 and DA-12, DQ-18 to DQ-20, and issues I-25 to I-27. Prototype flow F relabelled "Fidero Field (iOS and Android)". |
 
 ## 0. How this document traces to 01
 
-- Every screen has a stable ID: `SCR-PTL-nn` (portal), `SCR-BO-nn` (back office), `SCR-MOB-nn` (Android app). IDs are never reused.
+- Every screen has a stable ID: `SCR-PTL-nn` (portal), `SCR-BO-nn` (back office), `SCR-MOB-nn` (Fidero Field, the field app on iOS and Android), `SCR-APP-nn` (screens that exist only in the apps, mostly in the client app Fidero). A portal screen that the client app shows natively keeps its `SCR-PTL` ID (DA-11). IDs are never reused.
 - Every reusable component has an ID: `CMP-nn`.
 - Every screen lists the 01 IDs it satisfies: functional requirements (`FR-`), features (`F-`), journeys (`J-`) and rules (`RUL-`). This document creates no new requirement IDs.
 - Section 10 holds the full screen-to-requirement table. Document 05 can test each screen against it.
@@ -45,6 +46,8 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | DA-08 | The amount held at the bank for institution payments, care visits and errands (FR-ESC-014) is shown as "held at Partner Bank for you", with a running statement. It is never called a wallet or a Fidero balance. | RUL-01 and B2.2. The money is at the bank. |
 | DA-09 | The country chosen at onboarding is the country where the things are (the plot, the hospital, the parent), not where the client lives. A client can add a second country later and the dashboard groups by country. | FR-CTY-001: every case, payment and user belongs to one country. Clients abroad live elsewhere by definition. |
 | DA-10 | An institution that cannot receive a bank transfer is marked not eligible for direct payment (FR-FEE-006). The client's screen says so plainly: "[Institution] cannot receive a bank transfer, so Fidero cannot pay it for you. We never pay in cash." No other way to pay through Fidero is offered. A runner may collect an invoice or deliver a receipt in person; that row says "Receipt delivered by a Fidero runner". | 01 v0.4 removed the cash route. The client must know before approving anything. Issue I-20 closed. |
+| DA-11 | The client app shows the portal's signed-in client screens natively and keeps their `SCR-PTL` IDs, content and rules. Only screens with no portal equivalent get `SCR-APP` IDs. Public pages (home and prices, listings, insurer product pages) and the family confirmation link (SCR-PTL-45) stay on the web; the app opens them in the system browser or an in-app browser tab. | FR-APP-001 asks for "the client features of the portal ... on the same API and rules". One design per screen keeps the two consistent and halves review. |
+| DA-12 | Until Q-23 is answered, the client app pays Fidero's fees on the web: "Pay on the Fidero website" opens the portal's payment page (SCR-PTL-10) in the system browser and returns to the app when done. If the stores accept the payment provider in the app, SCR-APP-06 shows the provider's checkout instead. The app never shows a store in-app purchase. | FR-APP-005, AS-14, Q-23. Fees pay for real-world services. Purchase, construction and project money is never paid in either app (RUL-01). |
 
 ---
 
@@ -192,10 +195,10 @@ backoffice
 
 The back office carries a country switcher in the top bar for staff who work in more than one country. Everything below it is filtered by the chosen country (FR-ACC-007, FR-CTY-003).
 
-### 2.3 Android field app map (R2, offline first)
+### 2.3 Field app map, Fidero Field (iOS and Android, R2, offline first)
 
 ```text
-field app
+Fidero Field (iOS and Android)
 ├── Sign in and register this phone ......... SCR-MOB-01
 ├── My jobs ................................. SCR-MOB-02
 │   ├── Project and milestone overview ...... SCR-MOB-03
@@ -214,8 +217,55 @@ field app
 │   ├── Errand steps and receipts (agent) ... SCR-MOB-17
 │   └── Property inspection (inspector) ..... SCR-MOB-18
 ├── Upload queue ............................ SCR-MOB-08
-└── Account, storage, help .................. SCR-MOB-13
+├── Account, storage, help .................. SCR-MOB-13
+│   └── Delete my account ................... SCR-APP-04 (shared with Fidero)
+└── Update required (at start, when too old)  SCR-APP-05 (shared with Fidero)
 ```
+
+### 2.3a Client app map, Fidero (iOS and Android, R2)
+
+The tabs match the signed-in portal (2.4), so a client who uses both finds things in the same place. Screens keep their portal IDs (DA-11).
+
+```text
+Fidero (iOS and Android)
+├── First run
+│   ├── Sign up, choose a country ........... SCR-PTL-02, SCR-PTL-37
+│   ├── Sign in ............................. SCR-PTL-03
+│   ├── Identity check ...................... SCR-PTL-04
+│   ├── Turn on notifications? .............. SCR-APP-01
+│   └── Unlock with Face ID or fingerprint? . SCR-APP-02
+├── Unlock (on return) ...................... SCR-APP-03
+├── Update required (when too old) .......... SCR-APP-05
+├── Tab: Home
+│   └── Home dashboard (F-35) ............... SCR-PTL-36
+├── Tab: Property
+│   ├── Order a report (4 steps) ............ SCR-PTL-06 to 09
+│   ├── Pay Fidero's fee .................... SCR-APP-06 (opens SCR-PTL-10 on the web, DA-12)
+│   ├── Case tracker, messages, documents ... SCR-PTL-12, 13, 19
+│   ├── Report viewer, check a report ....... SCR-PTL-14, SCR-PTL-15
+│   ├── Escrow terms, tracker, bank details . SCR-PTL-16, 17, 18
+│   ├── Build dashboard, milestone, variation SCR-PTL-22, 23, 24
+│   ├── Property dashboard, repairs ......... SCR-PTL-46, 47, 48
+│   ├── Tenant view (tenant role) ........... SCR-PTL-54
+│   └── Listings ............................ opens the web (SCR-PTL-26, 27)
+├── Tab: Family
+│   ├── Family members, institutions ........ SCR-PTL-38, 39
+│   ├── Pay an invoice, fee schedule ........ SCR-PTL-40, 41
+│   ├── Family-member statement ............. SCR-PTL-42
+│   ├── Care plan, visits and alerts ........ SCR-PTL-43, 44
+│   └── Policy wallet ....................... SCR-PTL-52
+├── Tab: Projects
+│   ├── Project fund dashboard .............. SCR-PTL-30
+│   ├── Errand catalogue and progress ....... SCR-PTL-49, 50
+│   └── Disputes ............................ SCR-PTL-29
+└── Tab: Account
+    ├── Profile, notifications, representative SCR-PTL-20
+    ├── Sharing and consent ................. SCR-PTL-21
+    ├── My data ............................. SCR-PTL-34
+    └── Delete my account ................... SCR-APP-04
+```
+
+Push notifications and links in messages open the matching screen through deep links (02 section 8.9). Opening a link never approves anything: the screen asks for the usual confirmation and second factor (section 5.3).
 
 ### 2.4 Navigation model
 
@@ -224,7 +274,8 @@ field app
 | Portal, public | Top bar: logo, "Listings", "Check a report", "Sign in". Menu button for the rest. | Same items in a horizontal top bar. | Public pages are server rendered and indexable (FR-LST-010). |
 | Portal, signed in | Bottom tab bar with up to 5 tabs: **Home** (the dashboard, SCR-PTL-36), **Property**, **Family**, **Projects** (projects and errands), **Account**. | Left side bar with the same items. | A family tab appears only when the client has something in it, or on first use as a prompt. A first-time user sees Home, Property, Family, Account. The old tabs Orders, Escrow and Build become sections inside Property. |
 | Back office | Field roles (lawyer, surveyor, runner) get a single "My tasks" list and a top bar. No side bar. | Left side bar grouped by work area. Items filtered by role (FR-ACC-007) and by the chosen country. Global search for case, escrow, listing, institution and person references. | Staff session times out after 30 minutes idle with a warning at 25 (NFR-SEC-02). |
-| Android field app | Bottom bar: **Jobs**, **Queue** (with a count badge), **Account**. Linear task flows with a back arrow. A carer sees only today's visits; an errand agent sees only assigned errands. | n/a | Upload state is visible on every screen through the offline banner (CMP-13). |
+| Fidero client app (iOS and Android) | Bottom tab bar with the same 5 tabs as the signed-in portal: **Home**, **Property**, **Family**, **Projects**, **Account**. Same rule for hiding an empty Family tab. | n/a | Tablet layouts are not designed in R2; the phone layout scales. Platform conventions in 2.4a. |
+| Fidero Field (iOS and Android) | Bottom bar: **Jobs**, **Queue** (with a count badge), **Account**. Linear task flows with a back arrow. A carer sees only today's visits; an errand agent sees only assigned errands. | n/a | Upload state is visible on every screen through the offline banner (CMP-13). |
 
 Wayfinding rules:
 
@@ -232,6 +283,25 @@ Wayfinding rules:
 - Every object shows its country and currency in the reference line, from configuration. A client with one country sees it once, in the dashboard header.
 - Breadcrumbs on laptop only. On phone, a back link names the parent: "← Case FID-2027-0142".
 - Help is in the same place on every page: a "Get help" link in the page footer and in the account menu (WCAG 2.2 SC 3.2.6).
+
+### 2.4a Platform conventions for iOS and Android (both apps)
+
+Both apps share screens, content and components (02 ADR-22). Each platform keeps its own conventions where users expect them. Content, order of information and rules never change between platforms.
+
+| Topic | iOS | Android |
+|---|---|---|
+| Navigation | Tab bar at the bottom; screens push from the right with a back chevron that names the parent; large title on top-level tabs only | Bottom navigation bar; top app bar with an up arrow that names the parent; no large titles |
+| Back | Back chevron and edge swipe. A screen with unsent input (a half-filled order step, a capture not yet saved) asks before leaving: "Leave this step? Your answers are kept as a draft." | System back gesture or button and the up arrow. Same rule for unsent input. Back on the first tab's root leaves the app; it never signs out |
+| Confirmations | Native alert for a short irreversible confirm; a sheet for a confirm with ticks and a code (section 5.3) | Native dialog for a short confirm; a full-screen or bottom sheet for a confirm with ticks and a code |
+| Choices and sharing | Action sheet for 2 to 5 choices; share sheet only to export a report PDF or a receipt from the client app | Bottom sheet for choices; share sheet only to export a report PDF or a receipt from the client app. Fidero Field accepts nothing shared in from other apps (RUL-08) |
+| Safe areas | Content stays inside the safe area: notch, Dynamic Island and the home indicator. Sticky buttons sit above the home indicator | Edge-to-edge with insets for the status bar, display cut-outs and gesture navigation. Sticky buttons sit above the gesture bar |
+| Text size | Dynamic Type up to the largest accessibility size. Layouts reflow; amounts, payee names and references wrap and are never cut | Font scale up to 200%. Same reflow rule |
+| Fonts | System font (San Francisco) | System font (Roboto) |
+| Pickers and keyboards | Native date picker; numeric keypad for codes and amounts; one-time code autofill from messages | Native date picker; numeric keyboard; SMS one-time code autofill |
+| Permissions | Explain first, then the system prompt (SCR-APP-01, camera and location in Fidero Field). If refused, say what will not work and link to Settings | Same. Android 13 and later ask for notifications; older versions do not, and the explainer is skipped |
+| Biometrics wording | "Face ID" or "Touch ID", whichever the phone has | "Fingerprint or face unlock" |
+| Haptics and sound | Optional confirmation haptic; never the only signal | Same |
+| Icons | Same outline set (6.3); platform share and back icons | Same outline set; platform share and back icons |
 
 ### 2.5 Screen inventory
 
@@ -333,11 +403,11 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-BO-31 | Property management desk | Managed properties; rent due and late; repair requests and quotes; inspection schedule | Case manager | R2 | FR-PMG-003, FR-PMG-004, FR-PMG-006, RUL-24, J-11 |
 | SCR-BO-32 | Errands desk | Errands by step; agency fees paid; receipts; completion check of the resulting document; handover record | Case manager | R2 | FR-TSK-003, FR-TSK-004, FR-TSK-005, J-12 |
 
-#### Android field app
+#### Field app, Fidero Field (iOS and Android)
 
 | Screen | Name | Purpose | Roles | Rel. | Satisfies |
 |---|---|---|---|---|---|
-| SCR-MOB-01 | Sign in | Sign in; register the phone's signing key | Contractor, inspector, runner, surveyor, carer, errand agent | R2 | FR-MOB-001, FR-MOB-004 |
+| SCR-MOB-01 | Sign in | Sign in; register the phone's signing key (Android Keystore or the iOS Secure Enclave, checked by Play Integrity or App Attest). A phone or build that fails the check is told plainly: "This copy of Fidero Field cannot be used. Install it from Google Play or the App Store." | Contractor, inspector, runner, surveyor, carer, errand agent | R2 | FR-MOB-001, FR-MOB-004 |
 | SCR-MOB-02 | My jobs | Assigned projects, inspections and tasks | Same | R2 | FR-MOB-001 |
 | SCR-MOB-03 | Milestone overview | Milestone, status, what is needed | Contractor | R2 | FR-BLD-005, J-03 |
 | SCR-MOB-04 | Evidence checklist | Required items from the schedule; progress | Contractor | R2 | FR-MOB-006 |
@@ -349,12 +419,25 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-MOB-10 | Add a defect | Photos, description, value | Inspector | R2 | FR-MOB-007, FR-BLD-006 |
 | SCR-MOB-11 | Inspection result | Pass, pass with defects, fail; submit | Inspector | R2 | FR-MOB-007, RUL-09 |
 | SCR-MOB-12 | Case task | Runner or surveyor task with in-app capture | Runner, surveyor | R2 | FR-MOB-010, FR-CASE-010 |
-| SCR-MOB-13 | Account and storage | Storage used, encrypted items, help | All app roles | R2 | FR-MOB-008, FR-MOB-009 |
+| SCR-MOB-13 | Account and storage | Storage used, encrypted items, help; link to delete the account (SCR-APP-04) | All app roles | R2 | FR-MOB-008, FR-MOB-009, FR-APP-004 |
 | SCR-MOB-14 | Care visit: check in | Today's visit; check in at the registered address with GPS; distance warning | Carer | R2 | FR-MOB-012, FR-CARE-003, RUL-23, J-10 |
 | SCR-MOB-15 | Care visit: plan items | Tick each plan item; agreed photos and readings captured in app | Carer | R2 | FR-CARE-003, FR-MOB-002, FR-MOB-010, J-10 |
 | SCR-MOB-16 | Care visit: check out | Check out (Fidero then sends the family their own confirmation link and code; the carer never sees the code); raise a concern | Carer | R2 | FR-MOB-012, FR-CARE-004, FR-CARE-006, J-10 |
 | SCR-MOB-17 | Errand steps | Assigned errand; steps; receipt or acknowledgement captured at each step; handover photo or signature | Errand agent | R2 | FR-TSK-003, FR-TSK-005, FR-MOB-010, J-12 |
 | SCR-MOB-18 | Property inspection | Condition inspection or repair inspection with check-in, checklist and photos | Inspector | R2 | FR-PMG-001, FR-PMG-005, FR-MOB-012, J-11 |
+
+#### Client app, Fidero (iOS and Android)
+
+The client app shows the portal's signed-in client screens natively under their `SCR-PTL` IDs (DA-11, 2.3a), meeting FR-APP-001. These screens exist only in the apps:
+
+| Screen | Name | Purpose | Roles | Rel. | Satisfies |
+|---|---|---|---|---|---|
+| SCR-APP-01 | Turn on notifications? | Explains before the system dialog what Fidero will notify about (requests, approvals, status changes, never amounts or report findings on the lock screen) and that channels can be changed in Account. Buttons "Turn on" (then the system dialog) and "Not now". If refused, the app never asks again by itself; Account shows how to turn them on in Settings | Client, family member, tenant | R2 | FR-APP-002, FR-NTF-001, FR-NTF-004 |
+| SCR-APP-02 | Unlock with Face ID or fingerprint? | Offered once after the first sign-in on this phone. Says that unlocking opens the app only, and that approving a payment still needs the user's code | Client, family member, tenant | R2 | FR-APP-003, FR-ACC-003 |
+| SCR-APP-03 | Unlock | Biometric prompt on return. Fallback: "Sign in another way" (SCR-PTL-03). After a new face or fingerprint is added to the phone, the user signs in again | Client, family member, tenant | R2 | FR-APP-003 |
+| SCR-APP-04 | Delete my account | Lists what will be deleted, what Fidero must keep, why and for how long (for example "Reports and escrow records: kept as the law requires", with the period from the retention rules, `[TO VERIFY]` per Q-08), and anything still open that delays deletion ("Your escrow FID-ESC-0091 is still open. We will close your account when it ends."). Confirm with ticks and the user's code where they have one; receipt with a reference. Same screen in both apps | All app users | R2 | FR-APP-004, FR-DPR-004, C-14 |
+| SCR-APP-05 | Update required | Shown at start when the app is older than the minimum version. One sentence why, a button to the store page, nothing else usable. In Fidero Field it adds: "Your 7 saved items are safe on this phone and will upload after you update." Same screen in both apps | All app users | R2 | FR-APP-006, FR-MOB-005 |
+| SCR-APP-06 | Pay Fidero's fee in the app | Fidero's fee only. Web mode (DA-12): the fee, what it pays for, and "Pay on the Fidero website", which opens SCR-PTL-10 in the system browser and returns to the payment result. Provider mode, if Q-23 allows: the payment provider's checkout for card or mobile money. Never purchase, construction or project money | Client | R2 | FR-APP-005, FR-PAY-001, FR-PAY-005, RUL-01 |
 
 ---
 
@@ -1250,7 +1333,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 - **Rules.** RUL-04, FR-ADM-004. Values marked `[TO VERIFY]` show a warning chip until confirmed by the owner in 01 B9.
 - **Satisfies.** FR-ADM-001, FR-ADM-004, FR-ADM-005, FR-CTY-001.
 
-### W-17 Android: contractor milestone submission with offline queue · SCR-MOB-07
+### W-17 Fidero Field: contractor milestone submission with offline queue · SCR-MOB-07
 
 ```text
 +--------------------------------+
@@ -1284,10 +1367,10 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 - **Content.** Offline banner with item count, checklist from the milestone schedule, capture summary.
 - **Actions.** Open an item to capture or retake; submit (queues when offline).
 - **States.** Item missing: Submit disabled with "2 items still needed." Capture off plot: item marked "(!) Taken 340 m from the plot" and the contractor must explain or retake. Sending: progress per item. Sent: "Received by Fidero 14:22 GMT." Upload failed: retried automatically with backoff; never lost.
-- **Rules.** Camera only, no gallery (RUL-08). Queue survives restart (FR-MOB-005). Originals kept until server confirms (FR-MOB-008).
+- **Rules.** Camera only, no gallery, on iOS and Android (RUL-08). Queue survives the app being closed, ended by the phone's system, or a restart (FR-MOB-005). On iPhone, if the user swipes the app away, uploads pause until it is opened again; the queue screen says "Open Fidero Field to finish sending". Originals kept until server confirms (FR-MOB-008).
 - **Satisfies.** FR-MOB-002 to FR-MOB-006, FR-MOB-008, FR-MOB-009, J-03.
 
-### W-18 Android: inspector checklist · SCR-MOB-09 and SCR-MOB-11
+### W-18 Fidero Field: inspector checklist · SCR-MOB-09 and SCR-MOB-11
 
 ```text
 +--------------------------------+
@@ -1739,7 +1822,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 - **Rules.** RUL-23: payment only on confirmed visits. RUL-11: a standing approval covers visit payments up to the stated monthly amount; each payment still needs its evidence and two Fidero approvals; above the amount the client approves each one; the client can withdraw it at any time. Photos of a person need their consent (FR-DPR-002 practice).
 - **Satisfies.** FR-CARE-001, FR-CARE-002, RUL-11, RUL-23, J-10.
 
-### W-30 Carer visit on the field app · SCR-MOB-14 to 16
+### W-30 Carer visit on Fidero Field · SCR-MOB-14 to 16
 
 ```text
 +--------------------------------+   +--------------------------------+
@@ -2018,6 +2101,97 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 - **Rules.** Nothing about Ghana is hard-coded (B2.9). Bank and insurer account changes need two administrators (FR-ADM-003). A country cannot go live until its data location is set and its manual phase gate is recorded as passed (C-13).
 - **Satisfies.** FR-CTY-001, FR-CTY-002, FR-CTY-004, FR-ADM-003, FR-ADM-005.
 
+### W-37 Client app: turn on notifications? · SCR-APP-01
+
+```text
++--------------------------------+
+|                                |
+|  Know when something needs you |
+|                                |
+|  We will tell you when:        |
+|  - a report or step is ready   |
+|  - a payment needs your OK     |
+|  - a visit or errand is done   |
+|                                |
+|  Your lock screen shows only   |
+|  "You have an update". Amounts |
+|  and names stay inside the app.|
+|                                |
+|  You can change this any time  |
+|  in Account.                   |
+|                                |
+| [ Turn on notifications     ]  |
+|   Not now                      |
++--------------------------------+
+```
+
+- **Content.** What will be notified, and what never appears on the lock screen (FR-NTF-004). Shown once, after the first sign-in, before the system dialog.
+- **Actions.** "Turn on notifications" opens the system dialog. "Not now" closes the screen; the app does not ask again on its own.
+- **States.** Refused at the system dialog: Account shows "Notifications are off. Turn them on in your phone's Settings." with a link. Android 12 and older: no system dialog, so the screen is skipped.
+- **Rules.** Never ask before the user has signed in and seen the dashboard. Email, SMS and WhatsApp preferences are unchanged (FR-NTF-001).
+- **Satisfies.** FR-APP-002, FR-NTF-001, FR-NTF-004.
+
+### W-38 Both apps: delete my account · SCR-APP-04
+
+```text
++--------------------------------+
+| <- Account                     |
+| Delete my account              |
+|                                |
+| We will delete:                |
+| - your sign-in and this phone  |
+| - your profile and contacts    |
+| - your notification settings   |
+|                                |
+| We must keep, and why:         |
+| - Reports and escrow records:  |
+|   the law requires it [period] |
+| - The audit log of approvals   |
+|                                |
+| Still open:                    |
+| (!) Escrow FID-ESC-0091, held  |
+|     at Partner Bank. Your      |
+|     account closes when it     |
+|     ends. We will call you.    |
+|                                |
+| [ ] I understand what is kept  |
+| Code from your app [______]    |
+| [ Delete my account         ]  |
++--------------------------------+
+```
+
+- **Content.** Three plain lists: deleted, kept with reason and period, still open. Periods come from the retention rules (01 C5.2, `[TO VERIFY]` per Q-08).
+- **Actions.** Tick, enter the code where the user has a second factor, delete. "Cancel" goes back.
+- **States.** Nothing open: deletion starts at once; receipt "Request DEL-2027-0031 received. You are signed out." Something open: request recorded; the account closes to new orders; deletion completes when the open items end. Legal hold: "Some records are kept for a legal matter. We cannot say more here." In Fidero Field: "Photos you took for jobs stay with each job's record."
+- **Rules.** Reachable in two taps from Account in both apps (store rules, C-14). No phone call required to delete. Silence is never approval: an open escrow is not cancelled by deleting an account.
+- **Satisfies.** FR-APP-004, FR-DPR-004, C-14.
+
+### W-39 Both apps: update required · SCR-APP-05
+
+```text
++--------------------------------+
+|                                |
+|  Please update Fidero Field    |
+|                                |
+|  This version can no longer    |
+|  connect safely. Updating      |
+|  takes about a minute on       |
+|  Wi-Fi.                        |
+|                                |
+|  Your 7 saved items are safe   |
+|  on this phone. They upload    |
+|  after you update.             |
+|                                |
+| [ Update on Google Play     ]  |
++--------------------------------+
+```
+
+- **Content.** One reason, one action. The store button names the phone's store ("Update on the App Store" on iPhone).
+- **Actions.** Open the store page. Nothing else in the app works until the update.
+- **States.** Queued items: count shown. No connection: "Connect to the internet to update."
+- **Rules.** The queue is never deleted by the update (FR-APP-006, FR-MOB-005).
+- **Satisfies.** FR-APP-006, FR-MOB-005.
+
 ---
 
 ## 5. Interaction and content design
@@ -2078,7 +2252,7 @@ Rules:
 
 ### 5.3 Confirmation of irreversible actions
 
-Irreversible actions: pay a fee, accept escrow terms, approve an escrow release as the client, sign a report section, release a report, approve a release or refund, submit a milestone, submit an inspection result, approve an invoice payment, approve a repair quote, confirm or deny a care visit, apply for an insurer's policy, open a dispute, publish a template or a country configuration, approve a bulk export.
+Irreversible actions: pay a fee, accept escrow terms, approve an escrow release as the client, sign a report section, release a report, approve a release or refund, submit a milestone, submit an inspection result, approve an invoice payment, approve a repair quote, confirm or deny a care visit, apply for an insurer's policy, open a dispute, publish a template or a country configuration, approve a bulk export, delete an account from an app.
 
 Pattern:
 
@@ -2180,7 +2354,7 @@ The wordmark is "Fidero" set in the system sans at semi-bold. A simple mark: a s
 
 ### 6.2 Design tokens
 
-Tokens are named by role, not by colour, so themes and countries can change values without code changes. Web: CSS custom properties. Android: Compose theme values. Contrast ratios below were calculated with the WCAG 2.x formula.
+Tokens are named by role, not by colour, so themes and countries can change values without code changes. Web: CSS custom properties. Both apps: one React Native theme object built from the same tokens, shared by iOS and Android, with platform-adapted styling (2.4a). Contrast ratios below were calculated with the WCAG 2.x formula.
 
 #### Colour, light theme
 
@@ -2237,7 +2411,7 @@ The three solid verdict fills were simulated for full deuteranopia, protanopia a
 
 #### Typography
 
-System fonts only. No web font download, which saves 40 to 100 KB per page on 3G (NFR-PERF-02). Android uses Roboto, which already covers the Akan letters ɛ and ɔ and the Hausa hooked letters for later languages.
+System fonts only. No web font download, which saves 40 to 100 KB per page on 3G (NFR-PERF-02). The apps use the system font on each platform: Roboto on Android and San Francisco on iOS. Both cover the Akan letters ɛ and ɔ; the Hausa hooked letters are to be checked on iOS before Hausa is added `[TO VERIFY]`. App text sizes follow the same scale in points and respond to Dynamic Type and Android font scaling.
 
 | Token | Size / line height | Weight | Use |
 |---|---|---|---|
@@ -2262,53 +2436,53 @@ Sizes are set in `rem` so user zoom and browser text size work. Text reflows at 
 | Radii | `--radius-sm` 4 (inputs, chips), `--radius-md` 8 (buttons, cards), `--radius-lg` 12 (sheets, dialogs), `--radius-pill` 999 (badges) |
 | Elevation | `--elev-0` none; `--elev-1` `0 1px 2px rgba(28,27,25,.08)` cards; `--elev-2` `0 4px 12px rgba(28,27,25,.10)` sticky bars; `--elev-3` `0 12px 32px rgba(28,27,25,.18)` dialogs. Dark theme uses lighter surfaces and borders instead of shadows. |
 | Breakpoints | `sm` 360, `md` 600, `lg` 900, `xl` 1200 px. Design for 360 first; support 320. |
-| Touch targets | 44 × 44 px minimum on web, 48 × 48 dp on Android. Above WCAG 2.5.8's 24 px minimum. |
+| Touch targets | 44 × 44 px minimum on web, 48 × 48 dp on Android, 44 × 44 pt on iOS. Above WCAG 2.5.8's 24 px minimum. |
 | Motion | `--dur-fast` 100 ms, `--dur-base` 200 ms, `--dur-slow` 300 ms; easing `cubic-bezier(.2,0,0,1)`. All motion off under `prefers-reduced-motion`. No motion is needed to understand anything. |
 
 ### 6.3 Iconography
 
-- One outline set, 24 px grid, 2 px stroke, rounded joins. Shipped as an inline SVG sprite of no more than 40 icons and 8 KB compressed. Android uses the same shapes as vector drawables.
+- One outline set, 24 px grid, 2 px stroke, rounded joins. Shipped as an inline SVG sprite of no more than 40 icons and 8 KB compressed. Both apps use the same shapes as SVG components on iOS and Android.
 - Icons never stand alone for meaning. Every icon has a visible label or an accessible name.
 - Reserved shapes: circle-tick (green, done), triangle-exclamation (amber, warning), octagon-cross (red, stop), padlock (locked text, frozen money), bank building (money at the bank), camera with dot (captured in app), cloud with arrow (queued upload), clock (expected date).
 
 ### 6.4 Component library
 
-Each component lists its states, usage rules, accessibility notes and Android Compose equivalent. All use the tokens above.
+Each component lists its states, usage rules, accessibility notes, its React Native component in both apps, and the Jetpack Compose name it was first specified against. Under 02 ADR-22 both apps use the React Native component, styled for each platform (2.4a); it is neither SwiftUI nor UIKit specific, and native modules are used only for capture, signing and background upload. The Compose column stays as a reference for Android behaviour. All use the tokens above.
 
-| ID | Component | States and variants | Usage rules | Accessibility | Compose equivalent |
-|---|---|---|---|---|---|
-| CMP-01 | Button | Primary, secondary, quiet, danger. Default, hover, focus, pressed, disabled, loading | One primary per screen. Label is a verb plus object ("Pay USD 450.00"). Disabled buttons show the reason next to them. | Native `<button>`. Focus ring 3 px `--color-focus` with 2 px offset. Loading keeps the label for screen readers ("Paying"). | `Button`, `OutlinedButton`, `TextButton` with `FideroTheme` colours |
-| CMP-02 | Text input | Default, focus, filled, error, disabled, read only. With hint, prefix (country code) | Label above, always visible. Hint below label. Error below field. | `<label for>`; `aria-describedby` for hint and error; `autocomplete` set; errors announced via error summary. | `OutlinedTextField` with `supportingText`, `isError` |
-| CMP-03 | Radio card and select | Default, selected, focus, disabled | Use radio cards for 2 to 5 options with prices or explanations. Select for long lists. | Native radio group with `<fieldset>` and `<legend>`. | `Row` with `RadioButton` and `Modifier.selectable` |
-| CMP-04 | File upload | Empty, uploading with progress, scanned OK, rejected, retry | Show size limit and allowed types. Show a thumbnail and file name. Resumable on poor connections. | Native file input with visible label. Progress in `role="progressbar"` with value text. | Not used for evidence (RUL-08); `ActivityResultContracts` for portal-like uploads only |
-| CMP-05 | Stepper | Step done, current, to do; with error | 3 to 5 steps. Labels short ("Plot"). Back never loses data. | `<ol>` with `aria-current="step"`; "Step 2 of 4" in text. | Custom `Row` of steps with `semantics { stateDescription }` |
-| CMP-06 | Status timeline | Done (date), current (expected date), to do, late, paused, blocked | Status sentence on top, then the timeline. Done steps show actual dates. | `<ol>`; each item says its state in words ("Done", "Expected"). | `LazyColumn` items with icon and text |
-| CMP-07 | Verdict badge | Green, amber, red. Sizes: small (tables), medium (cards), large (report cover) | Always icon plus word. Large size adds the meaning line. | Text is real text. Icon `aria-hidden`. | `FideroVerdictBadge(verdict, size)` |
-| CMP-08 | Condition checklist | Open, closed with evidence, overdue, not applicable (with reason) | Each item shows owner, due date, closing evidence link and closed date. | `<ul>` with state words; not interactive checkboxes for clients. | `Column` of `ListItem` with leading icon |
-| CMP-09 | Evidence thumbnail | Photo, video, document. Captured in app, uploaded, flagged, pending upload | Shows capture time, server time, position check, "Captured in app" or "Uploaded", hash (short). Tap opens full view with metadata. | Alt text built from metadata ("Photo, foundation trench, 14 Aug 10:02 GMT, on plot"). | `AsyncImage` with overlay `Text`; `contentDescription` from metadata |
-| CMP-10 | Approval card | 0 of 2, 1 of 2, 2 of 2, blocked, reset, read only (client view) | See section 5.4. | Each slot is a list item with name and time; button only for eligible user. | `Card` with two `ListItem` slots |
-| CMP-11 | Data table | Default, sortable, selectable rows, loading, empty | Back office only. Phone: becomes stacked cards. Sticky header. | `<table>` with `<th scope>`; sort state in `aria-sort`. | `LazyColumn` (no tables in app) |
-| CMP-12 | Map panel | Static image, interactive, layer legend, error | Static map image first; interactive map on tap. Legend uses pattern and label, not colour alone. | Text summary always next to the map ("Plot is 120 m from the road reserve"). Zoom and pan buttons, no drag needed (WCAG 2.5.7). | Static image in app; no interactive map in R2 |
-| CMP-13 | Offline banner | Offline, back online (auto-hides after 4 s), sending (n of m), failed item | Top of screen, does not cover content. Shows queue count in the app. | `role="status"`, polite. Not focus-stealing. | `Surface` banner driven by `ConnectivityManager` and the WorkManager queue |
-| CMP-14 | Toast | Success, info, with undo | Only for results of the user's own action. Not for errors that need action. Lasts 8 s; pauses on hover or focus. | `role="status"`. Undo is a real button reachable by keyboard. | `SnackbarHost` |
-| CMP-15 | Modal dialog | Confirm, form, blocking error | Only for irreversible confirmation (section 5.3). Never for marketing. | Focus moves in and is trapped; Escape closes when safe; returns focus. Not obscured by sticky bars (WCAG 2.4.11). | `AlertDialog` |
-| CMP-16 | Empty state | First use, filtered, done | Short sentence, one action. No large images (page weight). | Heading plus text plus button. | `Column` with `Text` and `Button` |
-| CMP-17 | Money | Amount, guide, held-by line, change (old to new) | Section 5.6. | Code read as words via `aria-label` ("18,000 US dollars"). | `FideroMoney(amount, currency, holder)` |
-| CMP-18 | Date and time | Date, date and time, expected, deadline | "12 March 2027"; times "14:05 GMT" plus local time for users abroad. | `<time datetime>`. | `Text` with `java.time` formatter |
-| CMP-19 | Hash display | Full, short, copied, match, no match | Monospace, groups of 4, copy button, check button. | Copy result announced. | `SelectionContainer` with mono `Text` |
-| CMP-20 | Inline alert | Info, warning, error, success, locked | Inside content near its cause. | `role="alert"` only for new errors after submit. | `Surface` with icon and `Text` |
-| CMP-21 | Skeleton | Text lines, card, table row | Only after 1 s. Matches final layout to avoid shift. | `aria-busy="true"` on the region. | Placeholder `Box` with shimmer off under reduced motion |
-| CMP-22 | Tabs and segmented control | List or map; sections of a case | 2 to 5 options. | ARIA tabs pattern with arrow keys. | `TabRow` |
-| CMP-23 | Fidero Verified badge | Valid, expiring in 14 days, expired, suspended | Always with check date; expiry on detail page; links to the report. Never shown on a listing that is not Live. | Text label, not an image. | `FideroVerifiedBadge(state, checkedOn, validUntil)` |
-| CMP-24 | One-time code input | Empty, typing, error, expired, resend timer | One field, not 6 boxes; numeric keyboard; paste allowed. | `autocomplete="one-time-code"`; timer not announced every second. | `OutlinedTextField` with `KeyboardType.NumberPassword` |
-| CMP-25 | Statement row | Payment out, payment in, Fidero's charge, pending, receipt delivered by runner, receipt missing | Date, payee line (CMP-30), reference, signed amount, receipt link. Newest first. Line for the amount held at the bank after each month. Used for family-member statements, amounts held at the bank, project funds and events. | `<table>` on laptop, stacked list on phone; amount has `aria-label` with the full currency name; sign read as "paid" or "received". | `LazyColumn` of `ListItem` with trailing `FideroMoney` |
-| CMP-26 | Institution card | Verified (with date), Checking (with expected date), Not verified (with reason), Re-verifying, Suspended | Name, type, town, what was checked, account ending, contact role. Verified status is word plus tick icon, never a colour alone. A card that is not Verified has no "pay" action. | Status is the first text in the card; `aria-describedby` links the reason. | `Card` with `FideroStatusChip` |
-| CMP-27 | Visit card | Planned, Checked in, Checked out awaiting confirmation, Confirmed, Disputed, Missed, Late | Carer first name, planned window, check-in and check-out times with "at address" or distance, plan items done of total, photo thumbnails (CMP-09), confirmation line ("Confirmed by Comfort, 10:20"). | List item with a summary sentence for screen readers ("Visit Tuesday, confirmed, 09:02 to 10:15"). | `Card` with `Row` of times and `FlowRow` of thumbnails |
-| CMP-28 | Confirmation code entry | Empty, typing, match, no match, expired, answered | Six large digit cells on the family's page (SCR-PTL-45). Never shown on the carer's phone. 20 px text, 56 px targets. Two buttons: confirm, deny. | Single input with `inputmode="numeric"`, `autocomplete="off"`; result in `role="status"`. | `OutlinedTextField` on the carer side only; the family side is web |
-| CMP-29 | Country selector | Default from phone number country, chosen, single country (read only), adding a second country | List of open countries with flag-free text labels ("Ghana · GHS"), a short line on what changes (currency, calendar, partners). Shown at onboarding and in Account. Never a free-text field. | Native `<select>` or radio group; the consequence line is `aria-describedby`. | `ExposedDropdownMenuBox` in the app's account screen |
-| CMP-30 | Payee line | Planned, paid, blocked, not eligible | "Paid to [name], account ending [nnnn]" per section 5.6. Sits directly above any approve button and on every statement row. Blocked variant: "Cannot be paid: account not in the institution's name." Not eligible variant: "Cannot be paid: this institution cannot receive a bank transfer." | Plain text; the account digits are read as digits. | `Text` composed by `FideroPayee(name, last4, state)` |
-| CMP-31 | Partner notice | Insurer, bank, agency | Fixed-text panel from section 5.6a with the partner's name first and larger than Fidero's. No Fidero brand colour on the partner's product name. | `<aside aria-label="About this partner">`. | `Surface` with partner `Text` at `--text-xl` |
-| CMP-32 | Dashboard section | Property, Family, Projects and errands; collapsed, expanded, empty (hidden), with items needing action | Heading with count and "See" link; items needing the client first, each with "!" and a word; status sentence per item (CMP-06 pattern); at most 3 items shown, then "See all". | `<section>` with `<h2>`; counts in text. | `LazyColumn` section with sticky header |
+| ID | Component | States and variants | Usage rules | Accessibility | App component (React Native, iOS and Android) | Compose reference |
+|---|---|---|---|---|---|---|
+| CMP-01 | Button | Primary, secondary, quiet, danger. Default, hover, focus, pressed, disabled, loading | One primary per screen. Label is a verb plus object ("Pay USD 450.00"). Disabled buttons show the reason next to them. | Native `<button>`. Focus ring 3 px `--color-focus` with 2 px offset. Loading keeps the label for screen readers ("Paying"). | `FideroButton` on `Pressable`; ripple on Android, highlight on iOS | `Button`, `OutlinedButton`, `TextButton` with `FideroTheme` colours |
+| CMP-02 | Text input | Default, focus, filled, error, disabled, read only. With hint, prefix (country code) | Label above, always visible. Hint below label. Error below field. | `<label for>`; `aria-describedby` for hint and error; `autocomplete` set; errors announced via error summary. | `FideroTextField` on `TextInput`; label above on both platforms | `OutlinedTextField` with `supportingText`, `isError` |
+| CMP-03 | Radio card and select | Default, selected, focus, disabled | Use radio cards for 2 to 5 options with prices or explanations. Select for long lists. | Native radio group with `<fieldset>` and `<legend>`. | `FideroRadioCard` with `accessibilityRole="radio"` | `Row` with `RadioButton` and `Modifier.selectable` |
+| CMP-04 | File upload | Empty, uploading with progress, scanned OK, rejected, retry | Show size limit and allowed types. Show a thumbnail and file name. Resumable on poor connections. | Native file input with visible label. Progress in `role="progressbar"` with value text. | `FideroFilePicker` with the system document picker or camera; client app only, never in Fidero Field evidence flows (RUL-08) | Not used for evidence (RUL-08); `ActivityResultContracts` for portal-like uploads only |
+| CMP-05 | Stepper | Step done, current, to do; with error | 3 to 5 steps. Labels short ("Plot"). Back never loses data. | `<ol>` with `aria-current="step"`; "Step 2 of 4" in text. | `FideroStepper` | Custom `Row` of steps with `semantics { stateDescription }` |
+| CMP-06 | Status timeline | Done (date), current (expected date), to do, late, paused, blocked | Status sentence on top, then the timeline. Done steps show actual dates. | `<ol>`; each item says its state in words ("Done", "Expected"). | `FideroTimeline` in a `FlatList` | `LazyColumn` items with icon and text |
+| CMP-07 | Verdict badge | Green, amber, red. Sizes: small (tables), medium (cards), large (report cover) | Always icon plus word. Large size adds the meaning line. | Text is real text. Icon `aria-hidden`. | `FideroVerdictBadge` | `FideroVerdictBadge(verdict, size)` |
+| CMP-08 | Condition checklist | Open, closed with evidence, overdue, not applicable (with reason) | Each item shows owner, due date, closing evidence link and closed date. | `<ul>` with state words; not interactive checkboxes for clients. | `FideroConditionList` | `Column` of `ListItem` with leading icon |
+| CMP-09 | Evidence thumbnail | Photo, video, document. Captured in app, uploaded, flagged, pending upload | Shows capture time, server time, position check, "Captured in app" or "Uploaded", hash (short). Tap opens full view with metadata. | Alt text built from metadata ("Photo, foundation trench, 14 Aug 10:02 GMT, on plot"). | `FideroEvidenceThumb`; `accessibilityLabel` from metadata | `AsyncImage` with overlay `Text`; `contentDescription` from metadata |
+| CMP-10 | Approval card | 0 of 2, 1 of 2, 2 of 2, blocked, reset, read only (client view) | See section 5.4. | Each slot is a list item with name and time; button only for eligible user. | `FideroApprovalCard` | `Card` with two `ListItem` slots |
+| CMP-11 | Data table | Default, sortable, selectable rows, loading, empty | Back office only. Phone: becomes stacked cards. Sticky header. | `<table>` with `<th scope>`; sort state in `aria-sort`. | Not used; stacked cards in a `FlatList` | `LazyColumn` (no tables in app) |
+| CMP-12 | Map panel | Static image, interactive, layer legend, error | Static map image first; interactive map on tap. Legend uses pattern and label, not colour alone. | Text summary always next to the map ("Plot is 120 m from the road reserve"). Zoom and pan buttons, no drag needed (WCAG 2.5.7). | Static map image; no interactive map in R2 | Static image in app; no interactive map in R2 |
+| CMP-13 | Offline banner | Offline, back online (auto-hides after 4 s), sending (n of m), failed item | Top of screen, does not cover content. Shows queue count in the app. | `role="status"`, polite. Not focus-stealing. | `FideroOfflineBanner` driven by network state and the shared upload queue | `Surface` banner driven by `ConnectivityManager` and the WorkManager queue |
+| CMP-14 | Toast | Success, info, with undo | Only for results of the user's own action. Not for errors that need action. Lasts 8 s; pauses on hover or focus. | `role="status"`. Undo is a real button reachable by keyboard. | `FideroToast` above the tab bar on both platforms | `SnackbarHost` |
+| CMP-15 | Modal dialog | Confirm, form, blocking error | Only for irreversible confirmation (section 5.3). Never for marketing. | Focus moves in and is trapped; Escape closes when safe; returns focus. Not obscured by sticky bars (WCAG 2.4.11). | Native alert for short confirms; `FideroSheet` for confirms with ticks and a code (iOS sheet, Android bottom or full-screen sheet) | `AlertDialog` |
+| CMP-16 | Empty state | First use, filtered, done | Short sentence, one action. No large images (page weight). | Heading plus text plus button. | `FideroEmptyState` | `Column` with `Text` and `Button` |
+| CMP-17 | Money | Amount, guide, held-by line, change (old to new) | Section 5.6. | Code read as words via `aria-label` ("18,000 US dollars"). | `FideroMoney` | `FideroMoney(amount, currency, holder)` |
+| CMP-18 | Date and time | Date, date and time, expected, deadline | "12 March 2027"; times "14:05 GMT" plus local time for users abroad. | `<time datetime>`. | `FideroDate` using `Intl.DateTimeFormat` | `Text` with `java.time` formatter |
+| CMP-19 | Hash display | Full, short, copied, match, no match | Monospace, groups of 4, copy button, check button. | Copy result announced. | `FideroHash` with copy to the system clipboard | `SelectionContainer` with mono `Text` |
+| CMP-20 | Inline alert | Info, warning, error, success, locked | Inside content near its cause. | `role="alert"` only for new errors after submit. | `FideroInlineAlert` | `Surface` with icon and `Text` |
+| CMP-21 | Skeleton | Text lines, card, table row | Only after 1 s. Matches final layout to avoid shift. | `aria-busy="true"` on the region. | `FideroSkeleton`; no shimmer under Reduce Motion or Remove animations | Placeholder `Box` with shimmer off under reduced motion |
+| CMP-22 | Tabs and segmented control | List or map; sections of a case | 2 to 5 options. | ARIA tabs pattern with arrow keys. | `FideroSegmented`: segmented control styling on iOS, tabs styling on Android | `TabRow` |
+| CMP-23 | Fidero Verified badge | Valid, expiring in 14 days, expired, suspended | Always with check date; expiry on detail page; links to the report. Never shown on a listing that is not Live. | Text label, not an image. | `FideroVerifiedBadge` | `FideroVerifiedBadge(state, checkedOn, validUntil)` |
+| CMP-24 | One-time code input | Empty, typing, error, expired, resend timer | One field, not 6 boxes; numeric keyboard; paste allowed. | `autocomplete="one-time-code"`; timer not announced every second. | `FideroCodeInput` with one-time code autofill on iOS and SMS code autofill on Android | `OutlinedTextField` with `KeyboardType.NumberPassword` |
+| CMP-25 | Statement row | Payment out, payment in, Fidero's charge, pending, receipt delivered by runner, receipt missing | Date, payee line (CMP-30), reference, signed amount, receipt link. Newest first. Line for the amount held at the bank after each month. Used for family-member statements, amounts held at the bank, project funds and events. | `<table>` on laptop, stacked list on phone; amount has `aria-label` with the full currency name; sign read as "paid" or "received". | `FideroStatementRow` in a `FlatList` | `LazyColumn` of `ListItem` with trailing `FideroMoney` |
+| CMP-26 | Institution card | Verified (with date), Checking (with expected date), Not verified (with reason), Re-verifying, Suspended | Name, type, town, what was checked, account ending, contact role. Verified status is word plus tick icon, never a colour alone. A card that is not Verified has no "pay" action. | Status is the first text in the card; `aria-describedby` links the reason. | `FideroInstitutionCard` | `Card` with `FideroStatusChip` |
+| CMP-27 | Visit card | Planned, Checked in, Checked out awaiting confirmation, Confirmed, Disputed, Missed, Late | Carer first name, planned window, check-in and check-out times with "at address" or distance, plan items done of total, photo thumbnails (CMP-09), confirmation line ("Confirmed by Comfort, 10:20"). | List item with a summary sentence for screen readers ("Visit Tuesday, confirmed, 09:02 to 10:15"). | `FideroVisitCard` | `Card` with `Row` of times and `FlowRow` of thumbnails |
+| CMP-28 | Confirmation code entry | Empty, typing, match, no match, expired, answered | Six large digit cells on the family's page (SCR-PTL-45). Never shown on the carer's phone. 20 px text, 56 px targets. Two buttons: confirm, deny. | Single input with `inputmode="numeric"`, `autocomplete="off"`; result in `role="status"`. | Not in either app; the family side is web (SCR-PTL-45) and the carer never sees the code | `OutlinedTextField` on the carer side only; the family side is web |
+| CMP-29 | Country selector | Default from phone number country, chosen, single country (read only), adding a second country | List of open countries with flag-free text labels ("Ghana · GHS"), a short line on what changes (currency, calendar, partners). Shown at onboarding and in Account. Never a free-text field. | Native `<select>` or radio group; the consequence line is `aria-describedby`. | `FideroCountryPicker` in Account: list sheet on iOS, dropdown on Android | `ExposedDropdownMenuBox` in the app's account screen |
+| CMP-30 | Payee line | Planned, paid, blocked, not eligible | "Paid to [name], account ending [nnnn]" per section 5.6. Sits directly above any approve button and on every statement row. Blocked variant: "Cannot be paid: account not in the institution's name." Not eligible variant: "Cannot be paid: this institution cannot receive a bank transfer." | Plain text; the account digits are read as digits. | `FideroPayee` | `Text` composed by `FideroPayee(name, last4, state)` |
+| CMP-31 | Partner notice | Insurer, bank, agency | Fixed-text panel from section 5.6a with the partner's name first and larger than Fidero's. No Fidero brand colour on the partner's product name. | `<aside aria-label="About this partner">`. | `FideroPartnerNotice` | `Surface` with partner `Text` at `--text-xl` |
+| CMP-32 | Dashboard section | Property, Family, Projects and errands; collapsed, expanded, empty (hidden), with items needing action | Heading with count and "See" link; items needing the client first, each with "!" and a word; status sentence per item (CMP-06 pattern); at most 3 items shown, then "See all". | `<section>` with `<h2>`; counts in text. | `FideroDashboardSection` in a `SectionList` with sticky headers | `LazyColumn` section with sticky header |
 
 ---
 
@@ -2316,7 +2490,7 @@ Each component lists its states, usage rules, accessibility notes and Android Co
 
 ### 7.1 WCAG 2.2 AA checklist mapped to components
 
-NFR-A11Y-01 (01 v0.3) requires WCAG 2.2 AA on the portal and back office from R1 and on the Android field app from R2, using Android's accessibility guidance. The family confirmation page (SCR-PTL-45) is held to the same bar with larger text and targets, because its users are often elderly. Each item is tested in document 05.
+NFR-A11Y-01 (01 v0.6) requires WCAG 2.2 AA on the portal and back office from R1 and on both mobile apps, Fidero and Fidero Field, from R2, using Android's and Apple's accessibility guidance. The family confirmation page (SCR-PTL-45) is held to the same bar with larger text and targets, because its users are often elderly. Each item is tested in document 05.
 
 | SC | Requirement | How Fidero meets it | Components and screens |
 |---|---|---|---|
@@ -2336,7 +2510,7 @@ NFR-A11Y-01 (01 v0.3) requires WCAG 2.2 AA on the portal and back office from R1
 | 2.4.7 Focus visible | Visible | 3 px ring, 2 px offset, both themes | All |
 | 2.4.11 Focus not obscured (minimum) | Not hidden by sticky UI | `scroll-padding` equal to sticky bar heights | Bottom tab bar, CMP-13 |
 | 2.5.7 Dragging movements | Single pointer alternative | Map zoom and pan buttons; no drag-to-reorder | CMP-12 |
-| 2.5.8 Target size (minimum) | 24 px | 44 px web, 48 dp Android | CMP-01, CMP-03 |
+| 2.5.8 Target size (minimum) | 24 px | 44 px web, 48 dp Android, 44 pt iOS | CMP-01, CMP-03 |
 | 3.1.1 Language of page | `lang` | `lang="en-GH"`; per-language when localised | All |
 | 3.2.6 Consistent help | Same place | "Get help" in footer and account menu on every page | All |
 | 3.3.1 Error identification | Text errors | Inline messages plus summary | CMP-02 |
@@ -2347,9 +2521,11 @@ NFR-A11Y-01 (01 v0.3) requires WCAG 2.2 AA on the portal and back office from R1
 | 4.1.2 Name, role, value | Correct semantics | Native elements first; ARIA only where needed | All |
 | 4.1.3 Status messages | Announced | Status sentence, toasts, offline banner use `role="status"` | CMP-06, CMP-13, CMP-14 |
 
-Android: content descriptions, `semantics` merging for list items, TalkBack order checked, font scale up to 200% without truncation, 48 dp targets, no information in haptics alone.
+Both apps, Android: accessibility labels on every control, list items grouped so TalkBack reads one sentence per item, TalkBack order checked, font scale up to 200% without truncation, 48 dp targets, no information in haptics alone.
 
-Testing: automated checks in the build pipeline, manual keyboard and screen reader passes (NVDA with Chrome, VoiceOver with Safari on iPhone, TalkBack on a 2 GB Android phone) before each release.
+Both apps, iOS: accessibility labels and traits on every control, list items grouped so VoiceOver reads one sentence per item, VoiceOver order checked, Dynamic Type up to the largest accessibility size without truncation, Bold Text and Reduce Motion respected, 44 pt targets, no information in haptics alone.
+
+Testing: automated checks in the build pipeline, manual keyboard and screen reader passes (NVDA with Chrome, VoiceOver with Safari on iPhone, TalkBack on a 2 GB Android phone) before each release. From R2, both apps are tested with VoiceOver on the oldest supported iPhone and TalkBack on a 2 GB Android phone.
 
 ### 7.2 Performance budgets
 
@@ -2367,7 +2543,7 @@ NFR-PERF-01 (useful content in 3 s at the 75th percentile on 1.6 Mbps and 300 ms
 | Largest contentful paint, 3G profile | 2.5 s | 3 s (NFR-PERF-01) |
 | Layout shift | 0.05 | 0.1 |
 | Listing pages | Server rendered, under 3 s on 3G (FR-LST-010) | |
-| Android app | Start under 3 s, install under 30 MB (NFR-PERF-05) | |
+| Both apps, iOS and Android | Cold start under 3 s on a 2 GB Android phone and the oldest supported iPhone; download under 30 MB for each app on each platform (NFR-PERF-05) | |
 
 Design choices that keep to budget:
 
@@ -2429,7 +2605,7 @@ File: `docs/specs/03-prototype/index.html`. One self-contained HTML file. No bui
 | C. Back office release | Two-person release approval with gates (including "client approved"), second-factor field, and a switch to see the screen as approver 1 | SCR-BO-12 |
 | D. Listings (J-04) | Search with list and map views → listing detail with Fidero Verified badge, check date, expiry and report link; one expired example | SCR-PTL-26, SCR-PTL-27 |
 | E. Build dashboard (J-03) | Budget against actual, milestone list, photo timeline placeholders, re-pricing note | SCR-PTL-22, SCR-PTL-23 (summary) |
-| F. Android field app | Phone frame with evidence checklist, offline banner and upload queue; a switch to go online and watch the queue send | SCR-MOB-04, SCR-MOB-07, SCR-MOB-08 |
+| F. Fidero Field (iOS and Android) | Phone frame with evidence checklist, offline banner and upload queue; a switch to go online and watch the queue send | SCR-MOB-04, SCR-MOB-07, SCR-MOB-08 |
 | G. Family: pay a hospital bill (J-09) | Kwabena's view: verified institution card → invoice sent by the hospital, with the three checks and a mismatch state to try → approve with a code, payee named → paid to the institution → receipt and family-member statement | SCR-PTL-39, SCR-PTL-40, SCR-PTL-42 |
 
 How to use it:
@@ -2443,7 +2619,7 @@ How to use it:
 - In flow G, "Simulate a mismatched invoice" shows the blocked state where the patient on the invoice is not the family member. Nothing can be approved until a corrected invoice is chosen.
 - The dashboard in flow H combines Ama's property items and Kwabena's family items so that every section has something in it. In the real product each client sees only their own things. The signed-in name at the top changes with the flow.
 
-What it does not cover: sign-up, the country selector and identity check, the back-office queue, report builder and institution verification, care visits, property management, errands, insurer pages, disputes and admin screens. These are in the wireframes.
+What it does not cover: the client app's own screens (SCR-APP-01 to 06), sign-up, the country selector and identity check, the back-office queue, report builder and institution verification, care visits, property management, errands, insurer pages, disputes and admin screens. These are in the wireframes.
 
 ### 9.2 Usability test plan
 
@@ -2453,7 +2629,7 @@ What it does not cover: sign-up, the country selector and identity check, the ba
 |---|---|
 | Participants | 5 diaspora adults who have bought or plan to buy land in Ghana, recruited through diaspora associations and R0 clients. Mix of UK, US, Canada and Germany or the Netherlands; at least 2 aged over 50; at least 1 using a low-end Android phone. Incentive `[TO VERIFY]`. |
 | Method | Remote, moderated, 45 minutes, on the participant's own phone, sharing the screen. Think-aloud. Moderator does not help during timed tasks. |
-| Build | R1 staging portal with a test payment provider, or this prototype for an early round. |
+| Build | R1 staging portal with a test payment provider, or this prototype for an early round. From R2, a repeat round on the client app through TestFlight and Play internal testing, with at least 2 participants on iPhones and 2 on Android phones (assumption). |
 | Throttling | One session run with the phone on a slow connection to check the 3G experience. |
 | Consent | Recorded consent for screen and audio recording under Act 843 (FR-DPR-002 practice). Recordings deleted after analysis `[TO VERIFY]` retention. |
 
@@ -2593,6 +2769,13 @@ Screen to requirement to journey. Rules (`RUL-`) follow the FR IDs where a scree
 | SCR-MOB-16 | FR-MOB-012, FR-CARE-004, FR-CARE-006 | J-10 | W-30 |
 | SCR-MOB-17 | FR-TSK-003, FR-TSK-005, FR-MOB-010 | J-12 | - |
 | SCR-MOB-18 | FR-PMG-001, FR-PMG-005, FR-MOB-012 | J-11 | - |
+| SCR-APP-01 | FR-APP-002, FR-NTF-001, FR-NTF-004 | All client journeys | W-37 |
+| SCR-APP-02 | FR-APP-003, FR-ACC-003 | All client journeys | - |
+| SCR-APP-03 | FR-APP-003 | All client journeys | - |
+| SCR-APP-04 | FR-APP-004, FR-DPR-004 | None (data rights) | W-38 |
+| SCR-APP-05 | FR-APP-006, FR-MOB-005 | All | W-39 |
+| SCR-APP-06 | FR-APP-005, FR-PAY-001, FR-PAY-005; RUL-01 | J-01, J-08, J-09 | - |
+| Client app, portal screens shown natively (2.3a) | FR-APP-001 | J-01 to J-05, J-07 to J-12 | As each portal screen |
 
 Modules with no screen of their own: FR-ANL (F-35 draws on it for the dashboard counts; the operating dashboard is SCR-BO-23), FR-AUD, FR-NTF and FR-DPR are cross-cutting and listed on the screens above.
 
@@ -2621,6 +2804,9 @@ Modules with no screen of their own: FR-ANL (F-35 draws on it for the dashboard 
 | DQ-15 | What does the family member's confirmation page show when the client has asked for photos of the parent: the photos, or only that photos were taken? Privacy of the parent against reassurance of the family. | Lawyer, designer | R2 |
 | DQ-16 | Is the insurer's own application form embedded, or does Fidero collect the fields and pass them on (FR-INS-002)? Each insurer may differ `[TO VERIFY]`. | Founder, insurer partner | R2 |
 | DQ-17 | What is the late-rent grace period before an alert (FR-PMG-003), and the missed-visit window before an alert (FR-CARE-005)? This document uses 5 days and 60 minutes as samples `[TO VERIFY]`. | Operations | R2 |
+| DQ-18 | Do the apps need tablet and iPad layouts in R2, or does the phone layout scaled up do? This document designs phone only. | Designer, product lead | R2 |
+| DQ-19 | Should the client app later show listings natively, or keep opening the web (DA-11)? Store review may ask why the app links out. | Product lead | R2 |
+| DQ-20 | Should the client app offer a passkey on the phone as the second factor for approvals, instead of a code? Faster for clients, but the phone then holds both factors. | Product lead, security | R2 |
 
 ### 11.2 Issues found in document 01
 
@@ -2632,8 +2818,8 @@ Document 01 has not been edited. Items marked **Closed** were fixed in 01 v0.2, 
 | I-02 | RUL-11 against J-02 and the Escrow state model | No client approval step for a purchase release. | **Closed** in v0.2 and v0.4: the Escrow model has Ready to release → Client approved, and J-02 step 6 now names the client's approval first. | W-09, flow 3.2 and prototype flow B show the client approval. |
 | I-03 | Milestone state model against FR-BLD-005, FR-BLD-006, FR-BLD-012 | Missing states for inspection scheduled, returned to submitted, defect hold-back, retention. | **Mostly closed** in v0.2. Retention held and released (FR-BLD-012) still has no state. | UI shows retention as a final milestone line ("Handover and retention"). |
 | I-04 | Escrow state model | No Frozen from Release approved; no Frozen to Cancelled; no partial releases; no manual mode. | **Closed** in v0.2 (Frozen from Release approved with Q-12; Frozen → Cancelled; Partly released). Manual mode is covered by FR-ESC-004's manual entry. | As 01. |
-| I-05 | FR-ACC-003 against RUL-11 | MFA is required for "any user who approves a release". Clients approve but do not release. It is unclear whether client approvals need MFA. | Open. | DA-01: one-time code for client approvals, now also for invoices (FR-FEE-003), repair quotes (FR-PMG-004) and the escrow release. |
-| I-06 | NFR-A11Y-01 | The Android app had no accessibility requirement. | **Closed** in v0.3: the field app meets WCAG 2.2 AA from R2. | DA-06 retired. |
+| I-05 | FR-ACC-003 against RUL-11 | MFA is required for "any user who approves a release". Clients approve but do not release. It is unclear whether client approvals need MFA. | Open. FR-APP-003 (v0.6) says approving a release in the client app still needs the second factor, which supports DA-01; biometric unlock alone never counts (SCR-APP-02). | DA-01: one-time code for client approvals, now also for invoices (FR-FEE-003), repair quotes (FR-PMG-004) and the escrow release. |
+| I-06 | NFR-A11Y-01 | The field app had no accessibility requirement. | **Closed** in v0.3: the field app meets WCAG 2.2 AA from R2. v0.6 extends this to both apps on iOS and Android, using Android's and Apple's guidance. | DA-06 retired. Section 7.1 covers both platforms. |
 | I-07 | C2 user roles | Missing roles for quantity surveyor, client representative, authority representative, project runner, supplier; seller in R1. | **Closed** in v0.2 and v0.3. | As 01. |
 | I-08 | FR-NTF-004 | No threshold for amounts in SMS and WhatsApp. | **Closed** in v0.2: FR-ADM-005 lists it as a configurable value. | As 01. |
 | I-09 | FR-ORD-002 against C3 | Unclear which currency is charged. | **Closed** in v0.2: USD for cards, GHS for mobile money. | DA-02 kept as the display rule. |
@@ -2652,3 +2838,6 @@ Document 01 has not been edited. Items marked **Closed** were fixed in 01 v0.2, 
 | I-22 | FR-ACC-012 (Should) against FR-FEE-002 (Must) | Checking an invoice "against the named family member" is Must in R1, but adding a family member is Should. | Open. | SCR-PTL-38 is treated as Must for R1. |
 | I-23 | FR-CARE-004, FR-CARE-005, RUL-23 | If the family never confirms and never denies a visit, the carer is unpaid for ever. 01 sets a 24-hour alert but no end state. | **Closed** in v0.4: a visit unconfirmed after 72 hours goes to a reviewer, who decides from the check-in evidence and a call to the family. Call confirmations are checked by a second staff member. | J-10 flow, W-31 and the content rule "Visit under review". |
 | I-24 | C2 "Tenant" and "Institution contact", FR-ACC-011 | Tenants and institution contacts have roles but no sign-up path in R1 (organisation accounts are R2). | Open. | Tenant view (SCR-PTL-54) is R2; institution contacts work by email and the back office in R1 (IF-10). |
+| I-25 | FR-APP-004 against RUL-11 and the Escrow model | A user can delete their account from inside the app, but 01 does not say what happens to an open escrow, money held at the bank or a standing approval when the client deletes the account. Nobody is left to approve releases. | Open. | SCR-APP-04 and W-38: the request is recorded, the account closes to new orders, and deletion completes when open items end. Fidero contacts the client. |
+| I-26 | FR-APP-002 against FR-NTF-001 and FR-NTF-004 | Push follows "the user's channel preferences and FR-NTF-004's limits", but FR-NTF-001 lists only email, SMS and WhatsApp, and FR-NTF-004 limits only SMS and WhatsApp. | Open. | Push is a fourth channel in SCR-PTL-20. Lock-screen text is generic; amounts and names show only inside the app (SCR-APP-01, W-37). |
+| I-27 | FR-APP-001, C1 front end 5 | The client app serves "clients, family members and tenants". Sellers, developers, institution contacts and insurer partners also use the portal; 01 does not say whether the app serves them. | Open. | They use the portal. The client app shows only screens for the three named groups (2.3a). |

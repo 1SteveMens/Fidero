@@ -9,18 +9,19 @@ Every figure in this document is a working assumption, not verified data. That i
 | Item | Value |
 |---|---|
 | Document | 04 of 6 in `docs/specs/` |
-| Version | 0.3 |
-| Date | 1 November 2026 |
+| Version | 0.4 |
+| Date | 7 November 2026 |
 | Status | Draft. For review by the founder as product owner |
 | Owner | Product and engineering lead (once hired). Until then, the founder |
 | Approver | Founder, acting as product owner |
-| Source of truth | [01 Requirements and Product Specification](01-requirements-and-product-specification.md), version 0.4, and the decision record [`docs/decisions/2026-11-01-diaspora-platform.md`](../decisions/2026-11-01-diaspora-platform.md) |
+| Source of truth | [01 Requirements and Product Specification](01-requirements-and-product-specification.md), version 0.6, and the decision record [`docs/decisions/2026-11-01-diaspora-platform.md`](../decisions/2026-11-01-diaspora-platform.md) |
 | Related | [02 Architecture](02-architecture-and-technical-design.md), [03 UI/UX](03-ui-ux-design.md), [05 Testing and Acceptance](05-testing-and-acceptance.md), [06 Deployment and Operations](06-deployment-and-operations.md), [`docs/proposal.md`](../proposal.md), [`docs/validation-plan.md`](../validation-plan.md), [`docs/partners.md`](../partners.md), [`docs/product/architecture.md`](../product/architecture.md) |
 
 ### Change log
 
 | Version | Date | Change | By |
 |---|---|---|---|
+| 0.4 | 7 November 2026 | Aligned to 01 v0.6: both app stores, React Native, client app. New epic EP-APP with US-APP-001a to US-APP-001e and US-APP-002 to US-APP-006 (61 points). US-MOB-001 and US-MOB-002 cover iOS; US-MOB-004 split into US-MOB-004a (Android) and US-MOB-004b (iOS), and US-MOB-002 re-estimated at 8. EN-33 rewritten for React Native; EN-41 superseded (Q-09 answered); enablers EN-64 to EN-77 for store accounts, signing and push credentials, test tracks, listings, privacy disclosures, the financial declaration, native-module and performance spikes, a submission rehearsal, the store payment position and a client app usability test. R2 "Android developer" becomes "mobile developer (React Native)". R2 capacity recomputed: 638 points of demand against 651 with one mobile developer (2% spare); Option R2-A, keeping the contract developer through R2, is recommended. Store review buffers, milestones M-37 to M-39, risks DR-35 to DR-40 (DR-07 closed), RACI, budget, go/no-go and traceability (F-36, EP-APP) updated. Issues I-29 to I-31 added. | Delivery lead |
 | 0.3 | 1 November 2026 | Aligned to 01 v0.4: runner cash route removed (US-FEE-006 rewritten for institutions not eligible for direct payment and a paper-only runner task; estimate kept at 3 points, so EP-FEE, the R1 totals and the capacity figures are unchanged; DR-31 rewritten); fresh search scoped to purchases (US-ESC-006); standing approvals for care visits and errand steps (US-CARE-001, US-CARE-004, US-TSK-003); account-name sources and no override (US-ESC-015); 72-hour reviewer decision and code lockout (US-CARE-004); owner's written mandate (US-PMG-003); premium routes (US-INS-002); dispute withdrawal (US-DSP-002); carers and agents in the field app (US-MOB-001); "amount held at the bank" wording. Issues I-18, I-20, I-21, I-23 and I-26 resolved, I-19 partly. | Delivery lead |
 | 0.2 | 1 November 2026 | Updated for 01 version 0.3 and the diaspora platform decision. Six new epics (EP-FEE, EP-CARE, EP-PMG, EP-TSK, EP-INS, EP-EVT) with 37 new stories; six stories changed (US-ACC-007, US-ACC-008, US-ACC-011, US-ESC-006, US-ESC-010, US-MOB-010) and the EP-CTY stories rewritten for R1 basic and R2 full. Country 2 manual phase from month 6, its software from month 12, country 3 manual phase in R2, events in R3. Enablers EN-47 to EN-63, milestones M-24 to M-36, gates G-C2 and G-C3, risks DR-25 to DR-34. R1 capacity recomputed (408 points against 384) with a new recommendation. Budget, RACI, traceability and the issues list refreshed | Delivery lead |
 | 0.1 | 31 October 2026 | First draft against 01 version 0.1 | Delivery lead |
@@ -56,7 +57,7 @@ Each release runs three steps. Software is built only for a phase that has passe
 - Two-week sprints. Sprint numbers run on from R1 to R2 (S0 to S31).
 - The founder is product owner. The product and engineering lead also acts as Scrum lead. There is no separate Scrum master at this team size.
 - Ceremonies, reports and change control are in section 12.
-- The R1 team is one product and engineering lead, two developers (one backend-leaning, one frontend-leaning) and a part-time designer `[TO VERIFY]` (C-07). The founder has approved one contract developer from S3 to S13 (section 5.1). R2 adds an Android developer and a QA engineer `[TO VERIFY]`.
+- The R1 team is one product and engineering lead, two developers (one backend-leaning, one frontend-leaning) and a part-time designer `[TO VERIFY]` (C-07). The founder has approved one contract developer from S3 to S13 (section 5.1). R2 adds a mobile developer (React Native, for both apps on both stores) and a QA engineer `[TO VERIFY]`. One mobile developer is not enough for the R2 scope on its own; section 5.2 recommends keeping the contract developer through R2 (Option R2-A).
 - The country 2 manual phase is run by a country 2 lead, an operations role, not an engineering one (EN-47, `[TO VERIFY]`). Engineering stays one team working on one codebase, because country is configuration (FR-CTY-001).
 
 ### 2.3 Definition of ready
@@ -79,10 +80,10 @@ A story is done only when all of these hold:
 2. Automated tests pass in CI. Line coverage on the core API stays at 80% or more. Each business rule the story touches has a named test (NFR-MNT-01, EN-32).
 3. Security checks in CI pass: static analysis, dependency and secret scanning, with no new high or critical findings. The OWASP ASVS level 2 items it touches are met (NFR-SEC-05).
 4. Every state change it adds writes an audit entry (FR-AUD-001).
-5. Client and back-office screens pass automated accessibility checks and a keyboard check against WCAG 2.2 AA (NFR-A11Y-01). Client pages stay inside the page-weight budget (NFR-PERF-02).
+5. Client and back-office screens pass automated accessibility checks and a keyboard check against WCAG 2.2 AA (NFR-A11Y-01). Client pages stay inside the page-weight budget (NFR-PERF-02). App screens are checked on one iOS and one Android device with VoiceOver, TalkBack and the largest text size, and the app stays inside its start time and download size (NFR-PERF-05).
 6. User-facing text is in translation files (NFR-LOC-01). Client status text reads at age 12 or below (NFR-USE-02).
 7. Nothing about Ghana is hard-coded. Every template, price, legal text, partner and calendar the story uses comes from country configuration (FR-CTY-001, NFR-MNT-02).
-8. Documentation is updated: API reference, data catalogue (NFR-PRIV-02), and any runbook change for document 06.
+8. Documentation is updated: API reference, data catalogue (NFR-PRIV-02), the store privacy labels and Data safety forms for any app story that collects or sends data (NFR-STORE-01), and any runbook change for document 06.
 9. It is deployed to staging by the pipeline, with database migrations that can be rolled back.
 10. Its acceptance criteria are shown working on staging, and the product owner accepts it.
 
@@ -99,7 +100,8 @@ A story is done only when all of these hold:
 | S2 | As above | 21 |
 | S3 to S13 | R1 team plus one contract developer (approved, section 5.1) | 33 |
 | S3 to S15 without the contract developer | R1 team at steady pace | 25 |
-| S13 onward | Plus the Android developer (ramping in S13 to S15) | 25 web plus about 10 Android from S16 |
+| S13 onward | Plus the mobile developer, React Native (ramping in S13 to S15) | 25 web plus about 10 mobile from S16 |
+| S14 to S31, recommended (Option R2-A, section 5.2) | Contract developer kept on shared TypeScript packages, client app screens and web work | Plus about 8 |
 
 - Planning velocity already leaves about 10% for defects and support of live features.
 - From Sprint 3 the plan uses the average of the last three sprints. If it differs from the table by more than 20%, the lead re-plans and reports the effect on milestones.
@@ -133,9 +135,12 @@ gantt
     Configuration and go-live                      :c3b, 18, 19
     On the platform                                :c3c, 19, 36
     section R2 Construction and family
-    Android set-up, legal, bank and partner spikes :r2a, 9, 10
-    Field app and construction core                :r2b, 10, 13
+    Mobile set-up, store accounts, native-module spikes, legal, bank and partner spikes :r2a, 9, 10
+    Fidero Field and construction core             :r2b, 10, 13
+    Store review buffer, Fidero Field              :r2s1, 12, 13
     Care, errands, property, off-plan, funds, listings, API :r2c, 13, 16
+    Fidero client app                              :r2app, 13, 16
+    Store review buffer, Fidero client app         :r2s2, 16, 17
     Insurer lines, track records, hardening        :r2d, 16, 18
     section R3 Scale
     Events pilot, relocation and investing discovery :r3a, 18, 21
@@ -151,7 +156,7 @@ gantt
     G3 R3 review                                   :milestone, g3, 36, 0d
 ```
 
-R1 completion (months 9 to 10) appears because the R1 Must scope does not fit by month 9 even with the recommended contract developer. See section 5.1. Country 2 software starts at month 10 and goes live at month 12 only if G-C2 passes (AS-13). Country 3 follows the same pattern one release later.
+Both apps need Apple App Store and Google Play approval before each go-live (C-14). The roadmap holds a month of store review buffer before Fidero Field goes live for the construction pilot and before the client app goes live. The first submission rehearsal (EN-75, M-37) measures real review times; the buffers shrink if reviews are quick. R1 completion (months 9 to 10) appears because the R1 Must scope does not fit by month 9 even with the recommended contract developer. See section 5.1. Country 2 software starts at month 10 and goes live at month 12 only if G-C2 passes (AS-13). Country 3 follows the same pattern one release later.
 
 ### 3.2 Gates
 
@@ -186,9 +191,9 @@ Months follow the recommended plan in section 5.1 (contract developer S3 to S13)
 | M-10 | Month 8 | Escrow tracker live | First escrow tracked on the platform with client approval, two-person release and payee name check (US-ESC-006, US-ESC-007, US-ESC-015) | Product owner |
 | M-11 | Month 9 | Gate G1 review | Business targets reviewed. Insurer approval recorded (EN-31) | Founder |
 | M-12 | Month 10 | R1 complete | All R1 Must stories accepted per document 05. Penetration retest passed (EN-29). Overlay checks automatic. Metrics by country live | Engineering lead |
-| M-13 | Month 11 | Field app beta | Signed app on 2 GB test devices. First contractors and inspectors vetted on the panel. Check-in and check-out working (US-MOB-012) | Engineering lead |
+| M-13 | Month 11 | Field app beta | Fidero Field on TestFlight and Play internal testing, on 2 GB Android test devices and the oldest supported iPhone. First contractors and inspectors vetted on the panel. Check-in and check-out working (US-MOB-012) | Engineering lead |
 | M-14 | Month 12 | Listings and licence positions known | Act 1047 view in writing (EN-39). Insurer view on inspections and project funds (EN-40). Lawyer's view on property management and errand licences (EN-56) | Founder |
-| M-15 | Month 13 | Construction pilot | First milestone paid: app evidence, inspector pass, client approval, two-person release, bank confirmation | Product owner |
+| M-15 | Month 13 | Construction pilot | Fidero Field approved on both stores (M-38). First milestone paid: app evidence, inspector pass, client approval, two-person release, bank confirmation | Product owner |
 | M-16 | Month 16 | Listings and partner API pilot | Developer listings live if EN-39 allows. One bank calls the partner API in a pilot | Product owner |
 | M-17 | Month 16 | Off-plan and project funds pilot | First off-plan stage and first supplier payment released, if EN-40 allows | Product owner |
 | M-18 | Month 18 | Gate G2 | 40 active builds, one bank contract, 40% of clients with a recurring line `[TO VERIFY]`, country 2 live. R2 penetration test passed (EN-38) | Founder |
@@ -210,6 +215,9 @@ Months follow the recommended plan in section 5.1 (contract developer S3 to S13)
 | M-34 | Month 19 | Country 3 on the platform | Country 3 configuration published by copying and editing (US-CTY-004, EN-62) | Engineering lead |
 | M-35 | Month 21 | Events pilot | First vendor paid against delivery evidence (US-EVT-002), if the Could is taken | Product owner |
 | M-36 | Month 30 | Later lines decided | Relocation and shipping, vehicles and investing specified in 01 or dropped (EN-63) | Founder |
+| M-37 | Month 11 | First store submission rehearsal | Internal builds of both apps reviewed by Apple and Google; findings logged; review time measured and put into the release calendar (EN-75) | Engineering lead |
+| M-38 | Month 13 | Fidero Field approved on both stores | Approved on the App Store and Google Play, privacy disclosures matching the data catalogue, financial declaration filed (EN-68, EN-69) | Engineering lead |
+| M-39 | Month 17 | Fidero client app live on both stores | Approved on both stores; fees paid by the route Q-23 allows (US-APP-005); in-app deletion and minimum version working (US-APP-004, US-APP-006) | Product owner |
 
 ## 4. R0 manual service
 
@@ -317,32 +325,43 @@ US-CASE-013 (building verification) drops last among Shoulds because it opens th
 
 **Objectives served.** BO-04, BO-05, BO-06, BO-08, BO-09, BO-10. Business requirements BR-08 to BR-12, BR-14, BR-18 to BR-21.
 
-**Start conditions.** Gate G1 passed and a bank agreement signed. Country 2 configuration work starts only after G-C2 (EN-44). Listings work starts only after the Act 1047 position (EN-39). Off-plan and project funds go live only with the insurer's extension (EN-40). Care visits need the vetting standard (EN-54). Property management and errands need the licence view (EN-56). Insurer lines need an insurer agreement and the licence view (EN-55).
+**Start conditions.** Gate G1 passed and a bank agreement signed. Country 2 configuration work starts only after G-C2 (EN-44). Listings work starts only after the Act 1047 position (EN-39). Off-plan and project funds go live only with the insurer's extension (EN-40). Care visits need the vetting standard (EN-54). Property management and errands need the licence view (EN-56). Insurer lines need an insurer agreement and the licence view (EN-55). Each app goes live only after both stores approve it (C-14); store accounts (EN-64) are opened at the start of R2 because Apple's organisation enrolment can take weeks `[TO VERIFY]`.
 
-**Scope.** 88 stories in 18 epics (EP-ACC, EP-ORD, EP-PAY, EP-GEO, EP-ESC, EP-EVD, EP-MOB, EP-BLD, EP-PRJ, EP-LST, EP-RAT, EP-DSP, EP-PTR, EP-CARE, EP-PMG, EP-TSK, EP-INS, EP-CTY), plus enablers EN-33 to EN-43, EN-45, EN-54 to EN-56 and EN-58 to EN-61. Totals: 395 story points (Must 231, Should 137, Could 27) and 43 enabler points.
+**Scope.** 99 stories in 19 epics (EP-ACC, EP-ORD, EP-PAY, EP-GEO, EP-ESC, EP-EVD, EP-MOB, EP-APP, EP-BLD, EP-PRJ, EP-LST, EP-RAT, EP-DSP, EP-PTR, EP-CARE, EP-PMG, EP-TSK, EP-INS, EP-CTY), plus enablers EN-33 to EN-43 (EN-41 superseded), EN-45, EN-54 to EN-56, EN-58 to EN-61 and EN-64 to EN-77. Totals: 464 story points (Must 292, Should 145, Could 27) and 75 enabler points.
 
-**Team.** R1 team plus an Android developer and a QA engineer `[TO VERIFY]`. The QA engineer adds no planned points. They own test automation, device testing and document 05 test runs, which lowers defect load on developers. The country 2 lead and field team are operations, outside this count.
+**Team.** R1 team plus a mobile developer (React Native, building both apps for iOS and Android, with native module experience on both platforms) and a QA engineer `[TO VERIFY]`. The recommendation below adds the contract developer through R2 (Option R2-A). The QA engineer adds no planned points. They own test automation, device testing and document 05 test runs, which lowers defect load on developers. The country 2 lead and field team are operations, outside this count.
 
 **Sequence.** The new lines are ordered by what they reuse. Care visits and errands come first in R2-C because they reuse the field app check-in (US-MOB-012), the case workflow and the amount held at the bank (US-ESC-014), and because BO-09 (40% of clients with a recurring line) is a G2 target. Property management follows because it reuses inspections (US-MOB-007) and the contractor panel (US-BLD-003) for repairs. Insurer lines come last, in R2-D, because they depend on Q-17 and C-11 (EN-55) and add no engine.
 
 | Phase | Sprints | Month | Goal | Items | Points |
 |---|---|---|---|---|---|
-| R2-A | S13-S15 | 9-10 | Android set-up; bank, legal, carer, insurer and country 2 data location spikes; R0 data migration. The web team finishes R1 Musts in S13 and does the first R1 Shoulds in S14 and S15 | EN-33, EN-34, EN-35, EN-45, EN-39, EN-40, EN-41, EN-54, EN-55, EN-56, US-CASE-013, US-ACC-012, US-ORD-005, US-CASE-011, US-CASE-012, US-PAY-004, US-FEE-005, US-FEE-006, US-ANL-002, US-NTF-005, EN-30, US-ACC-008, US-ACC-010, US-CASE-015, US-RPT-008 | 56 |
-| R2-B | S16-S21 | 10-13 | Construction core: field app with check-in, inspections, milestone releases, disputes. Country 2 on the platform by month 12: data location, copy configuration, publish (M-28). Organisation accounts for institutions | US-MOB-001, US-MOB-002, US-MOB-003, US-MOB-004, US-MOB-005a, US-MOB-005b, US-MOB-006, US-MOB-007, US-MOB-008, US-MOB-009, US-MOB-011a, US-MOB-011b, US-MOB-012, US-MOB-010, US-EVD-006, US-ESC-010, US-BLD-001, US-BLD-002, US-BLD-003, US-BLD-004, US-BLD-005a, US-BLD-005b, US-BLD-006, US-BLD-007, US-BLD-008, US-BLD-009, US-BLD-010, US-BLD-012, US-DSP-001, US-DSP-002, US-DSP-003, US-DSP-004, US-ORD-007, US-CTY-002a, US-CTY-002b, US-CTY-004, EN-59, US-ACC-011, EN-61, US-PAY-006, US-GEO-005 | 183 |
-| R2-C | S22-S27 | 13-16 | Family lines first: care visits and errands (reuse the field app and case workflow), then property management (reuses inspections and the contractor panel), off-plan, project funds, statement import, listings, partner API; remaining R1 Shoulds | US-CARE-002, US-CARE-003, US-CARE-004, US-CARE-005, US-CARE-006, US-CARE-001, US-TSK-002, US-TSK-003, US-TSK-004, US-TSK-001, US-TSK-005, US-PMG-002, US-PMG-003, US-PMG-005, US-PMG-001, US-PMG-004, US-PMG-006, EN-58, US-BLD-011a, US-BLD-011b, US-PRJ-005, US-PRJ-001, US-PRJ-002, US-PRJ-003, US-PRJ-004, US-ESC-011, US-DSP-005, US-LST-002, US-LST-003, US-LST-006, US-LST-008, US-LST-001, US-LST-004a, US-LST-004b, US-LST-005, US-LST-007, US-LST-010, US-PAY-007, US-PTR-002, US-PTR-001, US-PTR-004, EN-36, EN-43, EN-21, US-GEO-006, US-AUD-003, US-AUD-004 | 198 |
-| R2-D | S28-S31 | 16-18 | Insurer partner lines (only if EN-55 allows), track records, hardening: scale test, pen test, accessibility; country 3 manual service runs; Coulds if capacity allows | US-INS-002, US-INS-003, US-INS-001, US-INS-004, US-RAT-001, US-RAT-002, US-RAT-003, US-RAT-004, EN-37, EN-38, EN-42, EN-60, US-GEO-007, US-ESC-012, US-PTR-003, US-ORD-006, US-RPT-011, US-GEO-008 | 71 |
+| R2-A | S13-S15 | 9-10 | Mobile set-up (React Native, two app targets), store accounts and credentials, native-module and performance spikes; bank, legal, carer, insurer and country 2 data location spikes; R0 data migration. The web team finishes R1 Musts in S13 and does the first R1 Shoulds in S14 and S15 | EN-33, EN-34, EN-64, EN-65, EN-66, EN-70, EN-71, EN-74, EN-69, EN-76, EN-35, EN-45, EN-39, EN-40, EN-54, EN-55, EN-56, US-CASE-013, US-ACC-012, US-ORD-005, US-CASE-011, US-CASE-012, US-PAY-004, US-FEE-005, US-FEE-006, US-ANL-002, US-NTF-005, EN-30, US-ACC-008, US-ACC-010, US-CASE-015, US-RPT-008 | 72 |
+| R2-B | S16-S21 | 10-13 | Construction core: Fidero Field on iOS and Android with check-in, inspections, milestone releases, disputes; App Attest and iOS background upload spikes; store listings, privacy disclosures, submission rehearsal and store approval of Fidero Field (M-37, M-38); in-app deletion and minimum version for both apps. Country 2 on the platform by month 12: data location, copy configuration, publish (M-28). Organisation accounts for institutions | EN-72, EN-73, EN-67, EN-68, EN-75, US-MOB-001, US-MOB-002, US-MOB-003, US-MOB-004a, US-MOB-004b, US-MOB-005a, US-MOB-005b, US-MOB-006, US-MOB-007, US-MOB-008, US-MOB-009, US-MOB-011a, US-MOB-011b, US-MOB-012, US-MOB-010, US-EVD-006, US-ESC-010, US-BLD-001, US-BLD-002, US-BLD-003, US-BLD-004, US-BLD-005a, US-BLD-005b, US-BLD-006, US-BLD-007, US-BLD-008, US-BLD-009, US-BLD-010, US-BLD-012, US-DSP-001, US-DSP-002, US-DSP-003, US-DSP-004, US-ORD-007, US-CTY-002a, US-CTY-002b, US-CTY-004, EN-59, US-ACC-011, EN-61, US-PAY-006, US-GEO-005, US-APP-004, US-APP-006 | 213 |
+| R2-C | S22-S27 | 13-16 | Fidero client app on the shared codebase, then store review (M-39 at month 17). Family lines first: care visits and errands (reuse the field app and case workflow), then property management (reuses inspections and the contractor panel), off-plan, project funds, statement import, listings, partner API; remaining R1 Shoulds | US-CARE-002, US-CARE-003, US-CARE-004, US-CARE-005, US-CARE-006, US-CARE-001, US-TSK-002, US-TSK-003, US-TSK-004, US-TSK-001, US-TSK-005, US-PMG-002, US-PMG-003, US-PMG-005, US-PMG-001, US-PMG-004, US-PMG-006, EN-58, US-BLD-011a, US-BLD-011b, US-PRJ-005, US-PRJ-001, US-PRJ-002, US-PRJ-003, US-PRJ-004, US-ESC-011, US-DSP-005, US-LST-002, US-LST-003, US-LST-006, US-LST-008, US-LST-001, US-LST-004a, US-LST-004b, US-LST-005, US-LST-007, US-LST-010, US-PAY-007, US-PTR-002, US-PTR-001, US-PTR-004, EN-36, EN-43, EN-21, US-GEO-006, US-AUD-003, US-AUD-004, US-APP-001a, US-APP-001b, US-APP-001c, US-APP-001d, US-APP-001e, US-APP-002, US-APP-005, EN-77 | 250 |
+| R2-D | S28-S31 | 16-18 | Insurer partner lines (only if EN-55 allows), track records, hardening: scale test, pen test, accessibility; client app store review and biometric unlock; country 3 manual service runs; Coulds if capacity allows | US-INS-002, US-INS-003, US-INS-001, US-INS-004, US-RAT-001, US-RAT-002, US-RAT-003, US-RAT-004, EN-37, EN-38, EN-42, EN-60, US-GEO-007, US-ESC-012, US-PTR-003, US-ORD-006, US-RPT-011, US-GEO-008, US-APP-003 | 74 |
 
 R2 also carries the 29 points of R1 completion in S13 and the R1 Shoulds in R2-A to R2-C.
 
-| R2 capacity check | Points |
-|---|---|
-| Capacity S13 to S31: web 19 × 25 plus 8 from the contract developer in S13, Android 8 in S13 to S15 then 16 × 10 | 651 |
-| Demand: R1 completion 29, R2 phases 508 | 537 |
-| Unplanned capacity | 114 (about 18%) |
+| R2 capacity check | Baseline: one mobile developer | Option R2-A (recommended): plus the contract developer S14 to S31 | Option R2-B: plus a second mobile developer S16 to S31 |
+|---|---|---|---|
+| Capacity S13 to S31 | 651: web 19 × 25, contract developer 8 in S13, mobile 8 in S13 to S15 then 16 × 10 | 795: baseline plus 18 × 8 | 811: baseline plus 16 × 10 |
+| Demand: R1 completion 29, R2 phases 609 | 638 | 638 | 638 |
+| Unplanned capacity | 13 (about 2%) | 157 (about 20%) | 173 (about 21%) |
+| R2-A (S13 to S15): capacity against demand 101 | 91, short by 10 | 107 | 91, short by 10 |
+| R2-B (S16 to S21): capacity against demand 213 | 210, short by 3 | 258 | 270 |
+| R2-C (S22 to S27): capacity against demand 250 | 210, short by 40 | 258 | 270 |
+| R2-D (S28 to S31): capacity against demand 74 | 140 | 172 | 180 |
+| Extra cost (assumption) | none | about $28,800: 18 sprints at about $1,600 `[TO VERIFY]` | a second salary for about 8 months, rate `[TO VERIFY]` |
 
-Version 0.1 left 31% unplanned. The family lines and country 2 take most of that. R2 still has the most outside dependencies: the bank's file or API, the Act 1047 position, the insurer's extension, the carer vetting standard, the insurer partner and licence, contractor uptake and field defects on low-end phones. If 18% proves too little, the first lever is to keep the contract developer through R2-B (about 8 points a sprint, `[TO VERIFY]`); the second is the cut line below. If dependencies do not bite, the team pulls R2 Coulds and R3 discovery forward.
+All figures are assumptions. Version 0.3 left 114 points (18%) unplanned with an Android-only app. The decision to publish both apps on both stores adds 101 points: the client app (EP-APP, 61), iOS work in the field app (US-MOB-002 re-estimated and US-MOB-004b, 8) and store and native-module enablers (EN-33 rewritten, 3 more; EN-64 to EN-77, 29). Demand rises from 537 to 638.
 
-**Cut line for R2.** Coulds first (US-INS-001, US-INS-004, US-ESC-012, US-GEO-007, US-PTR-003, the R1 Coulds), then Shoulds from the lines that are blocked or late: EP-INS if EN-55 fails (the whole line stays off by configuration, including its Must), EP-LST Shoulds if Act 1047 is unclear, off-plan and project funds (US-BLD-011a/b, EP-PRJ) if the insurer will not extend cover, EP-PMG if Q-18 shows a licence is needed, then EP-RAT and EP-PTR Shoulds, then the Should parts of the family lines (US-CARE-001, US-TSK-001, US-TSK-005, US-PMG-001, US-PMG-004, US-PMG-006). Never cut: the construction Must path (EP-MOB, EP-BLD Musts, US-ESC-010, EP-DSP Musts) because gate G2 depends on it; country 2 on the platform (US-CTY-002a, US-CTY-002b, US-CTY-004, EN-59) because BO-08 and G2 depend on it; and the EP-CARE and EP-TSK Musts because the G2 recurring-line target depends on them.
+**Is one mobile developer enough?** No. With one mobile developer, R2 has about 2% spare, and R2-A to R2-C are short by about 53 points, which would push the client app past its store review buffer and into gate G2. The work that needs native skills alone (native modules on two platforms, the field app's capture, signing and queue, store set-up) is about 100 points before the construction pilot at month 13, against about 50 points of mobile capacity by then. React Native helps here: the app screens, queue logic and API client are TypeScript, which the web developers already write.
+
+**Recommendation: Option R2-A.** Hire one mobile developer who has shipped native modules on both iOS and Android, to own capture, signing, attestation, background upload and store releases. Keep the contract developer from S14 to S31 on the shared TypeScript packages, client app screens and web work, so the web team does not slow. This restores about 20% spare, costs about $28,800 `[TO VERIFY]`, needs no new hire, and can stop at any sprint. Decide at the end of S15: if the native-module spikes (EN-70 to EN-74) show more native work than planned, add a second mobile developer or a native contractor for R2-B and R2-C (Option R2-B). Both options are for the founder to decide; neither is approved yet. The second lever is the cut line below. If dependencies do not bite, the team pulls R2 Coulds and R3 discovery forward.
+
+R2 still has the most outside dependencies: the bank's file or API, the Act 1047 position, the insurer's extension, the carer vetting standard, the insurer partner and licence, store review and the store payment position (Q-23), contractor uptake and field defects on low-end phones.
+
+**Cut line for R2.** Coulds first (US-INS-001, US-INS-004, US-ESC-012, US-GEO-007, US-PTR-003, the R1 Coulds), then Shoulds from the lines that are blocked or late: EP-INS if EN-55 fails (the whole line stays off by configuration, including its Must), EP-LST Shoulds if Act 1047 is unclear, off-plan and project funds (US-BLD-011a/b, EP-PRJ) if the insurer will not extend cover, EP-PMG if Q-18 shows a licence is needed, then EP-RAT and EP-PTR Shoulds, then the Should parts of the family lines (US-CARE-001, US-TSK-001, US-TSK-005, US-PMG-001, US-PMG-004, US-PMG-006), then the client app's Shoulds (US-APP-002, US-APP-003). If the client app itself slips past month 17, clients keep using the phone-first portal, which already offers every client feature; F-36 then moves to R3 by change control. Never cut: the construction Must path (EP-MOB, EP-BLD Musts, US-ESC-010, EP-DSP Musts) because gate G2 depends on it; store approval of Fidero Field and the store-rule stories in both apps (US-APP-004, US-APP-006), without which neither app can be published; country 2 on the platform (US-CTY-002a, US-CTY-002b, US-CTY-004, EN-59) because BO-08 and G2 depend on it; and the EP-CARE and EP-TSK Musts because the G2 recurring-line target depends on them.
 
 ### 5.3 R3: Scale (months 18 to 36)
 
@@ -390,7 +409,8 @@ Size: S up to 15 points, M 16 to 30, L 31 to 55, XL over 55.
 | EP-GEO | Geospatial checks and monitoring | Automatic overlay checks, images and later change detection | F-05, F-24 | FR-GEO-001 to 008 | R1, R2 | Must | 8 | 40 | L |
 | EP-ESC | Escrow tracking | Mirror the bank's escrows and amounts held at the bank; control every release instruction and payee | F-08, F-17, F-23, F-29 | FR-ESC-001 to 015 | R1, R2 | Must | 16 | 60 | XL |
 | EP-EVD | Evidence store | Tamper-evident, never-overwritten evidence served safely | F-07 | FR-EVD-001 to 006 | R1, R2 | Must | 6 | 21 | M |
-| EP-MOB | Field app (milestone app) | Offline, signed, in-app capture, check-in and check-out for all field roles | F-15, F-30 | FR-MOB-001 to 012 | R2 | Must | 14 | 70 | XL |
+| EP-MOB | Field app, Fidero Field (iOS and Android) | Offline, signed, in-app capture, check-in and check-out for all field roles | F-15, F-30 | FR-MOB-001 to 012 | R2 | Must | 15 | 78 | XL |
+| EP-APP | Client mobile app, Fidero (iOS and Android) | The portal's client features on the App Store and Google Play, with push, biometric unlock, in-app account deletion, fees by store rules and a minimum version | F-36 | FR-APP-001 to 006 | R2 | Must | 10 | 61 | XL |
 | EP-BLD | Construction, off-plan and buildings | Milestone releases, inspections, dashboard, off-plan, materials | F-16, F-17, F-27 | FR-BLD-001 to 013 | R2, R3 | Must | 15 | 78 | XL |
 | EP-PRJ | Project funds | Pay checked suppliers against invoices for funded projects | F-18 | FR-PRJ-001 to 005 | R2 | Should | 5 | 22 | M |
 | EP-LST | Verified listings | List only verified assets and sell them through escrow | F-19, F-26 | FR-LST-001 to 010 | R2, R3 | Should, with Must rules | 11 | 47 | L |
@@ -410,7 +430,7 @@ Size: S up to 15 points, M 16 to 30, L 31 to 55, XL over 55.
 | EP-EVT | Events and ceremonies | Verified vendors paid against invoices and delivery evidence | F-34 | FR-EVT-001 to 003 | R3 | Could | 3 | 13 | S |
 | EP-REC | Records programme | Digitise authority records and use them in searches | F-25 | FR-REC-001 to 004 | R3 | Should | 4 | 26 | M |
 | EP-CTY | Multi-country | Country as configuration from R1; data kept where each law requires and new countries by copying, in R2 | F-28 | FR-CTY-001 to 004 | R1 basic, R2 full | Must | 6 | 32 | L |
-| EP-PLAT | Platform and enablers | Infrastructure, CI/CD, observability, security, performance, accessibility, spikes, R0 tooling, country field teams | NFRs | None (NFR-…, Q-…, AS-…) | R0 to R3 | Must | 63 items | 139 | XL |
+| EP-PLAT | Platform and enablers | Infrastructure, CI/CD, observability, security, performance, accessibility, spikes, R0 tooling, country field teams, app store set-up | NFRs | None (NFR-…, Q-…, AS-…) | R0 to R3 | Must | 77 items | 171 | XL |
 
 ## 7. Product backlog
 
@@ -429,11 +449,11 @@ Size: S up to 15 points, M 16 to 30, L 31 to 55, XL over 55.
 |---|---|---|---|---|---|---|
 | R0 | – | – | – | – | Not pointed (EN-01 to EN-08, EN-51) | – |
 | R1 | 87 stories, 315 points | 20 stories, 64 points | 3 stories, 9 points | 388 | 90 | 478 |
-| R2 | 52 stories, 231 points | 31 stories, 137 points | 5 stories, 27 points | 395 | 43 | 438 |
+| R2 | 61 stories, 292 points | 33 stories, 145 points | 5 stories, 27 points | 464 | 75 | 539 |
 | R3 | – | 4 stories, 26 points | 5 stories, 34 points | 60 | 6 | 66 |
-| **All** | **139 stories, 546 points** | **55 stories, 227 points** | **13 stories, 70 points** | **843** | **139** | **982** |
+| **All** | **148 stories, 607 points** | **57 stories, 235 points** | **13 stories, 70 points** | **912** | **171** | **1,083** |
 
-207 user stories cover all 195 FRs in 01 version 0.3: 183 FRs have one story each, and 12 large FRs are split into lettered sub-stories (US-ACC-004a/b, US-PAY-001a/b, US-ESC-008a/b, US-MOB-005a/b, US-MOB-011a/b, US-BLD-005a/b, US-BLD-011a/b, US-LST-004a/b, US-DPR-004a/b, US-NTF-001a/b, US-CTY-001a/b, US-CTY-002a/b). There are 63 enabler items. Version 0.1 had 170 stories for 159 FRs and 46 enablers.
+218 user stories cover all 201 FRs in 01 version 0.6: 187 FRs have one story each, and 14 large FRs are split into lettered sub-stories (US-ACC-004a/b, US-PAY-001a/b, US-ESC-008a/b, US-MOB-004a/b, US-MOB-005a/b, US-MOB-011a/b, US-BLD-005a/b, US-BLD-011a/b, US-LST-004a/b, US-DPR-004a/b, US-NTF-001a/b, US-CTY-001a/b, US-CTY-002a/b, and US-APP-001a to US-APP-001e). There are 77 enabler items, one of them superseded (EN-41). Version 0.3 had 207 stories for 195 FRs and 63 enablers; version 0.1 had 170 stories for 159 FRs and 46 enablers.
 
 ### EP-ACC: Accounts and identity
 

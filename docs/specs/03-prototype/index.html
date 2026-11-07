@@ -263,7 +263,7 @@ th{color:var(--color-text-muted);font-weight:600}
 .photos .ph{aspect-ratio:1/1;min-height:0}
 .photos figcaption{font-size:var(--text-xs);color:var(--color-text-muted);margin-top:2px}
 
-/* Android phone frame */
+/* Phone frame for Fidero Field */
 .phone-wrap{display:flex;flex-wrap:wrap;gap:var(--space-5);align-items:flex-start;justify-content:center;padding-top:var(--space-4)}
 .phone{width:min(360px,100%);border-radius:36px;border:10px solid #1C1B19;background:var(--color-bg);box-shadow:var(--elev-3);overflow:hidden;position:relative}
 .p-status{display:flex;justify-content:space-between;font-size:var(--text-xs);padding:6px 16px;background:var(--color-surface-2);color:var(--color-text)}
@@ -362,7 +362,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
         <li><button type="button" data-flow="C" data-go="c1">C · Release approval</button></li>
         <li><button type="button" data-flow="D" data-go="d1">D · Listings</button></li>
         <li><button type="button" data-flow="E" data-go="e1">E · Build</button></li>
-        <li><button type="button" data-flow="F" data-go="f1">F · Field app</button></li>
+        <li><button type="button" data-flow="F" data-go="f1">F · Fidero Field (iOS and Android)</button></li>
         <li><button type="button" data-flow="G" data-go="g1">G · Family: pay a hospital bill</button></li>
       </ul>
     </nav>
@@ -1043,13 +1043,13 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   </section>
 </div>
 
-<!-- ================= ANDROID APP (phone frame) ================= -->
+<!-- ================= FIDERO FIELD, iOS and Android (phone frame) ================= -->
 <div id="mob" class="shell wide" hidden>
   <section class="screen" id="f1" data-flow="F" aria-labelledby="f1h" hidden>
-    <h1 id="f1h" tabindex="-1">Android field app: contractor milestone submission</h1>
-    <p class="small muted">Phone-frame mock. The real app is native Android (Kotlin and Jetpack Compose) and also serves inspectors, runners, surveyors, carers and errand agents. Shown in HTML for review only. Screens SCR-MOB-04, 07 and 08.</p>
+    <h1 id="f1h" tabindex="-1">Fidero Field (iOS and Android): contractor milestone submission</h1>
+    <p class="small muted">Phone-frame mock. The real app, Fidero Field, runs on iOS and Android from one React Native codebase, is installed from the App Store or Google Play, and also serves inspectors, runners, surveyors, carers and errand agents. Shown in HTML for review only. Screens SCR-MOB-04, 07 and 08.</p>
     <div class="phone-wrap">
-      <div class="phone" aria-label="Android phone mock">
+      <div class="phone" aria-label="Phone mock of Fidero Field">
         <div class="p-status" aria-hidden="true"><span>10:24</span><span id="p-signal">No signal · 41%</span></div>
         <div class="p-banner offline" id="p-banner" role="status" aria-live="polite"></div>
         <div class="p-appbar"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg><span id="p-title">Foundation · House, Kasoa</span></div>
@@ -1479,7 +1479,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     $('#approve-card').setAttribute('tabindex','-1'); $('#approve-card').focus();
   });
 
-  /* ---------- Flow F: Android ---------- */
+  /* ---------- Flow F: Fidero Field ---------- */
   var ITEMS=[
     {name:'Cleared site and setting out', files:1},
     {name:'Trenches with tape measure', files:2},

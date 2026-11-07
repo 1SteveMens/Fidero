@@ -5,11 +5,11 @@ System, database, API, security and infrastructure design for the Fidero platfor
 | Item | Value |
 |---|---|
 | Document | 02 of 6 in `docs/specs/` |
-| Version | 0.3, working draft |
-| Date | 1 November 2026 |
+| Version | 0.4, working draft |
+| Date | 7 November 2026 |
 | Owner | Product and engineering lead (to be hired; founder acts until then) `[TO VERIFY]` |
 | Status | Draft. For review. Not yet baselined |
-| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01, version 0.4) |
+| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01, version 0.6) |
 | Decision record | `docs/decisions/2026-11-01-diaspora-platform.md`: Fidero is the diaspora's trusted agent at home. Same engine, more lines, country as configuration from R1 |
 | Supersedes | `docs/product/architecture.md` (kept as the original proposal; this document deepens it and keeps its principles) |
 | Related | Document 05 (tests and traceability), document 06 (delivery, CI/CD and operations) |
@@ -30,6 +30,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | 0.1 | 31 October 2026 | First draft | Product and engineering lead (acting) |
 | 0.2 | 1 November 2026 | Aligned with document 01 version 0.3 and the decision record. New actors (family members, institutions, carers and errand agents, tenants, insurer partners) in the context and container views; the Android app becomes the field app. Six new modules FEE, CARE, PMG, TSK, INS and EVT with tables, events, endpoints and sequences for J-09 to J-12. CTY moves to R1: `country_id` on every tenant-scoped table, versioned `cty_country_config` with copying (FR-CTY-004), and a cell strategy for per-country data location. Verified payee registry and database checks for RUL-22 to RUL-25; held funds as a mirror of the bank for FR-ESC-014 and FR-ESC-015. ADR-16 to ADR-21. Threat model, RBAC, NFR, coverage, risks and questions extended. Issues fixed in 01 version 0.2 and 0.3 removed from section 15; new issues I-17 to I-28 added. Release rights limited to reviewers, as 01 C2 now states. | Product and engineering lead (acting) |
 | 0.3 | 1 November 2026 | Aligned to 01 v0.4: runner cash route removed (voucher table, instruction type, endpoints, job, threat row and TR-09 controls replaced by `fee_institution.eligible_for_direct_payment` and a runner task that only collects invoices and delivers receipts); fresh search blocks purchase releases only; standing client approvals for care visits and errand steps (`esc_standing_approval`); account-name sources for FR-ESC-015 with no override; 72-hour reviewer decision, second-person check of call confirmations and code lockout for visits; owner's written mandate for rent statement lines; both premium routes; dispute Withdrawn state; data classes and keys aligned to 01 C5.2; I-16 to I-22, I-25 and I-26 marked resolved. | Product and engineering lead (acting) |
+| 0.4 | 7 November 2026 | Aligned to 01 v0.6: both app stores, React Native, client app. ADR-22 replaces ADR-06: two apps, Fidero (clients, family members, tenants) and Fidero Field (field roles), on iOS and Android from one React Native and TypeScript codebase, with native modules for camera-only capture, hardware-backed signing (Android Keystore, iOS Secure Enclave) and attestation (Play Integrity, App Attest). Context and container views show both apps, both stores (IF-12), APNs and FCM. Section 8 covers both platforms and adds the client app (8.9) and store distribution (8.10). New endpoints for attestation challenges, push devices, in-app account deletion and app configuration (minimum version, fee payment mode). `mob_device` gains platform and attestation columns; `ntf_push_device` added. Security, NFR, coverage (FR-APP-001 to FR-APP-006, NFR-STORE-01, NFR-STORE-02), risks TR-16 to TR-19, questions TQ-23 to TQ-26 and issues I-29 to I-32 updated. | Product and engineering lead (acting) |
 
 ### Release staging of the architecture
 
@@ -39,7 +40,7 @@ Nothing in this document is built in R0. R0 runs on spreadsheets, templates and 
 |---|---|---|
 | R0 | 0-3 | None. Landing page and payment link only |
 | R1 | 3-9 | API, portal, back office, PostgreSQL/PostGIS, evidence store, Celery workers, modules ACC, ORD, PAY, CASE, RPT, GEO (overlays, images), ESC (manual bank entry, held funds, payee registry), EVD, NTF, ADM, AUD, ANL, DPR, FEE (payments to institutions, manual upload of invoices and receipts), CTY (country as configuration, `country_id` everywhere, one cell), shared kernel. Country 2 runs its manual phase from month 6 with no software |
-| R2 | 9-18 | Android field app, MOB (with check-in and check-out), BLD, PRJ, LST, RAT, DSP, PTR, CARE, PMG, TSK, INS, bank statement file and API adapters, institution portal or file adapters, insurer adapters, satellite monitoring, CTY configuration copying (FR-CTY-004) and, if country 2 passes its gate and its law demands it, a second cell (FR-CTY-002) |
+| R2 | 9-18 | Two store apps on iOS and Android from one React Native codebase (ADR-22): Fidero Field for field roles and Fidero for clients, family members and tenants (APP), published on the App Store and Google Play (IF-12) with push through APNs and FCM; MOB (with check-in and check-out), BLD, PRJ, LST, RAT, DSP, PTR, CARE, PMG, TSK, INS, bank statement file and API adapters, institution portal or file adapters, insurer adapters, satellite monitoring, CTY configuration copying (FR-CTY-004) and, if country 2 passes its gate and its law demands it, a second cell (FR-CTY-002) |
 | R3 | 18-36 | EVT, REC, family and stool listings, materials ordering, country 3 configuration and cell if required |
 
 ---
@@ -51,10 +52,10 @@ Nothing in this document is built in R0. R0 runs on spreadsheets, templates and 
 | G-01 | Make it impossible for the platform to receive or hold client purchase, construction or project money. | C-01, RUL-01, FR-PAY-005, BO-07 |
 | G-02 | Release nothing without recorded evidence and two distinct human approvers. | RUL-03, RUL-05, RUL-06, RUL-09, RUL-11 |
 | G-03 | Make evidence and the audit trail tamper-evident from capture to report. | BR-06, FR-EVD-*, FR-MOB-004, FR-AUD-004 |
-| G-04 | Work on slow connections and low-end Android phones. | C-08, NFR-PERF-01, NFR-PERF-02, NFR-PERF-05 |
+| G-04 | Work on slow connections and low-end Android phones, and on the iPhones many clients use abroad. | C-08, NFR-PERF-01, NFR-PERF-02, NFR-PERF-05, NFR-STORE-02 |
 | G-05 | Add a product line or country by configuration, not code. Country is configuration from R1. | BR-14, NFR-MNT-02, FR-ADM-001, FR-CTY-001, FR-CTY-004, C-13 |
 | G-06 | Be small enough for a team of two or three to build and run. | C-07 |
-| G-07 | Keep a manual fallback for every external dependency. | AS-02 to AS-07, AS-10, AS-11, IF-01 to IF-11 |
+| G-07 | Keep a manual fallback for every external dependency. | AS-02 to AS-07, AS-10, AS-11, AS-14, IF-01 to IF-12 |
 | G-08 | Protect personal data under Act 843 and isolate safety data. | C-02, C-09, BR-15, NFR-PRIV-01, NFR-PRIV-02, RUL-17 |
 | G-09 | Make it impossible to instruct a release to anyone but a verified institution, supplier, vendor or professional whose bank account is in that name. Never to a relative, never to Fidero. | BO-10, RUL-22, RUL-23, RUL-24, RUL-25, FR-ESC-015 |
 | G-10 | Run every product line, from land to school fees to care visits, on the one engine: a case template, a condition set, a schedule and the same approvals, evidence store and bank mirror. | BR-17 to BR-22, F-29 to F-35, NFR-MNT-02, decision record |
@@ -113,10 +114,11 @@ Each record is short. A decision changes only through a new ADR that supersedes 
 | Alternatives rejected | Separate ledger database (extra service and cost). Logs only in CloudWatch (not queryable by case, no chain). |
 | Traces | BR-15, FR-AUD-001 to FR-AUD-004, NFR-AUD-01 |
 
-### ADR-06 Native Android app, offline-first, with device-key signing
+### ADR-06 Native Android app, offline-first, with device-key signing (replaced by ADR-22)
 
 | Part | Content |
 |---|---|
+| Status | Replaced by ADR-22 on 7 November 2026, when document 01 v0.6 put both apps on iOS and Android. Kept for history. The offline-first queue, device-key signing and server checks carry over into ADR-22. |
 | Context | Contractors use low-end Android phones with patchy signal (C-08, AS-08). Evidence must be camera-only and signed on the device (RUL-08, FR-MOB-004). |
 | Decision | Kotlin and Jetpack Compose. CameraX for capture. Room for the local queue. WorkManager for background upload. An ECDSA P-256 key generated in Android Keystore (hardware-backed where available) signs each item. No iPhone app before R2 data (Q-09). |
 | Consequences | Full control of camera, keystore and background work. A second platform later means a second app. |
@@ -128,7 +130,7 @@ Each record is short. A decision changes only through a new ADR that supersedes 
 | Part | Content |
 |---|---|
 | Context | Listings must be indexable and fast on 3G (FR-LST-010). Staff need a dense, secure back office. |
-| Decision | One TypeScript monorepo with two Next.js apps: `portal` (clients, sellers, developers, public listings, server-side rendered) and `backoffice` (staff, professionals, administrators). Both call the same `/v1` API. Shared UI library and generated API client from the OpenAPI document. |
+| Decision | One TypeScript monorepo with two Next.js apps: `portal` (clients, sellers, developers, public listings, server-side rendered) and `backoffice` (staff, professionals, administrators). Both call the same `/v1` API. Shared UI library and generated API client from the OpenAPI document. From R2 the same monorepo holds the two React Native apps (ADR-22), which share the API client, types and validation packages with the web apps. |
 | Consequences | Separate hostnames allow separate WAF rules, cookie scopes and content security policies. Two builds to maintain. |
 | Alternatives rejected | Django templates (weaker phone-first interactivity). One app for all users (larger attack surface on the public site). |
 | Traces | NFR-PERF-01, NFR-PERF-02, NFR-A11Y-01, FR-LST-010 |
@@ -250,8 +252,8 @@ Status: superseded by ADR-16 in version 0.2. Kept for history; the `country_code
 | Part | Content |
 |---|---|
 | Context | Document 01 version 0.3 renames the milestone app the field app and adds carers and errand agents to its users (C1, P-17, FR-MOB-010, FR-MOB-012). Care visits need a geotagged check-in and check-out at a registered address (RUL-23, FR-CARE-003). Inspections of managed properties need the same (FR-PMG-006). |
-| Decision | Extends ADR-06. The same Kotlin app serves contractors, inspectors, runners, surveyors, carers and errand agents. The user's assignments decide which screens appear. A check-in or check-out is a signed manifest item of kind `checkin` or `checkout` with position and time, stored in `mob_checkin` and verified like evidence (distance from the registered address against `adm_setting` `checkin_radius_m`, default 100 m, assumption). Plan items, readings and concerns are form items in the same signed, offline queue. The app never shows a family member's confirmation code (ADR-20). Between check-in and check-out the app does not track location; it records position only at capture events (NFR-PRIV-02). |
-| Consequences | One app to build and release. Screens grow with roles; the install size target in NFR-PERF-05 still applies. Carers on low-end phones get the same `software_key` flag as contractors (TR-04). |
+| Decision | Extends ADR-06, now replaced by ADR-22. The same field app, Fidero Field, on iOS and Android, serves contractors, inspectors, runners, surveyors, carers and errand agents. The user's assignments decide which screens appear. A check-in or check-out is a signed manifest item of kind `checkin` or `checkout` with position and time, stored in `mob_checkin` and verified like evidence (distance from the registered address against `adm_setting` `checkin_radius_m`, default 100 m, assumption). Plan items, readings and concerns are form items in the same signed, offline queue. The app never shows a family member's confirmation code (ADR-20). Between check-in and check-out the app does not track location; it records position only at capture events (NFR-PRIV-02). |
+| Consequences | One field app to build and release on both stores. Screens grow with roles; the install size target in NFR-PERF-05 still applies. Carers on low-end phones get the same `software_key` flag as contractors (TR-04). |
 | Alternatives rejected | A separate care app (second codebase, against C-07). Browser check-in (no camera-only guarantee, weaker position evidence, no offline queue). |
 | Traces | FR-MOB-001, FR-MOB-010, FR-MOB-012, FR-CARE-003, FR-CARE-006, FR-TSK-003, RUL-23, NFR-PERF-05 |
 
@@ -274,6 +276,17 @@ Status: superseded by ADR-16 in version 0.2. Kept for history; the `country_code
 | Consequences | A seventh line (relocation, vehicles, investing partners in R3) is a module of three or four tables. Rules in ESC are tested once. Line modules stay small enough for the team in C-07. |
 | Alternatives rejected | A separate payment path per line (five copies of RUL-05, RUL-11 and RUL-22). A generic "job" table for all lines (loses the specific constraints such as RUL-23 and RUL-24). |
 | Traces | G-10, NFR-MNT-02, BR-17 to BR-22, FR-ESC-010, FR-ESC-014, principle 5 in 01 B2 |
+
+### ADR-22 Two store apps from one React Native codebase
+
+| Part | Content |
+|---|---|
+| Status | Accepted 7 November 2026 (01 v0.6 and the follow-up decision in `docs/decisions/2026-11-01-diaspora-platform.md`). Replaces ADR-06. |
+| Context | The founder decided that Fidero's mobile apps are published on the Apple App Store and Google Play (C-14, IF-12). Two apps ship in R2: **Fidero**, the client app for clients, family members and tenants (F-36, FR-APP-001 to FR-APP-006), and **Fidero Field**, the field app for contractors, inspectors, surveyors, runners, carers and errand agents (F-15, FR-MOB-001 to FR-MOB-012). Many contractors use low-end Android phones; many clients abroad use iPhones (C-08). AS-08 is retired. The team is small (C-07) and adds one mobile developer in R2. Evidence must stay camera-only and be signed with a hardware-backed key that the server can attest (RUL-08, FR-MOB-002, FR-MOB-004). |
+| Decision | One React Native codebase in TypeScript, in the same monorepo as the Next.js apps (ADR-07), with two app targets: `apps/client` (Fidero) and `apps/field` (Fidero Field). Each target has its own bundle ID, store listing, permission set and signing identity. Packages shared with the web apps: the API client generated from the OpenAPI document, domain types and validation schemas (package names `[TO VERIFY]`). Packages shared by the two apps: offline queue, design tokens, translation files and platform-adapted components. Native modules, one implementation per platform, cover what must not depend on a JavaScript layer: camera-only capture, hardware-backed signing (ECDSA P-256 in Android Keystore with StrongBox or TEE, and in the iOS Secure Enclave), attestation (Android key attestation and Play Integrity; App Attest on iOS) and background upload (WorkManager on Android; background `URLSession` tasks on iOS). The Hermes engine and the New Architecture are used (versions `[TO VERIFY]`). Minimum OS is Android 8.0 and iOS 15 (01 C3, `[TO VERIFY]`), reviewed under NFR-STORE-02. Section 8 has the detail. |
+| Consequences | One team and one codebase serve both platforms and both apps. Screens and app logic are written once. Native module work is needed on each platform for camera, keystore and Secure Enclave signing, attestation and background upload; the mobile developer must be comfortable in both platforms' native code, and spikes run before R2 feature work (document 04). Performance on 2 GB Android phones must be proven early: cold start under 3 seconds and download under 30 MB (NFR-PERF-05, TR-16). iOS limits background work, so the queue design must accept that iOS decides when uploads run (TR-17). Store review becomes part of every release (C-14, document 06). Two apps mean two store listings, two privacy labels and two Data safety forms to keep in step with the data catalogue (NFR-STORE-01). |
+| Alternatives rejected | Two native codebases, one per platform: doubles mobile work or halves speed, against C-07, and shares no code with the web apps. Flutter: one codebase too, with the same native module work, but it shares no types, API client or validation with the TypeScript web apps and adds a second language for the team. Progressive web app only: no reliable background upload on iOS, no hardware-backed signing key with attestation on iOS, the photo gallery cannot be fully blocked, and it is not in the stores, against C-14. Keeping ADR-06 and adding an iPhone app later: two codebases and two release trains. |
+| Traces | C-07, C-08, C-14, IF-12, F-15, F-36, RUL-08, FR-MOB-001 to FR-MOB-012, FR-APP-001 to FR-APP-006, NFR-PERF-05, NFR-A11Y-01, NFR-STORE-01, NFR-STORE-02 |
 
 ---
 
@@ -303,6 +316,7 @@ flowchart LR
     gpgps["Ghana Post GPS<br/>IF-06"]
     msg["Email, SMS, WhatsApp<br/>IF-07"]
     lands["Lands Commission<br/>IF-09, manual searches by runner"]
+    stores["Apple App Store and Google Play<br/>IF-12, distribution and review,<br/>APNs and FCM push, App Attest and Play Integrity"]
 
     client --> fidero
     seller --> fidero
@@ -326,9 +340,12 @@ flowchart LR
     fidero --> gpgps
     fidero --> msg
     pros -.->|"lodge searches in person"| lands
+    fidero -->|"app builds for review, push, attestation checks"| stores
+    stores -.->|"installs Fidero"| client
+    stores -.->|"installs Fidero Field"| pros
 ```
 
-The client pays purchase, construction, project, fee and errand money straight to the bank. A tenant pays rent straight into the owner's own account at the bank (RUL-24). The bank pays every payee: seller, contractor, institution, carer, agency, vendor or insurer. Fidero only verifies, sends instructions and records confirmations. The Lands Commission link is a person, not a system (AS-07). Institutions are mostly people with invoices and receipts in R1; a portal or file link follows in R2 (IF-10).
+The client pays purchase, construction, project, fee and errand money straight to the bank. A tenant pays rent straight into the owner's own account at the bank (RUL-24). The bank pays every payee: seller, contractor, institution, carer, agency, vendor or insurer. Fidero only verifies, sends instructions and records confirmations. The Lands Commission link is a person, not a system (AS-07). Institutions are mostly people with invoices and receipts in R1; a portal or file link follows in R2 (IF-10). From R2 clients, family members and tenants can use the Fidero app and field users use Fidero Field, both installed only from the Apple App Store or Google Play (IF-12, ADR-22). Apple and Google also carry push notifications (APNs and FCM) and answer device attestation checks (App Attest and Play Integrity).
 
 ### 3.2 Containers (C4 level 2)
 
@@ -336,8 +353,16 @@ The client pays purchase, construction, project, fee and errand money straight t
 flowchart TB
     subgraph users["Users"]
         browser["Phone or laptop browser"]
-        android["Android field app<br/>contractors, inspectors, runners, surveyors,<br/>carers, errand agents<br/>Kotlin, Compose, Room, WorkManager"]
+        clientapp["Fidero client app, iOS and Android<br/>clients, family members, tenants<br/>React Native, TypeScript"]
+        fieldapp["Fidero Field app, iOS and Android<br/>contractors, inspectors, runners, surveyors,<br/>carers, errand agents<br/>React Native, native capture, signing, upload"]
         psys["Partner system"]
+    end
+
+    subgraph platform["Apple and Google, IF-12"]
+        stores["App Store and Google Play<br/>distribution and review"]
+        apns["Apple Push Notification service"]
+        fcm["Firebase Cloud Messaging"]
+        attest["App Attest and Play Integrity"]
     end
 
     subgraph edge["AWS edge"]
@@ -369,7 +394,8 @@ flowchart TB
     end
 
     browser --> cf
-    android --> cf
+    clientapp --> cf
+    fieldapp --> cf
     psys --> cf
     cf --> portal
     cf --> bo
@@ -393,7 +419,15 @@ flowchart TB
     redis --> wint
     api --> kms
     api --> sm
-    android -.->|"direct upload by presigned URL"| s3e
+    fieldapp -.->|"direct upload by presigned URL"| s3e
+    clientapp -.->|"document upload by presigned URL"| s3e
+    stores -.->|"install and update"| clientapp
+    stores -.->|"install and update"| fieldapp
+    wint --> apns
+    wint --> fcm
+    apns -.-> clientapp
+    fcm -.-> clientapp
+    api --> attest
 ```
 
 | Container | Technology | Purpose | Release |
@@ -404,16 +438,18 @@ flowchart TB
 | worker-default | Celery | Outbox relay, case creation, rules, track records | R1 |
 | worker-geo | Celery with GDAL and PostGIS client | Overlay and overlap checks, imagery | R1 |
 | worker-media | Celery with WeasyPrint, libvips, ffmpeg | Previews, video compression, PDF render | R1 |
-| worker-integrations | Celery | Bank, payment, identity, messaging, institution and insurer adapters | R1 |
+| worker-integrations | Celery | Bank, payment, identity, messaging, institution and insurer adapters; push through APNs and FCM from R2 | R1 |
 | beat | Celery beat | Schedules in section 7.12 | R1 |
 | clamav | ClamAV daemon | Scan every upload (FR-EVD-005) | R1 |
-| Android field app | Kotlin, Compose | Offline signed capture, check-in and check-out, plan items, concerns (FR-MOB-001 to FR-MOB-012) | R2 |
+| Fidero Field app | React Native and TypeScript, iOS and Android, native modules for capture, signing, attestation and background upload (ADR-22) | Offline signed capture, check-in and check-out, plan items, concerns (FR-MOB-001 to FR-MOB-012); in-app account deletion and minimum version (FR-APP-004, FR-APP-006) | R2 |
+| Fidero client app | React Native and TypeScript, iOS and Android, same codebase (ADR-22) | Client features of the portal on the same API, push notifications, biometric unlock, account deletion, minimum version, fee payment by mode (FR-APP-001 to FR-APP-006) | R2 |
+| Apple and Google services | App Store, Google Play, APNs, FCM, App Attest, Play Integrity (IF-12) | Distribution and review, push delivery, device attestation. External; Fidero holds the accounts | R2 |
 | PostgreSQL | RDS, Multi-AZ | System of record | R1 |
 | Redis | ElastiCache | Broker, cache, rate-limit counters | R1 |
 | S3 evidence | Versioning, Object Lock compliance, SSE-KMS | Evidence, released PDFs, audit anchors | R1 |
 | S3 previews | SSE-KMS, served through CloudFront signed URLs | Resized images, listing media | R1 |
 
-Uploads go straight from the client to S3 through presigned URLs. Files land in a quarantine prefix and move to the evidence prefix only after scan and hash checks.
+Uploads go straight from the client, browser or app, to S3 through presigned URLs. Files land in a quarantine prefix and move to the evidence prefix only after scan and hash checks.
 
 ---
 
@@ -440,18 +476,19 @@ Uploads go straight from the client to S3 through presigned URLs. Files land in 
 | GEO | `geo` | Assets and boundaries, overlay layers and results, overlaps, satellite images, monitoring, Ghana Post GPS | `geo_asset`, `geo_boundary_version`, `geo_overlay_layer`, `geo_overlay_layer_version`, `geo_overlay_feature`, `geo_overlay_result`, `geo_overlap_flag`, `geo_satellite_image`, `geo_monitoring_alert` | `asset.boundary_saved`, `overlay.completed`, `overlap.flagged`, `monitoring.alert_raised`, `monitoring.alert_resolved` | `listing.live`, `project.started` | FR-GEO-001 to 008 | R1 |
 | ESC | `escrow` | Escrow mirror for purchase, construction, off-plan, project fund, held funds, repair and event escrows; parties, acceptances, bank payment instructions, conditions, bank events, release and cancel instructions with their payee, dispatch, statement import, the verified payee registry (ADR-17), the derived held statement (ADR-18) | `esc_escrow`, `esc_party`, `esc_acceptance`, `esc_condition`, `esc_bank_event`, `esc_release_instruction`, `esc_statement_file`, `esc_statement_line`, `esc_payee`, view `esc_held_statement` | `escrow.agreed`, `escrow.funded`, `escrow.ready`, `release.approved`, `release.sent`, `release.confirmed`, `escrow.cancelled`, `payee.verified`, `payee.suspended`, `held_funds.deposit_confirmed` | `report.released`, `dispute.opened`, `dispute.resolved`, `fresh_search.completed`, `milestone.client_approved`, `reservation.created`, `invoice.client_approved`, `visit.confirmed`, `errand_step.receipted`, `repair.inspected`, `vendor_payment.evidenced` | FR-ESC-001 to 015 | R1 |
 | EVD | `evidence` | Upload slots, hashing, scan, previews, signed links, links to subjects, provenance, integrity sampling | `evd_evidence`, `evd_link`, `evd_preview`, `evd_scan_result` | `evidence.stored`, `evidence.rejected` | none | FR-EVD-001 to 006 | R1 |
-| MOB | `mobile` | Device registry and keys, sync, signed manifest checks, submissions, check-in and check-out at registered addresses, fraud flags, for every field role | `mob_device`, `mob_signed_manifest`, `mob_submission`, `mob_submission_item`, `mob_checkin`, `mob_fraud_flag` | `submission.received`, `evidence.flagged`, `flags.cleared`, `checkin.recorded`, `checkout.recorded` | `milestone.status_changed`, `task.assigned`, `visit.scheduled`, `errand.assigned`, `inspection.scheduled` | FR-MOB-001 to 012 | R2 |
+| MOB | `mobile` | Device registry and keys with attestation on Android and iOS (8.2), sync, signed manifest checks, submissions, check-in and check-out at registered addresses, fraud flags, for every field role | `mob_device`, `mob_signed_manifest`, `mob_submission`, `mob_submission_item`, `mob_checkin`, `mob_fraud_flag` | `submission.received`, `evidence.flagged`, `flags.cleared`, `checkin.recorded`, `checkout.recorded` | `milestone.status_changed`, `task.assigned`, `visit.scheduled`, `errand.assigned`, `inspection.scheduled` | FR-MOB-001 to 012 | R2 |
+| APP | none | The client app is a front end over the same `/v1` API as the portal and owns no server tables (ADR-22, 8.9). Its server needs sit in existing modules: push devices in NTF, in-app account deletion in DPR, minimum versions and the fee payment mode in ADM settings, fee payments in PAY | none | none | none | FR-APP-001 to 006 | R2 |
 | BLD | `construction` | Projects of all three types, bill of quantities, milestones, panel, conflict links, inspector assignment, inspections, defects, retention, re-pricing, variations, dashboard, off-plan checks, materials (R3) | `bld_project`, `bld_boq`, `bld_milestone`, `bld_panel_member`, `bld_conflict_link`, `bld_inspection`, `bld_inspection_item`, `bld_defect`, `bld_variation`, `bld_reprice`, `bld_materials_order` | `project.started`, `milestone.status_changed`, `milestone.client_approved`, `inspection.recorded`, `contractor.removed` | `submission.received`, `flags.cleared`, `release.confirmed`, `dispute.opened` | FR-BLD-001 to 013 | R2 |
 | PRJ | `projectfunds` | Project funds on the shared project and milestone engine, suppliers, background checks, invoices, AML threshold, disclaimer | `prj_supplier`, `prj_background_check`, `prj_invoice`, `prj_aml_review` | `supplier.checked`, `invoice.accepted` | `milestone.status_changed`, `release.confirmed` | FR-PRJ-001 to 005 | R2 |
 | LST | `listings` | Listings, publish rule, badge, search, enquiries, reservations, removal, family and stool listings (R3) | `lst_listing`, `lst_listing_media`, `lst_enquiry`, `lst_reservation`, `lst_removal` | `listing.submitted`, `listing.verification_requested`, `listing.live`, `listing.suspended`, `reservation.created`, `listing.sold` | `payment.confirmed`, `report.released`, `monitoring.alert_raised`, `release.confirmed`, `dispute.opened` | FR-LST-001 to 010 | R2 |
 | RAT | `ratings` | Ratings, hidden comments, track records | `rat_rating`, `rat_track_record` | `track_record.updated` | `case.status_changed`, `milestone.status_changed`, `dispute.closed`, `release.confirmed` | FR-RAT-001 to 004 | R2 |
 | DSP | `disputes` | Disputes, parties, statements, deadlines, decisions, mediation, freeze links | `dsp_dispute`, `dsp_party`, `dsp_statement`, `dsp_subject_link` | `dispute.opened`, `dispute.resolved`, `dispute.closed`, `dispute.withdrawn` | none | FR-DSP-001 to 005 | R2 |
 | PTR | `partners` | Partner API clients, scopes, status queries, partner orders, metering, webhooks | `ptr_api_client`, `ptr_usage_event`, `ptr_webhook_subscription`, `ptr_webhook_delivery` | `partner.order_created` | `report.released`, `consent.changed` | FR-PTR-001 to 004 | R2 |
-| NTF | `notifications` | Templates per language and channel, preferences, sends, content policy, delivery log | `ntf_template`, `ntf_preference`, `ntf_message`, `ntf_delivery_event` | none | most events | FR-NTF-001 to 005 | R1 |
+| NTF | `notifications` | Templates per language and channel, preferences, sends, content policy, delivery log, push tokens per app install and push through APNs and FCM (from R2) | `ntf_template`, `ntf_preference`, `ntf_message`, `ntf_delivery_event`, `ntf_push_device` | none | most events, `account.deletion_requested` | FR-NTF-001 to 005, FR-APP-002 | R1 (push R2) |
 | ADM | `administration` | Versioned configuration, prices, FX guides, partner registry, locked texts, settings | `adm_config_version`, `adm_price`, `adm_fx_rate`, `adm_partner`, `adm_locked_text_version`, `adm_setting` | `config.published` | none | FR-ADM-001 to 005 | R1 |
 | AUD | `audit` | Append-only hash-chained audit log, anchors, search, chain checks | `aud_event`, `aud_anchor` | none | written in-transaction, not by events | FR-AUD-001 to 004 | R1 |
 | ANL | `analytics` | Metric views, dashboard API, CSV exports with logging | `anl_*` materialised views, `anl_export_log` | none | reads selectors only | FR-ANL-001 to 003 | R1 |
-| DPR | `dataprotection` | Privacy notice acceptance, consents including video and partner sharing, subject requests, retention, legal holds, bulk exports, data catalogue, data locations | `dpr_privacy_acceptance`, `dpr_consent`, `dpr_request`, `dpr_retention_rule`, `dpr_legal_hold`, `dpr_bulk_export`, `dpr_data_catalogue`, `dpr_data_location` | `consent.changed` | `person.registered` | FR-DPR-001 to 005 | R1 |
+| DPR | `dataprotection` | Privacy notice acceptance, consents including video and partner sharing, subject requests, in-app account deletion requests with what is kept and why (from R2), retention, legal holds, bulk exports, data catalogue, data locations | `dpr_privacy_acceptance`, `dpr_consent`, `dpr_request`, `dpr_retention_rule`, `dpr_legal_hold`, `dpr_bulk_export`, `dpr_data_catalogue`, `dpr_data_location` | `consent.changed`, `account.deletion_requested` | `person.registered` | FR-DPR-001 to 005, FR-APP-004 | R1 |
 | FEE | `fees` | Institutions and their verification case, named contacts, invoices and fee notes, checks against institution and family member, client approval, payment through held funds to the institution's payee record, receipts and confirmations returned, recurring schedules, institutions marked not eligible for direct payment (no cash route), runner tasks to collect invoices and deliver receipts, statement per family member | `fee_institution`, `fee_institution_contact`, `fee_invoice`, `fee_payment`, `fee_schedule`, `fee_runner_task` | `institution.verified`, `invoice.submitted`, `invoice.client_approved`, `fee_payment.receipted`, `fee_schedule.due` | `case.status_changed`, `release.confirmed`, `held_funds.deposit_confirmed`, `payee.verified`, `payee.suspended` | FR-FEE-001 to 007 | R1 |
 | CARE | `care` | Care plans and plan items, carer panel over `acc_vetting`, visit schedule, check-in and check-out results, plan item results and readings, family confirmation codes, missed and unconfirmed alerts, concerns, pay-per-confirmed-visit instructions | `care_plan`, `care_plan_item`, `care_carer`, `care_visit`, `care_visit_item`, `care_confirmation`, `care_concern` | `visit.scheduled`, `visit.checked_out`, `visit.confirmed`, `visit.unconfirmed`, `visit.missed`, `concern.raised` | `checkin.recorded`, `checkout.recorded`, `evidence.stored`, `release.confirmed`, `vetting.completed` | FR-CARE-001 to 006 | R2 |
 | PMG | `propertymgmt` | Managed properties and their onboarding case, tenancies, rent periods matched to the owner's account statement lines under the owner's written mandate, late rent alerts, repairs with quotes from the panel, repair escrows, inspections, owner timeline | `pmg_managed_property`, `pmg_tenancy`, `pmg_rent_period`, `pmg_statement_mandate`, `pmg_repair`, `pmg_repair_quote`, `pmg_inspection` | `property.onboarded`, `rent.received`, `rent.late`, `repair.reported`, `repair.quote_approved`, `repair.inspected` | `case.status_changed`, `statement.line_imported`, `checkin.recorded`, `inspection.recorded`, `release.confirmed`, `payee.verified` | FR-PMG-001 to 006 | R2 |
@@ -657,7 +694,7 @@ Every blocker is checked again inside the database trigger before the instructio
 sequenceDiagram
     autonumber
     actor Ct as Contractor
-    participant App as Android app
+    participant App as Fidero Field app
     participant A as api
     participant S3 as S3 quarantine
     participant W as workers
@@ -665,9 +702,9 @@ sequenceDiagram
     actor I as Inspector
     actor Cl as Client
     Ct->>App: Capture photo or video with in-app camera
-    App->>App: Hash file, sign manifest with Keystore key
-    App->>App: Encrypt and queue in Room, offline
-    Note over App: WorkManager waits for network
+    App->>App: Hash file, sign manifest with hardware key, Keystore or Secure Enclave
+    App->>App: Encrypt and queue in local SQLite, offline
+    Note over App: Background upload waits for network, WorkManager or background URLSession
     App->>A: POST /v1/mobile/evidence with signed manifest
     A-->>App: Presigned upload URL
     App->>S3: Upload file, resumable for video
@@ -1541,16 +1578,25 @@ CREATE TABLE evd_link (
 -- fidero_app has INSERT and SELECT only on evd_evidence and evd_link, plus UPDATE on
 -- scan_status, signature_valid and deleted_at columns. No DELETE (FR-EVD-002).
 
-CREATE TABLE mob_device (
+CREATE TABLE mob_device (                            -- Fidero Field installs; ADR-22, 8.2
   id               uuid PRIMARY KEY,
   person_id        uuid NOT NULL REFERENCES acc_person(id),
+  platform         text NOT NULL CHECK (platform IN ('android','ios')),
+  app_id           text NOT NULL,                       -- package name or bundle ID of Fidero Field
   public_key_spki  bytea NOT NULL,                      -- ECDSA P-256
-  key_security     text NOT NULL CHECK (key_security IN ('strongbox','tee','software')),
-  attestation_chain bytea[],
-  app_signing_digest bytea,
-  model            text, os_version text,
+  key_security     text NOT NULL CHECK (key_security IN ('strongbox','tee','secure_enclave','software')),
+  attestation_kind text NOT NULL CHECK (attestation_kind IN ('android_key_attestation','app_attest')),
+  attestation_chain bytea[],                            -- Android certificate chain, or the App Attest object
+  app_attest_key_id bytea,                              -- iOS only
+  app_attest_counter bigint,                            -- iOS only; must increase on every assertion
+  integrity_verdict jsonb,                              -- latest Play Integrity or App Attest result
+  app_signing_digest bytea,                             -- Android signing certificate digest, or iOS team and bundle ID hash
+  model            text, os_version text, app_version text,
   status           text NOT NULL CHECK (status IN ('active','revoked')),
-  registered_at    timestamptz NOT NULL DEFAULT now()
+  registered_at    timestamptz NOT NULL DEFAULT now(),
+  CHECK (key_security <> 'secure_enclave' OR platform = 'ios'),
+  CHECK (key_security NOT IN ('strongbox','tee') OR platform = 'android'),
+  CHECK ((attestation_kind = 'app_attest') = (platform = 'ios'))
 );
 
 CREATE TABLE mob_checkin (                           -- FR-MOB-012, RUL-23; ADR-19
@@ -1769,11 +1815,12 @@ CREATE TABLE safety.incident (
 | `rat_rating` | subject, rater, score 1 to 5 (CHECK), comment, hidden reason | FR-RAT-002, FR-RAT-004 |
 | `ptr_api_client` | partner, OAuth client ID, hashed secret, scopes, rate limit | FR-PTR-004 |
 | `ptr_usage_event` | client, endpoint, result class, billed flag | FR-PTR-004 |
-| `ntf_message` | recipient, channel, template version, status, provider ref | FR-NTF-005 |
+| `ntf_message` | recipient, channel (`email`, `sms`, `whatsapp`, `push`), template version, status, provider ref | FR-NTF-005 |
+| `ntf_push_device` | person, app (`client`, `field`), platform (`ios`, `android`), push token (encrypted), provider (`apns`, `fcm`), app version, OS version, last seen, revoked at. One row per app install. Revoked at sign-out, account deletion or when the provider reports the token invalid | FR-APP-002, FR-NTF-001 |
 | `adm_config_version` | kind, `country_id`, product line, version, JSON content, content hash, state, schema version. Kinds now include `errand_catalogue`, `care_plan_template`, `vetting_checklist`, `institution_types`, `holiday_calendar` | FR-ADM-001, FR-TSK-001, FR-CTY-001 |
 | `adm_locked_text_version` | kind (`scope_statement`, `terms`, `privacy_notice`, `escrow_terms`), country, text, approvals, lawyer and insurer approval evidence | FR-ADM-004 |
-| `adm_setting` | key, `country_id`, value, changed by, `approval_request_id` (required for keys flagged `affects_release`, FR-ADM-005 version 0.2); keys include `fresh_search_window_days`, `listing_report_max_age_days`, `badge_validity_days`, `plot_buffer_m`, `device_time_gap_s`, `dispute_deadlines`, `client_approval_reminder_days`, `ntf_amount_threshold`, `prj_enhanced_check_amount`, `checkin_radius_m`, `visit_confirm_hours`, `rent_grace_days`, `receipt_target_days`. The 72-hour visit review and the 5-attempt code lockout are fixed by FR-CARE-004, not settings | FR-ADM-005 |
-| `dpr_request` | requester, type (access, correction, deletion), due date, status, export evidence | FR-DPR-003 |
+| `adm_setting` | key, `country_id`, value, changed by, `approval_request_id` (required for keys flagged `affects_release`, FR-ADM-005 version 0.2); keys include `fresh_search_window_days`, `listing_report_max_age_days`, `badge_validity_days`, `plot_buffer_m`, `device_time_gap_s`, `dispute_deadlines`, `client_approval_reminder_days`, `ntf_amount_threshold`, `prj_enhanced_check_amount`, `checkin_radius_m`, `visit_confirm_hours`, `rent_grace_days`, `receipt_target_days`, `min_app_version` (per app and platform, FR-APP-006; a raise needs a second administrator, as it locks out older installs), `app_fee_payment_mode` (per country and platform: `in_app_provider` or `web`, FR-APP-005; `web` until Q-23 is answered). The 72-hour visit review and the 5-attempt code lockout are fixed by FR-CARE-004, not settings | FR-ADM-005 |
+| `dpr_request` | requester, type (access, correction, deletion), source (`portal`, `app`, `staff`), due date, status, export evidence; for deletion, the kept-data statement shown to the user (classes kept, reason, until when) and the open money matters that delay completion | FR-DPR-003, FR-APP-004 |
 | `dpr_retention_rule`, `dpr_legal_hold` | data class, country, period, action; holds by subject | FR-DPR-004 |
 | `dpr_bulk_export` | requester, scope, approval request, file hash | FR-DPR-005 |
 | `rec_allocation` | authority, plot geometry, allottee, date, documents, confirmation status | FR-REC-001, FR-REC-004 |
@@ -2401,8 +2448,8 @@ State models for these entities are proposed here because 01 C8 has none for the
 | Style | REST over HTTPS, JSON (`application/json`), UTF-8. Resource names are plural nouns. Actions that change state and need approval are sub-resources (`/approvals`, `/close`) rather than PATCH of `status`. |
 | Hosts | `api.<domain>` for portal, back office and mobile; `partner-api.<domain>` for partners. Domain `[TO VERIFY]`. |
 | Versioning | Major version in the path: `/v1`, `/partner/v1`. Additive changes only within a version. A breaking change gets `/v2` and at least 6 months of overlap for partners (assumption). `Deprecation` and `Sunset` headers announce retirement. |
-| Contract | OpenAPI 3.1 generated from DRF serialisers (drf-spectacular). Typed clients for both Next.js apps and Kotlin are generated from it. Contract tests in CI (document 06). |
-| Auth | Web: session cookie plus `X-CSRFToken`. Mobile: `Authorization: Bearer <JWT>`. Partner: OAuth 2.0 client credentials bearer token. |
+| Contract | OpenAPI 3.1 generated from DRF serialisers (drf-spectacular). One typed TypeScript client is generated from it and shared by the two Next.js apps and the two React Native apps (ADR-22). Contract tests in CI (document 06). |
+| Auth | Web: session cookie plus `X-CSRFToken`. Both mobile apps: `Authorization: Bearer <JWT>`, and a `Fidero-App` header with app, platform and version (for example `field/ios/1.4.0`) checked against the minimum version (8.10). Partner: OAuth 2.0 client credentials bearer token. |
 | Pagination | Cursor-based: `?limit=25&cursor=<opaque>`. Response has `items` and `next_cursor`. Maximum limit 100. |
 | Filtering and sorting | Explicit query parameters per endpoint (`status`, `due_before`, `country`), `sort=due_at` or `sort=-created_at`. |
 | Idempotency | `Idempotency-Key` header (UUID) required on every POST that creates a resource, starts a payment, approves, sends or submits. Stored per principal for 24 hours (assumption). Same key and same body returns the stored response; same key and a different body returns 422 `idempotency-key-reuse`. |
@@ -2452,6 +2499,8 @@ State models for these entities are proposed here because 01 C8 has none for the
 | `idempotency-key-reuse` | 422 | Same key, different body |
 | `evidence-rejected` | 422 | Malware, hash mismatch, bad signature, gallery source |
 | `rate-limited` | 429 | Limit reached |
+| `app-version-unsupported` | 426 | App older than `min_app_version` for its platform (FR-APP-006). Evidence captured before the minimum was raised is still accepted (8.10) |
+| `attestation-failed` | 422 | Fidero Field registration without a valid store build, key attestation, Play Integrity or App Attest result (8.2) |
 
 ### 7.3 Webhooks
 
@@ -2470,11 +2519,16 @@ Roles: CL client, SE seller, DV developer, CM case manager, RV reviewer, LW lawy
 | POST | `/v1/auth/login` | Password or one-time code sign-in, lockout | Pub | FR-ACC-002, FR-ACC-009 |
 | POST | `/v1/auth/mfa/challenge`, `/v1/auth/mfa/verify` | TOTP or WebAuthn, also step-up | All with MFA | FR-ACC-003 |
 | POST | `/v1/auth/mfa/devices` | Enrol TOTP or WebAuthn | All | FR-ACC-003 |
-| POST | `/v1/auth/token`, `/v1/auth/token/refresh` | Mobile JWT and rotating refresh | CT, IN, RN, SV, CE | FR-MOB-001 |
+| POST | `/v1/auth/token`, `/v1/auth/token/refresh` | Mobile JWT and rotating refresh for both apps | CT, IN, RN, SV, CE, CL, FM, TN | FR-MOB-001, FR-APP-001 |
 | POST | `/v1/auth/logout` | End session or revoke refresh token | All | NFR-SEC-02 |
 | GET, PATCH | `/v1/me` | Profile, language, notification preferences | All | FR-ACC-010, FR-NTF-001 |
 | POST | `/v1/me/identity-checks` | Start identity check | CL, SE, DV | FR-ACC-004 |
 | POST, DELETE | `/v1/me/representatives` | Name or remove a representative | CL | FR-ACC-008 |
+| POST, DELETE | `/v1/me/push-devices`, `/v1/me/push-devices/{id}` | Register or remove the push token of this app install (R2) | All app users | FR-APP-002, FR-NTF-001 |
+| GET | `/v1/me/deletion-requests/preview` | What deleting the account removes, what is kept and why, and any open money matters that delay it (R2) | All app users | FR-APP-004, FR-DPR-004 |
+| POST | `/v1/me/deletion-requests` | Delete my account from inside either app, with MFA step-up where the user has MFA (R2) | All app users | FR-APP-004, FR-DPR-004 |
+| GET | `/v1/app-config?app=&platform=&version=` | Minimum and latest version, store link and fee payment mode for this app and platform (R2) | Pub | FR-APP-006, FR-APP-005 |
+| PUT | `/v1/admin/app-versions` | Raise or lower the minimum supported version per app and platform, with a second administrator (R2) | AD | FR-APP-006, FR-ADM-005 |
 | POST | `/v1/organisations`, `/v1/organisations/{id}/members` | Organisation accounts (institutions and insurers from R2) | SE, DV, IC, IS | FR-ACC-011 |
 | GET | `/v1/home` | Everything the client has running at home: cases, escrows, held funds, family members, institutions, properties, visits, errands, policies, events | CL | FR-ACC-012 |
 | GET, POST, PATCH | `/v1/family-members`, `/v1/family-members/{id}` | Add, edit or remove a family member and who may confirm visits | CL | FR-ACC-012, FR-CARE-001 |
@@ -2574,7 +2628,8 @@ Roles: CL client, SE seller, DV developer, CM case manager, RV reviewer, LW lawy
 | GET, POST | `/v1/records/authorities`, `/v1/records/allocations` | Records programme | CM, AR own | FR-REC-001, FR-REC-004 |
 | GET | `/v1/records/matches?asset_id=` | Record matches, pre-fill chain | CM, LW asg | FR-REC-002 |
 | GET | `/v1/records/revenue-shares` | Revenue owed per authority | AD, AR own | FR-REC-003 |
-| POST | `/v1/mobile/devices` | Register device public key with attestation | CT, IN, RN, SV, CE | FR-MOB-004 |
+| POST | `/v1/mobile/devices/challenge` | One-time challenge for key attestation, Play Integrity or App Attest | CT, IN, RN, SV, CE | FR-MOB-004 |
+| POST | `/v1/mobile/devices` | Register device public key with attestation from Android or iOS; store builds only | CT, IN, RN, SV, CE | FR-MOB-004 |
 | GET | `/v1/mobile/sync?since=` | Assignments, checklists, required evidence, boundaries, visits and plan items, errand steps, registered addresses and radius | CT, IN, RN, SV, CE | FR-MOB-001, 003, 006, 007, 010, 012 |
 | POST | `/v1/mobile/evidence`, `/{id}/complete` | Signed manifest, upload slot, finalise | CT, IN, RN, SV, CE | FR-MOB-004, 008, 010, 011 |
 | POST | `/v1/mobile/submissions` | Submit milestone, task, visit or errand step evidence set | CT, RN, SV, CE | FR-MOB-006, FR-MOB-010 |
@@ -3018,35 +3073,44 @@ The `pay_to` block is read from the bank partner's record only (FR-ESC-003). Pay
 
 ## 8. Mobile app architecture
 
+Both apps, Fidero and Fidero Field, come from one React Native and TypeScript codebase and run on iOS and Android (ADR-22). Sections 8.1 to 8.8 describe Fidero Field. Section 8.9 describes the client app and 8.10 what both need for store distribution.
+
 ### 8.1 Structure
 
-| Layer | Components |
-|---|---|
-| UI | Jetpack Compose screens: sign-in, assignments, milestone, evidence checklist, camera, inspection checklist, queue status; for carers and errand agents: today's visits and steps, check-in and check-out, plan items and readings, concern form, step receipts, handover. The role's grants decide which screens appear (ADR-19) |
-| Capture | CameraX with the app's own preview and capture only. No `ACTION_GET_CONTENT`, no media read permissions, no share intent filters (FR-MOB-002, RUL-08) |
-| Signing | `EvidenceSigner` using an Android Keystore ECDSA P-256 key, StrongBox if present, else TEE |
-| Storage | Room database for queue and cached assignments, encrypted with SQLCipher `[TO VERIFY]`; files in app-private storage encrypted with AES-256-GCM using a Keystore-wrapped key (Tink streaming AEAD) (FR-MOB-009) |
-| Sync | WorkManager unique work chains with network constraint and exponential back-off; survives app close and reboot (FR-MOB-005) |
-| Network | OkHttp with certificate pinning to the CA set `[TO VERIFY]`, generated API client |
-| Auth | JWT access token in memory; refresh token in encrypted storage |
+| Layer | Android | iOS |
+|---|---|---|
+| UI | React Native screens shared by both platforms: sign-in, assignments, milestone, evidence checklist, camera, inspection checklist, queue status; for carers and errand agents: today's visits and steps, check-in and check-out, plan items and readings, concern form, step receipts, handover. The role's grants decide which screens appear (ADR-19). Styling follows each platform's conventions (document 03) | Same screens |
+| Capture | Native camera module on CameraX with the app's own preview and capture only. No `ACTION_GET_CONTENT`, no media read permissions, no share intent filters (FR-MOB-002, RUL-08) | Native camera module on AVFoundation (`AVCaptureSession`) with the app's own preview and capture only. No photo picker, no photo library permission, no document picker and no share extension for evidence (FR-MOB-002, RUL-08) |
+| Signing | Native `EvidenceSigner`: ECDSA P-256 key in Android Keystore, StrongBox if present, else TEE | Native `EvidenceSigner`: ECDSA P-256 key created in the Secure Enclave, non-exportable, usable only while the device is unlocked (FR-MOB-004) |
+| Attestation | Android key attestation certificate chain at registration; Play Integrity token at registration and on later checks (frequency `[TO VERIFY]`) | App Attest key and attestation object at registration; App Attest assertions on later checks |
+| Storage | Local SQLite queue for items and cached assignments (op-sqlite with SQLCipher, or WatermelonDB over SQLite; choice by the R2 spike `[TO VERIFY]`). Files in app-private storage encrypted with AES-256-GCM under a Keystore-wrapped key (FR-MOB-009) | Same SQLite queue. Files in the app container under iOS Data Protection, also encrypted with AES-256-GCM under a key held in the Keychain for this device only (FR-MOB-009) |
+| Background upload | WorkManager unique work with a network constraint and exponential back-off; survives app close and reboot (FR-MOB-005) | Background `URLSession` upload tasks from files, which iOS continues after the app is suspended or ended by the system; a background task resumes registration and completion calls when iOS allows (timing `[TO VERIFY]`). Whatever iOS has not sent resumes at the next launch. If the user force-quits the app, iOS stops its transfers until it is opened again; the queue screen says so (FR-MOB-005, TR-17) |
+| Location | Fused or GNSS provider with accuracy; the mock provider flag is recorded | Core Location with accuracy; the "simulated by software" flag is recorded |
+| Network | Certificate pinning to the CA set `[TO VERIFY]` in the network security configuration; shared generated API client | Certificate pinning through App Transport Security pinned domains; shared generated API client |
+| Auth | JWT access token in memory; refresh token in Keystore-backed encrypted storage | JWT access token in memory; refresh token in the Keychain, this device only |
 
-Install size target under 30 MB and cold start under 3 seconds on a 2 GB device (NFR-PERF-05): no heavy SDKs, R8 shrinking, app bundle splits, baseline profiles.
+The queue, sync rules, manifest building and screens are TypeScript shared by both platforms. Only capture, signing, attestation, background transfer and key storage are native modules.
+
+Download size under 30 MB and cold start under 3 seconds on a 2 GB Android phone and on the oldest supported iPhone (NFR-PERF-05): Hermes bytecode, no heavy SDKs, screens loaded lazily, R8 shrinking and app bundle splits on Android, app thinning on iOS. Start time and size are measured in CI on every release build (document 06).
 
 ### 8.2 Device keys and registration
 
-1. On first sign-in the app generates a P-256 key pair in the Keystore, non-exportable, with attestation challenge from the server.
-2. The app sends the public key and the attestation certificate chain to `POST /v1/mobile/devices`.
-3. The server checks the chain to the Google attestation root, the challenge, the app package name and signing certificate digest, and records the key security level.
-4. Devices with only software keys are allowed (C-08 low-end phones) but every item they sign gets a `software_key` flag for reviewer attention.
-5. A device key is bound to one person. Revoking a device (lost phone, misconduct) stops new items; items already verified stay valid with their history.
+1. On first sign-in Fidero Field asks for a one-time challenge (`POST /v1/mobile/devices/challenge`).
+2. On Android the app generates a P-256 key pair in the Keystore, non-exportable, with the challenge as attestation challenge, and requests a Play Integrity token bound to the challenge. On iOS the app generates a P-256 key pair in the Secure Enclave, creates an App Attest key and attests it with a hash of the challenge and the new public key, so the attestation covers the evidence signing key.
+3. The app sends the platform, the public key and the attestation material to `POST /v1/mobile/devices`.
+4. The server checks, on Android: the certificate chain to the Google attestation root, the challenge, the package name, the signing certificate digest and the key security level; and the Play Integrity verdict from Google's server: app recognised by Play, licensed through Play, and device integrity at the level set in `adm_setting` (`[TO VERIFY]`, TQ-25). On iOS: the attestation object to Apple's App Attest root, the challenge and key hash, the team and bundle ID, a counter of zero and the production environment.
+5. **Store builds only.** Production accepts Fidero Field registration only from builds installed from Google Play or the App Store. A side-loaded, re-signed or development build fails registration with `attestation-failed`. Phones without Google Play cannot install the app and so cannot register (TR-18). TestFlight and Play internal testing builds point at staging.
+6. Android devices with only software keys (low-end phones, C-08) are allowed, but every item they sign gets a `software_key` flag for reviewer attention. Every supported iPhone has a Secure Enclave.
+7. If Apple's or Google's attestation service cannot be reached, registration waits and retries; the app cannot sign evidence until registration succeeds. A later failed integrity check flags the device (`integrity_failed`) for a reviewer.
+8. A device key is bound to one person. Revoking a device (lost phone, misconduct) stops new items; items already verified stay valid with their history.
 
 ### 8.3 Capture flow
 
 1. User picks the milestone or task. The app shows the required evidence list from the synced schedule (FR-MOB-006).
-2. CameraX captures to app-private storage. The app compresses photos (long edge 2048 px, JPEG quality 80, assumption) and caps video (60 s, 720p, assumption) (FR-MOB-008). The original stays until the server confirms.
+2. The native camera module (CameraX on Android, AVFoundation on iOS) captures to app-private storage. The app compresses photos (long edge 2048 px, JPEG quality 80, assumption) and caps video (60 s, 720p, assumption) (FR-MOB-008). The original stays until the server confirms.
 3. The app reads GNSS position and accuracy. It warns if the point is more than the configured distance from the plot boundary (FR-MOB-003). The user can still capture; the server flags it.
 4. The app computes SHA-256 of the final file bytes, builds the manifest, and signs it.
-5. The item is written to Room with state `captured` and the file is encrypted at rest.
+5. The item is written to the local SQLite queue with state `captured` and the file is encrypted at rest. Both survive the app being closed, ended by iOS or Android, or the phone restarting (FR-MOB-005).
 
 ### 8.4 Signed evidence payload
 
@@ -3067,7 +3131,7 @@ The manifest is canonical JSON (RFC 8785, JSON Canonicalization Scheme). The sig
     "last_server_time_sync": { "server": "2027-05-10T08:02:10Z", "offset_ms": -350 },
     "location": { "lat": 5.53412, "lng": -0.42571, "accuracy_m": 6.5,
                   "provider": "gps", "fix_time": "2027-05-10T09:41:20Z", "mock": false },
-    "camera": { "lens": "back", "model": "SM-A045F", "app_version": "1.4.0" },
+    "camera": { "lens": "back", "model": "SM-A045F", "platform": "android", "app_version": "1.4.0" },
     "previous_item_sha256": "Z2h0bWxwcmV2aXRlbWhhc2hleGFtcGxlMTIzNDU2Nzg"
   },
   "signature": "MEUCIQDv...base64url...",
@@ -3075,7 +3139,7 @@ The manifest is canonical JSON (RFC 8785, JSON Canonicalization Scheme). The sig
 }
 ```
 
-`previous_item_sha256` chains items on the same device, so dropping or reordering items is detectable. Hashes in the example are placeholders.
+`previous_item_sha256` chains items on the same device, so dropping or reordering items is detectable. Hashes in the example are placeholders. On iOS `platform` is `ios`, `model` is the hardware identifier (for example `iPhone12,8`) and `location.mock` is the "simulated by software" flag. The manifest format and signature are the same on both platforms.
 
 ### 8.5 Sync protocol
 
@@ -3107,8 +3171,9 @@ The manifest is canonical JSON (RFC 8785, JSON Canonicalization Scheme). The sig
 | Order | Capture time is before the previous milestone's pass time | `before_previous_pass` |
 | Duplicate | Same SHA-256, or near-duplicate perceptual hash, seen on another project | `duplicate_hash` |
 | Metadata | EXIF make and model differ from the registered device, or EXIF time differs from the manifest | `metadata_mismatch` |
-| Mock location | Android reports a mock provider | `outside_buffer` with detail `mock` |
-| Software key | Device key is not hardware-backed | `software_key` |
+| Mock location | Android reports a mock provider, or iOS reports a location simulated by software | `outside_buffer` with detail `mock` |
+| Software key | Device key is not hardware-backed (Android only) | `software_key` |
+| Integrity | A later Play Integrity or App Attest check fails, or the App Attest counter does not increase | `integrity_failed` |
 
 Flagged items go to the reviewer queue before an inspection is scheduled. Clearing or upholding a flag is audited. An upheld flag for work not done triggers FR-BLD-010.
 
@@ -3124,6 +3189,34 @@ Flagged items go to the reviewer queue before an inspection is scheduled. Cleari
 | Errand steps | Each step shows its description, the acknowledgement or receipt it needs, and whether its official fee has been paid by the bank to the agency. From R2 the agent captures documents through the in-app camera or the app's own document scan only (RUL-08); the server marks provenance. The result document and the handover record (signature on screen or photo) are evidence items. |
 | Minimisation | Between check-in and check-out the app does not track location (NFR-PRIV-02). The carer sees the family member's first name, the address and the plan items, nothing else. Data on the device is deleted after the server confirms receipt (FR-MOB-009). |
 | Safety | The carer can tap a safety button that logs a `safety.incident` row (FR-CASE-010 path) and calls the Fidero duty phone. Carers are assigned to no address flagged as unsafe without a risk screen (principle 7 in 01 B2). The carer's own phone number is never shown to the family; contact runs through Fidero (RUL-17 by analogy). Fidero's duty of care and the carer's own cover are open (01 Q-22). |
+
+### 8.9 Client app, Fidero (FR-APP-001 to FR-APP-006)
+
+| Area | Design |
+|---|---|
+| Scope | The client features of the portal (FR-APP-001): home dashboard, orders, case tracking, reports and the fingerprint check, escrow and invoice approvals, statements, messages and settings. It calls the same `/v1` endpoints with the same rules; the app holds no business rules of its own. Tabs follow the portal: Home, Property, Family, Projects, Account (document 03). Family members and tenants see only what their grants allow. |
+| Code | Same codebase as Fidero Field (ADR-22): shared API client, types, validation, design tokens and translation files. The client app has no evidence signing keys and no camera-only rule: client document uploads (invoices, identity documents) are not field evidence under RUL-08 and may come from files or the camera. |
+| Sign-in | As on the portal (FR-ACC-002), then a mobile JWT with a rotating refresh token (10.3). The refresh token is kept in the Keychain or Keystore-backed storage. |
+| Biometric unlock | Face ID, Touch ID or Android BiometricPrompt with a strong biometric unlocks the stored refresh token on this device (FR-APP-003). A new fingerprint or face enrolled on the phone invalidates the key, so the user signs in again. Biometric unlock is never the second factor: approving a release, invoice, milestone or repair quote still asks for the MFA step-up of FR-ACC-003 (10.3, I-31). |
+| Push | The app asks for notification permission only after explaining why (document 03), then registers its token at `POST /v1/me/push-devices` (`ntf_push_device`). NTF treats push as one more channel under the user's preferences. worker-integrations sends through APNs (token-based key) and FCM (HTTP v1). Push text follows FR-NTF-004's limits: no report content, no amounts above the threshold, no third-party personal data; the default text is generic ("You have a request to review") and the details load after unlock (FR-APP-002, I-30). Tokens the provider reports invalid are revoked. |
+| Deep links | Universal Links on iOS and App Links on Android on the portal domain (`[TO VERIFY]`), for example `/cases/{id}` and `/approvals/{id}`. If the app is installed the link opens it; otherwise the portal. Links carry IDs only. The app checks the session and permissions before showing anything, and opening an approval link never approves. |
+| Fees | FR-APP-005. `app_fee_payment_mode` per country and platform. `in_app_provider`: the payment provider's mobile checkout for Fidero's own fees, through PAY, whose `purpose` is limited to fee types (ADR-03). `web`: the app opens the portal's payment page in the system browser. The default is `web` until Q-23 and AS-14 are answered. No store in-app purchase is used. Escrow, held funds, construction and project money are never paid in the app: the app shows only the bank's payment instructions from the escrow partner's record. |
+| Account deletion | FR-APP-004, in both apps. Account, then "Delete my account". The app calls `GET /v1/me/deletion-requests/preview` and shows what will be deleted, what is kept, why and until when (from `dpr_retention_rule` and any `dpr_legal_hold`: for example released reports, escrow records and the audit log). The user confirms, with MFA step-up where they have MFA, and the app calls `POST /v1/me/deletion-requests`, which creates a `dpr_request` of type deletion with source `app`. Sign-in, sessions, push tokens and, in Fidero Field, device keys are revoked at once. Personal data is then deleted or anonymised by the retention sweep (6.10), except what retention or a hold keeps. If money is still held or an escrow is open, the app says the account closes to new orders now and deletion completes when those close; Fidero contacts the client to complete or cancel each under its terms (I-29). Evidence a field user signed stays under Object Lock as part of the case record. |
+| Minimum version | FR-APP-006, in both apps (8.10). |
+
+### 8.10 Store distribution, minimum version and store rules (IF-12, NFR-STORE-01, NFR-STORE-02)
+
+| Area | Design |
+|---|---|
+| Identities | Two apps, each with its own bundle ID and application ID (for example `com.fidero.client` and `com.fidero.field`, `[TO VERIFY]`), under organisation accounts in Fidero's name on the Apple Developer Program and Google Play Console (IF-12). |
+| Builds and release | CI builds both apps for both platforms, signs them and sends them to TestFlight and Play internal testing, then to store review, App Store phased release and Play staged rollout. Pipeline, key custody and store review lead time are in document 06. |
+| Minimum version | At start, and on return to the foreground after 24 hours (assumption), the app calls `GET /v1/app-config`. Every API call also carries the `Fidero-App` header. If the version is below `min_app_version` for its app and platform, the server answers `426 app-version-unsupported` and the app shows "Update required" with a store link. In Fidero Field, queued evidence stays encrypted on the phone; the queue database is migrated forward on update and never wiped. Evidence registration and upload keep accepting items whose signed capture time is before the minimum was raised, within the 7-day capture-to-upload limit in 8.7, so an update never loses evidence (FR-APP-006, FR-MOB-005). New capture waits for the update. |
+| Over-the-air updates | JavaScript-only updates may be delivered over the air for fixes that change no native code, stay within both stores' rules and do not change money, approval, evidence or signing logic. Those changes ship only as a store release. Tool and policy in document 06 (`[TO VERIFY]`, TQ-23). |
+| Privacy disclosures | Apple privacy labels and the Play Data safety form for each app are generated from `dpr_data_catalogue`: each field an app collects or sends maps to a store data category and purpose. A CI check fails when a field the app collects has no mapping, or when the generated disclosure differs from the last submitted one without review (NFR-STORE-01, NFR-PRIV-02). Third-party SDKs in the apps (crash reporting) are included. The iOS privacy manifest lists required-reason APIs. |
+| Permissions | Fidero Field: camera, location while in use, notifications. No photo library, no background location, no contacts. Fidero: notifications, camera for document scans, Face ID. Purpose texts in plain English (document 03). |
+| Store rules on money | Fees are for real-world services and use the payment provider or the web, not in-app purchase (FR-APP-005, AS-14, Q-23). The Play financial features declaration and Apple review notes state that Fidero holds no client money and name the licensed bank in each country (Q-24, C-01). |
+| Review access | Store reviewers get a demo account in production with sample data only, no real money and no real personal data, enabled only while a submission is in review `[TO VERIFY]` whether the stores accept a separate review environment instead. |
+| OS support | Android 8.0 and iOS 15 at launch (01 C3, `[TO VERIFY]`). Every six months the share of active users per OS version in each launch country is checked; the minimum moves only while at least 95% stay supported (NFR-STORE-02). |
 
 ---
 
@@ -3183,6 +3276,7 @@ The rent account belongs to the owner, not to Fidero. Fidero reads only the bank
 | Payee registry | A wrong or altered payee record sends a client's money to the wrong account (RUL-22) |
 | Family and health data | Addresses of elderly parents, visit times, readings, concerns and insurance applications; special category under Act 843 |
 | Confirmation codes | A code in the wrong hands pays a carer for a visit that did not happen (RUL-23) |
+| App signing keys and store accounts | A stolen signing key or store account could ship a fake Fidero or Fidero Field update that steals sign-ins or signs false evidence (IF-12) |
 
 ### 10.2 Threat model (STRIDE)
 
@@ -3221,16 +3315,21 @@ The rent account belongs to the owner, not to Fidero. Fidero reads only the bank
 | Family and health data | Information disclosure | Insurance application data kept or exposed | Pass-through with field-level encryption; retained only until the insurer confirms receipt plus `[TO VERIFY]` days; never in SMS or WhatsApp | FR-INS-002, FR-NTF-004 |
 | Carer safety | Physical harm | Carer sent to an unsafe address or threatened by a household | Risk screen on first visit to a new address; safety button in the app; incident log isolated; carer's number hidden from the family | RUL-17, FR-CASE-010 |
 | Tenant | Information disclosure | Tenant sees the owner's details or other properties | Tenant grant scoped to one tenancy; selectors filter by scope | FR-ACC-007 |
+| App distribution | Spoofing | Side-loaded, re-signed or emulated Fidero Field used to create false evidence | Store builds only: Android key attestation of package and signing digest, Play Integrity app and licence verdicts, App Attest in production; signing key bound to the device and person (8.2) | FR-MOB-004, RUL-08, NFR-STORE-01 |
+| App distribution | Tampering | Attacker with store account access publishes a malicious update | Organisation accounts in Fidero's name; two-person access with hardware security keys; Play App Signing with a separate upload key; phased and staged releases; halt runbook (document 06) | IF-12, C-14 |
+| Client app | Spoofing | Someone with an unlocked phone approves a release | Biometric unlock only opens the app; every approval needs the MFA step-up | FR-APP-003, FR-ACC-003 |
+| Push | Information disclosure | Lock-screen notification shows an amount, a report finding or a family member's details | Generic push text; details load after unlock; FR-NTF-004 limits applied to push | FR-APP-002, FR-NTF-004 |
+| Account deletion | Repudiation and loss | A user deletes their account while an escrow is open, or deletion removes records the law requires | Preview of what is kept and why; legal holds and retention classes respected; open money matters closed under their terms before deletion completes | FR-APP-004, FR-DPR-004 |
 | Multi-country | Information disclosure | Data of one country read from another cell or by the wrong country's staff | `country_id` row-level security; separate cells where law demands; directory holds no personal data beyond a blind index | FR-CTY-002, C-09 |
 
 ### 10.3 Authentication
 
 | Actor | Method | MFA | Session |
 |---|---|---|---|
-| Client, seller, developer | Email or phone with password, or one-time code | Optional; mandatory when approving a release or milestone (FR-ACC-003) | Cookie session, 60 min idle and 7 days absolute (assumption) |
+| Client, seller, developer | Email or phone with password, or one-time code | Optional; mandatory when approving a release or milestone (FR-ACC-003) | Cookie session, 60 min idle and 7 days absolute (assumption). In the client app from R2: JWT 10 min, refresh 30 days rotating with reuse detection (assumption), refresh token unlocked by biometrics (FR-APP-003); approvals still need the MFA step-up |
 | Staff, reviewers, administrators | Email and password | Mandatory TOTP or WebAuthn | 30 min idle (NFR-SEC-02), 12 h absolute (assumption) |
 | Lawyers, surveyors, QS | Email and password | Mandatory | As staff |
-| Contractors, inspectors, runners (mobile) | Phone and one-time code, then device registration | Device key plus PIN or biometric unlock of the app (assumption) | JWT 10 min, refresh 30 days rotating with reuse detection (assumption) |
+| Contractors, inspectors, runners (Fidero Field, iOS and Android) | Phone and one-time code, then device registration with attestation (8.2) | Device key plus PIN or biometric unlock of the app (assumption) | JWT 10 min, refresh 30 days rotating with reuse detection (assumption) |
 | Partner systems | OAuth 2.0 client credentials | Not applicable; IP allow list optional | Token 15 min (assumption) |
 | Family member | Phone one-time code; one-tap confirmation links signed per visit, single use, 24 h life | Not required; confirming a visit is not a release approval. The client's standing approval covers the payment (RUL-11) | Short session, 30 min (assumption) |
 | Institution contact | Email and password | Mandatory TOTP from R2 organisation accounts; one-time code in R1 (assumption) | 60 min idle |
@@ -3318,6 +3417,7 @@ Roles added in 01 version 0.3 (FM family member, IC institution contact, CE care
 - AWS Secrets Manager for database credentials (rotated every 30 days, assumption), vendor API keys and webhook secrets (NFR-SEC-04).
 - ECS tasks read secrets at start through task roles; nothing in images, environment files or the repository. Secret scanning in CI (document 06).
 - KMS asymmetric key for instruction signing; private key never leaves KMS.
+- APNs token signing key and the FCM service account are kept in Secrets Manager and read only by worker-integrations. App signing: Google holds the Play app signing key (Play App Signing); the Play upload key, the Apple distribution certificate and the App Store Connect API key sit in the CI secret store with two-person access and a break-glass copy (document 06).
 - Break-glass AWS access through IAM Identity Center with MFA and session recording in CloudTrail.
 
 ### 10.6 Encryption
@@ -3327,7 +3427,7 @@ Roles added in 01 version 0.3 (FM family member, IC institution contact, CE care
 | In transit | TLS 1.2 or later at CloudFront and load balancers, TLS 1.3 preferred; HSTS; TLS to RDS and Redis (NFR-SEC-01) |
 | At rest | KMS customer-managed keys for RDS, snapshots, S3 buckets, ElastiCache, EBS and logs |
 | Field level | Envelope encryption (AES-256-GCM) with per-person data keys wrapped by a KMS key for: full name, email, phone, identity document numbers, date of birth, bank details of individuals and payees, consent subject names, safety narratives, family members' names and addresses, care readings and concerns, insurance applications, tenant details. Keyed HMAC blind indexes for lookups and name matching. Destroying a person's data key anonymises them (6.10) |
-| Device | Encrypted Room database and files with Keystore-wrapped keys (FR-MOB-009) |
+| Device | Encrypted SQLite queue and files, with keys wrapped by Android Keystore or held in the iOS Keychain for this device only (FR-MOB-009) |
 | Key separation | Separate KMS keys for: database, evidence, previews, field PII (one per country), health and care data (hospital invoices, care plans, visit records, readings, concerns; insurance applications, which hold health answers), identity documents from errands, payee bank details, safety data, audit anchors, instruction signing, backups |
 
 ### 10.7 Evidence integrity chain
@@ -3354,7 +3454,7 @@ Mapped to ASVS 4.0.3 chapters. Re-mapping to ASVS 5.0 is `[TO VERIFY]` before th
 | V6 Stored cryptography | KMS, field-level encryption, no custom crypto |
 | V7 Errors and logging | Problem details without stack traces, security events (10.10), no PII in logs |
 | V8 Data protection | Minimisation catalogue, retention, cache-control no-store on sensitive responses |
-| V9 Communication | TLS everywhere, HSTS, certificate pinning in app |
+| V9 Communication | TLS everywhere, HSTS, certificate pinning in both apps on both platforms |
 | V10 Malicious code | Pinned dependencies, SCA and SAST in CI, signed images (document 06) |
 | V11 Business logic | Database-enforced rules (6.4 to 6.7), idempotency, rate limits |
 | V12 Files and resources | Presigned uploads with size and type limits, malware scan, quarantine, no server-side fetch of user URLs |
@@ -3396,6 +3496,8 @@ Logged to the audit log and to CloudWatch, with alerts to the on-call channel:
 | Partner rate-limit breaches and consent failures | Repeated failures |
 | Break-glass access, AWS root use, KMS key policy change, Object Lock configuration change | Always |
 | WAF blocks above baseline | Spike |
+| Fidero Field registration failing attestation, by platform; `integrity_failed` flags | Spike above baseline per platform |
+| Minimum app version changed; store account role or signing certificate changed | Always |
 
 ---
 
@@ -3509,7 +3611,7 @@ DR is rehearsed in staging before R1 go-live and every six months after (assumpt
 - Terraform for all AWS resources, in `infra/` with modules (`network`, `data`, `ecs-service`, `edge`, `observability`, `backup`) and one root per environment. Remote state in S3 with locking. Plans run on every pull request; applies to production need approval.
 - GitHub Actions with OIDC federation to AWS roles (no long-lived keys). Pipeline outline: lint and type checks, unit and rule tests (NFR-MNT-01), import-linter contracts, migrations check, OpenAPI contract diff, SAST, dependency and container scans, build and sign images, deploy to dev, deploy to staging with smoke tests, manual approval, blue-green deploy to production on ECS, post-deploy checks.
 - Database migrations are backward compatible (expand, migrate, contract) so a deploy can roll back.
-- Android builds signed in CI with the upload key in a protected environment; release through a managed Play track.
+- Both apps are built for iOS and Android in CI (build service `[TO VERIFY]`: EAS Build or fastlane on hosted macOS runners), signed with keys under two-person custody, and released through TestFlight and App Store phased release, and Play internal, closed and staged rollout tracks. Store review time is part of the release calendar (C-14).
 - Full detail of the pipeline, branching, release and runbooks is in document 06.
 
 ### 11.6 Observability (NFR-OBS-01)
@@ -3519,7 +3621,7 @@ DR is rehearsed in staging before R1 go-live and every six months after (assumpt
 | Traces | OpenTelemetry SDK in Django, Celery and Next.js; AWS Distro for OpenTelemetry collector sidecar exporting to AWS X-Ray `[TO VERIFY]` | Trace ID on every request and job, returned in responses and problem details |
 | Metrics | CloudWatch (container, RDS, Redis, S3), custom metrics from the app | Latency, error rate, queue depth per queue, upload backlog, job failures, overlay check duration |
 | Logs | CloudWatch Logs, JSON structured, PII-scrubbed, 90-day retention for app logs (assumption) | Request logs with trace ID, job logs |
-| Errors | Sentry for backend, web and Android, with PII scrubbing and data location `[TO VERIFY]` | Exceptions with release tags |
+| Errors | Sentry for backend, web and both apps on iOS and Android, with PII scrubbing and data location `[TO VERIFY]`; Play Console and App Store Connect crash and ANR reports | Exceptions with release tags; crash and ANR rates per app and platform |
 | Dashboards | Grafana (managed service `[TO VERIFY]`) over CloudWatch and X-Ray | Service health, business flow health, mobile sync health |
 | Uptime | Synthetic checks on portal, API health and partner API | Availability against NFR-AVL-01 |
 
@@ -3528,7 +3630,9 @@ DR is rehearsed in staging before R1 go-live and every six months after (assumpt
 | API error rate | 5xx above 2% for 5 minutes |
 | API latency | p95 reads above 500 ms or writes above 1 s for 10 minutes (NFR-PERF-03) |
 | Queue backlog | Any queue older than 5 minutes; `integrations` older than 15 minutes |
-| Mobile upload backlog | Evidence registered but not completed for over 24 hours, by device |
+| Mobile upload backlog | Evidence registered but not completed for over 24 hours, by device and platform |
+| App stability | Crash rate above 1% of sessions or Android ANR rate above 0.47%, per app and platform (assumptions near Play's bad-behaviour thresholds `[TO VERIFY]`) |
+| Attestation failures | Registration or integrity failures above baseline per platform |
 | Job failures | Any failure of `dispatch_instruction`, `render_pdf`, `verify_chain`, `retention_sweep` |
 | Overlay checks | Over 30 s (NFR-PERF-04) |
 | Backups | Missing backup or failed cross-region copy |
@@ -3557,6 +3661,8 @@ Monthly, in US dollars. Every figure is an assumption to be checked with the AWS
 
 Savings levers: dev scaled to zero out of hours; Graviton instances; Savings Plans once usage is stable; one NAT gateway in non-production.
 
+The two store apps add, outside the totals above: the Apple Developer Program at about 99 a year, a one-off Google Play Console fee of about 25, mobile build minutes on macOS runners or a build service at about 50 to 150 a month, and push delivery at no charge for expected volumes (all assumptions `[TO VERIFY]`).
+
 A second cell for country 2 adds roughly one more production column, about 1,600 a month (assumption, TR-11), plus its own penetration test and DR rehearsal. A country that joins the Ghana cell adds only usage. Family confirmation messages add one SMS or WhatsApp message per visit (usage-based `[TO VERIFY]`).
 
 ---
@@ -3569,7 +3675,7 @@ A second cell for country 2 adds roughly one more production column, about 1,600
 | NFR-PERF-02 | Bundle budget of 500 KB enforced in CI, system fonts or one subset web font, no heavy client libraries on first load | CI budget check |
 | NFR-PERF-03 | Indexed queries per selector, cursor pagination, Redis caching of catalogue and config, heavy work in Celery, connection pooling (RDS Proxy `[TO VERIFY]`) | Load test at 10 times R1 load |
 | NFR-PERF-04 | Dedicated `geo` queue, GiST indexes on layers, simplified layer geometries per zoom, results stored per layer version | Timed test with production-size layers |
-| NFR-PERF-05 | Native field app for every field role, R8, no heavy SDKs, baseline profiles; role screens loaded lazily | Device lab on a 2 GB phone |
+| NFR-PERF-05 | React Native with Hermes bytecode, no heavy SDKs, screens and role modules loaded lazily, R8 and app bundle splits on Android, app thinning on iOS; size and cold start measured on every release build (8.1, TR-16) | Device lab on a 2 GB Android phone and the oldest supported iPhone |
 | NFR-AVL-01 | Multi-AZ RDS and Redis, at least 2 tasks per web service in 2 AZs, blue-green deploys, health checks | Uptime monitor |
 | NFR-AVL-02 | PITR, cross-region backup replication, Terraform rebuild, DR rehearsal (11.4) | DR rehearsal |
 | NFR-AVL-03 | S3 cross-region replication with Object Lock; backup vault copies | Replication metrics |
@@ -3582,19 +3688,21 @@ A second cell for country 2 adds roughly one more production column, about 1,600
 | NFR-PRIV-02 | `dpr_data_catalogue` with CI check (10.9) | CI check |
 | NFR-USE-01 | Short order flow, saved drafts, phone-first forms, prices shown early | Usability tests |
 | NFR-USE-02 | Status messages from reviewed templates in `case_status_message` sets; readability check in CI for templates | Readability check |
-| NFR-A11Y-01 | Accessible component library, automated axe checks, manual screen-reader tests; field app follows Android accessibility guidance from R2, including the carer screens | Accessibility tests |
+| NFR-A11Y-01 | Accessible component library, automated axe checks, manual screen-reader tests; both apps follow Android's and Apple's accessibility guidance from R2 (TalkBack, VoiceOver, font scaling and Dynamic Type), including the carer screens | Accessibility tests on both platforms |
 | NFR-OBS-01 | OpenTelemetry trace IDs, alerts in 11.6 | Alert tests |
 | NFR-MNT-01 | Rules enforced in services and DB, each with tests; coverage gate at 80% | CI coverage gate |
 | NFR-MNT-02 | Versioned configuration (ADR-11), country as configuration from R1 with copying (ADR-16, 6.9), thin line modules (ADR-21), adapters (ADR-10) | R1: open a test country in staging by copying Ghana's configuration with no code change. R2: add a test product line by configuration only |
 | NFR-SCL-01 | Indexes and partitioning plan (audit by month; evidence by size of index), read replica for analytics, horizontal workers; recurring lines add many small rows (invoices, visits, rent periods), indexed by client and date | Load test with 2,000 cases, 500 projects, 20,000 listings, plus 5,000 invoices and 4,000 visits a month (assumption) |
-| NFR-LOC-01 | Next.js i18n message files; Django gettext; Android string resources; notification templates per language | Lint for hard-coded strings |
+| NFR-LOC-01 | Next.js i18n message files; Django gettext; translation files shared by both React Native apps; notification templates per language | Lint for hard-coded strings |
 | NFR-AUD-01 | Audit retention at least the longest class covered; partitions kept; readable through search API | Retention test |
+| NFR-STORE-01 | Store builds only, privacy labels and Data safety generated from `dpr_data_catalogue` with a CI check, in-app account deletion, fees outside in-app purchase, financial declarations, review demo account (8.9, 8.10) | Store review checklist and store approval of each release (documents 05 and 06) |
+| NFR-STORE-02 | Minimum OS set from active-user share per country, reviewed every six months; `min_app_version` per app and platform (8.10) | OS share report every six months |
 
 ---
 
 ## 13. Requirement coverage
 
-Every FR ID in document 01 version 0.3 appears below, one row per module, so a text comparison of the two documents finds no gap.
+Every FR ID in document 01 version 0.6 appears below, one row per module, so a text comparison of the two documents finds no gap.
 
 | FR module | FR IDs | Django app and front ends | Main tables | Main endpoints | Sections |
 |---|---|---|---|---|---|
@@ -3606,14 +3714,15 @@ Every FR ID in document 01 version 0.3 appears below, one row per module, so a t
 | GEO | FR-GEO-001, FR-GEO-002, FR-GEO-003, FR-GEO-004, FR-GEO-005, FR-GEO-006, FR-GEO-007, FR-GEO-008 | `geo`; backoffice | `geo_asset`, `geo_boundary_version`, `geo_overlay_*`, `geo_monitoring_alert` | `/v1/assets/{id}/*`, `/v1/admin/overlay-layers`, `/v1/geo/ghana-post` | 6.4, IF-04 to IF-06 |
 | ESC | FR-ESC-001, FR-ESC-002, FR-ESC-003, FR-ESC-004, FR-ESC-005, FR-ESC-006, FR-ESC-007, FR-ESC-008, FR-ESC-009, FR-ESC-010, FR-ESC-011, FR-ESC-012, FR-ESC-013, FR-ESC-014, FR-ESC-015 | `escrow`; portal, backoffice | `esc_escrow`, `esc_condition`, `esc_bank_event`, `esc_release_instruction`, `esc_payee`, `esc_standing_approval`, view `esc_held_statement`, `core_approval*` | `/v1/escrows*`, `/v1/escrows/{id}/statement`, `/v1/release-instructions/*`, `/v1/payees*`, `/v1/standing-approvals*`, `/v1/bank-statements` | 5.3, 6.5, 6.11, 7.6, 9.2, IF-01, ADR-17, ADR-18 |
 | EVD | FR-EVD-001, FR-EVD-002, FR-EVD-003, FR-EVD-004, FR-EVD-005, FR-EVD-006 | `evidence`; all | `evd_evidence`, `evd_link` | `/v1/uploads`, `/v1/evidence/{id}/link` | ADR-04, 6.6, 10.7 |
-| MOB | FR-MOB-001, FR-MOB-002, FR-MOB-003, FR-MOB-004, FR-MOB-005, FR-MOB-006, FR-MOB-007, FR-MOB-008, FR-MOB-009, FR-MOB-010, FR-MOB-011, FR-MOB-012 | `mobile`; Android field app | `mob_device`, `mob_submission*`, `mob_checkin`, `mob_fraud_flag` | `/v1/mobile/*`, `/v1/mobile/check-ins`, `/v1/mobile/check-outs` | 5.4, 5.8, 7.7, 8, 8.8, ADR-19 |
+| MOB | FR-MOB-001, FR-MOB-002, FR-MOB-003, FR-MOB-004, FR-MOB-005, FR-MOB-006, FR-MOB-007, FR-MOB-008, FR-MOB-009, FR-MOB-010, FR-MOB-011, FR-MOB-012 | `mobile`; Fidero Field on iOS and Android | `mob_device`, `mob_submission*`, `mob_checkin`, `mob_fraud_flag` | `/v1/mobile/*`, `/v1/mobile/devices/challenge`, `/v1/mobile/check-ins`, `/v1/mobile/check-outs` | 5.4, 5.8, 7.7, 8, 8.8, ADR-19, ADR-22 |
+| APP | FR-APP-001, FR-APP-002, FR-APP-003, FR-APP-004, FR-APP-005, FR-APP-006 | No Django app of its own; Fidero client app (all six), Fidero Field (FR-APP-004, FR-APP-006); server parts in NTF, DPR, ADM and PAY | `ntf_push_device`, `dpr_request`, `adm_setting` (`min_app_version`, `app_fee_payment_mode`), `pay_fee_payment` | `/v1/auth/token`, `/v1/me/push-devices`, `/v1/me/deletion-requests`, `/v1/app-config`, `/v1/admin/app-versions`, and the portal's client endpoints | 8.9, 8.10, 10.2, 10.3, ADR-22 |
 | BLD | FR-BLD-001, FR-BLD-002, FR-BLD-003, FR-BLD-004, FR-BLD-005, FR-BLD-006, FR-BLD-007, FR-BLD-008, FR-BLD-009, FR-BLD-010, FR-BLD-011, FR-BLD-012, FR-BLD-013 | `construction`; portal, backoffice, app | `bld_project`, `bld_milestone`, `bld_inspection`, `bld_defect`, `bld_conflict_link`, `bld_variation`, `bld_reprice` | `/v1/projects/*`, `/v1/milestones/*`, `/v1/panel-members`, `/v1/defects/*` | 5.4, 6.6 |
 | PRJ | FR-PRJ-001, FR-PRJ-002, FR-PRJ-003, FR-PRJ-004, FR-PRJ-005 | `projectfunds`; portal, backoffice | `prj_supplier`, `prj_invoice`, `prj_background_check`, `prj_aml_review`, shared `bld_project` and `bld_milestone` | `/v1/projects`, `/v1/projects/{id}/background-checks`, `/v1/projects/{id}/invoices` | 4.2, 6.8 |
 | LST | FR-LST-001, FR-LST-002, FR-LST-003, FR-LST-004, FR-LST-005, FR-LST-006, FR-LST-007, FR-LST-008, FR-LST-009, FR-LST-010 | `listings`; portal (SSR) | `lst_listing`, `lst_reservation`, `lst_enquiry` | `/v1/listings*` | 5.5, 6.6 |
 | RAT | FR-RAT-001, FR-RAT-002, FR-RAT-003, FR-RAT-004 | `ratings`; portal | `rat_rating`, `rat_track_record` | `/v1/ratings`, `/v1/track-records/*` | 6.8 |
 | DSP | FR-DSP-001, FR-DSP-002, FR-DSP-003, FR-DSP-004, FR-DSP-005 | `disputes`; portal, backoffice | `dsp_dispute`, `dsp_subject_link`, `dsp_statement` | `/v1/disputes*` | 6.5 trigger, 6.6 |
 | PTR | FR-PTR-001, FR-PTR-002, FR-PTR-003, FR-PTR-004 | `partners`; partner API | `ptr_api_client`, `ptr_usage_event`, `dpr_consent` | `/partner/*` | 5.6, 7.8 |
-| NTF | FR-NTF-001, FR-NTF-002, FR-NTF-003, FR-NTF-004, FR-NTF-005 | `notifications` | `ntf_template`, `ntf_message`, `ntf_preference` | `/v1/me`, `/v1/admin/notification-templates` | IF-07 |
+| NTF | FR-NTF-001, FR-NTF-002, FR-NTF-003, FR-NTF-004, FR-NTF-005 | `notifications` | `ntf_template`, `ntf_message`, `ntf_preference`, `ntf_push_device` | `/v1/me`, `/v1/me/push-devices`, `/v1/admin/notification-templates` | IF-07, 8.9 |
 | ADM | FR-ADM-001, FR-ADM-002, FR-ADM-003, FR-ADM-004, FR-ADM-005 | `administration`; backoffice | `adm_config_version`, `adm_locked_text_version`, `adm_setting`, `adm_price`, `adm_partner` | `/v1/admin/*` | ADR-11, 6.9 |
 | AUD | FR-AUD-001, FR-AUD-002, FR-AUD-003, FR-AUD-004 | `audit`; backoffice | `aud_event`, `aud_anchor` | `/v1/audit-events` | ADR-05, 6.7 |
 | ANL | FR-ANL-001, FR-ANL-002, FR-ANL-003 | `analytics`; backoffice | `anl_*` views, `anl_export_log` | `/v1/analytics/*` | 11.6 |
@@ -3629,7 +3738,7 @@ Every FR ID in document 01 version 0.3 appears below, one row per module, so a t
 
 Business rules: RUL-01 (ADR-03, 6.4), RUL-02 (6.5), RUL-03 (ADR-12, 5.2), RUL-04 (6.5, ADR-11), RUL-05 (6.3, 6.5), RUL-06 and RUL-07 (6.5), RUL-08 (8.1, 8.8), RUL-09 (6.5, 6.6), RUL-10 (6.6), RUL-11 (6.5, 6.11 `esc_standing_approval`, 10.4), RUL-12 and RUL-13 (6.6, 7.12), RUL-14 (5.5), RUL-15 (6.5), RUL-16 (5.6, 6.7), RUL-17 (6.5, 6.7, 10.9), RUL-18 (5.4, 7.12), RUL-19 (6.8), RUL-20 (6.5), RUL-21 (6.8, 6.11 payee kind supplier only), RUL-22 (ADR-17, 6.5 trigger, 6.11 `esc_payee`, 9.2), RUL-23 (6.5 trigger, 6.12 `care_visit` and `care_confirmation`, 6.13 `tsk_errand_step`, ADR-20), RUL-24 (6.4 `acc_bank_account`, 6.13 `pmg_managed_property` trigger, 9.3), RUL-25 (6.12 `ins_policy`, `ins_premium`, `ins_claim`; no `premium` purpose in `pay_fee_payment`).
 
-Interfaces: IF-01 to IF-09 (section 9), IF-10 and IF-11 (section 9, 9.2, 9.3). Journeys: J-01 (5.1, 5.2), J-02 (5.3), J-03 (5.4), J-04 (5.5), J-06 (5.6), J-09 (5.7), J-10 (5.8), J-11 (5.9), J-12 (5.10).
+Interfaces: IF-01 to IF-09 (section 9), IF-10 and IF-11 (section 9, 9.2, 9.3), IF-12 (ADR-22, 8.2, 8.10, document 06). Store NFRs: NFR-STORE-01 and NFR-STORE-02 (section 12, 8.10). Journeys: J-01 (5.1, 5.2), J-02 (5.3), J-03 (5.4), J-04 (5.5), J-06 (5.6), J-09 (5.7), J-10 (5.8), J-11 (5.9), J-12 (5.10).
 
 ---
 
@@ -3642,7 +3751,7 @@ Interfaces: IF-01 to IF-09 (section 9), IF-10 and IF-11 (section 9, 9.2, 9.3). J
 | TR-01 | Q-07 ruling requires hosting in Ghana | AWS region unusable for personal data | Region-agnostic Terraform; keep options for in-country cloud or colocation `[TO VERIFY]`; split personal data store if needed | Q-07, C-09 |
 | TR-02 | Bank offers neither API nor statement file | Manual entry load grows with volume | Manual adapter with proof; volume trigger to renegotiate | Q-01, AS-03 |
 | TR-03 | Object Lock periods set before Q-08 is answered | Data kept longer than lawful, or deleted too early | Set the compliance-mode retain-until date to the shortest period the lawyer confirms as safe, since it can be extended later but never shortened; extend by legal hold when needed; get an interim minimum from the lawyer before R1 go-live `[TO VERIFY]` | Q-08 |
-| TR-04 | Low-end phones lack hardware key storage | Weaker evidence assurance | Allow with `software_key` flag and reviewer check; inspector visit still required | AS-08, C-08 |
+| TR-04 | Low-end phones lack hardware key storage | Weaker evidence assurance | Allow with `software_key` flag and reviewer check; inspector visit still required | C-08, FR-MOB-004 |
 | TR-05 | Small team cannot run the stack | Outages and slow fixes | Managed services only; runbooks and alerts in document 06 | C-07 |
 | TR-06 | Overlay layer data unavailable or poor | Section 7 relies on manual work | Manual digitising path; layer version on every result | AS-06 |
 | TR-07 | Vendor data locations conflict with Act 843 | Need to change vendors | Record each in `dpr_data_location`; adapters make switching cheap | Q-02, Q-03, Q-07 |
@@ -3653,6 +3762,10 @@ Interfaces: IF-01 to IF-09 (section 9), IF-10 and IF-11 (section 9, 9.2, 9.3). J
 | TR-12 | Care readings, concerns and insurance applications are special category data with stricter rules | Fines or forced redesign | Own KMS key, minimal retention, no analytics, lawyer's opinion before CARE and INS open | C-02, FR-CARE-006, FR-INS-002 |
 | TR-13 | Carers face unsafe households or false accusations | Harm to carers; disputes over pay | Risk screen for new addresses, safety button, check-in evidence, concerns path, hidden contact details | RUL-17, FR-CARE-003, P-17 |
 | TR-14 | Bank account name verification stays manual (letters) at volume | Slow onboarding of institutions and suppliers; forged letters | Name enquiry API when available (TQ-14); letters checked by two people; re-verification yearly | RUL-22, FR-ESC-015 |
+| TR-16 | React Native start time or size misses NFR-PERF-05 on 2 GB Android phones | Slow app for contractors and carers; poor ratings | Performance spike before R2 feature work; Hermes, lazy screens, no heavy SDKs; size and start checks in CI; move a slow screen to a native view if needed | NFR-PERF-05, ADR-22 |
+| TR-17 | iOS limits background work: uploads may wait until iOS allows them, and stop if the user force-quits the app | Evidence reaches the server later; time-gap flags | Background `URLSession` transfers from files; resume on launch; queue screen shows what is waiting and asks the user to open the app on Wi-Fi; time-gap rule allows offline time | FR-MOB-005, FR-MOB-011 |
+| TR-18 | Attestation gaps: phones without Google Play, old Play services, devices failing integrity, or attestation outages | Some field users cannot register; registration delays | Publish the supported device list; lend a supported phone to panel members who need one `[TO VERIFY]`; retry with back-off; never accept a side-loaded build | FR-MOB-004, C-08, NFR-STORE-02 |
+| TR-19 | Store rejection or slow review: payment rules (Q-23), financial app rules (Q-24), privacy disclosures, or a review queue that delays a fix | R2 go-live or an urgent fix slips | Rehearse a first submission early; fees on the web until Q-23 is answered; review notes and demo account ready; review lead time in the release calendar; expedited review request for urgent fixes (document 06) | C-14, NFR-STORE-01, AS-14 |
 | TR-15 | A client with activity in two cells gets a split experience | Confusion, support load | Linked accounts through the directory; one cell at a time in the home dashboard; defer until a second cell exists | ADR-16, TQ-13 |
 
 ### 14.2 Open technical questions
@@ -3668,7 +3781,7 @@ Interfaces: IF-01 to IF-09 (section 9), IF-10 and IF-11 (section 9, 9.2, 9.3). J
 | TQ-07 | How to answer a partner point query that matches several plots | Product | R2 | FR-PTR-001 |
 | TQ-08 | Approval window length for milestones and whether lapse counts as approval. Resolved in 01 version 0.2: silence is never approval; reminders follow the configured period; the open part is tracked as Q-13 | Founder, lawyer | R2 | 01 C8 Milestone, Q-13 |
 | TQ-09 | Thresholds for fraud flags (buffer, time gap, near-duplicate) | Operations | R2 | FR-MOB-011 |
-| TQ-10 | Minimum Android version and share of devices without hardware keys | Operations | R2 | C3, Q-09 |
+| TQ-10 | Minimum Android and iOS versions and share of Android devices without hardware keys. Partly answered by 01 v0.6: Android 8.0 and iOS 15 `[TO VERIFY]`, reviewed every six months (NFR-STORE-02); Q-09 is closed | Operations | R2 | C3, NFR-STORE-02 |
 | TQ-11 | Is Ghana Post GPS lookup available to third parties, and on what terms? | Product | R1 | IF-06 |
 | TQ-12 | Amount threshold for FR-NTF-004 (now configurable in FR-ADM-005; the value is open) | Product | R1 | FR-NTF-004 |
 | TQ-13 | Does country 2's law require in-country or in-region hosting, and so a second cell? How are a client's accounts in two cells linked? | Lawyer, product and engineering lead | Country 2 day-90 gate (about month 9) | Q-15, FR-CTY-002, ADR-16 |
@@ -3680,6 +3793,10 @@ Interfaces: IF-01 to IF-09 (section 9), IF-10 and IF-11 (section 9, 9.2, 9.3). J
 | TQ-19 | Which of the two premium routes in FR-INS-002 does each insurer accept, and what intermediary licence does each route need? | Founder, lawyer | R2 | FR-INS-002, RUL-25, C-11, Q-17 |
 | TQ-20 | Which institutions can send invoices and receipts by portal or file, and in what format? | Operations | R2 | IF-10, Q-16 |
 | TQ-21 | Source and update cadence of official fees in the errand catalogue per country | Operations | R2 | FR-TSK-001 |
+| TQ-23 | Which build service and over-the-air update tool (EAS Build and EAS Update, or fastlane with another update service), and does each store accept the update policy in 8.10? | Product and engineering lead | Before R2 build starts | ADR-22, C-14 |
+| TQ-24 | Will the stores accept fee payment through the payment provider inside the app, and on which platforms and countries? Sets `app_fee_payment_mode` | Product lead | Before R2 app submission | Q-23, AS-14, FR-APP-005 |
+| TQ-25 | Which Play Integrity device verdict level to require, and how to serve field users on phones without Google Play | Operations, engineering | R2 | FR-MOB-004, TR-18 |
+| TQ-26 | Local queue library on both platforms: op-sqlite with SQLCipher, or WatermelonDB over SQLite | Mobile developer | First R2 spike | FR-MOB-005, FR-MOB-009 |
 | TQ-22 | Pricing per line confirms the provisional Fidero fee purposes in `pay_fee_payment` (institution service, care service, property management, errand and event service fees) | Founder | R1, R2 | Q-20, FR-PAY-005 |
 
 ---
@@ -3710,3 +3827,7 @@ Resolved by document 01 version 0.2 and 0.3 and removed from this list: I-01 (th
 | I-26 | FR-ESC-015 blocks a release when the account name does not match, but 01 does not say where the bank account name comes from or who checks it. | C4.7 | **Resolved by 01 v0.4.** FR-ESC-015 names the bank's name check where offered, otherwise a bank letter checked by a second staff member, with no override. `esc_payee.account_name_source` is `bank_name_check` or `bank_letter` (9.2). |
 | I-27 | FR-FEE-001 (R1) needs an institution with a named contact who confirms invoices (C2 role "Institution contact"), but organisation accounts for institutions (FR-ACC-011) are R2. | C2, C4.1, C4.21 | In R1 the contact is a person account with role `institution_contact` scoped to the institution; organisation accounts follow in R2. |
 | I-28 | Requirement IDs added in version 0.3 sit out of numeric order in their tables (FR-ACC-012 before FR-ACC-009, FR-ESC-014 and 015 before 011, FR-MOB-012 before 011, FR-CTY-004 before 002). Cosmetic, but it makes range notation such as "001 to 012" misleading. | C4 | This document lists every FR ID in full in section 13. |
+| I-29 | FR-APP-004 lets a user delete their account from inside the app, but 01 does not say what happens to open escrows, held funds, active projects or standing approvals when the client deletes the account. RUL-11 needs the client's approval for each release, which nobody can give after deletion. | C4.9a, B7 | The request is recorded at once and the account closes to new orders. Fidero completes or cancels each open money matter under its terms; deletion completes when they close. The app says so plainly (8.9). Suggest 01 states this. |
+| I-30 | FR-APP-002 sends push "following the user's channel preferences and FR-NTF-004's limits", but FR-NTF-001 lists only email, SMS and WhatsApp, and FR-NTF-004 limits only SMS and WhatsApp. | C4.9a, C4.16 | Push is a fourth channel in `ntf_preference`, and FR-NTF-004's limits apply to push (8.9). Suggest FR-NTF-001 and FR-NTF-004 name push. |
+| I-31 | FR-APP-003 says approving a release still needs the second factor, but FR-ACC-003 does not say whether a passkey on the same phone counts as that factor. | C4.1, C4.9a | TOTP or a passkey enrolled as an MFA device counts. Biometric app unlock alone never does (8.9, 10.3). |
+| I-32 | NFR-PERF-05 says "its download size" for both apps, and does not say whether the 30 MB limit is per app and per platform. | C7 | Each app on each platform stays under 30 MB to download (8.1). |
