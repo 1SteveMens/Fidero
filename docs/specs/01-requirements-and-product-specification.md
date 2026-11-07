@@ -5,7 +5,7 @@ Business requirements (BRD), product requirements (PRD) and software requirement
 | Item | Value |
 |---|---|
 | Document | 01 of 6 in `docs/specs/` |
-| Version | 0.6, working draft |
+| Version | 0.7, working draft |
 | Date | 1 November 2026 |
 | Owner | Founder, acting as product owner |
 | Status | For review. Not yet baselined |
@@ -18,6 +18,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 31 October 2026 | First draft |
+| 0.7 | 7 November 2026 | Push is a notification channel (FR-NTF-001); store approval of both apps added to the R2 finish gate (B4). |
 | 0.6 | 7 November 2026 | Founder decision: the mobile apps are published on the Apple App Store and Google Play. Two apps from R2: Fidero (clients and families) and Fidero Field (field roles), both on iOS and Android. Adds module APP (FR-APP-001 to FR-APP-006), feature F-36, NFR-STORE-01 and NFR-STORE-02, C-14, AS-14, IF-12, Q-23 and Q-24; FR-MOB-001 and FR-MOB-004 cover iOS; AS-08 retired; Q-09 answered. |
 | 0.5 | 1 November 2026 | Founder decisions: country 2 is Nigeria and country 3 is Kenya (Q-15 answered); the R1 team includes one contract developer from S3 to S13 (C-07). |
 | 0.4 | 1 November 2026 | Review fixes raised while updating documents 02 to 06 to v0.3. No new requirement IDs. Removes the runner cash route (FR-FEE-006 now marks such institutions not eligible); adds sellers and developers to RUL-22 payees; defines held amounts as amounts held at the bank; names the account-name source for FR-ESC-015; adds the owner's mandate for rent statements; states the premium route; ends unconfirmed visits with a reviewer decision; scopes the fresh search to purchases; adds standing approvals for visits and errand steps; extends RUL-08 and FR-MOB-001 to carers and agents; adds a Withdrawn dispute state; adds sensitive data classes; states how Must works inside Should features; Q-21 and Q-22. |
@@ -293,7 +294,7 @@ Anyone abroad can get anything done at home, from buying land to paying a parent
 |---|---|---|
 | R0 | Founder decision | Day-90 review in `docs/validation-plan.md` section 6 passes |
 | R1 | R0 passes; escrow partner in talks | 300 reports and 50 escrows `[TO VERIFY]`; security review passed; insurer approves the platform report process |
-| R2 | R1 targets met; bank agreement signed; Act 1047 position known for listings | 40 active builds, one bank contract, 40% of clients with a recurring line `[TO VERIFY]` |
+| R2 | R1 targets met; bank agreement signed; Act 1047 position known for listings | 40 active builds, one bank contract, 40% of clients with a recurring line `[TO VERIFY]`, both apps approved on the App Store and Google Play |
 | R3 | R2 targets met; country 2 day-90 gate passed and its software live | `[TO VERIFY]` |
 
 ## B5. Feature catalogue
@@ -775,7 +776,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 
 | ID | Requirement | Priority | Release | Source |
 |---|---|---|---|---|
-| FR-NTF-001 | The system shall notify users of status changes, tasks, requests and approvals by email, SMS and WhatsApp, according to their preferences. | Must | R1 | BR-01 |
+| FR-NTF-001 | The system shall notify users of status changes, tasks, requests and approvals by email, SMS, WhatsApp and, from R2, push notifications in the apps, according to their preferences. | Must | R1 | BR-01 |
 | FR-NTF-002 | The system shall send notifications from editable templates per language and channel. | Must | R1 | BR-01 |
 | FR-NTF-003 | The system shall remind task owners 2 working days before a due date and alert the case manager when a task is overdue. | Must | R1 | BR-03 |
 | FR-NTF-004 | The system shall never include report contents, money amounts above the configured threshold or personal data of third parties in SMS or WhatsApp messages. | Must | R1 | BR-15 |

@@ -8,12 +8,12 @@ How Fidero builds, ships, runs, watches, recovers and secures the platform. This
 |---|---|
 | Document | 06 of 6 in `docs/specs/` |
 | Title | Deployment and Operations |
-| Version | 0.3 |
-| Date | 1 November 2026 |
+| Version | 0.4 |
+| Date | 7 November 2026 |
 | Status | Draft. For review. Not yet baselined |
 | Owner | Product and engineering lead |
 | Approver | Founder, acting as product owner |
-| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01), version 0.4 |
+| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01), version 0.6 |
 | Other sources | `docs/decisions/2026-11-01-diaspora-platform.md`; `docs/product/architecture.md` sections 9 and 10; documents 02 to 05 of this set |
 | Review cycle | Before each release gate (R1, R2, R3) and after every SEV1 or SEV2 incident |
 
@@ -23,6 +23,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 
 | Version | Date | Author | Change |
 |---|---|---|---|
+| 0.4 | 7 November 2026 | Product and engineering lead (draft) | Aligned to 01 v0.6: both app stores, React Native, client app. Mobile release pipeline for both apps on both stores (4.8): CI builds for iOS and Android, signing key and certificate custody for Apple and Google, TestFlight to App Store phased release, Play internal to closed to staged rollout, store review lead time, expedited review and halt procedures. Over-the-air JavaScript update policy (4.10). App version support for both apps and platforms with minimum-version enforcement (3.5, FR-APP-006). Push credentials (APNs, FCM) in custody and rotation. SLO-15 widened and SLO-23 added; AL-31 widened and AL-43 to AL-47 added (crash and ANR rates per platform, store ratings, attestation failures, push credentials, store notices). RB-19 updated; RB-35 to RB-39 added (store rejection, emergency halt on each store, rotate push credentials, revoke a signing certificate, raise the minimum app version). Data location register, vendors (IF-12), security operations, cost and R2 readiness (both stores' approval) updated. Issues 7 and 13 resolved by 01 v0.6; issues 28 to 31 added. |
 | 0.3 | 1 November 2026 | Product and engineering lead (draft) | Aligned to 01 v0.4: runner cash route removed (the runner cash flag and the runner-pays step in RB-27 removed; IF-10 row updated; RB-27 marks institutions not eligible for direct payment); account-name sources for FR-ESC-015 with no override (RB-27, RB-28, DR-E fallback in 10.5, checklists); 72-hour reviewer decision, second-person check of call confirmations and code lockout (AL-35, RB-30); owner's written mandate for rent statement lines (`lines.pmg`, RB-31); both premium routes (`lines.ins`, DR-E fallback in 10.5, checklist); fresh search scoped to purchases (invariant check 1); retention classes aligned to 01 C5.2 (13.1); data protection authority per country and Q-21; field app naming; issues 16, 17, 19, 21 and 27 resolved, 22 and 26 partly. |
 | 0.2 | 1 November 2026 | Product and engineering lead (draft) | Updated for document 01 v0.3 and `docs/decisions/2026-11-01-diaspora-platform.md`: multi-country operations (2.7); flags per product line and per country; SLO-17 to SLO-22; AL-33 to AL-42; RB-26 to RB-34; SEV examples for the new lines and a people-first welfare process (9.8); sensitive data classes and a per-country data location register (13); A9 metrics by country (8.6); IF-10 and IF-11 vendor operations (15); readiness checklists R1 to R3 updated and an "open a country" checklist added (16.4); second-country cost assumption (14.4); issues list for document 01 refreshed (17). Also reflects document 01 v0.2 fixes: maintenance cap, two data centres within allowed locations, KMS-signed instruction, second administrator, device key revocation |
 | 0.1 | 31 October 2026 | Product and engineering lead (draft) | First draft |
@@ -48,7 +49,7 @@ This document creates no new functional requirement IDs. Where operations needs 
 | C-01, RUL-01, RUL-05, RUL-06 | Fidero never holds money; two-person release; no release with open conditions | 4.6, 5.5, 8.3 (AL-08 to AL-11), 9.1, RB-08, RB-24 |
 | C-04, AS-02 | Listings off until Act 1047 is resolved; escrow off until a bank signs | 2.6 feature flags |
 | C-07 | Small team and tight budget | 6.1, 14 |
-| C-08 | Slow connections, low-end Android | 4.3 stage 15 (performance smoke), SLO-04, SLO-07 |
+| C-08 | Slow connections, low-end Android phones; many clients on iPhones | 4.3 stage 15 (performance smoke), 4.8 step 1 size and start checks, SLO-04, SLO-07, SLO-15 |
 | C-09, NFR-PRIV-01 | Data hosting location accepted by each country's data protection authority (in Ghana, the Data Protection Commission) | 2.1, 10.1, 13.4 |
 | C-10 | Banned word in product, feature and brand names | All names in this document (alerts, runbooks, components) |
 | FR-ESC-008, FR-ESC-009, IF-01 | Release instruction in the bank's format, by the agreed channel; bank confirmation | 5.7, SLO-08, AL-08, AL-09, RB-08, RB-09 |
@@ -57,7 +58,9 @@ This document creates no new functional requirement IDs. Where operations needs 
 | FR-DPR-003, FR-DPR-004, FR-DPR-005 | Data subject requests, retention, two-person bulk export | 13, RB-16, RB-17, RB-25 |
 | FR-PAY-006 | Daily payment reconciliation | AL-12, RB-10 |
 | FR-ESC-011 | Bank statement import and matching | AL-10, RB-09 |
-| FR-MOB-004, FR-MOB-005, FR-MOB-011 | Device-signed evidence, offline queue, server verification | 4.8, AL-17, RB-07, RB-19 |
+| FR-MOB-004, FR-MOB-005, FR-MOB-011 | Device-signed evidence on Android and iOS, offline queue, server verification | 3.5, 4.8, AL-17, AL-45, RB-07, RB-19, RB-36 |
+| C-14, IF-12, NFR-STORE-01, NFR-STORE-02 | Both apps pass App Store and Google Play review at every release; store accounts held by Fidero; privacy disclosures match the data catalogue; supported OS versions reviewed | 3.5, 4.8, 4.10, 5.1, 12.1, 12.4, 15, AL-43 to AL-47, RB-35 to RB-39, 16.2 |
+| FR-APP-001 to FR-APP-006 | Client app on the same API; push; biometric unlock; in-app account deletion; fees by store rules; minimum version | 2.5, 2.6, 3.5, 4.8, 13.5, SLO-23, AL-46, RB-37, RB-39 |
 | FR-GEO-002, FR-GEO-004, NFR-PERF-04 | Overlay checks within 30 seconds; versioned layers | SLO-05, AL-14, RB-11 |
 | FR-NTF-005 | Notification delivery logged | SLO-06, AL-15 |
 | NFR-PERF-01 to NFR-PERF-03 | Page speed and API latency | SLO-02 to SLO-04, 4.4 |
@@ -69,7 +72,7 @@ This document creates no new functional requirement IDs. Where operations needs 
 | NFR-A11Y-01 | WCAG 2.2 AA | 4.3 accessibility stage |
 | A9 | Operating metrics | 8.6 business monitoring |
 | C5.2 | Data classes and retention | 8.5, 10.3, 13.1 |
-| IF-01 to IF-09 | External interfaces | 15 |
+| IF-01 to IF-12 | External interfaces | 15 |
 | C9 | Release acceptance | 5.2, 16 |
 | C-11, AS-11, RUL-25, FR-INS-002 | Insurance is the insurer's product; no premium to Fidero; licence first | 2.6 (`lines.ins`), 8.6 invariant check 4, 9.1, RB-32, RB-34 |
 | C-12 | Fidero moves no money across borders; clients pay the partner bank or a licensed provider | 2.7, 15 |
@@ -94,7 +97,7 @@ This document creates no new functional requirement IDs. Where operations needs 
 
 - Environments, configuration and feature flags.
 - Source control, versioning, database migrations and API versions.
-- The CI/CD pipeline for the backend, the two web apps and the Android app.
+- The CI/CD pipeline for the backend, the two web apps and the two mobile apps, Fidero and Fidero Field, built for iOS and Android from one React Native codebase and released through the Apple App Store and Google Play (C-14, IF-12).
 - Release and change procedures.
 - The operations model, on call and support.
 - Service level objectives, monitoring, alerting and incident management.
@@ -201,7 +204,7 @@ No real personal data leaves production. This applies to dev, staging, local mac
 | Evidence files | A library of synthetic photos, videos and PDFs with known hashes, including an EICAR test file for malware scanning |
 | Escrows and release instructions | Synthetic escrows linked to the bank sandbox or a staging file drop. Release instructions in staging carry a `TEST — DO NOT PAY` marker in every field the bank format allows `[TO VERIFY]` |
 | Payments | Payment provider test mode keys and test cards or mobile money test numbers |
-| Mobile devices | Staging device keys from test devices enrolled in the staging environment only |
+| Mobile devices | Staging device keys from test devices enrolled in the staging environment only. TestFlight and Play testing builds point at staging, with the APNs sandbox and a test FCM project |
 | Institutions, carers, tenants, insurers (R1 institutions; R2 the rest) | Synthetic institutions and agencies with test accounts in the bank sandbox, so the account-name check (FR-ESC-015) can pass and fail on purpose; a synthetic insurer endpoint; synthetic care plans, visits and tenancies. No real health, tenancy or policy data |
 | Countries | Every configured country has a synthetic bundle (`CFG-<country>-vN`, 2.7) in dev and staging. Country 2's bundle exists in staging before its manual phase ends, so RB-26 is rehearsed, not improvised |
 
@@ -221,7 +224,7 @@ Rules:
 | Business configuration | Database, through the back office (FR-ADM-001 to FR-ADM-005): templates, prices, condition sets, buffers, deadlines, fresh-search window | Back office with audit log. Bank account details (FR-ADM-003) and any value that affects a release (FR-ADM-005) need a second administrator. Other high-risk items per 5.5 |
 | Country configuration | Database, one versioned bundle per country (FR-CTY-001): templates, scope statement, overlay layers, currency, partners, licence bodies, legal texts, holiday calendar, errand catalogue, data location. Exported as JSON (`CFG-<country>-vN`, 3.2) | Edited in dev or staging, promoted to production by import under two-person approval (2.7, RB-33). Any production change raises AL-40 |
 | Feature flags | Database flag table, read through a small flag service in the API, cached for 30 seconds | Back office administrators, audited; safety flags need two people (2.6) |
-| Mobile app config | Fetched from the API at start; minimum supported version served by the API (3.5) | Same as feature flags |
+| Mobile app config | Fetched from the API at start (`/v1/app-config`): minimum supported version per app and platform (3.5, FR-APP-006) and the fee payment mode per country and platform (FR-APP-005) | Same as feature flags; raising the minimum version needs two administrators (RB-39) |
 
 Configuration drift check: a nightly pipeline job runs `terraform plan` against each environment. Any difference raises AL-27.
 
@@ -243,7 +246,8 @@ Flags let code ship before a business dependency is met. A flag is a switch, not
 | `geo.satellite_monitoring` | Off | R2, provider contract signed | Administrator | FR-GEO-007 |
 | `geo.ghana_post_gps` | Off | Service access confirmed (IF-06) | Administrator | FR-GEO-008 |
 | `partner_api.enabled` | Off | R2, first partner contract and consent flow tested | Founder plus one other administrator | FR-PTR-001 to FR-PTR-004 |
-| `mobile.capture` | Off | R2 field app goes live | Two administrators | FR-MOB-001 to FR-MOB-011 |
+| `mobile.capture` | Off | R2 field app goes live on both stores | Two administrators | FR-MOB-001 to FR-MOB-012 |
+| `app.fee_payment_mode` (a per-country, per-platform setting) | `web` | The store's position on paying Fidero's fees through the payment provider in the app is known for that platform and country (Q-23, AS-14, EN-76) | Founder plus one other administrator | FR-APP-005 |
 | `projects.funds` | Off | R2 and insurer confirms cover (AS-09) | Founder plus one other administrator | FR-PRJ-001 to FR-PRJ-005 |
 | `building.construction` | Off | R2 gate and insurer confirms cover (AS-09) | Founder plus one other administrator | FR-BLD-001 to FR-BLD-012 |
 | `lines.fee` | Off | The first institutions are verified (FR-FEE-001, RB-27), the payee account-name check works with the bank (FR-ESC-015), and the amount held at the bank and the running statement pass UAT (FR-ESC-014). An institution that cannot receive a bank transfer is marked not eligible for direct payment; there is no cash route (FR-FEE-006) | Founder plus one other administrator | BR-17, RUL-22, FR-FEE-001 to FR-FEE-007 |
@@ -315,7 +319,7 @@ Rules: the import shows a field-by-field diff before it applies; a bundle is imp
 
 ### 3.1 Trunk-based development
 
-- One monorepo holds the backend (`api/`), the web apps (`web/portal`, `web/backoffice`), the Android app (`mobile/android`), infrastructure (`infra/`), and shared contracts (`contracts/`: OpenAPI specification, release instruction schema, event schemas).
+- One monorepo holds the backend (`api/`), the web apps (`web/portal`, `web/backoffice`), the two React Native apps with shared packages and native modules (`mobile/apps/client`, `mobile/apps/field`, `mobile/packages`, `mobile/native`), infrastructure (`infra/`), and shared contracts (`contracts/`: OpenAPI specification, release instruction schema, event schemas).
 - `main` is the trunk. It is always releasable.
 - Developers use short-lived branches (less than 2 working days) and merge through pull requests.
 - Every pull request needs one approving review from a person who is not the author, and green CI.
@@ -331,9 +335,10 @@ Rules: the import shows a field-by-field diff before it applies; a bundle is imp
 | Platform release (API, workers, web apps together) | `MAJOR.MINOR.PATCH`, for example `1.4.2` | MAJOR: a breaking change to a public API or the release instruction format. MINOR: a new feature or a backward-compatible change. PATCH: fixes only |
 | Container images | Tagged with the Git commit SHA and the platform version; deployed by digest | Every build |
 | Partner API | URL major version, `/partner/v1/` | Breaking change only |
-| Client API (used by the web apps and the Android app) | URL major version, `/v1/` (document 02); additive changes within a major version | Breaking change only |
+| Client API (used by the web apps and both mobile apps) | URL major version, `/v1/` (document 02); additive changes within a major version | Breaking change only |
 | Release instruction format | `RI-<bank>-vN`, held in `contracts/` | Any change to fields, order, encoding or signature (5.7) |
-| Android app | `versionName` `MAJOR.MINOR.PATCH`; `versionCode` an increasing integer | Every Play upload |
+| Mobile apps (Fidero, Fidero Field) | `MAJOR.MINOR.PATCH` per app, the same on iOS and Android; build number (iOS `CFBundleVersion`, Android `versionCode`) an increasing integer | Every store upload |
+| Over-the-air JavaScript bundle | `<app version>+ota.N`, valid for one native build only | Every over-the-air update (4.10) |
 | Report template, scope statement, case templates | Versioned in the database (FR-ADM-001, FR-ADM-004) | Business change, through the back office, not through a deploy |
 | Country configuration bundle | `CFG-<country>-vN`, exported from the database with a hash (2.7) | Any promoted change to a country's configuration (RB-33). Old versions are kept for rollback |
 
@@ -360,21 +365,24 @@ Rules:
 |---|---|
 | Additive changes | New fields, endpoints and optional parameters may be added at any time. Clients must ignore unknown fields |
 | Breaking changes | Only in a new major version (`/v2/`). The old version runs in parallel |
-| Client API deprecation | The old major version stays at least until every supported Android version (3.5) has moved off it, and at least 90 days `[TO VERIFY]` |
+| Client API deprecation | The old major version stays at least until every supported app version on both platforms (3.5) has moved off it, and at least 90 days `[TO VERIFY]` |
 | Partner API deprecation | At least 6 months' written notice `[TO VERIFY]` to each partner, or the period in the partner contract if longer |
 | Deprecation signals | `Deprecation` and `Sunset` HTTP headers; a notice in the partner portal and by email; usage of the old version tracked on the integrations dashboard |
 | Contracts | The OpenAPI specification in `contracts/` is the source of truth. CI fails if the code and the specification disagree, or if a change to a published version is breaking (4.3) |
 | Release instruction format | Never changed without the bank's written agreement and a parallel test (5.7). Old and new formats are not both active for one bank at once |
 
-### 3.5 Android app version support window (R2)
+### 3.5 Mobile app version support window (R2)
+
+Applies to both apps, Fidero and Fidero Field, on iOS and Android (02 ADR-22, 8.10).
 
 | Topic | Policy |
 |---|---|
-| Supported versions | The latest version and the one before it. Older versions are supported for 60 days after a new release `[TO VERIFY]` |
-| Minimum version | The API serves a `min_supported_version` value. An older app shows a plain-language "Please update" screen and stops capture, but keeps and uploads any queued evidence first |
-| Forced update | Used for security fixes, signature format changes and device key changes. Queued evidence is never deleted by a forced update |
-| Queue compatibility | The server accepts uploads from any app version captured within the last 30 days `[TO VERIFY]`, so a contractor offline for days does not lose work |
-| Android OS support | Android 8.0 or later `[TO VERIFY]` (C3) |
+| Supported versions | The latest version and the one before it, per app and platform. Older versions are supported for 60 days after a new release `[TO VERIFY]` |
+| Minimum version | The API serves `min_app_version` per app and platform (`/v1/app-config`) and checks the `Fidero-App` header on every call. An older app shows a plain-language "Please update" screen with the store link (FR-APP-006). Fidero Field stops new capture but keeps and uploads any queued evidence first |
+| Raising the minimum | Two administrators (RB-39). Only after the new version is fully rolled out on that store and approved, and never on a Friday or before a holiday (5.1) |
+| Forced update | Used for security fixes, signature format changes, attestation changes and device key changes. Queued evidence is never deleted by a forced update |
+| Queue compatibility | The server accepts uploads of items captured before the minimum was raised for 30 days after the raise `[TO VERIFY]`, so a contractor offline for days does not lose work. Items captured more than 7 days before upload carry the time-gap flag (02 section 8.7) |
+| OS support | Android 8.0 or later and iOS 15 or later `[TO VERIFY]` (C3). Reviewed every six months against the share of active users per launch country; the minimum OS moves only while at least 95% stay supported (NFR-STORE-02). Store rules on target SDK levels may force earlier moves `[TO VERIFY]` |
 | Device key format | Versioned. A change to the signature format needs a new app version, a server that accepts both formats for the support window, and an entry in the change advisory |
 
 ---
@@ -389,10 +397,12 @@ Rules:
 | Infrastructure as code | Terraform (fixed decision), with `tflint` and an IaC policy scanner (Checkov or similar) |
 | Python quality | `ruff` (lint and format), `mypy` (types), `pytest` with coverage |
 | TypeScript quality | ESLint, `tsc`, Vitest or Jest |
-| Kotlin quality | `ktlint` or detekt, JUnit, Android instrumented tests on an emulator |
-| Static application security testing (SAST) | Semgrep and Bandit for Python; CodeQL for Python, TypeScript and Kotlin `[TO VERIFY]` licence terms |
+| Mobile quality | ESLint, `tsc` and Jest for the React Native apps; `ktlint` and JUnit for Android native modules; SwiftLint and XCTest for iOS native modules; end-to-end tests on Android emulators and iOS simulators with Detox or Maestro `[TO VERIFY]` |
+| Mobile build and signing | EAS Build, or fastlane on GitHub-hosted macOS runners `[TO VERIFY]` (02 TQ-23); builds both apps for both platforms from the tagged commit |
+| Over-the-air updates | EAS Update or an equivalent service `[TO VERIFY]`, only under the policy in 4.10 |
+| Static application security testing (SAST) | Semgrep and Bandit for Python; CodeQL for Python, TypeScript and the Android and iOS native module code `[TO VERIFY]` licence terms |
 | Secret scanning | GitHub secret scanning plus `gitleaks` in CI |
-| Dependency scanning | `pip-audit`, `npm audit`, Gradle dependency check; Dependabot for update pull requests |
+| Dependency scanning | `pip-audit`, `npm audit`, Gradle and CocoaPods or Swift package checks; Dependabot for update pull requests |
 | Container scanning | Trivy, plus Amazon ECR enhanced scanning |
 | Contract tests | OpenAPI diff for breaking changes; schema tests against the specification (Schemathesis or similar); release instruction format tests against `contracts/` samples |
 | End-to-end tests | Playwright against staging |
@@ -440,10 +450,10 @@ flowchart LR
 
 | Stage | Runs on | What it does | Fails the build when |
 |---|---|---|---|
-| 1. Lint and types | Every push | `ruff`, `mypy`, ESLint, `tsc`, `ktlint`, Terraform `fmt` and `validate`, migration linter, country constant check (2.7) | Any error |
-| 2. Unit tests | Every push | Backend, web and Android unit tests; business rule tests for RUL-01 to RUL-25 | Any failure; backend line coverage below 80% (NFR-MNT-01); any rule in B7 of document 01 without a tagged test |
+| 1. Lint and types | Every push | `ruff`, `mypy`, ESLint, `tsc`, `ktlint`, SwiftLint, Terraform `fmt` and `validate`, migration linter, country constant check (2.7) | Any error |
+| 2. Unit tests | Every push | Backend, web and mobile unit tests (both apps, and native modules on both platforms); business rule tests for RUL-01 to RUL-25 | Any failure; backend line coverage below 80% (NFR-MNT-01); any rule in B7 of document 01 without a tagged test |
 | 3. SAST and secret scan | Every push | Semgrep, Bandit, CodeQL, gitleaks | Any new high or critical finding; any secret |
-| 4. Dependency scan | Every push and nightly | `pip-audit`, `npm audit`, Gradle checks; licence check | A known exploitable high or critical vulnerability without a recorded exception (12.3) |
+| 4. Dependency scan | Every push and nightly | `pip-audit`, `npm audit`, Gradle and CocoaPods checks; licence check | A known exploitable high or critical vulnerability without a recorded exception (12.3) |
 | 5. IaC scan | Pull requests touching `infra/` | `tflint`, Checkov, `terraform plan` posted to the pull request | Any high finding; a plan that deletes a stateful resource (RDS, evidence bucket, KMS key) without the `allow-destroy` label approved by the lead |
 | 6. Build | Merge to `main` | Docker images for `api`, `worker`, `portal`, `backoffice`; one image per service, built once and promoted unchanged | Build error |
 | 7. Container scan | After build | Trivy scan of each image | Critical or high fixable vulnerability in the OS or language packages |
@@ -478,7 +488,9 @@ Time budget: stages 1 to 5 under 10 minutes for a normal pull request, so develo
 | Deploy to staging | None (automatic for a release candidate tag) |
 | Deploy to production | Two people: the person who starts the deploy and a second approver who is not the author of any change in the release. GitHub environment protection enforces this. In a three-person team, if all three authored changes, the founder approves as the second person after reading the release notes and the go/no-go record |
 | Terraform apply to production | Same as a production deploy; the plan output is attached to the approval |
-| Android production rollout | Two people (4.8) |
+| Mobile store submission and production release, on each store | Two people (4.8) |
+| Over-the-air update to production | Two people (4.10) |
+| Raise the minimum app version | Two administrators (3.5, RB-39) |
 | Feature flag safety switch-on | Two administrators (2.6) |
 
 ### 4.6 Deployment strategy
@@ -512,29 +524,43 @@ Celery workers and beat use a **rolling deployment**:
 | 4 | The task writes its result and run time to the release record and the audit log |
 | 5 | If it fails, the pipeline stops. The on-call engineer follows RB-23 |
 
-### 4.8 Android release pipeline (R2)
+### 4.8 Mobile release pipeline, both apps on both stores (R2)
 
-| Step | Action | Gate |
-|---|---|---|
-| 1 | Build the release bundle (`.aab`) in GitHub Actions on a tagged commit | Unit and instrumented tests pass; R8 shrinking on; install size under 30 MB (NFR-PERF-05) |
-| 2 | Sign with the **upload key** | See key custody below |
-| 3 | Upload to Google Play **internal testing** track | Fidero staff devices; smoke test of capture, offline queue, signature and upload against staging |
-| 4 | Promote to **closed testing** | A pilot group of contractors and inspectors `[TO VERIFY]` size; at least 3 working days; crash-free sessions at least 99% `[TO VERIFY]`; no evidence upload regression on the dashboard |
-| 5 | Promote to **production, staged rollout** | Two-person approval. 5% → 20% → 50% → 100%, at least 24 hours per step |
-| 6 | Watch each step | Crash-free sessions, ANR rate, upload success (SLO-07), signature verification failures (AL-17). A breach halts the rollout (RB-19) |
-| 7 | Raise `min_supported_version` | Only after 100% rollout and the support window in 3.5 |
+Both apps, Fidero and Fidero Field, are built for iOS and Android from one tagged commit (02 ADR-22). Each app is released on each store separately, so a store problem never blocks the other store. Store review time is part of the release calendar (5.1, C-14).
 
-The Google Play managed track for internal distribution is a fixed candidate decision `[TO VERIFY]`.
-
-**Signing key custody.**
-
-| Key | Where it is held | Who can use it | Backup |
+| Step | iOS (App Store) | Android (Google Play) | Gate |
 |---|---|---|---|
-| App signing key | Google Play App Signing (held by Google) | Google Play only | Managed by Google |
-| Upload key | Encrypted keystore in AWS Secrets Manager in `fidero-shared`, read only by the Android release workflow role | The pipeline. No person uses it day to day | Two encrypted offline copies on hardware-encrypted USB drives in two separate locked places, one held by the founder and one by the lead `[TO VERIFY]` locations. Passphrase split between two people |
-| Play Console access | Google accounts with hardware-key two-step sign-in | Lead (owner), one developer (release manager) | Founder holds a sealed break-glass account |
+| 1. Build | CI builds the `.ipa` for each app on a macOS runner (EAS Build or fastlane `[TO VERIFY]`) | CI builds the `.aab` for each app; R8 shrinking on | Unit, native module and end-to-end tests pass; download size under 30 MB and cold start under 3 s on the reference devices (NFR-PERF-05); privacy disclosures regenerated and unchanged, or the change reviewed (NFR-STORE-01) |
+| 2. Sign | Apple distribution certificate and provisioning profile, read only by the release workflow role | Play upload key, read only by the release workflow role; Google re-signs with the app signing key | Key custody below |
+| 3. Internal test | Upload to **TestFlight**, internal testers (Fidero staff devices) | Upload to the **internal testing** track | Smoke test against staging: sign-in, capture, offline queue, signature, upload, push, deletion, minimum-version screen (document 05 TC-STORE-01, TC-STORE-02) |
+| 4. Wider test | TestFlight external testers: pilot contractors, inspectors, carers and clients `[TO VERIFY]` group sizes. External testing needs Apple's beta review | **Closed testing** track with the same pilot groups | At least 3 working days; crash-free sessions at least 99% `[TO VERIFY]`; no evidence upload regression on the dashboard |
+| 5. Submit for review | Submit to **App Store review** with review notes, the demo account (02 section 8.10) and any changed privacy label | Submit the production release for **Play review**, with the Data safety form and the financial features declaration current | Two-person approval of the submission; store review checklist done (document 05 TC-STORE-03) |
+| 6. Release | **Phased release** over 7 days on Apple's standard schedule (about 1%, 2%, 5%, 10%, 20%, 50%, 100% of automatic updates) | **Staged rollout**: 5% → 20% → 50% → 100%, at least 24 hours per step | Two-person approval to release once approved. Start Monday to Wednesday (5.1) |
+| 7. Watch | Crash-free sessions, hangs, upload success (SLO-07), signature and attestation failures (AL-17, AL-45), ratings (AL-44) | Crash-free sessions, ANR rate, the same upload, signature, attestation and rating checks | A breach pauses the phased release or halts the staged rollout (RB-19, RB-36) |
+| 8. Minimum version | Raise `min_app_version` for iOS only after 100% release and the support window in 3.5 (RB-39) | The same for Android | Two administrators |
 
-If the upload key is lost or exposed, the lead asks Google Play to reset the upload key (RB-06). Users are not affected because the app signing key does not change.
+**Store review lead time.** Submit at least 5 working days `[TO VERIFY]` before the planned release date. The first submission rehearsal (document 04 EN-75) measures the real time for each store and replaces this figure. Release dates in the calendar count from approval, not from submission. Before R2 go-live the roadmap holds a month of buffer for each app's first approval (document 04 section 3.1).
+
+**Expedited review.** For a fix to a SEV1 or SEV2 that needs a new build (for example lost evidence, a broken signature, a security flaw), the release manager requests Apple's expedited review with a short factual reason, and submits to Google Play at once (Play review times vary `[TO VERIFY]`). Meanwhile server-side measures limit harm: feature flags, the minimum version, a capture stop for the faulty version (RB-36). Expedited review is a request, never a promise; the incident plan must not depend on it.
+
+**Halt and rollback.** Neither store can roll users back to an older build. On the App Store, pause the phased release (users who already updated keep the version); in an emergency remove the version or the app from sale for new installs (RB-36). On Google Play, halt the staged rollout (RB-19); in an emergency unpublish or roll out a fixed build with a higher version code. The fix is always a new build with a higher build number through steps 1 to 6, using expedited review where justified.
+
+**Signing key, certificate and credential custody.**
+
+| Key or credential | Where it is held | Who can use it | Backup and break-glass |
+|---|---|---|---|
+| Google Play app signing key | Google Play App Signing (held by Google) | Google Play only | Managed by Google |
+| Play upload key | Encrypted keystore in AWS Secrets Manager in `fidero-shared`, read only by the mobile release workflow role | The pipeline. No person uses it day to day | Two encrypted offline copies on hardware-encrypted USB drives in two separate locked places, one held by the founder and one by the lead `[TO VERIFY]` locations |
+| Apple distribution certificate and private key, provisioning profiles | Secrets Manager in `fidero-shared` (or the build service's credential store `[TO VERIFY]`), read only by the release workflow role. The certificate expires yearly | The pipeline | Re-issued from the Apple Developer account by the account holder or an admin; two offline encrypted copies of the private key as for the upload key |
+| App Store Connect API key (for uploads and phased release control) | Secrets Manager, release workflow role only; role limited to app management | The pipeline | Revoked and re-issued in App Store Connect (RB-38) |
+| APNs authentication key (`.p8`) | Secrets Manager, read only by `worker-integrations` (02 section 10.5) | Push sending only | Revoked and re-created in the Apple Developer account (RB-37) |
+| FCM service account key | Secrets Manager, read only by `worker-integrations` | Push sending only | Rotated in the Firebase project (RB-37) |
+| Apple Developer and App Store Connect accounts | Organisation account in Fidero's name. Account holder: the founder. Admin: the lead. App manager: the release manager. Hardware-key two-step sign-in for everyone | As listed | Founder holds the account holder role and the recovery details; reviewed quarterly (12.1) |
+| Google Play Console account | Organisation account in Fidero's name. Owner: the founder. Admin: the lead. Release manager role for one developer. Hardware-key two-step sign-in | As listed | Founder holds a sealed break-glass account |
+
+Two people are needed for every production submission and release on either store (4.5). No person signs a build on a laptop. If the Play upload key is lost or exposed, the lead asks Google Play to reset it (RB-38); users are not affected because the app signing key does not change. If the Apple distribution certificate is exposed, it is revoked and re-issued (RB-38); apps already installed from the App Store keep working `[TO VERIFY]`.
+
+**Store-only distribution.** Fidero Field accepts registrations only from store builds (02 section 8.2). There is no side-loaded or direct APK route for field users. Internal staff test only through TestFlight and the Play testing tracks.
 
 ### 4.9 Infrastructure pipeline
 
@@ -542,6 +568,20 @@ If the upload key is lost or exposed, the lead asks Google Play to reset the upl
 - Pull requests show the plan. The apply job uses the saved plan file, so what was reviewed is what is applied.
 - Stateful resources (RDS, evidence bucket, KMS keys, backup vaults) carry `prevent_destroy`. Deleting one needs a separate, approved pull request that removes the protection first.
 - State is encrypted, versioned and locked. State bucket access is limited to the CI role and break-glass.
+
+### 4.10 Over-the-air JavaScript updates (R2)
+
+React Native allows the JavaScript bundle to be updated without a store release. Fidero uses this narrowly, within both stores' rules `[TO VERIFY]` against the current App Store Review Guidelines and Google Play policies before first use (02 TQ-23).
+
+| Rule | Policy |
+|---|---|
+| Allowed | Fixes to text, layout, screens and client-side bugs that change no native code and no permission, and keep the app's purpose as reviewed |
+| Never over the air | Anything that changes money, approval, evidence capture, signing, attestation, the offline queue format, account deletion, fee payment, data collected (which would change the privacy disclosures), or the app's main purpose. These ship only as a store release through 4.8 `[TO VERIFY]` that the list matches both stores' rules |
+| Scope | An update targets one native build (`<app version>+ota.N`). It never reaches an app below the minimum version |
+| Approval | Two people, as a production deploy (4.5), with document 05 smoke tests run on both platforms against the update first |
+| Rollout | To staff first, then 10% of users for 24 hours, then all `[TO VERIFY]` the tool's support for staged updates |
+| Rollback | The previous bundle is re-published at once; the app falls back to the embedded bundle if an update fails to load |
+| Record | Every update is in the release record with its bundle hash and the store build it applies to |
 
 ---
 
@@ -557,7 +597,8 @@ If the upload key is lost or exposed, the lead asks Google Play to reset the upl
 | No deploys | Fridays, weekends, public holidays in any live country and the day before one (from each country's holiday calendar, 2.7), and 15 December to 5 January except hotfixes `[TO VERIFY]` |
 | High-risk changes (5.5) | Tuesday or Wednesday only, so there are working days left to watch them |
 | Release instruction format changes | On a date agreed in writing with the bank (5.7) |
-| Android app | Every 2 to 4 weeks once R2 is live; staged rollout starts Monday to Wednesday so the 24-hour steps land on working days |
+| Mobile apps (both stores) | Every 2 to 4 weeks once R2 is live. Submission at least 5 working days `[TO VERIFY]` before the planned release date (4.8). Phased release and staged rollout start Monday to Wednesday so the steps land on working days. The calendar shows each submission, expected approval, release start and the date the minimum version may be raised |
+| Store review buffer before R2 go-live | One month before each app's first production release (document 04 section 3.1, M-38, M-39) |
 | Planned maintenance needing downtime | Saturday 22:00 to 02:00 GMT `[TO VERIFY]`, announced at least 5 working days ahead (5.8). NFR-AVL-01 allows at most 4 hours a month announced 48 hours ahead; Fidero holds itself to the longer notice. The cap is counted per country once a second country is live (SLO-21), and the window must fall outside every live country's bank hours |
 | Release calendar | A shared calendar owned by the lead shows planned releases, freezes, bank dates and pen test windows |
 
@@ -578,6 +619,7 @@ The release manager is whoever starts the deploy. The release record is a GitHub
 - [ ] Release instruction output unchanged, or bank agreement attached (5.7).
 - [ ] Runbook or alert changes merged with the release.
 - [ ] Client communication drafted if there is any downtime or visible change (5.8).
+- [ ] Mobile release only: both apps' store submissions approved for the exact builds tested; privacy labels and Data safety forms match the data catalogue; review notes and demo account current; phased release and staged rollout plan and halt owner named; minimum version decision recorded (3.5, 4.8).
 
 **Go/no-go (on the day, before approval)**
 
@@ -630,7 +672,9 @@ A hotfix is a fix that cannot wait for the next weekly release because it causes
 | Problem found after blue is gone | Redeploy the previous signed image digest through the pipeline | RB-02 |
 | A migration caused the problem | Run the reverse migration if safe; otherwise roll forward with a fix. Never restore the database just to undo a migration if data was written since, unless the incident commander and the lead agree | RB-23, RB-04 |
 | Feature behaviour is the problem | Switch the feature flag off | 2.6 |
-| Android app problem | Halt the staged rollout; release a fixed version with a higher `versionCode` (Play cannot roll back to a lower version code) | RB-19 |
+| App problem on Google Play | Halt the staged rollout; release a fixed version with a higher `versionCode` (Play cannot roll back to a lower version code) | RB-19, RB-36 |
+| App problem on the App Store | Pause the phased release; in an emergency remove the version from sale; fixed build through expedited review | RB-36 |
+| JavaScript-only fault after an over-the-air update | Re-publish the previous bundle (4.10) | 4.10 |
 
 Rule: code rolls back; data rolls forward. The audit log and evidence store are never rolled back.
 
@@ -653,7 +697,7 @@ In a three-person team, a formal board is too heavy. The change advisory is a sh
 | Country configuration | Bundle import, data location settings, country scoping of access, holiday calendars | `api/countries/`, `api/permissions/` |
 | Data protection | Retention jobs, anonymisation, exports, data subject requests, legal holds | `api/dpr/` |
 | Infrastructure | KMS keys, IAM, network, backup and replication settings, WAF rules | `infra/` |
-| Mobile | Device key handling, signature format, capture restrictions | `mobile/android/.../evidence/` |
+| Mobile | Device key handling, signature format, attestation, capture restrictions, offline queue format, account deletion, fee payment route | `mobile/native/*/evidence/`, `mobile/packages/queue/`, `mobile/apps/*/account/`, `mobile/apps/client/payments/` |
 
 **What the change advisory record holds**
 
@@ -867,7 +911,7 @@ SLOs are internal targets. They are not contractual promises to clients. Each SL
 | SLO-12 | Backup success | Share of scheduled backup jobs (RDS automated backups, cross-region copies, AWS Backup plans, Terraform state, configuration exports) that complete | 100%. Any failure is fixed within 1 working day | AWS Backup job status; custom checks | NFR-AVL-02 | R1 |
 | SLO-13 | Recovery point | Age of the newest restorable point for the production database, checked every 15 minutes | Under 15 minutes in-region; under 1 hour cross-region | RDS latest restorable time; cross-region backup replication status | NFR-AVL-02 | R1 |
 | SLO-14 | Background job health | Share of Celery jobs that succeed without manual action (retries allowed) | 99.5% | Celery result events | NFR-OBS-01 | R1 |
-| SLO-15 | Field app stability | Crash-free user sessions on supported versions | 99% `[TO VERIFY]` | Play Console vitals and Sentry | NFR-PERF-05 | R2 |
+| SLO-15 | App stability, both apps on both platforms | Crash-free user sessions on supported versions, per app and platform; Android user-perceived ANR rate | 99% crash-free `[TO VERIFY]`; ANR under 0.47% (Google Play's bad-behaviour threshold `[TO VERIFY]`) | Play Console vitals, App Store Connect metrics and Sentry | NFR-PERF-05, NFR-STORE-01 | R2 |
 | SLO-16 | Partner API availability and latency | Share of partner API requests that succeed (non-5xx) and return within 1 second | 99.5% success; 95% under 1 second | API gateway metrics per partner | FR-PTR-001, IF-08 | R2 |
 | SLO-17 | Institution payment receipt return | Share of institution payments where the institution's receipt is in the client's dashboard within 2 bank working days of the bank's payment confirmation (FR-FEE-004) | 95% `[TO VERIFY]` against institution agreements | Institution payment event timestamps | BR-17, FR-FEE-004, IF-10 | R1 |
 | SLO-18 | Care visit confirmation latency | Share of visits either confirmed by the family within 24 hours of check-out, or flagged to the client and Fidero as unconfirmed within 15 minutes of the 24-hour mark (FR-CARE-005); and share of missed check-ins alerted within 60 minutes of the scheduled time | 99% | Care visit event timestamps; alert log | FR-CARE-004, FR-CARE-005, RUL-23 | R2 |
@@ -875,6 +919,7 @@ SLOs are internal targets. They are not contractual promises to clients. Each SL
 | SLO-20 | Payee verification | Share of payee account-name checks (FR-ESC-015) completed within 1 bank working day of a payee being added or changed; and the number of releases sent to a payee without a matched account name | 99% within 1 day; 0 unmatched releases. Any unmatched release is a SEV1 | Payee check job timestamps; release instruction records | FR-ESC-015, RUL-22 | R1 |
 | SLO-21 | Per-country availability | SLO-01 measured separately for each live country's hostnames or stack, excluding that country's announced maintenance within the 4-hour monthly cap (NFR-AVL-01) | 99.5% per country per calendar month | External synthetic checks per country | NFR-AVL-01, FR-CTY-002 | R2 (when country 2 is live) |
 | SLO-22 | Insurer hand-off | Share of completed applications and premium payment confirmations passed to the insurer within 1 working day, and policy documents stored within the insurer's agreed time `[TO VERIFY]` | 99% | Insurer integration log | FR-INS-002, FR-INS-003, IF-11 | R2 |
+| SLO-23 | Push delivery to the stores' services | Share of push requests accepted by APNs and FCM, excluding tokens the user has revoked | 99% `[TO VERIFY]` | Push send log (`ntf_message` with channel `push`) | FR-APP-002, FR-NTF-005 | R2 |
 
 ### 7.2 Error budgets
 
@@ -918,7 +963,7 @@ SLOs are internal targets. They are not contractual promises to clients. Each SL
 | Metrics | CloudWatch metrics (AWS services and custom application metrics via embedded metric format) | Custom metrics namespace `Fidero/<env>` |
 | Logs | CloudWatch Logs, structured JSON | 8.5 |
 | Dashboards | Grafana (managed or Grafana Cloud `[TO VERIFY]` data location) reading CloudWatch | 8.4 |
-| Errors | Sentry for backend, web apps and Android | Personal data scrubbing on; data location of the Sentry project `[TO VERIFY]` (13.4) |
+| Errors | Sentry for backend, web apps and both mobile apps on iOS and Android; Play Console vitals and App Store Connect metrics for crashes, ANRs and hangs | Personal data scrubbing on; data location of the Sentry project `[TO VERIFY]` (13.4) |
 | Synthetic checks | CloudWatch Synthetics canaries plus one external probe, per country from country 2 | SLO-01, SLO-21 |
 | Paging | On-call paging tool `[TO VERIFY]` | 6.2 |
 | Security findings | AWS threat detection service, AWS Security Hub, AWS Config, CloudTrail | 12 |
@@ -950,7 +995,7 @@ SLOs are internal targets. They are not contractual promises to clients. Each SL
 | Certificates and domains | Certificate expiry (ACM, and any bank or vendor client certificates); domain registration expiry |
 | Backups | Job success; latest restorable time; cross-region copy status |
 | Cost | Daily spend against budget (14.2) |
-| Mobile (R2) | Crash-free sessions; ANR rate; signature verification failures; fraud flags (FR-MOB-011) |
+| Mobile (R2) | Per app and platform: crash-free sessions; ANR rate (Android); hangs (iOS); app version adoption; attestation failures (Play Integrity, App Attest); signature verification failures; fraud flags (FR-MOB-011); push acceptance (SLO-23); store ratings; account deletion requests from the apps |
 | Payees | Account-name checks pending, matched, mismatched (FR-ESC-015); mismatch blocks and any override attempt; payee detail changes and who made them |
 | Family lines (R1 FEE; R2 CARE) | Institution verifications pending and failed; invoices awaiting check; receipts outstanding by age; amounts held at the bank by client against the bank's own figure (FR-ESC-014); institutions marked not eligible for direct payment (FR-FEE-006); visits scheduled today, checked in, missed, unconfirmed; concerns open by age |
 | Property and errands (R2) | Rent due, received, late; rent-matching job result; repairs by state; errands by state and overdue; errand documents past their deletion date |
@@ -999,7 +1044,7 @@ The incident severity (SEV1 to SEV4) is set by the person who responds, using 9.
 | AL-28 | Retention job failure | Retention or anonymisation job failed, or skipped items not explained by a legal hold | P3 | Data protection lead and on call | RB-25 |
 | AL-29 | Budget threshold | Monthly forecast over 80% (P3) or 100% (P2) of budget; daily spend over 3 times the 7-day average | P3, then P2 | Lead and founder | RB-13 |
 | AL-30 | Vendor degraded | Payment, identity, SMS, WhatsApp or satellite provider error rate over 20% for 15 minutes, or their status page reports an incident | P2 | On call | RB-22 |
-| AL-31 | Android rollout health (R2) | Crash-free sessions below 99%, or upload success below SLO-07 on the new version during staged rollout | P2 | On call and release manager | RB-19 |
+| AL-31 | Mobile rollout health (R2), each app on each store | Crash-free sessions below 99%, or upload success below SLO-07, on the new version during the App Store phased release or the Play staged rollout | P2 | On call and release manager | RB-19, RB-36 |
 | AL-32 | Scheduler missing | Celery beat heartbeat missing for 5 minutes, or a daily job (reconciliation, retention, audit check, inventory check, rent matching, payee checks) did not start | P2 | On call | RB-12 |
 | AL-33 | Payee account-name mismatch | Any release blocked because the payee's account name did not match the verified payee (FR-ESC-015) is a P3 notice. More than 3 blocks for one payee or one staff member in 24 hours is P2. Any attempt to override or bypass the block, or a failure of invariant check 3, is P1 | P3, P2, P1 | Operations lead; then lead; P1 adds the founder | RB-28 |
 | AL-34 | Institution verification failures spike | More than 5 institution, agency or vendor verifications failing in 24 hours; a verified payee's bank details changed without a second administrator (FR-ADM-003); or any payment instruction raised against an unverified or suspended institution (P1) | P2; P1 | Operations lead and on call; founder for P1 | RB-27 |
@@ -1011,6 +1056,11 @@ The incident severity (SEV1 to SEV4) is set by the person who responds, using 9.
 | AL-40 | Country configuration change in production | Any import or edit of a country configuration bundle in production (P2, acknowledged against the release record). P1 if it was not through RB-33, was done by one person, or changed the data location field | P2; P1 | Lead and founder | RB-33; RB-21 if unexplained |
 | AL-41 | Cross-country access denied spike | More than 20 cross-country access denials in 1 hour, or more than 5 for one user (P2); any cross-country read that succeeded for a role not allowed it, found by invariant check 6 (P1) | P2; P1 | Lead; data protection lead for P1 | RB-21, RB-18 |
 | AL-42 | Holiday calendar or country configuration gap | A live country's holiday calendar covers less than 90 days ahead, or a required bundle item (currency, bank, legal text, data location) is empty in production | P3 | Country lead and an administrator | RB-33 |
+| AL-43 | Crash or ANR rate high (R2) | Per app and platform over 24 hours: crash rate above 1% of sessions, Android user-perceived ANR rate above 0.47%, or iOS hang rate above baseline (assumptions near the stores' thresholds `[TO VERIFY]`) | P2 | On call and release manager | RB-36 |
+| AL-44 | Store rating drop (R2) | Average rating over the last 7 days drops by 0.5 or more on either store, or 5 one-star reviews mention the same fault in a day (assumptions) | P3 | Release manager and operations lead | RB-35 |
+| AL-45 | Attestation failures (R2) | Fidero Field registration or integrity check failures above twice the 7-day baseline, per platform; or any Play Integrity or App Attest service error for 15 minutes | P2 | On call and reviewer | RB-07, RB-36 |
+| AL-46 | Push credentials (R2) | APNs or FCM rejects Fidero's credentials, push acceptance below SLO-23 for 30 minutes, or a push credential or the Apple distribution certificate expires within 30 days | P2 (P3 for expiry notice) | On call | RB-37 |
+| AL-47 | Store notice (R2) | A store rejects a submission, sends a policy warning or removal notice, or flags the Data safety form or privacy label | P2 | Release manager, lead and founder | RB-35 |
 
 Alert hygiene rules:
 
@@ -1035,7 +1085,7 @@ Alert hygiene rules:
 | Data protection | Data protection lead | Retention job results, open data subject requests and their age, legal holds |
 | Backups and DR | Lead | Backup job status, latest restorable time, cross-region copy status, last restore drill result |
 | Cost | Lead, founder | Daily spend by service and environment, forecast, budget |
-| Mobile (R2) | Lead, release manager | Rollout stage, crash-free sessions, ANRs, version adoption, signature failures, fraud flags |
+| Mobile (R2) | Lead, release manager | Per app and platform: submission and review state, phased release and rollout stage, crash-free sessions, ANRs and hangs, version adoption against the minimum version, attestation and signature failures, fraud flags, push acceptance, store ratings |
 | Business operations | Founder, operations | The A9 metrics (8.6), by country |
 | Family lines (R1 FEE; R2 CARE) | Operations lead, case managers | Institution verifications, invoices awaiting check, receipts outstanding, amounts held at the bank against the bank's own figures, visits today by state, concerns open. Names shown only to roles allowed (FR-ANL-003, 12.1) |
 | Property, errands and insurer lines (R2) | Operations lead | Rent due and late, matching job result, repairs, errands by state and overdue, insurer hand-offs and failures |
@@ -1319,7 +1369,7 @@ Rules: no payment decision is made during the incident. The visit is marked "inc
 | Secrets | Secrets Manager with replicas in the second region | On change | Current and previous versions | Second region | KMS |
 | Business and country configuration (templates, condition sets, prices, flags, country bundles `CFG-<country>-vN`) | In the database, so covered by RDS backups; also a nightly JSON export to S3 for quick comparison and rollback (RB-33) | Nightly | 90 days; every promoted bundle version kept for the life of the platform | Second region, within the country's allowed locations | KMS |
 | KMS keys | Not exportable. Multi-region keys for evidence and backups `[TO VERIFY]` design choice in document 02; deletion protected by a 30-day waiting period and an alert | — | — | — | — |
-| Android upload key | Secrets Manager plus two offline encrypted copies (4.8) | On creation | Life of the app | Two physical locations | Hardware encryption |
+| Play upload key and Apple distribution certificate private key | Secrets Manager plus two offline encrypted copies each (4.8) | On creation and on yearly certificate renewal | Life of the app | Two physical locations | Hardware encryption |
 | Release instruction signing keys | KMS asymmetric keys; not exportable. Recovery is by creating a new key and registering it with the bank (RB-06) | — | — | — | — |
 | Contact lists and runbooks | Runbooks in Git; contact list in the on-call tool and a printed copy | Monthly print | Current | Office safe | Physical |
 
@@ -1418,7 +1468,7 @@ Each scenario starts with: declare an incident (9), pause release instructions (
 | Backup vault copy restore | Quarterly | Snapshot from `fidero-backup` restores in the second region |
 | Terraform state recovery | Yearly | Previous state version restores and `terraform plan` shows no unexpected changes |
 | Secrets replica | Twice a year | Application starts in the second region with replica secrets |
-| Android upload key recovery | Yearly | An offline copy opens with the split passphrase; a test build signs |
+| Mobile signing key recovery (Play upload key, Apple distribution certificate) | Yearly | An offline copy opens with the split passphrase; a test build of each app signs on each platform |
 
 Restore test data never leaves the production account boundary and the restore VPC is destroyed after the test. Results go on the "Backups and DR" dashboard and in the quarterly report to the founder.
 
@@ -1461,7 +1511,7 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
 | RB-16 | Data subject access or correction request | Request from a person |
 | RB-17 | Place and lift a legal hold | Instruction from the lawyer or founder |
 | RB-18 | Personal data breach response | AL-19 to AL-22, report from anyone |
-| RB-19 | Halt an Android app rollout (R2) | AL-31 |
+| RB-19 | Halt an app rollout on Google Play (R2) | AL-31, AL-43 |
 | RB-20 | Region failover | DR-A |
 | RB-21 | Credential compromise or suspicious infrastructure change | AL-23, AL-26, AL-27 |
 | RB-22 | Vendor outage fallback | AL-15, AL-30 |
@@ -1477,6 +1527,11 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
 | RB-32 | Insurer premium misrouting (R2) | AL-39; invariant check 4; bank or insurer report |
 | RB-33 | Promote country configuration dev → staging → production | Configuration change; RB-26 step 6; AL-40, AL-42 |
 | RB-34 | Rotate institution and insurer credentials (R2) | Schedule (12.4); partner request; suspected exposure |
+| RB-35 | Store rejection response (R2) | AL-47; AL-44; a rejection, warning or removal notice from Apple or Google |
+| RB-36 | Emergency app halt on each store (R2) | AL-31, AL-43, AL-45; a release that endangers evidence, money or personal data |
+| RB-37 | Rotate APNs and FCM credentials (R2) | Schedule (12.4); AL-46; staff exit; suspected exposure |
+| RB-38 | Revoke a compromised signing certificate or key (R2) | Suspected exposure of the Apple distribution certificate, the Play upload key or the App Store Connect API key; AL-23; AL-26 |
+| RB-39 | Raise the minimum app version (R2) | Security fix; signature or attestation change; end of a support window (3.5) |
 
 ### RB-01 Production deploy
 
@@ -1551,7 +1606,7 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
   2. For vendor API keys: create a new key in the vendor console; store it as a new secret version; deploy or restart the services that read it; confirm traffic works; revoke the old key at the vendor.
   3. For KMS customer-managed keys: automatic yearly rotation is on. For a suspected compromise, create a new key, re-encrypt affected data or data keys, and disable the old key after checking nothing uses it.
   4. For release instruction signing keys: create a new KMS asymmetric key; register the new public key with the bank under 5.7; switch after the bank confirms; disable the old key. During the gap, instructions wait.
-  5. For the Android upload key: request an upload key reset from Google Play, store the new key per 4.8, destroy the old copies.
+  5. For mobile signing keys and certificates (Play upload key, Apple distribution certificate, App Store Connect API key) follow RB-38; for push credentials (APNs key, FCM service account) follow RB-37.
   6. Record the rotation in the secrets register (date, who, next due).
 - **Done when:** the new secret is in use, the old one is revoked, and the register is updated.
 
@@ -1563,7 +1618,7 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
   2. In the back office, mark the device key as revoked with a time and reason. The server rejects any new submission signed by it.
   3. Find submissions signed by that key after the suspected compromise time. Mark them "under review" and route them to a reviewer before any linked release (FR-MOB-011).
   4. Freeze releases linked to those submissions until the reviewer decides.
-  5. Ask the user to re-enrol: sign in on the new or wiped device, which creates a new key in the keystore.
+  5. Ask the user to re-enrol: sign in on the new or wiped device, installed from Google Play or the App Store, which creates a new key in Android Keystore or the iOS Secure Enclave and registers it with attestation.
   6. If several devices are affected, consider a forced app update or a server-side block of an app version.
 - **Done when:** the key is revoked, affected submissions are reviewed, and the user has a new enrolled device.
 
@@ -1661,7 +1716,7 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
   6. Record the access in the access register.
 - **Offboard steps (same day as leaving, or within 1 hour for a dismissal):**
   1. Disable the SSO user; this ends AWS console and CLI access.
-  2. Remove from GitHub, Sentry, Grafana, the on-call tool, Play Console, vendor consoles.
+  2. Remove from GitHub, Sentry, Grafana, the on-call tool, Play Console, App Store Connect and the Apple Developer account, vendor consoles.
   3. Disable the application account and revoke sessions; remove release rights.
   4. Revoke any device keys (RB-07) for field users.
   5. Rotate any shared secret the person could have seen (RB-06, RB-34 for institution and insurer credentials). If they held release rights, tell the bank to remove them from any call-back list. If they were a carer or agent, remove them from the panel and reassign their care plans and errands the same day.
@@ -1705,15 +1760,16 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
   7. Hold the post-incident review.
 - **Done when:** contained, notifications made or a recorded decision not to notify, actions tracked.
 
-### RB-19 Halt an Android app rollout (R2)
+### RB-19 Halt an app rollout on Google Play (R2)
 
 - **Who:** release manager or on-call engineer (one person can halt).
 - **Steps:**
-  1. In the Play Console (or through the Play Developer API from the pipeline), halt the staged rollout. Users already on the new version keep it.
-  2. If the fault endangers evidence (lost queue items, bad signatures), raise `min_supported_version` only if a fixed version is available; otherwise set a server flag that tells the faulty version to stop capture and only upload its queue.
-  3. On the server, accept uploads from the faulty version and mark them for review if signatures may be wrong.
-  4. Build a fix with a higher `versionCode`. Release through internal and closed tracks, then a new staged rollout.
-  5. Tell field users through operations what to do (for example, "do not uninstall the app; your photos will upload").
+  1. In the Play Console (or through the Play Developer API from the pipeline), halt the staged rollout of the affected app. Users already on the new version keep it.
+  2. If the same build is also in phased release on the App Store, pause it too (RB-36 step 2).
+  3. If the fault endangers evidence (lost queue items, bad signatures), raise `min_app_version` only if a fixed version is available (RB-39); otherwise set a server flag that tells the faulty version to stop capture and only upload its queue.
+  4. On the server, accept uploads from the faulty version and mark them for review if signatures may be wrong.
+  5. Build a fix with a higher `versionCode`. Release through internal and closed tracks, then a new staged rollout (4.8).
+  6. Tell field users through operations what to do (for example, "do not uninstall the app; your photos will upload").
 - **Done when:** the fixed version is rolling out and no queued evidence was lost.
 
 ### RB-20 Region failover
@@ -1907,6 +1963,72 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
   6. Staff leaving who knew a partner portal password: rotate the same day (RB-15 step 5).
 - **Done when:** the new credential works, the old one is confirmed revoked, and the register is current.
 
+### RB-35 Store rejection response (R2)
+
+- **Who:** release manager, with the lead; the founder for payment, financial or legal points; the lawyer for Q-24 matters.
+- **Steps:**
+  1. Read the rejection or notice in App Store Connect or the Play Console. Record the guideline or policy cited, the app, the build and the store in the release record.
+  2. Sort it: (a) a misunderstanding the reviewer can clear (missing demo account, unclear review notes), (b) a fixable app issue (a missing purpose text, deletion not found, a privacy label gap), or (c) a policy conflict (fee payment route under Q-23, financial app rules under Q-24, or the app's purpose).
+  3. For (a), reply in the store's resolution channel with facts and screenshots; do not resubmit a changed build unless asked.
+  4. For (b), fix through the normal pipeline (4.8), regenerate the privacy disclosures if data changed, and resubmit. Use expedited review only if a live fault depends on it.
+  5. For (c), stop and escalate to the founder. Never work around a store rule. For fees, switch `app.fee_payment_mode` to `web` for that store and country (FR-APP-005) and resubmit. For financial declarations, get the lawyer's view and the bank's letter before replying.
+  6. If a live app gets a removal warning, set a deadline in the release calendar, tell clients and field users through operations what to expect, and keep the portal as the fallback for clients.
+  7. Add what was learned to the store review checklist (document 05 TC-STORE-03).
+- **Done when:** the build is approved, or the founder has recorded a decision; the checklist is updated.
+
+### RB-36 Emergency app halt on each store (R2)
+
+- **Who:** release manager or on-call engineer starts; the incident commander decides on removal from sale; two people for any store action beyond a pause or halt.
+- **Steps:**
+  1. Declare an incident (9.3) if the release endangers evidence, money, personal data or safety.
+  2. App Store: pause the phased release in App Store Connect. Users who already updated keep the version; automatic updates stop.
+  3. Google Play: halt the staged rollout (RB-19 step 1).
+  4. If the fault is in JavaScript only and an earlier over-the-air bundle is safe, re-publish it (4.10).
+  5. Limit harm on the server: switch the affected feature flag off; for Fidero Field, tell the faulty version to stop capture and only upload its queue; for an attestation fault, hold new registrations (AL-45).
+  6. Emergency removal, only if users would be harmed by new installs: remove the version or the app from sale on the App Store, and unpublish or roll out a fixed build on Google Play. The founder approves with the lead.
+  7. Build the fix with a higher build number; run 4.8 steps 1 to 6; request expedited review on the App Store with a factual reason; submit to Google Play at once.
+  8. When the fixed version is out, raise `min_app_version` if the old version must not be used (RB-39).
+  9. Tell field users and clients what to do through operations and the status page (5.8). Never ask a user to uninstall Fidero Field while it holds queued evidence.
+- **Done when:** a fixed version is released on both stores, any removal is reversed, no evidence was lost, and the post-incident review is booked.
+
+### RB-37 Rotate APNs and FCM credentials (R2)
+
+- **Who:** the lead or a named engineer; second person checks.
+- **Steps:**
+  1. APNs: create a new authentication key in the Apple Developer account (account holder or admin); store it as a new secret version (`/<env>/notifications/apns-key`); restart `worker-integrations`; send a test push to staff devices on iOS; revoke the old key in the Apple Developer account.
+  2. FCM: create a new service account key in the Firebase project; store it as a new secret version (`/<env>/notifications/fcm-key`); restart `worker-integrations`; send a test push to staff devices on Android; delete the old key.
+  3. Watch SLO-23 and AL-46 for 1 hour. No push should be lost: messages that fail during the switch are retried by the notification job.
+  4. Update the secrets register (12.4) with the date and next due date.
+  5. On a suspected exposure, rotate at once and review push send logs for messages Fidero did not send `[TO VERIFY]` whether the providers expose this.
+- **Done when:** pushes flow on both platforms with the new credentials, the old ones are revoked, and the register is current.
+
+### RB-38 Revoke a compromised signing certificate or key (R2)
+
+- **Who:** the lead and the founder (two people); the release manager helps.
+- **Steps:**
+  1. Treat it as a security incident (RB-21). Freeze mobile submissions and over-the-air updates.
+  2. Apple distribution certificate: revoke it in the Apple Developer account; create a new certificate and provisioning profiles; store them per 4.8; destroy the old offline copies. Apps already installed from the App Store keep working `[TO VERIFY]`; the next build is signed with the new certificate.
+  3. App Store Connect API key: revoke it in App Store Connect; issue a new key with the same limited role; update the pipeline secret.
+  4. Play upload key: request an upload key reset from Google Play; store the new key per 4.8; destroy the old copies. Users are not affected because the app signing key does not change.
+  5. If Google's app signing key itself is suspected `[TO VERIFY]` the store's key upgrade path, contact Google Play support at once and follow their procedure with the founder.
+  6. Check the store consoles for any build or release Fidero did not make. If one exists, use RB-36 step 6 and tell users.
+  7. On the server, check that attestation still accepts only the expected package name, signing digest, team ID and bundle ID (02 section 8.2); update the expected values if a store-side key change requires it, with a second person.
+  8. Record the rotation in the secrets register and the incident record.
+- **Done when:** the old certificate or key is revoked, new builds sign with the new one, no unexpected build exists, and the server's expected values are correct.
+
+### RB-39 Raise the minimum app version (R2)
+
+- **Who:** an administrator proposes; a second administrator approves (3.5).
+- **Steps:**
+  1. Confirm the new version is approved and released to 100% on the store for that platform, and that the support window has passed or a security reason applies.
+  2. Check version adoption on the mobile dashboard: how many users and devices are on older versions, by app and platform.
+  3. For Fidero Field, list devices with queued items on older versions and ask operations to tell those users to update on Wi-Fi; queued items are kept (3.5).
+  4. In staging, set the new minimum and run document 05 TC-STORE-06 on both platforms.
+  5. In production, set `min_app_version` for the app and platform through `/v1/admin/app-versions`, with the second administrator's approval. Not on a Friday or before a holiday (5.1).
+  6. Watch AL-31 and support contacts for 24 hours. Uploads of items captured before the raise keep being accepted for 30 days `[TO VERIFY]`.
+  7. To undo, lower the minimum the same way.
+- **Done when:** the new minimum is live, the old version shows the update screen, and no queued evidence was lost.
+
 ---
 
 ## 12. Security operations
@@ -1926,6 +2048,7 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
 | Root accounts | Root MFA on every account; root credentials unused; use raises AL-23 |
 | Quarterly access review | The lead and founder review every AWS, GitHub, vendor console and application staff account and role. Removals are done the same day. The review is recorded |
 | Vendor and partner access | Bank and partner API keys scoped per partner and environment; rotated per 12.4 |
+| App store accounts (R2) | Apple Developer and Google Play Console organisation accounts in Fidero's name (IF-12). The founder is account holder or owner; the lead is admin; one release manager. Hardware-key two-step sign-in. Included in the quarterly access review. No shared logins (4.8) |
 
 ### 12.2 Patching cadence
 
@@ -1936,7 +2059,7 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
 | Django, Next.js, DRF, Celery | Patch versions within 14 days; minor and major versions planned each quarter | Normal release; major versions as high-risk changes if they touch auth |
 | PostgreSQL and PostGIS | RDS minor versions in the maintenance window (Sunday 01:00–03:00 GMT `[TO VERIFY]`) after staging; major versions planned yearly | Terraform change |
 | Redis | ElastiCache maintenance window | Terraform change |
-| Android app dependencies | Each app release | Normal release |
+| Mobile app dependencies (React Native, native libraries, iOS and Android SDK levels) | Each app release; React Native upgrades planned each quarter | Normal release; a React Native or native module upgrade is a high-risk change (5.5). Store deadlines for target SDK levels and build tools tracked in the release calendar `[TO VERIFY]` |
 | Fargate platform | Managed by AWS; pin to `LATEST` platform version | Automatic on redeploy |
 
 ### 12.3 Vulnerability management
@@ -1961,7 +2084,11 @@ All targets are assumptions. Sources: CI scanners, ECR scans of running images, 
 | Partner API credentials issued by Fidero (R2) | Yearly, partner-led, with overlap | Partner portal |
 | KMS customer-managed keys | Automatic yearly rotation | KMS |
 | Release instruction signing keys | Yearly, or on any approver or system change agreed with the bank | RB-06 and 5.7 |
-| Android upload key | Only on compromise | RB-06 |
+| Play upload key | Only on compromise | RB-38 |
+| Apple distribution certificate and provisioning profiles | Yearly, before expiry (AL-46), or on compromise | 4.8, RB-38 |
+| App Store Connect API key | Yearly, on staff exit, or on compromise | RB-38 |
+| APNs authentication key | Yearly, on staff exit with access, or on suspected exposure | RB-37 |
+| FCM service account key | Yearly, on staff exit with access, or on suspected exposure | RB-37 |
 | Break-glass credentials | After every use and yearly | Lead and founder |
 | Institution portal or file-drop credentials (IF-10, R2) | Yearly, or on staff exit or suspected exposure | RB-34 |
 | Insurer API keys, file-transfer keys and portal accounts (IF-11, R2) | Yearly with notice to the insurer, or on suspected exposure | RB-34 |
@@ -2013,7 +2140,7 @@ The audit log hash chain head is anchored every hour to an Object Lock bucket (`
 | When | Scope |
 |---|---|
 | Before R1 go-live | Portal, back office, API, AWS configuration review, release instruction path |
-| Before R2 go-live | Adds Android app (including device key and offline storage), partner API, bank file or API integration, institution and insurer integrations (IF-10, IF-11), the payee name-check path, and country separation for country 2 (pattern A or B) |
+| Before R2 go-live | Adds both apps on iOS and Android (including device keys, attestation, offline storage, deep links, push content and in-app deletion), partner API, bank file or API integration, institution and insurer integrations (IF-10, IF-11), the payee name-check path, and country separation for country 2 (pattern A or B) |
 | Before R3 go-live | Adds records module, the events line and country 3 separation |
 | Yearly between releases | Full scope |
 | After any major change to escrow release, authentication or evidence handling | Targeted test |
@@ -2089,8 +2216,9 @@ The full register follows. Each row is repeated per country where the location d
 | SMS and WhatsApp providers | Phone numbers, message text | Vendor `[TO VERIFY]` | Yes | Pending contract |
 | Satellite imagery provider | Plot coordinates | Vendor `[TO VERIFY]` | Indirect | Pending contract |
 | GitHub | Code only. No personal data allowed | US | No | Enforced by secret and data scanning |
-| Google Play | App users' Play accounts (Google's own processing) | Google | Yes (Google is controller for Play data `[TO VERIFY]`) | Note in privacy notice |
-| Android devices | Queued evidence, encrypted | User devices | Yes | Cleared after upload (FR-MOB-009) |
+| Apple App Store and Google Play (IF-12) | App users' store accounts and the stores' own analytics (Apple's and Google's own processing) | Apple, Google | Yes (each store is controller for its own data `[TO VERIFY]`) | Note in privacy notice; privacy labels and Data safety forms match the data catalogue (NFR-STORE-01) |
+| APNs and FCM (R2) | Push tokens and generic notification text; no amounts or names (FR-NTF-004) | Apple, Google | Yes (tokens) | Note in privacy notice; tokens deleted at sign-out and account deletion |
+| User devices, iOS and Android | Queued evidence, encrypted; client app cache | User devices | Yes | Cleared after upload (FR-MOB-009); cleared at sign-out and account deletion |
 | Office (R0 carry-over) | Spreadsheets and shared drive | Vendor `[TO VERIFY]` | Yes | Migrate to the platform at R1 and delete |
 | Institutions (IF-10) | Family member name, invoice reference, amount, receipt | The institution's own systems; each institution is its own controller `[TO VERIFY]` | Yes | Per institution; data sharing terms in the institution agreement |
 | Insurer partners (IF-11, R2) | Applications, health declarations, premiums, policies, claims | The insurer's systems; the insurer is controller for the policy `[TO VERIFY]` | Yes, sensitive | Pending contract; data processing or sharing terms needed |
@@ -2102,7 +2230,7 @@ The full register follows. Each row is repeated per country where the location d
 
 | Item | Rule |
 |---|---|
-| Channels | Portal form, email to the data protection contact, written letter |
+| Channels | Portal form, email to the data protection contact, written letter; from R2 account deletion inside either app (FR-APP-004), which shows what is kept and why and creates a deletion request |
 | Who may ask | The client, and any person whose data Fidero holds: family members, tenants, carers, agents, institution contacts, people named in an insurance application. Requests about a second country's data follow that country's law `[TO VERIFY]` |
 | Handling time | `[TO VERIFY]` by the lawyer under Act 843; working target 21 days from a verified request (assumption) |
 | Procedure | RB-16 |
@@ -2162,6 +2290,7 @@ Every figure is a rough planning assumption, not a quote. af-south-1 prices are 
 | AWS support plan | Business tier `[TO VERIFY]` | 100 or a share of spend `[TO VERIFY]` |
 | Sentry, Grafana, on-call tool, status page, external probe | Small team plans | 50 to 200 `[TO VERIFY]` |
 | GitHub (team plan, Actions minutes) | 3 to 5 users | 20 to 80 `[TO VERIFY]` |
+| From R2: Apple Developer Program, Google Play Console, macOS build minutes or a build service | Two apps, two stores | About 8 a month for Apple's yearly fee (about 99 a year), a one-off 25 for Google Play, and 50 to 150 for builds (assumptions) `[TO VERIFY]` |
 | SMS, WhatsApp, email | Per message | `[TO VERIFY]` with volumes |
 | Identity checks, payment fees, satellite images | Per use | `[TO VERIFY]`; usually passed into pricing |
 | Pen test | Per release | `[TO VERIFY]` quote |
@@ -2198,7 +2327,9 @@ A third country adds the same again. Pattern B's cost is the reason the lawyer's
 | IF-11 | Insurer partners, one or more per country `[TO VERIFY]` (Q-17) (R2) | The insurer's own, if any | Insurer operations desk and claims contact (6.6) | Application and policy document turnaround `[TO VERIFY]` in the agreement (SLO-22) | Hold applications. Premiums always go from the client to the insurer's account, so nothing is stuck with Fidero. Renewals chased by phone. `lines.ins` off if the insurer cannot process | SLO-22, AL-39 |
 | — | AWS | AWS Health Dashboard | AWS support plan | AWS service terms | DR plan (10.5) | AWS Health events to the engineering channel |
 | — | GitHub | GitHub status page | GitHub support | GitHub terms | Deploys wait; emergency deploy of an existing signed image through a documented break-glass AWS path `[TO VERIFY]` | Manual |
-| — | Google Play (R2) | Play status | Play Console support | Google terms | Direct APK to field staff devices through managed distribution only for internal staff `[TO VERIFY]` | Manual |
+| IF-12 | Apple App Store and Google Play (R2) | Apple Developer System Status; Google Play status | App Store Connect and Play Console support; Apple expedited review requests (4.8) | Apple and Google developer terms | Clients use the phone-first portal; field users keep the installed version, whose queue works offline. No side-loaded builds (4.8) | AL-31, AL-43 to AL-47 |
+| IF-12 | APNs and FCM (R2) | Apple and Firebase status pages | Apple and Google developer support | Provider terms | Email, SMS and WhatsApp by user preference (FR-NTF-001) | SLO-23, AL-46 |
+| IF-12 | App Attest and Play Integrity (R2) | Apple and Google status pages | Developer support | Provider terms | Registration waits and retries; no evidence is signed until it succeeds (02 section 8.2) | AL-45 |
 
 Vendor rules:
 
@@ -2247,7 +2378,12 @@ A release cannot go live until its operational readiness checklist is complete a
 ### 16.2 R2 readiness (construction, mobile, partner API, bank integration, family and property lines, country 2)
 
 - [ ] Everything in 16.1 still true; R1 SLO report shows targets met for the last 3 months, or gaps have accepted plans.
-- [ ] Android release pipeline live; upload key custody done (4.8); internal and closed tracks used for at least one full cycle.
+- [ ] Mobile release pipeline live for both apps on both stores; signing keys, certificates and push credentials in custody (4.8); TestFlight and the Play internal and closed tracks used for at least one full cycle.
+- [ ] Apple Developer and Google Play Console organisation accounts in Fidero's name, with the roles in 12.1; store listings, privacy labels and Data safety forms complete and matching the data catalogue; financial features declaration filed (Q-24).
+- [ ] **Both apps approved by both stores** (C-14) for the builds that passed document 05; store review time measured in the rehearsal (document 04 EN-75) and in the release calendar.
+- [ ] Over-the-air update policy (4.10) agreed and checked against both stores' rules `[TO VERIFY]`.
+- [ ] Minimum-version enforcement (3.5, RB-39) and in-app account deletion tested on both platforms.
+- [ ] RB-35 to RB-39 written; RB-36 and RB-39 drilled on staging; AL-43 to AL-47 and SLO-15, SLO-23 measured.
 - [ ] RB-07 and RB-19 written and drilled; device key revocation tested end to end.
 - [ ] SLO-15 to SLO-19, SLO-21 and SLO-22 measured; AL-10, AL-17, AL-31 and AL-35 to AL-39 tested.
 - [ ] RB-29 to RB-32 and RB-34 written and drilled. The welfare drill (9.8, RB-29) done with the operations lead, a carer and the founder, including a practice call to the emergency services' non-emergency line `[TO VERIFY]`.
@@ -2262,7 +2398,7 @@ A release cannot go live until its operational readiness checklist is complete a
 - [ ] Bank statement import or API tested with real bank sample files; RB-09 drilled with the operations lead.
 - [ ] Partner API versioning, rate limits, keys and deprecation policy published; partner contacts listed.
 - [ ] Capacity load test at NFR-SCL-01 volumes passed in staging.
-- [ ] Pen test covering the Android app, partner API, bank integration, institution and insurer integrations, payee name-check path and country separation passed (12.8).
+- [ ] Pen test covering both apps on iOS and Android, partner API, bank integration, institution and insurer integrations, payee name-check path and country separation passed (12.8).
 - [ ] `listings.enabled` stays off unless the Act 1047 position is confirmed (C-04).
 - [ ] Insurer confirmation recorded before `building.construction` and `projects.funds` flags go on (AS-09).
 - [ ] On-call load reviewed; team size confirmed for R2 `[TO VERIFY]`; paging window widened per 2.7 if a country east of Ghana is live.
@@ -2327,7 +2463,7 @@ A release meets operational acceptance when:
 
 ## 17. Issues found in document 01
 
-Document 01 is not edited here. These items need a decision by the product owner and, where shown, the lawyer, insurer or bank. The list was refreshed against document 01 v0.3 on 1 November 2026.
+Document 01 is not edited here. These items need a decision by the product owner and, where shown, the lawyer, insurer or bank. The list was refreshed against document 01 v0.3 on 1 November 2026 and against v0.6 on 7 November 2026 for the app store decision.
 
 Items raised in version 0.1 of this document and fixed in document 01 v0.2 or v0.3 have been removed: the maintenance cap (NFR-AVL-01); two data centres within allowed locations and the second-location question (NFR-AVL-03, Q-11); the KMS-signed release instruction (FR-ESC-008, with the channel still `[TO VERIFY]` under Q-01 and Q-12); device key revocation (FR-MOB-011); the second administrator for bank details and release-affecting settings (FR-ADM-003, FR-ADM-005); the stated expected R1 load (NFR-PERF-03); and the bank recall and notice-period questions (Q-12). Items 1 to 14 below were carried over from version 0.1. Items 15 to 27 were added in version 0.2. Items resolved by 01 version 0.4 stay in the table, marked resolved, so their numbers remain traceable.
 
@@ -2339,13 +2475,13 @@ Items raised in version 0.1 of this document and fixed in document 01 v0.2 or v0
 | 4 | C4.20 (DPR) | No requirement for personal data breach detection, recording and notification, though A5 lists the Data Protection Commission for breach notices and architecture section 9 asks for a breach plan. | Add a breach register and notification requirement with the Act 843 deadline `[TO VERIFY]`, and the equivalent for each further country (item 22). |
 | 5 | FR-DPR-003 | No handling time for data subject requests (architecture section 9 says `[TO VERIFY]`). No erasure request handling, and no statement on backups holding erased data. | Add the handling time once the lawyer confirms, and an erasure-and-backups rule. |
 | 6 | FR-DPR-004 | Legal holds are mentioned but no requirement says who places or lifts them, or how they reach evidence objects. | Add an FR for legal hold management (RB-17). |
-| 7 | C4.9 (MOB) | No requirement for a minimum supported app version, forced update, or keeping queued evidence through an update. | Add an app version support requirement (3.5). |
+| 7 | C4.9 (MOB) | No requirement for a minimum supported app version, forced update, or keeping queued evidence through an update. | **Resolved by 01 v0.6.** FR-APP-006 requires both apps to check a minimum version and keep queued evidence through the update. 3.5 and RB-39 follow it. How long older-version evidence is accepted is still open (issue 30). |
 | 8 | FR-AUD-004 and NFR-AUD-01 vs FR-DPR-004 | Hash chaining is only "Should", although tamper evidence is central to BR-06 and BR-15, and document 02 builds it as core design. Document 01 does not say that audit entries must avoid personal values, which is what lets audit retention and erasure coexist. | Make FR-AUD-004 a Must; add a rule that audit entries hold IDs and keyed hashes, not personal values (as document 02 designs). |
 | 9 | FR-EVD-002, C5.2, Q-08 | The evidence store must never delete silently, but retention periods are unknown. Document 02 uses Object Lock compliance mode, whose dates cannot be shortened, so an early guess that is too long could stop Fidero meeting erasure duties. | Answer Q-08 before R1 go-live; until then set lock dates to the minimum agreed period and extend them (10.3). |
 | 10 | NFR-SEC-03 | "Before each release goes live" could mean each roadmap release (R1 to R3) or each weekly deploy. | Clarify as each roadmap release plus major changes to escrow, authentication, evidence or payee handling, and each country opening (12.8). |
 | 11 | C-07 vs the fixed team assumption | C-07 says "one or two developers"; operations planning assumes two. With one developer, a three-person on-call rotation and two-person deploy approvals become hard. The v0.3 plan adds a second country's manual phase from month 6 and its software from month 12 with the same team and budget. | Confirm the team size; if one developer, name the founder as a regular second approver and reduce paging hours. State what country 2 adds to the C-07 budget (14.4). |
 | 12 | A9 "Safety incidents / Incident log" and FR-CASE-010 | "Incident log" means the field safety log, which can be confused with the operational incident log in this document and now with welfare incidents (9.8). | Rename to "safety incident log" in 01. |
-| 13 | C3, C-08 | The app supports Android 8.0+ `[TO VERIFY]`, but Play Store target API rules and security patches limit old Android versions over time. No policy for dropping OS versions. | Add a rule to review the minimum Android version yearly. |
+| 13 | C3, C-08 | The app supports Android 8.0+ `[TO VERIFY]`, but Play Store target API rules and security patches limit old Android versions over time. No policy for dropping OS versions. | **Resolved by 01 v0.6.** NFR-STORE-02 sets the rule for both platforms: support the versions used by at least 95% of active users, reviewed every six months. Store target-SDK deadlines may still force a faster move (3.5). |
 | 14 | C4.16 (NTF) and FR-ACC-001, FR-ACC-002 | One-time codes by SMS are the main sign-in path for clients. No fallback is required when the SMS provider fails, and SMS abuse cost is not addressed. | Add a fallback channel requirement (email or WhatsApp) and a rate limit requirement. |
 | 15 | FR-CTY-001 (R1), FR-CTY-002 (R2), AS-13 | FR-CTY-001 makes "data location" part of a country's configuration in R1, but the requirement to keep data in that location (FR-CTY-002) is R2. Country 2's manual phase from month 6 creates personal data under country-2 law before any requirement covers it, and NFR-PRIV-01 names only the Ghana regulator. | Make FR-CTY-002 R1 for the location field and the storage binding, or state that no country-2 personal data enters the platform before R2. Add the manual-phase records of each country to C5.2 and NFR-PRIV-01. |
 | 16 | FR-ESC-015, IF-01 | The payee account-name check is a Must, but nothing says where the name comes from (a bank name-enquiry service, a statement, a manual call), what happens when the source is unavailable, or that the block cannot be overridden. | **Resolved by 01 v0.4.** FR-ESC-015 names the source (the bank's name check where offered, otherwise a bank letter checked by a second staff member) and forbids any override. RB-28 and the DR-E fallback in 10.5 now use only these two sources; the phone match is withdrawn. |
@@ -2360,3 +2496,7 @@ Items raised in version 0.1 of this document and fixed in document 01 v0.2 or v0
 | 25 | FR-ANL-001 vs FR-CTY-003 | FR-ANL-001 (operating dashboard) is Should while FR-CTY-003 (all metrics by country) is Must in R1. A9 adds per-line metrics but FR-ANL-001 does not list the new lines. | Align the priorities and name the new lines' metrics in FR-ANL-001. |
 | 26 | C1 vs C4.9, F-15, NFR-PERF-05 | C1 renames the app "field app", but C4.9, F-15 and NFR-PERF-05 still say "milestone app". FR-MOB-001 lists its users without carers and agents, although FR-MOB-010 and FR-MOB-012 add them. | **Partly resolved by 01 v0.4.** C4.9 is now "Field app (MOB)" and FR-MOB-001 lists carers and errand agents. F-15, C3, NFR-PERF-05 and NFR-A11Y-01 still say "milestone app". |
 | 27 | B9 | No open question covers Fidero's welfare duty during care visits (when it must call emergency services or report to an authority) or the carer's own safety. | **Resolved by 01 v0.4.** Q-22 asks what duty of care Fidero owes during visits, how a carer's own safety is protected and what insurance covers both, needed by R2. |
+| 28 | C-14 | A release date depends on store review time, but 01 has no requirement for how an urgent fix reaches users when review is slow, and does not say whether over-the-air JavaScript updates are allowed. | State the over-the-air policy (4.10) in 01 and add a requirement that server-side controls (flags, minimum version, capture stop) can contain a faulty app version without a store release. |
+| 29 | IF-12 | "Store accounts held by Fidero" does not say who holds the account holder role, how access is shared, or that two people approve a store release. Losing the account holder loses the apps. | Add an operational requirement on store account ownership, two-person release and recovery (4.8, 12.1). |
+| 30 | FR-APP-006, FR-MOB-005 | "Without losing queued evidence" does not say how long evidence captured on an older version is accepted after the minimum is raised. | State the window in 01; this document uses 30 days `[TO VERIFY]` (3.5). |
+| 31 | FR-APP-004, RUL-11 | In-app account deletion does not say what happens to open escrows, money held at the bank or standing approvals, and FR-APP-002 adds push without FR-NTF-001 naming push as a channel. | State the deletion rule for open money matters and add push to FR-NTF-001 and FR-NTF-004 (13.5, SLO-23). |

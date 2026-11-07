@@ -8,12 +8,12 @@ Test strategy, test cases, acceptance criteria and traceability for the Fidero p
 |---|---|
 | Document | 05 of 6 in `docs/specs/` |
 | Title | Testing and acceptance |
-| Version | 0.3 |
-| Date | 1 November 2026 |
+| Version | 0.4 |
+| Date | 7 November 2026 |
 | Status | Draft. For review. Not yet baselined |
 | Owner | QA and test lead (role to be filled), for the founder as product owner |
 | Approver | Founder, acting as product owner |
-| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01), version 0.4 |
+| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01), version 0.6 |
 | Other sources | `docs/decisions/2026-11-01-diaspora-platform.md`, `docs/operations/verification-report-template.md`, `docs/operations/milestone-schedule.md`, `docs/validation-plan.md`, `docs/product/architecture.md` |
 | Related documents | Document 02 (architecture), document 04 (epics `EP-<MODULE>` and user stories `US-<MODULE>-nnn`), document 06 (operations, runbooks, backup and restore) |
 
@@ -22,6 +22,7 @@ Test strategy, test cases, acceptance criteria and traceability for the Fidero p
 | 0.1 | 31 October 2026 | QA and test architect | First draft for review, against document 01 version 0.1 |
 | 0.2 | 1 November 2026 | QA and test architect | Updated to document 01 version 0.3 (195 functional requirements, 25 business rules). Fidero is now the diaspora's trusted agent at home, per `docs/decisions/2026-11-01-diaspora-platform.md`. Adds risk rows and functional tests for the new modules FEE, CARE, PMG, TSK, INS and EVT; rule tests for RUL-22 to RUL-25 with abuse cases; tests for the new and changed FRs (FR-ACC-012, FR-ESC-014, FR-ESC-015, FR-MOB-012, FR-CTY-004; FR-ACC-007, FR-ACC-008, FR-ACC-011, FR-ESC-004, FR-ESC-006, FR-ESC-010, FR-MOB-010, FR-ADM-003, FR-ADM-005); state tests for the revised escrow, milestone, listing and dispute models from 01 version 0.2; journeys J-09 to J-12; security threats for institution impersonation, invoice tampering, payee substitution, check-in spoofing, confirmation-code brute force and cross-country access; carer and errand agent field trials; UAT for P-15 to P-17 and an institution contact; partner acceptance with an institution and an insurer; country configuration moved to R1 and the country-2 gate added to release acceptance. NFR tests updated for the renamed NFR-A11Y-01 and the measurable NFR-USE-01, NFR-USE-02, NFR-PERF-03 and NFR-AVL-01. Traceability and counts regenerated. Section 16 refreshed: 22 items closed by 01 versions 0.2 and 0.3, 14 kept, 16 added |
 | 0.3 | 1 November 2026 | QA and test architect | Aligned to 01 v0.4: runner cash route removed (TC-RUL-22-07, TC-FEE-006-01 and TC-FEE-006-02 replaced by tests that an institution is marked not eligible, no cash path exists and no release can name a runner; TC-FEE-006-03, TC-E2E-J09-07 and OAT-12 rewritten); fresh search for purchases only (TC-RUL-07-05, TC-ESC-006-07); standing approvals (TC-RUL-11-07, TC-RUL-11-08, TC-CARE-001-03, TC-TSK-003-05); sellers and developers as payees (TC-RUL-22-08); account-name source and no override (TC-ESC-015-05, TC-ESC-015-06); 72-hour reviewer decision, second-person call check and code lockout at 5 (TC-CARE-004-04 to -06); written mandate (TC-PMG-003-03, -04); premium routes (TC-INS-002-04, PAT-21); dispute Withdrawn state (TC-STM-DSP-15 to -17, TC-DSP-002-03); RUL-08 for inspections, visits and errands (TC-RUL-08-05); field app for carers and agents (TC-MOB-001-03); new data classes (TC-DPR-004-03). 871 test cases. Issues 17, 18, 19, 23, 25, 29 and 30 resolved; 14, 20 and 22 partly. |
+| 0.4 | 7 November 2026 | QA and test architect | Aligned to 01 v0.6: both app stores, React Native, client app. New functional tests TC-APP-001-01 to TC-APP-006-03 (22) for module APP; TC-MOB-001-04, TC-MOB-002-03, TC-MOB-004-03 to -05 and TC-MOB-005-04 to -05 for iOS (camera-only capture, Secure Enclave signing, App Attest, store-only registration, background upload, queue surviving termination by iOS); device matrix adds iPhones (oldest supported iOS, small screen); store acceptance tests TC-STORE-01 to TC-STORE-07; NFR tests for both platforms and NFR-STORE-01 and NFR-STORE-02; TC-SEC-41 to TC-SEC-44; TC-FLD-19 and TC-FLD-20; UAT-36 to UAT-40 for the client app and Fidero Field on iPhone; OAT-09 widened and OAT-15 and OAT-16 added; R2 release acceptance needs both stores' approval of both apps. Traceability and coverage counts regenerated. Issues 31 to 35 added; 4 and 27 updated. |
 
 Every figure in this document is a working assumption, not verified data. Unknown numbers are marked `[TO VERIFY]`. Test tooling named here is a proposal. The engineering lead confirms it before R1 build starts.
 
@@ -56,6 +57,7 @@ Local conventions (used only in this document):
 | `TC-FLD-nn` | Mobile device, network and field test | TC-FLD-05 |
 | `OAT-nn` | Operational acceptance test | OAT-03 |
 | `PAT-nn` | Partner acceptance test with the escrow bank or another partner | PAT-02 |
+| `TC-STORE-nn` | App store acceptance test: test tracks, store review checklist, privacy disclosures, account deletion, minimum version | TC-STORE-03 |
 
 Suffix `-01` is normally the positive case. `-02` and above are negative, boundary or abuse cases.
 
@@ -80,7 +82,7 @@ Suffix `-01` is normally the positive case. `-02` and above are negative, bounda
 4. Prove that evidence and reports cannot be changed, replaced or faked without detection. This includes care visit check-ins, invoices, receipts and the documents that close an errand.
 5. Prove that each user sees only what their role, assignment and country allow.
 6. Prove that every Must requirement in document 01 works for its release, and every business rule RUL-01 to RUL-25 is enforced.
-7. Prove that the product works on a low-end Android phone on a slow, dropping connection, for contractors, inspectors, carers and errand agents.
+7. Prove that the product works on a low-end Android phone and an older iPhone on a slow, dropping connection, for contractors, inspectors, carers and errand agents, and that both apps pass both stores' review.
 8. Prove that a second country runs on configuration only, with its data separate from Ghana's.
 9. Give the product owner the evidence to accept or reject each release, against 01 C9, and to open or hold a new country against C-13.
 
@@ -95,7 +97,8 @@ Testing depth follows risk. Risk is the likelihood of failure times the impact o
 | CARE Care visits | Carer paid for a visit that did not happen; carer or client confirms their own visit; check-in spoofed; missed visit not alerted; concern about a vulnerable person not raised; unvetted carer assigned; family address and health data exposed | Medium | Critical (safety of a vulnerable person) | Very high | Deepest: device tests, field trials with carers, security, integration, UAT with P-15 and P-17; safety cases reviewed with operations |
 | RPT Report builder | Green verdict with a red section; unlocked scope text; single-person release; released report changed; wrong hash | Medium | Critical | Very high | Deepest: unit, property-based, integration, E2E, PDF hash checks, UAT with lawyer and reviewer |
 | EVD Evidence store | Evidence overwritten or deleted silently; public links; malware stored | Medium | Critical | Very high | Deepest: integration with object storage, security, restore tests |
-| MOB Field app | Gallery upload accepted; GPS or clock spoofed; queue lost offline; key extracted | High | Critical | Very high | Deepest: device matrix, instrumented tests, field trials, mobile security tests |
+| MOB Field app (Fidero Field, iOS and Android) | Gallery upload accepted; GPS or clock spoofed; queue lost offline or when iOS ends the app; key extracted; side-loaded build registered | High | Critical | Very high | Deepest: device matrix on both platforms, instrumented tests, field trials, mobile security tests |
+| APP Client app (Fidero, iOS and Android) | Approval without the second factor; push shows amounts or family details on the lock screen; fee taken by in-app purchase or purchase money paid in the app; account deletion loses records the law requires or strands an open escrow; app rejected by a store; an old, unsafe version keeps running | Medium | High | High | Deep: parity tests with the portal API, device tests on both platforms, store acceptance tests (section 9.5), security tests |
 | BLD Construction | Release without inspector pass; conflicted inspector; defect value not held; re-pricing skipped | Medium | Critical | Very high | Deepest: property-based, integration, E2E, field trials |
 | AUD Audit | Entries edited or missing; chain broken undetected | Low | Critical | High | Deep: database permission tests, hash-chain verification, tamper drills |
 | DPR Data protection | Bulk export by one person; data kept past retention; consent missing | Medium | High | High | Deep: integration, security, UAT with administrator |
@@ -121,7 +124,7 @@ Testing depth follows risk. Risk is the likelihood of failure times the impact o
 
 Rules that follow from the matrix:
 
-- Every RUL test and every test on ESC, FEE, CARE, RPT, EVD, MOB, BLD, AUD, DPR and PAY Must requirements is P1 and automated where possible.
+- Every RUL test and every test on ESC, FEE, CARE, RPT, EVD, MOB, APP, BLD, AUD, DPR and PAY Must requirements is P1 and automated where possible.
 - Very high risk modules need property-based tests (hypothesis) on their decision functions, for example "may this release be instructed?", "does this payee match the verified institution?" and "what overall verdicts are allowed?". The property is stated in the test, such as "for any combination of section verdicts with a red in 4 to 10, green is never allowed" or "for any payee whose account name differs from the verified name, no instruction is generated".
 - Very high risk modules need mutation testing on the release and verdict decision code before each release `[TO VERIFY]` tool choice, such as mutmut. Target: no surviving mutants in those functions.
 - A defect in any very high risk area is at least S2. A defect that lets money move, or evidence change, without the rules is S1 (section 12).
@@ -130,14 +133,14 @@ Rules that follow from the matrix:
 
 | Level | What it tests | Owner | Proposed tools |
 |---|---|---|---|
-| Unit | Functions and classes in isolation: verdict rules, release eligibility, deadline maths, re-pricing, hashing | Developers | pytest, pytest-django, factory_boy, hypothesis; Jest or Vitest for web; JUnit for Android |
+| Unit | Functions and classes in isolation: verdict rules, release eligibility, deadline maths, re-pricing, hashing | Developers | pytest, pytest-django, factory_boy, hypothesis; Jest or Vitest for web and for the React Native apps; JUnit (Android) and XCTest (iOS) for native modules |
 | Integration | Module with real PostgreSQL and PostGIS, Celery tasks, object storage emulator, Redis | Developers | pytest with test containers, LocalStack or MinIO for storage `[TO VERIFY]` |
 | Contract | API schema and partner interfaces stay stable: portal and back office against core API; bank instruction and statement formats; payment provider webhooks | Developers, QA | schemathesis against the OpenAPI schema; Pact for portal, back office and app consumers |
 | API | Business flows through the public API, including authorisation for every role | QA | pytest with an API client; generated role-by-endpoint matrix |
 | End-to-end web | Journeys through portal and back office in a browser | QA | Playwright, including a throttled 3G profile |
-| Mobile | Field app on emulators and real devices | QA, Android developer | Espresso, UI Automator, Android emulator network shaping |
+| Mobile | Both apps, Fidero and Fidero Field, on Android emulators, iOS simulators and real devices of both platforms | QA, mobile developer | Detox or Maestro for React Native end-to-end `[TO VERIFY]`; Espresso and XCUITest for native modules; Android emulator network shaping; Network Link Conditioner on iOS |
 | Non-functional | Performance, availability, recovery, scalability, observability | QA, engineering lead | k6, Lighthouse CI, AWS fault injection `[TO VERIFY]` |
-| Security | SAST, dependency scan, DAST, ASVS L2 checks, threat cases, penetration test | Engineering lead, external tester | Semgrep, Bandit, dependency scanning, OWASP ZAP, MobSF for the app `[TO VERIFY]` |
+| Security | SAST, dependency scan, DAST, ASVS L2 checks, threat cases, penetration test | Engineering lead, external tester | Semgrep, Bandit, dependency scanning, OWASP ZAP, MobSF for both apps on both platforms `[TO VERIFY]` |
 | Accessibility | WCAG 2.2 AA | QA, designer | axe-core in Playwright, manual screen reader checks |
 | User acceptance (UAT) | The product does the job for real users | Product owner, real users, staff, partners | Staging, scripted scenarios, sign-off forms |
 | Operational acceptance (OAT) | The product can be run: backups, restore, alerts, runbooks, deploy and rollback | Engineering lead, operations | Staging and production drills, runbooks in document 06 |
@@ -155,13 +158,14 @@ Rules that follow from the matrix:
 | Partner acceptance: institutions (receipt return) | Manual, existing clients | Yes, at least one school and one hospital `[TO VERIFY]` | Yes, plus institution portal or file (IF-10) | Yes, per country |
 | Partner acceptance: insurer (premium routing, policy return) | No | No | Yes, one insurer per country (AS-11) | Yes |
 | E2E web, including 3G profile | Landing page only | Yes | Yes | Yes |
-| Mobile app and device matrix | No | No (phone browser only) | Yes | Yes |
+| Both apps (iOS and Android) and device matrix | No | No (phone browser only) | Yes | Yes |
+| App store acceptance: test tracks, review checklist, privacy disclosures, account deletion, minimum version | No | No | Yes | Yes |
 | Field trials | No | Phone browser tasks for runners | Yes: contractors, inspectors, carers, errand agents | Yes, in country-2 pilot |
 | Country isolation and configuration-only checks | No | Yes (Ghana plus a synthetic test country) | Yes, country 2 if its gate passes | Yes, countries 2 and 3 |
 | Performance and load | No | Yes | Yes plus NFR-SCL-01 | Yes |
 | Security: SAST, dependency, DAST | Landing page and payment link review | Yes | Yes | Yes |
-| Independent penetration test | No | Yes (before go-live, incl. payee verification and country separation) | Yes (incl. app, partner API, care check-in, insurer and institution interfaces) | Yes (incl. live country data split) |
-| Accessibility WCAG 2.2 AA | Landing page | Yes, web | Yes, web and Android app | Yes |
+| Independent penetration test | No | Yes (before go-live, incl. payee verification and country separation) | Yes (incl. both apps on iOS and Android, partner API, care check-in, insurer and institution interfaces) | Yes (incl. live country data split) |
+| Accessibility WCAG 2.2 AA | Landing page | Yes, web | Yes, web and both apps on iOS and Android | Yes |
 | Usability (NFR-USE-01) | Observe manual ordering | Yes | Regression | Regression |
 | UAT | Day-90 review | Yes | Yes | Yes |
 | OAT, backup restore, runbooks | Spreadsheet backups | Yes | Yes plus country-2 hosting | Yes plus country-3 hosting |
@@ -179,7 +183,7 @@ Country 2 starts its manual phase at about month 6 (01 Releases table, C-13). It
 | Contract | OpenAPI schema published from the build; partner format specs agreed or drafted | No breaking change without a version bump; schemathesis finds no 5xx and no schema violations |
 | API | Build deployed to a test environment with seeded data | Role-by-endpoint authorisation matrix passes 100%; all P1 API tests pass |
 | End-to-end web | Build on staging; seeded synthetic data; sandboxes reachable | All P1 journeys pass on Chrome Android profile and one desktop browser; 3G profile journeys pass |
-| Mobile | Signed debug and release builds; device farm or physical devices available | All P1 tests pass on the minimum and reference devices; offline queue tests pass |
+| Mobile | Signed release builds of both apps on TestFlight and Play internal testing; device farm or physical devices of both platforms available | All P1 tests pass on the minimum and reference devices of both platforms (section 9.1); offline queue tests pass on both |
 | Non-functional | Production-like staging sizing; load scripts reviewed | Targets in section 7 met, or a waiver signed by the product owner for Should items |
 | Security | Feature-complete release candidate; scope letter signed | No open high or critical findings (NFR-SEC-03); ASVS L2 checklist complete |
 | Accessibility | UI stable; content final | No open WCAG 2.2 AA failures on P1 journeys |
@@ -194,6 +198,7 @@ Country 2 starts its manual phase at about month 6 (01 Releases table, C-13). It
 | CI (GitHub Actions) | PR and nightly gates | Factories and fixture files; created and destroyed per run | Fakes, provider sandboxes for nightly only |
 | dev | Shared integration, early E2E | Synthetic seed set, reset weekly | Provider sandboxes |
 | staging | System test, E2E, performance, security scans, UAT, OAT | Synthetic seed set sized to R1 or R2 volumes; no real personal data | Provider sandboxes; bank test channel `[TO VERIFY]`; test SMS numbers |
+| Store test tracks (R2) | TestFlight and Play internal and closed testing builds of both apps, pointed at staging | Synthetic seed set | Staging API; APNs sandbox and FCM test project |
 | production | Live service; smoke tests after deploy; restore drills to an isolated copy | Real data | Live providers |
 
 Rules:
@@ -257,7 +262,7 @@ Manual testing is kept for exploratory testing, usability, accessibility with sc
 |---|---|---|
 | PR gate | Every pull request | Lint and type checks; unit and property tests (fast hypothesis profile); integration tests on PostGIS; contract tests; the full `rul` test tag with zero skips; API authorisation matrix, including the country dimension; coverage of core API at least 80% and not lower than main; migration check; Semgrep and Bandit with no new high findings; dependency scan with no new high or critical; secret scan; hard-coded country check (no "GH", "GHS" or Ghana text outside configuration); web unit tests; axe checks on changed components; Playwright smoke (sign in, order, release block, payee mismatch block) |
 | Merge to main | After PR gate | PR gate re-run on the merge result; deploy to dev |
-| Nightly | Every night on staging | Full Playwright regression including 3G profile; extended hypothesis profile; OWASP ZAP baseline scan; k6 smoke load; Android instrumented tests on the emulator matrix (R2 on); audit hash-chain verification job; flaky test report |
+| Nightly | Every night on staging | Full Playwright regression including 3G profile; extended hypothesis profile; OWASP ZAP baseline scan; k6 smoke load; app tests on the Android emulator and iOS simulator matrix (R2 on); audit hash-chain verification job; flaky test report |
 | Weekly | Once a week | Backup restore test into an isolated account (automated part of OAT-02); dependency licence report; full ZAP active scan on staging |
 | Pre-release | Before each release candidate goes to UAT and again before go-live | Full regression green; k6 load at target; ZAP full scan; mutation test on release and verdict code; WCAG audit; penetration test closed (NFR-SEC-03); UAT, OAT and partner acceptance signed; go/no-go checklist (section 13.4) |
 
@@ -641,15 +646,22 @@ Each test case also verifies the acceptance criteria of the user story with the 
 | TC-MOB-001-01 | FR-MOB-001 | Sign in and see assigned work | Contractor with two projects | Sign in | Only those two projects shown | P1 | Y | R2 |
 | TC-MOB-001-02 | FR-MOB-001 | Unassigned project | Contractor | Deep link to another project | Not shown; API 404 | P1 | Y | R2 |
 | TC-MOB-001-03 | FR-MOB-001 | Carers and errand agents sign in | Carer with two visits; agent with one errand | Sign in | Only their assigned visits and errand steps shown; no other client's data | P1 | Y | R2 |
+| TC-MOB-001-04 | FR-MOB-001 | Same user on iOS and Android | Contractor with an iPhone and an Android phone, both from the stores | Sign in on each | Same assignments on both; each phone registered as its own device for that person; revoking one leaves the other working | P1 | Y | R2 |
 | TC-MOB-002-01 | FR-MOB-002 | In-app camera capture | Milestone open | Capture photo and video | Items attached | P1 | Y | R2 |
 | TC-MOB-002-02 | FR-MOB-002 | Gallery and file uploads blocked | Milestone open | Look for gallery or file picker; share an image into the app | None available; share rejected (TC-RUL-08-02) | P1 | Y | R2 |
+| TC-MOB-002-03 | FR-MOB-002 | Camera-only capture on iOS | iPhone with photos in its library | Look for a photo picker, document picker or share-in; inspect the build's declared permissions | None offered; the app never asks for photo library access and declares no photo library permission; only the in-app camera captures | P1 | Y | R2 |
 | TC-MOB-003-01 | FR-MOB-003 | GPS recorded; no warning on site | Mock location inside plot | Capture | Position and accuracy stored; no warning | P1 | Y | R2 |
 | TC-MOB-003-02 | FR-MOB-003 | Warning off site or with poor accuracy | Mock location 500 m away; accuracy 200 m | Capture | Warning shown; position recorded; server flag (TC-MOB-011-02) | P1 | Y | R2 |
 | TC-MOB-004-01 | FR-MOB-004 | Hash and signature at capture | Device key enrolled | Capture | Hash, position and device time signed with keystore key; server verifies | P1 | Y | R2 |
 | TC-MOB-004-02 | FR-MOB-004 | File changed after capture | Captured item | Modify file in app storage before upload (debug build) | Server hash mismatch; rejected and flagged | P1 | P | R2 |
+| TC-MOB-004-03 | FR-MOB-004 | Secure Enclave signing on iOS | Oldest supported iPhone, store build | Register; capture | Key created in the Secure Enclave and not exportable; server verifies the signature and records the key as hardware-backed | P1 | Y | R2 |
+| TC-MOB-004-04 | FR-MOB-004 | App Attest registration | iPhone with a TestFlight build; the same app as a development build | Register each against a production-like server | Store-signed build registers with a valid App Attest attestation; development build refused with `attestation-failed` | P1 | P | R2 |
+| TC-MOB-004-05 | FR-MOB-004 | Store-only registration on Android | Play build; the same app side-loaded and re-signed; an emulator | Register each | Play build registers after key attestation and Play Integrity pass; re-signed, side-loaded and emulator builds refused | P1 | P | R2 |
 | TC-MOB-005-01 | FR-MOB-005 | Offline capture and later upload | Airplane mode | Capture, fill checklist, submit; reconnect | Queued; uploaded once on reconnect; server confirms | P1 | Y | R2 |
 | TC-MOB-005-02 | FR-MOB-005 | Queue survives app kill and reboot | Queue with 10 items | Force stop; reboot phone; reopen | All items still queued and upload once | P1 | Y | R2 |
 | TC-MOB-005-03 | FR-MOB-005 | Connection drops mid-upload | Throttled network with drops | Upload 30 items | Resumes; no duplicates; no lost items | P1 | Y | R2 |
+| TC-MOB-005-04 | FR-MOB-005 | Background upload on iOS | iPhone, 10 items queued offline | Reconnect; send the app to the background and lock the phone | Uploads continue as background transfers or resume at the next launch; each item stored once; queue screen shows the state | P1 | P | R2 |
+| TC-MOB-005-05 | FR-MOB-005 | Queue survives termination by iOS | iPhone with 10 queued items | Let iOS end the app under memory pressure; force-quit; restart the phone; reopen | All items still queued and encrypted; force-quit shows "Open Fidero Field to finish sending"; all upload once after reopening | P1 | P | R2 |
 | TC-MOB-006-01 | FR-MOB-006 | Required evidence list | Foundation milestone | Open milestone | List matches milestone schedule; submit enabled when complete | P1 | Y | R2 |
 | TC-MOB-006-02 | FR-MOB-006 | Submission blocked when incomplete | One item missing | Submit in app; call API directly | Both blocked | P1 | Y | R2 |
 | TC-MOB-007-01 | FR-MOB-007 | Inspector records pass with defects | Inspector assigned | Complete checklist; add 2 defects with photos and values | Outcome stored with defect values | P1 | Y | R2 |
@@ -668,6 +680,35 @@ Each test case also verifies the acceptance criteria of the user story with the 
 | TC-MOB-012-02 | FR-MOB-012 | Check-in away from the address or with poor accuracy | Mock location 2 km away; accuracy 300 m | Check in | Check-in recorded but flagged "outside radius" or "accuracy too low"; visit not payable without review | P1 | Y | R2 |
 | TC-MOB-012-03 | FR-MOB-012 | Check-in without GPS or offline | GPS denied; airplane mode | Check in | Without GPS: blocked with instruction to enable; offline: queued with device time and uploaded later, flagged if the time gap is above the configured value | P1 | Y | R2 |
 | TC-MOB-012-04 | FR-MOB-012 | Missing check-out | Checked in; app closed | Run end-of-day job | Visit marked "no check-out"; carer and client alerted (FR-CARE-005) | P1 | Y | R2 |
+
+### 4.9a Client mobile app (APP)
+
+Tests run on both platforms unless the title names one. FR-APP-004 and FR-APP-006 apply to both apps.
+
+| TC ID | FR | Title | Preconditions | Steps | Expected result | Pri | Auto | Rel |
+|---|---|---|---|---|---|---|---|---|
+| TC-APP-001-01 | FR-APP-001 | Client features match the portal | Client with a case, an escrow, a family statement and a build | Sign in to the app on iOS and on Android; open each tab | Dashboard, orders, case tracking, reports, approvals, statements, messages and settings show the same data as the portal for the same account | P1 | Y | R2 |
+| TC-APP-001-02 | FR-APP-001 | Approvals in the app follow the portal's rules | Escrow ready for the client's approval; invoice with an unverified payee | Approve the escrow with the second factor; open the invoice | Escrow approval recorded exactly as on the portal (RUL-11); invoice shows no approve button and the reason (RUL-22) | P1 | Y | R2 |
+| TC-APP-001-03 | FR-APP-001 | Same API, no app-only business routes | OpenAPI document; app network log over a full regression run | Compare every call the app makes with the portal's client endpoints | Every business call is a portal endpoint; the only app-only calls are push devices, deletion requests and app configuration | P1 | Y | R2 |
+| TC-APP-001-04 | FR-APP-001 | Family member and tenant see only their grants | Family member with one grant; tenant of one tenancy | Sign in to the app; open other clients' objects by deep link | Only granted objects shown; others return not found; nothing cached on the phone for them | P1 | Y | R2 |
+| TC-APP-001-05 | FR-APP-001 | Report and fingerprint check in the app | Released report; the same PDF altered by one byte | Open the report; check both files | Original gives "match"; altered file gives "no match" | P1 | Y | R2 |
+| TC-APP-002-01 | FR-APP-002 | Push for a request | Push on; client with an invoice waiting | Raise the request | Push arrives on iOS through APNs and on Android through FCM; tapping it opens the invoice after unlock | P2 | P | R2 |
+| TC-APP-002-02 | FR-APP-002 | No sensitive content in push | Status changes with an amount above the threshold, a report verdict and a family member's name | Trigger each and read the lock screen | Lock-screen text is generic; no amount above the threshold, report content or third-party personal data (FR-NTF-004) | P1 | Y | R2 |
+| TC-APP-002-03 | FR-APP-002 | Preferences and sign-out respected | Client turns push off in Account; second client signs out | Trigger events for both | No push sent to either; other chosen channels still used; signed-out token revoked | P2 | Y | R2 |
+| TC-APP-003-01 | FR-APP-003 | Biometric unlock | Client set up Face ID on iPhone and fingerprint on Android | Leave and return to the app | The biometric prompt opens the app without a password | P2 | P | R2 |
+| TC-APP-003-02 | FR-APP-003 | New biometric enrolled | Biometric unlock on | Add a new fingerprint or face in the phone's settings; open the app | Biometric unlock refused; the client must sign in again | P1 | P | R2 |
+| TC-APP-003-03 | FR-APP-003 | Biometrics are not the second factor | Client unlocked with biometrics; escrow ready for approval | Approve without entering the second factor; replay the API call without a step-up | Refused with `mfa-required`; no approval recorded | P1 | Y | R2 |
+| TC-APP-004-01 | FR-APP-004 | Delete account in the client app | Client with no open money matters | Account, Delete my account; read the preview; confirm with the second factor | Preview lists what is deleted, what is kept, why and until when; sessions and push tokens revoked at once; deletion request recorded with source `app`; personal data deleted or anonymised by the sweep except kept classes | P1 | Y | R2 |
+| TC-APP-004-02 | FR-APP-004 | Delete account in Fidero Field | Contractor with signed evidence on past milestones | Delete the account in the app | Device keys revoked; sign-in ends; signed evidence kept with its case record under Object Lock; the preview said so | P1 | Y | R2 |
+| TC-APP-004-03 | FR-APP-004 | Open escrow or legal hold | Client with an open escrow; another under a legal hold | Delete each account | Request recorded; account closed to new orders; user told what stays open; held records kept; no escrow cancelled by the deletion | P1 | Y | R2 |
+| TC-APP-004-04 | FR-APP-004 | Deletion reachable and protected | Fresh install, signed in | Find deletion from Account; try to confirm without the second factor | Reached in the app without email or a call; confirmation without the step-up refused where the user has MFA | P1 | P | R2 |
+| TC-APP-005-01 | FR-APP-005 | Fee paid on the web | Fee payment mode `web` | Pay a report fee from the app | System browser opens the portal payment page; on return the app shows the payment result and receipt | P1 | P | R2 |
+| TC-APP-005-02 | FR-APP-005 | Fee paid through the provider in the app | Fee payment mode `in_app_provider` in a test country | Pay a fee | Payment provider takes it with purpose limited to a fee type; receipt matches a portal payment | P1 | Y | R2 |
+| TC-APP-005-03 | FR-APP-005 | No purchase, construction or project money in the app | Escrow in Agreed; milestone funding due; project fund top-up | Open each; tamper an app payment call to a non-fee purpose | Only the bank's payment instructions shown; tampered call rejected and audited (RUL-01) | P1 | Y | R2 |
+| TC-APP-005-04 | FR-APP-005 | No store in-app purchase | Release builds of both apps on both platforms | Scan the builds and store configurations | No in-app purchase products or billing library present | P1 | Y | R2 |
+| TC-APP-006-01 | FR-APP-006 | Update required | App version below `min_app_version` for its platform | Start the app; call the API with the old version header | "Update required" screen with the right store link; API answers 426 `app-version-unsupported` | P1 | Y | R2 |
+| TC-APP-006-02 | FR-APP-006 | Queued evidence kept through a forced update | Fidero Field with 7 items queued; minimum raised above its version | Open the app; update from the store; reopen | All 7 items kept and uploaded; items captured before the raise accepted by the server | P1 | P | R2 |
+| TC-APP-006-03 | FR-APP-006 | Old version cannot add new evidence; raise needs two administrators | Old version after the raise; one administrator | Try to capture and upload a new item; one administrator raises the minimum alone | New capture blocked until update; an item signed after the raise refused; the raise waits for a second administrator | P1 | Y | R2 |
 
 ### 4.10 Construction, off-plan and buildings (BLD)
 
@@ -1220,7 +1261,8 @@ Run in Playwright on staging against provider sandboxes. Mobile steps in J-03, J
 | TC-NFR-PERF-03-01 | NFR-PERF-03 | Load test mixed read and write traffic | k6 | Reads p95 under 500 ms; writes p95 under 1 s at 10 times the stated R1 load: 20,000 client accounts, 1,500 open cases, 500 users at once (10 times 2,000, 150 and 50 in NFR-PERF-03). Traffic mix adds institution payments and dashboard loads (assumption) | staging sized like production | Targets met for 30 minutes steady state; error rate under 0.1% (assumption) | R1 |
 | TC-NFR-PERF-03-02 | NFR-PERF-03 | Soak test | k6 | Expected R1 load (2,000 accounts, 150 open cases, 50 users at once) for 8 hours | staging | No memory growth trend; no latency drift above target | R1 |
 | TC-NFR-PERF-04-01 | NFR-PERF-04 | Save polygons with all layers loaded, single and concurrent | pytest timing; k6 | Overlay results within 30 s | staging with full layer set | 95% (assumption) under 30 s; none lost | R1 |
-| TC-NFR-PERF-05-01 | NFR-PERF-05 | Measure cold start and install size on reference 2 GB device | Android macrobenchmark; APK analyser | Start under 3 s; install under 30 MB | Physical device lab | Median cold start under 3 s over 10 runs; release build under 30 MB | R2 |
+| TC-NFR-PERF-05-01 | NFR-PERF-05 | Measure cold start and download size of both apps on the reference 2 GB Android device | Android macrobenchmark; Play Console size report | Start under 3 s; download under 30 MB | Physical device lab | Median cold start under 3 s over 10 runs for each app; each app's release download under 30 MB | R2 |
+| TC-NFR-PERF-05-02 | NFR-PERF-05 | Measure cold start and download size of both apps on the oldest supported iPhone | Xcode launch metrics; App Store Connect size report | Start under 3 s; download under 30 MB | Physical device lab | Median cold start under 3 s over 10 runs for each app; each app's download under 30 MB for that device | R2 |
 | TC-NFR-AVL-01-01 | NFR-AVL-01 | External uptime checks every minute | Synthetic monitoring `[TO VERIFY]` tool | 99.5% monthly, excluding announced maintenance | production | Monthly report shows at least 99.5%; checked at R1 go-live plus 1 month as part of acceptance | R1 |
 | TC-NFR-AVL-01-02 | NFR-AVL-01 | Fail one instance and one availability zone | AWS fault injection `[TO VERIFY]` | Service continues | staging | No user-visible outage beyond health-check failover time | R1 |
 | TC-NFR-AVL-01-03 | NFR-AVL-01 | Maintenance cap and notice | Maintenance log and announcement records | Maintenance announced 48 hours ahead; at most 4 hours a month excluded | production | Monthly report excludes only windows announced 48 hours ahead; excluded time never above 4 hours; anything beyond counts as downtime | R1 |
@@ -1238,7 +1280,8 @@ Run in Playwright on staging against provider sandboxes. Mobile steps in J-03, J
 | TC-NFR-USE-02-02 | NFR-USE-02 | Plain English review | Manual review by 3 users from P-01, P-02 and P-15 groups | Understood without help | staging | Each user restates meaning correctly for 10 sample messages, including institution payment and care visit messages | R1 |
 | TC-NFR-A11Y-01-01 | NFR-A11Y-01 | Automated checks on every web page and state | axe-core in Playwright | WCAG 2.2 AA | CI and staging | Zero serious or critical violations | R1 |
 | TC-NFR-A11Y-01-02 | NFR-A11Y-01 | Manual web audit (section 10.1) | Screen readers, keyboard, zoom | WCAG 2.2 AA | staging | No open AA failures on P1 journeys | R1 |
-| TC-NFR-A11Y-01-03 | NFR-A11Y-01 | Android app audit against WCAG 2.2 AA using Android's accessibility guidance | Accessibility Scanner; TalkBack; Espresso accessibility checks | Same level as web, mapped to Android checks (section 10.1) | Device lab | No open failure on capture, checklist, check-in and submission screens; contractors and carers with low vision complete a visit with TalkBack | R2 |
+| TC-NFR-A11Y-01-03 | NFR-A11Y-01 | Both apps on Android, audited against WCAG 2.2 AA using Android's accessibility guidance | Accessibility Scanner; TalkBack; font scale 200%; Espresso accessibility checks | Same level as web, mapped to Android checks (section 10.1) | Device lab | No open failure on capture, checklist, check-in and submission screens or on the client app's P1 screens; contractors and carers with low vision complete a visit with TalkBack | R2 |
+| TC-NFR-A11Y-01-04 | NFR-A11Y-01 | Both apps on iOS, audited against WCAG 2.2 AA using Apple's accessibility guidance | Accessibility Inspector; VoiceOver; largest Dynamic Type size; Reduce Motion | Same level as web, mapped to iOS checks (section 10.1) | Device lab | No open failure on the P1 screens of either app; a client using VoiceOver approves an invoice with the second factor | R2 |
 | TC-NFR-OBS-01-01 | NFR-OBS-01 | Check trace IDs and alerts | Integration test; alert drills | Trace ID on every request; alerts on errors, latency, upload queue, job failures | staging | Trace ID in logs for API, worker and app upload; each alert fires in a drill within 5 minutes (assumption) | R1 |
 | TC-NFR-MNT-01-01 | NFR-MNT-01 | Coverage report; RUL coverage check | coverage.py; script mapping `rul` tags to RUL IDs | 80% lines of core API; every RUL-01 to RUL-25 tested | CI | Gate fails below 80% or if any RUL-nn has no passing test | R1 |
 | TC-NFR-MNT-02-01 | NFR-MNT-02 | Add a test country through configuration only | Admin UI; diff of code repository | No code change outside integrations | staging | Testland case, payment and dashboard work end to end; code diff empty apart from new integration adapters (TC-CTY-001-01) | R1 |
@@ -1246,6 +1289,9 @@ Run in Playwright on staging against provider sandboxes. Mobile steps in J-03, J
 | TC-NFR-SCL-01-01 | NFR-SCL-01 | Load test on `seed-scale` data | k6; PostgreSQL query plans | 2,000 open cases, 500 projects, 20,000 listings, plus 5,000 institution payments and 2,000 visits a month (assumption) | staging | NFR-PERF-03 targets still met; no table scans on hot paths | R2 |
 | TC-NFR-LOC-01-01 | NFR-LOC-01 | Static scan for hard-coded user-facing strings; pseudo-locale run | i18n lint; pseudo-localisation | All strings in translation files | CI | Zero hard-coded strings; pseudo-locale shows no untranslated text | R1 |
 | TC-NFR-AUD-01-01 | NFR-AUD-01 | Read audit entries for archived data near retention end | Integration test with clock | Readable for full retention | staging | Entries for records at retention minus one day are readable and chain-verifiable | R1 |
+| TC-NFR-STORE-01-01 | NFR-STORE-01 | Store review checklist and store approval for each release of each app | Checklist against the App Store Review Guidelines and the Google Play Developer Program Policies (TC-STORE-03) | Every item met; both stores approve | TestFlight, Play testing tracks, store review | Checklist complete with evidence; both apps approved by both stores for the release | R2 |
+| TC-NFR-STORE-01-02 | NFR-STORE-01 | Privacy labels and Data safety forms match the data catalogue | Generated disclosure diff in CI; network capture of each app on staging (TC-STORE-04) | No undeclared data collected or shared | CI and staging | Build fails on drift; capture shows no data type missing from the disclosures | R2 |
+| TC-NFR-STORE-02-01 | NFR-STORE-02 | Supported OS versions cover active users | OS version report from app analytics per launch country; public share data before launch `[TO VERIFY]` | At least 95% of active users on supported versions | production | Report every six months shows at least 95% per country; oldest supported versions pass the P1 smoke suite | R2 |
 
 ---
 
@@ -1265,10 +1311,10 @@ Security testing is threat-driven. The main threats are people who want money re
 | TC-SEC-04 | Change release amount or payee between approval and sending | FR-ESC-008 | Modify instruction record or file in storage | Signature check fails; send blocked; alert | Y | R1 |
 | TC-SEC-05 | Social engineering: forged bank confirmation uploaded to mark Funded or Released | FR-ESC-004, FR-ESC-009 | Upload edited bank letter as case manager A | Not Funded or Released until a second staff member checks it against the bank channel (FR-ESC-004); the checker's procedure requires contact with the bank, not just the letter `[TO VERIFY]` with the bank | P | R1 |
 | TC-SEC-06 | Replay signed milestone evidence from a past milestone or another project | FR-MOB-004, FR-MOB-011 | Resubmit a previously accepted signed item | Hash already seen; flagged; not counted | Y | R2 |
-| TC-SEC-07 | Gallery upload spoofing: inject a pre-made photo into the capture pipeline | RUL-08, FR-MOB-002 | Hook camera API on rooted device; use virtual camera app; intercept upload and swap file | Hash or signature mismatch, or device integrity check fails `[TO VERIFY]` Play Integrity use; item flagged | P | R2 |
+| TC-SEC-07 | Gallery upload spoofing: inject a pre-made photo into the capture pipeline | RUL-08, FR-MOB-002 | Hook camera API on rooted device; use virtual camera app; intercept upload and swap file | Hash or signature mismatch, or Play Integrity or App Attest check fails; item flagged | P | R2 |
 | TC-SEC-08 | GPS spoofing with mock location apps | FR-MOB-003, FR-MOB-011 | Enable mock location; capture on site coordinates from far away | Mock location detected and flagged; cross-check with network position and image metadata where possible | P | R2 |
 | TC-SEC-09 | Device clock set back | FR-MOB-011 | Set device time 3 days back; capture | Device-server time gap flagged | Y | R2 |
-| TC-SEC-10 | Extract device signing key | FR-MOB-004 | Attempt key export on rooted device | Key is non-exportable (hardware-backed where available); attestation recorded | N | R2 |
+| TC-SEC-10 | Extract device signing key | FR-MOB-004 | Attempt key export on a rooted Android phone and a jailbroken iPhone | Key is non-exportable (Android Keystore hardware-backed where available; Secure Enclave on iPhone); attestation recorded | N | R2 |
 | TC-SEC-11 | IDOR on cases, reports, evidence, escrows, projects, listings, disputes | FR-ACC-007 | Generated test: for every object endpoint, every role, request objects owned by another user | 404 in all unauthorised cases; 100% matrix pass | Y | R1 |
 | TC-SEC-12 | Guess or share evidence links | FR-EVD-003 | Enumerate keys; reuse expired link; open link while signed out | Refused; bucket not listable | Y | R1 |
 | TC-SEC-13 | Audit log tampering by an administrator | FR-AUD-002 | Use admin UI, API, Django admin, and data export-import | No path edits or deletes entries | Y | R1 |
@@ -1298,7 +1344,11 @@ Security testing is threat-driven. The main threats are people who want money re
 | TC-SEC-37 | Family confirmation code brute force or theft | FR-CARE-004, RUL-23 | Enumerate one-tap codes; reuse a code from an earlier visit; enter the code from the carer's device or IP; intercept the SMS carrying the code `[TO VERIFY]` channel | Code locked after 5 wrong attempts (FR-CARE-004) and rate limited per visit and per device; codes single-use and bound to the visit; code accepted only from the family member's registered channel; alert on lockout | Y | R2 |
 | TC-SEC-38 | Cross-country data access through infrastructure and jobs | FR-CTY-002, NFR-PRIV-01 | Inspect backups, search indexes, analytics stores, log pipelines, retention and reminder jobs for Testland data in Ghana stores and the reverse | No cross-country copy; jobs scoped per country; data location register matches reality | P | R2 |
 | TC-SEC-39 | Rent or premium diverted to a Fidero or staff account | RUL-24, RUL-25, FR-PMG-002, FR-INS-002 | Set the rent or premium account to a Fidero fee account, a staff account or an account with a near-match name; create a fee order type for rent or premium | Rejected by deny list, name check and order-type allow list; alert raised | Y | R2 |
-| TC-SEC-40 | Vulnerable person's data exposed: care plan, address, health readings | FR-CARE-001, FR-CARE-003, FR-CARE-006, FR-ACC-007 | Access as every role other than the client, the assigned carer and the reviewer; search exports; notification content | Refused; readings and concerns never in SMS or WhatsApp (FR-NTF-004); family address shown to the assigned carer only for the visit window | Y | R2 |
+| TC-SEC-40 | Vulnerable person's data exposed: care plan, address, health readings | FR-CARE-001, FR-CARE-003, FR-CARE-006, FR-ACC-007 | Access as every role other than the client, the assigned carer and the reviewer; search exports; notification content | Refused; readings and concerns never in SMS, WhatsApp or push (FR-NTF-004); family address shown to the assigned carer only for the visit window | Y | R2 |
+| TC-SEC-41 | Fake or modified Fidero Field registers a device | FR-MOB-004, NFR-STORE-01 | Re-sign the Android build and side-load it; run on an emulator; run an iOS development build; replay a captured attestation | Registration refused (`attestation-failed`); replayed challenge rejected; attempt logged and alerted per platform | P | R2 |
+| TC-SEC-42 | Lock-screen push leaks money or family details | FR-APP-002, FR-NTF-004 | Trigger every push template with maximum content; read lock screen and notification centre on both platforms | Generic text only; no amount above the threshold, report content, names of family members or bank details | Y | R2 |
+| TC-SEC-43 | Deep link abuse | FR-APP-001, FR-APP-002 | Open approval and case links from another app, another user's session and a look-alike custom scheme; tamper IDs | App checks the session and permissions; opening never approves; other users' objects return not found; only verified Universal Links and App Links open the app | Y | R2 |
+| TC-SEC-44 | Stolen unlocked phone approves a payment | FR-APP-003, FR-ACC-003 | Use an unlocked phone with the client app open; try every approval type | Every approval asks for the second factor; biometric unlock alone approves nothing | Y | R2 |
 
 ### 8.3 OWASP ASVS level 2 verification (NFR-SEC-05)
 
@@ -1327,7 +1377,7 @@ The ASVS version to use is the latest stable version at R1 start `[TO VERIFY]`.
 | Release | When | Scope |
 |---|---|---|
 | R1 | After feature freeze, at least 4 weeks (assumption) before go-live, then retest | Portal, back office, core API, evidence storage, payment and identity integrations, escrow release flow including amounts held at the banks and payee verification, institution registration and invoice flow, country separation at application level, infrastructure configuration on AWS |
-| R2 | Before R2 go-live | R1 scope regression plus field app (static, dynamic, rooted device, check-in spoofing), partner API, bank statement and API integration, listings, disputes, care visits and confirmation codes, property management, errands, institution and insurer interfaces (IF-10, IF-11), country-2 configuration and data location |
+| R2 | Before R2 go-live | R1 scope regression plus both apps on iOS and Android (static, dynamic, rooted and jailbroken devices, attestation bypass, check-in spoofing, deep links, push content), partner API, bank statement and API integration, listings, disputes, care visits and confirmation codes, property management, errands, institution and insurer interfaces (IF-10, IF-11), country-2 configuration and data location |
 | R3 | Before R3 go-live | R2 scope regression plus records module, family and stool listings, events, live country data separation across three countries |
 | Any | After a major change to release, evidence, or access control code | Targeted test of the change |
 
@@ -1344,7 +1394,7 @@ Rules:
 
 ### 9.1 Device matrix (R2)
 
-Minimum and reference devices are assumptions until operations surveys the phones of contractors, carers and errand agents (Q-09, AS-08, AS-12). Carers and agents are likely to have cheaper phones than contractors `[TO VERIFY]`, so the minimum tier matters more from R2.
+Both apps are tested on iOS and Android (01 v0.6; Q-09 answered, AS-08 retired). Minimum and reference devices are assumptions until operations checks the phones of contractors, carers and errand agents and app analytics show what clients use (AS-12, NFR-STORE-02). Carers and agents are likely to have cheaper phones than contractors `[TO VERIFY]`, so the Android minimum tier matters more from R2. Many clients abroad use iPhones (C-08), so the iOS tiers carry the client app.
 
 | Tier | Specification | Purpose |
 |---|---|---|
@@ -1353,8 +1403,12 @@ Minimum and reference devices are assumptions until operations surveys the phone
 | Current | Recent Android version, mid-range | Compatibility with new OS behaviour on permissions, background work and storage |
 | Low storage | Minimum device with under 500 MB free | Queue and capture behaviour when storage is short |
 | Inspector tablet | `[TO VERIFY]` if inspectors use tablets | Layout and checklist use |
+| iOS minimum | Oldest iPhone that runs the minimum iOS version, iOS 15 `[TO VERIFY]`, for example iPhone SE (first generation) or iPhone 6s with 2 GB RAM | Must pass all P1 tests of both apps; NFR-PERF-05 measured here; Secure Enclave and App Attest checked here |
+| iOS small screen | 4-inch or 4.7-inch screen (the iOS minimum device often covers this) | Layout at the smallest width with the largest Dynamic Type size; safe areas |
+| iOS current | Recent iPhone on the latest iOS release | New OS behaviour on permissions, background transfers and notifications; Dynamic Island and home indicator safe areas |
+| Android without Google Play | A phone with no Google Play services `[TO VERIFY]` model | Confirms the documented limit: the apps cannot be installed or registered (02 TR-18) |
 
-At least three physical devices are kept in Accra for testing. A cloud device farm is used for wider compatibility `[TO VERIFY]` budget.
+At least three physical Android devices and two physical iPhones (iOS minimum and iOS current) are kept in Accra for testing. A cloud device farm is used for wider compatibility `[TO VERIFY]` budget.
 
 ### 9.2 Network simulation
 
@@ -1367,7 +1421,7 @@ At least three physical devices are kept in Accra for testing. A cloud device fa
 | Captive portal | Network present but returns a login page | App must not mark items sent |
 | Offline | Airplane mode for hours | Offline capture |
 
-Tools: Android emulator network shaping, a network-shaping proxy on a test Wi-Fi access point `[TO VERIFY]`, and real sites with poor signal.
+Tools: Android emulator network shaping, Network Link Conditioner on iOS, a network-shaping proxy on a test Wi-Fi access point `[TO VERIFY]`, and real sites with poor signal.
 
 ### 9.3 Mobile and field test cases
 
@@ -1377,7 +1431,7 @@ Tools: Android emulator network shaping, a network-shaping proxy on a test Wi-Fi
 | TC-FLD-02 | Queue survives reboot and battery death | Queue items; let battery run out; recharge | All items remain and upload | N | R2 |
 | TC-FLD-03 | Queue survives app update | Queue items; install new version | Items remain; new version uploads them | Y | R2 |
 | TC-FLD-04 | Low storage | Fill storage; capture | Clear warning before capture fails; no corrupt items | Y | R2 |
-| TC-FLD-05 | Background limits | Queue items; lock screen; battery saver on | Upload continues under OS work rules or resumes on unlock; user sees queue state | Y | R2 |
+| TC-FLD-05 | Background limits | Queue items; lock screen; battery saver on (Android) or Low Power Mode on (iOS) | Upload continues under OS work rules or resumes on unlock; user sees queue state | Y | R2 |
 | TC-FLD-06 | Large queue on poor network | 100 photos and 5 videos on poor edge profile | All arrive; no duplicate; order kept per milestone | Y | R2 |
 | TC-FLD-07 | Captive portal | Connect to captive portal network | No item marked received until server confirms | Y | R2 |
 | TC-FLD-08 | GPS cold start in rural area | Capture right after opening app | Accuracy shown; app waits or warns until accuracy within configured limit | N | R2 |
@@ -1391,6 +1445,8 @@ Tools: Android emulator network shaping, a network-shaping proxy on a test Wi-Fi
 | TC-FLD-16 | Visit completed offline then uploaded | Carer completes a visit in a house with no signal; uploads later from the street | Check-in, items, photos and check-out arrive in order with device times; time gap flagged only if above the configured value | Y | R2 |
 | TC-FLD-17 | Errand agent's day at an agency | Agent queues for hours; captures receipts and acknowledgements; phone battery low | Queue survives; receipts legible at the compressed size; steps recorded in order | N | R2 |
 | TC-FLD-18 | One-tap confirmation on the family's phone | Family member on a basic Android or a feature phone `[TO VERIFY]` confirms by SMS code or call | Confirmation works without the app; code single-use; reaches the server within the configured period | N | R2 |
+| TC-FLD-19 | iPhone with Background App Refresh off and Low Data Mode on | Queue items on an iPhone with both settings set; walk into signal | Items upload while the app is open; queue screen explains that uploads wait for the app to be opened; nothing lost | P | R2 |
+| TC-FLD-20 | Field use on the iOS minimum device | Contractor captures a full milestone on the iOS minimum device on a 3G profile | Capture, signing and submission work; no crash under memory pressure; start under 3 s | N | R2 |
 
 ### 9.4 Field trials
 
@@ -1411,13 +1467,27 @@ Field trial rules:
 - The carer trial pays carers for confirmed visits at the normal rate (assumption). It never leaves a vulnerable person without a visit because of a test: a missed test visit is made up by Fidero staff the same day.
 - Findings become defects with photos and device logs attached.
 
+### 9.5 App store acceptance (R2)
+
+Both apps must pass Apple App Store review and Google Play review at every release (C-14, NFR-STORE-01). These tests run before each submission. Store approval itself is a release criterion (section 13.2).
+
+| ID | Test | Steps | Expected result | Auto | Rel |
+|---|---|---|---|---|---|
+| TC-STORE-01 | TestFlight build | CI builds both apps for iOS, signs them and uploads to TestFlight; internal testers install on the iOS minimum and current devices | Both builds install and run against staging; build numbers match the CI artefacts | Y | R2 |
+| TC-STORE-02 | Play internal testing build | CI builds both apps for Android with Play App Signing and uploads to internal testing; testers install on the Android minimum device | Both builds install and run against staging; signing certificate digest matches the one the server expects (02 section 8.2) | Y | R2 |
+| TC-STORE-03 | Store review checklist against NFR-STORE-01 | Walk the checklist for each app: account deletion in the app, fees outside in-app purchase, privacy policy and support links, permission purpose texts, demo account and review notes, financial features declaration, no hidden features, minimum OS | Every item met, with a screenshot or link as evidence | N | R2 |
+| TC-STORE-04 | Privacy label and Data safety match | Generate disclosures from the data catalogue; capture each app's network traffic on staging over a full regression run; compare with the submitted label and form | Every data type the app sends is declared with the right purpose; nothing declared is missing from the catalogue | P | R2 |
+| TC-STORE-05 | Account deletion as a reviewer would test it | Fresh install; sign up (client app) or accept an invitation (Fidero Field); delete the account inside the app | Deletion starts in the app with no email or call; the kept-data statement shows; sign-in fails afterwards (TC-APP-004-01) | Y | R2 |
+| TC-STORE-06 | Minimum-version prompt | Install the previous build from the test track; raise `min_app_version` on staging; open the app | Update screen with the correct store link on each platform; queued evidence kept (TC-APP-006-02) | Y | R2 |
+| TC-STORE-07 | Oldest supported OS | Run the P1 smoke suite of both apps on Android 8.0 and iOS 15 `[TO VERIFY]` | All pass; any failure blocks submission or raises the minimum through change control (NFR-STORE-02) | P | R2 |
+
 ---
 
 ## 10. Accessibility and usability
 
 ### 10.1 Accessibility testing (NFR-A11Y-01, WCAG 2.2 AA)
 
-Scope: portal, back office and listing pages from R1. From R2, the field app as well: NFR-A11Y-01 now requires the same level for the app, using Android's accessibility guidance. The app is checked with Accessibility Scanner, TalkBack and Espresso accessibility checks, with each WCAG 2.2 AA criterion mapped to an Android check or marked as not applicable to a native app (see section 16 on how conformance is claimed for the app).
+Scope: portal, back office and listing pages from R1. From R2, both apps, Fidero and Fidero Field, on iOS and Android: NFR-A11Y-01 requires the same level for the apps, using Android's and Apple's accessibility guidance. Android is checked with Accessibility Scanner, TalkBack, font scaling to 200% and Espresso accessibility checks; iOS with Accessibility Inspector, VoiceOver, the largest Dynamic Type size, Bold Text and Reduce Motion. Each WCAG 2.2 AA criterion is mapped to a platform check or marked as not applicable to a native app (see section 16 on how conformance is claimed for the apps).
 
 Method:
 
@@ -1529,6 +1599,11 @@ Supporting checks: TC-NFR-USE-02-01 and TC-NFR-USE-02-02 for status message plai
 | UAT-33 | Buy health or funeral cover for a relative through an insurer partner | P-15, insurer partner | F-33, RUL-25 | Policy clearly the insurer's; premium paid to the insurer; policy document and claim contact on the dashboard; insurer receives the application in a usable form | R2 |
 | UAT-34 | Approve a bank detail change and a release-affecting setting as two administrators | P-14 (two people) | FR-ADM-003, FR-ADM-005 | One administrator cannot apply either change alone; pending changes visible; old values used until approval | R1 |
 | UAT-35 | Fund a family event with vendors paid against evidence | P-15 | F-34 | Vendors verified; deposits against signed quotes; final payments against invoices and delivery evidence; budget against actual clear | R3 |
+| UAT-36 | Pay a parent's hospital bill from the Fidero app on your own phone | P-15 | J-09, F-36, FR-APP-001, FR-APP-002 | App installed from the participant's own store; push for the new invoice understood; invoice approved with the second factor; receipt appears on the statement in the app; participant names the hospital as payee | R2 |
+| UAT-37 | Follow a build and approve a milestone in the app | P-01 | J-03, F-36, FR-APP-001, FR-APP-003 | Photos, inspector result and re-priced amount clear on the phone; biometric unlock opens the app; the approval still asks for the code; participant knows the client cannot release alone | R2 |
+| UAT-38 | Delete your account from the app | P-01 or P-15 | FR-APP-004 | Participant finds deletion without help; understands what is kept and why; with an open item, understands that the account closes when it ends | R2 |
+| UAT-39 | Pay Fidero's fee from the app | P-02 | FR-APP-005, FR-PAY-001 | Fee paid by the route the stores allow (web page or provider in the app) without confusion; receipt in the app; participant knows purchase money goes to the bank, never through the app | R2 |
+| UAT-40 | Capture and submit a milestone with Fidero Field on an iPhone | P-08 | J-03, FR-MOB-001, FR-MOB-004 | Same flow as UAT-13 on an iPhone; evidence arrives signed; contractor understands "Open Fidero Field to finish sending" after a force-quit | R2 |
 
 ### 11.4 UAT sign-off form
 
@@ -1569,12 +1644,14 @@ Runbooks and procedures are in document 06. OAT proves they work.
 | OAT-06 | Data breach drill | Breach plan followed to the notification draft step within the time set `[TO VERIFY]` | R1 |
 | OAT-07 | Audit hash-chain verification job and alert | Job runs daily; a planted break in a test copy alerts | R1 |
 | OAT-08 | Retention job dry run on production metadata | Lists items that would be deleted; matches expected classes; nothing deleted in dry run | R1 |
-| OAT-09 | App release, staged rollout and remote device revocation | Staged rollout works; revoked device cannot upload | R2 |
+| OAT-09 | App release on both stores for both apps: TestFlight to App Store phased release, Play internal to closed testing to staged rollout; halt and resume on each store; remote device revocation | Phased release and staged rollout work; a halt stops new installs of the release on each store within the time in document 06; revoked device cannot upload | R2 |
 | OAT-10 | Statement file arrival monitoring | Missing or late file alerts | R2 |
 | OAT-11 | Country-specific hosting and backup location | Each country's data and backups in its required location | R2 (country 2), R3 (country 3) |
 | OAT-12 | Receipt-overdue alert and not-eligible institutions | The receipt-overdue alert fires in a drill and the chase runbook is followed; an institution marked not eligible is explained to the client with the fixed wording and no payment route is offered (FR-FEE-006) | R1 |
 | OAT-13 | Missed-visit and welfare-concern drill | A planted missed visit and a planted concern reach the on-call reviewer and the client within the configured time; the runbook names who calls the family | R2 |
 | OAT-14 | Opening a new country | Runbook to copy and open a country executed on staging by someone who did not write it; gate record required; data location set before any user is created | R2 |
+| OAT-15 | Rotate push credentials (APNs key, FCM service account) | Rotated on staging by someone who did not write the runbook; no push lost during the switch; old credential revoked | R2 |
+| OAT-16 | Raise and lower the minimum app version | Runbook followed on staging with two administrators; old builds see the update screen; queued evidence kept; lowering restores access | R2 |
 
 ### 11.6 Partner acceptance with the escrow bank (PAT)
 
@@ -1715,15 +1792,16 @@ Also:
 
 | Criterion | Evidence |
 |---|---|
-| All R2 Must FRs pass (MOB including FR-MOB-012, BLD, ESC-010, EVD-006, LST Musts, DSP Musts, PTR-002, PRJ-005, CARE Musts, PMG Musts, TSK Musts, FR-INS-002, FR-ACC-011 if shipped, FR-CTY-002, FR-CTY-004) and all R1 regression | Test report |
+| All R2 Must FRs pass (MOB including FR-MOB-012 on iOS and Android, APP Musts FR-APP-001, FR-APP-004, FR-APP-005 and FR-APP-006, BLD, ESC-010, EVD-006, LST Musts, DSP Musts, PTR-002, PRJ-005, CARE Musts, PMG Musts, TSK Musts, FR-INS-002, FR-ACC-011 if shipped, FR-CTY-002, FR-CTY-004) and all R1 regression | Test report |
 | R2 business rules pass: RUL-08, RUL-09 including the mobilisation exception, RUL-10, RUL-11, RUL-12, RUL-13, RUL-14, RUL-15, RUL-16, RUL-18, RUL-19, RUL-21, RUL-23, RUL-24, RUL-25, plus R1 rules regression; RUL-22 re-run on every new line | `rul` suite report |
 | Milestone, Listing and Dispute state matrices pass; Escrow matrix re-run with partial releases on every line type, freezes from all five states, Frozen to Cancelled | Section 5 report |
 | J-03 to J-07 and J-10 to J-12 E2E pass, including the abuse paths | Section 6 report |
-| NFR-PERF-05, NFR-MNT-02 (lines), NFR-SCL-01, NFR-A11Y-01 (app) pass; R1 NFRs regression | Section 7 report |
+| NFR-PERF-05 (both apps, both platforms), NFR-MNT-02 (lines), NFR-SCL-01, NFR-A11Y-01 (both apps, both platforms), NFR-STORE-01 and NFR-STORE-02 pass; R1 NFRs regression | Section 7 report |
+| Both apps approved by Apple App Store review and Google Play review for the exact release build; TC-STORE-01 to TC-STORE-07 pass; privacy labels and Data safety forms match the data catalogue; financial declaration filed (C-14, Q-24) | Store approval records; section 9.5 report |
 | Device matrix and TC-FLD tests pass; contractor, inspector, carer and errand agent field trials meet exit criteria; fraud drill flags every planted attempt | Section 9 report; field trial notes |
-| Penetration test covers app, check-in, confirmation codes, partner API, institution and insurer interfaces; no open high or critical | Tester's letter |
-| UAT-13 to UAT-22 and UAT-29 to UAT-33 accepted; UAT-24 accepted if country 2 opens in R2 | Signed forms |
-| OAT-09, OAT-10, OAT-13 and OAT-14 pass; OAT-11 for country 2 if it opens | OAT report |
+| Penetration test covers both apps on iOS and Android, attestation, check-in, confirmation codes, partner API, institution and insurer interfaces; no open high or critical | Tester's letter |
+| UAT-13 to UAT-22, UAT-29 to UAT-33 and UAT-36 to UAT-40 accepted; UAT-24 accepted if country 2 opens in R2 | Signed forms |
+| OAT-09, OAT-10 and OAT-13 to OAT-16 pass; OAT-11 for country 2 if it opens | OAT report |
 | PAT-06 to PAT-08, PAT-10 and PAT-13 pass with the bank; PAT-17 with an institution if offered | Bank and institution letters |
 | PAT-19 to PAT-23 pass with the insurer, or the INS line stays off (AS-11, C-11) | Insurer letter; lawyer's note |
 | Act 1047 position known before listings go live (C-04, Q-06); badge validity set (Q-05); licence position for property management and errands known (Q-18) | Lawyer's note |
@@ -1748,7 +1826,7 @@ Also:
 
 ### 13.4 Go/no-go checklist
 
-Used at the go/no-go meeting for every release. Chair: product owner. Attendees: engineering lead, QA lead, operations lead, reviewer lead. Each line is yes or no. Any "no" on lines 1 to 12 means no-go unless the product owner records a written exception that the rule allows (only Should items and S3 or lower defects).
+Used at the go/no-go meeting for every release. Chair: product owner. Attendees: engineering lead, QA lead, operations lead, reviewer lead. Each line is yes or no. Any "no" on lines 1 to 13 means no-go unless the product owner records a written exception that the rule allows (only Should items and S3 or lower defects).
 
 | # | Check | Yes/No |
 |---|---|---|
@@ -1764,11 +1842,12 @@ Used at the go/no-go meeting for every release. Chair: product owner. Attendees:
 | 10 | Rollback plan tested for this release | |
 | 11 | Required legal and insurer approvals on file (scope text, insurer, Act 843, Act 1047 where relevant, C-11 intermediary position, Q-18 licences) | |
 | 12 | Any country opening in this release has its gate record on file (manual phase and 90-day validation, C-13); countries without it stay "not open" | |
-| 13 | Configurable values set to approved numbers, exported and signed | |
-| 14 | Support and operations staff trained; runbooks in document 06 updated, including the missed-visit and receipt-chase runbooks | |
-| 15 | Monitoring dashboards and alerts live in production, split by country | |
-| 16 | Release notes list known S3 and S4 defects and Should items not delivered | |
-| 17 | Communication to clients and partners ready | |
+| 13 | Every app in this release is approved by both the App Store and Google Play for the exact build that passed testing; phased release and halt plan ready on each store (C-14) | |
+| 14 | Configurable values set to approved numbers, exported and signed | |
+| 15 | Support and operations staff trained; runbooks in document 06 updated, including the missed-visit and receipt-chase runbooks | |
+| 16 | Monitoring dashboards and alerts live in production, split by country and, for the apps, by platform | |
+| 17 | Release notes list known S3 and S4 defects and Should items not delivered | |
+| 18 | Communication to clients and partners ready | |
 
 Decision: Go / No-go. Signed by product owner, date and time.
 
@@ -1906,15 +1985,15 @@ Read each row left to right: business requirement, feature, functional requireme
 | BR-15 | BR-15 | F-07 | FR-EVD-005 | Must | R1 | US-EVD-005 | TC-EVD-005-01, TC-EVD-005-02 | TC-SEC-22 |
 | BR-08 | RUL-08 | F-07, F-15 | FR-EVD-006 | Must | R2 | US-EVD-006 | TC-EVD-006-01, TC-EVD-006-02 | TC-RUL-08-01, TC-RUL-08-02, TC-RUL-08-03, TC-RUL-08-04 |
 
-**MOB — Field app**
+**MOB — Field app (Fidero Field, iOS and Android)**
 
 | BR | Source in 01 | F | FR | Pri | Rel | US | Test cases | Rule and security tests |
 |---|---|---|---|---|---|---|---|---|
-| BR-08 | BR-08 | F-15 | FR-MOB-001 | Must | R2 | US-MOB-001 | TC-MOB-001-01, TC-MOB-001-02, TC-MOB-001-03 | — |
-| BR-08 | RUL-08 | F-15 | FR-MOB-002 | Must | R2 | US-MOB-002 | TC-MOB-002-01, TC-MOB-002-02 | TC-RUL-08-01, TC-RUL-08-02, TC-RUL-08-03, TC-RUL-08-04, TC-SEC-07 |
+| BR-08 | BR-08 | F-15 | FR-MOB-001 | Must | R2 | US-MOB-001 | TC-MOB-001-01, TC-MOB-001-02, TC-MOB-001-03, TC-MOB-001-04 | UAT-40 |
+| BR-08 | RUL-08 | F-15 | FR-MOB-002 | Must | R2 | US-MOB-002 | TC-MOB-002-01, TC-MOB-002-02, TC-MOB-002-03 | TC-RUL-08-01, TC-RUL-08-02, TC-RUL-08-03, TC-RUL-08-04, TC-SEC-07 |
 | BR-08 | BR-08 | F-15 | FR-MOB-003 | Must | R2 | US-MOB-003 | TC-MOB-003-01, TC-MOB-003-02 | TC-SEC-08 |
-| BR-06 | BR-06 | F-15 | FR-MOB-004 | Must | R2 | US-MOB-004 | TC-MOB-004-01, TC-MOB-004-02 | TC-SEC-06, TC-SEC-10 |
-| BR-08 | C-08 | F-15 | FR-MOB-005 | Must | R2 | US-MOB-005 | TC-MOB-005-01, TC-MOB-005-02, TC-MOB-005-03 | — |
+| BR-06 | BR-06 | F-15 | FR-MOB-004 | Must | R2 | US-MOB-004 (004a Android, 004b iOS) | TC-MOB-004-01, TC-MOB-004-02, TC-MOB-004-03, TC-MOB-004-04, TC-MOB-004-05 | TC-SEC-06, TC-SEC-10, TC-SEC-41 |
+| BR-08 | C-08 | F-15 | FR-MOB-005 | Must | R2 | US-MOB-005 | TC-MOB-005-01, TC-MOB-005-02, TC-MOB-005-03, TC-MOB-005-04, TC-MOB-005-05 | TC-FLD-19, TC-STORE-06 |
 | BR-08 | BR-08 | F-15 | FR-MOB-006 | Must | R2 | US-MOB-006 | TC-MOB-006-01, TC-MOB-006-02 | — |
 | BR-08 | RUL-09 | F-15 | FR-MOB-007 | Must | R2 | US-MOB-007 | TC-MOB-007-01, TC-MOB-007-02 | TC-RUL-09-01, TC-RUL-09-02, TC-RUL-09-03, TC-RUL-09-04 |
 | BR-08 | C-08 | F-15 | FR-MOB-008 | Must | R2 | US-MOB-008 | TC-MOB-008-01, TC-MOB-008-02 | — |
@@ -1922,6 +2001,17 @@ Read each row left to right: business requirement, feature, functional requireme
 | BR-06, BR-18, BR-20 | BR-06, BR-18, BR-20 | F-15, F-30, F-32 | FR-MOB-010 | Should | R2 | US-MOB-010 | TC-MOB-010-01, TC-MOB-010-02, TC-MOB-010-03 | — |
 | BR-08 | BR-08 | F-15 | FR-MOB-011 | Must | R2 | US-MOB-011 | TC-MOB-011-01, TC-MOB-011-02, TC-MOB-011-03 | TC-SEC-06, TC-SEC-08, TC-SEC-09 |
 | BR-18 | RUL-23 | F-15, F-30 | FR-MOB-012 | Must | R2 | US-MOB-012 | TC-MOB-012-01, TC-MOB-012-02, TC-MOB-012-03, TC-MOB-012-04 | TC-RUL-23-01, TC-RUL-23-03, TC-SEC-36, TC-FLD-14, TC-FLD-15, TC-FLD-16 |
+
+**APP — Client mobile app (Fidero, iOS and Android)**
+
+| BR | Source in 01 | F | FR | Pri | Rel | US | Test cases | Rule and security tests |
+|---|---|---|---|---|---|---|---|---|
+| BR-01 | F-36 | F-36 | FR-APP-001 | Must | R2 | US-APP-001 (001a to 001e) | TC-APP-001-01, TC-APP-001-02, TC-APP-001-03, TC-APP-001-04, TC-APP-001-05 | TC-SEC-43, UAT-36, UAT-37 |
+| BR-01 | BR-01, FR-NTF-004 | F-36 | FR-APP-002 | Should | R2 | US-APP-002 | TC-APP-002-01, TC-APP-002-02, TC-APP-002-03 | TC-SEC-42 |
+| BR-15 | FR-ACC-003 | F-36 | FR-APP-003 | Should | R2 | US-APP-003 | TC-APP-003-01, TC-APP-003-02, TC-APP-003-03 | TC-SEC-44, UAT-37 |
+| BR-15 | C-14, FR-DPR-004 | F-36, F-15 | FR-APP-004 | Must | R2 | US-APP-004 | TC-APP-004-01, TC-APP-004-02, TC-APP-004-03, TC-APP-004-04 | TC-STORE-05, UAT-38 |
+| BR-01 | AS-14, RUL-01 | F-36 | FR-APP-005 | Must | R2 | US-APP-005 | TC-APP-005-01, TC-APP-005-02, TC-APP-005-03, TC-APP-005-04 | TC-RUL-01-02, UAT-39 |
+| BR-08, BR-15 | C-14, FR-MOB-005 | F-36, F-15 | FR-APP-006 | Must | R2 | US-APP-006 | TC-APP-006-01, TC-APP-006-02, TC-APP-006-03 | TC-STORE-06, OAT-16 |
 
 **BLD — Construction, off-plan and buildings**
 
@@ -2124,17 +2214,17 @@ Read each row left to right: business requirement, feature, functional requireme
 
 | RUL | BR | F | FR | Rule tests | Other tests |
 |---|---|---|---|---|---|
-| RUL-01 | BR-05 | F-02, F-08 | FR-PAY-005, FR-ESC-003 | TC-RUL-01-01, TC-RUL-01-02, TC-RUL-01-03, TC-RUL-01-04 | TC-E2E-J02-01 |
+| RUL-01 | BR-05 | F-02, F-08, F-36 | FR-PAY-005, FR-ESC-003, FR-APP-005 | TC-RUL-01-01, TC-RUL-01-02, TC-RUL-01-03, TC-RUL-01-04 | TC-E2E-J02-01, TC-APP-005-03, TC-APP-005-04 |
 | RUL-02 | BR-02 | F-04 | FR-RPT-003 | TC-RUL-02-01, TC-RUL-02-02, TC-RUL-02-03, TC-RUL-02-04, TC-RUL-02-05 | TC-E2E-J01-05 |
 | RUL-03 | BR-02 | F-04 | FR-RPT-006 | TC-RUL-03-01, TC-RUL-03-02, TC-RUL-03-03, TC-RUL-03-04 | TC-STM-CASE-07, TC-STM-CASE-12 |
 | RUL-04 | BR-02 | F-04, F-11 | FR-ORD-003, FR-RPT-004, FR-ADM-004 | TC-RUL-04-01, TC-RUL-04-02, TC-RUL-04-03 | TC-SEC-24 |
 | RUL-05 | BR-05 | F-08 | FR-ESC-007, FR-ESC-013 | TC-RUL-05-01, TC-RUL-05-02, TC-RUL-05-03, TC-RUL-05-04, TC-RUL-05-05 | TC-STM-ESC-05, TC-STM-ESC-24, TC-SEC-01, TC-SEC-02, TC-SEC-03 |
 | RUL-06 | BR-05 | F-08 | FR-ESC-006 | TC-RUL-06-01, TC-RUL-06-02, TC-RUL-06-03, TC-RUL-06-04 | TC-STM-ESC-16, TC-E2E-J02-02 |
 | RUL-07 | BR-05 | F-03, F-08 | FR-CASE-014, FR-ESC-006, FR-ADM-005 | TC-RUL-07-01, TC-RUL-07-02, TC-RUL-07-03, TC-RUL-07-04, TC-RUL-07-05 | TC-E2E-J02-03, TC-ESC-006-07 |
-| RUL-08 | BR-08 | F-15 | FR-EVD-006, FR-MOB-002, FR-CARE-003, FR-TSK-003 | TC-RUL-08-01, TC-RUL-08-02, TC-RUL-08-03, TC-RUL-08-04, TC-RUL-08-05 | TC-SEC-07, TC-E2E-J03-04 |
+| RUL-08 | BR-08 | F-15 | FR-EVD-006, FR-MOB-002, FR-CARE-003, FR-TSK-003 | TC-RUL-08-01, TC-RUL-08-02, TC-RUL-08-03, TC-RUL-08-04, TC-RUL-08-05 | TC-SEC-07, TC-E2E-J03-04, TC-MOB-002-03 |
 | RUL-09 | BR-08 | F-15, F-16 | FR-MOB-007, FR-BLD-006, FR-BLD-005 | TC-RUL-09-01, TC-RUL-09-02, TC-RUL-09-03, TC-RUL-09-04, TC-RUL-09-05, TC-RUL-09-06, TC-RUL-09-07 | TC-STM-MIL-12, TC-STM-MIL-16, TC-STM-MIL-20, TC-E2E-J03-03 |
 | RUL-10 | BR-08 | F-16 | FR-BLD-004 | TC-RUL-10-01, TC-RUL-10-02, TC-RUL-10-03, TC-RUL-10-04 | TC-SEC-27, TC-E2E-J03-05 |
-| RUL-11 | BR-05, BR-08, BR-17 | F-08, F-16, F-29 | FR-ESC-006, FR-ESC-007, FR-BLD-005, FR-FEE-003, FR-FEE-005, FR-CARE-004, FR-TSK-003 | TC-RUL-11-01, TC-RUL-11-02, TC-RUL-11-03, TC-RUL-11-04, TC-RUL-11-05, TC-RUL-11-06, TC-RUL-11-07, TC-RUL-11-08 | TC-STM-ESC-04, TC-STM-ESC-17, TC-STM-MIL-15, TC-STM-MIL-22, TC-ESC-006-05, TC-FEE-005-02, TC-CARE-001-03, TC-TSK-003-05 |
+| RUL-11 | BR-05, BR-08, BR-17 | F-08, F-16, F-29 | FR-ESC-006, FR-ESC-007, FR-BLD-005, FR-FEE-003, FR-FEE-005, FR-CARE-004, FR-TSK-003 | TC-RUL-11-01, TC-RUL-11-02, TC-RUL-11-03, TC-RUL-11-04, TC-RUL-11-05, TC-RUL-11-06, TC-RUL-11-07, TC-RUL-11-08 | TC-STM-ESC-04, TC-STM-ESC-17, TC-STM-MIL-15, TC-STM-MIL-22, TC-ESC-006-05, TC-FEE-005-02, TC-CARE-001-03, TC-TSK-003-05, TC-APP-001-02 |
 | RUL-12 | BR-10 | F-19 | FR-LST-002 | TC-RUL-12-01, TC-RUL-12-02, TC-RUL-12-03, TC-RUL-12-04 | TC-STM-LST-03, TC-E2E-J04-02 |
 | RUL-13 | BR-10 | F-19, F-24 | FR-GEO-007, FR-LST-006, FR-ADM-005 | TC-RUL-13-01, TC-RUL-13-02, TC-RUL-13-03 | TC-STM-LST-07, TC-STM-LST-08, TC-E2E-J04-03 |
 | RUL-14 | BR-10 | F-19 | FR-LST-003 | TC-RUL-14-01, TC-RUL-14-02 | TC-LST-003-01 |
@@ -2158,7 +2248,7 @@ Read each row left to right: business requirement, feature, functional requireme
 | NFR-PERF-02 | BR-01 | R1 | TC-NFR-PERF-02-01 | — |
 | NFR-PERF-03 | BR-01 | R1 | TC-NFR-PERF-03-01, TC-NFR-PERF-03-02 | — |
 | NFR-PERF-04 | BR-01 | R1 | TC-NFR-PERF-04-01 | — |
-| NFR-PERF-05 | BR-01 | R2 | TC-NFR-PERF-05-01 | TC-FLD-12 |
+| NFR-PERF-05 | BR-01 | R2 | TC-NFR-PERF-05-01, TC-NFR-PERF-05-02 | TC-FLD-12, TC-FLD-20 |
 | NFR-AVL-01 | BR-15 | R1 | TC-NFR-AVL-01-01, TC-NFR-AVL-01-02, TC-NFR-AVL-01-03 | — |
 | NFR-AVL-02 | BR-15 | R1 | TC-NFR-AVL-02-01 | OAT-02 |
 | NFR-AVL-03 | BR-15 | R1 | TC-NFR-AVL-03-01 | — |
@@ -2166,18 +2256,20 @@ Read each row left to right: business requirement, feature, functional requireme
 | NFR-SEC-02 | BR-15 | R1 | TC-NFR-SEC-02-01 | — |
 | NFR-SEC-03 | BR-15 | R1 | TC-NFR-SEC-03-01 | Section 8.5 |
 | NFR-SEC-04 | BR-15 | R1 | TC-NFR-SEC-04-01 | TC-SEC-30, OAT-05 |
-| NFR-SEC-05 | BR-15 | R1 | TC-NFR-SEC-05-01 | Section 8.3, TC-SEC-01 to TC-SEC-40 |
+| NFR-SEC-05 | BR-15 | R1 | TC-NFR-SEC-05-01 | Section 8.3, TC-SEC-01 to TC-SEC-44 |
 | NFR-PRIV-01 | BR-15 | R1 | TC-NFR-PRIV-01-01 | TC-CTY-002-01, TC-SEC-38, OAT-11 |
 | NFR-PRIV-02 | BR-15 | R1 | TC-NFR-PRIV-02-01 | TC-ACC-012-02, TC-CARE-003-03 |
 | NFR-USE-01 | BR-01 | R1 | TC-NFR-USE-01-01 | UAT-01, UAT-25, section 10.2 |
 | NFR-USE-02 | BR-01 | R1 | TC-NFR-USE-02-01, TC-NFR-USE-02-02 | — |
-| NFR-A11Y-01 | BR-01 | R1 (web), R2 (app) | TC-NFR-A11Y-01-01, TC-NFR-A11Y-01-02, TC-NFR-A11Y-01-03 | Section 10.1 |
+| NFR-A11Y-01 | BR-01 | R1 (web), R2 (both apps) | TC-NFR-A11Y-01-01, TC-NFR-A11Y-01-02, TC-NFR-A11Y-01-03, TC-NFR-A11Y-01-04 | Section 10.1 |
 | NFR-OBS-01 | BR-15 | R1 | TC-NFR-OBS-01-01 | OAT-03, OAT-12, OAT-13 |
 | NFR-MNT-01 | BR-14 | R1 | TC-NFR-MNT-01-01 | — |
 | NFR-MNT-02 | BR-14 | R1 (country), R2 (lines) | TC-NFR-MNT-02-01, TC-NFR-MNT-02-02 | TC-CTY-001-01, TC-CTY-001-05, TC-CTY-004-01 |
 | NFR-SCL-01 | BR-10, BR-08 | R2 | TC-NFR-SCL-01-01 | — |
 | NFR-LOC-01 | BR-14 | R1 | TC-NFR-LOC-01-01 | — |
 | NFR-AUD-01 | BR-15 | R1 | TC-NFR-AUD-01-01 | TC-AUD-004-01, OAT-07 |
+| NFR-STORE-01 | BR-01, BR-15 | R2 | TC-NFR-STORE-01-01, TC-NFR-STORE-01-02 | TC-STORE-01 to TC-STORE-05 |
+| NFR-STORE-02 | BR-01 | R2 | TC-NFR-STORE-02-01 | TC-STORE-07 |
 
 ### 14.4 Journeys
 
@@ -2185,13 +2277,13 @@ Read each row left to right: business requirement, feature, functional requireme
 |---|---|---|---|
 | J-01 Order a land report | F-01, F-02, F-03, F-04, F-05, F-06, F-07, F-10 | TC-E2E-J01-01 to TC-E2E-J01-08 | UAT-01 to UAT-06 |
 | J-02 Buy through escrow | F-08, F-03 (fresh search) | TC-E2E-J02-01 to TC-E2E-J02-07 | UAT-07, UAT-08 |
-| J-03 Build with milestone payments | F-15, F-16, F-08 | TC-E2E-J03-01 to TC-E2E-J03-07 | UAT-13 to UAT-16 |
+| J-03 Build with milestone payments | F-15, F-16, F-08 | TC-E2E-J03-01 to TC-E2E-J03-07 | UAT-13 to UAT-16, UAT-37, UAT-40 |
 | J-04 Buy a verified listing | F-19, F-08 | TC-E2E-J04-01 to TC-E2E-J04-04 | UAT-17, UAT-18 |
 | J-05 Fund a project | F-18 | TC-E2E-J05-01 to TC-E2E-J05-04 | UAT-19 |
 | J-06 Bank collateral check | F-22 | TC-E2E-J06-01 to TC-E2E-J06-04 | UAT-20 |
 | J-07 Raise and resolve a dispute | F-21 | TC-E2E-J07-01 to TC-E2E-J07-04 | UAT-21 |
 | J-08 Verify an existing building | F-09, F-08 | TC-E2E-J08-01 to TC-E2E-J08-03 | UAT-09 |
-| J-09 Pay a school or hospital directly | F-29, F-08, F-35 | TC-E2E-J09-01 to TC-E2E-J09-08 | UAT-25 to UAT-28 |
+| J-09 Pay a school or hospital directly | F-29, F-08, F-35 | TC-E2E-J09-01 to TC-E2E-J09-08 | UAT-25 to UAT-28, UAT-36 |
 | J-10 Arrange care visits | F-30, F-15, F-08 | TC-E2E-J10-01 to TC-E2E-J10-07 | UAT-29, UAT-30 |
 | J-11 Manage a property | F-31, F-08, F-15 | TC-E2E-J11-01 to TC-E2E-J11-06 | UAT-31 |
 | J-12 Get paperwork done | F-32, F-15, F-08 | TC-E2E-J12-01 to TC-E2E-J12-07 | UAT-32 |
@@ -2200,30 +2292,31 @@ Read each row left to right: business requirement, feature, functional requireme
 
 Counts are of test cases written in this version of the document.
 
-| Item | In document 01 version 0.4 | Covered by at least one test | Notes |
+| Item | In document 01 version 0.6 | Covered by at least one test | Notes |
 |---|---|---|---|
-| Functional requirements | 195 (129 Must, 53 Should, 13 Could) | 195 | Every Must FR has at least one positive and one negative test |
+| Functional requirements | 201 (133 Must, 55 Should, 13 Could) | 201 | Every Must FR has at least one positive and one negative test |
 | Business rules | 25 | 25 | Every rule has 2 to 8 tests; 110 in total |
-| Non-functional requirements | 24 | 24 | 31 tests |
+| Non-functional requirements | 26 | 26 | 36 tests |
 | State models | 5 | 5 | 104 named tests plus the generated matrix test per model |
 | Journeys | 12 | 12 | 69 E2E tests |
 | Business requirements | 22 (BR-01 to BR-22) | 22 | Through FRs in section 14.1 |
 
 | Test type | Count |
 |---|---|
-| Functional (`TC-<MODULE>-nnn-xx`) | 427 |
+| Functional (`TC-<MODULE>-nnn-xx`) | 456 |
 | Business rule (`TC-RUL-nn-xx`) | 110 |
 | State transition (`TC-STM-…`) | 104 |
 | End-to-end journey (`TC-E2E-J0n-xx`) | 69 |
-| Non-functional (`TC-NFR-…`) | 31 |
-| Security threat (`TC-SEC-nn`) | 40 |
-| Mobile and field (`TC-FLD-nn`) | 18 |
-| User acceptance (`UAT-nn`) | 35 |
-| Operational acceptance (`OAT-nn`) | 14 |
+| Non-functional (`TC-NFR-…`) | 36 |
+| Security threat (`TC-SEC-nn`) | 44 |
+| Mobile and field (`TC-FLD-nn`) | 20 |
+| App store acceptance (`TC-STORE-nn`) | 7 |
+| User acceptance (`UAT-nn`) | 40 |
+| Operational acceptance (`OAT-nn`) | 16 |
 | Partner acceptance (`PAT-nn`) | 23 |
-| **Total** | **871** |
+| **Total** | **925** |
 
-Functional test cases by release: R1 235, R2 180, R3 12.
+Functional test cases by release: R1 235, R2 209, R3 12.
 
 Functional coverage by module:
 
@@ -2237,7 +2330,8 @@ Functional coverage by module:
 | GEO | 8 | 4 | 8 | 12 | 11 |
 | ESC | 15 | 13 | 15 | 46 | 46 |
 | EVD | 6 | 6 | 6 | 13 | 13 |
-| MOB | 12 | 11 | 12 | 30 | 27 |
+| MOB | 12 | 11 | 12 | 37 | 30 |
+| APP | 6 | 4 | 6 | 22 | 16 |
 | BLD | 13 | 11 | 13 | 26 | 26 |
 | PRJ | 5 | 1 | 5 | 8 | 8 |
 | LST | 10 | 4 | 10 | 16 | 16 |
@@ -2257,15 +2351,15 @@ Functional coverage by module:
 | EVT | 3 | 0 | 3 | 5 | 5 |
 | REC | 4 | 0 | 4 | 5 | 5 |
 | CTY | 4 | 4 | 4 | 12 | 10 |
-| **Total** | **195** | **129** | **195** | **427** | **418** |
+| **Total** | **201** | **133** | **201** | **456** | **437** |
 
-Verification of this version: a script compared every `FR-`, `RUL-` and `NFR-` ID in document 01 version 0.4 with this document. Every ID in 01 appears here, no ID here is absent from 01, and every test ID referenced in a table is defined in a table.
+Verification of this version: a script compared every `FR-`, `RUL-` and `NFR-` ID in document 01 version 0.6 with this document. Every ID in 01 appears here, no ID here is absent from 01, and every test ID referenced in a table is defined in a table.
 
 ### 14.6 Keeping traceability current
 
 - Each automated test carries markers for its TC ID and the FR, RUL or NFR it covers (for example `@pytest.mark.req("FR-ESC-006")`).
 - A CI script builds this matrix from the markers and from document 01. It fails when an FR or RUL in 01 has no test, or when a test points to an ID that does not exist.
-- When document 01 or document 04 changes, the QA lead updates this document in the same pull request. Version 0.3 of document 01 added 36 FRs and 4 rules; this version 0.2 of document 05 is that update.
+- When document 01 or document 04 changes, the QA lead updates this document in the same pull request. Version 0.3 of document 01 added 36 FRs and 4 rules; version 0.2 of document 05 was that update. Version 0.6 of document 01 added 6 FRs (FR-APP-001 to FR-APP-006) and 2 NFRs (NFR-STORE-01, NFR-STORE-02); version 0.4 of document 05 is that update.
 
 ---
 
@@ -2285,13 +2379,15 @@ Verification of this version: a script compared every `FR-`, `RUL-` and `NFR-` I
 | Defect age | Days open, by severity | Within SLAs in 12.4 | Defect tracker |
 | Flaky test rate | Tests that pass and fail on the same code | Under 2% of tests; none in `rul` | CI history |
 | Pipeline time | PR gate duration | Under 15 minutes (assumption) | CI |
-| Automation share | Automated test cases divided by all test cases | About 85% of functional cases (section 14.5 shows 405 of 414 marked Y) | This document |
+| Automation share | Automated test cases divided by all test cases | About 85% of functional cases (section 14.5 shows 437 of 456 marked Y) | This document |
 | Performance trend | p75 page time on 3G, p95 API latency | Within NFR-PERF targets every night | Lighthouse CI, k6 |
 | Field evidence loss | Evidence items captured but never received | Zero | App telemetry and server |
 | Fraud flag accuracy | Flags upheld by reviewers divided by all flags | Watched, no target until R2 data `[TO VERIFY]` | Reviewer decisions |
 | Payee mismatch blocks | Release attempts blocked by FR-ESC-015, by line and by cause | Watched; every block reviewed within 1 working day (assumption) | Release decision log |
 | Unconfirmed visits | Visits submitted but never confirmed, as a share of visits | Watched; target set after the carer field trial `[TO VERIFY]` | CARE data |
 | Country isolation matrix | Share of cross-country access checks passing | 100% every PR | CI |
+| Store approval first time | Share of app submissions approved without rejection, per app and store | Watched; every rejection reviewed (document 06 runbook) | Store records |
+| App stability | Crash-free sessions and Android ANR rate, per app and platform | Thresholds in document 06 `[TO VERIFY]` | Store consoles, crash reporting |
 
 ### 15.2 Reports
 
@@ -2343,14 +2439,14 @@ Version 0.1 of this document raised 36 issues. Each was checked against 01 versi
 
 ### 16.2 Open issues
 
-Items 1 to 14 were raised in version 0.1. Items 15 to 30 were added in version 0.2. Items resolved by 01 version 0.4 stay in this table, marked resolved, so their numbers remain traceable.
+Items 1 to 14 were raised in version 0.1. Items 15 to 30 were added in version 0.2. Items 31 to 35 were added in version 0.4 for the app store decision. Items resolved by 01 version 0.4 stay in this table, marked resolved, so their numbers remain traceable.
 
 | # | Where in 01 | Issue | Effect on testing | Test assumption until resolved |
 |---|---|---|---|---|
 | 1 | RUL-07, Q-04; RUL-12, RUL-13, Q-05; FR-ADM-005 | Fresh-search window, listing report age and badge validity are still `[TO VERIFY]`. It is unclear whether "within N days" includes day N. | Boundary tests cannot use fixed numbers | Tests read the configured value; limit is inclusive |
 | 2 | C8 Milestone; FR-BLD-006, FR-BLD-012 | The milestone model has no state for a held defect value or for retention waiting for the defects period. "Paid" is used while money is still held. | The client sees "Paid" while part of the milestone is held; matrix test cannot check holdback release | Holdback and retention tracked as separate held items with their own release chain |
 | 3 | RUL-15, FR-DSP-002 | "Every release linked to it" is still not defined. A dispute on one milestone may or may not freeze later milestones, the whole project, or a held balance used for several institutions. | TC-RUL-15-03 expectation unclear | Freeze the disputed item only; reviewer can widen the freeze |
-| 4 | FR-ACC-003 | "Any user who approves a release" now covers every client on every line, including family supporters paying small school fees. MFA for them is not stated either way. | MFA tests for clients unclear; usability risk for P-15 | Clients need MFA for any release approval; a remembered device counts for 30 days (assumption) |
+| 4 | FR-ACC-003 | "Any user who approves a release" now covers every client on every line, including family supporters paying small school fees. MFA for them is not stated either way. | MFA tests for clients unclear; usability risk for P-15 | Clients need MFA for any release approval; a remembered device counts for 30 days (assumption). FR-APP-003 (01 v0.6) confirms that in the client app an approval needs the second factor even after biometric unlock (TC-APP-003-03) |
 | 5 | FR-RPT-006, RUL-03 | Still says "a second Fidero reviewer" when only one Fidero reviewer is involved. Still silent on whether the lawyer may be a Fidero employee. | Separation tests unclear | Two different persons; one person cannot hold both roles on the same case |
 | 6 | FR-ACC-005, RUL-20 | No rule for a licence that expires between signing and release. | TC-RUL-20-04 expectation unclear | Signature valid if the licence was valid at signing |
 | 7 | FR-LST-010 vs NFR-PERF-01 | FR-LST-010 still says "under 3 seconds on 3G" with no percentile or network profile. | Two different targets | Use the NFR-PERF-01 profile and p75 |
@@ -2373,7 +2469,12 @@ Items 1 to 14 were raised in version 0.1. Items 15 to 30 were added in version 0
 | 24 | FR-ACC-012, FR-CARE-001, FR-DPR-002 | Family members, tenants and patients are third parties whose personal and health data the client enters. 01 records consent only for people on video (FR-DPR-002). | No requirement to test consent or notice for family members | Family member is told they were added and can object; health readings only with their consent `[TO VERIFY]` with the lawyer |
 | 25 | FR-PMG-003, RUL-24 | Tracking rent "from the bank's statement" means Fidero reads the owner's own account. 01 does not say what the bank shares or that unrelated lines must be discarded. | Data minimisation untestable | **Resolved by 01 v0.4:** FR-PMG-003 reads the bank's statement lines for that account only, under the owner's written mandate (TC-PMG-003-03, TC-PMG-003-04) |
 | 26 | FR-CTY-004, C-13 | Nothing in 01 makes the system stop a country going live before its manual phase and 90-day validation. C-13 is a business constraint only. | TC-CTY-004-02 has no FR to trace to | A new country stays "not open" until two administrators record the founder's gate decision |
-| 27 | NFR-A11Y-01 | WCAG 2.2 is a web standard. 01 does not say how conformance is claimed for the native Android app. | App audit pass criterion unclear | Each WCAG 2.2 AA criterion mapped to an Android check or marked not applicable (TC-NFR-A11Y-01-03) |
+| 27 | NFR-A11Y-01 | WCAG 2.2 is a web standard. 01 does not say how conformance is claimed for the apps. v0.6 extends the requirement to both apps on iOS and Android, using Android's and Apple's guidance, but the claim is still not defined. | App audit pass criterion unclear | Each WCAG 2.2 AA criterion mapped to an Android or iOS check or marked not applicable (TC-NFR-A11Y-01-03, TC-NFR-A11Y-01-04) |
 | 28 | C2 Institution contact, FR-ACC-011, IF-10 | The institution contact can "confirm an invoice" from R1, but organisation accounts for institutions are R2 and IF-10 is manual in R1. How an institution confirms in R1 is not stated. | UAT-27 and PAT-15 need an R1 path | In R1 staff upload the institution's confirmation and receipt; the contact has no account until R2 |
 | 29 | F-30, F-31, F-32, F-33 vs their FRs | The features are Should or Could, but they hold Must FRs (for example FR-CARE-002, FR-PMG-002, FR-INS-002). It is unclear whether those Musts block a release if the line does not ship. | Release gates unclear | **Resolved by 01 v0.4:** a Must inside a Should or Could feature is required only if that feature ships, and then blocks the feature, not the release |
 | 30 | FR-INS-002, C-11, Q-17 | "Direct premium payment to the insurer's account" does not say whether the client pays through the partner bank (as other lines) or straight to the insurer. C-12 says Fidero moves no money across borders. | Premium routing tests (TC-RUL-25-01, PAT-21) need one route | **Resolved by 01 v0.4:** FR-INS-002 names both routes: the client pays the insurer directly, or the bank pays the insurer from money held for that purpose (TC-INS-002-04, PAT-21) |
+| 31 | FR-APP-004, RUL-11, C8 Escrow | A user can delete the account in the app, but 01 does not say what happens to an open escrow, money held at the bank or a standing approval. | TC-APP-004-03 has no stated expected result | Request recorded; account closed to new orders; deletion completes when open items end; held records kept |
+| 32 | FR-APP-002 vs FR-NTF-001, FR-NTF-004 | Push follows the user's channel preferences and FR-NTF-004's limits, but FR-NTF-001 lists only email, SMS and WhatsApp and FR-NTF-004 limits only SMS and WhatsApp. | Push content tests trace only to FR-APP-002 | Push is a channel in the preferences; FR-NTF-004 limits apply to push (TC-APP-002-02, TC-SEC-42) |
+| 33 | FR-APP-006, FR-MOB-005 | "Without losing queued evidence" does not say whether evidence captured by an old version before the minimum was raised is still accepted, or for how long. | TC-APP-006-02 and -03 need a rule | Accepted if captured before the raise and uploaded within 30 days of it (`[TO VERIFY]`, 02 section 8.10, 06 section 3.5); items older than 7 days at upload carry the time-gap flag; new capture blocked |
+| 34 | NFR-STORE-02 | "Versions used by at least 95% of active users" cannot be measured before launch, when there are no active users. | TC-NFR-STORE-02-01 cannot run at R2 go-live | Use public OS share data for each launch country `[TO VERIFY]` source until six months of app analytics exist |
+| 35 | NFR-PERF-05 | "Its download size" for both apps does not say whether 30 MB applies per app and per platform. | Pass criterion ambiguous | Each app on each platform under 30 MB (TC-NFR-PERF-05-01, -02) |

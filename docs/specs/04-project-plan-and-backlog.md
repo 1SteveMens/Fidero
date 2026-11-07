@@ -290,7 +290,7 @@ The plan covers Must items only, plus US-ANL-001, which US-CTY-003 (Must) needs.
 | S12 | 9 | Overlay checks, load test, pen retest, identity provider | US-GEO-001, US-GEO-004, US-GEO-002, US-GEO-003, EN-26, EN-29, US-ACC-004a | 33 |
 | S13 | 9-10 | R1 completion: scope wording control, data rights, retention and legal hold, dashboard and metrics by country (M-12) | US-ADM-004, US-DPR-003, US-DPR-005, US-DPR-004a, US-DPR-004b, US-ANL-003, US-ANL-001, US-CTY-003 | 29 |
 
-S13 falls in months 9 to 10. The web team finishes R1 there while the Android developer sets up R2 (section 5.2). The S13 items are the ones with the least effect before month 10: scope-wording change control, data subject export, retention and legal hold, the dashboard and metrics by country (no second country has data before month 12).
+S13 falls in months 9 to 10. The web team finishes R1 there while the mobile developer sets up R2 (section 5.2). The S13 items are the ones with the least effect before month 10: scope-wording change control, data subject export, retention and legal hold, the dashboard and metrics by country (no second country has data before month 12).
 
 #### Capacity against scope
 
@@ -304,7 +304,7 @@ S13 falls in months 9 to 10. The web team finishes R1 there while the Android de
 What the new scope means, plainly: version 0.1 already showed the baseline team 50 points short of the R1 Musts. Version 0.3 of 01 adds 46 points of R1 Must stories and enablers, and FR-CTY-003 pulls an 8-point Should (US-ANL-001) into the Must plan: 54 points more. The baseline team now finishes the R1 Musts around month 11, two months after gate G1 and one month after the Android developer starts. That is not workable: it eats the R2 start, and it collides with the country 2 configuration work that is due at month 12. The founder has three choices. All three are assumptions until the team's real velocity is known after S2.
 
 1. **More people. Option A+ (chosen by the founder on 1 November 2026).** Add one contract developer for S3 to S13, one sprint longer than version 0.1 proposed. All R1 Musts land by the end of S13 (months 9 to 10). Gate G1 at month 9 is judged on business numbers (reports, escrows, fees paid), which the S13 tail does not affect. Cost about $17,600 `[TO VERIFY]` (section 11). This protects the R2 start, the family lines and the month-12 country 2 date.
-2. **Later R1. Option B.** Keep the baseline team and accept R1 completion at month 11 (S17). Not recommended: the Android developer would start while the web team is still on R1, and country 2 configuration (R2-B) would slip past month 12, which breaks BO-08.
+2. **Later R1. Option B.** Keep the baseline team and accept R1 completion at month 11 (S17). Not recommended: the mobile developer would start while the web team is still on R1, and country 2 configuration (R2-B) would slip past month 12, which breaks BO-08.
 3. **Move items to R2. Option C.** Downgrade named R1 Musts through change control (section 12.3) with the product owner's written agreement. Candidates with the least effect before month 10: FR-CTY-003 (metrics by country, 3 points, no second-country data until month 12), FR-ACC-004 provider integration (US-ACC-004a, 5), FR-ADM-004 (3) and FR-DPR-003, FR-DPR-004, FR-DPR-005 (13). That is 24 points. Dropping FR-CTY-003 also lets US-ANL-001 return to the Should list, so 32 points leave the Must plan: 376 against 384 with Option A, which fits S12 with almost no slack. Moving EP-FEE or FR-CTY-001 is not recommended: fees to institutions are the first visible proof of the redefinition, R0 clients already pay them by hand, and country configuration is a data-model decision that costs far more to retrofit than to build in.
 
 **Decision, 1 November 2026:** the founder chose Option A+. The contract developer is in the plan from S3 to S13. At the end of S2, when velocity is first measured, if it is more than 20% below the table, the Option C list is applied as well.
@@ -353,7 +353,7 @@ R2 also carries the 29 points of R1 completion in S13 and the R1 Shoulds in R2-A
 | R2-D (S28 to S31): capacity against demand 74 | 140 | 172 | 180 |
 | Extra cost (assumption) | none | about $28,800: 18 sprints at about $1,600 `[TO VERIFY]` | a second salary for about 8 months, rate `[TO VERIFY]` |
 
-All figures are assumptions. Version 0.3 left 114 points (18%) unplanned with an Android-only app. The decision to publish both apps on both stores adds 101 points: the client app (EP-APP, 61), iOS work in the field app (US-MOB-002 re-estimated and US-MOB-004b, 8) and store and native-module enablers (EN-33 rewritten, 3 more; EN-64 to EN-77, 29). Demand rises from 537 to 638.
+All figures are assumptions. Version 0.3 left 114 points (18%) unplanned under the earlier plan for a single Android field app. The decision to publish both apps on both stores adds 101 points: the client app (EP-APP, 61), iOS work in the field app (US-MOB-002 re-estimated and US-MOB-004b, 8) and store and native-module enablers (EN-33 rewritten, 3 more; EN-64 to EN-77, 29). Demand rises from 537 to 638.
 
 **Is one mobile developer enough?** No. With one mobile developer, R2 has about 2% spare, and R2-A to R2-C are short by about 53 points, which would push the client app past its store review buffer and into gate G2. The work that needs native skills alone (native modules on two platforms, the field app's capture, signing and queue, store set-up) is about 100 points before the construction pilot at month 13, against about 50 points of mobile capacity by then. React Native helps here: the app screens, queue logic and API client are TypeScript, which the web developers already write.
 
@@ -903,23 +903,24 @@ Acceptance criteria:
   1. Given an item with a valid device signature, when it is stored, then it is marked app-captured.
   2. Given a milestone, when an uploaded item is offered as release evidence, then it is refused.
 
-### EP-MOB: Field app (milestone app)
+### EP-MOB: Field app, Fidero Field (iOS and Android)
 
-14 stories, 70 points.
+15 stories, 78 points. One React Native codebase for iOS and Android (02 ADR-22). Capture, signing, attestation and background upload are native modules on each platform.
 
 | Story | As a … I want … so that … | Priority | Release | Points | Depends on |
 |---|---|---|---|---|---|
-| US-MOB-001 | As a field worker (contractor P-08, inspector, runner P-07, surveyor, carer or errand agent P-17), I want to sign in to the field app and see only my assigned projects, cases and tasks, so that I go straight to my work. | Must | R2 | 5 | EN-33, US-ACC-007 |
-| US-MOB-002 | As a contractor (P-08), I want evidence captured only with the app's own camera, so that no one can submit old or borrowed photos (RUL-08). | Must | R2 | 5 | US-MOB-001 |
+| US-MOB-001 | As a field worker (contractor P-08, inspector, runner P-07, surveyor, carer or errand agent P-17), I want to sign in to Fidero Field on my Android phone or iPhone and see only my assigned projects, cases and tasks, so that I go straight to my work. | Must | R2 | 5 | EN-33, EN-66, US-ACC-007 |
+| US-MOB-002 | As a contractor (P-08), I want evidence captured only with the app's own camera, on Android and iOS, so that no one can submit old or borrowed photos (RUL-08). | Must | R2 | 8 | US-MOB-001, EN-70 |
 | US-MOB-003 | As a contractor (P-08), I want position and accuracy recorded at capture with a warning when I am far from the plot, so that I know when the evidence will be flagged. | Must | R2 | 3 | US-MOB-002, US-GEO-001 |
-| US-MOB-004 | As a reviewer (P-04), I want each file hashed at capture and the hash, position and device time signed with a key in the device keystore, so that tampering after capture is detectable. | Must | R2 | 8 | US-MOB-002, EN-34 |
-| US-MOB-005a | As a contractor (P-08), I want to capture, fill checklists and queue submissions with no signal, with the queue surviving restarts, so that I can work on sites with no network. | Must | R2 | 8 | US-MOB-004 |
-| US-MOB-005b | As a contractor (P-08), I want queued submissions uploaded automatically when a connection returns, so that I do not have to remember to send them. | Must | R2 | 5 | US-MOB-005a |
+| US-MOB-004a | As a reviewer (P-04), I want each file captured on an Android phone hashed and the hash, position and device time signed with a key in Android Keystore, registered with key attestation and Play Integrity, so that tampering after capture is detectable. | Must | R2 | 8 | US-MOB-002, EN-34 |
+| US-MOB-004b | As a reviewer (P-04), I want each file captured on an iPhone hashed and signed the same way with a key in the Secure Enclave, registered with App Attest, so that iPhone evidence is as strong as Android evidence. | Must | R2 | 5 | US-MOB-004a, EN-71, EN-72 |
+| US-MOB-005a | As a contractor (P-08), I want to capture, fill checklists and queue submissions with no signal, with the queue surviving restarts, so that I can work on sites with no network. | Must | R2 | 8 | US-MOB-004a, US-MOB-004b |
+| US-MOB-005b | As a contractor (P-08), I want queued submissions uploaded automatically when a connection returns, so that I do not have to remember to send them. | Must | R2 | 5 | US-MOB-005a, EN-73 |
 | US-MOB-006 | As a contractor (P-08), I want the required evidence list for the milestone with submission blocked until each item is attached, so that my submission is complete first time. | Must | R2 | 3 | US-MOB-002, US-ADM-001 |
 | US-MOB-007 | As an inspector (P-09), I want the checklist for the milestone and the choice of pass, pass with defects or fail, so that my result is recorded fully on site. | Must | R2 | 8 | US-MOB-006, US-BLD-004 |
 | US-MOB-008 | As a contractor (P-08), I want photos compressed and video capped, with originals kept until the server confirms, so that uploads work on my data plan. | Must | R2 | 3 | US-MOB-005b |
 | US-MOB-009 | As a reviewer (P-04), I want evidence encrypted on the device and removed after the server confirms receipt, so that a lost phone does not leak evidence. | Must | R2 | 3 | US-MOB-005b |
-| US-MOB-011a | As a reviewer (P-04), I want the server to verify each signature and record server time, so that only genuine app evidence is accepted. | Must | R2 | 5 | US-MOB-004 |
+| US-MOB-011a | As a reviewer (P-04), I want the server to verify each signature and record server time, so that only genuine app evidence is accepted. | Must | R2 | 5 | US-MOB-004a |
 | US-MOB-011b | As a reviewer (P-04), I want evidence flagged for distance, time gap, early capture, reused hash and odd metadata, so that fraud reaches me before the inspector visits. | Must | R2 | 8 | US-MOB-011a |
 | US-MOB-012 | As a carer or errand agent (P-17), I want to check in and check out at the registered address with my GPS position, so that there is proof I was there, for a care visit or an inspection (RUL-23). | Must | R2 | 3 | US-MOB-003, US-MOB-005a |
 | US-MOB-010 | As a runner, surveyor, carer or errand agent (P-06, P-07, P-17), I want to capture evidence for case tasks, care visits and errands the same way, so that site, visit and errand evidence is as strong as milestone evidence. | Should | R2 | 3 | US-MOB-005b, US-MOB-012, US-CASE-006 |
@@ -930,18 +931,26 @@ Acceptance criteria:
   1. Given a contractor on two projects, when they sign in, then only those two appear.
   2. Given a staff member removes an assignment, when the app next syncs, then that project disappears.
   3. Given a carer or errand agent, when they sign in, then they see only their assigned visits and errand steps, and no other client's data.
+  4. Given the same contractor on an iPhone and on an Android phone, when they sign in on each, then both show the same assignments and both phones are registered to that person.
 - **US-MOB-002** (implements FR-MOB-002)
   1. Given the evidence step, when the user tries to attach from the gallery or files, then the option is not offered.
   2. Given the in-app camera, when a photo or video is taken, then it is saved to the app's encrypted store.
+  3. Given an iPhone, when the app is installed, then it never asks for photo library access and offers no photo picker, document picker or share-in for evidence.
 - **US-MOB-003** (implements FR-MOB-003)
   1. Given a capture, when it is taken, then GPS position and accuracy are recorded.
   2. Given the position is beyond the configured distance from the boundary, when the photo is taken, then a warning is shown.
-- **US-MOB-004** (implements FR-MOB-004)
-  1. Given a capture, when the file is saved, then its hash is computed and signed with a non-exportable keystore key.
+- **US-MOB-004a** (implements FR-MOB-004, Android)
+  1. Given a capture on Android, when the file is saved, then its hash is computed and signed with a non-exportable Android Keystore key.
   2. Given a file changed after capture, when the server verifies it, then the signature check fails.
+  3. Given a side-loaded or re-signed build, when it tries to register, then Play Integrity or key attestation fails and the device is not registered.
+- **US-MOB-004b** (implements FR-MOB-004, iOS)
+  1. Given a capture on an iPhone, when the file is saved, then its hash is computed and signed with a non-exportable Secure Enclave key.
+  2. Given first sign-in on an iPhone, when the app registers, then the server checks the App Attest attestation and records the key as hardware-backed.
+  3. Given a development build, when it tries to register with production, then App Attest fails and the device is not registered.
 - **US-MOB-005a** (implements FR-MOB-005)
   1. Given airplane mode, when the contractor captures and submits a milestone, then it is queued.
   2. Given a queued submission, when the app is closed or the phone restarts, then the queue is still there.
+  3. Given a queued submission on an iPhone, when iOS ends the app in the background, then the queue is still there at next launch.
 - **US-MOB-005b** (implements FR-MOB-005)
   1. Given a queue and a returning connection, when the app syncs, then items upload in order and resume after drops.
   2. Given an upload fails, when the connection returns, then it retries without duplicating the item on the server.
@@ -975,6 +984,63 @@ Acceptance criteria:
   1. Given an assigned site visit task, when I capture in the app, then items attach to the task as app-captured.
   2. Given an assigned care visit or errand, when I capture in the app, then items attach to that visit or errand as app-captured.
   3. Given offline capture, when the connection returns, then the task, visit or errand updates.
+
+### EP-APP: Client mobile app, Fidero (iOS and Android)
+
+10 stories, 61 points. The client app reuses the field app's codebase (EN-33) and the portal's API, types and validation (02 ADR-22, 8.9). Screens follow the portal's designs (03 section 2.3a). FR-APP-001 is split into five sub-stories by area.
+
+| Story | As a … I want … so that … | Priority | Release | Points | Depends on |
+|---|---|---|---|---|---|
+| US-APP-001a | As a diaspora client (P-01, P-15, P-16), I want to install Fidero from the App Store or Google Play, sign in, and see my home dashboard with the portal's five tabs, so that I can follow everything at home from my phone. | Must | R2 | 8 | EN-33, EN-66, US-ACC-002, US-ACC-012 |
+| US-APP-001b | As a client (P-01, P-02), I want to order a report, track my case, read the report and check a report's fingerprint in the app, so that I can do the core land journey without a laptop. | Must | R2 | 8 | US-APP-001a, US-ORD-001, US-CASE-007, US-RPT-007, US-RPT-008 |
+| US-APP-001c | As a client (P-01, P-15, P-16), I want to approve escrow releases, invoices, milestones and repair quotes in the app with my second factor, so that I can act the moment I am asked. | Must | R2 | 8 | US-APP-001a, US-ESC-006, US-FEE-003, US-BLD-005b, US-PMG-004 |
+| US-APP-001d | As a family supporter (P-15) or property owner (P-16), I want statements, held amounts, receipts, care visits and property records in the app, so that I see who was paid and what was done. | Must | R2 | 8 | US-APP-001a, US-FEE-007, US-ESC-014, US-CARE-003, US-PMG-003 |
+| US-APP-001e | As a client (P-01, P-13), I want messages, document uploads, settings, projects, errands and disputes in the app, so that I never have to switch to the website for my own things. | Must | R2 | 8 | US-APP-001a, US-CASE-015, US-PRJ-002, US-TSK-002, US-DSP-001 |
+| US-APP-002 | As a client (P-01, P-15), I want push notifications for status changes, requests and approvals, following my channel choices and never showing amounts or names on the lock screen, so that I hear at once without exposing my family's details. | Should | R2 | 5 | US-APP-001a, US-NTF-001b, US-NTF-004, EN-65 |
+| US-APP-003 | As a client (P-01), I want to unlock the app with Face ID, Touch ID or my fingerprint, while approvals still ask for my second factor, so that the app is quick to open and still safe. | Should | R2 | 3 | US-APP-001a, US-ACC-003 |
+| US-APP-004 | As any app user (clients, family members, tenants and field users), I want to delete my account from inside either app and be told plainly what is kept and why, so that I control my data as the stores and the law require. | Must | R2 | 5 | US-DPR-004a, US-MOB-001 |
+| US-APP-005 | As a client (P-01, P-02), I want to pay Fidero's fees from the app through the payment provider where the stores allow it, or on the website where they do not, and never pay purchase, construction or project money in the app, so that payment is clear and allowed. | Must | R2 | 5 | US-APP-001b, US-PAY-001a, US-PAY-005, EN-76 |
+| US-APP-006 | As any app user, I want the app to tell me when my version is too old and send me to the store, without losing evidence waiting to upload, so that I always run a safe version. | Must | R2 | 3 | EN-33, US-MOB-005a |
+
+Acceptance criteria:
+
+- **US-APP-001a** (implements FR-APP-001)
+  1. Given a client with a portal account, when they install the app from either store and sign in, then they see the same home dashboard items as on the portal.
+  2. Given the app, when the client moves between tabs, then the tabs are Home, Property, Family, Projects and Account, as on the portal.
+  3. Given a notification or message link to a case, when the client opens it, then the app opens that case after checking the session, or the portal if the app is not installed.
+- **US-APP-001b** (implements FR-APP-001)
+  1. Given a signed-in client, when they order a report in the app, then the order, terms acceptance and price match the same order made on the portal.
+  2. Given a released report, when the client opens it in the app, then the verdict, reasons, conditions and PDF are shown, and checking the PDF's fingerprint gives "match".
+- **US-APP-001c** (implements FR-APP-001, RUL-11)
+  1. Given an escrow ready for the client's approval, when the client approves in the app with their second factor, then the approval is recorded exactly as on the portal.
+  2. Given biometric unlock only, when the client tries to approve, then the second factor is still asked for and the approval is not recorded without it.
+  3. Given an invoice whose payee is not verified, when the client opens it, then there is no approve button and the reason is shown (RUL-22).
+- **US-APP-001d** (implements FR-APP-001)
+  1. Given a family member with paid invoices, when the client opens the statement in the app, then each row names who was paid and shows the receipt.
+  2. Given money held at the bank, when the client views it in the app, then it is shown as held at the partner bank, never as a Fidero balance.
+- **US-APP-001e** (implements FR-APP-001)
+  1. Given a case thread, when the client sends a message or uploads a requested document in the app, then the case manager sees it in the back office.
+  2. Given the same account on the portal and the app, when the client changes a setting in one, then the other shows the change.
+- **US-APP-002** (implements FR-APP-002)
+  1. Given push is on and a request needs the client, when it is raised, then a push arrives with generic lock-screen text and opens the request after unlock.
+  2. Given a status change with an amount above the threshold, when the push is built, then it contains no amount, report content or third-party personal data (FR-NTF-004).
+  3. Given the client turned push off in Account, when an event happens, then no push is sent and the other chosen channels still are.
+- **US-APP-003** (implements FR-APP-003)
+  1. Given biometric unlock is set up, when the client returns to the app, then Face ID, Touch ID or the fingerprint opens it.
+  2. Given a new fingerprint or face is added to the phone, when the client next opens the app, then biometric unlock is off and they must sign in.
+  3. Given an approval, when the client unlocked with biometrics, then the second factor is still required.
+- **US-APP-004** (implements FR-APP-004)
+  1. Given a user in either app, when they choose to delete their account, then the app lists what will be deleted, what is kept, why and for how long, before they confirm.
+  2. Given a confirmed deletion with nothing open, when it is processed, then sign-in, sessions, push tokens and device keys are revoked at once and personal data is deleted or anonymised under the retention rules.
+  3. Given an open escrow or a legal hold, when the user deletes, then the request is recorded, the account closes to new orders, the user is told what remains open, and the held records are kept.
+- **US-APP-005** (implements FR-APP-005, RUL-01)
+  1. Given the fee payment mode is web, when the client pays a fee, then the app opens the portal's payment page in the system browser and shows the result on return.
+  2. Given the mode allows the payment provider in the app, when the client pays a fee, then the provider takes it and the receipt matches a portal payment.
+  3. Given an escrow deposit, construction or project payment, when the client opens it in the app, then only the bank's payment instructions are shown, never a pay button.
+- **US-APP-006** (implements FR-APP-006)
+  1. Given an app below the minimum version, when it starts, then the update screen is shown with a link to the store and nothing else is usable.
+  2. Given Fidero Field with queued evidence below the minimum version, when the user updates, then every queued item is still there and uploads.
+  3. Given evidence captured before the minimum was raised, when it uploads after the update, then the server accepts it.
 
 ### EP-BLD: Construction, off-plan and buildings
 
@@ -1612,7 +1678,7 @@ Acceptance criteria:
 
 ### EP-PLAT: Platform and enablers
 
-63 enabler items, 139 points. Items marked "not pointed" are operations, legal or bought services. They sit in the backlog so their dates are tracked, but they use no engineering capacity.
+77 enabler items, 171 points. Items marked "not pointed" are operations, legal or bought services. They sit in the backlog so their dates are tracked, but they use no engineering capacity.
 
 | Item | What | Release | Priority | Points | Depends on | Done when | Traces to |
 |---|---|---|---|---|---|---|---|
@@ -1648,16 +1714,16 @@ Acceptance criteria:
 | EN-30 | Migrate R0 leads, cases and released reports into the platform | R1 | Should | 3 | US-CASE-001, US-RPT-007 | Spot check of 10 migrated cases matches the R0 sheet | BR-16 |
 | EN-31 | Insurer review of the platform report process | R1 | Must | not pointed | US-RPT-006 | Insurer's written approval (R1 finish gate in 01 B4) | B4, C-06 |
 | EN-32 | Business-rule test suite: one automated test per rule in 01 B7 that applies to the release | R1 | Must | 3 | EN-10 | Every R1 rule has a named test that runs in CI | NFR-MNT-01 |
-| EN-33 | Android project set-up: Kotlin, CI build, signing keys in the secrets manager, test devices with 2 GB RAM | R2 | Must | 5 | EN-10 | A signed build installs on a 2 GB test device from CI | NFR-PERF-05, C-08 |
-| EN-34 | Spike: device keystore keys and attestation on low-end Android | R2 | Must | 3 | EN-33 | Signing works on the oldest supported Android version `[TO VERIFY]` | FR-MOB-004 |
+| EN-33 | Mobile project set-up (rewritten in version 0.4): React Native and TypeScript with two app targets, Fidero and Fidero Field, in the monorepo; shared API client, types and validation packages with the web apps; CI builds for iOS and Android; test devices: 2 GB Android phones and the oldest supported iPhone | R2 | Must | 8 | EN-10, EN-65 | Signed builds of both apps install from CI on a 2 GB Android phone and the oldest supported iPhone | NFR-PERF-05, C-08, C-14 |
+| EN-34 | Spike: Android Keystore keys, key attestation and Play Integrity on low-end Android, as a native module | R2 | Must | 3 | EN-33 | Signing and attestation work on the oldest supported Android version `[TO VERIFY]` | FR-MOB-004 |
 | EN-35 | Spike: bank statement file and API with the signed bank | R2 | Should | 3 | EN-17 | Sample file and API documentation received, or written confirmation that neither exists | AS-03, IF-01 |
 | EN-36 | Partner API foundation: client-credential authentication, key rotation, versioning, documentation | R2 | Should | 5 | EN-12 | A test partner calls the sandbox with its own credentials | IF-08 |
 | EN-37 | Scale test to 2,000 open cases, 500 active projects and 20,000 listings | R2 | Must | 5 | EN-26 | Response times in NFR-PERF-03 hold at that volume | NFR-SCL-01 |
-| EN-38 | Penetration test before R2 go-live, including the Android app, the partner API, the family lines and country 2 | R2 | Must | 3 | EN-28 | No open high or critical findings | NFR-SEC-03 |
+| EN-38 | Penetration test before R2 go-live, including both apps on iOS and Android, the partner API, the family lines and country 2 | R2 | Must | 3 | EN-28 | No open high or critical findings | NFR-SEC-03 |
 | EN-39 | Legal position on the Real Estate Agency Act 2020 (Act 1047) for listings | R2 | Must | not pointed | - | Lawyer's written view (Q-06); licence obtained if needed. Listings stay off until done | C-04 |
 | EN-40 | Insurer extension of cover to building inspections and project funds | R2 | Must | not pointed | - | Written extension, or those lines stay closed | AS-09 |
-| EN-41 | Survey of contractors' phones (Android versus iPhone) | R2 | Should | not pointed | - | Share known (Q-09) before app build passes sprint 15 | AS-08 |
-| EN-42 | Accessibility re-audit and performance test of R2 web surfaces and the app | R2 | Must | 3 | EN-25, EN-26 | WCAG 2.2 AA on new screens; listing pages under 3 s on 3G; app start under 3 s | NFR-A11Y-01, NFR-PERF-05, FR-LST-010 |
+| EN-41 | Superseded in version 0.4: survey of contractors' phones (Android versus iPhone). 01 v0.6 answered Q-09 and retired AS-08; both apps ship on iOS and Android | R2 | - | not pointed | - | Superseded | Q-09 (closed) |
+| EN-42 | Accessibility re-audit and performance test of R2 web surfaces and both apps on iOS and Android | R2 | Must | 3 | EN-25, EN-26 | WCAG 2.2 AA on new screens, with VoiceOver and TalkBack; listing pages under 3 s on 3G; each app starts under 3 s on a 2 GB Android phone and the oldest supported iPhone | NFR-A11Y-01, NFR-PERF-05, FR-LST-010 |
 | EN-43 | Configuration-only check: open the off-plan and project-fund lines through configuration | R2 | Should | 3 | US-ADM-001 | No code change was needed beyond new integrations, or the gap is logged | NFR-MNT-02 |
 | EN-44 | Country 2, Nigeria (Q-15 answered), manual service and 90-day validation, repeating R0 with local professionals | R1 | Must | not pointed | EN-47, EN-48, EN-49 | Country 2 day-90 review passes (gate G-C2) before any configuration work | BR-14, C-13, AS-13 |
 | EN-45 | Spike and Terraform for a second data location for country 2 | R2 | Must | 5 | EN-44, EN-16 | Lawyer's view on country 2 data location and a staging stack in that location | FR-CTY-002, Q-15 |
@@ -1676,9 +1742,23 @@ Acceptance criteria:
 | EN-58 | Configuration-only check: open the care, errand and property management lines through configuration | R2 | Should | 3 | US-ADM-001, US-CTY-001a | No code change was needed beyond new integrations, or the gap is logged | NFR-MNT-02 |
 | EN-59 | Country 2 configuration published by copying Ghana's and editing it; country 2 bank and identity integrations scoped | R2 | Must | 3 | US-CTY-004, EN-44, EN-45 | Country 2 cases run on the platform with country 2 data stored where required (M-28) | FR-CTY-001, FR-CTY-004, BO-08 |
 | EN-60 | Country 3 manual service and 90-day validation, repeating the country 2 approach | R2 | Must | not pointed | EN-44 | Country 3 day-90 review passes (gate G-C3) before any configuration work | C-13, Q-15 |
-| EN-61 | Field app usability test with carers and errand agents on 2 GB devices | R2 | Must | 2 | US-MOB-012, EN-24 | 4 of 5 testers complete a check-in, the plan items and a check-out without help | NFR-USE-01, FR-CARE-003 |
+| EN-61 | Field app usability test with carers and errand agents on 2 GB Android devices and iPhones | R2 | Must | 2 | US-MOB-012, EN-24 | 4 of 5 testers complete a check-in, the plan items and a check-out without help | NFR-USE-01, FR-CARE-003 |
 | EN-62 | Country 3 configuration published | R3 | Must | 3 | US-CTY-004, EN-60 | Country 3 cases run on the platform with country 3 data stored where required | FR-CTY-004, BO-08 |
 | EN-63 | Discovery for relocation and shipping, vehicles and investing partners: demand `[TO VERIFY]` and licence position per line | R3 | Could | not pointed | - | Founder decision to specify each line in 01 or drop it | Decision record, 01 B8 |
+| EN-64 | Apple Developer Program and Google Play Console accounts as organisations in Fidero's name, with a D-U-N-S number if Apple requires it `[TO VERIFY]`; two named administrators with hardware security keys | R2 | Must | not pointed | - | Both accounts active for Fidero's legal entity, with the publishing countries set `[TO VERIFY]` | IF-12, C-14 |
+| EN-65 | Signing and push credentials: Apple distribution certificate and provisioning profiles, Play App Signing with a separate upload key, APNs key and FCM project; two-person custody and a break-glass copy (document 06) | R2 | Must | 2 | EN-64 | Both apps signed in CI; custody record signed by two people | IF-12, NFR-SEC-04 |
+| EN-66 | TestFlight and Play internal testing for both apps, with tester groups for staff, panel contractors and pilot clients | R2 | Must | 2 | EN-33, EN-65 | A CI build reaches testers on both stores' test tracks | C-14 |
+| EN-67 | Store listings for both apps on both stores: name, description, screenshots for each required device size, support and privacy policy links, age rating | R2 | Must | 2 | EN-64 | Listings complete and approved by the founder | NFR-STORE-01 |
+| EN-68 | Apple privacy labels and Play Data safety forms for both apps, generated from the data catalogue, with a CI check that fails when they drift | R2 | Must | 3 | EN-16 | Each app's disclosures match the data catalogue for every field it collects or sends | NFR-STORE-01, NFR-PRIV-02 |
+| EN-69 | Financial features declaration on Google Play and review notes for Apple, with the lawyer's view on any licence or proof needed in each country (Q-24) | R2 | Must | not pointed | EN-64 | Declaration filed and the lawyer's written view on file | Q-24, C-14 |
+| EN-70 | Spike: camera-only capture as a native module on iOS (no photo library, no picker) and on Android | R2 | Must | 3 | EN-33 | A capture on each platform reaches the encrypted store with no way to pick an existing file | FR-MOB-002, RUL-08 |
+| EN-71 | Spike: Secure Enclave signing on iOS (ECDSA P-256) as a native module, verified by the server | R2 | Must | 3 | EN-33 | A manifest signed on the oldest supported iPhone verifies on the server | FR-MOB-004 |
+| EN-72 | Spike: App Attest registration and assertions, with server verification | R2 | Must | 3 | EN-71 | A store-signed test build registers; a development build is refused by a production-like server | FR-MOB-004, NFR-STORE-01 |
+| EN-73 | Spike: background upload on iOS (background URLSession from files) and a queue that survives the app being ended by iOS | R2 | Must | 3 | EN-33 | On the oldest supported iPhone, items queued offline upload after the app is suspended, after iOS ends it and after a restart | FR-MOB-005 |
+| EN-74 | Spike: React Native performance on a 2 GB Android phone: cold start, download size and memory, with Hermes | R2 | Must | 3 | EN-33 | Both apps start in under 3 s and download under 30 MB on the reference phone, or the gaps and fixes are logged | NFR-PERF-05, C-08 |
+| EN-75 | First store submission rehearsal: early internal builds of both apps through App Store review and Google Play review, with review notes and a demo account | R2 | Must | 3 | EN-66, EN-67, EN-68, EN-69 | Both stores have reviewed a build; findings are logged; the measured review time is in the release calendar (document 06) | C-14, NFR-STORE-01 |
+| EN-76 | Store payment position (Q-23): ask both stores, with the payment provider, whether Fidero's fees for real-world services can be paid in the app | R2 | Must | not pointed | EN-64 | Written answer for each store, or the web route in FR-APP-005 confirmed as the default | Q-23, AS-14 |
+| EN-77 | Client app usability test with 5 diaspora users, at least 2 on iPhones and 2 on Android phones | R2 | Should | 2 | US-APP-001e, EN-24 | 4 of 5 testers find a report and approve an invoice in the app without help | NFR-USE-01, F-36 |
 
 ## 8. Prioritisation
 
@@ -1723,6 +1803,7 @@ Scores use the relative scale 1, 2, 3, 5, 8, 13, 20. They are the delivery lead'
 | EP-PRJ | R2 | 8 | 3 | 3 | 14 | 3 | 4.7 | 9 |
 | EP-BLD | R2 | 20 | 8 | 8 | 36 | 8 | 4.5 | 10 |
 | EP-MOB | R2 | 13 | 8 | 13 | 34 | 8 | 4.3 | 11 |
+| EP-APP | R2 | 13 | 5 | 8 | 26 | 8 | 3.3 | 12 |
 | EP-EVT | R3 | 5 | 1 | 1 | 7 | 1 | 7.0 | 1 (Could) |
 | EP-REC | R3 | 8 | 2 | 5 | 15 | 3 | 5.0 | 2 |
 
@@ -1732,6 +1813,7 @@ How the scores shape the plan:
 - EP-FEE ranks eighth in R1 but is built after escrow because it reuses the escrow release path. It is the first line that shows the redefinition to clients.
 - EP-CTY scores in the middle. It is built in S4 anyway, because every later table carries a country and retrofitting would cost more than the epic.
 - In R2, EP-MOB and EP-BLD score lowest but carry gate G2 (40 active builds). They are planned first because they are Must and on the gate's critical path. EP-DSP is built with them because F-21 is "Must with F-16".
+- EP-APP ranks last in R2 because it is large and the portal already serves clients on phones. It is planned in R2-C, after Fidero Field, because it reuses that codebase and its store set-up, and it holds a store review buffer before month 17. Its store-rule stories that both apps need (US-APP-004, US-APP-006) come earlier, in R2-B, because Fidero Field cannot be published without them.
 - EP-CARE and EP-TSK rank second and third in R2 and are planned first in R2-C: they reuse the field app and case workflow, and they carry the G2 recurring-line target.
 - EP-INS scores above EP-PMG only because it is small. It is planned last in R2 because it waits on EN-55 (Q-17, C-11) and adds no engine.
 - EP-PTR scores above EP-LST because one bank contract is a G2 target and listings wait on Act 1047.
@@ -1773,6 +1855,7 @@ flowchart LR
         TSK["EP-TSK"]
         PMG["EP-PMG"]
         INS["EP-INS"]
+        APP["EP-APP"]
     end
     subgraph R3
         REC["EP-REC"]
@@ -1830,6 +1913,11 @@ flowchart LR
     INS --> ACC
     INS --> ESC
     INS --> ADM
+    APP --> MOB
+    APP --> ACC
+    APP --> NTF
+    APP --> PAY
+    APP --> DPR
     REC --> GEO
     REC --> CASE
     LST -.-> REC
@@ -1837,7 +1925,7 @@ flowchart LR
     EVT --> FEE
 ```
 
-The dotted arrow from EP-ESC to EP-DSP marks FR-ESC-006 (R1), which blocks release while a dispute is open, although disputes arrive in R2; 01 version 0.3 now says "from R2" for that clause. EP-ANL needs EP-CTY because every metric is reported by country (FR-CTY-003, Must) through the dashboard in FR-ANL-001 (Should); see issue I-19. EP-EVT needs EP-FEE because vendors are verified the way institutions are.
+The dotted arrow from EP-ESC to EP-DSP marks FR-ESC-006 (R1), which blocks release while a dispute is open, although disputes arrive in R2; 01 version 0.3 now says "from R2" for that clause. EP-ANL needs EP-CTY because every metric is reported by country (FR-CTY-003, Must) through the dashboard in FR-ANL-001 (Should); see issue I-19. EP-EVT needs EP-FEE because vendors are verified the way institutions are. EP-APP needs EP-MOB for the shared React Native codebase and store set-up, and the R1 epics whose screens it shows.
 
 ## 9. RACI
 
@@ -1867,6 +1955,7 @@ R = responsible (does the work). A = accountable (one per row, signs off). C = c
 | Carer and agent vetting standard and care plan content (EN-54, Q-19) | A | I | – | – | – | R | C | C | C | – |
 | Insurer partner selection and intermediary licence (EN-55, C-11) | A, R | I | – | – | – | C | C | R | C | – |
 | Licence position for property management and errands (EN-56, Q-18) | A | I | – | – | – | C | C | R | – | – |
+| App store accounts, signing key custody, submissions and store review responses (EN-64 to EN-76) | A | R | R | C | C | I | – | C | – | – |
 | Migration of R0 data (EN-30) | I | A | R | – | C | C | – | – | – | – |
 | Production incident response | I | A | R | – | C | C | I | I | I | I |
 | Act 1047 position and listings go-live | A | I | I | – | – | I | – | R | C | – |
@@ -1884,7 +1973,7 @@ Likelihood and impact are H (high), M (medium) or L (low). They are assumptions,
 | DR-04 | Identity provider cannot check the Ghana Card or foreign passports (AS-05) | M | L | Manual check (US-ACC-004b) is built first. Provider integration (US-ACC-004a) comes late in R1 | Engineering lead |
 | DR-05 | Overlay map layers are not available in digital form (AS-06) | H | M | EN-20 digitisation pipeline. EP-GEO is scheduled late in R1 so data has time to arrive. Gaps are stated in report section 7 | Engineering lead, with operations |
 | DR-06 | Lands Commission search times stay long and manual (AS-07) | H | L | No platform change. The workflow already assumes manual searches. Status messages set honest dates | Operations |
-| DR-07 | Many contractors use iPhones (AS-08) | L | H | EN-41 survey before S16. Fraud checks live on the server, so an iPhone app would reuse them. iPhone effort `[TO VERIFY]` | Founder |
+| DR-07 | Many contractors use iPhones (AS-08). **Closed in version 0.4:** 01 v0.6 puts both apps on iOS and Android, retires AS-08 and answers Q-09. Replaced by DR-35 to DR-40 | – | – | – | – |
 | DR-08 | Insurer will not extend cover to building inspections and project funds (AS-09) | M | H | EN-40 at the start of R2. Off-plan and project funds are planned in R2-C, after the answer. If no, those lines stay closed. Check whether R1 building verification is also affected (issue I-11) | Founder |
 | DR-09 | Team too small for R1 Must scope (C-07), now 408 points against 384 with a contract developer | H | H | Capacity check in section 5.1. Option A+ adds a contract developer for S3 to S13. Re-plan after S2. Cut line and the Option C list agreed in advance | Engineering lead |
 | DR-10 | Hiring the engineering lead or developers takes longer than planned | M | H | Start the search in month 2 with offers conditional on G0. Keep a contract firm as fallback `[TO VERIFY]` | Founder |
@@ -1897,7 +1986,7 @@ Likelihood and impact are H (high), M (medium) or L (low). They are assumptions,
 | DR-17 | Open questions (Q-04 fresh-search window, Q-08 retention, Q-05 badge validity, Q-16 institutions, Q-19 carer vetting, Q-20 pricing) are not answered in time | H | M | Values are configuration (US-ADM-005, US-ADM-002). Go-live of the dependent feature is blocked until set. Each question has a due sprint in refinement | Founder |
 | DR-18 | Budget overrun, or cedi and dollar swings on costs paid in dollars (C-07) | M | H | Budget view in section 11. Monthly burn review. Cut lines agreed in advance. The country 2 manual phase is costed before month 5 | Founder |
 | DR-19 | Delays in WhatsApp template approval or SMS sender registration `[TO VERIFY]` | M | L | EN-22 in S1. Email works first. SMS and WhatsApp follow in S8 | Engineering lead |
-| DR-20 | Offline sync, signing and check-in fail on low-end Android phones in the field (C-08) | M | H | EN-33 test devices with 2 GB RAM, EN-34 keystore spike, field tests with real contractors in R2-B and with carers in EN-61, QA engineer from R2 | Engineering lead |
+| DR-20 | Offline sync, signing and check-in fail on low-end Android phones or older iPhones in the field (C-08) | M | H | EN-33 test devices with 2 GB RAM and the oldest supported iPhone, EN-34, EN-71 and EN-73 spikes, field tests with real contractors in R2-B and with carers in EN-61, QA engineer from R2 | Engineering lead |
 | DR-21 | R0 data is incomplete or inconsistent when migrated | M | L | Open R0 cases finish in the spreadsheet. EN-30 spot checks closed cases and institution payments | Operations |
 | DR-22 | Insurer is slow to approve the platform report process (G1) | M | M | Share the workflow design in S3 and a demo in S9. EN-31 tracked as a milestone item | Founder |
 | DR-23 | Country 2 rules, partners or data location are unknown or unfavourable (Q-15, AS-13) | H | M | Country 2 repeats the manual phase first (EN-44) from month 6. EN-45 spike before any configuration. Country configuration waits for G-C2. Ghana is untouched if G-C2 fails | Founder, country 2 lead |
@@ -1912,6 +2001,12 @@ Likelihood and impact are H (high), M (medium) or L (low). They are assumptions,
 | DR-32 | Property management or errand work needs a licence (Q-18, Act 1047) | M | M | EN-56 before EP-PMG and EP-TSK go live. Both behind a switch. Property management may run through a licensed agency partner if needed | Founder, with the lawyer |
 | DR-33 | Must-on-Should dependencies in 01 version 0.3 (FR-FEE-007 on FR-ACC-012, FR-CTY-003 on FR-ANL-001, FR-PMG-005 on FR-PMG-004, FR-TSK-002 on FR-TSK-001, FR-INS-002 on FR-INS-001) | H | L | This plan pulls US-ANL-001 into the R1 Must plan and builds the minimum the Must needs for the others. Issue I-19 asks the product owner for a priority decision | Engineering lead |
 | DR-34 | Recurring lines create daily operations load (invoice checks, receipt chasing, visit confirmations) that the Accra team cannot absorb while running land cases | M | M | Operations headcount in the budget `[TO VERIFY]`. Automation first: institution contacts confirm in the portal (US-ACC-011), family confirms by one tap (US-CARE-004), alerts not spreadsheets (US-CARE-005, US-PMG-003). Metrics in A9 watched fortnightly | Operations |
+| DR-35 | Store rejection: Apple or Google rejects an app over payment rules (fees, Q-23, AS-14), financial app rules (Q-24), privacy disclosures or account deletion (C-14) | M | H | Submission rehearsal early (EN-75, M-37). Fees on the web until EN-76 answers Q-23 (US-APP-005). Financial declaration and lawyer's view (EN-69). Disclosures generated from the data catalogue (EN-68). Review notes and a demo account. Clients keep the portal if the client app is held | Engineering lead, founder |
+| DR-36 | iOS background upload limits: iOS decides when background uploads run and stops them if the user force-quits the app, so evidence reaches the server late | M | M | EN-73 spike. Background transfers from files; resume on launch; queue screen tells the user to open the app; the time-gap check allows offline time (US-MOB-011b) | Mobile developer |
+| DR-37 | Attestation gaps: older Android phones fail Play Integrity, phones without Google Play cannot install the app, or an attestation service is down | M | M | EN-34 and EN-72 spikes on the oldest devices. Publish a supported phone list for the panel. Software-key flag for Android phones without hardware keys. Never accept a side-loaded build. Retry with back-off when a service is down | Engineering lead, operations |
+| DR-38 | Store review delays: a slow review holds back R2 go-live or an urgent fix | M | M | A month of buffer before each app's go-live (section 3.1). Review time measured in EN-75. Expedited review requests and halt procedures in document 06. Server-side switches for features, so most fixes need no app release | Engineering lead |
+| DR-39 | One mobile developer is a key person for native modules on two platforms, and is hard to hire | H | H | Hire early in R2 for both-platform native experience. Option R2-A keeps the contract developer on the TypeScript parts. Native modules documented and reviewed by the engineering lead. Option R2-B as fallback | Engineering lead, founder |
+| DR-40 | React Native misses the start time or size target on 2 GB Android phones (NFR-PERF-05) | M | M | EN-74 spike before feature work. Hermes, lazy screens, no heavy SDKs, size and start checks in CI. A slow screen can move to a native view | Mobile developer |
 
 ## 11. Budget view
 
@@ -1921,12 +2016,13 @@ The split below is a planning proposal for the founder to confirm. Every figure 
 
 | Line | Months | Share of $400k (assumption) | Amount (assumption) | Notes |
 |---|---|---|---|---|
-| Product and engineering team: lead, two developers, part-time designer; Android developer and QA engineer from month 9 | 3 to 18 | 35% | $140,000 | Rates `[TO VERIFY]` |
+| Product and engineering team: lead, two developers, part-time designer; mobile developer (React Native) and QA engineer from month 9 | 3 to 18 | 35% | $140,000 | Rates `[TO VERIFY]` |
 | Option A+: contract developer, S3 to S13 | 4 to 10 | 4.4% | $17,600 | 11 sprints at about $1,600 `[TO VERIFY]`. Approved by the founder on 1 November 2026. Version 0.1 had $16,000 for S3 to S12 |
-| Cloud hosting, tools and licences, including a second data location for country 2 from month 10 | 3 to 18 | 3% | $12,000 | Depends on the hosting decision (EN-16) and the country 2 location (EN-45) `[TO VERIFY]` |
+| Cloud hosting, tools and licences, including a second data location for country 2 from month 10, the Apple Developer Program and Google Play Console fees, and mobile build minutes from month 9 | 3 to 18 | 3% | $12,000 | Depends on the hosting decision (EN-16) and the country 2 location (EN-45) `[TO VERIFY]`. Store fees about $99 a year and $25 once; build minutes about $50 to $150 a month (assumptions, 02 section 11.7) |
 | Third-party services: identity checks, SMS and WhatsApp, map data, satellite images, institution registry lookups, carer background checks | 3 to 18 | 3% | $12,000 | Paid per use and grows with volume `[TO VERIFY]` |
 | Security and quality: two R1 penetration tests, one R2 penetration test, accessibility audits | 7 to 18 | 3% | $12,000 | Quotes `[TO VERIFY]` |
 | **Engineering total** | | **48.4%** | **$193,600** | |
+| Option R2-A (recommended, not yet approved): contract developer kept S14 to S31 | 10 to 18 | 7.2% | $28,800 | 18 sprints at about $1,600 `[TO VERIFY]` (section 5.2). If approved, the engineering total becomes 55.6% ($222,400) and the rest of the pre-seed 44.4% ($177,600) |
 | Country 2 manual phase: country 2 lead, lawyer, surveyor and runner fees, travel, template adaptation | 5 to 9 | `[TO VERIFY]` | `[TO VERIFY]` | Operations spend, inside the line below. Planning assumption: about the cost of Ghana's R0 manual phase `[TO VERIFY]` |
 | Country 3 manual phase | 15 to 18 | `[TO VERIFY]` | `[TO VERIFY]` | As above |
 | Rest of the pre-seed: operations team, marketing, insurance, legal, reserve, including both manual phases | 0 to 18 | 51.6% | $206,400 | Outside this document |
@@ -1935,7 +2031,8 @@ What this means, under these assumptions:
 
 - The team line allows about $9,300 a month on average for the whole product team over 15 months. Whether this buys the C-07 team is `[TO VERIFY]`. Months 9 to 18 cost more than months 3 to 9, because two roles join.
 - The second country costs money from month 5, not month 18 as in version 0.1. It comes out of the operations share, which also carries the new recurring-line operations load (DR-34). The founder should cost the country 2 manual phase before M-24.
-- If the team costs more, the choices are: a smaller share for another line, part-time roles, a later Android or QA start, or a smaller R2 (cut line in section 5.2).
+- If the team costs more, the choices are: a smaller share for another line, part-time roles, a later mobile or QA start, or a smaller R2 (cut line in section 5.2).
+- Publishing both apps on both stores adds about $28,800 if the founder takes Option R2-A, plus small store and build fees. Without it, R2 has about 2% spare capacity (section 5.2).
 - R3 (months 18 to 36) falls outside the pre-seed. Its team and budget depend on a later round `[TO VERIFY]`.
 - The business plan doc and `docs/proposal.md` show the use of funds as `[TO VERIFY]`. If the founder accepts this split, both should be updated to match.
 
@@ -1984,22 +2081,23 @@ Go needs all of these:
 1. **Acceptance (document 05).** All Must stories in scope pass their acceptance tests. Every business rule in scope passes its test, including RUL-22 to RUL-25 for the new lines. No open critical or high defects. The product owner signs off, as 01 section C9 requires.
 2. **Non-functional evidence.** Penetration test with no open high or critical findings (NFR-SEC-03). Accessibility audit (NFR-A11Y-01). Performance results (NFR-PERF-01 to 05). Restore drill within RPO and RTO (NFR-AVL-02).
 3. **Operations (document 06).** Deployment runbook rehearsed on staging. Rollback tested. Monitoring and alerts live (NFR-OBS-01). Support and on-call rota agreed. Data location register updated (NFR-PRIV-01), including the new country's location.
-4. **Partners and legal.** Where in scope: bank agrees the release instruction format, channel and held-balance reporting; insurer approves the report process; Act 1047 position cleared for listings; licence views for property management, errands and insurer lines on file (EN-55, EN-56); the country's own 90-day gate passed (C-13); configurable values marked `[TO VERIFY]` in 01 are set (US-ADM-005); prices for the line set (EN-57).
+4. **App stores (each app go-live from R2).** The build is approved by both Apple App Store review and Google Play review; privacy labels and the Data safety form match the data catalogue; in-app account deletion and the minimum-version check pass their tests; the financial declaration is filed (C-14, NFR-STORE-01, NFR-STORE-02). The R2 go-live needs both stores' approval of both apps.
+5. **Partners and legal.** Where in scope: bank agrees the release instruction format, channel and held-balance reporting; insurer approves the report process; Act 1047 position cleared for listings; licence views for property management, errands and insurer lines on file (EN-55, EN-56); the country's own 90-day gate passed (C-13); configurable values marked `[TO VERIFY]` in 01 are set (US-ADM-005); prices for the line set (EN-57).
 
 A no-go names what is missing, who fixes it and the new decision date.
 
 ## 13. Traceability summary
 
-How business requirements in 01 flow to features, epics and stories. Each story implements the FR with the same number, and the FR's source in 01 decides the row. Document 05 extends this table to test cases.
+How business requirements in 01 flow to features, epics and stories. F-36 (client mobile app) serves BR-01 through EP-APP; its own FR sources are F-36, BR-01, FR-ACC-003, C-14 and AS-14, listed in the second table. Each story implements the FR with the same number, and the FR's source in 01 decides the row. Document 05 extends this table to test cases.
 
 | BR | Features | Epics | User stories |
 |---|---|---|---|
-| BR-01 | F-01, F-02, F-06, F-10 | EP-ACC, EP-ADM, EP-CASE, EP-NTF, EP-ORD, EP-PAY | US-ACC-001, US-ACC-002, US-ACC-008, US-ACC-010, US-ADM-002, US-CASE-007, US-CASE-015, US-NTF-001a, US-NTF-001b, US-NTF-002, US-ORD-001, US-ORD-002, US-ORD-004, US-PAY-001a, US-PAY-001b, US-PAY-003, US-PAY-004 |
+| BR-01 | F-01, F-02, F-06, F-10, F-36 | EP-ACC, EP-ADM, EP-APP, EP-CASE, EP-NTF, EP-ORD, EP-PAY | US-ACC-001, US-ACC-002, US-ACC-008, US-ACC-010, US-ADM-002, US-CASE-007, US-CASE-015, US-NTF-001a, US-NTF-001b, US-NTF-002, US-ORD-001, US-ORD-002, US-ORD-004, US-PAY-001a, US-PAY-001b, US-PAY-003, US-PAY-004, US-APP-002 |
 | BR-02 | F-04 | EP-GEO, EP-RPT | US-GEO-006, US-RPT-001, US-RPT-002, US-RPT-010 |
 | BR-03 | F-03, F-11 | EP-ACC, EP-ADM, EP-CASE, EP-NTF | US-ACC-006, US-ADM-001, US-ADM-003, US-CASE-001, US-CASE-002, US-CASE-003, US-CASE-005, US-CASE-006, US-CASE-008, US-CASE-012, US-NTF-003 |
 | BR-04 | F-05 | EP-GEO | US-GEO-001, US-GEO-002, US-GEO-003, US-GEO-004, US-GEO-005, US-GEO-008 |
 | BR-05 | F-08, F-23 | EP-ACC, EP-ESC, EP-RPT | US-ACC-004a, US-ACC-004b, US-ESC-001, US-ESC-002, US-ESC-004, US-ESC-005, US-ESC-008a, US-ESC-008b, US-ESC-009, US-ESC-011, US-ESC-012, US-RPT-009 |
-| BR-06 | F-07 | EP-CASE, EP-EVD, EP-MOB, EP-RPT | US-CASE-004, US-EVD-001, US-EVD-002, US-MOB-004, US-MOB-010, US-RPT-007, US-RPT-008 |
+| BR-06 | F-07 | EP-CASE, EP-EVD, EP-MOB, EP-RPT | US-CASE-004, US-EVD-001, US-EVD-002, US-MOB-004a, US-MOB-004b, US-MOB-010, US-RPT-007, US-RPT-008 |
 | BR-07 | F-09 | EP-CASE | US-CASE-013 |
 | BR-08 | F-15, F-16, F-27 | EP-BLD, EP-ESC, EP-MOB, EP-ORD | US-BLD-001, US-BLD-002, US-BLD-003, US-BLD-005a, US-BLD-005b, US-BLD-009, US-BLD-012, US-BLD-013, US-ESC-010, US-MOB-001, US-MOB-003, US-MOB-006, US-MOB-011a, US-MOB-011b, US-ORD-007 |
 | BR-09 | F-17, F-18 | EP-BLD, EP-ESC, EP-PRJ | US-BLD-011a, US-BLD-011b, US-ESC-010, US-PRJ-001, US-PRJ-002, US-PRJ-004, US-PRJ-005 |
@@ -2021,10 +2119,14 @@ Stories whose source in 01 is a business rule, constraint or assumption rather t
 
 | Source | User stories |
 |---|---|
+| F-36 (feature as source) | US-APP-001a, US-APP-001b, US-APP-001c, US-APP-001d, US-APP-001e |
 | AS-10 | US-FEE-006 |
+| AS-14 | US-APP-005 |
+| C-14 | US-APP-004, US-APP-006 |
+| FR-ACC-003 (requirement as source) | US-APP-003 |
 | C-02 | US-DPR-001, US-DPR-002, US-DPR-003, US-DPR-004a, US-DPR-004b, US-DPR-005 |
 | C-08 | US-EVD-004, US-MOB-005a, US-MOB-005b, US-MOB-008 |
-| RUL-01 | US-ESC-003, US-PAY-005 |
+| RUL-01 | US-ESC-003, US-PAY-005, US-APP-005 |
 | RUL-02 | US-RPT-003 |
 | RUL-03 | US-RPT-006 |
 | RUL-04 | US-ADM-004, US-ORD-003, US-RPT-004 |
@@ -2051,7 +2153,7 @@ Stories whose source in 01 is a business rule, constraint or assumption rather t
 
 ## 14. Issues found in document 01
 
-These were found while building the backlog against 01 version 0.3. Document 01 was not changed. Each open item needs a decision by the product owner and, where it applies, a new version of 01.
+These were found while building the backlog against 01 version 0.3 and refreshed against version 0.6 for the app store decision. Document 01 was not changed. Each open item needs a decision by the product owner and, where it applies, a new version of 01.
 
 ### 14.1 Closed by 01 version 0.3
 
@@ -2092,5 +2194,8 @@ Items resolved by 01 version 0.4 stay in this table, marked resolved, so their n
 | I-26 | B5 F-35, FR-ACC-012, C4.19 | F-35 (unified home dashboard, Should R1) maps to ACC and ANL, but only FR-ACC-012 implements it. FR-ANL has no client-facing requirement | US-ACC-012 carries the whole feature | **Resolved by 01 v0.4.** F-35 now maps to ACC only |
 | I-27 | FR-CARE-004, FR-ESC-010, FR-ESC-014, C5.1 | Carers are paid "only for confirmed visits", but 01 does not say where the money is held before payment or how often carers are paid. The Care plan and visit entity has no payment fields | US-CARE-004 assumes a configured pay period and a release from the held balance (FR-ESC-014) | State the carer payment cycle and the held-balance source in FR-CARE-004 |
 | I-28 | B4 R2 row, BO-09 | The R2 finish gate adds "40% of clients with a recurring line", but the R2 start gate does not require the fees line (R1) to have run. If EP-FEE slips to S13 or later, the 40% target has little time | M-26 at month 9 is on the critical path for G2 | Add "fees to institutions live" to the R1 finish gate |
+| I-29 | C-07, FR-APP-001, FR-MOB-001 | C-07 adds one mobile developer in R2 for both apps on both platforms. R2 demand is now 638 points against 651 with that team: about 2% spare, and short in R2-A to R2-C | Client app at risk of missing its store review buffer and month 17 (M-39) | Founder decides Option R2-A or R2-B (section 5.2) and records the R2 team in C-07 |
+| I-30 | FR-APP-004, RUL-11, C8 Escrow | 01 does not say what happens to an open escrow, money held at the bank or a standing approval when a client deletes the account in the app | US-APP-004 records the request and completes it when open items end; criteria 3 assumes this | State the rule in FR-APP-004 or FR-DPR-004 |
+| I-31 | B4, C-14 | Release gates in B4 do not mention store approval, but C-14 makes every app release depend on it | Section 12.4 adds store approval to the R2 go/no-go | Add "both apps approved by both stores" to the R2 finish gate, or say C-14 applies to every gate with an app in scope |
 
-**Note on other documents.** `docs/proposal.md` (section 3) says escrow release keeps "one human approval". 01 (RUL-05) requires two Fidero staff. This plan follows 01. The proposal and the business plan doc should be aligned. Documents 02, 03, 05 and 06 are aligned to 01 version 0.4, as this one is.
+**Note on other documents.** `docs/proposal.md` (section 3) says escrow release keeps "one human approval". 01 (RUL-05) requires two Fidero staff. This plan follows 01. The proposal and the business plan doc should be aligned. Documents 02, 03, 05 and 06 are aligned to 01 version 0.6, as this one is.
