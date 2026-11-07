@@ -89,3 +89,13 @@ Ama, the diaspora property buyer, stays the lead persona for the launch, because
 | R1 team | Keep one contract developer from sprint S3 to S13 (option A+ in `docs/specs/04` section 5.1). Cost about $17,600 `[TO VERIFY]`. R1 Musts finish by month 9 to 10 and the month-12 Nigeria date holds. If velocity after S2 is more than 20% below plan, the option C list in 04 section 5.1 is applied as well. |
 
 The Nigeria launch plan is a Claude doc: https://claude.ai/artifact/X1r2egGWXyAH6dhLpy6QiJ
+
+## Follow-up decision, 7 November 2026: both app stores
+
+| Decision | Detail |
+|---|---|
+| Stores | Fidero's mobile apps are published on the Apple App Store and Google Play. |
+| Two apps | **Fidero** for clients, family members and tenants. **Fidero Field** for contractors, inspectors, surveyors, runners, carers and errand agents. Separate apps keep each store listing, permission set and review simple. |
+| Timing | Both apps ship in R2 (months 9 to 18). In R1 clients use the phone-first web portal, which stays for laptops and public listings. |
+| Technology | One cross-platform codebase in React Native with TypeScript for both apps and both platforms, replacing the Android-only Kotlin plan. It shares types and the API client with the web apps. Camera capture, hardware-backed signing (Android Keystore, iOS Secure Enclave) and attestation (Play Integrity, App Attest) are native modules. |
+| Store rules | Account deletion inside the apps; privacy labels and the Play Data safety form match the data catalogue; Fidero's fees are for real-world services and paid through the payment provider if the stores accept that (Q-23), otherwise on the web. Recorded in `docs/specs/01` v0.6 (FR-APP, NFR-STORE, C-14, AS-14, Q-23, Q-24). |

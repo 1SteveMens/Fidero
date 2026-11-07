@@ -5,7 +5,7 @@ Business requirements (BRD), product requirements (PRD) and software requirement
 | Item | Value |
 |---|---|
 | Document | 01 of 6 in `docs/specs/` |
-| Version | 0.5, working draft |
+| Version | 0.6, working draft |
 | Date | 1 November 2026 |
 | Owner | Founder, acting as product owner |
 | Status | For review. Not yet baselined |
@@ -18,6 +18,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 31 October 2026 | First draft |
+| 0.6 | 7 November 2026 | Founder decision: the mobile apps are published on the Apple App Store and Google Play. Two apps from R2: Fidero (clients and families) and Fidero Field (field roles), both on iOS and Android. Adds module APP (FR-APP-001 to FR-APP-006), feature F-36, NFR-STORE-01 and NFR-STORE-02, C-14, AS-14, IF-12, Q-23 and Q-24; FR-MOB-001 and FR-MOB-004 cover iOS; AS-08 retired; Q-09 answered. |
 | 0.5 | 1 November 2026 | Founder decisions: country 2 is Nigeria and country 3 is Kenya (Q-15 answered); the R1 team includes one contract developer from S3 to S13 (C-07). |
 | 0.4 | 1 November 2026 | Review fixes raised while updating documents 02 to 06 to v0.3. No new requirement IDs. Removes the runner cash route (FR-FEE-006 now marks such institutions not eligible); adds sellers and developers to RUL-22 payees; defines held amounts as amounts held at the bank; names the account-name source for FR-ESC-015; adds the owner's mandate for rent statements; states the premium route; ends unconfirmed visits with a reviewer decision; scopes the fresh search to purchases; adds standing approvals for visits and errand steps; extends RUL-08 and FR-MOB-001 to carers and agents; adds a Withdrawn dispute state; adds sensitive data classes; states how Must works inside Should features; Q-21 and Q-22. |
 | 0.3 | 1 November 2026 | Redefinition per `docs/decisions/2026-11-01-diaspora-platform.md`: Fidero is the diaspora's trusted agent at home. Adds product families and lines (fees to institutions, care visits, property management, paperwork and errands, insurer partner lines, events), personas P-15 to P-17, features F-29 to F-35, journeys J-09 to J-12, rules RUL-22 to RUL-25, modules FEE, CARE, PMG, TSK, INS and EVT, moves country configuration to R1, and opens a second country from month 6. |
@@ -160,7 +161,7 @@ The full problem statement is in `docs/proposal.md` section 2.
 
 - Client portal (web, phone first) for ordering, paying, tracking and reading reports, escrows, builds and projects.
 - Back office for case management, reviews, escrow conditions, inspections, listings, disputes and configuration.
-- Milestone photo app (Android first) for contractors, inspectors and field staff.
+- Two mobile apps published on the Apple App Store and Google Play from R2: **Fidero**, the client app for clients, family members and tenants, and **Fidero Field**, the field app for contractors, inspectors, surveyors, runners, carers and errand agents. Both run on iOS and Android. The phone-first web portal serves clients in R1 and stays for laptops and public listings.
 - Evidence store, audit log, notifications, payments for Fidero's own fees.
 - Integrations with the escrow bank, a payment provider, an identity check provider, map and satellite data, and messaging channels.
 - Verified listings marketplace and partner API.
@@ -177,7 +178,6 @@ The full problem statement is in `docs/proposal.md` section 2.
 - Mortgage lending, insurance underwriting or money transfer. Fidero partners with licensed providers for these.
 - Paying cash to a relative. Fidero pays institutions, suppliers, vendors and professionals only.
 - Vehicles, relocation and shipping, equipment, buying a business and investing (R3 or later candidates, not specified here).
-- An iPhone app for contractors before R2 data shows the need `[TO VERIFY]`.
 
 ## A7. Constraints
 
@@ -189,13 +189,14 @@ The full problem statement is in `docs/proposal.md` section 2.
 | C-04 | Listing or brokering property may need a licence under the Real Estate Agency Act 2020 (Act 1047) `[TO VERIFY]`. Listings do not go live until this is resolved. |
 | C-05 | Only licensed lawyers and surveyors may sign their report sections. |
 | C-06 | The scope and limitation statement is fixed text. It changes only with the lawyer's and insurer's approval. |
-| C-07 | Budget: $400,000 pre-seed for 18 months, shared with operations and marketing. R1 team is one product and engineering lead, two developers, a part-time designer and one contract developer from sprint S3 to S13 (decided 1 November 2026). R2 adds an Android developer and a QA engineer `[TO VERIFY]`. |
-| C-08 | Many users in Ghana are on slow mobile connections and low-end Android phones. |
+| C-07 | Budget: $400,000 pre-seed for 18 months, shared with operations and marketing. R1 team is one product and engineering lead, two developers, a part-time designer and one contract developer from sprint S3 to S13 (decided 1 November 2026). R2 adds a mobile developer for both app stores and a QA engineer `[TO VERIFY]`. |
+| C-08 | Many users in Ghana are on slow mobile connections and low-end Android phones. Many people abroad use iPhones. |
 | C-09 | Data hosting must be where each country's data protection authority accepts. For Ghana, in Ghana or a jurisdiction the Data Protection Commission accepts `[TO VERIFY]`. |
 | C-10 | The word "guard" must not appear in any product, feature or brand name. Land guards are the threat Fidero protects against. |
 | C-11 | Insurance is sold only as the licensed insurer's product. Fidero holds no insurance risk and needs an intermediary licence `[TO VERIFY]` per country. |
 | C-12 | Fidero does not transfer money across borders. Clients pay the partner bank or a licensed payment provider. |
 | C-13 | Each country opens only after its own manual phase and 90-day validation. |
+| C-14 | Both mobile apps must pass Apple App Store review and Google Play review at every release, and meet their rules on payments, account deletion, privacy disclosures and financial apps. A release date depends on store review time `[TO VERIFY]`. |
 
 ## A8. Assumptions and dependencies
 
@@ -208,11 +209,12 @@ The full problem statement is in `docs/proposal.md` section 2.
 | AS-05 | An identity check provider supports the Ghana Card and foreign passports `[TO VERIFY]`. | Manual document check by staff. |
 | AS-06 | Map layers for acquisitions, road reserves, wetlands and flood zones can be obtained in digital form `[TO VERIFY]`. | Staff digitise from paper maps; overlay checks are partly manual. |
 | AS-07 | Lands Commission searches stay manual, done by a runner, unless online search becomes available `[TO VERIFY]`. | No change; the workflow already assumes manual searches. |
-| AS-08 | Most contractors use Android phones `[TO VERIFY]`. | Build an iPhone app earlier. |
+| AS-08 | Retired in v0.6: both apps ship on iOS and Android, so the share of contractors on Android no longer decides the platform. | |
 | AS-09 | Professional indemnity cover extends to building inspections and project funds `[TO VERIFY]`. | Those lines do not open. |
 | AS-10 | Schools, hospitals and government agencies accept direct payment with an invoice or student reference `[TO VERIFY]`. | That institution is not eligible for direct payment. Fidero does not pay cash on the client's behalf. |
 | AS-11 | At least one licensed insurer per country will sell health and funeral cover through Fidero `[TO VERIFY]`. | The insurer lines do not open in that country. |
 | AS-12 | Vetted carers and errand agents can be recruited and retained at a fee clients will pay `[TO VERIFY]`. | Care visits and errands stay small or close. |
+| AS-14 | Apple and Google accept that Fidero's fees pay for real-world services, so they can be paid through the payment provider rather than in-app purchase `[TO VERIFY]`. | Fees are paid on the web portal and the apps show status and approvals only. |
 | AS-13 | Nigeria (country 2) passes its day-90 gate by month 9 `[TO VERIFY]`. | Country 2 software waits; Ghana continues. |
 
 ## A9. Success metrics
@@ -274,7 +276,7 @@ Anyone abroad can get anything done at home, from buying land to paying a parent
 | P-05 | Lawyer | Partner lawyer handling searches, consent meetings and the legal section. | Clear scope, documents in one place, quick sign-off. | Chasing clients for documents. |
 | P-06 | Surveyor | Licensed surveyor doing site visits. | A clear job sheet, safe visits, simple upload of coordinates and photos. | Unsafe sites; unpaid travel. |
 | P-07 | Runner | Field runner lodging searches and attending visits. | A task list on a basic phone. | Lost receipts; unclear priorities. |
-| P-08 | Contractor | Small building contractor, Android phone, patchy signal. | Get paid fast for work done. | Slow payments; disputes about what was done. |
+| P-08 | Contractor | Small building contractor, Android phone or iPhone, patchy signal. | Get paid fast for work done. | Slow payments; disputes about what was done. |
 | P-09 | Inspector | Independent building inspector. | A checklist per milestone, a fair fee, not chosen by the contractor. | Pressure from contractors. |
 | P-10 | Developer | Estate developer selling plots and off-plan homes. | Reach diaspora buyers who trust the listing. | Buyers who do not trust developers. |
 | P-11 | Family head or stool secretary | Represents the land-owning family or stool. | Sell legitimately, keep records straight, earn from the records programme. | Rogue family members selling family land. |
@@ -312,7 +314,7 @@ Anyone abroad can get anything done at home, from buying land to paying a parent
 | F-12 | Audit log | P-04, P-14 | R1 | Must | AUD |
 | F-13 | Operating dashboard and exports | P-03, P-14 | R1 | Should | ANL |
 | F-14 | Data subject requests and retention | P-14 | R1 | Must | DPR |
-| F-15 | Field app with offline, tamper-evident capture for contractors, inspectors, carers and errand agents | P-08, P-09 | R2 | Must | MOB |
+| F-15 | Field app (Fidero Field, iOS and Android) with offline, tamper-evident capture for contractors, inspectors, carers and errand agents | P-08, P-09, P-17 | R2 | Must | MOB |
 | F-16 | Construction projects: bill of quantities, milestones, inspections, build dashboard | P-01, P-08, P-09 | R2 | Must | BLD |
 | F-17 | Off-plan purchase escrow with stage releases | P-01, P-10 | R2 | Should | BLD, ESC |
 | F-18 | Project funds: budgets, suppliers, direct payment against invoices | P-13 | R2 | Should | PRJ |
@@ -333,6 +335,7 @@ Anyone abroad can get anything done at home, from buying land to paying a parent
 | F-33 | Health and funeral cover through insurer partners | P-15 | R2 | Could | INS |
 | F-34 | Events and ceremonies with vendors paid against evidence | P-01, P-15 | R3 | Could | EVT |
 | F-35 | Unified home dashboard: everything a client has running at home in one view | All clients | R1 | Should | ACC |
+| F-36 | Client mobile app on the App Store and Google Play: home dashboard, orders, tracking, reports, approvals, statements and notifications | P-01, P-02, P-13, P-15, P-16 | R2 | Must | APP |
 
 ## B6. Key user journeys
 
@@ -456,7 +459,6 @@ The system must enforce these rules. Each is tested in document 05.
 
 ## B8. Out of scope for this specification
 
-- Native iPhone app for contractors (decide after R2 data).
 - In-app chat between buyers and sellers in listings. Enquiries go through Fidero.
 - Automated legal advice or valuation.
 - Lending or credit scoring.
@@ -474,7 +476,7 @@ The system must enforce these rules. Each is tested in document 05.
 | Q-06 | Does Act 1047 require a licence for listings? | Lawyer | Before R2 listings |
 | Q-07 | Where must data be hosted under Act 843? | Lawyer | R1 start |
 | Q-08 | Retention period for cases and consent videos | Lawyer, insurer | R1 |
-| Q-09 | Share of contractors on iPhone | Operations | R2 start |
+| Q-09 | Share of contractors on iPhone. **Answered 7 November 2026:** both apps ship on iOS and Android | Operations | Closed |
 | Q-10 | Listing fee and success fee levels | Founder | R2 |
 | Q-11 | Which second location can hold backups and evidence copies within the data location rules? | Lawyer, product lead | R1 start |
 | Q-12 | How does the bank recall a payment sent in error, and how much notice does it need of a change to the instruction format? | Founder | R1 |
@@ -488,6 +490,8 @@ The system must enforce these rules. Each is tested in document 05.
 | Q-20 | Pricing for each new line | Founder | R1, R2 |
 | Q-21 | What data protection law and regulator apply in each new country, and what notification duties follow? | Lawyer per country | Each country's manual phase |
 | Q-22 | What duty of care does Fidero owe during care visits, how is a carer's own safety protected, and what insurance covers both? | Founder, lawyer, insurer | R2 |
+| Q-23 | Do Apple and Google accept payment of Fidero's fees through the payment provider inside the apps, as payment for real-world services? | Product lead | Before R2 app submission |
+| Q-24 | Does Google Play's financial features declaration, or Apple's rules for financial apps, require any licence or proof from Fidero or its bank in each country? | Lawyer | Before R2 app submission |
 
 ---
 
@@ -499,7 +503,8 @@ Fidero is one platform with four front ends over one core API:
 
 1. **Client portal** (web, phone first) for clients abroad and at home: buyers, owners, family supporters, sellers, developers and project fund owners.
 2. **Back office** (web) for operations, reviewers, professionals and administrators.
-3. **Field app** (Android) for contractors, inspectors, runners, surveyors, carers and errand agents.
+3. **Field app, Fidero Field** (iOS and Android, from R2) for contractors, inspectors, runners, surveyors, carers and errand agents.
+5. **Client app, Fidero** (iOS and Android, from R2) for clients, family members and tenants, on the same API as the portal.
 4. **Partner API** for banks and developers.
 
 It integrates with an escrow bank, a payment provider, an identity check provider, map and satellite data sources, insurer partners, and messaging channels. Country is configuration throughout. Architecture is in document 02.
@@ -536,7 +541,7 @@ Release rights are a permission, not a role. Reviewers and senior staff named by
 ## C3. Operating environment
 
 - Web front ends work on the last two major versions of Chrome, Safari, Firefox and Edge, and on Android Chrome on devices with 2 GB of RAM.
-- The field app runs on Android 8.0 or later `[TO VERIFY]` on devices with 2 GB of RAM.
+- Both mobile apps run on Android 8.0 or later and iOS 15 or later `[TO VERIFY]`, on Android devices with 2 GB of RAM. They are distributed only through the Apple App Store and Google Play.
 - Users may be on 3G connections with frequent drops.
 - Primary language is English. Times are shown in the user's time zone and in Ghana time (GMT).
 - "Working days" means Monday to Friday excluding Ghana public holidays, from a holiday calendar the administrator maintains.
@@ -671,10 +676,10 @@ Each requirement uses "shall". Priority and release follow the conventions above
 
 | ID | Requirement | Priority | Release | Source |
 |---|---|---|---|---|
-| FR-MOB-001 | The app shall let contractors, inspectors, runners, surveyors, carers and errand agents sign in and see only their assigned projects, cases and tasks. | Must | R2 | BR-08 |
+| FR-MOB-001 | The field app, on iOS and Android, shall let contractors, inspectors, runners, surveyors, carers and errand agents sign in and see only their assigned projects, cases and tasks. | Must | R2 | BR-08 |
 | FR-MOB-002 | The app shall capture photos and video with its own camera only, and block gallery and file uploads for evidence. | Must | R2 | RUL-08 |
 | FR-MOB-003 | The app shall record GPS position and accuracy at capture and warn when the position is more than a configured distance from the plot boundary. | Must | R2 | BR-08 |
-| FR-MOB-004 | The app shall hash each file at capture and sign the hash, position and device time with a key held in the device keystore. | Must | R2 | BR-06 |
+| FR-MOB-004 | The app shall hash each file at capture and sign the hash, position and device time with a key held in the phone's hardware-backed keystore (Android Keystore or the iOS Secure Enclave), registered with the platform's attestation service (Play Integrity or App Attest). | Must | R2 | BR-06 |
 | FR-MOB-005 | The app shall work offline: capture, fill checklists and queue submissions, and upload when a connection returns. The queue shall survive the app being closed or the phone restarting. | Must | R2 | C-08 |
 | FR-MOB-006 | The app shall show the required evidence list for the chosen milestone and block submission until each item is attached. | Must | R2 | BR-08 |
 | FR-MOB-007 | The app shall give inspectors the checklist for the milestone and let them record pass, pass with defects (each defect with photos and a value) or fail. | Must | R2 | RUL-09 |
@@ -683,6 +688,17 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-MOB-010 | The app shall let runners, surveyors, carers and errand agents capture evidence for case tasks, visits and errands the same way. | Should | R2 | BR-06, BR-18, BR-20 |
 | FR-MOB-012 | The app shall support check-in and check-out at a registered address with GPS position, for care visits and inspections. | Must | R2 | RUL-23 |
 | FR-MOB-011 | The server shall verify each signature, record the server time and flag: position outside the plot buffer, a device-to-server time gap above the configured value, capture before the previous milestone passed, a hash already seen on another project, and image metadata that does not match the registered device. A reviewer shall be able to revoke a device key, which re-flags all evidence it signed for review. | Must | R2 | BR-08 |
+
+### C4.9a Client mobile app (APP)
+
+| ID | Requirement | Priority | Release | Source |
+|---|---|---|---|---|
+| FR-APP-001 | The client app, on iOS and Android, shall offer the client features of the portal: home dashboard, orders, case tracking, reports and fingerprint check, escrow and invoice approvals, statements, messages and settings, on the same API and rules. | Must | R2 | F-36 |
+| FR-APP-002 | The client app shall send push notifications for status changes, requests and approvals, following the user's channel preferences and FR-NTF-004's limits on content. | Should | R2 | BR-01, FR-NTF-004 |
+| FR-APP-003 | The client app shall allow biometric unlock. Approving a release still needs the user's second factor. | Should | R2 | FR-ACC-003 |
+| FR-APP-004 | Both apps shall let a user delete their account from inside the app, subject to legal holds and the retention rules in C5.2, and say plainly what is kept and why. | Must | R2 | C-14, FR-DPR-004 |
+| FR-APP-005 | The client app shall take Fidero's fees through the payment provider where store rules allow it for real-world services, and otherwise send the user to the web portal to pay. It shall never take purchase, construction or project money. | Must | R2 | AS-14, RUL-01 |
+| FR-APP-006 | Both apps shall check for a minimum supported version at start and ask the user to update when theirs is too old, without losing queued evidence. | Must | R2 | C-14, FR-MOB-005 |
 
 ### C4.10 Construction, off-plan and buildings (BLD)
 
@@ -952,6 +968,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | IF-09 | Lands Commission | Searches | Manual in all releases unless online access is offered `[TO VERIFY]` | |
 | IF-10 | Institutions: schools, hospitals, agencies | Invoice references and receipts | R1 manual upload; R2 portal or file | Per institution `[TO VERIFY]` |
 | IF-11 | Insurer partners | Applications, premiums, policies, claims | R2 | Per insurer `[TO VERIFY]` |
+| IF-12 | Apple App Store and Google Play | App distribution and review, push notification services, device attestation | R2 | Store accounts held by Fidero |
 
 ## C7. Non-functional requirements
 
@@ -961,7 +978,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | NFR-PERF-02 | A portal page's initial transfer shall be under 500 KB, excluding images the user opens. | R1 |
 | NFR-PERF-03 | API reads shall respond within 500 ms and writes within 1 second at the 95th percentile, at 10 times the expected R1 load. Expected R1 load (assumption): 2,000 client accounts, 150 open cases and 50 users at once. | R1 |
 | NFR-PERF-04 | Overlay checks shall complete within 30 seconds of saving a plot polygon. | R1 |
-| NFR-PERF-05 | The field app shall cold-start in under 3 seconds on a 2 GB RAM device, and its download size shall be under 30 MB. | R2 |
+| NFR-PERF-05 | Both apps shall cold-start in under 3 seconds on a 2 GB RAM Android device and on the oldest supported iPhone, and its download size shall be under 30 MB. | R2 |
 | NFR-AVL-01 | The portal and API shall be available 99.5% of each month, excluding maintenance announced 48 hours ahead and limited to 4 hours a month. | R1 |
 | NFR-AVL-02 | Recovery point objective: no more than 1 hour of data loss. Recovery time objective: 4 hours. | R1 |
 | NFR-AVL-03 | Evidence shall be stored with at least two copies in separate data centres, both within the data locations allowed under NFR-PRIV-01. | R1 |
@@ -974,13 +991,15 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | NFR-PRIV-02 | Personal data shall be minimised: each field must have a stated purpose in the data catalogue. | R1 |
 | NFR-USE-01 | In usability tests with 5 diaspora users, at least 4 shall order a report on a phone without help, with a median time under 10 minutes. | R1 |
 | NFR-USE-02 | Status messages shall be in plain English, with a Flesch-Kincaid grade of 7 or lower. | R1 |
-| NFR-A11Y-01 | The portal and back office shall meet WCAG 2.2 level AA from R1. The field app shall meet the same level from R2, using Android's accessibility guidance. | R1 |
+| NFR-A11Y-01 | The portal and back office shall meet WCAG 2.2 level AA from R1. Both mobile apps shall meet the same level from R2, using Android's and Apple's accessibility guidance. | R1 |
 | NFR-OBS-01 | Every request shall carry a trace ID. Errors, latency, upload queue length and job failures shall be monitored with alerts. | R1 |
 | NFR-MNT-01 | Automated tests shall cover at least 80% of lines in the core API and every business rule in B7. | R1 |
 | NFR-MNT-02 | A new product line or country shall be added through configuration, with code changes only for new integrations. | R1 for country, R2 for lines |
 | NFR-SCL-01 | The platform shall handle 2,000 open cases, 500 active projects and 20,000 listings without redesign. | R2 |
 | NFR-LOC-01 | All user-facing text shall be held in translation files, ready for other languages. | R1 |
 | NFR-AUD-01 | Audit entries shall be retained and readable for the full retention period of the data they describe. | R1 |
+| NFR-STORE-01 | Both apps shall meet the Apple App Store Review Guidelines and the Google Play Developer Program Policies at each release. Store privacy labels and the Play Data safety form shall match the data catalogue (NFR-PRIV-02). | R2 |
+| NFR-STORE-02 | Both apps shall support the iOS and Android versions used by at least 95% of active users in each launch country, reviewed every six months `[TO VERIFY]`. | R2 |
 
 ## C8. State models
 
