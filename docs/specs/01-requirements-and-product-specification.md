@@ -5,7 +5,7 @@ Business requirements (BRD), product requirements (PRD) and software requirement
 | Item | Value |
 |---|---|
 | Document | 01 of 6 in `docs/specs/` |
-| Version | 0.9, working draft |
+| Version | 0.10, working draft |
 | Date | 1 November 2026 |
 | Owner | Founder, acting as product owner |
 | Status | For review. Not yet baselined |
@@ -18,6 +18,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 31 October 2026 | First draft |
+| 0.10 | 11 November 2026 | Founder decisions recorded in C-07: contract developer kept to S14 for professional payments, and Option R2-A for the R2 team. |
 | 0.9 | 11 November 2026 | Clarifies professional payments: payment rights defined; every contracted role sees its own pay; who closes a runner's month and what a part month pays; pay may be held only during a recorded fraud or misconduct review; withholding does not apply to reimbursed expenses unless the law says so; IF-13 for Fidero's operating bank. No new requirement IDs. |
 | 0.8 | 11 November 2026 | Adds module PRO, professional payments (FR-PRO-001 to FR-PRO-010): rate cards, payables only for accepted work, expenses, two-person payment runs from Fidero's operating account, tax per country, reconciliation and statements. Adds BR-23, F-37, RUL-26, RUL-27, Q-25, Q-26 and a payables data class. FR-TSK-002 now takes Fidero's errand charge through the payment provider; FR-TSK-003 says errand agents are paid by Fidero. |
 | 0.7 | 7 November 2026 | Push is a notification channel (FR-NTF-001); store approval of both apps added to the R2 finish gate (B4). |
@@ -193,7 +194,7 @@ The full problem statement is in `docs/proposal.md` section 2.
 | C-04 | Listing or brokering property may need a licence under the Real Estate Agency Act 2020 (Act 1047) `[TO VERIFY]`. Listings do not go live until this is resolved. |
 | C-05 | Only licensed lawyers and surveyors may sign their report sections. |
 | C-06 | The scope and limitation statement is fixed text. It changes only with the lawyer's and insurer's approval. |
-| C-07 | Budget: $400,000 pre-seed for 18 months, shared with operations and marketing. R1 team is one product and engineering lead, two developers, a part-time designer and one contract developer from sprint S3 to S13 (decided 1 November 2026). R2 adds a mobile developer for both app stores and a QA engineer `[TO VERIFY]`. |
+| C-07 | Budget: $400,000 pre-seed for 18 months, shared with operations and marketing. R1 team: one product and engineering lead, two developers, a part-time designer, and one contract developer from sprint S3 to S14. R2 team: the R1 team plus one mobile developer for both apps on iOS and Android and a QA engineer `[TO VERIFY]`, with the contract developer kept from S14 to S31 (Option R2-A). Decided 1 and 11 November 2026. Engineering is about 55.6% of the pre-seed (assumption, `docs/specs/04` section 11). |
 | C-08 | Many users in Ghana are on slow mobile connections and low-end Android phones. Many people abroad use iPhones. |
 | C-09 | Data hosting must be where each country's data protection authority accepts. For Ghana, in Ghana or a jurisdiction the Data Protection Commission accepts `[TO VERIFY]`. |
 | C-10 | The word "guard" must not appear in any product, feature or brand name. Land guards are the threat Fidero protects against. |

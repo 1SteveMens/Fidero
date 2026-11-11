@@ -99,3 +99,10 @@ The Nigeria launch plan is a Claude doc: https://claude.ai/artifact/X1r2egGWXyAH
 | Timing | Both apps ship in R2 (months 9 to 18). In R1 clients use the phone-first web portal, which stays for laptops and public listings. |
 | Technology | One cross-platform codebase in React Native with TypeScript for both apps and both platforms, replacing the Android-only Kotlin plan. It shares types and the API client with the web apps. Camera capture, hardware-backed signing (Android Keystore, iOS Secure Enclave) and attestation (Play Integrity, App Attest) are native modules. |
 | Store rules | Account deletion inside the apps; privacy labels and the Play Data safety form match the data catalogue; Fidero's fees are for real-world services and paid through the payment provider if the stores accept that (Q-23), otherwise on the web. Recorded in `docs/specs/01` v0.6 (FR-APP, NFR-STORE, C-14, AS-14, Q-23, Q-24). |
+
+## Follow-up decisions, 11 November 2026: team for R1 and R2
+
+| Decision | Detail |
+|---|---|
+| R1 finish | Keep the contract developer for one more sprint, S14, to build the professional payments Musts. Payment runs start as a bulk file uploaded in the bank's portal. Expense claims, automatic reconciliation, overdue alerts and the automatic cost record move to R2 and are done by hand by two people until then. R1 Musts finish in month 10. |
+| R2 team | Option R2-A: one mobile developer with native experience on iOS and Android, plus the contract developer kept from S14 to S31 on shared TypeScript code and client app screens. About $28,800 `[TO VERIFY]`, which brings engineering to about 55.6% of the pre-seed. Recorded in `docs/specs/01` C-07 and `docs/specs/04` sections 5.1, 5.2 and 11. |

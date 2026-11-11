@@ -9,7 +9,7 @@ Every figure in this document is a working assumption, not verified data. That i
 | Item | Value |
 |---|---|
 | Document | 04 of 6 in `docs/specs/` |
-| Version | 0.5 |
+| Version | 0.6 |
 | Date | 11 November 2026 |
 | Status | Draft. For review by the founder as product owner |
 | Owner | Product and engineering lead (once hired). Until then, the founder |
@@ -21,6 +21,7 @@ Every figure in this document is a working assumption, not verified data. That i
 
 | Version | Date | Change | By |
 |---|---|---|---|
+| 0.6 | 11 November 2026 | Founder decisions: the S14 plan (contract developer kept one more sprint for professional payments, payment runs start as the bulk file only, PRO Shoulds move to R2) and Option R2-A (contract developer kept S14 to S31 alongside one mobile developer). Budget, team, I-04 and I-29 updated. |
 | 0.5 | 11 November 2026 | Aligned to 01 v0.8: professional payments. New epic EP-PRO with US-PRO-001 to US-PRO-010 (42 points: 6 Must stories, 28 points; 4 Should stories, 14 points), all R1. Enablers EN-78 (spike on the operating bank's bulk payment file, 2 points) and EN-79 (tax set-up per country with an accountant, not pointed). US-TSK-002 now pays Fidero's errand charge through the payment provider and official fees into the partner bank; US-TSK-003 has the agent paid by Fidero under EP-PRO. R1 Must plan grows from 408 to 438 points against 417 to the end of S13 under Option A+: 21 points short. Recommendation in 5.1: keep the six PRO Musts in R1, start payment runs as the bulk file only, build them in a new S14 with the contract developer kept one more sprint, and move the four PRO Shoulds to R2 (US-PRO-004 in R2-A; US-PRO-009 in R2-C; US-PRO-008 and US-PRO-010 in R2-D). R1 Shoulds displaced from R2-A move to R2-D. R2 demand 682 against 795 under Option R2-A. WSJF, dependencies, risks DR-41 and DR-42, budget, traceability (BR-23 to F-37 to EP-PRO) and issues I-04, I-29 and I-32 to I-35 updated. | Delivery lead |
 | 0.4 | 7 November 2026 | Aligned to 01 v0.6: both app stores, React Native, client app. New epic EP-APP with US-APP-001a to US-APP-001e and US-APP-002 to US-APP-006 (61 points). US-MOB-001 and US-MOB-002 cover iOS; US-MOB-004 split into US-MOB-004a (Android) and US-MOB-004b (iOS), and US-MOB-002 re-estimated at 8. EN-33 rewritten for React Native; EN-41 superseded (Q-09 answered); enablers EN-64 to EN-77 for store accounts, signing and push credentials, test tracks, listings, privacy disclosures, the financial declaration, native-module and performance spikes, a submission rehearsal, the store payment position and a client app usability test. R2 "Android developer" becomes "mobile developer (React Native)". R2 capacity recomputed: 638 points of demand against 651 with one mobile developer (2% spare); Option R2-A, keeping the contract developer through R2, is recommended. Store review buffers, milestones M-37 to M-39, risks DR-35 to DR-40 (DR-07 closed), RACI, budget, go/no-go and traceability (F-36, EP-APP) updated. Issues I-29 to I-31 added. | Delivery lead |
 | 0.3 | 1 November 2026 | Aligned to 01 v0.4: runner cash route removed (US-FEE-006 rewritten for institutions not eligible for direct payment and a paper-only runner task; estimate kept at 3 points, so EP-FEE, the R1 totals and the capacity figures are unchanged; DR-31 rewritten); fresh search scoped to purchases (US-ESC-006); standing approvals for care visits and errand steps (US-CARE-001, US-CARE-004, US-TSK-003); account-name sources and no override (US-ESC-015); 72-hour reviewer decision and code lockout (US-CARE-004); owner's written mandate (US-PMG-003); premium routes (US-INS-002); dispute withdrawal (US-DSP-002); carers and agents in the field app (US-MOB-001); "amount held at the bank" wording. Issues I-18, I-20, I-21, I-23 and I-26 resolved, I-19 partly. | Delivery lead |
@@ -58,7 +59,7 @@ Each release runs three steps. Software is built only for a phase that has passe
 - Two-week sprints. Sprint numbers run on from R1 to R2 (S0 to S31).
 - The founder is product owner. The product and engineering lead also acts as Scrum lead. There is no separate Scrum master at this team size.
 - Ceremonies, reports and change control are in section 12.
-- The R1 team is one product and engineering lead, two developers (one backend-leaning, one frontend-leaning) and a part-time designer `[TO VERIFY]` (C-07). The founder has approved one contract developer from S3 to S13 (section 5.1). R2 adds a mobile developer (React Native, for both apps on both stores) and a QA engineer `[TO VERIFY]`. One mobile developer is not enough for the R2 scope on its own; section 5.2 recommends keeping the contract developer through R2 (Option R2-A).
+- The R1 team is one product and engineering lead, two developers (one backend-leaning, one frontend-leaning) and a part-time designer `[TO VERIFY]` (C-07). The founder has approved one contract developer from S3 to S14 (section 5.1), kept on through R2 under Option R2-A (section 5.2). R2 adds a mobile developer (React Native, for both apps on both stores) and a QA engineer `[TO VERIFY]`. One mobile developer is not enough for the R2 scope on its own; section 5.2 recommends keeping the contract developer through R2 (Option R2-A).
 - The country 2 manual phase is run by a country 2 lead, an operations role, not an engineering one (EN-47, `[TO VERIFY]`). Engineering stays one team working on one codebase, because country is configuration (FR-CTY-001).
 
 ### 2.3 Definition of ready
@@ -102,7 +103,7 @@ A story is done only when all of these hold:
 | S3 to S13 | R1 team plus one contract developer (approved, section 5.1) | 33 |
 | S3 to S15 without the contract developer | R1 team at steady pace | 25 |
 | S13 onward | Plus the mobile developer, React Native (ramping in S13 to S15) | 25 web plus about 10 mobile from S16 |
-| S14 to S31, recommended (Option R2-A, section 5.2) | Contract developer kept on shared TypeScript packages, client app screens and web work | Plus about 8 |
+| S14 to S31, approved 11 November 2026 (Option R2-A, section 5.2) | Contract developer kept on shared TypeScript packages, client app screens and web work | Plus about 8 |
 
 - Planning velocity already leaves about 10% for defects and support of live features.
 - From Sprint 3 the plan uses the average of the last three sprints. If it differs from the table by more than 20%, the lead re-plans and reports the effect on milestones.
@@ -176,7 +177,7 @@ A country gate can fail without touching Ghana. If G-C2 fails, country 2 softwar
 
 ### 3.3 Milestones
 
-Months follow the recommended plan in section 5.1 (contract developer S3 to S13). Under the baseline team, M-10 to M-12 and M-26 slip by about one month each.
+Months follow the approved plan in section 5.1 (contract developer S3 to S14, then kept through R2 under Option R2-A). Under the baseline team, M-10 to M-12 and M-26 slip by about one month each.
 
 | ID | Month | Milestone | Exit criteria | Owner |
 |---|---|---|---|---|
@@ -300,7 +301,7 @@ S14 is new in version 0.5. Professional payments come last in R1 because they ne
 
 Version 0.5 figures, with EP-PRO and EN-78 added:
 
-| Measure | Baseline team | Option A as in version 0.1: contract developer S3 to S12 | Option A+ (approved): contract developer S3 to S13 | Option A+ and S14 (recommended in version 0.5): contract developer S3 to S14 |
+| Measure | Baseline team | Option A as in version 0.1: contract developer S3 to S12 | Option A+ (approved): contract developer S3 to S13 | Option A+ and S14 (approved 11 November 2026): contract developer S3 to S14 |
 |---|---|---|---|---|
 | Planning capacity | 304 points to the end of S12 | 384 to the end of S12 | 384 to S12; 417 to the end of S13; 442 to S14 at the web team's pace | 450 to the end of S14 |
 | R1 Must stories and Must enablers, plus US-ANL-001 | 438 points (343 + 87 + 8) | 438 | 438 | 438 |
@@ -329,6 +330,8 @@ What the new scope means, plainly: version 0.1 already showed the baseline team 
 2. **Start payment runs as the bulk file only.** US-PRO-005 builds preparation, two-person approval and one bulk file format for Fidero's operating bank (or its mobile money provider, if runners need it). Staff upload the file in the bank's portal. No bank API, no second format, and reconciliation (US-PRO-009) is done by hand from the bank's confirmation until it ships. This keeps US-PRO-005 at 8 points.
 3. **Build them in S14 and keep the contract developer one more sprint.** S14 at 33 points holds the 28 PRO Must points with 5 spare, and the R1 Musts end in S14 (month 10) instead of S13. Gate G1 at month 9 is judged on business numbers, which S14 does not affect. S14 is also the first sprint of Option R2-A in section 5.2; if the founder approves R2-A, the extension costs nothing more. If not, it costs about $1,600 `[TO VERIFY]` (section 11). Without it, about 3 points spill into S15 and the R2-A Shoulds slip by the same amount.
 4. **Move the PRO Shoulds to R2.** US-PRO-004 (expenses, 5) goes first, into R2-A in S15, because it ends the last manual money process. US-PRO-009 (reconciliation, 5) goes to R2-C. US-PRO-008 (overdue alert, 2) and US-PRO-010 (cost record, 2) go to R2-D with the R1 Shoulds that S14 displaces. Until each ships, its step stays manual and two-person, as in R0.
+
+**Decision, 11 November 2026:** the founder approved points 1 to 4. The contract developer stays through S14, payment runs start as the bulk file only, and the four PRO Shoulds move to R2 as listed. Until each ships, its step is done by hand by two people.
 
 Option C (moving other R1 Musts to R2) is not needed if point 3 is accepted. If velocity at the end of S2 is more than 20% below plan, the Option C list applies first and EP-PRO stays.
 
@@ -365,7 +368,7 @@ US-CASE-013 (building verification) drops last among Shoulds because it opens th
 
 R2 also carries the 59 points of R1 completion in S13 and S14 (31 and 28) and the R1 Shoulds in R2-A to R2-D. In version 0.5, S14 goes to professional payments, so 29 points of R1 Shoulds move from R2-A to R2-D, lowest on the cut line first.
 
-| R2 capacity check | Baseline: one mobile developer | Option R2-A (recommended): plus the contract developer S14 to S31 | Option R2-B: plus a second mobile developer S16 to S31 |
+| R2 capacity check | Baseline: one mobile developer | Option R2-A (approved 11 November 2026): plus the contract developer S14 to S31 | Option R2-B: plus a second mobile developer S16 to S31 |
 |---|---|---|---|
 | Capacity S13 to S31 | 651: web 19 × 25, contract developer 8 in S13, mobile 8 in S13 to S15 then 16 × 10 | 795: baseline plus 18 × 8 | 811: baseline plus 16 × 10 |
 | Demand: R1 completion 59, R2 phases 623 | 682 | 682 | 682 |
@@ -380,7 +383,7 @@ All figures are assumptions. Version 0.3 left 114 points (18%) unplanned under t
 
 **Is one mobile developer enough?** No. With one mobile developer, R2 is about 31 points short in total, and R2-A to R2-C are short by about 64 points, which would push the client app past its store review buffer and into gate G2. The work that needs native skills alone (native modules on two platforms, the field app's capture, signing and queue, store set-up) is about 100 points before the construction pilot at month 13, against about 50 points of mobile capacity by then. React Native helps here: the app screens, queue logic and API client are TypeScript, which the web developers already write.
 
-**Recommendation: Option R2-A.** Hire one mobile developer who has shipped native modules on both iOS and Android, to own capture, signing, attestation, background upload and store releases. Keep the contract developer from S14 to S31 on the shared TypeScript packages, client app screens and web work, so the web team does not slow. This restores about 14% spare, costs about $28,800 `[TO VERIFY]`, needs no new hire, and can stop at any sprint. Decide at the end of S15: if the native-module spikes (EN-70 to EN-74) show more native work than planned, add a second mobile developer or a native contractor for R2-B and R2-C (Option R2-B). Both options are for the founder to decide; neither is approved yet. The second lever is the cut line below. If dependencies do not bite, the team pulls R2 Coulds and R3 discovery forward.
+**Decision, 11 November 2026: Option R2-A, approved by the founder.** Hire one mobile developer who has shipped native modules on both iOS and Android, to own capture, signing, attestation, background upload and store releases. Keep the contract developer from S14 to S31 on the shared TypeScript packages, client app screens and web work, so the web team does not slow. This restores about 14% spare, costs about $28,800 `[TO VERIFY]`, needs no new hire, and can stop at any sprint. Decide at the end of S15: if the native-module spikes (EN-70 to EN-74) show more native work than planned, add a second mobile developer or a native contractor for R2-B and R2-C (Option R2-B). Both options are for the founder to decide; neither is approved yet. The second lever is the cut line below. If dependencies do not bite, the team pulls R2 Coulds and R3 discovery forward.
 
 R2 still has the most outside dependencies: the bank's file or API, the Act 1047 position, the insurer's extension, the carer vetting standard, the insurer partner and licence, store review and the store payment position (Q-23), contractor uptake and field defects on low-end phones.
 
@@ -2125,9 +2128,9 @@ The split below is a planning proposal for the founder to confirm. Every figure 
 | Cloud hosting, tools and licences, including a second data location for country 2 from month 10, the Apple Developer Program and Google Play Console fees, and mobile build minutes from month 9 | 3 to 18 | 3% | $12,000 | Depends on the hosting decision (EN-16) and the country 2 location (EN-45) `[TO VERIFY]`. Store fees about $99 a year and $25 once; build minutes about $50 to $150 a month (assumptions, 02 section 11.7) |
 | Third-party services: identity checks, SMS and WhatsApp, map data, satellite images, institution registry lookups, carer background checks | 3 to 18 | 3% | $12,000 | Paid per use and grows with volume `[TO VERIFY]` |
 | Security and quality: two R1 penetration tests, one R2 penetration test, accessibility audits | 7 to 18 | 3% | $12,000 | Quotes `[TO VERIFY]` |
-| **Engineering total** | | **48.4%** | **$193,600** | |
-| Option R2-A (recommended, not yet approved): contract developer kept S14 to S31 | 10 to 18 | 7.2% | $28,800 | 18 sprints at about $1,600 `[TO VERIFY]` (section 5.2). If approved, the engineering total becomes 55.6% ($222,400) and the rest of the pre-seed 44.4% ($177,600) |
-| Option A+ extended to S14 (recommended in version 0.5, not yet approved): contract developer kept one more sprint for professional payments | 10 | 0.4% | $1,600 | One sprint at about $1,600 `[TO VERIFY]` (section 5.1). It is the first sprint of Option R2-A; if R2-A is approved, it costs nothing more |
+| **Engineering total, with the approved options** | | **55.6%** | **$222,400** | Was 48.4% ($193,600) before Option R2-A |
+| Option R2-A (approved 11 November 2026): contract developer kept S14 to S31 | 10 to 18 | 7.2% | $28,800 | 18 sprints at about $1,600 `[TO VERIFY]` (section 5.2). Included in the engineering total above; the rest of the pre-seed is 44.4% ($177,600) |
+| Option A+ extended to S14 (approved 11 November 2026): contract developer kept one more sprint for professional payments | 10 | 0.0% | $0 | S14 is the first sprint of Option R2-A, so it is already inside the $28,800 above |
 | Country 2 manual phase: country 2 lead, lawyer, surveyor and runner fees, travel, template adaptation | 5 to 9 | `[TO VERIFY]` | `[TO VERIFY]` | Operations spend, inside the line below. Planning assumption: about the cost of Ghana's R0 manual phase `[TO VERIFY]` |
 | Country 3 manual phase | 15 to 18 | `[TO VERIFY]` | `[TO VERIFY]` | As above |
 | Rest of the pre-seed: operations team, marketing, insurance, legal, reserve, including both manual phases | 0 to 18 | 51.6% | $206,400 | Outside this document |
@@ -2137,7 +2140,7 @@ What this means, under these assumptions:
 - The team line allows about $9,300 a month on average for the whole product team over 15 months. Whether this buys the C-07 team is `[TO VERIFY]`. Months 9 to 18 cost more than months 3 to 9, because two roles join.
 - The second country costs money from month 5, not month 18 as in version 0.1. It comes out of the operations share, which also carries the new recurring-line operations load (DR-34). The founder should cost the country 2 manual phase before M-24.
 - If the team costs more, the choices are: a smaller share for another line, part-time roles, a later mobile or QA start, or a smaller R2 (cut line in section 5.2).
-- Publishing both apps on both stores adds about $28,800 if the founder takes Option R2-A, plus small store and build fees. Without it, R2 is about 31 points short (section 5.2).
+- Publishing both apps on both stores adds about $28,800 under Option R2-A, approved on 11 November 2026, plus small store and build fees (section 5.2).
 - R3 (months 18 to 36) falls outside the pre-seed. Its team and budget depend on a later round `[TO VERIFY]`.
 - The business plan doc and `docs/proposal.md` show the use of funds as `[TO VERIFY]`. If the founder accepts this split, both should be updated to match.
 
@@ -2282,7 +2285,7 @@ Items resolved by 01 version 0.4 stay in this table, marked resolved, so their n
 
 | ID | Where in 01 | Issue | Effect on this plan | Proposed fix |
 |---|---|---|---|---|
-| I-04 | C-07, B4 | C-07 still says one or two developers. R1 Must scope and enablers are now 438 points (version 0.5, with professional payments) against 304 for the baseline team, 384 with a contract developer to S12 and 417 to S13. The country 2 manual phase also starts inside R1, with no role for it in 01 | R1 Musts finish in S14 (month 10) with Option A+ and one more contract sprint, or about month 11 without the contract developer (section 5.1) | Founder decides between options A+, B and C. Record the team size and the country 2 lead in C-07 |
+| I-04 | C-07, B4 | C-07 still says one or two developers. R1 Must scope and enablers are now 438 points (version 0.5, with professional payments) against 304 for the baseline team, 384 with a contract developer to S12 and 417 to S13. The country 2 manual phase also starts inside R1, with no role for it in 01 | R1 Musts finish in S14 (month 10) with Option A+ and one more contract sprint, or about month 11 without the contract developer (section 5.1) | Founder decides between options A+, B and C. Record the team size and the country 2 lead in C-07 **Resolved 11 November 2026:** C-07 records the R1 team (contract developer S3 to S14) and the R2 team (Option R2-A). |
 | I-05 | FR-RPT-001, FR-CASE-013, RUL-02 | The report template covers land only. Building cases add four checks, but there are no building report sections, and RUL-02 refers to land sections 4 to 10 | US-CASE-013 can create the tasks but not a full building report | Add a building report template and state how RUL-02 applies to it |
 | I-06 | RUL-14, FR-LST-003, FR-PTR-002, C-06 | The scope statement in `docs/operations/verification-report-template.md` says the report is for the named client only. Listings show the full report to other buyers, and the partner API shares verdicts with banks | Listings and the partner API may conflict with the locked wording | Add to the R2 start gate: lawyer and insurer approve wording for listed and shared reports |
 | I-07 | A9, FR-ANL-001, C5.1 | Two A9 metrics have no source: client satisfaction ("survey after delivery") has no FR, and "lead source and conversion" needs leads that never order, but only orders record a source (FR-ORD-005) and there is no Lead entity | US-ANL-001 cannot show these two metrics | Add FRs for a post-delivery survey and for lead capture, and a Lead entity |
@@ -2303,7 +2306,7 @@ Items resolved by 01 version 0.4 stay in this table, marked resolved, so their n
 | I-26 | B5 F-35, FR-ACC-012, C4.19 | F-35 (unified home dashboard, Should R1) maps to ACC and ANL, but only FR-ACC-012 implements it. FR-ANL has no client-facing requirement | US-ACC-012 carries the whole feature | **Resolved by 01 v0.4.** F-35 now maps to ACC only |
 | I-27 | FR-CARE-004, FR-ESC-010, FR-ESC-014, C5.1 | Carers are paid "only for confirmed visits", but 01 does not say where the money is held before payment or how often carers are paid. The Care plan and visit entity has no payment fields | US-CARE-004 assumes a configured pay period and a release from the held balance (FR-ESC-014) | State the carer payment cycle and the held-balance source in FR-CARE-004 |
 | I-28 | B4 R2 row, BO-09 | The R2 finish gate adds "40% of clients with a recurring line", but the R2 start gate does not require the fees line (R1) to have run. If EP-FEE slips to S13 or later, the 40% target has little time | M-26 at month 9 is on the critical path for G2 | Add "fees to institutions live" to the R1 finish gate |
-| I-29 | C-07, FR-APP-001, FR-MOB-001 | C-07 adds one mobile developer in R2 for both apps on both platforms. R2 demand is now 682 points (version 0.5) against 651 with that team: about 31 short, and short in R2-A to R2-C | Client app at risk of missing its store review buffer and month 17 (M-39) | Founder decides Option R2-A or R2-B (section 5.2) and records the R2 team in C-07 |
+| I-29 | C-07, FR-APP-001, FR-MOB-001 | C-07 adds one mobile developer in R2 for both apps on both platforms. R2 demand is now 682 points (version 0.5) against 651 with that team: about 31 short, and short in R2-A to R2-C | Client app at risk of missing its store review buffer and month 17 (M-39) | Founder decides Option R2-A or R2-B (section 5.2) and records the R2 team in C-07 **Resolved 11 November 2026:** Option R2-A approved and recorded in C-07. |
 | I-30 | FR-APP-004, RUL-11, C8 Escrow | 01 does not say what happens to an open escrow, money held at the bank or a standing approval when a client deletes the account in the app | US-APP-004 records the request and completes it when open items end; criteria 3 assumes this | State the rule in FR-APP-004 or FR-DPR-004 |
 | I-31 | B4, C-14 | Release gates in B4 do not mention store approval, but C-14 makes every app release depend on it | Section 12.4 adds store approval to the R2 go/no-go | Add "both apps approved by both stores" to the R2 finish gate, or say C-14 applies to every gate with an app in scope |
 | I-32 | C2, FR-PRO-005 | A payment run is approved by "a different one with payment rights", but C2 defines only release rights | US-PRO-005 cannot be accepted without knowing who may approve | Define payment rights in C2: held by reviewers or administrators named by two administrators, never by a contracted professional (document 02 assumes this) |
