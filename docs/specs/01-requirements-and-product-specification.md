@@ -5,7 +5,7 @@ Business requirements (BRD), product requirements (PRD) and software requirement
 | Item | Value |
 |---|---|
 | Document | 01 of 6 in `docs/specs/` |
-| Version | 0.7, working draft |
+| Version | 0.8, working draft |
 | Date | 1 November 2026 |
 | Owner | Founder, acting as product owner |
 | Status | For review. Not yet baselined |
@@ -18,6 +18,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 31 October 2026 | First draft |
+| 0.8 | 11 November 2026 | Adds module PRO, professional payments (FR-PRO-001 to FR-PRO-010): rate cards, payables only for accepted work, expenses, two-person payment runs from Fidero's operating account, tax per country, reconciliation and statements. Adds BR-23, F-37, RUL-26, RUL-27, Q-25, Q-26 and a payables data class. FR-TSK-002 now takes Fidero's errand charge through the payment provider; FR-TSK-003 says errand agents are paid by Fidero. |
 | 0.7 | 7 November 2026 | Push is a notification channel (FR-NTF-001); store approval of both apps added to the R2 finish gate (B4). |
 | 0.6 | 7 November 2026 | Founder decision: the mobile apps are published on the Apple App Store and Google Play. Two apps from R2: Fidero (clients and families) and Fidero Field (field roles), both on iOS and Android. Adds module APP (FR-APP-001 to FR-APP-006), feature F-36, NFR-STORE-01 and NFR-STORE-02, C-14, AS-14, IF-12, Q-23 and Q-24; FR-MOB-001 and FR-MOB-004 cover iOS; AS-08 retired; Q-09 answered. |
 | 0.5 | 1 November 2026 | Founder decisions: country 2 is Nigeria and country 3 is Kenya (Q-15 answered); the R1 team includes one contract developer from S3 to S13 (C-07). |
@@ -131,6 +132,7 @@ The full problem statement is in `docs/proposal.md` section 2.
 | BR-20 | Clients must be able to have paperwork and errands done at home by a vetted agent, with fees paid to the agency and completion proven by the resulting document. | BO-09 | R2 |
 | BR-21 | Clients must be able to buy health and funeral cover for relatives from licensed insurer partners through Fidero, with Fidero holding no risk. | BO-09 | R2 |
 | BR-22 | Clients must be able to fund events and ceremonies at home with vendors paid against invoices and delivery evidence. | BO-10 | R3 |
+| BR-23 | Fidero must pay the professionals it contracts (lawyers, surveyors, runners, inspectors, quantity surveyors, errand agents) accurately and on time, from its own funds, with tax handled as each country requires. | BO-01, BO-02, BO-07 | R1 |
 | BR-15 | The platform must meet the Data Protection Act 2012 (Act 843) and keep a full audit trail of every action. | BO-07 | R1 |
 | BR-16 | Management must see the operating metrics from the validation plan without building spreadsheets by hand. | BO-01, BO-02 | R1 |
 
@@ -337,6 +339,7 @@ Anyone abroad can get anything done at home, from buying land to paying a parent
 | F-34 | Events and ceremonies with vendors paid against evidence | P-01, P-15 | R3 | Could | EVT |
 | F-35 | Unified home dashboard: everything a client has running at home in one view | All clients | R1 | Should | ACC |
 | F-36 | Client mobile app on the App Store and Google Play: home dashboard, orders, tracking, reports, approvals, statements and notifications | P-01, P-02, P-13, P-15, P-16 | R2 | Must | APP |
+| F-37 | Professional payments: rate cards, payables for accepted work, expenses, payment runs and statements | P-05, P-06, P-07, P-09, P-17, P-14 | R1 | Must | PRO |
 
 ## B6. Key user journeys
 
@@ -457,6 +460,8 @@ The system must enforce these rules. Each is tested in document 05.
 | RUL-23 | A carer or errand agent is paid only for visits or tasks confirmed by check-in evidence and by the family or the resulting document. |
 | RUL-24 | Rent on a managed property is paid by the tenant to the owner's own account at the partner bank, never to Fidero. |
 | RUL-25 | Insurance is sold as the named licensed insurer's policy. Fidero collects no premium into its own account and pays no claim. |
+| RUL-26 | A professional's pay never depends on the verdict or outcome of their work. A red report pays the same as a green one; a failed inspection pays the same as a pass. |
+| RUL-27 | Fidero pays the professionals it contracts from its own operating account, out of its fee income. Client money held at the bank pays only the client's own payees: sellers, institutions, contractors, carers, suppliers, vendors and agencies. No path moves money between the two. |
 
 ## B8. Out of scope for this specification
 
@@ -493,6 +498,8 @@ The system must enforce these rules. Each is tested in document 05.
 | Q-22 | What duty of care does Fidero owe during care visits, how is a carer's own safety protected, and what insurance covers both? | Founder, lawyer, insurer | R2 |
 | Q-23 | Do Apple and Google accept payment of Fidero's fees through the payment provider inside the apps, as payment for real-world services? | Product lead | Before R2 app submission |
 | Q-24 | Does Google Play's financial features declaration, or Apple's rules for financial apps, require any licence or proof from Fidero or its bank in each country? | Lawyer | Before R2 app submission |
+| Q-25 | What withholding tax, registration and reporting apply when Fidero pays contracted professionals in Ghana, Nigeria and Kenya? | Accountant, lawyer | R1 start; each country's manual phase |
+| Q-26 | Which bank account and mobile money provider does Fidero use to pay professionals, and do they accept a bulk payment file? | Founder | R1 start |
 
 ---
 
@@ -519,9 +526,9 @@ It integrates with an escrow bank, a payment provider, an identity check provide
 | Developer | As seller, for many units; manage estates and off-plan stages | Choose the inspector |
 | Case manager (Fidero operations) | Run cases, assign tasks, chase, enter bank confirmations, prepare release instructions | Approve a release; confirm their own manual bank entry; edit locked text |
 | Reviewer (Fidero) | Review and approve reports, releases, fraud flags, disputes. Holds release rights | Approve a release they prepared, or be both approvers |
-| Lawyer | Work assigned cases; sign the legal section | See unassigned cases |
-| Surveyor | Work assigned site visits; sign the surveyor's section | See unassigned cases |
-| Runner | Work assigned tasks; capture evidence | Sign sections |
+| Lawyer | Work assigned cases; sign the legal section; see their own payables, expenses and statements | See unassigned cases or other professionals' pay |
+| Surveyor | Work assigned site visits; sign the surveyor's section; see their own payables, expenses and statements | See unassigned cases or other professionals' pay |
+| Runner | Work assigned tasks; capture evidence; claim expenses with receipts | Sign sections; carry client money |
 | Contractor | Submit milestone evidence for assigned projects | Choose the inspector; release |
 | Inspector | Complete checklists for assigned inspections | Work on a project where they have a conflict |
 | Quantity surveyor | Upload bills of quantities and milestone splits for assigned projects | Approve releases |
@@ -819,6 +826,23 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-DPR-004 | The system shall apply retention rules per data class and delete or anonymise data at the end of the period, unless a legal hold applies. | Must | R1 | C-02 |
 | FR-DPR-005 | The system shall require two-person approval for any bulk export of personal data. | Must | R1 | C-02 |
 
+### C4.20a Professional payments (PRO)
+
+Fidero's own contracted professionals are paid by Fidero, from its fee income, through this module. It never touches client money held at the bank (RUL-27).
+
+| ID | Requirement | Priority | Release | Source |
+|---|---|---|---|---|
+| FR-PRO-001 | The system shall hold a signed agreement and a rate card for each contracted professional, by country and role: per report, per site visit, per inspection, per bill of quantities, per errand, or a monthly fee. Rate cards are versioned with a start date, and a change needs a second administrator. | Must | R1 | BR-23 |
+| FR-PRO-002 | The system shall create a payable only when the work is accepted: a legal or surveyor's section signed and passed second review, an inspection checklist submitted, a bill of quantities accepted, an errand document checked, or a runner's month closed. | Must | R1 | BR-23, RUL-26 |
+| FR-PRO-003 | The system shall not allow a rate that varies by verdict, inspection outcome or any other result of the professional's work. | Must | R1 | RUL-26 |
+| FR-PRO-004 | The system shall let professionals claim expenses (official search fees, travel, approved costs) with a receipt photo, within limits set per country and role. A claim above the limit or without a receipt needs a second staff approval. | Should | R1 | BR-23 |
+| FR-PRO-005 | The system shall group approved payables and expenses into a payment run, prepared by one staff member and approved by a different one with payment rights, and produce a bulk payment file for Fidero's bank or mobile money provider. | Must | R1 | BR-23, RUL-27 |
+| FR-PRO-006 | The system shall pay professionals only from Fidero's operating account, to an account verified in the professional's own name. Professional payables and client escrow are kept in separate records with no transfer between them. | Must | R1 | RUL-27, RUL-22 |
+| FR-PRO-007 | The system shall apply withholding tax and other deductions set in each country's configuration, and produce a remittance advice per payment and a yearly statement per professional. | Must | R1 | BR-23, Q-25 |
+| FR-PRO-008 | The system shall pay accepted work within a configurable period (10 working days, assumption) and alert operations when a payable is overdue. | Should | R1 | BR-23 |
+| FR-PRO-009 | The system shall reconcile each payment run against the bank's or provider's confirmation and list failed or unconfirmed lines for a staff member to resolve. | Should | R1 | BR-23 |
+| FR-PRO-010 | The system shall fill each case's cost record (FR-CASE-011) from its accepted payables and expenses, so cost per report is measured, not estimated. | Should | R1 | BR-16 |
+
 ### C4.21 Payments to institutions (FEE)
 
 | ID | Requirement | Priority | Release | Source |
@@ -858,8 +882,8 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | ID | Requirement | Priority | Release | Source |
 |---|---|---|---|---|
 | FR-TSK-001 | The system shall offer a catalogue of errands per country (identity documents, passports, land title steps, probate, company registration, tax filings, utility connections), each with a document checklist, official fees, Fidero's charge and a target time. | Should | R2 | BR-20 |
-| FR-TSK-002 | The system shall let the client upload the checklist documents and pay the official fees and Fidero's charge into the partner bank. | Must | R2 | BR-20 |
-| FR-TSK-003 | The system shall assign a vetted agent, shall pay official fees to the agency's account only, and shall record each step with the receipt or acknowledgement uploaded. | Must | R2 | RUL-22, RUL-23 |
+| FR-TSK-002 | The system shall let the client upload the checklist documents and pay the official fees into the partner bank and Fidero's charge through the payment provider. | Must | R2 | BR-20 |
+| FR-TSK-003 | The system shall assign a vetted agent, paid by Fidero under FR-PRO for completed errands, shall pay official fees to the agency's account only, and shall record each step with the receipt or acknowledgement uploaded. | Must | R2 | RUL-22, RUL-23 |
 | FR-TSK-004 | The system shall confirm completion only when the resulting document or official confirmation is uploaded and checked by Fidero. | Must | R2 | RUL-23 |
 | FR-TSK-005 | The system shall record handover of the document to the client's representative or courier, with a signature or photo. | Should | R2 | BR-20 |
 
@@ -936,6 +960,10 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | Errand | Client, catalogue item, country, agent, checklist, steps, fees, result document |
 | Policy | Client, insured, insurer, product, premium schedule, documents, claims |
 | Event | Client, budget, vendors, payments |
+| Rate card | Professional, country, role, unit, rate, currency, start date, version |
+| Payable | Professional, case or project, work item, amount, tax, status, payment run |
+| Expense claim | Professional, case, amount, receipt, approver, status |
+| Payment run | Payables, preparer, approver, file, bank confirmation, status |
 | Country | Code, currency, configuration version, data location, holiday calendar |
 
 ### C5.2 Data classes and retention
@@ -945,6 +973,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | Case and report | Reports, evidence, signatures | `[TO VERIFY]` by lawyer and insurer; at least the limitation period |
 | Consent recordings | Videos of sellers, family heads, witnesses | Same as case |
 | Escrow and payment | Escrow records, instructions, receipts | As tax and banking law requires `[TO VERIFY]` |
+| Professional payables and tax | Rate cards, payables, expenses, payment runs, tax deductions | As tax law requires in each country `[TO VERIFY]` |
 | Account | Profile, preferences | Life of account plus `[TO VERIFY]` |
 | Safety | Incident and threat logs | `[TO VERIFY]`; restricted access |
 | Health and care | Hospital invoices, care plans, visit records, readings, carer concerns | `[TO VERIFY]`; restricted access, own encryption key |
