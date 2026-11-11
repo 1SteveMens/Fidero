@@ -8,12 +8,12 @@ How Fidero builds, ships, runs, watches, recovers and secures the platform. This
 |---|---|
 | Document | 06 of 6 in `docs/specs/` |
 | Title | Deployment and Operations |
-| Version | 0.4 |
-| Date | 7 November 2026 |
+| Version | 0.5 |
+| Date | 11 November 2026 |
 | Status | Draft. For review. Not yet baselined |
 | Owner | Product and engineering lead |
 | Approver | Founder, acting as product owner |
-| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01), version 0.6 |
+| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01), version 0.8 |
 | Other sources | `docs/decisions/2026-11-01-diaspora-platform.md`; `docs/product/architecture.md` sections 9 and 10; documents 02 to 05 of this set |
 | Review cycle | Before each release gate (R1, R2, R3) and after every SEV1 or SEV2 incident |
 
@@ -23,6 +23,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 
 | Version | Date | Author | Change |
 |---|---|---|---|
+| 0.5 | 11 November 2026 | Product and engineering lead (draft) | Aligned to 01 v0.8: professional payments (BR-23, F-37, FR-PRO-001 to FR-PRO-010, RUL-26, RUL-27). Payment run operations (6.7): weekly schedule and cut-off, preparer and a different approver with payment rights, upload in the operating bank's portal, reconciliation, holidays and a manual fallback. Roles for payment run preparer and approver (6.1). Kill switch `pro.payment_runs_paused` (2.6). SLO-24 (professional pay on time). Alerts AL-48 to AL-52: overdue payables, failed payment lines, rate card change in production, unusual expense volume, payment run integrity. Invariant check 7 (no path between client money and professional pay). Runbooks RB-40 (failed or wrong payment run) and RB-41 (a professional disputes pay). Bank notification for a wrong bulk file. Access rules: operating account credentials and keys kept apart from release instruction keys (12.1, 12.4, 12.5). Data operations for the professional payables and tax class (13.1, 13.6). Fidero's operating bank in the vendor table (15). R1 readiness items (16.1). Errand line: agents paid by Fidero; Fidero's charge through the payment provider (0.3). Issues 32 to 36. |
 | 0.4 | 7 November 2026 | Product and engineering lead (draft) | Aligned to 01 v0.6: both app stores, React Native, client app. Mobile release pipeline for both apps on both stores (4.8): CI builds for iOS and Android, signing key and certificate custody for Apple and Google, TestFlight to App Store phased release, Play internal to closed to staged rollout, store review lead time, expedited review and halt procedures. Over-the-air JavaScript update policy (4.10). App version support for both apps and platforms with minimum-version enforcement (3.5, FR-APP-006). Push credentials (APNs, FCM) in custody and rotation. SLO-15 widened and SLO-23 added; AL-31 widened and AL-43 to AL-47 added (crash and ANR rates per platform, store ratings, attestation failures, push credentials, store notices). RB-19 updated; RB-35 to RB-39 added (store rejection, emergency halt on each store, rotate push credentials, revoke a signing certificate, raise the minimum app version). Data location register, vendors (IF-12), security operations, cost and R2 readiness (both stores' approval) updated. Issues 7 and 13 resolved by 01 v0.6; issues 28 to 31 added. |
 | 0.3 | 1 November 2026 | Product and engineering lead (draft) | Aligned to 01 v0.4: runner cash route removed (the runner cash flag and the runner-pays step in RB-27 removed; IF-10 row updated; RB-27 marks institutions not eligible for direct payment); account-name sources for FR-ESC-015 with no override (RB-27, RB-28, DR-E fallback in 10.5, checklists); 72-hour reviewer decision, second-person check of call confirmations and code lockout (AL-35, RB-30); owner's written mandate for rent statement lines (`lines.pmg`, RB-31); both premium routes (`lines.ins`, DR-E fallback in 10.5, checklist); fresh search scoped to purchases (invariant check 1); retention classes aligned to 01 C5.2 (13.1); data protection authority per country and Q-21; field app naming; issues 16, 17, 19, 21 and 27 resolved, 22 and 26 partly. |
 | 0.2 | 1 November 2026 | Product and engineering lead (draft) | Updated for document 01 v0.3 and `docs/decisions/2026-11-01-diaspora-platform.md`: multi-country operations (2.7); flags per product line and per country; SLO-17 to SLO-22; AL-33 to AL-42; RB-26 to RB-34; SEV examples for the new lines and a people-first welfare process (9.8); sensitive data classes and a per-country data location register (13); A9 metrics by country (8.6); IF-10 and IF-11 vendor operations (15); readiness checklists R1 to R3 updated and an "open a country" checklist added (16.4); second-country cost assumption (14.4); issues list for document 01 refreshed (17). Also reflects document 01 v0.2 fixes: maintenance cap, two data centres within allowed locations, KMS-signed instruction, second administrator, device key revocation |
@@ -81,7 +82,8 @@ This document creates no new functional requirement IDs. Where operations needs 
 | RUL-22, FR-ESC-015 | Release only to a payee whose account name matches the verified payee | SLO-20, AL-33, RB-28, 8.6 invariant check 3 |
 | BR-18, RUL-23, FR-CARE-001 to FR-CARE-006 | Care visits confirmed by check-in and the family; missed visits and concerns raised the same day | 2.6 (`lines.care`), SLO-18, AL-35, AL-36, 9.1, 9.8, RB-29, RB-30 |
 | BR-19, RUL-24, FR-PMG-002, FR-PMG-003 | Rent to the owner's own account, never Fidero; late rent alerts | 2.6 (`lines.pmg`), SLO-19, AL-37, RB-31, 8.6 invariant check 4 |
-| BR-20, FR-TSK-001 to FR-TSK-005 | Errands by vetted agents; fees to the agency; completion proven by the document | 2.6 (`lines.tsk`), AL-38, 13.1 |
+| BR-20, FR-TSK-001 to FR-TSK-005 | Errands by vetted agents; fees to the agency; completion proven by the document; Fidero's charge through the payment provider (FR-TSK-002); agents paid by Fidero under PRO, never from client money (FR-TSK-003) | 2.6 (`lines.tsk`), AL-38, 6.7, 13.1 |
+| BR-23, RUL-26, RUL-27, FR-PRO-001 to FR-PRO-010 | Fidero pays the professionals it contracts from its own operating account, for accepted work, in two-person payment runs, with tax per country; never from client money; pay never depends on the verdict | 2.6 (`pro.payment_runs_paused`), 6.1, 6.7, SLO-24, AL-48 to AL-52, 8.6 invariant check 7, 9.7, RB-40, RB-41, 12.1, 12.4, 12.5, 13.1, 13.6, 15, 16.1 |
 | BR-21, IF-11, FR-INS-001 to FR-INS-004 | Insurer partner lines | 2.6 (`lines.ins`), SLO-22, AL-39, RB-32, RB-34, 15 |
 | BR-22, FR-EVT-001 to FR-EVT-003 | Events and ceremonies (R3) | 2.6 (`lines.evt`), 16.3 |
 | FR-ADM-003, FR-ADM-005 | Second administrator for bank details and release-affecting settings | 2.5, AL-23, AL-34, RB-27 |
@@ -259,6 +261,7 @@ Flags let code ship before a business dependency is met. A flag is a switch, not
 | `country.<code>` (`country.ng` first, then `country.ke` `[TO VERIFY]` order, Q-15) | Off | The country has passed its manual phase and 90-day validation (C-13, AS-13); its data location ruling is recorded and met (FR-CTY-002); its partners are contracted; RB-26 and the 16.4 checklist are complete. Assumed from month 12 for country 2 | Founder plus one other administrator | BR-14, FR-CTY-001 to FR-CTY-004, 2.7 |
 | `maintenance.read_only` | Off | Planned maintenance or an incident needs writes stopped | Any on-call engineer (a kill switch) | 5.8, 9 |
 | `escrow.instructions_paused` | Off | A suspected wrong instruction, a bank channel fault or a security incident | Any on-call engineer or reviewer (a kill switch) | RB-08, RB-24 |
+| `pro.payment_runs_paused` | Off | A suspected wrong payment run, a fault in the bulk file or its channel, or a suspected compromise of the operating account | Operations lead, any reviewer or any on-call engineer (a kill switch); switching it back on needs the founder | 6.7, RB-40, AL-52 |
 
 Flag rules:
 
@@ -266,6 +269,7 @@ Flag rules:
 - **Country scope.** Every `lines.*` flag has a value per country as well as a platform value. A line is on in a country only when the platform value is on, `country.<code>` is on, and the country's own value for that line is on. So `lines.fee` can be on for Ghana and off for country 2 until country 2 has verified institutions and a bank. Each country value is a safety flag in its own right and needs two people to switch on.
 - **Insurer lines stay off** in every country until that country's insurer contract and any licence exist (C-11). No exception is made for a pilot, because a premium collected by Fidero is a SEV1 (9.1).
 - **One stop button.** `escrow.instructions_paused` and `maintenance.read_only` cover every line and every country. There is no per-line pause, so nobody has to remember which switch to pull.
+- **Professional pay has its own stop.** `pro.payment_runs_paused` stops preparing, approving and issuing payment runs. It is separate on purpose: payment runs are Fidero's own money, kept apart from client money (RUL-27). `escrow.instructions_paused` does not stop payment runs, and `pro.payment_runs_paused` does not stop releases. In a security incident that may touch both, pull both.
 - Flags are tested both on and off in CI. Document 05 holds the test cases.
 - A flag that has been on in production for 90 days is removed from the code in the next release, unless it is a kill switch.
 - The flag state is shown on the "Platform health" dashboard (8.4), with the per-country values on the "Country" dashboard.
@@ -774,6 +778,8 @@ The team in R1 is assumed to be one product and engineering lead and two develop
 | Release manager | Whoever starts a deploy | Runs the release checklist (5.2) |
 | Operations lead | Senior case manager `[TO VERIFY]` | Tier 1 owner; owns client communication during incidents; enters bank confirmations in R1 |
 | Release approvers | Reviewers with release rights | The two-person release approval (RUL-05). They are not engineers, so engineering access does not grant release rights and release rights do not grant engineering access |
+| Payment run preparer | Case managers named by the operations lead | Prepares professional payment runs, imports the bank's confirmation and resolves failed lines (6.7). Never approves a run they prepared |
+| Payment run approver | Reviewers or administrators with payment rights, granted by two administrators (document 02, 6.4) | Approves runs with the second factor and uploads the file in the operating bank's portal. Never a contracted professional. Payment rights and release rights are separate grants |
 | Data protection lead | Founder until a dedicated person is named `[TO VERIFY]` | Breach notifications, data subject requests, legal holds, retention sign-off |
 | Security lead | Product and engineering lead | Access reviews, vulnerability management, pen tests |
 | Bank relationship owner | Founder | Bank notifications and format changes, for every country's bank |
@@ -886,6 +892,27 @@ The live contact list is kept in the on-call tool and in a printed copy in the o
 | Country 2 payment, SMS, WhatsApp and identity providers | | | | | | |
 | Country 2 data protection regulator (breach contact) | | | | | | |
 | Country 2 emergency services numbers `[TO VERIFY]` | | | | | | |
+| Fidero's operating bank: business banking desk and bulk payments support (Q-26) | | | | | | |
+| Mobile money provider for professional pay, if used `[TO VERIFY]` | | | | | | |
+| Accountant (withholding tax rules and remittance, Q-25) | | | | | | |
+
+### 6.7 Professional payment runs (FR-PRO-005 to FR-PRO-009, RUL-27)
+
+Fidero pays the lawyers, surveyors and runners it contracts (and from R2 inspectors, quantity surveyors and errand agents) from its own operating account. This is Fidero's money, not client money. Nothing here touches an escrow or held funds.
+
+| Item | Rule (assumptions until the first quarter of runs) |
+|---|---|
+| Schedule | One run a week per country, on Thursday. Weekly keeps accepted work inside the 10-working-day target (FR-PRO-008, SLO-24) even when acceptance falls just after a cut-off. Twice a month only if volumes are very small and SLO-24 still holds |
+| Cut-off | Thursday 12:00 local time: approved payables and expenses up to then join the run. Runner months close on the first working day of the next month and join that week's run |
+| Preparer | A case manager named by the operations lead, with `pro.prepare_run`. Prepares by 14:00, checks items left out (payee not verified, held, exception not approved) and sends the run for approval |
+| Approver | A different person with payment rights (reviewer or founder). Approves by 16:00 with the second factor, downloads the file and uploads it in the operating bank's portal before the bank's cut-off `[TO VERIFY]` (TQ-27 in document 02). Where the bank offers dual authorisation, a second bank user authorises |
+| Confirmation | The preparer imports the bank's confirmation the next working day by 12:00. Failed and unconfirmed lines follow RB-40. Remittance advices go out on confirmation. Until the import ships (US-PRO-009, R2-C in document 04), the preparer ticks each line against the bank's confirmation and a second person checks it |
+| Alerts by release | AL-50 and AL-52 from the first run. AL-49 when the confirmation import ships, AL-51 with expense claims (US-PRO-004) and AL-48 with the overdue job (US-PRO-008). Until then the weekly operations review covers them by hand |
+| Holidays | A run due on a public holiday in that country (holiday calendar, FR-CTY-001) moves to the previous working day. Runs never wait for another country's calendar |
+| Countries | Each country has its own runs, operating account and currency. No run pays across a border (C-12) |
+| Channel in R1 | The bulk file only (document 04, 5.1). No bank API. If the bank rejects the file format, staff key each line from the approved run in the bank's portal, and a second person checks each one against the run's lines and hash (RB-40) |
+| Never | A payment to a professional outside a run, an edit to a paid line, a run approved by its preparer, a payment from the escrow bank channel, or pay held because of a verdict (RUL-26) |
+| Tax | Withholding as the country configuration sets it; the accountant files and remits by the country's deadlines `[TO VERIFY]` (Q-25) and receives a monthly export of deductions |
 
 ---
 
@@ -920,6 +947,7 @@ SLOs are internal targets. They are not contractual promises to clients. Each SL
 | SLO-21 | Per-country availability | SLO-01 measured separately for each live country's hostnames or stack, excluding that country's announced maintenance within the 4-hour monthly cap (NFR-AVL-01) | 99.5% per country per calendar month | External synthetic checks per country | NFR-AVL-01, FR-CTY-002 | R2 (when country 2 is live) |
 | SLO-22 | Insurer hand-off | Share of completed applications and premium payment confirmations passed to the insurer within 1 working day, and policy documents stored within the insurer's agreed time `[TO VERIFY]` | 99% | Insurer integration log | FR-INS-002, FR-INS-003, IF-11 | R2 |
 | SLO-23 | Push delivery to the stores' services | Share of push requests accepted by APNs and FCM, excluding tokens the user has revoked | 99% `[TO VERIFY]` | Push send log (`ntf_message` with channel `push`) | FR-APP-002, FR-NTF-005 | R2 |
+| SLO-24 | Professional pay on time | Share of accepted payables and approved expense claims paid (line confirmed by the bank) within 10 working days of acceptance or approval, per country (FR-PRO-008) | 95% `[TO VERIFY]`; any payable held for a reason that is a result of the work counts as a breach (RUL-26) | `pro_payable`, `pro_expense_claim` and `pro_payment_line` timestamps | FR-PRO-008, BR-23 | R1 |
 
 ### 7.2 Error budgets
 
@@ -1061,6 +1089,11 @@ The incident severity (SEV1 to SEV4) is set by the person who responds, using 9.
 | AL-45 | Attestation failures (R2) | Fidero Field registration or integrity check failures above twice the 7-day baseline, per platform; or any Play Integrity or App Attest service error for 15 minutes | P2 | On call and reviewer | RB-07, RB-36 |
 | AL-46 | Push credentials (R2) | APNs or FCM rejects Fidero's credentials, push acceptance below SLO-23 for 30 minutes, or a push credential or the Apple distribution certificate expires within 30 days | P2 (P3 for expiry notice) | On call | RB-37 |
 | AL-47 | Store notice (R2) | A store rejects a submission, sends a policy warning or removal notice, or flags the Data safety form or privacy label | P2 | Release manager, lead and founder | RB-35 |
+| AL-48 | Payables overdue | Any payable or approved expense past its due date (10 working days after acceptance, assumption); daily count by country, and SLO-24 below target for the week | P3 | Operations lead | 6.7; RB-41 when a professional chases |
+| AL-49 | Failed payment lines | A confirmation import marks any line failed, or an issued run has no confirmation by 12:00 the next working day | P2 | Operations lead and the run's preparer | RB-40 |
+| AL-50 | Rate card change in production | Any rate card version approved; any change to expense limits or tax rules in a country configuration; any write to `pro_rate_card` or `pro_scope` outside the approval flow | P3 for an approved change (founder and operations lead told the same day); P1 for a write outside the flow | Founder and operations lead; on call and lead for P1 | RB-21 for P1 |
+| AL-51 | Unusual expense volume | In a week, claims by one professional or total claim value above twice the 8-week average; more than 3 claims without a receipt from one person in a month; a receipt hash seen before (assumptions) | P3 | Operations lead and a reviewer | RB-41 step 2 (check the facts); RB-27 if a payee looks wrong |
+| AL-52 | Payment run integrity | Invariant check 7 fails; a downloaded bulk file's hash differs from the approved run; the operating account's secret is read by any role other than PRO's integration job | P1 | On call, lead and founder | RB-40, RB-21 |
 
 Alert hygiene rules:
 
@@ -1139,6 +1172,7 @@ The operating dashboard (FR-ANL-001) is a product feature. Operations also watch
 | Policies sold through insurer partners, claims paid, by country | Any premium amount in Fidero's own reconciliation (must be 0); renewals missed | AL-39; invariant check 4; monthly with the insurer |
 | Metrics by country (FR-CTY-003) | Activity in a country whose `country.<code>` flag is off; a live country with no activity for 5 working days | Daily automated check (P2 if found); weekly review |
 | Client satisfaction | Drop after a release | Monthly |
+| Professional pay: payables accepted, paid within target, overdue, held; expense claims; cost per report from payables, by country and role | Overdue rising; failed lines; a claims spike; a hold with no fraud or misconduct reason | SLO-24; AL-48, AL-49, AL-51; weekly operations review |
 | Safety incidents | New entries in the restricted incident log | Operations lead; not routed to engineering |
 
 **Invariant checks** run every hour in production and page (P1) on any failure, because they check money and safety rules in live data, which tests alone cannot do:
@@ -1150,8 +1184,9 @@ The operating dashboard (FR-ANL-001) is a product feature. Operations also watch
 4. No payee on any instruction, and no collection account shown to a client, is a Fidero-owned account; every premium instruction names the insurer's account and every rent record names the owner's own account (RUL-01, RUL-24, RUL-25). (R1; extended to rent and premiums in R2)
 5. No carer or agent payment release references a visit or task without a confirmation record from the family or the resulting document, and no repair release lacks an inspection record (RUL-23, FR-PMG-005). (R2)
 6. No record was read across countries in the last hour by a role without cross-country rights (FR-ACC-007). (R2, when country 2 is live)
+7. No release instruction names a `contracted_professional` payee; no payment line names any other payee kind, or a payee that is not verified with a matched name; no payment run debits an account that is not an operating account; no run was approved by its preparer (RUL-27, FR-PRO-005, FR-PRO-006). (R1)
 
-Checks 1, 2 and 4 raise AL-11. Check 3 raises AL-33. Check 5 raises AL-35 at P1. Check 6 raises AL-41 at P1. A check for a line that is off in every country reports "not applicable", never "pass".
+Checks 1, 2 and 4 raise AL-11. Check 3 raises AL-33. Check 5 raises AL-35 at P1. Check 6 raises AL-41 at P1. Check 7 raises AL-52. A check for a line that is off in every country reports "not applicable", never "pass".
 
 ---
 
@@ -1320,6 +1355,7 @@ Special cases:
 | Personal data breach involving escrow parties | Yes, as agreed in the bank agreement `[TO VERIFY]` | Founder to relationship manager | Within 72 hours `[TO VERIFY]` |
 | Premium, rent or other money that landed in a Fidero account or in an escrow it should not be in | Yes | Phone to the operations desk; return instruction with two-person approval; written record | Same bank working day (RB-31, RB-32) |
 | Payee account-name mismatch where the bank's name record may be wrong | Yes | Phone to the operations desk; the bank confirms the account holder to a named approver | Before any release to that payee (RB-28) |
+| Wrong, duplicate or unauthorised bulk payment file for professionals | Fidero's operating bank (not the escrow bank, unless invariant check 7 also failed) | Phone to the business banking desk to cancel or recall, then written request (RB-40) | Immediately |
 
 The same steps apply to each further country's bank, through that country's contacts (6.6).
 
@@ -1532,6 +1568,8 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
 | RB-37 | Rotate APNs and FCM credentials (R2) | Schedule (12.4); AL-46; staff exit; suspected exposure |
 | RB-38 | Revoke a compromised signing certificate or key (R2) | Suspected exposure of the Apple distribution certificate, the Play upload key or the App Store Connect API key; AL-23; AL-26 |
 | RB-39 | Raise the minimum app version (R2) | Security fix; signature or attestation change; end of a support window (3.5) |
+| RB-40 | Failed or wrong payment run | AL-49, AL-52; a professional or the bank reports a wrong payment |
+| RB-41 | A professional disputes pay | A complaint from a lawyer, surveyor, runner, inspector, quantity surveyor or errand agent; AL-48 |
 
 ### RB-01 Production deploy
 
@@ -2029,6 +2067,34 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
   7. To undo, lower the minimum the same way.
 - **Done when:** the new minimum is live, the old version shows the update screen, and no queued evidence was lost.
 
+### RB-40 Failed or wrong payment run
+
+- **Who:** operations lead and the run's preparer; the approver; the lead for a system fault; the founder for any wrong amount or wrong payee. Failed lines are SEV4; a wrong amount is SEV3; money sent to an account not in the professional's name is SEV2; any sign that client money was used is SEV1.
+- **Steps:**
+  1. Failed lines (AL-49): read the bank's reason. For a closed or wrong account, the professional's payables are held as `payee_not_verified`. Ask the professional for new details and re-verify through RB-27 with a second person. Never change the account on the line.
+  2. Move each failed line to the next run (resolution `next_run`). It is paid once. If the professional needs the money sooner, prepare an extra run the same day under the same two-person rule.
+  3. Unconfirmed lines: ask the bank for a confirmation or a letter. A second person checks the letter before the line is marked confirmed.
+  4. Wrong run (wrong amount, duplicate, or a file that does not match the approved run): switch on `pro.payment_runs_paused`. If the bank has not processed the file, ask it to cancel (9.7). If it has: an underpayment is paid by a correction line in the next run; an overpayment is recovered as the professional's agreement and the accountant allow `[TO VERIFY]`. Never edit a paid line.
+  5. Wrong payee (money sent to an account not in the professional's name): treat as possible fraud. Ask the bank to recall. Freeze that payee. Find who changed the details and when (audit log). Follow RB-21 if a credential may be compromised.
+  6. Confirm that no client money was involved: the debit account was the operating account and invariant check 7 passes. If not, this is SEV1: follow RB-24 and tell the escrow bank (9.7).
+  7. Tax: if withholding was wrong, tell the accountant, correct by a new line and a corrected remittance advice, and regenerate the yearly statement if it was already issued.
+  8. Resume runs only when the cause is fixed and the founder agrees.
+- **Done when:** every professional has been paid the right amount once, every correction is a recorded line, and the review is complete.
+
+### RB-41 A professional disputes pay
+
+- **Who:** operations lead; a reviewer who did not prepare or approve the run concerned; the founder for a disagreement about a rate.
+- **Steps:**
+  1. Log the dispute with the professional's name, the payable or line, and what they expected. Acknowledge within 2 working days (assumption).
+  2. Check the facts: does the payable exist; when was the work accepted; which rate card version was in force at assignment; the quantity; the tax withheld and its configuration version; any expense decision; the run and the bank reference.
+  3. Missing payable: check the work was accepted (section signed and passed second review, inspection submitted, bill of quantities accepted, errand document checked, or month closed). If it was accepted and no payable exists, it is a defect: raise it, fix it, and pay by a correction line. If it was not accepted, explain what acceptance needs. Never create a payable by hand outside the flow.
+  4. Rate: the rate is the card in force when the work was assigned. A disagreement about the rate itself is a contract matter for the founder. A new rate is a new card version approved by a second administrator, from its start date. There is no one-off override.
+  5. Verdict: if the professional says pay was cut or held because of a red verdict or a failed inspection, check RUL-26. Pay never depends on the result. A held payable must show a fraud or misconduct reason recorded by a reviewer; if it does not, release it and open an incident.
+  6. Tax: show the rule and its configuration version. Refer questions on the law to the accountant.
+  7. Bank: if the bank shows the line paid but the professional did not receive it, give them the bank reference and ask the bank to trace it.
+  8. Reply in writing with the result and any correction. Record the outcome for the monthly review.
+- **Done when:** a written answer is sent, any correction is paid in a run, and the case is recorded.
+
 ---
 
 ## 12. Security operations
@@ -2043,7 +2109,8 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
 | Data access | No engineer reads production personal data by default. Read access to the database goes through a logged bastion-less session (ECS Exec or Session Manager) with a ticket reference |
 | Application staff | Roles per document 01 C2; MFA for all staff (FR-ACC-003); 30-minute idle timeout (NFR-SEC-02); access scoped to the user's country (FR-ACC-007). Cross-country rights only for the founder, named administrators and the lead's read-only access; each grant raises AL-23 and is listed in the quarterly review |
 | Sensitive classes | Care visit records, health invoices, insurance applications, errand documents and tenant data (13.1) are readable only by the assigned case manager, the reviewer on the case, the data protection lead and the person concerned. They are excluded from CSV exports (FR-ANL-002) and appear on dashboards only as counts. Every read is logged and the weekly sample review (12.7) includes 5 of them |
-| Separation of duties | Engineers do not hold release rights. Release approvers do not hold AWS access. Administrators cannot edit the audit log (FR-AUD-002) |
+| Separation of duties | Engineers do not hold release rights or payment rights. Release approvers do not hold AWS access. Administrators cannot edit the audit log (FR-AUD-002). A payment run preparer never approves the same run; a contracted professional never holds payment rights |
+| Operating account (PRO) | Fidero's operating bank and mobile money portal users are named staff with payment rights, each with the bank's own two-step sign-in, and dual authorisation where the bank offers it. They are kept apart from release instructions: operating account credentials and the escrow bank channel are separate secrets, read by separate task roles (PRO's integration job; ESC's dispatch job), and `kms/release-signing` cannot be used by the PRO job. A person may hold both release rights and payment rights, but no shared login, token or key serves both. Payment rights and bank portal users are in the quarterly access review |
 | Break-glass | Two break-glass identities in `fidero-management` with hardware MFA. Credentials sealed, split between the founder and the lead, stored in the office safe and a second location `[TO VERIFY]`. Use raises AL-23 (P1). Every use is reviewed within 2 working days |
 | Root accounts | Root MFA on every account; root credentials unused; use raises AL-23 |
 | Quarterly access review | The lead and founder review every AWS, GitHub, vendor console and application staff account and role. Removals are done the same day. The review is recorded |
@@ -2089,6 +2156,7 @@ All targets are assumptions. Sources: CI scanners, ECR scans of running images, 
 | App Store Connect API key | Yearly, on staff exit, or on compromise | RB-38 |
 | APNs authentication key | Yearly, on staff exit with access, or on suspected exposure | RB-37 |
 | FCM service account key | Yearly, on staff exit with access, or on suspected exposure | RB-37 |
+| Operating bank portal users and any mobile money API key for professional pay | Per the bank's policy, on staff exit, or on suspected exposure | RB-06; never stored with the escrow bank channel credentials |
 | Break-glass credentials | After every use and yearly | Lead and founder |
 | Institution portal or file-drop credentials (IF-10, R2) | Yearly, or on staff exit or suspected exposure | RB-34 |
 | Insurer API keys, file-transfer keys and portal accounts (IF-11, R2) | Yearly with notice to the insurer, or on suspected exposure | RB-34 |
@@ -2107,6 +2175,7 @@ The secrets register lists every secret, owner, last rotation and next due date.
 | `kms/secrets` | Secrets Manager | Symmetric |
 | `kms/release-signing` | Signing release instructions (FR-ESC-008), if the bank accepts digital signatures `[TO VERIFY]` | Asymmetric, sign-only. Only the `integrations` worker role can call `Sign`, and only for an instruction with two recorded approvals |
 | `kms/report-signing` | Optional signature over report hashes `[TO VERIFY]` design choice in document 02 | Asymmetric |
+| `kms/pro-files` | Encrypting bulk payment files and confirmation files at rest. Only PRO's integration task role can use it; it signs nothing. That role cannot use `kms/release-signing` | Symmetric, per country |
 | `kms/<class>-<code>` | Per-country keys for database data, evidence and backups, so a country's data can be separated, moved or erased on its own (2.7, FR-CTY-002) | Symmetric; in the country's own account under pattern B |
 | `kms/sensitive-<code>` | Care visit records, health invoices, insurance applications, errand documents and tenant data (13.1), so they can be crypto-shredded on their shorter retention without touching case data | Symmetric, per country |
 
@@ -2170,6 +2239,7 @@ AWS threat detection service, Security Hub (with the AWS Foundational Security B
 | Identity documents (C5.2, R2): passports, ID cards and certificates handled in errands, with application forms and result documents. Sensitive | Short by design: deleted from Fidero storage 7 days `[TO VERIFY]` after handover is recorded (FR-TSK-005), unless the client asks to keep a copy, then the account class | Delete the files; keep the step record and receipts | Nightly; AL-38 if held longer |
 | Insurance (C5.2, R2): applications (health declarations, beneficiary details) and policy documents. Sensitive | Policy life plus `[TO VERIFY]` (01 C5.2). Assumption: the application itself is kept only until the insurer confirms receipt plus 30 days `[TO VERIFY]`; the policy document is kept for the policy life plus the period | Delete the application; keep policy reference, renewal date and claim contact | Nightly |
 | Audit | At least as long as the longest class it covers (NFR-AUD-01) | Nothing to anonymise in the entry itself: audit rows hold IDs and keyed hashes, not personal values (document 02). Erasure of the person's data elsewhere (crypto-shredding of their data key) leaves the chain valid | Not applicable |
+| Professional payables and tax (C5.2): agreements, rate cards, payables, expense claims and receipt photos, payment runs and bulk files, tax deductions, remittance advices and yearly statements | As tax law requires in each country `[TO VERIFY]` (Q-25), counted from the end of the tax year of the payment | Keep amounts, dates, tax, run and bank references; delete receipt photos and anonymise the professional's contact details after the period; bank details follow the payee record (RB-27) | Nightly |
 | Marketing leads | 24 months from last contact (assumption in C5.2) | Delete | Nightly |
 | Operational logs | 8.5 | Lifecycle rules | Automatic |
 | Exports | 7 days | Lifecycle rule | Automatic |
@@ -2239,7 +2309,7 @@ The full register follows. Each row is repeated per country where the location d
 
 ### 13.6 Data fixes
 
-Data fixes in production use a reviewed management command with a dry-run mode, a ticket reference, and an audit entry per changed record. Raw SQL updates in production are not allowed outside a declared incident, and then only with two people watching.
+Data fixes never change a paid payment line, a payable's amount or rate, or a rate card version; corrections to professional pay are new lines in a run (RB-40). Data fixes in production use a reviewed management command with a dry-run mode, a ticket reference, and an audit entry per changed record. Raw SQL updates in production are not allowed outside a declared incident, and then only with two people watching.
 
 ---
 
@@ -2325,6 +2395,7 @@ A third country adds the same again. Pattern B's cost is the reason the lawyer's
 | IF-09 | Lands Commission | None | Runners in person | None | Manual in all releases (AS-07). No platform dependency | Not monitored |
 | IF-10 | Institutions: schools, hospitals, clinics, pharmacies, agencies, utilities `[TO VERIFY]` per institution (Q-16) | None | Named contact in the institution record (FR-FEE-001) | Receipt return time agreed per institution `[TO VERIFY]` (SLO-17) | R1: invoices and receipts by manual upload. R2 portal or file: fall back to upload with a second-person check. If an institution cannot receive a bank transfer, it is marked not eligible for direct payment and there is no cash route; a runner may only collect invoices and deliver receipts (FR-FEE-006) | SLO-17, AL-34 |
 | IF-11 | Insurer partners, one or more per country `[TO VERIFY]` (Q-17) (R2) | The insurer's own, if any | Insurer operations desk and claims contact (6.6) | Application and policy document turnaround `[TO VERIFY]` in the agreement (SLO-22) | Hold applications. Premiums always go from the client to the insurer's account, so nothing is stuck with Fidero. Renewals chased by phone. `lines.ins` off if the insurer cannot process | SLO-22, AL-39 |
+| — (no IF ID in 01; issue 33) | Fidero's operating bank, and a mobile money provider if runners are paid that way `[TO VERIFY]` (Q-26) | None expected; business banking desk | Named desk and relationship manager (6.6) | Bulk file processing and confirmation times `[TO VERIFY]` | Staff key each line from the approved run, checked by a second person (6.7) | AL-49, AL-52 |
 | — | AWS | AWS Health Dashboard | AWS support plan | AWS service terms | DR plan (10.5) | AWS Health events to the engineering channel |
 | — | GitHub | GitHub status page | GitHub support | GitHub terms | Deploys wait; emergency deploy of an existing signed image through a documented break-glass AWS path `[TO VERIFY]` | Manual |
 | IF-12 | Apple App Store and Google Play (R2) | Apple Developer System Status; Google Play status | App Store Connect and Play Console support; Apple expedited review requests (4.8) | Apple and Google developer terms | Clients use the phone-first portal; field users keep the installed version, whose queue works offline. No side-loaded builds (4.8) | AL-31, AL-43 to AL-47 |
@@ -2357,14 +2428,15 @@ A release cannot go live until its operational readiness checklist is complete a
 - [ ] Amount held at the bank and the running statement (FR-ESC-014) reconciled against the bank's figure in UAT; the bank agrees the statement wording.
 - [ ] Health and care data class (01 C5.2, 13.1) live with its own key and access limits before the first hospital payment.
 - [ ] `lines.ins` confirmed off in every country; no insurer product shown anywhere in R1.
-- [ ] SLO-01 to SLO-14, SLO-17 and SLO-20 measured on dashboards for at least 2 weeks in staging or production soft launch.
-- [ ] All R1 alerts (AL-01 to AL-34 and AL-40 to AL-42, except the R2 alerts AL-10, AL-17 and AL-31) tested by forcing each condition once; runbook links work.
+- [ ] SLO-01 to SLO-14, SLO-17, SLO-20 and SLO-24 measured on dashboards for at least 2 weeks in staging or production soft launch.
+- [ ] All R1 alerts (AL-01 to AL-34, AL-40 to AL-42, AL-50 and AL-52, except the R2 alerts AL-10, AL-17 and AL-31) tested by forcing each condition once; runbook links work.
 - [ ] On-call tool live; rotation set; contact list complete and checked; paging tested on Ghana and roaming numbers.
-- [ ] Runbooks RB-01 to RB-06, RB-08, RB-10 to RB-18, RB-20 to RB-25, RB-27, RB-28 and RB-33 written and each walked through once.
+- [ ] Runbooks RB-01 to RB-06, RB-08, RB-10 to RB-18, RB-20 to RB-25, RB-27, RB-28, RB-33, RB-40 and RB-41 written and each walked through once.
 - [ ] Quarterly-style full database restore done and timed; evidence version restore done.
 - [ ] Region failover test (10.7) done once, with RTO and RPO measured.
 - [ ] Release instruction format, channel and call-back agreed with the bank in writing; test instructions exchanged; recall procedure and contacts known.
-- [ ] Invariant checks 1 to 4 (8.6) running hourly.
+- [ ] Invariant checks 1 to 4 and 7 (8.6) running hourly.
+- [ ] Professional pay ready (6.7): Fidero's operating account registered as an operating account, distinct from every escrow and held-funds account; bulk file accepted by the bank (document 05 PAT-24 to PAT-28) or the manual fallback agreed in writing; payment rights granted by two administrators; Ghana's tax rules signed by the accountant and loaded as configuration; `pro.payment_runs_paused` tested; first run rehearsed on staging (document 05 OAT-17).
 - [ ] Retention job dry run reviewed; legal hold procedure tested.
 - [ ] Breach response tabletop done with the lawyer; Act 843 timings confirmed or recorded as `[TO VERIFY]`.
 - [ ] Independent pen test passed with no open high or critical findings (NFR-SEC-03).
@@ -2500,3 +2572,8 @@ Items raised in version 0.1 of this document and fixed in document 01 v0.2 or v0
 | 29 | IF-12 | "Store accounts held by Fidero" does not say who holds the account holder role, how access is shared, or that two people approve a store release. Losing the account holder loses the apps. | Add an operational requirement on store account ownership, two-person release and recovery (4.8, 12.1). |
 | 30 | FR-APP-006, FR-MOB-005 | "Without losing queued evidence" does not say how long evidence captured on an older version is accepted after the minimum is raised. | State the window in 01; this document uses 30 days `[TO VERIFY]` (3.5). |
 | 31 | FR-APP-004, RUL-11 | In-app account deletion does not say what happens to open escrows, money held at the bank or standing approvals, and FR-APP-002 adds push without FR-NTF-001 naming push as a channel. | State the deletion rule for open money matters and add push to FR-NTF-001 and FR-NTF-004 (13.5, SLO-23). |
+| 32 | C2, FR-PRO-005 | A payment run is approved by "a different one with payment rights", but C2 defines only release rights. Operations cannot say who may approve or upload a run. | Define payment rights in C2: who holds them, granted by two administrators, never with a contracted role. This document assumes reviewers and the founder (6.1). |
+| 33 | C6, Q-26 | No interface ID covers Fidero's operating bank or mobile money provider, which receives the bulk payment file. IF-01 is the escrow bank and IF-02 the fee payment provider. | Add an IF row for the operating account (bulk file and confirmation), so its owner, contacts, format and fallback are managed like IF-01 (15). |
+| 34 | FR-PRO-008, C7 | The 10-working-day payment target has no matching operational objective, and nothing says how fast a failed line must be paid again. | Adopt SLO-24 and state a target for failed lines (this document: paid in the next weekly run). |
+| 35 | C5.2 | "Professional payables and tax" is kept "as tax law requires in each country", with no period or anchor date. Receipt photos can show third parties' details. | Set the period and anchor with the accountant (Q-25); delete receipt photos earlier than the amounts (13.1). |
+| 36 | RUL-26 | Pay must never depend on the verdict, but 01 does not say whether pay may be held during a fraud or misconduct review of the same work. RB-41 needs a rule. | State that a reviewer may hold pay only for a recorded fraud or misconduct review, never for a result. This document assumes so. |

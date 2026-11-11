@@ -9,18 +9,19 @@ Every figure in this document is a working assumption, not verified data. That i
 | Item | Value |
 |---|---|
 | Document | 04 of 6 in `docs/specs/` |
-| Version | 0.4 |
-| Date | 7 November 2026 |
+| Version | 0.5 |
+| Date | 11 November 2026 |
 | Status | Draft. For review by the founder as product owner |
 | Owner | Product and engineering lead (once hired). Until then, the founder |
 | Approver | Founder, acting as product owner |
-| Source of truth | [01 Requirements and Product Specification](01-requirements-and-product-specification.md), version 0.6, and the decision record [`docs/decisions/2026-11-01-diaspora-platform.md`](../decisions/2026-11-01-diaspora-platform.md) |
+| Source of truth | [01 Requirements and Product Specification](01-requirements-and-product-specification.md), version 0.8, and the decision record [`docs/decisions/2026-11-01-diaspora-platform.md`](../decisions/2026-11-01-diaspora-platform.md) |
 | Related | [02 Architecture](02-architecture-and-technical-design.md), [03 UI/UX](03-ui-ux-design.md), [05 Testing and Acceptance](05-testing-and-acceptance.md), [06 Deployment and Operations](06-deployment-and-operations.md), [`docs/proposal.md`](../proposal.md), [`docs/validation-plan.md`](../validation-plan.md), [`docs/partners.md`](../partners.md), [`docs/product/architecture.md`](../product/architecture.md) |
 
 ### Change log
 
 | Version | Date | Change | By |
 |---|---|---|---|
+| 0.5 | 11 November 2026 | Aligned to 01 v0.8: professional payments. New epic EP-PRO with US-PRO-001 to US-PRO-010 (42 points: 6 Must stories, 28 points; 4 Should stories, 14 points), all R1. Enablers EN-78 (spike on the operating bank's bulk payment file, 2 points) and EN-79 (tax set-up per country with an accountant, not pointed). US-TSK-002 now pays Fidero's errand charge through the payment provider and official fees into the partner bank; US-TSK-003 has the agent paid by Fidero under EP-PRO. R1 Must plan grows from 408 to 438 points against 417 to the end of S13 under Option A+: 21 points short. Recommendation in 5.1: keep the six PRO Musts in R1, start payment runs as the bulk file only, build them in a new S14 with the contract developer kept one more sprint, and move the four PRO Shoulds to R2 (US-PRO-004 in R2-A; US-PRO-009 in R2-C; US-PRO-008 and US-PRO-010 in R2-D). R1 Shoulds displaced from R2-A move to R2-D. R2 demand 682 against 795 under Option R2-A. WSJF, dependencies, risks DR-41 and DR-42, budget, traceability (BR-23 to F-37 to EP-PRO) and issues I-04, I-29 and I-32 to I-35 updated. | Delivery lead |
 | 0.4 | 7 November 2026 | Aligned to 01 v0.6: both app stores, React Native, client app. New epic EP-APP with US-APP-001a to US-APP-001e and US-APP-002 to US-APP-006 (61 points). US-MOB-001 and US-MOB-002 cover iOS; US-MOB-004 split into US-MOB-004a (Android) and US-MOB-004b (iOS), and US-MOB-002 re-estimated at 8. EN-33 rewritten for React Native; EN-41 superseded (Q-09 answered); enablers EN-64 to EN-77 for store accounts, signing and push credentials, test tracks, listings, privacy disclosures, the financial declaration, native-module and performance spikes, a submission rehearsal, the store payment position and a client app usability test. R2 "Android developer" becomes "mobile developer (React Native)". R2 capacity recomputed: 638 points of demand against 651 with one mobile developer (2% spare); Option R2-A, keeping the contract developer through R2, is recommended. Store review buffers, milestones M-37 to M-39, risks DR-35 to DR-40 (DR-07 closed), RACI, budget, go/no-go and traceability (F-36, EP-APP) updated. Issues I-29 to I-31 added. | Delivery lead |
 | 0.3 | 1 November 2026 | Aligned to 01 v0.4: runner cash route removed (US-FEE-006 rewritten for institutions not eligible for direct payment and a paper-only runner task; estimate kept at 3 points, so EP-FEE, the R1 totals and the capacity figures are unchanged; DR-31 rewritten); fresh search scoped to purchases (US-ESC-006); standing approvals for care visits and errand steps (US-CARE-001, US-CARE-004, US-TSK-003); account-name sources and no override (US-ESC-015); 72-hour reviewer decision and code lockout (US-CARE-004); owner's written mandate (US-PMG-003); premium routes (US-INS-002); dispute withdrawal (US-DSP-002); carers and agents in the field app (US-MOB-001); "amount held at the bank" wording. Issues I-18, I-20, I-21, I-23 and I-26 resolved, I-19 partly. | Delivery lead |
 | 0.2 | 1 November 2026 | Updated for 01 version 0.3 and the diaspora platform decision. Six new epics (EP-FEE, EP-CARE, EP-PMG, EP-TSK, EP-INS, EP-EVT) with 37 new stories; six stories changed (US-ACC-007, US-ACC-008, US-ACC-011, US-ESC-006, US-ESC-010, US-MOB-010) and the EP-CTY stories rewritten for R1 basic and R2 full. Country 2 manual phase from month 6, its software from month 12, country 3 manual phase in R2, events in R3. Enablers EN-47 to EN-63, milestones M-24 to M-36, gates G-C2 and G-C3, risks DR-25 to DR-34. R1 capacity recomputed (408 points against 384) with a new recommendation. Budget, RACI, traceability and the issues list refreshed | Delivery lead |
@@ -49,7 +50,7 @@ Each release runs three steps. Software is built only for a phase that has passe
 | Step | What happens | R1 example |
 |---|---|---|
 | Discover | Learn from real work before building. Map the service, test designs with users, run spikes on partners and data | R0 spreadsheets show time per step and where cases stall. The R0 institution payment register (EN-51) shows which schools and hospitals take direct payment. Five diaspora clients try the clickable prototype in document 03. Spikes on the bank, payment, identity and institution formats |
-| Build | Two-week Scrum sprints against the backlog in section 7 | Sprints S0 to S13 in section 5.1 |
+| Build | Two-week Scrum sprints against the backlog in section 7 | Sprints S0 to S14 in section 5.1 |
 | Validate | Put the increment in front of real users, measure, then decide | Staff run live cases in the back office alongside the spreadsheet (internal alpha). R0 clients move to the portal (client beta). Gate G1 at month 9. Country 2 runs its manual phase from month 6 and its own day-90 review at month 9 (G-C2) |
 
 ### 2.2 Scrum
@@ -190,7 +191,7 @@ Months follow the recommended plan in section 5.1 (contract developer S3 to S13)
 | M-09 | Month 8 | Client beta | Penetration test 1 passed (EN-28), accessibility audit (EN-25) and usability test (EN-24) done. New clients order and track in the portal | Product owner |
 | M-10 | Month 8 | Escrow tracker live | First escrow tracked on the platform with client approval, two-person release and payee name check (US-ESC-006, US-ESC-007, US-ESC-015) | Product owner |
 | M-11 | Month 9 | Gate G1 review | Business targets reviewed. Insurer approval recorded (EN-31) | Founder |
-| M-12 | Month 10 | R1 complete | All R1 Must stories accepted per document 05. Penetration retest passed (EN-29). Overlay checks automatic. Metrics by country live | Engineering lead |
+| M-12 | Month 10 | R1 complete | All R1 Must stories accepted per document 05. Penetration retest passed (EN-29). Overlay checks automatic. Metrics by country live. Professional payment runs live on the platform (S14) | Engineering lead |
 | M-13 | Month 11 | Field app beta | Fidero Field on TestFlight and Play internal testing, on 2 GB Android test devices and the oldest supported iPhone. First contractors and inspectors vetted on the panel. Check-in and check-out working (US-MOB-012) | Engineering lead |
 | M-14 | Month 12 | Listings and licence positions known | Act 1047 view in writing (EN-39). Insurer view on inspections and project funds (EN-40). Lawyer's view on property management and errand licences (EN-56) | Founder |
 | M-15 | Month 13 | Construction pilot | Fidero Field approved on both stores (M-38). First milestone paid: app evidence, inspector pass, client approval, two-person release, bank confirmation | Product owner |
@@ -252,26 +253,26 @@ R0 cases that are still open when the portal opens finish in the spreadsheet. Cl
 
 ### 5.1 R1: Escrow, portal and fees to institutions (months 3 to 9)
 
-**Goal.** Clients order, pay for and track reports online. Staff run every case through a tracked workflow. Reports are built from the template, reviewed by two people and hashed. Escrows are tracked with client approval and two-person release. Clients pay school fees and hospital bills direct to verified institutions and get the receipt back. Country is configuration from the first release. Overlay checks run from plot coordinates.
+**Goal.** Clients order, pay for and track reports online. Staff run every case through a tracked workflow. Reports are built from the template, reviewed by two people and hashed. Escrows are tracked with client approval and two-person release. Clients pay school fees and hospital bills direct to verified institutions and get the receipt back. Fidero pays its lawyers, surveyors and runners from its own account for accepted work, through two-person payment runs. Country is configuration from the first release. Overlay checks run from plot coordinates.
 
-**Objectives served.** BO-01, BO-02, BO-03, BO-07, BO-08, BO-09, BO-10. Business requirements BR-01 to BR-07, BR-14, BR-15, BR-16, BR-17.
+**Objectives served.** BO-01, BO-02, BO-03, BO-07, BO-08, BO-09, BO-10. Business requirements BR-01 to BR-07, BR-14, BR-15, BR-16, BR-17, BR-23.
 
-**Scope.** 110 stories in 15 epics (EP-ACC, EP-ORD, EP-PAY, EP-CASE, EP-RPT, EP-GEO, EP-ESC, EP-EVD, EP-NTF, EP-ADM, EP-AUD, EP-ANL, EP-DPR, EP-FEE, EP-CTY), plus enablers EN-09 to EN-32, EN-44, EN-47 to EN-50, EN-52, EN-53 and EN-57.
+**Scope.** 120 stories in 16 epics (EP-ACC, EP-ORD, EP-PAY, EP-CASE, EP-RPT, EP-GEO, EP-ESC, EP-EVD, EP-NTF, EP-ADM, EP-AUD, EP-ANL, EP-DPR, EP-FEE, EP-CTY, EP-PRO), plus enablers EN-09 to EN-32, EN-44, EN-47 to EN-50, EN-52, EN-53, EN-57, EN-78 and EN-79.
 
 | R1 scope | Stories | Points |
 |---|---|---|
-| Must stories | 87 | 315 |
-| Should stories | 20 | 64 |
+| Must stories | 93 | 343 |
+| Should stories | 24 | 78 |
 | Could stories | 3 | 9 |
-| Must enablers (EN-31, EN-44, EN-47, EN-48, EN-49 and EN-57 are not pointed) | 29 | 85 |
+| Must enablers (EN-31, EN-44, EN-47, EN-48, EN-49, EN-57 and EN-79 are not pointed) | 31 | 87 |
 | Should enablers (EN-21, EN-30; EN-50 is not pointed) | 3 | 5 |
-| **Total** | **142** | **478** |
+| **Total** | **154** | **522** |
 
-Version 0.1 had 97 stories and 421 points. The growth is EP-FEE (25 points), US-ESC-014 and US-ESC-015 (7), EP-CTY in R1 (14), US-ACC-012 (5), US-ESC-006 re-estimated for client approval (2), and spikes EN-52 and EN-53 (4).
+Version 0.1 had 97 stories and 421 points. The growth is EP-FEE (25 points), US-ESC-014 and US-ESC-015 (7), EP-CTY in R1 (14), US-ACC-012 (5), US-ESC-006 re-estimated for client approval (2), and spikes EN-52 and EN-53 (4). Version 0.5 adds EP-PRO (42: 28 Must, 14 Should) and EN-78 (2) for professional payments in 01 v0.8.
 
 #### Sprint plan for the recommended team
 
-The plan covers Must items only, plus US-ANL-001, which US-CTY-003 (Must) needs. They are ordered by dependency and by the WSJF ranking in section 8. Country configuration comes in S4 because every later table carries a country. Escrow comes before fees to institutions because fees reuse the escrow release path (US-ESC-003, US-ESC-007, US-ESC-015). Automatic overlay checks come last because staff can run them by hand meanwhile, as they do in R0. The plan assumes one contract developer from S3 to S13 (Option A+ below).
+The plan covers Must items only, plus US-ANL-001, which US-CTY-003 (Must) needs. They are ordered by dependency and by the WSJF ranking in section 8. Country configuration comes in S4 because every later table carries a country. Escrow comes before fees to institutions because fees reuse the escrow release path (US-ESC-003, US-ESC-007, US-ESC-015). Automatic overlay checks come last because staff can run them by hand meanwhile, as they do in R0. The plan assumes one contract developer from S3 to S13 (Option A+ below) and, from version 0.5, one more sprint, S14, for professional payments (recommended, not yet approved).
 
 | Sprint | Month | Goal | Items | Points |
 |---|---|---|---|---|
@@ -288,11 +289,24 @@ The plan covers Must items only, plus US-ANL-001, which US-CTY-003 (Must) needs.
 | S10 | 8 | Escrow tracker with client approval, two-person release and payee name check (M-10) | US-ADM-005, US-ESC-001, US-ESC-002, US-ESC-003, US-ESC-004, US-ESC-005, US-ESC-006, US-ESC-007, US-ESC-015, US-ESC-008a, US-ESC-008b, US-ESC-009 | 33 |
 | S11 | 8-9 | Cancellation, amount held at the bank, fees to institutions (M-26), overlay layer sourcing | US-ESC-013, US-ESC-014, US-FEE-001, US-FEE-002, US-FEE-003, US-FEE-004, US-FEE-007, EN-20 | 32 |
 | S12 | 9 | Overlay checks, load test, pen retest, identity provider | US-GEO-001, US-GEO-004, US-GEO-002, US-GEO-003, EN-26, EN-29, US-ACC-004a | 33 |
-| S13 | 9-10 | R1 completion: scope wording control, data rights, retention and legal hold, dashboard and metrics by country (M-12) | US-ADM-004, US-DPR-003, US-DPR-005, US-DPR-004a, US-DPR-004b, US-ANL-003, US-ANL-001, US-CTY-003 | 29 |
+| S13 | 9-10 | R1 completion: scope wording control, data rights, retention and legal hold, dashboard and metrics by country | US-ADM-004, US-DPR-003, US-DPR-005, US-DPR-004a, US-DPR-004b, US-ANL-003, US-ANL-001, US-CTY-003, EN-78 | 31 |
+| S14 | 10 | R1 completion 2: professional payments with the bulk file only (contract developer's extra sprint) (M-12) | US-PRO-001, US-PRO-003, US-PRO-006, US-PRO-002, US-PRO-007, US-PRO-005 | 28 |
 
 S13 falls in months 9 to 10. The web team finishes R1 there while the mobile developer sets up R2 (section 5.2). The S13 items are the ones with the least effect before month 10: scope-wording change control, data subject export, retention and legal hold, the dashboard and metrics by country (no second country has data before month 12).
 
+S14 is new in version 0.5. Professional payments come last in R1 because they need signed and reviewed sections (US-RPT-005, US-RPT-006), the payee registry (US-ESC-015) and country configuration (US-CTY-001a), and because professionals are already paid by hand in R0. Until S14 ships, payment runs stay manual: one person prepares the list, a second approves it, and the bank portal pays. EN-78 runs in S13 so the file format is known before the build, and EN-79 (not pointed) must deliver Ghana's tax rules by then.
+
 #### Capacity against scope
+
+Version 0.5 figures, with EP-PRO and EN-78 added:
+
+| Measure | Baseline team | Option A as in version 0.1: contract developer S3 to S12 | Option A+ (approved): contract developer S3 to S13 | Option A+ and S14 (recommended in version 0.5): contract developer S3 to S14 |
+|---|---|---|---|---|
+| Planning capacity | 304 points to the end of S12 | 384 to the end of S12 | 384 to S12; 417 to the end of S13; 442 to S14 at the web team's pace | 450 to the end of S14 |
+| R1 Must stories and Must enablers, plus US-ANL-001 | 438 points (343 + 87 + 8) | 438 | 438 | 438 |
+| Gap | 134 short at S12. Must scope ends in S18, about month 11 | 54 short at S12. Must scope ends in S15, month 10 to 11 | 21 short at the end of S13. S14 holds 28 points against 25 at the web team's pace, so about 3 points (part of US-PRO-005 or US-PRO-007) spill into S15 | 12 points spare at the end of S14. Must scope ends in S14, month 10 |
+
+Version 0.4 figures, kept for comparison:
 
 | Measure | Baseline team | Option A as in version 0.1: contract developer S3 to S12 | Option A+ (recommended): contract developer S3 to S13 |
 |---|---|---|---|
@@ -309,12 +323,21 @@ What the new scope means, plainly: version 0.1 already showed the baseline team 
 
 **Decision, 1 November 2026:** the founder chose Option A+. The contract developer is in the plan from S3 to S13. At the end of S2, when velocity is first measured, if it is more than 20% below the table, the Option C list is applied as well.
 
+**What professional payments add (version 0.5).** 01 v0.8 adds six R1 Must requirements for paying Fidero's own professionals (FR-PRO-001, 002, 003, 005, 006 and 007) and four Shoulds. The Musts and their spike add 30 points to the R1 Must plan: 438 against 417 under Option A+ to the end of S13, so 21 points short. R1 was already near its limit (408 against 417, 9 spare); it is now over. Recommendation, for the founder to decide:
+
+1. **Keep the six PRO Musts in R1.** RUL-27 and the two-person payment run are the controls that keep Fidero's own payments apart from client money. Moving them to R2 by change control would leave professionals paid from spreadsheets for another year, and would make cost per report (BR-16) an estimate through gate G1.
+2. **Start payment runs as the bulk file only.** US-PRO-005 builds preparation, two-person approval and one bulk file format for Fidero's operating bank (or its mobile money provider, if runners need it). Staff upload the file in the bank's portal. No bank API, no second format, and reconciliation (US-PRO-009) is done by hand from the bank's confirmation until it ships. This keeps US-PRO-005 at 8 points.
+3. **Build them in S14 and keep the contract developer one more sprint.** S14 at 33 points holds the 28 PRO Must points with 5 spare, and the R1 Musts end in S14 (month 10) instead of S13. Gate G1 at month 9 is judged on business numbers, which S14 does not affect. S14 is also the first sprint of Option R2-A in section 5.2; if the founder approves R2-A, the extension costs nothing more. If not, it costs about $1,600 `[TO VERIFY]` (section 11). Without it, about 3 points spill into S15 and the R2-A Shoulds slip by the same amount.
+4. **Move the PRO Shoulds to R2.** US-PRO-004 (expenses, 5) goes first, into R2-A in S15, because it ends the last manual money process. US-PRO-009 (reconciliation, 5) goes to R2-C. US-PRO-008 (overdue alert, 2) and US-PRO-010 (cost record, 2) go to R2-D with the R1 Shoulds that S14 displaces. Until each ships, its step stays manual and two-person, as in R0.
+
+Option C (moving other R1 Musts to R2) is not needed if point 3 is accepted. If velocity at the end of S2 is more than 20% below plan, the Option C list applies first and EP-PRO stays.
+
 #### Cut line
 
 If R1 runs late, items drop in this order. Nothing below the line is cut without change control.
 
 1. Coulds: US-GEO-008, US-RPT-011, US-ORD-006.
-2. Shoulds, lowest value first: US-AUD-004, US-AUD-003, US-NTF-005, US-ACC-010, US-CASE-015, US-RPT-008, US-GEO-005, US-PAY-006, US-ANL-002, US-GEO-006 with EN-21, US-PAY-004, US-CASE-012, US-CASE-011, US-FEE-006, US-ACC-008, US-ORD-005, EN-30, US-FEE-005, US-ACC-012, US-CASE-013.
+2. Shoulds, lowest value first: US-AUD-004, US-AUD-003, US-PRO-010, US-PRO-008, US-NTF-005, US-ACC-010, US-CASE-015, US-RPT-008, US-GEO-005, US-PAY-006, US-ANL-002, US-GEO-006 with EN-21, US-PAY-004, US-PRO-009, US-CASE-012, US-CASE-011, US-FEE-006, US-ACC-008, US-ORD-005, EN-30, US-PRO-004, US-FEE-005, US-ACC-012, US-CASE-013.
 3. **Cut line.** Musts below this line are cut only with change control, in the Option C order above.
 
 US-CASE-013 (building verification) drops last among Shoulds because it opens the second property line (F-09). US-ACC-012 (home dashboard) and US-FEE-005 (recurring fees) drop just before it because they carry BO-09, the monthly contact target. US-ANL-001 is a Should but sits in the Must plan because US-CTY-003 needs it (issue I-19). In the baseline plan, all R1 Shoulds and Coulds move to R2 phases R2-A to R2-D.
@@ -335,29 +358,29 @@ US-CASE-013 (building verification) drops last among Shoulds because it opens th
 
 | Phase | Sprints | Month | Goal | Items | Points |
 |---|---|---|---|---|---|
-| R2-A | S13-S15 | 9-10 | Mobile set-up (React Native, two app targets), store accounts and credentials, native-module and performance spikes; bank, legal, carer, insurer and country 2 data location spikes; R0 data migration. The web team finishes R1 Musts in S13 and does the first R1 Shoulds in S14 and S15 | EN-33, EN-34, EN-64, EN-65, EN-66, EN-70, EN-71, EN-74, EN-69, EN-76, EN-35, EN-45, EN-39, EN-40, EN-54, EN-55, EN-56, US-CASE-013, US-ACC-012, US-ORD-005, US-CASE-011, US-CASE-012, US-PAY-004, US-FEE-005, US-FEE-006, US-ANL-002, US-NTF-005, EN-30, US-ACC-008, US-ACC-010, US-CASE-015, US-RPT-008 | 72 |
+| R2-A | S13-S15 | 9-10 | Mobile set-up (React Native, two app targets), store accounts and credentials, native-module and performance spikes; bank, legal, carer, insurer and country 2 data location spikes; R0 data migration. The web team finishes R1 Musts in S13 and S14 (professional payments in S14, 5.1) and does the first R1 Shoulds in S15 | EN-33, EN-34, EN-64, EN-65, EN-66, EN-70, EN-71, EN-74, EN-69, EN-76, EN-35, EN-45, EN-39, EN-40, EN-54, EN-55, EN-56, US-CASE-013, US-ACC-012, US-FEE-005, US-PRO-004 | 48 |
 | R2-B | S16-S21 | 10-13 | Construction core: Fidero Field on iOS and Android with check-in, inspections, milestone releases, disputes; App Attest and iOS background upload spikes; store listings, privacy disclosures, submission rehearsal and store approval of Fidero Field (M-37, M-38); in-app deletion and minimum version for both apps. Country 2 on the platform by month 12: data location, copy configuration, publish (M-28). Organisation accounts for institutions | EN-72, EN-73, EN-67, EN-68, EN-75, US-MOB-001, US-MOB-002, US-MOB-003, US-MOB-004a, US-MOB-004b, US-MOB-005a, US-MOB-005b, US-MOB-006, US-MOB-007, US-MOB-008, US-MOB-009, US-MOB-011a, US-MOB-011b, US-MOB-012, US-MOB-010, US-EVD-006, US-ESC-010, US-BLD-001, US-BLD-002, US-BLD-003, US-BLD-004, US-BLD-005a, US-BLD-005b, US-BLD-006, US-BLD-007, US-BLD-008, US-BLD-009, US-BLD-010, US-BLD-012, US-DSP-001, US-DSP-002, US-DSP-003, US-DSP-004, US-ORD-007, US-CTY-002a, US-CTY-002b, US-CTY-004, EN-59, US-ACC-011, EN-61, US-PAY-006, US-GEO-005, US-APP-004, US-APP-006 | 213 |
-| R2-C | S22-S27 | 13-16 | Fidero client app on the shared codebase, then store review (M-39 at month 17). Family lines first: care visits and errands (reuse the field app and case workflow), then property management (reuses inspections and the contractor panel), off-plan, project funds, statement import, listings, partner API; remaining R1 Shoulds | US-CARE-002, US-CARE-003, US-CARE-004, US-CARE-005, US-CARE-006, US-CARE-001, US-TSK-002, US-TSK-003, US-TSK-004, US-TSK-001, US-TSK-005, US-PMG-002, US-PMG-003, US-PMG-005, US-PMG-001, US-PMG-004, US-PMG-006, EN-58, US-BLD-011a, US-BLD-011b, US-PRJ-005, US-PRJ-001, US-PRJ-002, US-PRJ-003, US-PRJ-004, US-ESC-011, US-DSP-005, US-LST-002, US-LST-003, US-LST-006, US-LST-008, US-LST-001, US-LST-004a, US-LST-004b, US-LST-005, US-LST-007, US-LST-010, US-PAY-007, US-PTR-002, US-PTR-001, US-PTR-004, EN-36, EN-43, EN-21, US-GEO-006, US-AUD-003, US-AUD-004, US-APP-001a, US-APP-001b, US-APP-001c, US-APP-001d, US-APP-001e, US-APP-002, US-APP-005, EN-77 | 250 |
-| R2-D | S28-S31 | 16-18 | Insurer partner lines (only if EN-55 allows), track records, hardening: scale test, pen test, accessibility; client app store review and biometric unlock; country 3 manual service runs; Coulds if capacity allows | US-INS-002, US-INS-003, US-INS-001, US-INS-004, US-RAT-001, US-RAT-002, US-RAT-003, US-RAT-004, EN-37, EN-38, EN-42, EN-60, US-GEO-007, US-ESC-012, US-PTR-003, US-ORD-006, US-RPT-011, US-GEO-008, US-APP-003 | 74 |
+| R2-C | S22-S27 | 13-16 | Fidero client app on the shared codebase, then store review (M-39 at month 17). Family lines first: care visits and errands (reuse the field app and case workflow), then property management (reuses inspections and the contractor panel), off-plan, project funds, statement import, listings, partner API; remaining R1 Shoulds | US-CARE-002, US-CARE-003, US-CARE-004, US-CARE-005, US-CARE-006, US-CARE-001, US-TSK-002, US-TSK-003, US-TSK-004, US-TSK-001, US-TSK-005, US-PMG-002, US-PMG-003, US-PMG-005, US-PMG-001, US-PMG-004, US-PMG-006, EN-58, US-BLD-011a, US-BLD-011b, US-PRJ-005, US-PRJ-001, US-PRJ-002, US-PRJ-003, US-PRJ-004, US-ESC-011, US-DSP-005, US-LST-002, US-LST-003, US-LST-006, US-LST-008, US-LST-001, US-LST-004a, US-LST-004b, US-LST-005, US-LST-007, US-LST-010, US-PAY-007, US-PTR-002, US-PTR-001, US-PTR-004, EN-36, EN-43, EN-21, US-GEO-006, US-AUD-003, US-AUD-004, US-APP-001a, US-APP-001b, US-APP-001c, US-APP-001d, US-APP-001e, US-APP-002, US-APP-005, EN-77, US-PRO-009 | 255 |
+| R2-D | S28-S31 | 16-18 | Insurer partner lines (only if EN-55 allows), track records, hardening: scale test, pen test, accessibility; client app store review and biometric unlock; country 3 manual service runs; Coulds if capacity allows | US-INS-002, US-INS-003, US-INS-001, US-INS-004, US-RAT-001, US-RAT-002, US-RAT-003, US-RAT-004, EN-37, EN-38, EN-42, EN-60, US-GEO-007, US-ESC-012, US-PTR-003, US-ORD-006, US-RPT-011, US-GEO-008, US-APP-003; R1 Shoulds moved from R2-A in version 0.5: US-ORD-005, US-CASE-011, US-CASE-012, US-PAY-004, US-FEE-006, US-ANL-002, US-NTF-005, EN-30, US-ACC-008, US-ACC-010, US-CASE-015, US-RPT-008; US-PRO-008, US-PRO-010 | 107 |
 
-R2 also carries the 29 points of R1 completion in S13 and the R1 Shoulds in R2-A to R2-C.
+R2 also carries the 59 points of R1 completion in S13 and S14 (31 and 28) and the R1 Shoulds in R2-A to R2-D. In version 0.5, S14 goes to professional payments, so 29 points of R1 Shoulds move from R2-A to R2-D, lowest on the cut line first.
 
 | R2 capacity check | Baseline: one mobile developer | Option R2-A (recommended): plus the contract developer S14 to S31 | Option R2-B: plus a second mobile developer S16 to S31 |
 |---|---|---|---|
 | Capacity S13 to S31 | 651: web 19 × 25, contract developer 8 in S13, mobile 8 in S13 to S15 then 16 × 10 | 795: baseline plus 18 × 8 | 811: baseline plus 16 × 10 |
-| Demand: R1 completion 29, R2 phases 609 | 638 | 638 | 638 |
-| Unplanned capacity | 13 (about 2%) | 157 (about 20%) | 173 (about 21%) |
-| R2-A (S13 to S15): capacity against demand 101 | 91, short by 10 | 107 | 91, short by 10 |
+| Demand: R1 completion 59, R2 phases 623 | 682 | 682 | 682 |
+| Unplanned capacity | short by 31 (about 5%) | 113 (about 14%) | 129 (about 16%) |
+| R2-A (S13 to S15): capacity against demand 107 | 91, short by 16 | 107 | 91, short by 16 |
 | R2-B (S16 to S21): capacity against demand 213 | 210, short by 3 | 258 | 270 |
-| R2-C (S22 to S27): capacity against demand 250 | 210, short by 40 | 258 | 270 |
-| R2-D (S28 to S31): capacity against demand 74 | 140 | 172 | 180 |
+| R2-C (S22 to S27): capacity against demand 255 | 210, short by 45 | 258 | 270 |
+| R2-D (S28 to S31): capacity against demand 107 | 140 | 172 | 180 |
 | Extra cost (assumption) | none | about $28,800: 18 sprints at about $1,600 `[TO VERIFY]` | a second salary for about 8 months, rate `[TO VERIFY]` |
 
-All figures are assumptions. Version 0.3 left 114 points (18%) unplanned under the earlier plan for a single Android field app. The decision to publish both apps on both stores adds 101 points: the client app (EP-APP, 61), iOS work in the field app (US-MOB-002 re-estimated and US-MOB-004b, 8) and store and native-module enablers (EN-33 rewritten, 3 more; EN-64 to EN-77, 29). Demand rises from 537 to 638.
+All figures are assumptions. Version 0.3 left 114 points (18%) unplanned under the earlier plan for a single Android field app. The decision to publish both apps on both stores adds 101 points: the client app (EP-APP, 61), iOS work in the field app (US-MOB-002 re-estimated and US-MOB-004b, 8) and store and native-module enablers (EN-33 rewritten, 3 more; EN-64 to EN-77, 29). Demand rises from 537 to 638. Version 0.5 adds 44 points for professional payments (30 of R1 Must completion in S13 and S14, 14 of PRO Shoulds), so demand is 682.
 
-**Is one mobile developer enough?** No. With one mobile developer, R2 has about 2% spare, and R2-A to R2-C are short by about 53 points, which would push the client app past its store review buffer and into gate G2. The work that needs native skills alone (native modules on two platforms, the field app's capture, signing and queue, store set-up) is about 100 points before the construction pilot at month 13, against about 50 points of mobile capacity by then. React Native helps here: the app screens, queue logic and API client are TypeScript, which the web developers already write.
+**Is one mobile developer enough?** No. With one mobile developer, R2 is about 31 points short in total, and R2-A to R2-C are short by about 64 points, which would push the client app past its store review buffer and into gate G2. The work that needs native skills alone (native modules on two platforms, the field app's capture, signing and queue, store set-up) is about 100 points before the construction pilot at month 13, against about 50 points of mobile capacity by then. React Native helps here: the app screens, queue logic and API client are TypeScript, which the web developers already write.
 
-**Recommendation: Option R2-A.** Hire one mobile developer who has shipped native modules on both iOS and Android, to own capture, signing, attestation, background upload and store releases. Keep the contract developer from S14 to S31 on the shared TypeScript packages, client app screens and web work, so the web team does not slow. This restores about 20% spare, costs about $28,800 `[TO VERIFY]`, needs no new hire, and can stop at any sprint. Decide at the end of S15: if the native-module spikes (EN-70 to EN-74) show more native work than planned, add a second mobile developer or a native contractor for R2-B and R2-C (Option R2-B). Both options are for the founder to decide; neither is approved yet. The second lever is the cut line below. If dependencies do not bite, the team pulls R2 Coulds and R3 discovery forward.
+**Recommendation: Option R2-A.** Hire one mobile developer who has shipped native modules on both iOS and Android, to own capture, signing, attestation, background upload and store releases. Keep the contract developer from S14 to S31 on the shared TypeScript packages, client app screens and web work, so the web team does not slow. This restores about 14% spare, costs about $28,800 `[TO VERIFY]`, needs no new hire, and can stop at any sprint. Decide at the end of S15: if the native-module spikes (EN-70 to EN-74) show more native work than planned, add a second mobile developer or a native contractor for R2-B and R2-C (Option R2-B). Both options are for the founder to decide; neither is approved yet. The second lever is the cut line below. If dependencies do not bite, the team pulls R2 Coulds and R3 discovery forward.
 
 R2 still has the most outside dependencies: the bank's file or API, the Act 1047 position, the insurer's extension, the carer vetting standard, the insurer partner and licence, store review and the store payment position (Q-23), contractor uptake and field defects on low-end phones.
 
@@ -430,7 +453,8 @@ Size: S up to 15 points, M 16 to 30, L 31 to 55, XL over 55.
 | EP-EVT | Events and ceremonies | Verified vendors paid against invoices and delivery evidence | F-34 | FR-EVT-001 to 003 | R3 | Could | 3 | 13 | S |
 | EP-REC | Records programme | Digitise authority records and use them in searches | F-25 | FR-REC-001 to 004 | R3 | Should | 4 | 26 | M |
 | EP-CTY | Multi-country | Country as configuration from R1; data kept where each law requires and new countries by copying, in R2 | F-28 | FR-CTY-001 to 004 | R1 basic, R2 full | Must | 6 | 32 | L |
-| EP-PLAT | Platform and enablers | Infrastructure, CI/CD, observability, security, performance, accessibility, spikes, R0 tooling, country field teams, app store set-up | NFRs | None (NFR-…, Q-…, AS-…) | R0 to R3 | Must | 77 items | 171 | XL |
+| EP-PRO | Professional payments | Pay the professionals Fidero contracts from its own account for accepted work, never from client money, with two-person payment runs and tax per country | F-37 | FR-PRO-001 to 010 | R1 | Must | 10 | 42 | L |
+| EP-PLAT | Platform and enablers | Infrastructure, CI/CD, observability, security, performance, accessibility, spikes, R0 tooling, country field teams, app store set-up | NFRs | None (NFR-…, Q-…, AS-…) | R0 to R3 | Must | 79 items | 173 | XL |
 
 ## 7. Product backlog
 
@@ -448,12 +472,12 @@ Size: S up to 15 points, M 16 to 30, L 31 to 55, XL over 55.
 | Release | Must | Should | Could | Story points | Enabler points | Total points |
 |---|---|---|---|---|---|---|
 | R0 | – | – | – | – | Not pointed (EN-01 to EN-08, EN-51) | – |
-| R1 | 87 stories, 315 points | 20 stories, 64 points | 3 stories, 9 points | 388 | 90 | 478 |
+| R1 | 93 stories, 343 points | 24 stories, 78 points | 3 stories, 9 points | 430 | 92 | 522 |
 | R2 | 61 stories, 292 points | 33 stories, 145 points | 5 stories, 27 points | 464 | 75 | 539 |
 | R3 | – | 4 stories, 26 points | 5 stories, 34 points | 60 | 6 | 66 |
-| **All** | **148 stories, 607 points** | **57 stories, 235 points** | **13 stories, 70 points** | **912** | **171** | **1,083** |
+| **All** | **154 stories, 635 points** | **61 stories, 249 points** | **13 stories, 70 points** | **954** | **173** | **1,127** |
 
-218 user stories cover all 201 FRs in 01 version 0.6: 187 FRs have one story each, and 14 large FRs are split into lettered sub-stories (US-ACC-004a/b, US-PAY-001a/b, US-ESC-008a/b, US-MOB-004a/b, US-MOB-005a/b, US-MOB-011a/b, US-BLD-005a/b, US-BLD-011a/b, US-LST-004a/b, US-DPR-004a/b, US-NTF-001a/b, US-CTY-001a/b, US-CTY-002a/b, and US-APP-001a to US-APP-001e). There are 77 enabler items, one of them superseded (EN-41). Version 0.3 had 207 stories for 195 FRs and 63 enablers; version 0.1 had 170 stories for 159 FRs and 46 enablers.
+228 user stories cover all 211 FRs in 01 version 0.8: 197 FRs have one story each, and 14 large FRs are split into lettered sub-stories (US-ACC-004a/b, US-PAY-001a/b, US-ESC-008a/b, US-MOB-004a/b, US-MOB-005a/b, US-MOB-011a/b, US-BLD-005a/b, US-BLD-011a/b, US-LST-004a/b, US-DPR-004a/b, US-NTF-001a/b, US-CTY-001a/b, US-CTY-002a/b, and US-APP-001a to US-APP-001e). There are 79 enabler items, one of them superseded (EN-41). Version 0.4 had 218 stories for 201 FRs and 77 enablers. Version 0.3 had 207 stories for 195 FRs and 63 enablers; version 0.1 had 170 stories for 159 FRs and 46 enablers.
 
 ### EP-ACC: Accounts and identity
 
@@ -1542,8 +1566,8 @@ Acceptance criteria:
 
 | Story | As a … I want … so that … | Priority | Release | Points | Depends on |
 |---|---|---|---|---|---|
-| US-TSK-002 | As a diaspora buyer (P-01), I want to upload the checklist documents and pay the official fees and Fidero's charge into the partner bank, so that my errand starts with everything in hand. | Must | R2 | 3 | US-EVD-001, US-PAY-001a, US-ESC-003 |
-| US-TSK-003 | As a carer or errand agent (P-17), I want to be assigned an errand, have official fees paid to the agency's account only, and record each step with the receipt or acknowledgement uploaded, so that the client sees progress and the money trail (RUL-22, RUL-23). | Must | R2 | 5 | US-TSK-002, US-ADM-003, US-ESC-010, US-ESC-015, US-MOB-010 |
+| US-TSK-002 | As a diaspora buyer (P-01), I want to upload the checklist documents, pay the official fees into the partner bank and pay Fidero's charge through the payment provider, so that my errand starts with everything in hand. | Must | R2 | 3 | US-EVD-001, US-PAY-001a, US-ESC-003 |
+| US-TSK-003 | As a carer or errand agent (P-17), I want to be assigned an errand, have official fees paid to the agency's account only, record each step with the receipt or acknowledgement uploaded, and be paid by Fidero for each errand I complete, so that the client sees progress and the money trail and I am paid without touching the client's money (RUL-22, RUL-23, RUL-27). | Must | R2 | 5 | US-TSK-002, US-ADM-003, US-ESC-010, US-ESC-015, US-MOB-010, US-PRO-002 |
 | US-TSK-004 | As a case manager (P-03), I want completion confirmed only when the resulting document or official confirmation is uploaded and checked, so that an errand is done when the document exists, not when someone says so (RUL-23). | Must | R2 | 3 | US-TSK-003 |
 | US-TSK-001 | As an administrator (P-14), I want a catalogue of errands per country, each with a document checklist, official fees, Fidero's charge and a target time, so that clients see exactly what an errand needs and costs before they order. | Should | R2 | 5 | US-CTY-001a, US-ADM-002 |
 | US-TSK-005 | As a carer or errand agent (P-17), I want to record handover of the document to the client's representative or courier with a signature or photo, so that no one can say the document was lost. | Should | R2 | 2 | US-TSK-004, US-ACC-008 |
@@ -1552,15 +1576,17 @@ Acceptance criteria:
 
 - **US-TSK-002** (implements FR-TSK-002)
   1. Given an errand order, when a checklist item is missing, then the order cannot be submitted and the item is named.
-  2. Given the fees, when I pay, then Fidero's charge goes through the fee payment route and the official fees to the partner bank, shown separately (RUL-01).
+  2. Given the fees, when I pay, then Fidero's charge is taken by card or mobile money through the payment provider (US-PAY-001a), never into the partner bank, and the official fees are paid into the partner bank; the two are shown separately, each with its own receipt (RUL-01).
 - **US-TSK-003** (implements FR-TSK-003)
   1. Given an errand, when a case manager assigns an agent, then only agents on the vetted panel for that country can be chosen.
   2. Given an official fee, when payment is prepared, then the payee must be the agency's verified account (US-ESC-015) and the receipt is required before the step closes.
   3. Given a step, when I mark it done without the receipt or acknowledgement, then it is refused.
   4. Given a standing approval for the errand, when a step fee within the monthly amount is prepared, then no further client approval is asked, but the receipt and two staff approvals are still required; above the amount, the client approves that fee (RUL-11).
+  5. Given an errand whose resulting document Fidero has checked, when the check is recorded, then a payable for the agent is created under US-PRO-002 and paid from Fidero's operating account in a payment run; no instruction from the client's held funds can name the agent (RUL-27).
+  Note: changed in version 0.5 for 01 v0.8. The estimate stays at 5 points, because the agent's pay is built in EP-PRO.
 - **US-TSK-004** (implements FR-TSK-004)
   1. Given an errand with all steps done, when no result document is uploaded, then it cannot be marked Complete.
-  2. Given the document is uploaded, when I check it against the checklist, then the errand shows Complete, the client is notified and the agent's fee becomes payable.
+  2. Given the document is uploaded, when I check it against the checklist, then the errand shows Complete, the client is notified and the agent's payable is created (US-PRO-002).
 - **US-TSK-001** (implements FR-TSK-001)
   1. Given a country, when I publish an errand type with checklist, official fees, charge and target days, then clients in that country can order it and clients elsewhere cannot.
   2. Given a fee change, when it is published, then new orders use it and open errands keep theirs.
@@ -1676,9 +1702,73 @@ Acceptance criteria:
   1. Given Ghana's configuration, when I copy it for a new country, then every item is copied as a draft that cannot be published until currency, data location, scope statement and legal texts are set.
   2. Given a published new country, when its first case is created, then no code change was needed beyond new integrations, or the gap is logged (EN-59).
 
+### EP-PRO: Professional payments
+
+10 stories, 42 points. New in version 0.5 for 01 v0.8 (BR-23, F-37, RUL-26, RUL-27). Inspector, quantity surveyor and errand agent payables arrive with EP-BLD, EP-PMG and EP-TSK in R2 and reuse US-PRO-002; they need no story of their own.
+
+| Story | As a … I want … so that … | Priority | Release | Points | Depends on |
+|---|---|---|---|---|---|
+| US-PRO-001 | As an administrator (P-14), I want a signed agreement and a versioned rate card for each contracted professional, by country and role and per unit (report section, site visit, inspection, bill of quantities, errand or month), with each new version approved by a second administrator, so that every professional is paid the agreed rate and no one person can change it. | Must | R1 | 5 | US-ADM-001, US-CTY-001a, US-EVD-001, US-ACC-006 |
+| US-PRO-002 | As a lawyer (P-05), I want a payable created for me as soon as my signed section passes second review, so that I am paid for accepted work without chasing anyone. | Must | R1 | 5 | US-PRO-001, US-RPT-005, US-RPT-006 |
+| US-PRO-003 | As a reviewer (P-04), I want the system to refuse any rate that varies by verdict, inspection outcome or any other result of the work, so that no professional has a reason to soften a finding (RUL-26). | Must | R1 | 2 | US-PRO-001 |
+| US-PRO-006 | As a reviewer (P-04), I want professionals paid only from Fidero's operating account, to an account verified in the professional's own name, with no link between their pay and client escrow, so that client money can never pay Fidero's costs (RUL-27). | Must | R1 | 3 | US-ESC-015, US-ADM-003 |
+| US-PRO-007 | As a surveyor (P-06), I want withholding tax and other deductions applied as my country requires, a remittance advice for each payment and a yearly statement, so that my tax affairs are in order. | Must | R1 | 5 | US-PRO-002, US-CTY-001a, EN-79 |
+| US-PRO-005 | As a case manager (P-03), I want to group approved payables and expenses into a payment run that a different person with payment rights approves, and get a bulk payment file for Fidero's bank or mobile money provider, so that professionals are paid together and no one person can pay out alone. | Must | R1 | 8 | US-PRO-002, US-PRO-006, US-ACC-003, EN-78 |
+| US-PRO-004 | As a runner (P-07), I want to claim an expense such as an official search fee or travel with a photo of the receipt, within the limit for my role, so that I am paid back what I spent on Fidero's work. | Should | R1 | 5 | US-PRO-001, US-EVD-001 |
+| US-PRO-009 | As a case manager (P-03), I want each payment run reconciled against the bank's or provider's confirmation, with failed or unconfirmed lines listed for me to resolve, so that no professional is left unpaid without anyone noticing. | Should | R1 | 5 | US-PRO-005 |
+| US-PRO-008 | As a surveyor (P-06), I want accepted work paid within a set period (10 working days, assumption) and operations alerted when a payment is overdue, so that I can rely on being paid on time. | Should | R1 | 2 | US-PRO-002, US-NTF-003 |
+| US-PRO-010 | As a case manager (P-03), I want each case's cost record filled from its accepted payables and expenses, so that cost per report is measured, not estimated (BR-16). | Should | R1 | 2 | US-PRO-002, US-CASE-011 |
+
+Acceptance criteria:
+
+- **US-PRO-001** (implements FR-PRO-001)
+  1. Given a professional with no signed agreement or no verified payee account, when a case manager assigns them work, then the assignment is refused with the reason.
+  2. Given an administrator drafts a rate card version with a start date, when the same administrator tries to approve it, then it is refused; when a second administrator approves it, then it applies to work assigned on or after the start date, and work assigned earlier keeps its rate.
+  3. Given an approved rate card, when anyone edits its rate, then the edit is refused; a change is a new version.
+- **US-PRO-002** (implements FR-PRO-002)
+  1. Given a signed legal or surveyor's section, when it passes second review, then one payable is created for the signer at the rate in force when the work was assigned.
+  2. Given a section that is signed but not yet reviewed, or returned with comments, then no payable exists.
+  3. Given the same acceptance delivered twice, then only one payable exists for that piece of work.
+  4. Given a runner's month, when a case manager closes it, then one payable for the monthly fee is created; a part month is paid pro rata by calendar days (assumption, I-34).
+  5. (R2) Given an inspection checklist submitted, a bill of quantities accepted or an errand document checked, then the inspector's, quantity surveyor's or agent's payable is created in the same way.
+- **US-PRO-003** (implements FR-PRO-003)
+  1. Given a rate card draft, when someone tries to set a rate for a verdict, an inspection result or any other outcome, then no field exists for it and the API rejects the unknown field.
+  2. Given a red report and a green report signed by the same lawyer under the same rate card, then both payables are equal.
+  3. Given a request to hold a payable because of its verdict, then it is refused; a reviewer may hold a payable only for a fraud or misconduct review, with a reason.
+- **US-PRO-006** (implements FR-PRO-006)
+  1. Given a payment run, then its debit account is Fidero's operating account and never an escrow or held-funds account.
+  2. Given a professional whose payee account is not verified or whose account name does not match, then their items are left out of the run with the reason.
+  3. Given any attempt to instruct a release from an escrow or held funds to a contracted professional, then it is refused; and a payment run cannot name an institution, seller, supplier, contractor, carer, vendor or agency (RUL-27).
+- **US-PRO-007** (implements FR-PRO-007)
+  1. Given a country's tax rules in its published configuration, when a payable is created, then withholding is calculated from those rules and the configuration version is stored with it.
+  2. Given a paid line, then the professional gets a remittance advice showing gross, each deduction and net.
+  3. Given the end of a tax year, then each professional gets a yearly statement that adds up to their remittance advices.
+  4. Given a professional in the test country, then the test country's rules apply; no Ghana value is hard-coded.
+- **US-PRO-005** (implements FR-PRO-005)
+  1. Given approved payables and expenses up to a cut-off, when a case manager prepares a run, then lines are grouped per professional with gross, tax, expenses and net, and items left out are listed with reasons.
+  2. Given a prepared run, when the preparer tries to approve it, then it is refused; when a different staff member with payment rights approves it with the second factor, then the bulk file is produced in the operating account's format and its SHA-256 is stored and shown.
+  3. Given an approved run, when any line changes, then the approval is withdrawn and the run returns to draft.
+  4. Given a staff member without payment rights, then the approve action is not available to them.
+  Note: R1 builds one file format, for Fidero's operating bank or its mobile money provider (EN-78). No bank API.
+- **US-PRO-004** (implements FR-PRO-004)
+  1. Given a claim with a receipt photo within the limit for my role and kind, when a staff member approves it, then it joins the next payment run.
+  2. Given a claim above the limit or without a receipt, when one staff member approves it, then it still needs a second, different staff member's approval.
+  3. Given a receipt already used on another claim, then the claim is refused.
+  4. Given a staff member who is also the claimant, when they try to approve the claim, then it is refused.
+- **US-PRO-009** (implements FR-PRO-009)
+  1. Given an issued run, when the bank's or provider's confirmation is imported, then each line is marked confirmed, failed or unconfirmed.
+  2. Given a failed line, when a staff member moves it to the next run, then its payables return to approved and are paid once only.
+  3. Given an unconfirmed line resolved by a bank letter, then a second staff member checks the letter before the line is marked confirmed.
+- **US-PRO-008** (implements FR-PRO-008)
+  1. Given an accepted payable, then its due date is the acceptance date plus the configured working days (10, assumption), skipping the country's holidays.
+  2. Given a payable past its due date and unpaid, when the daily job runs, then operations is alerted and the payable shows as overdue.
+- **US-PRO-010** (implements FR-PRO-010)
+  1. Given an accepted payable or an approved expense linked to a case, then the case's cost record gains an entry with its amount and source.
+  2. Given the dashboard's cost per report, then it uses these entries, not an estimate.
+
 ### EP-PLAT: Platform and enablers
 
-77 enabler items, 171 points. Items marked "not pointed" are operations, legal or bought services. They sit in the backlog so their dates are tracked, but they use no engineering capacity.
+79 enabler items, 173 points. Items marked "not pointed" are operations, legal or bought services. They sit in the backlog so their dates are tracked, but they use no engineering capacity.
 
 | Item | What | Release | Priority | Points | Depends on | Done when | Traces to |
 |---|---|---|---|---|---|---|---|
@@ -1759,6 +1849,8 @@ Acceptance criteria:
 | EN-75 | First store submission rehearsal: early internal builds of both apps through App Store review and Google Play review, with review notes and a demo account | R2 | Must | 3 | EN-66, EN-67, EN-68, EN-69 | Both stores have reviewed a build; findings are logged; the measured review time is in the release calendar (document 06) | C-14, NFR-STORE-01 |
 | EN-76 | Store payment position (Q-23): ask both stores, with the payment provider, whether Fidero's fees for real-world services can be paid in the app | R2 | Must | not pointed | EN-64 | Written answer for each store, or the web route in FR-APP-005 confirmed as the default | Q-23, AS-14 |
 | EN-77 | Client app usability test with 5 diaspora users, at least 2 on iPhones and 2 on Android phones | R2 | Should | 2 | US-APP-001e, EN-24 | 4 of 5 testers find a report and approve an invoice in the app without help | NFR-USE-01, F-36 |
+| EN-78 | Spike: bulk payment file of Fidero's operating bank and, if runners need it, one mobile money provider: format, channel, cut-off times, dual authorisation and confirmation file (Q-26) | R1 | Must | 2 | - | A sample file accepted on the bank's test or pilot channel, or a manual-entry fallback agreed in writing | Q-26, FR-PRO-005, FR-PRO-009 |
+| EN-79 | Tax set-up per country with an accountant: withholding rates by role and tax status, registration, filing and remittance deadlines, treatment of reimbursed expenses; loaded as country configuration (Q-25). Repeated in each country's manual phase | R1 | Must | not pointed | - | The accountant's written rules for Ghana before US-PRO-007 goes live; each new country's before its first payment run | Q-25, FR-PRO-007, BR-23 |
 
 ## 8. Prioritisation
 
@@ -1788,10 +1880,11 @@ Scores use the relative scale 1, 2, 3, 5, 8, 13, 20. They are the delivery lead'
 | EP-RPT | R1 | 20 | 13 | 13 | 46 | 5 | 9.2 | 10 |
 | EP-ACC | R1 | 8 | 13 | 13 | 34 | 5 | 6.8 | 11 |
 | EP-CTY | R1, R2 | 8 | 8 | 13 | 29 | 5 | 5.8 | 12 |
-| EP-PLAT | R1 | 3 | 20 | 20 | 43 | 8 | 5.4 | 13 (enabler) |
-| EP-ESC | R1 | 20 | 8 | 13 | 41 | 8 | 5.1 | 14 |
-| EP-CASE | R1 | 20 | 13 | 8 | 41 | 8 | 5.1 | 14 |
-| EP-GEO | R1 | 8 | 5 | 8 | 21 | 5 | 4.2 | 16 |
+| EP-PRO | R1 | 8 | 8 | 13 | 29 | 5 | 5.8 | 12 |
+| EP-PLAT | R1 | 3 | 20 | 20 | 43 | 8 | 5.4 | 14 (enabler) |
+| EP-ESC | R1 | 20 | 8 | 13 | 41 | 8 | 5.1 | 15 |
+| EP-CASE | R1 | 20 | 13 | 8 | 41 | 8 | 5.1 | 15 |
+| EP-GEO | R1 | 8 | 5 | 8 | 21 | 5 | 4.2 | 17 |
 | EP-DSP | R2 | 8 | 8 | 13 | 29 | 2 | 14.5 | 1 |
 | EP-CARE | R2 | 13 | 8 | 5 | 26 | 3 | 8.7 | 2 |
 | EP-TSK | R2 | 8 | 5 | 3 | 16 | 2 | 8.0 | 3 |
@@ -1811,6 +1904,7 @@ How the scores shape the plan:
 
 - EP-PLAT, EP-ACC, EP-CASE and now EP-ESC score low on WSJF only because they are large. Almost everything depends on them, so dependency order puts them early. EP-ESC grew to XL with the held balance and payee check, which the family lines reuse.
 - EP-FEE ranks eighth in R1 but is built after escrow because it reuses the escrow release path. It is the first line that shows the redefinition to clients.
+- EP-PRO scores in the middle, with high risk reduction (money and tax). It is built last in R1, in S14, because it needs signed and reviewed sections (EP-RPT) and the payee registry (US-ESC-015). Professionals are paid by hand, two-person, until then.
 - EP-CTY scores in the middle. It is built in S4 anyway, because every later table carries a country and retrofitting would cost more than the epic.
 - In R2, EP-MOB and EP-BLD score lowest but carry gate G2 (40 active builds). They are planned first because they are Must and on the gate's critical path. EP-DSP is built with them because F-21 is "Must with F-16".
 - EP-APP ranks last in R2 because it is large and the portal already serves clients on phones. It is planned in R2-C, after Fidero Field, because it reuses that codebase and its store set-up, and it holds a store review buffer before month 17. Its store-rule stories that both apps need (US-APP-004, US-APP-006) come earlier, in R2-B, because Fidero Field cannot be published without them.
@@ -1842,6 +1936,7 @@ flowchart LR
         FEE["EP-FEE"]
         DPR["EP-DPR"]
         ANL["EP-ANL"]
+        PRO["EP-PRO"]
     end
     subgraph R2
         MOB["EP-MOB"]
@@ -1923,9 +2018,16 @@ flowchart LR
     LST -.-> REC
     EVT --> ESC
     EVT --> FEE
+    PRO --> RPT
+    PRO --> ESC
+    PRO --> CTY
+    PRO --> ADM
+    PRO --> EVD
+    TSK --> PRO
+    BLD --> PRO
 ```
 
-The dotted arrow from EP-ESC to EP-DSP marks FR-ESC-006 (R1), which blocks release while a dispute is open, although disputes arrive in R2; 01 version 0.3 now says "from R2" for that clause. EP-ANL needs EP-CTY because every metric is reported by country (FR-CTY-003, Must) through the dashboard in FR-ANL-001 (Should); see issue I-19. EP-EVT needs EP-FEE because vendors are verified the way institutions are. EP-APP needs EP-MOB for the shared React Native codebase and store set-up, and the R1 epics whose screens it shows.
+The dotted arrow from EP-ESC to EP-DSP marks FR-ESC-006 (R1), which blocks release while a dispute is open, although disputes arrive in R2; 01 version 0.3 now says "from R2" for that clause. EP-PRO needs EP-ESC only for the payee registry (US-ESC-015), never for escrow money (RUL-27). EP-TSK and EP-BLD need EP-PRO to pay errand agents, inspectors and quantity surveyors. EP-ANL needs EP-CTY because every metric is reported by country (FR-CTY-003, Must) through the dashboard in FR-ANL-001 (Should); see issue I-19. EP-EVT needs EP-FEE because vendors are verified the way institutions are. EP-APP needs EP-MOB for the shared React Native codebase and store set-up, and the R1 epics whose screens it shows.
 
 ## 9. RACI
 
@@ -1975,7 +2077,7 @@ Likelihood and impact are H (high), M (medium) or L (low). They are assumptions,
 | DR-06 | Lands Commission search times stay long and manual (AS-07) | H | L | No platform change. The workflow already assumes manual searches. Status messages set honest dates | Operations |
 | DR-07 | Many contractors use iPhones (AS-08). **Closed in version 0.4:** 01 v0.6 puts both apps on iOS and Android, retires AS-08 and answers Q-09. Replaced by DR-35 to DR-40 | – | – | – | – |
 | DR-08 | Insurer will not extend cover to building inspections and project funds (AS-09) | M | H | EN-40 at the start of R2. Off-plan and project funds are planned in R2-C, after the answer. If no, those lines stay closed. Check whether R1 building verification is also affected (issue I-11) | Founder |
-| DR-09 | Team too small for R1 Must scope (C-07), now 408 points against 384 with a contract developer | H | H | Capacity check in section 5.1. Option A+ adds a contract developer for S3 to S13. Re-plan after S2. Cut line and the Option C list agreed in advance | Engineering lead |
+| DR-09 | Team too small for R1 Must scope (C-07), now 438 points (version 0.5) against 417 with a contract developer to S13 | H | H | Capacity check in section 5.1. Option A+ adds a contract developer for S3 to S13; version 0.5 recommends one more sprint, S14, for professional payments. Re-plan after S2. Cut line and the Option C list agreed in advance | Engineering lead |
 | DR-10 | Hiring the engineering lead or developers takes longer than planned | M | H | Start the search in month 2 with offers conditional on G0. Keep a contract firm as fallback `[TO VERIFY]` | Founder |
 | DR-11 | Key-person dependency on the engineering lead (infrastructure, security, architecture) | M | H | Everything in code (EN-11), decision log (EN-09), runbooks (document 06), pairing, break-glass access held by the founder | Engineering lead |
 | DR-12 | Scope creep from R0 lessons, partner requests, sales promises and the wider positioning ("anything done at home") | H | M | Change control (section 12.3). New asks become proposed FRs in 01 first. The product owner trades scope rather than adding it. Lines without requirements (relocation, vehicles, investing) get discovery only (EN-63) | Founder |
@@ -2006,6 +2108,8 @@ Likelihood and impact are H (high), M (medium) or L (low). They are assumptions,
 | DR-37 | Attestation gaps: older Android phones fail Play Integrity, phones without Google Play cannot install the app, or an attestation service is down | M | M | EN-34 and EN-72 spikes on the oldest devices. Publish a supported phone list for the panel. Software-key flag for Android phones without hardware keys. Never accept a side-loaded build. Retry with back-off when a service is down | Engineering lead, operations |
 | DR-38 | Store review delays: a slow review holds back R2 go-live or an urgent fix | M | M | A month of buffer before each app's go-live (section 3.1). Review time measured in EN-75. Expedited review requests and halt procedures in document 06. Server-side switches for features, so most fixes need no app release | Engineering lead |
 | DR-39 | One mobile developer is a key person for native modules on two platforms, and is hard to hire | H | H | Hire early in R2 for both-platform native experience. Option R2-A keeps the contract developer on the TypeScript parts. Native modules documented and reviewed by the engineering lead. Option R2-B as fallback | Engineering lead, founder |
+| DR-41 | Fidero's operating bank or mobile money provider does not accept a bulk payment file, or its format is not known before S14 (Q-26) | M | M | EN-78 in S13. Fallback: staff key each line from the approved run in the bank's portal, each checked by a second person against the run's lines and hash | Founder, engineering lead |
+| DR-42 | Withholding tax rules for contracted professionals are not known when the first R1 payment run is due (Q-25) | M | H | EN-79 with an accountant before S14. Until then, runs stay manual and the accountant signs each one | Founder |
 | DR-40 | React Native misses the start time or size target on 2 GB Android phones (NFR-PERF-05) | M | M | EN-74 spike before feature work. Hermes, lazy screens, no heavy SDKs, size and start checks in CI. A slow screen can move to a native view | Mobile developer |
 
 ## 11. Budget view
@@ -2023,6 +2127,7 @@ The split below is a planning proposal for the founder to confirm. Every figure 
 | Security and quality: two R1 penetration tests, one R2 penetration test, accessibility audits | 7 to 18 | 3% | $12,000 | Quotes `[TO VERIFY]` |
 | **Engineering total** | | **48.4%** | **$193,600** | |
 | Option R2-A (recommended, not yet approved): contract developer kept S14 to S31 | 10 to 18 | 7.2% | $28,800 | 18 sprints at about $1,600 `[TO VERIFY]` (section 5.2). If approved, the engineering total becomes 55.6% ($222,400) and the rest of the pre-seed 44.4% ($177,600) |
+| Option A+ extended to S14 (recommended in version 0.5, not yet approved): contract developer kept one more sprint for professional payments | 10 | 0.4% | $1,600 | One sprint at about $1,600 `[TO VERIFY]` (section 5.1). It is the first sprint of Option R2-A; if R2-A is approved, it costs nothing more |
 | Country 2 manual phase: country 2 lead, lawyer, surveyor and runner fees, travel, template adaptation | 5 to 9 | `[TO VERIFY]` | `[TO VERIFY]` | Operations spend, inside the line below. Planning assumption: about the cost of Ghana's R0 manual phase `[TO VERIFY]` |
 | Country 3 manual phase | 15 to 18 | `[TO VERIFY]` | `[TO VERIFY]` | As above |
 | Rest of the pre-seed: operations team, marketing, insurance, legal, reserve, including both manual phases | 0 to 18 | 51.6% | $206,400 | Outside this document |
@@ -2032,7 +2137,7 @@ What this means, under these assumptions:
 - The team line allows about $9,300 a month on average for the whole product team over 15 months. Whether this buys the C-07 team is `[TO VERIFY]`. Months 9 to 18 cost more than months 3 to 9, because two roles join.
 - The second country costs money from month 5, not month 18 as in version 0.1. It comes out of the operations share, which also carries the new recurring-line operations load (DR-34). The founder should cost the country 2 manual phase before M-24.
 - If the team costs more, the choices are: a smaller share for another line, part-time roles, a later mobile or QA start, or a smaller R2 (cut line in section 5.2).
-- Publishing both apps on both stores adds about $28,800 if the founder takes Option R2-A, plus small store and build fees. Without it, R2 has about 2% spare capacity (section 5.2).
+- Publishing both apps on both stores adds about $28,800 if the founder takes Option R2-A, plus small store and build fees. Without it, R2 is about 31 points short (section 5.2).
 - R3 (months 18 to 36) falls outside the pre-seed. Its team and budget depend on a later round `[TO VERIFY]`.
 - The business plan doc and `docs/proposal.md` show the use of funds as `[TO VERIFY]`. If the founder accepts this split, both should be updated to match.
 
@@ -2088,7 +2193,7 @@ A no-go names what is missing, who fixes it and the new decision date.
 
 ## 13. Traceability summary
 
-How business requirements in 01 flow to features, epics and stories. F-36 (client mobile app) serves BR-01 through EP-APP; its own FR sources are F-36, BR-01, FR-ACC-003, C-14 and AS-14, listed in the second table. Each story implements the FR with the same number, and the FR's source in 01 decides the row. Document 05 extends this table to test cases.
+How business requirements in 01 flow to features, epics and stories. F-37 (professional payments) serves BR-23 through EP-PRO, and FR-PRO-010 serves BR-16. F-36 (client mobile app) serves BR-01 through EP-APP; its own FR sources are F-36, BR-01, FR-ACC-003, C-14 and AS-14, listed in the second table. Each story implements the FR with the same number, and the FR's source in 01 decides the row. Document 05 extends this table to test cases.
 
 | BR | Features | Epics | User stories |
 |---|---|---|---|
@@ -2107,13 +2212,14 @@ How business requirements in 01 flow to features, epics and stories. F-36 (clien
 | BR-13 | F-25, F-26 | EP-LST, EP-REC | US-LST-009, US-REC-001, US-REC-002, US-REC-003, US-REC-004 |
 | BR-14 | F-28 | EP-CTY | US-CTY-001a, US-CTY-001b, US-CTY-002a, US-CTY-002b, US-CTY-003, US-CTY-004 |
 | BR-15 | F-12, F-14 | EP-ACC, EP-ANL, EP-AUD, EP-EVD, EP-MOB, EP-NTF, EP-PAY, EP-RPT | US-ACC-003, US-ACC-007, US-ACC-009, US-ANL-003, US-AUD-001, US-AUD-002, US-AUD-003, US-AUD-004, US-EVD-003, US-EVD-005, US-MOB-009, US-NTF-004, US-NTF-005, US-PAY-002, US-RPT-011 |
-| BR-16 | F-13 | EP-ANL, EP-CASE, EP-ORD, EP-PAY | US-ANL-001, US-ANL-002, US-CASE-011, US-ORD-005, US-ORD-006, US-PAY-006 |
+| BR-16 | F-13, F-37 | EP-ANL, EP-CASE, EP-ORD, EP-PAY, EP-PRO | US-ANL-001, US-ANL-002, US-CASE-011, US-ORD-005, US-ORD-006, US-PAY-006, US-PRO-010 |
 | BR-17 | F-29, F-35 | EP-ACC, EP-ESC, EP-FEE | US-ACC-011, US-ACC-012, US-ESC-014, US-FEE-001, US-FEE-002, US-FEE-004, US-FEE-005, US-FEE-007 |
 | BR-18 | F-30 | EP-CARE, EP-ESC, EP-MOB | US-CARE-001, US-CARE-002, US-CARE-005, US-CARE-006, US-ESC-010, US-MOB-010 |
 | BR-19 | F-31 | EP-ESC, EP-PMG | US-ESC-010, US-PMG-001, US-PMG-003, US-PMG-004, US-PMG-006 |
 | BR-20 | F-32 | EP-ESC, EP-MOB, EP-TSK | US-ESC-010, US-MOB-010, US-TSK-001, US-TSK-002, US-TSK-005 |
 | BR-21 | F-33 | EP-INS | US-INS-001, US-INS-003 |
 | BR-22 | F-34 | EP-EVT | US-EVT-001, US-EVT-003 |
+| BR-23 | F-37 | EP-PRO | US-PRO-001, US-PRO-002, US-PRO-004, US-PRO-005, US-PRO-007, US-PRO-008, US-PRO-009 |
 
 Stories whose source in 01 is a business rule, constraint or assumption rather than a BR:
 
@@ -2146,14 +2252,17 @@ Stories whose source in 01 is a business rule, constraint or assumption rather t
 | RUL-19 | US-BLD-008 |
 | RUL-20 | US-ACC-005, US-RPT-005 |
 | RUL-21 | US-PRJ-003 |
-| RUL-22 | US-ESC-015, US-EVT-002, US-FEE-001, US-FEE-003, US-FEE-006, US-PMG-005, US-TSK-003 |
+| RUL-22 | US-ESC-015, US-EVT-002, US-FEE-001, US-FEE-003, US-FEE-006, US-PMG-005, US-TSK-003, US-PRO-006 |
 | RUL-23 | US-CARE-003, US-CARE-004, US-MOB-012, US-TSK-003, US-TSK-004 |
 | RUL-24 | US-PMG-002 |
 | RUL-25 | US-INS-001, US-INS-002, US-INS-004 |
+| RUL-26 | US-PRO-002, US-PRO-003 |
+| RUL-27 | US-PRO-005, US-PRO-006 |
+| Q-25 (question as source) | US-PRO-007 |
 
 ## 14. Issues found in document 01
 
-These were found while building the backlog against 01 version 0.3 and refreshed against version 0.6 for the app store decision. Document 01 was not changed. Each open item needs a decision by the product owner and, where it applies, a new version of 01.
+These were found while building the backlog against 01 version 0.3 and refreshed against version 0.6 for the app store decision and version 0.8 for professional payments. Document 01 was not changed. Each open item needs a decision by the product owner and, where it applies, a new version of 01.
 
 ### 14.1 Closed by 01 version 0.3
 
@@ -2173,7 +2282,7 @@ Items resolved by 01 version 0.4 stay in this table, marked resolved, so their n
 
 | ID | Where in 01 | Issue | Effect on this plan | Proposed fix |
 |---|---|---|---|---|
-| I-04 | C-07, B4 | C-07 still says one or two developers. R1 Must scope and enablers are now 408 points against 304 for the baseline team and 384 with a contract developer to S12. The country 2 manual phase also starts inside R1, with no role for it in 01 | R1 Musts finish around month 11 unless Option A+ is taken (section 5.1) | Founder decides between options A+, B and C. Record the team size and the country 2 lead in C-07 |
+| I-04 | C-07, B4 | C-07 still says one or two developers. R1 Must scope and enablers are now 438 points (version 0.5, with professional payments) against 304 for the baseline team, 384 with a contract developer to S12 and 417 to S13. The country 2 manual phase also starts inside R1, with no role for it in 01 | R1 Musts finish in S14 (month 10) with Option A+ and one more contract sprint, or about month 11 without the contract developer (section 5.1) | Founder decides between options A+, B and C. Record the team size and the country 2 lead in C-07 |
 | I-05 | FR-RPT-001, FR-CASE-013, RUL-02 | The report template covers land only. Building cases add four checks, but there are no building report sections, and RUL-02 refers to land sections 4 to 10 | US-CASE-013 can create the tasks but not a full building report | Add a building report template and state how RUL-02 applies to it |
 | I-06 | RUL-14, FR-LST-003, FR-PTR-002, C-06 | The scope statement in `docs/operations/verification-report-template.md` says the report is for the named client only. Listings show the full report to other buyers, and the partner API shares verdicts with banks | Listings and the partner API may conflict with the locked wording | Add to the R2 start gate: lawyer and insurer approve wording for listed and shared reports |
 | I-07 | A9, FR-ANL-001, C5.1 | Two A9 metrics have no source: client satisfaction ("survey after delivery") has no FR, and "lead source and conversion" needs leads that never order, but only orders record a source (FR-ORD-005) and there is no Lead entity | US-ANL-001 cannot show these two metrics | Add FRs for a post-delivery survey and for lead capture, and a Lead entity |
@@ -2194,8 +2303,12 @@ Items resolved by 01 version 0.4 stay in this table, marked resolved, so their n
 | I-26 | B5 F-35, FR-ACC-012, C4.19 | F-35 (unified home dashboard, Should R1) maps to ACC and ANL, but only FR-ACC-012 implements it. FR-ANL has no client-facing requirement | US-ACC-012 carries the whole feature | **Resolved by 01 v0.4.** F-35 now maps to ACC only |
 | I-27 | FR-CARE-004, FR-ESC-010, FR-ESC-014, C5.1 | Carers are paid "only for confirmed visits", but 01 does not say where the money is held before payment or how often carers are paid. The Care plan and visit entity has no payment fields | US-CARE-004 assumes a configured pay period and a release from the held balance (FR-ESC-014) | State the carer payment cycle and the held-balance source in FR-CARE-004 |
 | I-28 | B4 R2 row, BO-09 | The R2 finish gate adds "40% of clients with a recurring line", but the R2 start gate does not require the fees line (R1) to have run. If EP-FEE slips to S13 or later, the 40% target has little time | M-26 at month 9 is on the critical path for G2 | Add "fees to institutions live" to the R1 finish gate |
-| I-29 | C-07, FR-APP-001, FR-MOB-001 | C-07 adds one mobile developer in R2 for both apps on both platforms. R2 demand is now 638 points against 651 with that team: about 2% spare, and short in R2-A to R2-C | Client app at risk of missing its store review buffer and month 17 (M-39) | Founder decides Option R2-A or R2-B (section 5.2) and records the R2 team in C-07 |
+| I-29 | C-07, FR-APP-001, FR-MOB-001 | C-07 adds one mobile developer in R2 for both apps on both platforms. R2 demand is now 682 points (version 0.5) against 651 with that team: about 31 short, and short in R2-A to R2-C | Client app at risk of missing its store review buffer and month 17 (M-39) | Founder decides Option R2-A or R2-B (section 5.2) and records the R2 team in C-07 |
 | I-30 | FR-APP-004, RUL-11, C8 Escrow | 01 does not say what happens to an open escrow, money held at the bank or a standing approval when a client deletes the account in the app | US-APP-004 records the request and completes it when open items end; criteria 3 assumes this | State the rule in FR-APP-004 or FR-DPR-004 |
 | I-31 | B4, C-14 | Release gates in B4 do not mention store approval, but C-14 makes every app release depend on it | Section 12.4 adds store approval to the R2 go/no-go | Add "both apps approved by both stores" to the R2 finish gate, or say C-14 applies to every gate with an app in scope |
+| I-32 | C2, FR-PRO-005 | A payment run is approved by "a different one with payment rights", but C2 defines only release rights | US-PRO-005 cannot be accepted without knowing who may approve | Define payment rights in C2: held by reviewers or administrators named by two administrators, never by a contracted professional (document 02 assumes this) |
+| I-33 | C2, BR-23 | C2 lets lawyers and surveyors see their own payables, expenses and statements and lets runners claim expenses, but gives runners no payables or statements and gives inspectors, quantity surveyors and errand agents nothing, although BR-23 says Fidero pays all six | US-PRO-002 and US-PRO-004 serve all six roles; acceptance assumes it | Update the C2 rows for Runner, Inspector, Quantity surveyor and Carer or errand agent |
+| I-34 | FR-PRO-002 | A payable is created when "a runner's month closed", but 01 does not say who closes it or what a part month pays | US-PRO-002 criterion 4 assumes a case manager closes it and a part month is paid pro rata by calendar days | State both in FR-PRO-002 |
+| I-35 | FR-PRO-002 (R1) against FR-BLD, FR-PMG and FR-TSK (R2) | Three of the five acceptance events (inspection submitted, bill of quantities accepted, errand document checked) come from R2 modules, so in R1 only lawyers, surveyors and runners can be paid through the platform | None for R1; US-PRO-002 criterion 5 is tested in R2 | Say "from R2" for those three sources in FR-PRO-002 |
 
-**Note on other documents.** `docs/proposal.md` (section 3) says escrow release keeps "one human approval". 01 (RUL-05) requires two Fidero staff. This plan follows 01. The proposal and the business plan doc should be aligned. Documents 02, 03, 05 and 06 are aligned to 01 version 0.6, as this one is.
+**Note on other documents.** `docs/proposal.md` (section 3) says escrow release keeps "one human approval". 01 (RUL-05) requires two Fidero staff. This plan follows 01. The proposal and the business plan doc should be aligned. Documents 02, 03, 05 and 06 are aligned to 01 version 0.8, as this one is.

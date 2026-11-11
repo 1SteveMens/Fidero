@@ -5,7 +5,7 @@ Business requirements (BRD), product requirements (PRD) and software requirement
 | Item | Value |
 |---|---|
 | Document | 01 of 6 in `docs/specs/` |
-| Version | 0.8, working draft |
+| Version | 0.9, working draft |
 | Date | 1 November 2026 |
 | Owner | Founder, acting as product owner |
 | Status | For review. Not yet baselined |
@@ -18,6 +18,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 31 October 2026 | First draft |
+| 0.9 | 11 November 2026 | Clarifies professional payments: payment rights defined; every contracted role sees its own pay; who closes a runner's month and what a part month pays; pay may be held only during a recorded fraud or misconduct review; withholding does not apply to reimbursed expenses unless the law says so; IF-13 for Fidero's operating bank. No new requirement IDs. |
 | 0.8 | 11 November 2026 | Adds module PRO, professional payments (FR-PRO-001 to FR-PRO-010): rate cards, payables only for accepted work, expenses, two-person payment runs from Fidero's operating account, tax per country, reconciliation and statements. Adds BR-23, F-37, RUL-26, RUL-27, Q-25, Q-26 and a payables data class. FR-TSK-002 now takes Fidero's errand charge through the payment provider; FR-TSK-003 says errand agents are paid by Fidero. |
 | 0.7 | 7 November 2026 | Push is a notification channel (FR-NTF-001); store approval of both apps added to the R2 finish gate (B4). |
 | 0.6 | 7 November 2026 | Founder decision: the mobile apps are published on the Apple App Store and Google Play. Two apps from R2: Fidero (clients and families) and Fidero Field (field roles), both on iOS and Android. Adds module APP (FR-APP-001 to FR-APP-006), feature F-36, NFR-STORE-01 and NFR-STORE-02, C-14, AS-14, IF-12, Q-23 and Q-24; FR-MOB-001 and FR-MOB-004 cover iOS; AS-08 retired; Q-09 answered. |
@@ -530,7 +531,7 @@ It integrates with an escrow bank, a payment provider, an identity check provide
 | Surveyor | Work assigned site visits; sign the surveyor's section; see their own payables, expenses and statements | See unassigned cases or other professionals' pay |
 | Runner | Work assigned tasks; capture evidence; claim expenses with receipts | Sign sections; carry client money |
 | Contractor | Submit milestone evidence for assigned projects | Choose the inspector; release |
-| Inspector | Complete checklists for assigned inspections | Work on a project where they have a conflict |
+| Inspector | Complete checklists for assigned inspections; see their own payables and statements | Work on a project where they have a conflict |
 | Quantity surveyor | Upload bills of quantities and milestone splits for assigned projects | Approve releases |
 | Client representative | Read-only view of a case or project the client shares (FR-ACC-008) | Approve anything; see other cases |
 | Project runner | The person running a funded project: upload invoices, receipts and photos | Receive money; choose suppliers alone |
@@ -538,13 +539,17 @@ It integrates with an escrow bank, a payment provider, an identity check provide
 | Authority representative | View and confirm their authority's records (R3) | See case data unrelated to their records |
 | Family member | Confirm a care visit or a delivery; see the parts of a case the client shares | Receive money; approve releases |
 | Institution contact | Confirm an invoice and enrolment or treatment; receive payment to the institution's account | See the client's other activity |
-| Carer or errand agent | Check in and out, complete plan items, upload evidence for assigned visits and tasks | Receive money outside confirmed work; see unrelated clients |
+| Carer or errand agent | Check in and out, complete plan items, upload evidence for assigned visits and tasks; errand agents see their own payables and statements | Receive money outside confirmed work; see unrelated clients |
 | Tenant | See their agreement and rent record; report a repair | See the owner's other data |
 | Insurer partner | Receive applications and premiums; return policy documents and claim outcomes | See clients who did not apply |
 | Partner (API) | Query plot status for consented reports | See full reports without consent |
 | Administrator | Configure users, roles, templates, prices, partners, countries | Release money; edit the audit log |
 
 Release rights are a permission, not a role. Reviewers and senior staff named by the founder hold it. The two approvers of a release must be different people, and neither may be the person who prepared the instruction.
+
+Payment rights are a separate permission for Fidero's own payment runs to contracted professionals (FR-PRO-005). Senior staff named by the founder hold it. The approver of a run must be a different person from its preparer. Nobody who holds a contracted professional role may hold payment rights, and payment rights never allow a release of client money.
+
+Every contracted professional, including quantity surveyors, sees only their own agreement, payables, expenses and statements. A case manager closes a runner's month on the last working day; a part month pays by working days at the agreed monthly fee. Pay for accepted work may be held only while a fraud or misconduct review is recorded against that work, with the reason shown to the professional, and is released or cancelled when the review closes. Withholding tax applies to fees, not to reimbursed expenses, unless a country's law says otherwise (Q-25).
 
 ## C3. Operating environment
 
@@ -998,6 +1003,7 @@ Fidero's own contracted professionals are paid by Fidero, from its fee income, t
 | IF-09 | Lands Commission | Searches | Manual in all releases unless online access is offered `[TO VERIFY]` | |
 | IF-10 | Institutions: schools, hospitals, agencies | Invoice references and receipts | R1 manual upload; R2 portal or file | Per institution `[TO VERIFY]` |
 | IF-11 | Insurer partners | Applications, premiums, policies, claims | R2 | Per insurer `[TO VERIFY]` |
+| IF-13 | Fidero's operating bank or mobile money provider | Bulk payment files for professional pay and their confirmations | R1 | Fidero's own account, separate from the escrow bank relationship (Q-26) |
 | IF-12 | Apple App Store and Google Play | App distribution and review, push notification services, device attestation | R2 | Store accounts held by Fidero |
 
 ## C7. Non-functional requirements

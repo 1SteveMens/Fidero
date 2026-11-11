@@ -8,12 +8,12 @@ Test strategy, test cases, acceptance criteria and traceability for the Fidero p
 |---|---|
 | Document | 05 of 6 in `docs/specs/` |
 | Title | Testing and acceptance |
-| Version | 0.4 |
-| Date | 7 November 2026 |
+| Version | 0.5 |
+| Date | 11 November 2026 |
 | Status | Draft. For review. Not yet baselined |
 | Owner | QA and test lead (role to be filled), for the founder as product owner |
 | Approver | Founder, acting as product owner |
-| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01), version 0.6 |
+| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01), version 0.8 |
 | Other sources | `docs/decisions/2026-11-01-diaspora-platform.md`, `docs/operations/verification-report-template.md`, `docs/operations/milestone-schedule.md`, `docs/validation-plan.md`, `docs/product/architecture.md` |
 | Related documents | Document 02 (architecture), document 04 (epics `EP-<MODULE>` and user stories `US-<MODULE>-nnn`), document 06 (operations, runbooks, backup and restore) |
 
@@ -23,6 +23,7 @@ Test strategy, test cases, acceptance criteria and traceability for the Fidero p
 | 0.2 | 1 November 2026 | QA and test architect | Updated to document 01 version 0.3 (195 functional requirements, 25 business rules). Fidero is now the diaspora's trusted agent at home, per `docs/decisions/2026-11-01-diaspora-platform.md`. Adds risk rows and functional tests for the new modules FEE, CARE, PMG, TSK, INS and EVT; rule tests for RUL-22 to RUL-25 with abuse cases; tests for the new and changed FRs (FR-ACC-012, FR-ESC-014, FR-ESC-015, FR-MOB-012, FR-CTY-004; FR-ACC-007, FR-ACC-008, FR-ACC-011, FR-ESC-004, FR-ESC-006, FR-ESC-010, FR-MOB-010, FR-ADM-003, FR-ADM-005); state tests for the revised escrow, milestone, listing and dispute models from 01 version 0.2; journeys J-09 to J-12; security threats for institution impersonation, invoice tampering, payee substitution, check-in spoofing, confirmation-code brute force and cross-country access; carer and errand agent field trials; UAT for P-15 to P-17 and an institution contact; partner acceptance with an institution and an insurer; country configuration moved to R1 and the country-2 gate added to release acceptance. NFR tests updated for the renamed NFR-A11Y-01 and the measurable NFR-USE-01, NFR-USE-02, NFR-PERF-03 and NFR-AVL-01. Traceability and counts regenerated. Section 16 refreshed: 22 items closed by 01 versions 0.2 and 0.3, 14 kept, 16 added |
 | 0.3 | 1 November 2026 | QA and test architect | Aligned to 01 v0.4: runner cash route removed (TC-RUL-22-07, TC-FEE-006-01 and TC-FEE-006-02 replaced by tests that an institution is marked not eligible, no cash path exists and no release can name a runner; TC-FEE-006-03, TC-E2E-J09-07 and OAT-12 rewritten); fresh search for purchases only (TC-RUL-07-05, TC-ESC-006-07); standing approvals (TC-RUL-11-07, TC-RUL-11-08, TC-CARE-001-03, TC-TSK-003-05); sellers and developers as payees (TC-RUL-22-08); account-name source and no override (TC-ESC-015-05, TC-ESC-015-06); 72-hour reviewer decision, second-person call check and code lockout at 5 (TC-CARE-004-04 to -06); written mandate (TC-PMG-003-03, -04); premium routes (TC-INS-002-04, PAT-21); dispute Withdrawn state (TC-STM-DSP-15 to -17, TC-DSP-002-03); RUL-08 for inspections, visits and errands (TC-RUL-08-05); field app for carers and agents (TC-MOB-001-03); new data classes (TC-DPR-004-03). 871 test cases. Issues 17, 18, 19, 23, 25, 29 and 30 resolved; 14, 20 and 22 partly. |
 | 0.4 | 7 November 2026 | QA and test architect | Aligned to 01 v0.6: both app stores, React Native, client app. New functional tests TC-APP-001-01 to TC-APP-006-03 (22) for module APP; TC-MOB-001-04, TC-MOB-002-03, TC-MOB-004-03 to -05 and TC-MOB-005-04 to -05 for iOS (camera-only capture, Secure Enclave signing, App Attest, store-only registration, background upload, queue surviving termination by iOS); device matrix adds iPhones (oldest supported iOS, small screen); store acceptance tests TC-STORE-01 to TC-STORE-07; NFR tests for both platforms and NFR-STORE-01 and NFR-STORE-02; TC-SEC-41 to TC-SEC-44; TC-FLD-19 and TC-FLD-20; UAT-36 to UAT-40 for the client app and Fidero Field on iPhone; OAT-09 widened and OAT-15 and OAT-16 added; R2 release acceptance needs both stores' approval of both apps. Traceability and coverage counts regenerated. Issues 31 to 35 added; 4 and 27 updated. |
+| 0.5 | 11 November 2026 | QA and test architect | Aligned to 01 v0.8: professional payments. New functional tests TC-PRO-001-01 to TC-PRO-010-02 (31) for module PRO; rule tests TC-RUL-26-01 to TC-RUL-26-06 and TC-RUL-27-01 to TC-RUL-27-06, with abuse cases for a verdict-linked rate, a payment run approved by its preparer, paying a professional from escrow, an expense with no receipt and a duplicate payable for the same work; security tests TC-SEC-45 to TC-SEC-47; risk row and test data for PRO. FR-TSK-002 and FR-TSK-003 tests updated (TC-TSK-002-01, -02, TC-TSK-004-01, TC-RUL-23-05, TC-E2E-J12-03) and added (TC-TSK-002-04, TC-TSK-003-06, -07): Fidero's errand charge goes through the payment provider and the agent is paid by Fidero. UAT-41 to UAT-44 (a lawyer, a surveyor and a runner seeing their pay; two staff running a payment run); OAT-17; partner acceptance with Fidero's operating bank for the bulk payment file (PAT-24 to PAT-28). R1 release criteria, go/no-go, traceability and coverage counts regenerated. Issues 36 to 41 added. |
 
 Every figure in this document is a working assumption, not verified data. Unknown numbers are marked `[TO VERIFY]`. Test tooling named here is a proposal. The engineering lead confirms it before R1 build starts.
 
@@ -115,6 +116,7 @@ Testing depth follows risk. Risk is the likelihood of failure times the impact o
 | TSK Paperwork and errands | Official fee paid to the agent, not the agency; errand closed without the resulting document; forged receipt or acknowledgement; client identity documents exposed | Medium | High | High | Deep: integration, E2E, RUL-22 and RUL-23 abuse cases, field trial with agents |
 | INS Insurer partner lines | Premium collected into a Fidero account; policy shown as Fidero's; claim decided by Fidero; application data sent to the wrong insurer | Low | High (licence and legal risk, C-11) | Medium | Standard plus RUL-25 abuse cases and partner acceptance with the insurer |
 | EVT Events and ceremonies | Vendor paid without invoice or delivery evidence; deposit paid without signed quote; vendor not verified | Low | Medium | Low | Standard at R3 plus RUL-22 |
+| PRO Professional payments | A professional paid from escrow or held funds; pay linked to a verdict; a payment run approved by its preparer; a payable created twice or paid twice; an expense without a receipt paid on one approval; pay sent to an account not in the professional's name; wrong tax withheld | Medium | High | High | Deep: database constraint tests, property-based tests on payable creation and run totals, RUL-26 and RUL-27 abuse cases, partner acceptance with Fidero's operating bank |
 | ORD Orders | Case created without payment | Low | Medium | Medium | Standard |
 | ADM Administration | Scope text, bank details or a release-affecting value changed by one person; config change unaudited | Low | High | Medium | Standard plus RUL-04 and second-administrator cases |
 | ANL Analytics | Personal data in dashboards; metrics mixed across countries | Low | Medium | Low | Standard |
@@ -124,7 +126,7 @@ Testing depth follows risk. Risk is the likelihood of failure times the impact o
 
 Rules that follow from the matrix:
 
-- Every RUL test and every test on ESC, FEE, CARE, RPT, EVD, MOB, APP, BLD, AUD, DPR and PAY Must requirements is P1 and automated where possible.
+- Every RUL test and every test on ESC, FEE, CARE, RPT, EVD, MOB, APP, BLD, AUD, DPR, PAY and PRO Must requirements is P1 and automated where possible.
 - Very high risk modules need property-based tests (hypothesis) on their decision functions, for example "may this release be instructed?", "does this payee match the verified institution?" and "what overall verdicts are allowed?". The property is stated in the test, such as "for any combination of section verdicts with a red in 4 to 10, green is never allowed" or "for any payee whose account name differs from the verified name, no instruction is generated".
 - Very high risk modules need mutation testing on the release and verdict decision code before each release `[TO VERIFY]` tool choice, such as mutmut. Target: no surviving mutants in those functions.
 - A defect in any very high risk area is at least S2. A defect that lets money move, or evidence change, without the rules is S1 (section 12).
@@ -232,6 +234,8 @@ Rules:
 **Properties, tenants and repairs.** Managed properties with tenancy agreements, rent due dates and the owner's own account at the partner bank. Negative fixtures: rent account set to a Fidero fee account, to a staff member's account, to the tenant's account. Repair fixtures: two quotes, one quote, quote above budget, inspection photos present and missing.
 
 **Errands and agents.** A catalogue of five errand types for Ghana and three for the synthetic test country, each with a checklist, official fees and Fidero's charge. Agencies with verified accounts. Negative fixtures: agent's personal account as payee, errand closed without a document, acknowledgement image reused from another errand.
+
+**Professionals and pay.** Synthetic lawyers, surveyors and runners for Ghana and Testland (inspectors, quantity surveyors and errand agents from R2), each with a signed agreement, a verified payee account in their own name and a tax status. Rate card versions with start dates either side of an assignment date. Testland tax rules use synthetic rates, never real ones (Q-25). Pairs of red and green reports signed by the same lawyer under the same card. Negative fixtures: a professional whose payee account is in a relative's name; a payee changed after a run was approved; a scope key or rate field naming a result; a receipt photo reused on two claims; a claim with no receipt; the same `work.accepted` event delivered twice and replayed with a new event ID; an operating account set to the escrow bank's account; a staff member who prepares and then tries to approve a run.
 
 **Insurer and event fixtures.** One synthetic insurer with two products and a sandbox or fake interface `[TO VERIFY]` (IF-11); premium account in the insurer's name; a negative fixture with the premium account set to a Fidero account. Event vendors with invoices, delivery notes and a signed quote for a deposit.
 
@@ -402,7 +406,7 @@ These rules come from the redefinition in `docs/decisions/2026-11-01-diaspora-pl
 | TC-RUL-23-02 | RUL-23 | Carer self-confirming: carer enters the family confirmation code from their own device, or from a device registered to the carer | Confirm | Rejected; code accepted only from the family member's registered channel; flagged for reviewer | A/S | Y | R2 |
 | TC-RUL-23-03 | RUL-23 | Check-in missing, or outside the configured radius, or no check-out | Family confirms anyway | Visit marked "confirmed without check-in"; not payable until a reviewer decides; client alerted | A | Y | R2 |
 | TC-RUL-23-04 | RUL-23 | Check-in valid; family does not confirm within the configured period | Run payment | Not paid; client and Fidero alerted (FR-CARE-005); at 72 hours the visit goes to a reviewer, and it is paid only if the reviewer confirms it (FR-CARE-004) | A | Y | R2 |
-| TC-RUL-23-05 | RUL-23 | Errand with steps recorded; resulting document not yet uploaded | Request agent payment for completion | Blocked; agency fee for official steps allowed only against uploaded receipts (FR-TSK-003, FR-TSK-004) | A | Y | R2 |
+| TC-RUL-23-05 | RUL-23 | Errand with steps recorded; resulting document not yet uploaded | Look for the agent's payable; request the next step's agency fee without its receipt | No payable for the agent until the document is uploaded and checked (FR-PRO-002); agency fees for official steps only against uploaded receipts (FR-TSK-003, FR-TSK-004) | A | Y | R2 |
 | TC-RUL-23-06 | RUL-23 | Agent uploads a document image already used on another errand | Confirm completion | Hash already seen; flagged; not confirmed | A/S | Y | R2 |
 | TC-RUL-24-01 | RUL-24 | Managed property; owner's own account at the partner bank recorded | Tenant pays rent; statement line imported | Rent marked received against the owner's account; owner sees it | I | Y | R2 |
 | TC-RUL-24-02 | RUL-24 | Rent routed to a Fidero account: staff or owner sets the rent account to a Fidero fee account, a staff member's account or any account not in the owner's name | Save | Rejected by deny list and name check; alert raised; audited | A/S | Y | R2 |
@@ -412,6 +416,25 @@ These rules come from the redefinition in `docs/decisions/2026-11-01-diaspora-pl
 | TC-RUL-25-02 | RUL-25 | Premium collected by Fidero: administrator sets the premium account to a Fidero account, or a fee order type "premium" is created | Save; attempt payment | Rejected by deny list and order-type allow list; alert raised (extends TC-RUL-01-02) | A/S | Y | R2 |
 | TC-RUL-25-03 | RUL-25 | Claim started by client | Staff tries to record a claim decision | No function to decide; only the insurer's response can be recorded (FR-INS-004) | A | Y | R2 |
 | TC-RUL-25-04 | RUL-25 | Product page and policy document | Inspect text | The insurer's name appears; no wording presents Fidero as insurer; disclaimer text from a locked block | E | Y | R2 |
+
+### 3.6 Professional pay rules (RUL-26, RUL-27)
+
+From 01 v0.8. The threat is pay that bends with the verdict, or money that crosses between client escrow and Fidero's own account.
+
+| ID | Rule | Preconditions | Steps | Expected result | Level | Auto | Rel |
+|---|---|---|---|---|---|---|---|
+| TC-RUL-26-01 | RUL-26 | Same lawyer, same rate card; one report released red, one green | Both legal sections pass second review | Two payables of equal amount; neither the payable nor the `work.accepted` event carries a verdict | A | Y | R1 |
+| TC-RUL-26-02 | RUL-26 | Abuse, verdict-linked rate: an administrator adds a rate for "red" or "pass", a scope key named after a result, or an extra outcome field | Save through UI and API; insert a scope key as `fidero_app` | Refused every time: no such field, unknown fields rejected, `pro_scope` insert denied; the CI schema test fails on any added rate column | A/S | Y | R1 |
+| TC-RUL-26-03 | RUL-26 | Same inspector, same rate card; one inspection passed, one failed | Submit both checklists | Equal payables | A | Y | R2 |
+| TC-RUL-26-04 | RUL-26 | Abuse: a reviewer holds or cancels a payable because the report was red or the inspection failed | Hold or cancel with that reason | Refused; only a fraud or misconduct review is a hold reason; the attempt is audited | A | Y | R1 |
+| TC-RUL-26-05 | RUL-26 | Contract test on the `work.accepted` event schema | Add a verdict or outcome field on a test branch | The contract test fails the build | U | Y | R1 |
+| TC-RUL-26-06 | RUL-26 | Abuse, duplicate payable for the same work: the acceptance event is delivered twice, replayed with a new event ID, and the section is re-accepted after a correction | Process each | One payable for the section; the unique work key rejects the rest; a corrected report version creates no second payable | A/S | Y | R1 |
+| TC-RUL-27-01 | RUL-27 | Approved payment run | Build the bulk file | Debit account is the operating account; every payee is kind `contracted_professional`; no escrow or held-funds reference in the file or the records | A | Y | R1 |
+| TC-RUL-27-02 | RUL-27 | Abuse, paying a professional from escrow: a case manager prepares a release from a held-funds or purchase escrow to a lawyer's `contracted_professional` payee, or registers the same account as a client-side payee of another kind | Prepare and approve through UI and API | Refused: no release subject maps to `contracted_professional`; the second payee record for the same account is flagged for a reviewer; the attempt is audited and alerted | A/S | Y | R1 |
+| TC-RUL-27-03 | RUL-27 | Abuse: an administrator points a run's operating account at the escrow bank account; a preparer adds an institution, contractor or carer payee to a run | Save; approve | Refused by the operating-account and line-payee checks; nothing reaches the file | A/S | Y | R1 |
+| TC-RUL-27-04 | RUL-27 | Build inventory | Scan foreign keys and imports between `profpay` and `escrow` | Only the payee selector is imported and only `esc_payee` is referenced; the CI check fails otherwise | U/S | Y | R1 |
+| TC-RUL-27-05 | RUL-27 | Abuse, payment run approved by its preparer: through the UI, through the API with the approver ID changed, and with a second account on the same phone | Approve | Refused (`approved_by <> prepared_by`, preparer cannot fill the approval slot); the linked account is flagged (TC-SEC-02 pattern) | A/S | Y | R1 |
+| TC-RUL-27-06 | RUL-27 | Abuse, expense with no receipt: a runner claims GHS 250.00 (sample) for a search fee with no receipt; one case manager approves | Prepare a run | The claim stays out of the run until a second, different staff member approves it; the claimant can never approve it | A | Y | R1 |
 
 ---
 
@@ -882,6 +905,42 @@ Tests run on both platforms unless the title names one. FR-APP-004 and FR-APP-00
 | TC-DPR-005-01 | FR-DPR-005 | Bulk export with two approvals | Admins A and B | A requests; B approves | Export produced, logged, link expires | P1 | Y | R1 |
 | TC-DPR-005-02 | FR-DPR-005 | Single-person bulk export | Admin A | Approve own request; use CSV export to pull all clients | Blocked; ANL export cannot exceed role or size limit | P1 | Y | R1 |
 
+### 4.20a Professional payments (PRO)
+
+| TC ID | FR | Title | Preconditions | Steps | Expected result | Pri | Auto | Rel |
+|---|---|---|---|---|---|---|---|---|
+| TC-PRO-001-01 | FR-PRO-001 | Agreement and rate card version | Professional with signed agreement and verified payee | Administrator A drafts a rate card version with a start date; administrator B approves | Approved; applies to work assigned from the start date; earlier work keeps its rate | P1 | Y | R1 |
+| TC-PRO-001-02 | FR-PRO-001 | One administrator, or an edit after approval | Draft by A | A approves own draft; anyone edits an approved rate | Both refused; a change needs a new version | P1 | Y | R1 |
+| TC-PRO-001-03 | FR-PRO-001 | Work assigned without an agreement | Professional with no active agreement or no verified payee | Assign a task | Refused with the reason | P1 | Y | R1 |
+| TC-PRO-002-01 | FR-PRO-002 | Payable on an accepted section | Lawyer assigned under a card | Sign the section; reviewer passes second review | One payable at the card in force at assignment, with due date; visible in My pay | P1 | Y | R1 |
+| TC-PRO-002-02 | FR-PRO-002 | No payable before acceptance | Section signed, not reviewed; another returned with comments | Check payables | None for either | P1 | Y | R1 |
+| TC-PRO-002-03 | FR-PRO-002 | Duplicate acceptance | Event delivered twice; replayed with a new event ID | Process | One payable (TC-RUL-26-06) | P1 | Y | R1 |
+| TC-PRO-002-04 | FR-PRO-002 | Runner month | Runner with a monthly fee | Case manager closes May; closes May again; runner started on 11 May | One payable; the second close refused; part month pro rata by calendar days (assumption) | P1 | Y | R1 |
+| TC-PRO-002-05 | FR-PRO-002 | R2 sources | Inspection checklist submitted; bill of quantities accepted; errand document checked | Process each | Payable for the inspector, the quantity surveyor and the agent | P1 | Y | R2 |
+| TC-PRO-003-01 | FR-PRO-003 | Flat rate per unit | Administrator | Create a card with a unit and a scope key from the fixed list | Saved | P1 | Y | R1 |
+| TC-PRO-003-02 | FR-PRO-003 | Result-linked rate refused | Administrator | Add a rate by verdict or outcome | Refused (TC-RUL-26-02) | P1 | Y | R1 |
+| TC-PRO-004-01 | FR-PRO-004 | Claim with receipt within the limit | Runner on an assigned case | Claim travel with a receipt photo; case manager approves | Approved; joins the next run | P2 | Y | R1 |
+| TC-PRO-004-02 | FR-PRO-004 | Over the limit or no receipt | As above | Claim above the limit; another with no receipt; one approval each | Both wait for a second, different staff approval (TC-RUL-27-06) | P2 | Y | R1 |
+| TC-PRO-004-03 | FR-PRO-004 | Reused receipt; self-approval | Receipt already on a paid claim; staff member who is the claimant | Submit; approve own claim | Both refused | P2 | Y | R1 |
+| TC-PRO-005-01 | FR-PRO-005 | Prepare and approve a run | Approved payables and expenses | Case manager prepares to a cut-off; a different person with payment rights approves with MFA | Lines per professional; bulk file in the operating bank's format; SHA-256 stored and shown | P1 | Y | R1 |
+| TC-PRO-005-02 | FR-PRO-005 | Wrong approver | Prepared run | Preparer approves; a staff member without payment rights approves | Both refused (TC-RUL-27-05) | P1 | Y | R1 |
+| TC-PRO-005-03 | FR-PRO-005 | Change after approval | Approved run | Edit a line or a payee | Approval withdrawn; run back to draft; file not downloadable | P1 | Y | R1 |
+| TC-PRO-005-04 | FR-PRO-005 | File matches the approved run | Approved run | Compare file lines and totals with the run; alter the stored file | Match; an altered file fails its hash check and cannot be downloaded | P1 | Y | R1 |
+| TC-PRO-006-01 | FR-PRO-006 | Own verified account, operating account only | Approved run | Build the file | Debit is the operating account; each credit account matches the verified payee name (TC-RUL-27-01) | P1 | Y | R1 |
+| TC-PRO-006-02 | FR-PRO-006 | Unverified or mismatched payee | Payee pending; account name differs; account in a relative's name | Prepare a run | Items left out with the reason; no override | P1 | Y | R1 |
+| TC-PRO-006-03 | FR-PRO-006 | No path from escrow | Held-funds escrow; lawyer's payee | Release instruction to the lawyer | Refused (TC-RUL-27-02) | P1 | Y | R1 |
+| TC-PRO-007-01 | FR-PRO-007 | Withholding from configuration | Ghana configuration with a synthetic test rate | Create and pay a payable | Withholding from the configuration; its version stored; remittance advice shows gross, each deduction and net | P1 | Y | R1 |
+| TC-PRO-007-02 | FR-PRO-007 | Country rules, not hard-coded | Testland professional | Create and pay a payable | Testland's rules apply; a scan finds no Ghana value in code | P1 | Y | R1 |
+| TC-PRO-007-03 | FR-PRO-007 | Yearly statement | A tax year of paid lines | Generate statements | Totals equal the remittance advices; PDF hashed | P1 | Y | R1 |
+| TC-PRO-007-04 | FR-PRO-007 | Tax rules change mid-year | New configuration published | Create payables before and after | Old payables keep their version; corrections are new lines, never edits | P1 | Y | R1 |
+| TC-PRO-008-01 | FR-PRO-008 | Due date | Accepted payable before a public holiday | Read due date | Acceptance date plus 10 working days (assumption), skipping the country's holidays | P2 | Y | R1 |
+| TC-PRO-008-02 | FR-PRO-008 | Overdue alert | Payable past due, unpaid | Run the daily job | Operations alerted; payable shows overdue | P2 | Y | R1 |
+| TC-PRO-009-01 | FR-PRO-009 | Confirmation matched | Issued run | Import the bank's confirmation | Lines confirmed; remittance advices sent | P2 | Y | R1 |
+| TC-PRO-009-02 | FR-PRO-009 | Failed line paid once | One line failed (closed account) | Move it to the next run; import both confirmations | Paid once only; payables back to approved, then paid | P2 | Y | R1 |
+| TC-PRO-009-03 | FR-PRO-009 | Unconfirmed line closed by a bank letter | Line unconfirmed | Staff A records a bank letter | Not confirmed until staff B checks it | P2 | Y | R1 |
+| TC-PRO-010-01 | FR-PRO-010 | Case cost record | Accepted payable and approved expense on a case | Open the case costs | Two entries with amounts and sources; cost per report on the dashboard uses them | P2 | Y | R1 |
+| TC-PRO-010-02 | FR-PRO-010 | No double counting | A failed line moved to the next run | Open the case costs | One entry per source | P2 | Y | R1 |
+
 ### 4.21 Payments to institutions (FEE)
 
 The R1 money line for family supporters (P-15). Every test here also serves RUL-22.
@@ -962,15 +1021,18 @@ Safety of a vulnerable person is the impact here. Tests that affect safety alert
 |---|---|---|---|---|---|---|---|---|
 | TC-TSK-001-01 | FR-TSK-001 | Errand catalogue per country | Ghana and Testland catalogues | Client in each country opens catalogue | Own country's errands only, each with checklist, official fees, Fidero's charge and target time | P2 | Y | R2 |
 | TC-TSK-001-02 | FR-TSK-001 | Catalogue item incomplete | Admin | Publish an errand without fees or checklist | Rejected | P2 | Y | R2 |
-| TC-TSK-002-01 | FR-TSK-002 | Upload checklist documents and pay | Errand ordered | Upload each document; pay official fees and charge into the partner bank | Documents hashed and linked; bank details only (RUL-01); errand funded after bank confirmation | P1 | Y | R2 |
-| TC-TSK-002-02 | FR-TSK-002 | Checklist incomplete or payment short | Errand ordered | Omit one document; deposit less than fees plus charge | Errand cannot be assigned; client told what is missing | P1 | Y | R2 |
+| TC-TSK-002-01 | FR-TSK-002 | Upload checklist documents and pay | Errand ordered | Upload each document; pay official fees into the partner bank and Fidero's charge by card or mobile money through the payment provider | Documents hashed and linked; official fees: bank details only (RUL-01); Fidero's charge: provider receipt, never paid into the partner bank; errand funded after bank confirmation | P1 | Y | R2 |
+| TC-TSK-002-02 | FR-TSK-002 | Checklist incomplete or payment short | Errand ordered | Omit one document; deposit less than the official fees; Fidero's charge payment fails | Errand cannot be assigned; client told what is missing | P1 | Y | R2 |
 | TC-TSK-002-03 | FR-TSK-002 | Identity documents protected | Documents uploaded | Agent, other clients and institution contact try to open them | Agent sees only the documents the step needs, by signed link; others 404 | P1 | Y | R2 |
+| TC-TSK-002-04 | FR-TSK-002 | Each payment by its own route | Errand ordered | Pay Fidero's charge into the held-funds account; pay official fees through the payment provider | Both refused: Fidero's charge only through the provider (FR-PAY-005), official fees only into the partner bank (RUL-01) | P1 | Y | R2 |
 | TC-TSK-003-01 | FR-TSK-003 | Vetted agent assigned; fees paid to the agency | Funded errand; agency verified | Assign; agent lodges application; receipt uploaded | Official fee instruction names the agency's verified account; step recorded with receipt | P1 | Y | R2 |
 | TC-TSK-003-02 | FR-TSK-003 | Fee to the agent or an unverified agency | Funded errand | Payee set to the agent's personal account; agency unverified | Blocked (RUL-22); agent asking for cash recorded as a flag | P1 | Y | R2 |
 | TC-TSK-003-03 | FR-TSK-003 | Unvetted agent | Agent vetting pending | Assign | Blocked | P1 | Y | R2 |
 | TC-TSK-003-04 | FR-TSK-003 | Step without receipt | Agent marks step done | No receipt or acknowledgement attached | Step not recorded as done; client status unchanged | P1 | Y | R2 |
 | TC-TSK-003-05 | FR-TSK-003 | Step fee under a standing approval | Errand with an active standing approval up to a monthly amount | Prepare a step fee within the amount, then one above it | Within: no new client approval; receipt and two staff approvals still required. Above: the client must approve that fee (TC-RUL-11-08) | P1 | Y | R2 |
-| TC-TSK-004-01 | FR-TSK-004 | Completion confirmed by the resulting document | All steps done | Agent uploads the new Ghana Card image; staff check it | Errand Complete; Fidero's charge release allowed; client notified | P1 | Y | R2 |
+| TC-TSK-003-06 | FR-TSK-003 | Agent paid by Fidero, not from client money | Errand complete; document checked | Run payables and a payment run; try a release from the errand's held funds to the agent | Agent's payable at the per-errand rate, paid in a payment run from the operating account; the release is refused (TC-RUL-27-02) | P1 | Y | R2 |
+| TC-TSK-003-07 | FR-TSK-003 | Agent without an agreement | Vetted agent with no active agreement or verified payee | Assign | Refused: an agent needs an agreement and a verified payee before assignment (FR-PRO-001) | P1 | Y | R2 |
+| TC-TSK-004-01 | FR-TSK-004 | Completion confirmed by the resulting document | All steps done | Agent uploads the new Ghana Card image; staff check it | Errand Complete; the agent's payable is created (FR-PRO-002); client notified | P1 | Y | R2 |
 | TC-TSK-004-02 | FR-TSK-004 | Completion without the document or without Fidero's check | Steps done | Agent marks complete with no document; document uploaded but unchecked | Not Complete in either case (TC-RUL-23-05) | P1 | Y | R2 |
 | TC-TSK-004-03 | FR-TSK-004 | Reused or altered document | Document image reused from another errand; image metadata altered | Upload | Flagged; not confirmed (TC-RUL-23-06) | P1 | Y | R2 |
 | TC-TSK-005-01 | FR-TSK-005 | Handover recorded | Errand complete | Hand to the representative with signature; courier with photo of the waybill | Handover stored with signature or photo and time; client sees it | P2 | Y | R2 |
@@ -1244,7 +1306,7 @@ Run in Playwright on staging against provider sandboxes. Mobile steps in J-03, J
 | TC-E2E-J11-06 | J-11 | Tenant tries to see owner data | Tenant | Open owner's dashboard, other properties, repair quotes | 404 | Y | R2 |
 | TC-E2E-J12-01 | J-12 | Ghana Card renewal and title application lodged | P-01, P-17, P-03 | Order two errands; checklist and fees shown; upload documents; pay into partner bank; agent lodges; fees paid to the agency; receipts uploaded; finished document uploaded and checked; handover to representative | Each step in plain language; agency paid only; completion only on the checked document | P | R2 |
 | TC-E2E-J12-02 | J-12 | Agent asks for cash or own account as payee | P-17 | Payee set to the agent | Rejected (RUL-22); flagged | Y | R2 |
-| TC-E2E-J12-03 | J-12 | Completion without the document | P-17 | Agent marks errand complete; no document | Not complete; Fidero's charge not released (RUL-23) | Y | R2 |
+| TC-E2E-J12-03 | J-12 | Completion without the document | P-17 | Agent marks errand complete; no document | Not complete; no payable for the agent (RUL-23, FR-PRO-002) | Y | R2 |
 | TC-E2E-J12-04 | J-12 | Reused acknowledgement | P-17 | Upload an acknowledgement image used on another errand | Flagged; step not recorded | Y | R2 |
 | TC-E2E-J12-05 | J-12 | Documents missing from checklist | P-01 | Omit one required document | Errand not assigned; client told what is missing | Y | R2 |
 | TC-E2E-J12-06 | J-12 | Official fee changes after order | P-03 | Agency fee differs from catalogue | Client shown the difference and approves before payment; catalogue update task raised | Y | R2 |
@@ -1349,6 +1411,9 @@ Security testing is threat-driven. The main threats are people who want money re
 | TC-SEC-42 | Lock-screen push leaks money or family details | FR-APP-002, FR-NTF-004 | Trigger every push template with maximum content; read lock screen and notification centre on both platforms | Generic text only; no amount above the threshold, report content, names of family members or bank details | Y | R2 |
 | TC-SEC-43 | Deep link abuse | FR-APP-001, FR-APP-002 | Open approval and case links from another app, another user's session and a look-alike custom scheme; tamper IDs | App checks the session and permissions; opening never approves; other users' objects return not found; only verified Universal Links and App Links open the app | Y | R2 |
 | TC-SEC-44 | Stolen unlocked phone approves a payment | FR-APP-003, FR-ACC-003 | Use an unlocked phone with the client app open; try every approval type | Every approval asks for the second factor; biometric unlock alone approves nothing | Y | R2 |
+| TC-SEC-45 | Bulk payment file altered between approval and upload | FR-PRO-005, RUL-27 | Change an amount or account in the stored file; download it; upload a different file in the bank's test portal | Hash mismatch blocks the download; the confirmation import flags lines that do not match the approved run; alert raised | Y | R1 |
+| TC-SEC-46 | A professional reads another professional's pay | FR-PRO-002, FR-PRO-007, FR-ACC-007 | As lawyer A, call `/v1/me/pro/*` and `/v1/pro/*` with lawyer B's IDs; enumerate payable and statement IDs | 404 for every object not A's own; staff endpoints refused | Y | R1 |
+| TC-SEC-47 | Operating account credentials reachable from the escrow side | FR-PRO-006, RUL-27 | From the ESC dispatch task role, read the operating account's secrets; sign a payment file with `kms/release-signing` | Both denied by IAM and key policy; attempt logged | Y | R1 |
 
 ### 8.3 OWASP ASVS level 2 verification (NFR-SEC-05)
 
@@ -1542,7 +1607,7 @@ Supporting checks: TC-NFR-USE-02-01 and TC-NFR-USE-02-02 for status message plai
 | P-02 Local buyer | 2 local clients from the R0 service | R1 |
 | P-03 Case manager | Fidero operations staff | R1, R2, R3 |
 | P-04 Reviewer | Fidero senior reviewer | R1, R2, R3 |
-| P-05 Lawyer | Contracted lawyer from R0 | R1 |
+| P-05 Lawyer | Contracted lawyer from R0, who is also paid through the platform from R1 | R1 |
 | P-06 Surveyor | Contracted surveyor from R0 | R1 |
 | P-07 Runner | Contracted runner from R0 | R1, R2 |
 | P-08 Contractor | 2 to 3 pilot contractors | R2 |
@@ -1604,6 +1669,10 @@ Supporting checks: TC-NFR-USE-02-01 and TC-NFR-USE-02-02 for status message plai
 | UAT-38 | Delete your account from the app | P-01 or P-15 | FR-APP-004 | Participant finds deletion without help; understands what is kept and why; with an open item, understands that the account closes when it ends | R2 |
 | UAT-39 | Pay Fidero's fee from the app | P-02 | FR-APP-005, FR-PAY-001 | Fee paid by the route the stores allow (web page or provider in the app) without confusion; receipt in the app; participant knows purchase money goes to the bank, never through the app | R2 |
 | UAT-40 | Capture and submit a milestone with Fidero Field on an iPhone | P-08 | J-03, FR-MOB-001, FR-MOB-004 | Same flow as UAT-13 on an iPhone; evidence arrives signed; contractor understands "Open Fidero Field to finish sending" after a force-quit | R2 |
+| UAT-41 | See my pay as a lawyer | P-05 | F-37, FR-PRO-002, FR-PRO-007, RUL-26 | Lawyer finds the payable for each signed section after second review; understands gross, tax and net and the due date; sees no verdict next to any amount; finds the remittance advice after the run | R1 |
+| UAT-42 | See my pay and claim a travel expense as a surveyor | P-06 | F-37, FR-PRO-002, FR-PRO-004, FR-PRO-008 | Site visit and section payables visible; an expense claimed from the phone with a receipt photo; the limit understood; status followed to paid. The expense part runs when US-PRO-004 ships (document 04) | R1 |
+| UAT-43 | See my monthly pay as a runner | P-07 | F-37, FR-PRO-002, FR-PRO-006, FR-PRO-007 | The month's payable appears when the month is closed; paid to the runner's own account from Fidero's account; remittance advice understood on a basic phone's browser | R1 |
+| UAT-44 | Prepare and approve a payment run as two staff | P-03, P-04 | FR-PRO-005, FR-PRO-006, RUL-27 | The preparer cannot approve; the approver sees totals, payees and items left out with reasons; the file uploads in the bank's portal with no manual correction | R1 |
 
 ### 11.4 UAT sign-off form
 
@@ -1652,6 +1721,7 @@ Runbooks and procedures are in document 06. OAT proves they work.
 | OAT-14 | Opening a new country | Runbook to copy and open a country executed on staging by someone who did not write it; gate record required; data location set before any user is created | R2 |
 | OAT-15 | Rotate push credentials (APNs key, FCM service account) | Rotated on staging by someone who did not write the runbook; no push lost during the switch; old credential revoked | R2 |
 | OAT-16 | Raise and lower the minimum app version | Runbook followed on staging with two administrators; old builds see the update screen; queued evidence kept; lowering restores access | R2 |
+| OAT-17 | Failed or wrong payment run drill | On staging, a run with one failed line and one planted wrong amount is handled with the runbook in document 06 by someone who did not write it; the failed line is paid once in the next run; the wrong amount is corrected by a new line, never an edit | R1 |
 
 ### 11.6 Partner acceptance with the escrow bank (PAT)
 
@@ -1698,6 +1768,18 @@ Run with the first licensed insurer partner per country (Q-17, AS-11, C-11) `[TO
 | PAT-23 | Insurer and licence sign-off | Insurer's compliance reviews; lawyer confirms Fidero's intermediary position for the country | Written acceptance from the insurer; lawyer's note on C-11 | R2 |
 
 Other partners get a shorter acceptance: the payment provider (sandbox to live switch, settlement file), the identity provider (pass, fail, manual review), messaging providers (delivery reports, sender ID), agencies for errands (fee account verification, receipt format), and partner API customers (UAT-20 plus their own integration test).
+
+### 11.9 Partner acceptance with Fidero's operating bank (PAT, bulk payment file)
+
+Run with the bank, and the mobile money provider if runners are paid that way, that hold Fidero's operating account (Q-26) `[TO VERIFY]`, before the first payment run on the platform. This is Fidero's own money, not client money.
+
+| ID | Test | Steps | Pass criterion | Rel |
+|---|---|---|---|---|
+| PAT-24 | Bulk file format | Fidero produces a 10-line test run in the agreed format; the bank validates it on its test or pilot channel | Accepted with no manual correction; a file with a wrong total or checksum is rejected | R1 |
+| PAT-25 | Upload and dual authorisation | A named staff member uploads; where the bank offers it, a second bank user authorises | The bank's portal enforces its control; the uploaded file's hash equals the one Fidero stored | R1 |
+| PAT-26 | Confirmation file | The bank returns a confirmation for the test run with one failed line (closed account) and one name query | Fidero matches every line; the failed line shows the bank's reason; nothing is paid twice | R1 |
+| PAT-27 | Mobile money bulk file, if used | PAT-24 to PAT-26 with the mobile money provider | Same criteria | R1 `[TO VERIFY]` |
+| PAT-28 | Separation and sign-off | The bank confirms the operating account is separate from every escrow and held-funds account and that the file channel cannot debit them | Written acceptance from the bank | R1 |
 
 ---
 
@@ -1769,8 +1851,8 @@ Also:
 
 | Criterion | Evidence |
 |---|---|
-| All R1 Must FRs pass (ACC, ORD, PAY, CASE, RPT, GEO, ESC R1 items including FR-ESC-014 and FR-ESC-015, EVD R1 items, NTF, ADM, AUD, ANL-003, DPR, FEE Musts, FR-CTY-001 and FR-CTY-003) | Test report against section 4 |
-| All R1 business rules pass: RUL-01 to RUL-07, RUL-11, RUL-17, RUL-20, RUL-22 | `rul` suite report, zero skips |
+| All R1 Must FRs pass (ACC, ORD, PAY, CASE, RPT, GEO, ESC R1 items including FR-ESC-014 and FR-ESC-015, EVD R1 items, NTF, ADM, AUD, ANL-003, DPR, FEE Musts, FR-CTY-001 and FR-CTY-003, PRO Musts FR-PRO-001, 002, 003, 005, 006 and 007) | Test report against section 4 |
+| All R1 business rules pass: RUL-01 to RUL-07, RUL-11, RUL-17, RUL-20, RUL-22, RUL-26, RUL-27 | `rul` suite report, zero skips |
 | State-transition matrix for Case and Escrow passes, including Client approved, Partly released (amounts held at the bank) and cancellation paths | Section 5 report |
 | J-01, J-02, J-08 and J-09 E2E pass, including unhappy paths | Section 6 report |
 | R1 NFRs pass: PERF-01 to 04, AVL-01 to 03, SEC-01 to 05, PRIV-01 and 02, USE-01 and 02, A11Y-01 (web), OBS-01, MNT-01, MNT-02 (country), LOC-01, AUD-01 | Section 7 report; NFR-AVL-01 confirmed after first live month |
@@ -1778,14 +1860,16 @@ Also:
 | Penetration test retest letter: no open high or critical, scope including payee verification and institution flow | Tester's letter |
 | ASVS L2 checklist complete | Checklist |
 | Usability test passes NFR-USE-01 (4 of 5, median under 10 minutes) | Usability report |
-| UAT-01 to UAT-12, UAT-25 to UAT-28 and UAT-34 accepted | Signed forms |
-| OAT-01 to OAT-08 and OAT-12 pass | OAT report |
+| UAT-01 to UAT-12, UAT-25 to UAT-28, UAT-34 and UAT-41 to UAT-44 accepted | Signed forms |
+| OAT-01 to OAT-08, OAT-12 and OAT-17 pass | OAT report |
 | PAT-01 to PAT-05, PAT-09 to PAT-12 pass with the escrow bank, or escrow and institution payment features ship switched off with manual tracking (AS-02) | Bank acceptance letter or product owner decision |
-| PAT-14 to PAT-16 and PAT-18 pass with at least one school and one hospital, or the FEE line runs with runner payment only (FR-FEE-006, AS-10) | Institution letters or product owner decision |
+| PAT-14 to PAT-16 and PAT-18 pass with at least one school and one hospital, or the FEE line opens only for institutions that accept direct payment; others are marked not eligible (FR-FEE-006, AS-10) | Institution letters or product owner decision |
 | Insurer approves the platform report process (01 B4) | Insurer letter |
 | Data location confirmed (Q-07) and registration with each live country's data protection authority in place (in Ghana, the Data Protection Commission; others per Q-21) `[TO VERIFY]` | Lawyer's note |
 | Configurable values set and approved: fresh-search window (Q-04), retention periods (Q-08), receipt return target, payee matching rule | Configuration export signed by lawyer |
 | Pricing for the FEE line set (Q-20) | Founder's decision |
+| PAT-24 to PAT-26 and PAT-28 pass with Fidero's operating bank, or payment runs stay manual and two-person, outside the platform, until they pass | Bank acceptance letter or product owner decision |
+| Tax rules for professionals signed by an accountant for each live country (Q-25) and loaded as configuration | Accountant's note; configuration export |
 | No open S1 or S2 | Defect report |
 
 ### 13.2 R2 Construction and family
@@ -1836,7 +1920,7 @@ Used at the go/no-go meeting for every release. Chair: product owner. Attendees:
 | 4 | Penetration test retest: no open high or critical findings | |
 | 5 | UAT scenarios for this release signed | |
 | 6 | OAT passed, including a restore drill in the last 30 days (assumption) | |
-| 7 | Partner acceptance signed by the escrow bank, or escrow features switched off by decision | |
+| 7 | Partner acceptance signed by the escrow bank, or escrow features switched off by decision; and by Fidero's operating bank for the bulk payment file, or payment runs kept manual by decision | |
 | 8 | Partner acceptance signed by each institution and insurer whose line ships, or that line switched off by decision | |
 | 9 | Release candidate on staging is the exact build going to production (same artefact hashes) | |
 | 10 | Rollback plan tested for this release | |
@@ -2170,8 +2254,8 @@ Read each row left to right: business requirement, feature, functional requireme
 | BR | Source in 01 | F | FR | Pri | Rel | US | Test cases | Rule and security tests |
 |---|---|---|---|---|---|---|---|---|
 | BR-20 | BR-20 | F-32 | FR-TSK-001 | Should | R2 | US-TSK-001 | TC-TSK-001-01, TC-TSK-001-02 | — |
-| BR-20 | BR-20 | F-32 | FR-TSK-002 | Must | R2 | US-TSK-002 | TC-TSK-002-01, TC-TSK-002-02, TC-TSK-002-03 | TC-RUL-01-01 |
-| BR-20 | RUL-22, RUL-23 | F-32 | FR-TSK-003 | Must | R2 | US-TSK-003 | TC-TSK-003-01, TC-TSK-003-02, TC-TSK-003-03, TC-TSK-003-04, TC-TSK-003-05 | TC-RUL-22-05, TC-RUL-23-05, TC-RUL-08-05, TC-RUL-11-08 |
+| BR-20 | BR-20 | F-32 | FR-TSK-002 | Must | R2 | US-TSK-002 | TC-TSK-002-01, TC-TSK-002-02, TC-TSK-002-03, TC-TSK-002-04 | TC-RUL-01-01 |
+| BR-20 | RUL-22, RUL-23 | F-32 | FR-TSK-003 | Must | R2 | US-TSK-003 | TC-TSK-003-01, TC-TSK-003-02, TC-TSK-003-03, TC-TSK-003-04, TC-TSK-003-05, TC-TSK-003-06, TC-TSK-003-07 | TC-RUL-22-05, TC-RUL-23-05, TC-RUL-08-05, TC-RUL-11-08, TC-RUL-27-02 |
 | BR-20 | RUL-23 | F-32 | FR-TSK-004 | Must | R2 | US-TSK-004 | TC-TSK-004-01, TC-TSK-004-02, TC-TSK-004-03 | TC-RUL-23-05, TC-RUL-23-06 |
 | BR-20 | BR-20 | F-32 | FR-TSK-005 | Should | R2 | US-TSK-005 | TC-TSK-005-01, TC-TSK-005-02 | — |
 
@@ -2210,6 +2294,21 @@ Read each row left to right: business requirement, feature, functional requireme
 | BR-14 | BR-14 | F-28 | FR-CTY-003 | Must | R1 | US-CTY-003 | TC-CTY-003-01, TC-CTY-003-02 | — |
 | BR-14 | BR-14 | F-28 | FR-CTY-004 | Must | R2 | US-CTY-004 | TC-CTY-004-01, TC-CTY-004-02, TC-CTY-004-03 | OAT-14, UAT-24 |
 
+**PRO — Professional payments**
+
+| BR | Source in 01 | F | FR | Pri | Rel | US | Test cases | Rule and security tests |
+|---|---|---|---|---|---|---|---|---|
+| BR-23 | BR-23 | F-37 | FR-PRO-001 | Must | R1 | US-PRO-001 | TC-PRO-001-01, TC-PRO-001-02, TC-PRO-001-03 | — |
+| BR-23 | BR-23, RUL-26 | F-37 | FR-PRO-002 | Must | R1 | US-PRO-002 | TC-PRO-002-01, TC-PRO-002-02, TC-PRO-002-03, TC-PRO-002-04, TC-PRO-002-05 | TC-RUL-26-01, TC-RUL-26-03, TC-RUL-26-04, TC-RUL-26-06, TC-SEC-46 |
+| BR-23 | RUL-26 | F-37 | FR-PRO-003 | Must | R1 | US-PRO-003 | TC-PRO-003-01, TC-PRO-003-02 | TC-RUL-26-01, TC-RUL-26-02, TC-RUL-26-05 |
+| BR-23 | BR-23 | F-37 | FR-PRO-004 | Should | R1 | US-PRO-004 | TC-PRO-004-01, TC-PRO-004-02, TC-PRO-004-03 | TC-RUL-27-06 |
+| BR-23 | BR-23, RUL-27 | F-37 | FR-PRO-005 | Must | R1 | US-PRO-005 | TC-PRO-005-01, TC-PRO-005-02, TC-PRO-005-03, TC-PRO-005-04 | TC-RUL-27-05, TC-SEC-45 |
+| BR-23 | RUL-27, RUL-22 | F-37 | FR-PRO-006 | Must | R1 | US-PRO-006 | TC-PRO-006-01, TC-PRO-006-02, TC-PRO-006-03 | TC-RUL-27-01, TC-RUL-27-02, TC-RUL-27-03, TC-RUL-27-04, TC-SEC-47 |
+| BR-23 | BR-23, Q-25 | F-37 | FR-PRO-007 | Must | R1 | US-PRO-007 | TC-PRO-007-01, TC-PRO-007-02, TC-PRO-007-03, TC-PRO-007-04 | TC-SEC-46 |
+| BR-23 | BR-23 | F-37 | FR-PRO-008 | Should | R1 | US-PRO-008 | TC-PRO-008-01, TC-PRO-008-02 | — |
+| BR-23 | BR-23 | F-37 | FR-PRO-009 | Should | R1 | US-PRO-009 | TC-PRO-009-01, TC-PRO-009-02, TC-PRO-009-03 | — |
+| BR-16 | BR-16 | F-37 | FR-PRO-010 | Should | R1 | US-PRO-010 | TC-PRO-010-01, TC-PRO-010-02 | — |
+
 ### 14.2 Business rules
 
 | RUL | BR | F | FR | Rule tests | Other tests |
@@ -2235,10 +2334,12 @@ Read each row left to right: business requirement, feature, functional requireme
 | RUL-19 | BR-08 | F-16 | FR-BLD-008 | TC-RUL-19-01, TC-RUL-19-02, TC-RUL-19-03 | TC-BLD-008-02 |
 | RUL-20 | BR-02 | F-01, F-04 | FR-ACC-005, FR-RPT-005 | TC-RUL-20-01, TC-RUL-20-02, TC-RUL-20-03, TC-RUL-20-04 | TC-SEC-26 |
 | RUL-21 | BR-09 | F-18 | FR-PRJ-003 | TC-RUL-21-01, TC-RUL-21-02, TC-RUL-21-03, TC-RUL-21-04 | TC-E2E-J05-03 |
-| RUL-22 | BR-17, BR-19, BR-20, BR-22, BR-10 | F-29, F-31, F-32, F-34, F-08 | FR-FEE-001, FR-FEE-003, FR-ESC-015, FR-PMG-005, FR-TSK-003, FR-EVT-002, FR-FEE-006 | TC-RUL-22-01, TC-RUL-22-02, TC-RUL-22-03, TC-RUL-22-04, TC-RUL-22-05, TC-RUL-22-06, TC-RUL-22-07, TC-RUL-22-08 | TC-SEC-33, TC-SEC-35, TC-E2E-J09-03, TC-E2E-J09-04, TC-E2E-J09-08, TC-E2E-J12-02, PAT-12, TC-FEE-006-02 |
+| RUL-22 | BR-17, BR-19, BR-20, BR-22, BR-10 | F-29, F-31, F-32, F-34, F-08 | FR-FEE-001, FR-FEE-003, FR-ESC-015, FR-PMG-005, FR-TSK-003, FR-EVT-002, FR-FEE-006, FR-PRO-006 | TC-RUL-22-01, TC-RUL-22-02, TC-RUL-22-03, TC-RUL-22-04, TC-RUL-22-05, TC-RUL-22-06, TC-RUL-22-07, TC-RUL-22-08 | TC-SEC-33, TC-SEC-35, TC-E2E-J09-03, TC-E2E-J09-04, TC-E2E-J09-08, TC-E2E-J12-02, PAT-12, TC-FEE-006-02 |
 | RUL-23 | BR-18, BR-20 | F-30, F-32, F-15 | FR-CARE-003, FR-CARE-004, FR-MOB-012, FR-TSK-003, FR-TSK-004 | TC-RUL-23-01, TC-RUL-23-02, TC-RUL-23-03, TC-RUL-23-04, TC-RUL-23-05, TC-RUL-23-06 | TC-SEC-36, TC-SEC-37, TC-E2E-J10-02, TC-E2E-J10-05, TC-E2E-J12-03, TC-FLD-15, TC-CARE-004-05, TC-CARE-004-06 |
 | RUL-24 | BR-19 | F-31 | FR-PMG-002, FR-PMG-003 | TC-RUL-24-01, TC-RUL-24-02, TC-RUL-24-03, TC-RUL-24-04 | TC-SEC-39, TC-E2E-J11-02, TC-E2E-J11-03, PAT-13 |
 | RUL-25 | BR-21 | F-33 | FR-INS-001, FR-INS-002, FR-INS-004 | TC-RUL-25-01, TC-RUL-25-02, TC-RUL-25-03, TC-RUL-25-04 | TC-SEC-39, PAT-19, PAT-21 |
+| RUL-26 | BR-23 | F-37 | FR-PRO-002, FR-PRO-003 | TC-RUL-26-01, TC-RUL-26-02, TC-RUL-26-03, TC-RUL-26-04, TC-RUL-26-05, TC-RUL-26-06 | TC-PRO-002-03, TC-PRO-003-02, UAT-41 |
+| RUL-27 | BR-23 | F-37 | FR-PRO-005, FR-PRO-006 | TC-RUL-27-01, TC-RUL-27-02, TC-RUL-27-03, TC-RUL-27-04, TC-RUL-27-05, TC-RUL-27-06 | TC-SEC-45, TC-SEC-47, TC-TSK-003-06, TC-PRO-006-03, UAT-44, PAT-28 |
 
 ### 14.3 Non-functional requirements
 
@@ -2292,31 +2393,31 @@ Read each row left to right: business requirement, feature, functional requireme
 
 Counts are of test cases written in this version of the document.
 
-| Item | In document 01 version 0.6 | Covered by at least one test | Notes |
+| Item | In document 01 version 0.8 | Covered by at least one test | Notes |
 |---|---|---|---|
-| Functional requirements | 201 (133 Must, 55 Should, 13 Could) | 201 | Every Must FR has at least one positive and one negative test |
-| Business rules | 25 | 25 | Every rule has 2 to 8 tests; 110 in total |
+| Functional requirements | 211 (139 Must, 59 Should, 13 Could) | 211 | Every Must FR has at least one positive and one negative test |
+| Business rules | 27 | 27 | Every rule has 2 to 8 tests; 122 in total |
 | Non-functional requirements | 26 | 26 | 36 tests |
 | State models | 5 | 5 | 104 named tests plus the generated matrix test per model |
 | Journeys | 12 | 12 | 69 E2E tests |
-| Business requirements | 22 (BR-01 to BR-22) | 22 | Through FRs in section 14.1 |
+| Business requirements | 23 (BR-01 to BR-23) | 23 | Through FRs in section 14.1 |
 
 | Test type | Count |
 |---|---|
-| Functional (`TC-<MODULE>-nnn-xx`) | 456 |
-| Business rule (`TC-RUL-nn-xx`) | 110 |
+| Functional (`TC-<MODULE>-nnn-xx`) | 490 |
+| Business rule (`TC-RUL-nn-xx`) | 122 |
 | State transition (`TC-STM-…`) | 104 |
 | End-to-end journey (`TC-E2E-J0n-xx`) | 69 |
 | Non-functional (`TC-NFR-…`) | 36 |
-| Security threat (`TC-SEC-nn`) | 44 |
+| Security threat (`TC-SEC-nn`) | 47 |
 | Mobile and field (`TC-FLD-nn`) | 20 |
 | App store acceptance (`TC-STORE-nn`) | 7 |
-| User acceptance (`UAT-nn`) | 40 |
-| Operational acceptance (`OAT-nn`) | 16 |
-| Partner acceptance (`PAT-nn`) | 23 |
-| **Total** | **925** |
+| User acceptance (`UAT-nn`) | 44 |
+| Operational acceptance (`OAT-nn`) | 17 |
+| Partner acceptance (`PAT-nn`) | 28 |
+| **Total** | **984** |
 
-Functional test cases by release: R1 235, R2 209, R3 12.
+Functional test cases by release: R1 265, R2 213, R3 12.
 
 Functional coverage by module:
 
@@ -2343,23 +2444,24 @@ Functional coverage by module:
 | AUD | 4 | 2 | 4 | 7 | 7 |
 | ANL | 3 | 1 | 3 | 4 | 4 |
 | DPR | 5 | 5 | 5 | 11 | 11 |
+| PRO | 10 | 6 | 10 | 31 | 31 |
 | FEE | 7 | 5 | 7 | 22 | 22 |
 | CARE | 6 | 5 | 6 | 18 | 18 |
 | PMG | 6 | 3 | 6 | 15 | 14 |
-| TSK | 5 | 3 | 5 | 15 | 15 |
+| TSK | 5 | 3 | 5 | 18 | 18 |
 | INS | 4 | 1 | 4 | 10 | 10 |
 | EVT | 3 | 0 | 3 | 5 | 5 |
 | REC | 4 | 0 | 4 | 5 | 5 |
 | CTY | 4 | 4 | 4 | 12 | 10 |
-| **Total** | **201** | **133** | **201** | **456** | **437** |
+| **Total** | **211** | **139** | **211** | **490** | **471** |
 
-Verification of this version: a script compared every `FR-`, `RUL-` and `NFR-` ID in document 01 version 0.6 with this document. Every ID in 01 appears here, no ID here is absent from 01, and every test ID referenced in a table is defined in a table.
+Verification of this version: a script compared every `FR-`, `RUL-` and `NFR-` ID in document 01 version 0.8 with this document. Every ID in 01 appears here, no ID here is absent from 01, and every test ID referenced in a table is defined in a table.
 
 ### 14.6 Keeping traceability current
 
 - Each automated test carries markers for its TC ID and the FR, RUL or NFR it covers (for example `@pytest.mark.req("FR-ESC-006")`).
 - A CI script builds this matrix from the markers and from document 01. It fails when an FR or RUL in 01 has no test, or when a test points to an ID that does not exist.
-- When document 01 or document 04 changes, the QA lead updates this document in the same pull request. Version 0.3 of document 01 added 36 FRs and 4 rules; version 0.2 of document 05 was that update. Version 0.6 of document 01 added 6 FRs (FR-APP-001 to FR-APP-006) and 2 NFRs (NFR-STORE-01, NFR-STORE-02); version 0.4 of document 05 is that update.
+- When document 01 or document 04 changes, the QA lead updates this document in the same pull request. Version 0.3 of document 01 added 36 FRs and 4 rules; version 0.2 of document 05 was that update. Version 0.6 of document 01 added 6 FRs (FR-APP-001 to FR-APP-006) and 2 NFRs (NFR-STORE-01, NFR-STORE-02); version 0.4 of document 05 is that update. Version 0.8 of document 01 added 10 FRs (FR-PRO-001 to FR-PRO-010) and 2 rules (RUL-26, RUL-27); version 0.5 of document 05 is that update.
 
 ---
 
@@ -2439,7 +2541,7 @@ Version 0.1 of this document raised 36 issues. Each was checked against 01 versi
 
 ### 16.2 Open issues
 
-Items 1 to 14 were raised in version 0.1. Items 15 to 30 were added in version 0.2. Items 31 to 35 were added in version 0.4 for the app store decision. Items resolved by 01 version 0.4 stay in this table, marked resolved, so their numbers remain traceable.
+Items 1 to 14 were raised in version 0.1. Items 15 to 30 were added in version 0.2. Items 31 to 35 were added in version 0.4 for the app store decision. Items 36 to 41 were added in version 0.5 for professional payments. Items resolved by 01 version 0.4 stay in this table, marked resolved, so their numbers remain traceable.
 
 | # | Where in 01 | Issue | Effect on testing | Test assumption until resolved |
 |---|---|---|---|---|
@@ -2478,3 +2580,9 @@ Items 1 to 14 were raised in version 0.1. Items 15 to 30 were added in version 0
 | 33 | FR-APP-006, FR-MOB-005 | "Without losing queued evidence" does not say whether evidence captured by an old version before the minimum was raised is still accepted, or for how long. | TC-APP-006-02 and -03 need a rule | Accepted if captured before the raise and uploaded within 30 days of it (`[TO VERIFY]`, 02 section 8.10, 06 section 3.5); items older than 7 days at upload carry the time-gap flag; new capture blocked |
 | 34 | NFR-STORE-02 | "Versions used by at least 95% of active users" cannot be measured before launch, when there are no active users. | TC-NFR-STORE-02-01 cannot run at R2 go-live | Use public OS share data for each launch country `[TO VERIFY]` source until six months of app analytics exist |
 | 35 | NFR-PERF-05 | "Its download size" for both apps does not say whether 30 MB applies per app and per platform. | Pass criterion ambiguous | Each app on each platform under 30 MB (TC-NFR-PERF-05-01, -02) |
+| 36 | C2, FR-PRO-005 | A run is approved by "a different one with payment rights", but C2 defines only release rights. | TC-PRO-005-02 has no defined set of people who may approve | Reviewers and administrators granted payment rights by two administrators; never a contracted role |
+| 37 | C2, BR-23 | Only lawyers and surveyors may see their payables, expenses and statements; runners only claim expenses; inspectors, quantity surveyors and errand agents have no pay permissions, although Fidero pays all six. | UAT for the other roles unclear | All six roles see their own pay (TC-SEC-46 checks they see nothing else) |
+| 38 | RUL-26 | 01 does not say whether pay may be held while the work is under a fraud or misconduct review. | TC-RUL-26-04 needs a stated expected result | A reviewer may hold a payable only for a fraud or misconduct review, with a reason, never for a result |
+| 39 | FR-PRO-002 | Who closes a runner's month and what a part month pays are not stated. | TC-PRO-002-04 boundary unclear | A case manager closes the month; a part month is paid pro rata by calendar days (assumption) |
+| 40 | FR-PRO-007, Q-25 | Withholding rates are unknown, and 01 does not say whether reimbursed expenses carry withholding. | No real rate can be asserted | Tests use synthetic Testland rates; real rates come from the accountant's rules (EN-79 in document 04); no withholding on reimbursed expenses until Q-25 is answered |
+| 41 | FR-PRO-004, RUL-08 | In R1 receipts are uploaded from a phone browser, so a gallery or edited photo is possible; RUL-08's camera-only rule covers the field app from R2. | Reused or edited receipts are harder to detect in R1 | R1 relies on receipt hash uniqueness and the second approval for exceptions; camera-only capture from R2 (SCR-MOB-21 in document 03) |

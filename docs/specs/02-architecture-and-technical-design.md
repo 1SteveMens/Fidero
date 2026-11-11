@@ -5,11 +5,11 @@ System, database, API, security and infrastructure design for the Fidero platfor
 | Item | Value |
 |---|---|
 | Document | 02 of 6 in `docs/specs/` |
-| Version | 0.4, working draft |
-| Date | 7 November 2026 |
+| Version | 0.5, working draft |
+| Date | 11 November 2026 |
 | Owner | Product and engineering lead (to be hired; founder acts until then) `[TO VERIFY]` |
 | Status | Draft. For review. Not yet baselined |
-| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01, version 0.6) |
+| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01, version 0.8) |
 | Decision record | `docs/decisions/2026-11-01-diaspora-platform.md`: Fidero is the diaspora's trusted agent at home. Same engine, more lines, country as configuration from R1 |
 | Supersedes | `docs/product/architecture.md` (kept as the original proposal; this document deepens it and keeps its principles) |
 | Related | Document 05 (tests and traceability), document 06 (delivery, CI/CD and operations) |
@@ -31,6 +31,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | 0.2 | 1 November 2026 | Aligned with document 01 version 0.3 and the decision record. New actors (family members, institutions, carers and errand agents, tenants, insurer partners) in the context and container views; the Android app becomes the field app. Six new modules FEE, CARE, PMG, TSK, INS and EVT with tables, events, endpoints and sequences for J-09 to J-12. CTY moves to R1: `country_id` on every tenant-scoped table, versioned `cty_country_config` with copying (FR-CTY-004), and a cell strategy for per-country data location. Verified payee registry and database checks for RUL-22 to RUL-25; held funds as a mirror of the bank for FR-ESC-014 and FR-ESC-015. ADR-16 to ADR-21. Threat model, RBAC, NFR, coverage, risks and questions extended. Issues fixed in 01 version 0.2 and 0.3 removed from section 15; new issues I-17 to I-28 added. Release rights limited to reviewers, as 01 C2 now states. | Product and engineering lead (acting) |
 | 0.3 | 1 November 2026 | Aligned to 01 v0.4: runner cash route removed (voucher table, instruction type, endpoints, job, threat row and TR-09 controls replaced by `fee_institution.eligible_for_direct_payment` and a runner task that only collects invoices and delivers receipts); fresh search blocks purchase releases only; standing client approvals for care visits and errand steps (`esc_standing_approval`); account-name sources for FR-ESC-015 with no override; 72-hour reviewer decision, second-person check of call confirmations and code lockout for visits; owner's written mandate for rent statement lines; both premium routes; dispute Withdrawn state; data classes and keys aligned to 01 C5.2; I-16 to I-22, I-25 and I-26 marked resolved. | Product and engineering lead (acting) |
 | 0.4 | 7 November 2026 | Aligned to 01 v0.6: both app stores, React Native, client app. ADR-22 replaces ADR-06: two apps, Fidero (clients, family members, tenants) and Fidero Field (field roles), on iOS and Android from one React Native and TypeScript codebase, with native modules for camera-only capture, hardware-backed signing (Android Keystore, iOS Secure Enclave) and attestation (Play Integrity, App Attest). Context and container views show both apps, both stores (IF-12), APNs and FCM. Section 8 covers both platforms and adds the client app (8.9) and store distribution (8.10). New endpoints for attestation challenges, push devices, in-app account deletion and app configuration (minimum version, fee payment mode). `mob_device` gains platform and attestation columns; `ntf_push_device` added. Security, NFR, coverage (FR-APP-001 to FR-APP-006, NFR-STORE-01, NFR-STORE-02), risks TR-16 to TR-19, questions TQ-23 to TQ-26 and issues I-29 to I-32 updated. | Product and engineering lead (acting) |
+| 0.5 | 11 November 2026 | Aligned to 01 v0.8: professional payments. New module PRO (`profpay`, ADR-23) pays the professionals Fidero contracts (lawyers, surveyors, runners, inspectors, quantity surveyors, errand agents) from Fidero's operating account, out of fee income, and never touches client money (RUL-27). Goal G-11; tables `pro_agreement`, `pro_scope`, `pro_rate_card`, `pro_payable`, `pro_expense_claim`, `pro_payment_run`, `pro_payment_line` and `pro_document` (6.14); a `work.accepted` event with no result field and a rate fixed at assignment, so pay cannot depend on the verdict (RUL-26); payment runs prepared by one person and approved by a different person with payment rights through `core_approval_request`, which now allows one approver for PRO subjects; a bulk payment file for the operating bank or mobile money provider; tax deductions from the country configuration; sequence 5.11; endpoints for professionals and the back office; jobs; threat model rows; a PRO permission table and `payment_rights` on role grants. The payee registry gains the kind `contracted_professional`, which only PRO may pay and no release instruction may name. Errand agents are paid under PRO (FR-TSK-003); Fidero's errand charge stays a PAY fee through the payment provider (FR-TSK-002). Coverage for FR-PRO-001 to FR-PRO-010, RUL-26 and RUL-27; TR-20, TR-21; TQ-18 updated, TQ-27 to TQ-30; issues I-33 to I-39. | Product and engineering lead (acting) |
 
 ### Release staging of the architecture
 
@@ -39,8 +40,8 @@ Nothing in this document is built in R0. R0 runs on spreadsheets, templates and 
 | Release | Months | Architecture that ships |
 |---|---|---|
 | R0 | 0-3 | None. Landing page and payment link only |
-| R1 | 3-9 | API, portal, back office, PostgreSQL/PostGIS, evidence store, Celery workers, modules ACC, ORD, PAY, CASE, RPT, GEO (overlays, images), ESC (manual bank entry, held funds, payee registry), EVD, NTF, ADM, AUD, ANL, DPR, FEE (payments to institutions, manual upload of invoices and receipts), CTY (country as configuration, `country_id` everywhere, one cell), shared kernel. Country 2 runs its manual phase from month 6 with no software |
-| R2 | 9-18 | Two store apps on iOS and Android from one React Native codebase (ADR-22): Fidero Field for field roles and Fidero for clients, family members and tenants (APP), published on the App Store and Google Play (IF-12) with push through APNs and FCM; MOB (with check-in and check-out), BLD, PRJ, LST, RAT, DSP, PTR, CARE, PMG, TSK, INS, bank statement file and API adapters, institution portal or file adapters, insurer adapters, satellite monitoring, CTY configuration copying (FR-CTY-004) and, if country 2 passes its gate and its law demands it, a second cell (FR-CTY-002) |
+| R1 | 3-9 | API, portal, back office, PostgreSQL/PostGIS, evidence store, Celery workers, modules ACC, ORD, PAY, CASE, RPT, GEO (overlays, images), ESC (manual bank entry, held funds, payee registry), EVD, NTF, ADM, AUD, ANL, DPR, FEE (payments to institutions, manual upload of invoices and receipts), CTY (country as configuration, `country_id` everywhere, one cell), PRO (professional payments from Fidero's operating account: agreements and rate cards, payables for accepted work, payment runs with a bulk payment file, tax per country, remittance advices and statements; in R1 it pays lawyers, surveyors and runners), shared kernel. Country 2 runs its manual phase from month 6 with no software |
+| R2 | 9-18 | Two store apps on iOS and Android from one React Native codebase (ADR-22): Fidero Field for field roles and Fidero for clients, family members and tenants (APP), published on the App Store and Google Play (IF-12) with push through APNs and FCM; MOB (with check-in and check-out), BLD, PRJ, LST, RAT, DSP, PTR, CARE, PMG, TSK, INS, PRO payables for inspectors, quantity surveyors and errand agents as BLD, PMG and TSK go live, bank statement file and API adapters, institution portal or file adapters, insurer adapters, satellite monitoring, CTY configuration copying (FR-CTY-004) and, if country 2 passes its gate and its law demands it, a second cell (FR-CTY-002) |
 | R3 | 18-36 | EVT, REC, family and stool listings, materials ordering, country 3 configuration and cell if required |
 
 ---
@@ -59,6 +60,7 @@ Nothing in this document is built in R0. R0 runs on spreadsheets, templates and 
 | G-08 | Protect personal data under Act 843 and isolate safety data. | C-02, C-09, BR-15, NFR-PRIV-01, NFR-PRIV-02, RUL-17 |
 | G-09 | Make it impossible to instruct a release to anyone but a verified institution, supplier, vendor or professional whose bank account is in that name. Never to a relative, never to Fidero. | BO-10, RUL-22, RUL-23, RUL-24, RUL-25, FR-ESC-015 |
 | G-10 | Run every product line, from land to school fees to care visits, on the one engine: a case template, a condition set, a schedule and the same approvals, evidence store and bank mirror. | BR-17 to BR-22, F-29 to F-35, NFR-MNT-02, decision record |
+| G-11 | Pay the professionals Fidero contracts only from Fidero's own operating account, for accepted work, at a rate fixed before the work starts, so that no code path joins client money and Fidero's own payments and no pay depends on a verdict. | BR-23, RUL-26, RUL-27, FR-PRO-001 to FR-PRO-010 |
 
 ## 2. Architecture decision records
 
@@ -288,6 +290,17 @@ Status: superseded by ADR-16 in version 0.2. Kept for history; the `country_code
 | Alternatives rejected | Two native codebases, one per platform: doubles mobile work or halves speed, against C-07, and shares no code with the web apps. Flutter: one codebase too, with the same native module work, but it shares no types, API client or validation with the TypeScript web apps and adds a second language for the team. Progressive web app only: no reliable background upload on iOS, no hardware-backed signing key with attestation on iOS, the photo gallery cannot be fully blocked, and it is not in the stores, against C-14. Keeping ADR-06 and adding an iPhone app later: two codebases and two release trains. |
 | Traces | C-07, C-08, C-14, IF-12, F-15, F-36, RUL-08, FR-MOB-001 to FR-MOB-012, FR-APP-001 to FR-APP-006, NFR-PERF-05, NFR-A11Y-01, NFR-STORE-01, NFR-STORE-02 |
 
+### ADR-23 Professional payments as a separate module on Fidero's own account
+
+| Part | Content |
+|---|---|
+| Status | Accepted 11 November 2026 (01 v0.8). |
+| Context | BR-23 makes Fidero pay the lawyers, surveyors, runners, inspectors, quantity surveyors and errand agents it contracts, accurately, on time and with tax handled as each country requires. RUL-27 says Fidero pays them from its own operating account, out of fee income, and that client money held at the bank pays only the client's own payees, with no path between the two. RUL-26 says pay never depends on the verdict or outcome of the work. ESC already moves client money only by bank instruction from escrow and held funds (ADR-03, ADR-17, ADR-18). Until v0.8 professionals were paid by hand outside the platform. |
+| Decision | A separate module PRO (`profpay`) holds agreements, versioned rate cards, payables, expense claims, payment runs and their lines, remittance advices and yearly statements (6.14). (1) Money source: a payment run debits only an `adm_partner` of kind `operating_bank` or `operating_mobile_money`, Fidero's own account. PRO has no foreign key to, and no import of, any escrow, held-funds, release-instruction, bank-event, standing-approval or statement table or service. The one shared record is the verified payee registry `esc_payee`, read through a payee-only selector, with a new kind `contracted_professional` that only PRO may pay and that `esc.payee_kind_for_subject()` maps to no release subject. (2) Pay independent of results: a payable is created only from a `work.accepted` event whose schema carries the work item, the professional, the unit and the dates, never a verdict, outcome or risk field. The rate comes from the rate card in force when the work was assigned, before any result existed. A rate card has one flat amount per unit and a scope key from a fixed list of things known at assignment; no column can hold a result or a rule. (3) Two people: a run is prepared by one staff member and approved by a different one with payment rights, through `core_approval_request` (subject `pro_payment_run`) with MFA step-up. Rate card versions and expense exceptions use the same table. (4) Bank channel: R1 produces a bulk payment file in the format of Fidero's operating bank or mobile money provider (Q-26, TQ-27). A named staff member uploads it in the bank's own portal, under the bank's own dual authorisation where offered `[TO VERIFY]`. The confirmation file is imported for reconciliation. No bank API is needed in R1. |
+| Consequences | Professionals see their jobs, payables, expenses and statements (7.4). Each case's cost record fills from accepted payables and expenses (FR-PRO-010). Withholding tax and other deductions come from the country configuration, so a new country is configuration (G-05); the rules themselves wait for Q-25. A runner can now be a payee, but only of kind `contracted_professional`, which no release instruction can name, so the rule that a runner is never paid client money (FR-FEE-006) still holds. The operating account's credentials are separate from release instruction keys (10.5, document 06). |
+| Alternatives rejected | Paying professionals from escrow or held funds as a cost of the case (breaks RUL-27 and C-01). A Fidero ledger of what each professional is owed, settled later (a second money system with no bank mirror; payables tied to accepted work and bank-confirmed runs replace it). A rate table keyed by verdict or outcome, or a free-form rate rule (breaks RUL-26). One-person runs with the bank's dual control as the only check (the platform could not show who approved). |
+| Traces | BR-23, F-37, RUL-26, RUL-27, RUL-22, FR-PRO-001 to FR-PRO-010, FR-TSK-002, FR-TSK-003, FR-CASE-011, Q-25, Q-26 |
+
 ---
 
 ## 3. System context and containers
@@ -472,13 +485,13 @@ Uploads go straight from the client, browser or app, to S3 through presigned URL
 | ORD | `orders` | Orders, tier quote, terms acceptance, lead source, referrals, extra inspection orders | `ord_order`, `ord_terms_acceptance`, `ord_referral_code`, `ord_referral_reward` | `order.created`, `order.paid` | `payment.confirmed`, `payment.offline_recorded` | FR-ORD-001 to 007 | R1 |
 | PAY | `payments` | Fidero fee payments only, receipts, refunds, settlement reconciliation, seller invoices | `pay_fee_payment`, `pay_receipt`, `pay_refund`, `pay_settlement_line`, `pay_recon_issue`, `pay_invoice` | `payment.confirmed`, `payment.failed`, `refund.approved` | `order.created`, `listing.submitted`, `listing.sold` | FR-PAY-001 to 007 | R1 |
 | CASE | `cases` | Case lifecycle from templates for every line that verifies something (land, building, fresh search, institution verification, property onboarding, vendor verification), tasks, assignments, due dates, status messages, document requests, risk screens, safety incidents, costs, messages | `case_case`, `case_task`, `case_status_message`, `case_document_request`, `case_risk_screen`, `case_cost_item`, `case_message`, `safety.incident` | `case.created`, `case.status_changed`, `task.assigned`, `task.completed`, `task.overdue`, `fresh_search.completed` | `order.paid`, `listing.verification_requested`, `reservation.created`, `report.released` | FR-CASE-001 to 015 | R1 |
-| RPT | `reports` | Report versions, sections, verdict rule, locked scope text, signatures, review approvals, PDF and hash, conditions, corrections, anonymised copies | `rpt_report`, `rpt_section`, `rpt_condition`, `rpt_signature`, `rpt_hash_check` | `report.submitted`, `report.released`, `report.corrected` | `overlay.completed`, `case.status_changed` | FR-RPT-001 to 011 | R1 |
+| RPT | `reports` | Report versions, sections, verdict rule, locked scope text, signatures, review approvals, PDF and hash, conditions, corrections, anonymised copies | `rpt_report`, `rpt_section`, `rpt_condition`, `rpt_signature`, `rpt_hash_check` | `report.submitted`, `report.released`, `report.corrected`, `work.accepted` (a signed section passed second review) | `overlay.completed`, `case.status_changed` | FR-RPT-001 to 011 | R1 |
 | GEO | `geo` | Assets and boundaries, overlay layers and results, overlaps, satellite images, monitoring, Ghana Post GPS | `geo_asset`, `geo_boundary_version`, `geo_overlay_layer`, `geo_overlay_layer_version`, `geo_overlay_feature`, `geo_overlay_result`, `geo_overlap_flag`, `geo_satellite_image`, `geo_monitoring_alert` | `asset.boundary_saved`, `overlay.completed`, `overlap.flagged`, `monitoring.alert_raised`, `monitoring.alert_resolved` | `listing.live`, `project.started` | FR-GEO-001 to 008 | R1 |
 | ESC | `escrow` | Escrow mirror for purchase, construction, off-plan, project fund, held funds, repair and event escrows; parties, acceptances, bank payment instructions, conditions, bank events, release and cancel instructions with their payee, dispatch, statement import, the verified payee registry (ADR-17), the derived held statement (ADR-18) | `esc_escrow`, `esc_party`, `esc_acceptance`, `esc_condition`, `esc_bank_event`, `esc_release_instruction`, `esc_statement_file`, `esc_statement_line`, `esc_payee`, view `esc_held_statement` | `escrow.agreed`, `escrow.funded`, `escrow.ready`, `release.approved`, `release.sent`, `release.confirmed`, `escrow.cancelled`, `payee.verified`, `payee.suspended`, `held_funds.deposit_confirmed` | `report.released`, `dispute.opened`, `dispute.resolved`, `fresh_search.completed`, `milestone.client_approved`, `reservation.created`, `invoice.client_approved`, `visit.confirmed`, `errand_step.receipted`, `repair.inspected`, `vendor_payment.evidenced` | FR-ESC-001 to 015 | R1 |
 | EVD | `evidence` | Upload slots, hashing, scan, previews, signed links, links to subjects, provenance, integrity sampling | `evd_evidence`, `evd_link`, `evd_preview`, `evd_scan_result` | `evidence.stored`, `evidence.rejected` | none | FR-EVD-001 to 006 | R1 |
 | MOB | `mobile` | Device registry and keys with attestation on Android and iOS (8.2), sync, signed manifest checks, submissions, check-in and check-out at registered addresses, fraud flags, for every field role | `mob_device`, `mob_signed_manifest`, `mob_submission`, `mob_submission_item`, `mob_checkin`, `mob_fraud_flag` | `submission.received`, `evidence.flagged`, `flags.cleared`, `checkin.recorded`, `checkout.recorded` | `milestone.status_changed`, `task.assigned`, `visit.scheduled`, `errand.assigned`, `inspection.scheduled` | FR-MOB-001 to 012 | R2 |
 | APP | none | The client app is a front end over the same `/v1` API as the portal and owns no server tables (ADR-22, 8.9). Its server needs sit in existing modules: push devices in NTF, in-app account deletion in DPR, minimum versions and the fee payment mode in ADM settings, fee payments in PAY | none | none | none | FR-APP-001 to 006 | R2 |
-| BLD | `construction` | Projects of all three types, bill of quantities, milestones, panel, conflict links, inspector assignment, inspections, defects, retention, re-pricing, variations, dashboard, off-plan checks, materials (R3) | `bld_project`, `bld_boq`, `bld_milestone`, `bld_panel_member`, `bld_conflict_link`, `bld_inspection`, `bld_inspection_item`, `bld_defect`, `bld_variation`, `bld_reprice`, `bld_materials_order` | `project.started`, `milestone.status_changed`, `milestone.client_approved`, `inspection.recorded`, `contractor.removed` | `submission.received`, `flags.cleared`, `release.confirmed`, `dispute.opened` | FR-BLD-001 to 013 | R2 |
+| BLD | `construction` | Projects of all three types, bill of quantities, milestones, panel, conflict links, inspector assignment, inspections, defects, retention, re-pricing, variations, dashboard, off-plan checks, materials (R3) | `bld_project`, `bld_boq`, `bld_milestone`, `bld_panel_member`, `bld_conflict_link`, `bld_inspection`, `bld_inspection_item`, `bld_defect`, `bld_variation`, `bld_reprice`, `bld_materials_order` | `project.started`, `milestone.status_changed`, `milestone.client_approved`, `inspection.recorded`, `contractor.removed`, `work.accepted` (inspection submitted, bill of quantities accepted) | `submission.received`, `flags.cleared`, `release.confirmed`, `dispute.opened` | FR-BLD-001 to 013 | R2 |
 | PRJ | `projectfunds` | Project funds on the shared project and milestone engine, suppliers, background checks, invoices, AML threshold, disclaimer | `prj_supplier`, `prj_background_check`, `prj_invoice`, `prj_aml_review` | `supplier.checked`, `invoice.accepted` | `milestone.status_changed`, `release.confirmed` | FR-PRJ-001 to 005 | R2 |
 | LST | `listings` | Listings, publish rule, badge, search, enquiries, reservations, removal, family and stool listings (R3) | `lst_listing`, `lst_listing_media`, `lst_enquiry`, `lst_reservation`, `lst_removal` | `listing.submitted`, `listing.verification_requested`, `listing.live`, `listing.suspended`, `reservation.created`, `listing.sold` | `payment.confirmed`, `report.released`, `monitoring.alert_raised`, `release.confirmed`, `dispute.opened` | FR-LST-001 to 010 | R2 |
 | RAT | `ratings` | Ratings, hidden comments, track records | `rat_rating`, `rat_track_record` | `track_record.updated` | `case.status_changed`, `milestone.status_changed`, `dispute.closed`, `release.confirmed` | FR-RAT-001 to 004 | R2 |
@@ -491,12 +504,13 @@ Uploads go straight from the client, browser or app, to S3 through presigned URL
 | DPR | `dataprotection` | Privacy notice acceptance, consents including video and partner sharing, subject requests, in-app account deletion requests with what is kept and why (from R2), retention, legal holds, bulk exports, data catalogue, data locations | `dpr_privacy_acceptance`, `dpr_consent`, `dpr_request`, `dpr_retention_rule`, `dpr_legal_hold`, `dpr_bulk_export`, `dpr_data_catalogue`, `dpr_data_location` | `consent.changed`, `account.deletion_requested` | `person.registered` | FR-DPR-001 to 005, FR-APP-004 | R1 |
 | FEE | `fees` | Institutions and their verification case, named contacts, invoices and fee notes, checks against institution and family member, client approval, payment through held funds to the institution's payee record, receipts and confirmations returned, recurring schedules, institutions marked not eligible for direct payment (no cash route), runner tasks to collect invoices and deliver receipts, statement per family member | `fee_institution`, `fee_institution_contact`, `fee_invoice`, `fee_payment`, `fee_schedule`, `fee_runner_task` | `institution.verified`, `invoice.submitted`, `invoice.client_approved`, `fee_payment.receipted`, `fee_schedule.due` | `case.status_changed`, `release.confirmed`, `held_funds.deposit_confirmed`, `payee.verified`, `payee.suspended` | FR-FEE-001 to 007 | R1 |
 | CARE | `care` | Care plans and plan items, carer panel over `acc_vetting`, visit schedule, check-in and check-out results, plan item results and readings, family confirmation codes, missed and unconfirmed alerts, concerns, pay-per-confirmed-visit instructions | `care_plan`, `care_plan_item`, `care_carer`, `care_visit`, `care_visit_item`, `care_confirmation`, `care_concern` | `visit.scheduled`, `visit.checked_out`, `visit.confirmed`, `visit.unconfirmed`, `visit.missed`, `concern.raised` | `checkin.recorded`, `checkout.recorded`, `evidence.stored`, `release.confirmed`, `vetting.completed` | FR-CARE-001 to 006 | R2 |
-| PMG | `propertymgmt` | Managed properties and their onboarding case, tenancies, rent periods matched to the owner's account statement lines under the owner's written mandate, late rent alerts, repairs with quotes from the panel, repair escrows, inspections, owner timeline | `pmg_managed_property`, `pmg_tenancy`, `pmg_rent_period`, `pmg_statement_mandate`, `pmg_repair`, `pmg_repair_quote`, `pmg_inspection` | `property.onboarded`, `rent.received`, `rent.late`, `repair.reported`, `repair.quote_approved`, `repair.inspected` | `case.status_changed`, `statement.line_imported`, `checkin.recorded`, `inspection.recorded`, `release.confirmed`, `payee.verified` | FR-PMG-001 to 006 | R2 |
-| TSK | `errands` | Errand catalogue per country (as configuration), errands, checklist documents, steps with receipts, agent panel over `acc_vetting`, agencies as payees, official fee instructions, completion check, handover | `tsk_errand`, `tsk_errand_document`, `tsk_errand_step`, `tsk_agent`, `tsk_handover` | `errand.ordered`, `errand.assigned`, `errand_step.receipted`, `errand.completed`, `errand.handed_over` | `config.published`, `held_funds.deposit_confirmed`, `evidence.stored`, `release.confirmed`, `vetting.completed` | FR-TSK-001 to 005 | R2 |
+| PMG | `propertymgmt` | Managed properties and their onboarding case, tenancies, rent periods matched to the owner's account statement lines under the owner's written mandate, late rent alerts, repairs with quotes from the panel, repair escrows, inspections, owner timeline | `pmg_managed_property`, `pmg_tenancy`, `pmg_rent_period`, `pmg_statement_mandate`, `pmg_repair`, `pmg_repair_quote`, `pmg_inspection` | `property.onboarded`, `rent.received`, `rent.late`, `repair.reported`, `repair.quote_approved`, `repair.inspected`, `work.accepted` (property inspection submitted) | `case.status_changed`, `statement.line_imported`, `checkin.recorded`, `inspection.recorded`, `release.confirmed`, `payee.verified` | FR-PMG-001 to 006 | R2 |
+| TSK | `errands` | Errand catalogue per country (as configuration), errands, checklist documents, steps with receipts, agent panel over `acc_vetting` (agents are paid by Fidero under PRO for checked errands, never from client money), agencies as payees, official fee instructions, completion check, handover | `tsk_errand`, `tsk_errand_document`, `tsk_errand_step`, `tsk_agent`, `tsk_handover` | `errand.ordered`, `errand.assigned`, `errand_step.receipted`, `errand.completed`, `errand.handed_over`, `work.accepted` (errand document checked) | `config.published`, `held_funds.deposit_confirmed`, `evidence.stored`, `release.confirmed`, `vetting.completed` | FR-TSK-001 to 005 | R2 |
 | INS | `insurance` | Insurer partners' products, applications passed to the insurer, policies and documents, premium schedule with instructions to the insurer's payee record, renewal reminders, claims tracked without a Fidero decision | `ins_product`, `ins_application`, `ins_policy`, `ins_premium`, `ins_claim` | `application.submitted`, `policy.issued`, `premium.due`, `claim.updated` | `release.confirmed`, `payee.verified`, `config.published` | FR-INS-001 to 004 | R2 |
 | EVT | `events` | Events with budget and date, vendors and their verification case, deposits against signed quotes, vendor payments against invoices and delivery evidence with family confirmation, budget against actual | `evt_event`, `evt_vendor`, `evt_vendor_payment` | `event.created`, `vendor.verified`, `vendor_payment.evidenced` | `case.status_changed`, `release.confirmed`, `payee.verified`, `visit.confirmed` | FR-EVT-001 to 003 | R3 |
 | REC | `records` | Traditional authority records, allottees, matching, revenue share, authority confirmation | `rec_authority`, `rec_allocation`, `rec_allottee`, `rec_match`, `rec_revenue_share` | `record.matched` | `asset.boundary_saved`, `case.status_changed` | FR-REC-001 to 004 | R3 |
 | CTY | `countries` | Country registry, cells and data location, versioned country configuration with copying, activation with two administrators, routing directory, metrics by country | `cty_country`, `cty_cell`, `cty_country_config`, `cty_directory` | `country.activated`, `country_config.published` | `config.published` | FR-CTY-001 to 004 | R1 (copying and second cell R2) |
+| PRO | `profpay` | Professional payments from Fidero's operating account (ADR-23): signed agreements and versioned rate cards per country and role, payables created only for accepted work, expense claims with receipts and limits, payment runs with a preparer and a different approver, bulk payment files, reconciliation against the bank's or provider's confirmation, tax deductions from the country configuration, remittance advices and yearly statements, case cost entries. Never reads or writes an escrow or held-funds table | `pro_agreement`, `pro_scope`, `pro_rate_card`, `pro_payable`, `pro_expense_claim`, `pro_payment_run`, `pro_payment_line`, `pro_document` | `payable.created`, `payable.overdue`, `payment_run.approved`, `payment_run.file_issued`, `payment_line.confirmed`, `payment_line.failed`, `runner_month.closed` | `work.accepted`, `runner_month.closed`, `payee.verified`, `payee.suspended`, `country_config.published` | FR-PRO-001 to 010 | R1 (inspector, quantity surveyor and errand agent payables from R2) |
 | core | `core` | Outbox, idempotency, approvals, allowed transitions, base types | `core_outbox_event`, `core_consumed_event`, `core_idempotency_key`, `core_approval_request`, `core_approval`, `core_allowed_transition` | all events via outbox | none | supports all | R1 |
 
 ### 4.3 Module dependencies
@@ -529,6 +543,7 @@ flowchart LR
     tsk["TSK"]
     ins["INS"]
     evt["EVT"]
+    pro["PRO"]
 
     ord --> pay
     ord --> cas
@@ -567,6 +582,11 @@ flowchart LR
     evt --> esc
     evt --> cas
     adm --> cty
+    pro --> acc
+    pro --> cas
+    pro --> cty
+    pro --> evd
+    pro -->|"payee registry only"| esc
     ntf -.->|"events"| core
     aud --> core
     adm --> core
@@ -574,6 +594,8 @@ flowchart LR
 ```
 
 Arrows show "calls the services of". Events flow the other way through the outbox. Cycles are rejected by the import-linter contract in CI. The six line modules (ADR-21) call ESC for money, CASE for verification cases, MOB for field evidence and ACC for family members and vetting. None of them writes an ESC table.
+
+PRO (ADR-23) reads ESC only through `escrow.selectors.payees`, to fetch a verified payee of kind `contracted_professional`. An import-linter contract forbids any other import from `escrow` into `profpay`, and any import of `profpay` from `escrow`. PRO writes case cost entries through `cases.services` (FR-PRO-010) and learns of accepted work only from `work.accepted` events (RUL-26, RUL-27).
 
 ---
 
@@ -940,7 +962,7 @@ sequenceDiagram
     Cl->>A: GET /v1/errand-catalogue?country=GH, FR-TSK-001
     A-->>Cl: Checklist, official fees, Fidero charge, target time, from cty_country_config
     Cl->>A: POST /v1/errands with checklist documents, FR-TSK-002
-    A->>A: Fidero charge through PAY, official fees to held funds at the bank
+    A->>A: Fidero charge by card or mobile money through PAY and the payment provider, official fees to held funds at the bank, FR-TSK-002
     Cl->>A: Optional standing approval for official fees up to a monthly amount, RUL-11
     Cl->>B: Pays official fees into held funds
     B->>A: Deposit confirmed
@@ -956,11 +978,43 @@ sequenceDiagram
     Ag->>App: Upload the resulting document
     CM->>A: Check the document, FR-TSK-004
     A->>A: Errand completed only when checked
+    A->>A: work.accepted creates the agent's payable in PRO, paid by Fidero, FR-TSK-003, RUL-27
     Ag->>App: Handover to representative or courier with signature or photo, FR-TSK-005
     A-->>Cl: Completed, document, receipts, handover record
 ```
 
-Fidero's own charge is a fee payment (PAY). Official fees are client money, held at the bank and paid to the agency only. The agent is never the payee of an official fee. Each step's fee needs the client's approval or a standing approval within its monthly amount (RUL-11), its receipt evidence and two staff approvals.
+Fidero's own charge is a fee payment through the payment provider (PAY, IF-02), never paid into the partner bank (FR-TSK-002). The agent is paid by Fidero from its operating account under PRO (5.11) for each errand whose document Fidero has checked, at the rate card's per-errand rate; client money never pays the agent (FR-TSK-003, RUL-27). Official fees are client money, held at the bank and paid to the agency only. The agent is never the payee of an official fee. Each step's fee needs the client's approval or a standing approval within its monthly amount (RUL-11), its receipt evidence and two staff approvals.
+
+### 5.11 Pay a contracted professional (FR-PRO-001 to FR-PRO-010, RUL-26, RUL-27)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Pr as Lawyer, surveyor or runner
+    participant A as api
+    participant W as worker
+    actor P1 as Preparer, case manager
+    actor P2 as Approver with payment rights
+    participant OB as Fidero operating bank or mobile money provider
+    Pr->>A: Sign the section, FR-RPT-005
+    A->>A: Second review passes, RPT publishes work.accepted with no verdict field
+    W->>W: Payable at the rate card in force at assignment, FR-PRO-002, FR-PRO-003, RUL-26
+    W->>W: Withholding from the country configuration, FR-PRO-007
+    W->>A: Case cost entry through cases.services, FR-PRO-010
+    Pr->>A: Expense claim with receipt photo, FR-PRO-004
+    P1->>A: POST /v1/pro/payment-runs with a cut-off, FR-PRO-005
+    A->>A: Lines only to verified contracted_professional payees, FR-PRO-006
+    P2->>A: Approve with MFA step-up, approver is not the preparer
+    W->>A: Bulk payment file built, hashed and stored under Object Lock
+    P2->>OB: Upload the file in the bank portal, bank dual authorisation where offered
+    OB-->>P1: Confirmation file
+    P1->>A: Import the confirmation, FR-PRO-009
+    A->>A: Lines confirmed or failed, remittance advice per paid line, FR-PRO-007
+    A-->>Pr: Status and remittance advice in My pay
+    W->>A: Daily check, payables past due_by alert operations, FR-PRO-008
+```
+
+No step reads a verdict, an inspection outcome or a risk flag. Money leaves only Fidero's operating account; no step touches an escrow or held funds. A failed line sends its payables back to `approved` for the next run once the payee is fixed; a line is never paid outside a run. In R1 the sources are report sections and runner months; inspections, bills of quantities and errands send `work.accepted` from R2.
 
 ---
 
@@ -1064,9 +1118,18 @@ erDiagram
     PERSON ||--o{ EVENT : funds
     EVENT ||--|{ EVENT_VENDOR : uses
     EVENT_VENDOR ||--o{ VENDOR_PAYMENT : receives
+    PERSON ||--o{ PRO_AGREEMENT : "contracted under"
+    PRO_AGREEMENT }o--|| PAYEE : "paid to"
+    PRO_AGREEMENT ||--o{ PRO_RATE_CARD : "priced by"
+    PRO_AGREEMENT ||--o{ PRO_PAYABLE : earns
+    PRO_AGREEMENT ||--o{ PRO_EXPENSE_CLAIM : claims
+    PRO_PAYMENT_RUN ||--|{ PRO_PAYMENT_LINE : contains
+    PRO_PAYMENT_LINE ||--o{ PRO_PAYABLE : settles
+    PRO_PAYMENT_LINE ||--o{ PRO_EXPENSE_CLAIM : settles
+    CASE ||--o{ PRO_PAYABLE : "costed by"
 ```
 
-Every entity except the shared kernel, the audit log and the cell directory carries `country_id` (not drawn).
+Every entity except the shared kernel, the audit log and the cell directory carries `country_id` (not drawn). No PRO entity has a relationship to ESCROW, RELEASE_INSTRUCTION or BANK_EVENT (RUL-27, 6.14).
 
 ### 6.3 Shared kernel tables
 
@@ -1089,10 +1152,18 @@ CREATE TABLE core_approval_request (
                    'bank_account_verification', -- a client's own account as rent destination, RUL-24
                    'release_setting_change',    -- FR-ADM-005 values that affect a release
                    'release_rights_grant',      -- C2: release rights granted by two administrators
-                   'country_config_publish')),  -- FR-CTY-004, 6.9
+                   'country_config_publish',    -- FR-CTY-004, 6.9
+                   'payment_rights_grant',      -- 6.4: payment rights granted by two administrators
+                   'pro_rate_card_change',      -- FR-PRO-001: a second administrator
+                   'pro_payment_run',           -- FR-PRO-005: a different approver with payment rights
+                   'pro_expense_exception')),   -- FR-PRO-004: over the limit or no receipt
   subject_id    uuid NOT NULL,
   prepared_by   uuid NOT NULL REFERENCES acc_person(id),
-  required      smallint NOT NULL DEFAULT 2 CHECK (required >= 2),
+  required      smallint NOT NULL DEFAULT 2,
+  CHECK (required >= 2 OR (required = 1 AND subject_type IN
+         ('pro_rate_card_change','pro_payment_run','pro_expense_exception'))),
+                                        -- PRO: the preparer is the first person, so one approver who is
+                                        -- not the preparer makes two (core.approval_not_preparer)
   status        text NOT NULL CHECK (status IN ('open','approved','rejected','withdrawn')),
   created_at    timestamptz NOT NULL DEFAULT now(),
   UNIQUE (subject_type, subject_id, created_at)
@@ -1171,18 +1242,22 @@ CREATE TABLE acc_role_grant (
                 'family_member','institution','care_plan','managed_property','tenancy','errand','policy','event')),
   scope_id    uuid,
   release_rights boolean NOT NULL DEFAULT false,    -- FR-ESC-007; a permission, not a role (01 C2)
+  payment_rights boolean NOT NULL DEFAULT false,    -- FR-PRO-005: approve professional payment runs (I-33)
   granted_by  uuid NOT NULL REFERENCES acc_person(id),
-  approval_request_id uuid REFERENCES core_approval_request(id),  -- required when release_rights
+  approval_request_id uuid REFERENCES core_approval_request(id),  -- required when release_rights or payment_rights
   valid_from  timestamptz NOT NULL DEFAULT now(),
   valid_to    timestamptz,
   CHECK (NOT release_rights OR role = 'reviewer'),  -- 01 C2: case managers cannot approve; senior staff named by the founder get a reviewer grant
   CHECK (NOT release_rights OR approval_request_id IS NOT NULL),
+  CHECK (NOT payment_rights OR (role IN ('reviewer','administrator') AND approval_request_id IS NOT NULL)),
   CHECK (role NOT IN ('family_member','institution_contact','carer','errand_agent','tenant','insurer_partner')
          OR scope_id IS NOT NULL)                   -- these roles are always scoped
 );
 -- Trigger acc.no_money_roles(): rejects release_rights on any grant whose person also holds
 -- 'client', 'family_member', 'representative', 'carer', 'errand_agent', 'contractor' or 'supplier'
--- in the same country (separation of duties, RUL-11, RUL-22).
+-- in the same country (separation of duties, RUL-11, RUL-22). It also rejects payment_rights for a person who
+-- holds 'lawyer', 'surveyor', 'runner', 'inspector', 'quantity_surveyor' or 'errand_agent' in any country, so
+-- no professional approves a run that pays them (FR-PRO-005). Payment rights and release rights are separate.
 
 CREATE TABLE acc_professional_licence (
   id           uuid PRIMARY KEY,
@@ -1797,7 +1872,7 @@ CREATE TABLE safety.incident (
 | `pay_settlement_line`, `pay_recon_issue` | provider settlement lines and mismatches | FR-PAY-006 |
 | `case_status_message` | case, template key, rendered text, date, next expected date | FR-CASE-007 |
 | `case_risk_screen` | case, screened by, outcome, people assigned, valid until | FR-CASE-009 |
-| `case_cost_item` | case, item type, amount, currency | FR-CASE-011 |
+| `case_cost_item` | case, item type, amount, currency, source (`manual`, `pro_payable`, `pro_expense`) and source ID, unique per source; PRO writes the professional's gross pay and approved expenses when they are accepted, so cost per report is measured | FR-CASE-011, FR-PRO-010 |
 | `rpt_condition` | report, text, who must act, evidence that closes it | FR-RPT-009 |
 | `geo_overlay_layer_version` | layer, version, source, valid from, loaded by, feature count | FR-GEO-004 |
 | `geo_overlay_feature` | layer version, `geometry(MultiPolygon, 4326)` with GiST index | FR-GEO-002 |
@@ -1824,7 +1899,7 @@ CREATE TABLE safety.incident (
 | `dpr_retention_rule`, `dpr_legal_hold` | data class, country, period, action; holds by subject | FR-DPR-004 |
 | `dpr_bulk_export` | requester, scope, approval request, file hash | FR-DPR-005 |
 | `rec_allocation` | authority, plot geometry, allottee, date, documents, confirmation status | FR-REC-001, FR-REC-004 |
-| `adm_partner` | kind (`escrow_bank`, `payment_provider`, `identity`, `messaging`, `insurer`, `institution_portal`, `developer`, `bank_api`), `country_id`, adapter per port, bank details with `approval_request_id` for any change (FR-ADM-003 second administrator) | FR-ADM-003, IF-01 to IF-11 |
+| `adm_partner` | kind (`escrow_bank`, `payment_provider`, `identity`, `messaging`, `insurer`, `institution_portal`, `developer`, `bank_api`, `operating_bank`, `operating_mobile_money`), `country_id`, adapter per port, bank details with `approval_request_id` for any change (FR-ADM-003 second administrator). The two operating kinds are Fidero's own accounts that pay professionals (FR-PRO-006); trigger `adm.operating_not_escrow()` rejects an operating account whose account number (keyed hash) matches any escrow or held-funds account on record, and the reverse | FR-ADM-003, FR-PRO-006, IF-01 to IF-11 |
 | `acc_identity_check`, `acc_vetting` | see 6.4; vetting checklist version per country | FR-ACC-004, FR-CARE-002 |
 | `fee_institution_contact` | institution, person with role `institution_contact`, may confirm invoices, may send receipts | FR-FEE-001, FR-ACC-011 |
 | `fee_schedule` | institution, family member, client, period (`term`, `month`, `quarter`), expected amount, next due, reminder lead days, status; creates `fee_invoice` rows in `draft` for the client's approval | FR-FEE-005 |
@@ -1833,7 +1908,7 @@ CREATE TABLE safety.incident (
 | `pmg_statement_mandate` | owner, bank account, mandate evidence (the owner's written mandate allowing the bank to share that account's statement lines), bank acknowledgement, valid from and to, status | FR-PMG-003 |
 | `pmg_inspection` | property, inspector (panel member), kind (`onboarding`, `periodic`, `repair`), scheduled for, check-in, outcome, notes, photos through `evd_link` | FR-PMG-001, FR-PMG-005, FR-PMG-006 |
 | `tsk_errand_document` | errand, checklist key from the catalogue, evidence, status (`missing`, `uploaded`, `accepted`, `rejected` with reason) | FR-TSK-002 |
-| `tsk_agent` | person, agency organisation, `acc_vetting`, status; the agency's `payee_id` is on the organisation | FR-TSK-003 |
+| `tsk_agent` | person, agency organisation, `acc_vetting`, status, `pro_agreement` with role `errand_agent` (required before assignment); the agency's `payee_id` is on the organisation. The agent's own pay comes from PRO, never from the errand's escrow | FR-TSK-003, FR-PRO-001 |
 | `tsk_handover` | errand, handed to (representative person, or courier name and tracking reference), method, signature or photo evidence, at | FR-TSK-005 |
 | `ins_product` | insurer partner, kind (`health`, `funeral`), name, terms evidence, country, status, text showing the insurer's name and that the policy is the insurer's | FR-INS-001 |
 | `ins_claim` | policy, started by client, submitted to insurer at, insurer reference, insurer status (`received`, `assessing`, `paid`, `declined`), outcome evidence; no Fidero decision column | FR-INS-004, RUL-25 |
@@ -1871,7 +1946,10 @@ CREATE TABLE cty_country_config (                    -- FR-CTY-001, FR-CTY-004; 
   content         jsonb NOT NULL,       -- the pack: template version IDs, scope statement version, overlay layer
                                         -- versions, currency and FX guide source, partner IDs per port, licence
                                         -- bodies, legal text versions, holiday calendar, errand catalogue version,
-                                        -- institution types, vetting checklist, data location statement
+                                        -- institution types, vetting checklist, data location statement,
+                                        -- professional pay rules (6.14): withholding and other deductions by
+                                        -- role and tax status, tax year, expense limits by role and kind,
+                                        -- payment period in working days, operating account file format
   content_sha256  bytea NOT NULL CHECK (length(content_sha256) = 32),
   state           text NOT NULL CHECK (state IN ('draft','published','retired')),
   copied_from_id  uuid REFERENCES cty_country_config(id),   -- FR-CTY-004: which country's version it started from
@@ -1911,8 +1989,8 @@ The one-cell design in R1 keeps C-07. The decision to open a second cell is take
 
 | Step | Design |
 |---|---|
-| Classify | Each table and field is listed in `dpr_data_catalogue` with purpose and data class (NFR-PRIV-02). Classes follow 01 C5.2: `health_care` (hospital invoices, care plans, visit records, readings, carer concerns; special category `[TO VERIFY]`, own KMS key, no analytics, no search index), `tenancy` (tenant identity, agreements, rent records; tenancy plus `[TO VERIFY]`), `identity_documents` (passports, ID cards and certificates handled in errands; deleted from Fidero storage `[TO VERIFY]` days after handover), `insurance` (applications and policy documents; policy life plus `[TO VERIFY]`). Two design sub-classes sit under 01's classes: `family` (family members' names and addresses, under Account) and `payee` (bank details of payees, under Escrow and payment). Retention periods `[TO VERIFY]` (Q-08). |
-| Anchor | Retention runs from an anchor date per class: case release, escrow close, account closure, last lead contact. Periods are `[TO VERIFY]` (Q-08) except leads at 24 months (assumption from 01 C5.2). |
+| Classify | Each table and field is listed in `dpr_data_catalogue` with purpose and data class (NFR-PRIV-02). Classes follow 01 C5.2: `health_care` (hospital invoices, care plans, visit records, readings, carer concerns; special category `[TO VERIFY]`, own KMS key, no analytics, no search index), `tenancy` (tenant identity, agreements, rent records; tenancy plus `[TO VERIFY]`), `identity_documents` (passports, ID cards and certificates handled in errands; deleted from Fidero storage `[TO VERIFY]` days after handover), `insurance` (applications and policy documents; policy life plus `[TO VERIFY]`), `professional_payables` (agreements, rate cards, payables, expense claims and receipts, payment runs and files, tax deductions, remittance advices and statements; as tax law requires in each country `[TO VERIFY]`, Q-25; the professional's bank details sit in `payee`). Two design sub-classes sit under 01's classes: `family` (family members' names and addresses, under Account) and `payee` (bank details of payees, under Escrow and payment). Retention periods `[TO VERIFY]` (Q-08). |
+| Anchor | Retention runs from an anchor date per class: case release, escrow close, account closure, last lead contact, end of the tax year of the payment (professional payables). Periods are `[TO VERIFY]` (Q-08) except leads at 24 months (assumption from 01 C5.2). |
 | Lock | Evidence objects get an S3 Object Lock date equal to the minimum agreed period. It can be extended for legal holds, never shortened. |
 | Sweep | A nightly job lists expired records, skips any under `dpr_legal_hold`, then deletes or anonymises. |
 | Anonymise | Personal fields are overwritten with nulls or tokens, and the field-level data key for that person is destroyed (crypto-shredding). Aggregates and audit rows stay valid because they hold IDs and keyed hashes only. |
@@ -1926,7 +2004,9 @@ CREATE TABLE esc_payee (
   id                 uuid PRIMARY KEY,
   country_id         uuid NOT NULL REFERENCES cty_country(id),
   kind               text NOT NULL CHECK (kind IN ('institution','supplier','vendor','professional','contractor',
-                       'agency','insurer','carer','seller','developer')),   -- RUL-22; seller and developer per 01 v0.4
+                       'agency','insurer','carer','seller','developer',
+                       'contracted_professional')),   -- RUL-22; seller and developer per 01 v0.4; contracted_professional
+                                                      -- is paid only by PRO, never by a release (RUL-27)
   subject_type       text NOT NULL CHECK (subject_type IN ('institution','supplier','panel_member','organisation','person','partner')),
   subject_id         uuid NOT NULL,                                  -- the verified institution, supplier, ...
   legal_name_enc     bytea NOT NULL,                                 -- from registration or identity document
@@ -1951,7 +2031,7 @@ CREATE TABLE esc_payee (
   valid_until        date,                                           -- re-verify yearly (assumption)
   suspend_reason     text,
   row_version        int NOT NULL DEFAULT 1,
-  UNIQUE (subject_type, subject_id),
+  UNIQUE (subject_type, subject_id, kind),            -- a contracted professional's record is separate from any other
   CHECK (verification_status <> 'verified' OR (name_match = 'matched' AND verified_by IS NOT NULL
          AND second_check_by IS NOT NULL AND second_check_by <> verified_by AND approval_request_id IS NOT NULL))
 );
@@ -1965,9 +2045,13 @@ CREATE INDEX ON esc_payee (country_id, kind, verification_status);
 -- Trigger esc.payee_kind_for_subject() on esc_release_instruction:
 --   fee_invoice -> institution; errand_step -> agency; care_visit -> carer or agency; repair -> contractor;
 --   event_vendor_payment -> vendor; premium -> insurer (RUL-25); milestone -> contractor, developer or
---   supplier; purchase release -> seller or developer. No subject maps to a runner (FR-FEE-006).
--- Trigger esc.payee_not_staff(): rejects a payee whose subject person holds a Fidero staff or runner role.
--- A runner can never be a payee, so no release instruction can name one (FR-FEE-006, RUL-22).
+--   supplier; purchase release -> seller or developer. No subject maps to a runner (FR-FEE-006). No subject maps
+--   to contracted_professional: client money never pays a professional Fidero contracts (RUL-27).
+-- Trigger esc.payee_not_staff(): rejects a payee whose subject person holds a Fidero staff role (case manager,
+-- reviewer, administrator) and, for every kind except contracted_professional, a runner role. A runner can be a
+-- payee only of kind contracted_professional, which no release instruction can name, so a runner is never paid
+-- from client money (FR-FEE-006, RUL-22). A contracted_professional payee must be the contracting party of an
+-- active pro_agreement (6.14, FR-PRO-006).
 -- Account name source (FR-ESC-015): the bank's name check where offered (bank_name_check), otherwise a
 -- bank letter entered by one staff member and checked by a second (bank_letter, second_check_by). A
 -- statement line is never a name source. No user, including an administrator, can override name_match.
@@ -2437,6 +2521,236 @@ CREATE TABLE evt_vendor_payment (                     -- FR-EVT-002
 
 State models for these entities are proposed here because 01 C8 has none for them (I-23).
 
+### 6.14 Professional payments (PRO; FR-PRO-001 to FR-PRO-010, RUL-26, RUL-27, ADR-23)
+
+PRO pays the professionals Fidero contracts from Fidero's operating account, out of fee income. Its tables never reference an escrow, held-funds, release-instruction, bank-event, standing-approval or statement table. The only money-related record it shares with ESC is the verified payee registry (`esc_payee`, kind `contracted_professional`).
+
+```sql
+CREATE TABLE pro_agreement (                          -- FR-PRO-001
+  id                 uuid PRIMARY KEY,
+  country_id         uuid NOT NULL REFERENCES cty_country(id),
+  professional_id    uuid NOT NULL REFERENCES acc_person(id),
+  role               text NOT NULL CHECK (role IN ('lawyer','surveyor','runner','inspector',
+                       'quantity_surveyor','errand_agent')),                -- BR-23
+  contracting_party  text NOT NULL CHECK (contracting_party IN ('person','organisation')),
+  organisation_id    uuid REFERENCES acc_organisation(id),               -- law or survey firm that signs (I-35)
+  agreement_evidence_id uuid NOT NULL REFERENCES evd_evidence(id),        -- the signed agreement
+  tax_status         text NOT NULL CHECK (tax_status IN ('registered','not_registered','exempt')),  -- Q-25
+  tax_id_enc         bytea,                                              -- taxpayer number, field-level encrypted
+  payee_id           uuid REFERENCES esc_payee(id),                      -- kind contracted_professional only
+  valid_from         date NOT NULL,
+  valid_to           date,
+  status             text NOT NULL CHECK (status IN ('draft','active','suspended','ended')),
+  CHECK ((contracting_party = 'organisation') = (organisation_id IS NOT NULL)),
+  CHECK (status <> 'active' OR payee_id IS NOT NULL),
+  CHECK (valid_to IS NULL OR valid_to >= valid_from)
+);
+CREATE UNIQUE INDEX one_active_agreement
+  ON pro_agreement (country_id, professional_id, role) WHERE status = 'active';
+-- Trigger pro.agreement_payee(): payee_id is an esc_payee of kind 'contracted_professional' whose subject is the
+-- professional (contracting_party 'person') or the organisation, 'verified' and name 'matched' (FR-PRO-006).
+
+CREATE TABLE pro_scope (                              -- FR-PRO-003, RUL-26: the only thing a rate may vary by
+  key                text PRIMARY KEY CHECK (key ~ '^[a-z0-9_]+$'),
+  description        text NOT NULL,
+  known_at           text NOT NULL CHECK (known_at = 'assignment')     -- every key is fixed before work starts
+);
+-- Seeded by migration only: 'standard', report tiers, plot size bands and travel distance bands [TO VERIFY].
+-- fidero_app has SELECT only. A CI test fails if a key or description names a result (verdict, outcome, pass,
+-- fail, green, amber, red, risk, finding, defect).
+
+CREATE TABLE pro_rate_card (                          -- FR-PRO-001, FR-PRO-003; immutable once approved
+  id                 uuid PRIMARY KEY,
+  country_id         uuid NOT NULL REFERENCES cty_country(id),
+  role               text NOT NULL CHECK (role IN ('lawyer','surveyor','runner','inspector',
+                       'quantity_surveyor','errand_agent')),
+  agreement_id       uuid REFERENCES pro_agreement(id),                  -- NULL: the country's standard card for the role
+  unit               text NOT NULL CHECK (unit IN ('report_section','site_visit','inspection',
+                       'bill_of_quantities','errand','month')),
+  scope_key          text NOT NULL DEFAULT 'standard' REFERENCES pro_scope(key),
+  rate               numeric(18,2) NOT NULL CHECK (rate > 0),            -- one flat amount per unit, nothing else
+  currency           char(3) NOT NULL,
+  version            int NOT NULL CHECK (version >= 1),
+  valid_from         date NOT NULL,
+  valid_to           date,
+  state              text NOT NULL CHECK (state IN ('draft','approved','retired')),
+  created_by         uuid NOT NULL REFERENCES acc_person(id),
+  approval_request_id uuid REFERENCES core_approval_request(id),        -- pro_rate_card_change, second administrator
+  approved_at        timestamptz,
+  UNIQUE NULLS NOT DISTINCT (country_id, role, agreement_id, unit, scope_key, version),
+  CHECK (state = 'draft' OR (approval_request_id IS NOT NULL AND approved_at IS NOT NULL)),
+  CHECK (valid_to IS NULL OR valid_to >= valid_from)
+);
+-- Trigger pro.rate_card_immutable(): rejects UPDATE of rate, unit, scope_key, role or valid_from once 'approved';
+-- a change is a new version. Trigger pro.rate_card_no_overlap(): approved versions of one key do not overlap.
+-- How RUL-26 is enforced by design: the rate is one flat amount per unit; the only other dimension is a scope
+-- key known at assignment; the payable takes the card in force at assignment, before any result exists; and a
+-- CI schema test fails if pro_rate_card or pro_payable gains a column not listed here, or any jsonb or text
+-- column that could hold a rule.
+
+CREATE TABLE pro_payment_run (                        -- FR-PRO-005, FR-PRO-006, FR-PRO-009
+  id                 uuid PRIMARY KEY,
+  reference          text NOT NULL UNIQUE,                               -- e.g. PAYRUN-GH-2027-014
+  country_id         uuid NOT NULL REFERENCES cty_country(id),
+  operating_account_id uuid NOT NULL REFERENCES adm_partner(id),         -- kind operating_bank or operating_mobile_money
+  file_format        text NOT NULL,                                      -- the bank's or provider's bulk format (TQ-27)
+  cut_off_at         timestamptz NOT NULL,                               -- approved items up to this time
+  currency           char(3) NOT NULL,
+  total_net          numeric(18,2) NOT NULL CHECK (total_net >= 0),
+  line_count         int NOT NULL CHECK (line_count >= 0),
+  prepared_by        uuid NOT NULL REFERENCES acc_person(id),
+  approval_request_id uuid REFERENCES core_approval_request(id),        -- pro_payment_run, required = 1
+  approved_by        uuid REFERENCES acc_person(id),
+  approved_at        timestamptz,
+  file_evidence_id   uuid REFERENCES evd_evidence(id),                   -- the bulk file, under Object Lock
+  file_sha256        bytea CHECK (file_sha256 IS NULL OR length(file_sha256) = 32),
+  uploaded_by        uuid REFERENCES acc_person(id),                     -- who uploaded it in the bank's portal
+  confirmation_evidence_id uuid REFERENCES evd_evidence(id),             -- the bank's or provider's confirmation
+  status             text NOT NULL CHECK (status IN ('draft','pending_approval','approved','file_issued',
+                       'partly_confirmed','confirmed','closed','withdrawn')),
+  CHECK (approved_by IS NULL OR approved_by <> prepared_by),            -- the preparer never approves
+  CHECK (status IN ('draft','pending_approval','withdrawn')
+         OR (approval_request_id IS NOT NULL AND approved_by IS NOT NULL AND approved_at IS NOT NULL)),
+  CHECK (status NOT IN ('file_issued','partly_confirmed','confirmed','closed')
+         OR (file_evidence_id IS NOT NULL AND file_sha256 IS NOT NULL))
+);
+-- Trigger pro.run_account_is_operating(): operating_account_id is an adm_partner of kind 'operating_bank' or
+-- 'operating_mobile_money' in the same country (RUL-27). Trigger pro.run_approver(): approved_by holds
+-- payment_rights in the run's country and gave the approval in core_approval for approval_request_id, with MFA
+-- within 5 minutes (6.3). Any change to a line after approval withdraws the approval and returns the run to draft.
+
+CREATE TABLE pro_payment_line (                       -- one credit to one payee in one run
+  id                 uuid PRIMARY KEY,
+  run_id             uuid NOT NULL REFERENCES pro_payment_run(id),
+  agreement_id       uuid NOT NULL REFERENCES pro_agreement(id),
+  payee_id           uuid NOT NULL REFERENCES esc_payee(id),             -- verified, kind contracted_professional
+  gross              numeric(18,2) NOT NULL CHECK (gross >= 0),
+  withholding        numeric(18,2) NOT NULL CHECK (withholding >= 0),
+  other_deductions   numeric(18,2) NOT NULL DEFAULT 0 CHECK (other_deductions >= 0),
+  reimbursed_expenses numeric(18,2) NOT NULL DEFAULT 0 CHECK (reimbursed_expenses >= 0),
+  net                numeric(18,2) GENERATED ALWAYS AS
+                       (gross - withholding - other_deductions + reimbursed_expenses) STORED,
+  currency           char(3) NOT NULL,
+  bank_reference     text,                                               -- from the confirmation file
+  outcome            text NOT NULL DEFAULT 'pending'
+                       CHECK (outcome IN ('pending','confirmed','failed','unconfirmed')),
+  failure_reason     text,
+  resolved_by        uuid REFERENCES acc_person(id),
+  resolution         text CHECK (resolution IN ('next_run','cancelled','confirmed_by_bank_letter')),
+  UNIQUE (run_id, payee_id),
+  CHECK (gross - withholding - other_deductions + reimbursed_expenses >= 0),
+  CHECK (outcome <> 'failed' OR failure_reason IS NOT NULL)
+);
+-- Trigger pro.line_payee(): payee_id is the agreement's payee, of kind 'contracted_professional', 'verified' and
+-- name 'matched', checked when the run is approved and again when the file is built (FR-PRO-006). No override.
+
+CREATE TABLE pro_payable (                            -- FR-PRO-002, FR-PRO-003, FR-PRO-007, FR-PRO-008
+  id                 uuid PRIMARY KEY,
+  country_id         uuid NOT NULL REFERENCES cty_country(id),
+  agreement_id       uuid NOT NULL REFERENCES pro_agreement(id),
+  work_kind          text NOT NULL CHECK (work_kind IN ('report_section','site_visit','inspection',
+                       'bill_of_quantities','errand','runner_month')),
+  work_ref           uuid NOT NULL,                                      -- rpt_section, case_task, bld_inspection,
+                                                                         -- pmg_inspection, bld_boq, tsk_errand, agreement
+  work_period        date,                                               -- first day of the month, runner_month only
+  source_event_id    uuid NOT NULL,                                      -- work.accepted or runner_month.closed
+  case_id            uuid REFERENCES case_case(id),                      -- for the case cost record (FR-PRO-010)
+  project_id         uuid REFERENCES bld_project(id),
+  assigned_at        timestamptz NOT NULL,                               -- when the work was given: picks the rate
+  accepted_at        timestamptz NOT NULL,
+  rate_card_id       uuid NOT NULL REFERENCES pro_rate_card(id),         -- the card in force at assigned_at
+  unit_rate          numeric(18,2) NOT NULL CHECK (unit_rate > 0),       -- copied from the card
+  quantity           numeric(9,4) NOT NULL DEFAULT 1 CHECK (quantity > 0),  -- 1, or the share of a part month
+  gross              numeric(18,2) GENERATED ALWAYS AS (round(unit_rate * quantity, 2)) STORED,
+  currency           char(3) NOT NULL,
+  country_config_id  uuid NOT NULL REFERENCES cty_country_config(id),    -- the tax rules used (FR-PRO-007)
+  withholding_rate   numeric(5,4) NOT NULL CHECK (withholding_rate >= 0 AND withholding_rate < 1),
+  withholding        numeric(18,2) GENERATED ALWAYS AS
+                       (round(round(unit_rate * quantity, 2) * withholding_rate, 2)) STORED,
+  due_by             date NOT NULL,                                      -- accepted_at plus the payment period
+  payment_line_id    uuid REFERENCES pro_payment_line(id),
+  status             text NOT NULL CHECK (status IN ('approved','held','in_run','paid','cancelled')),
+  hold_reason        text CHECK (hold_reason IN ('fraud_review','misconduct_review','payee_not_verified',
+                       'agreement_suspended')),                          -- never a result of the work
+  held_by            uuid REFERENCES acc_person(id),
+  UNIQUE NULLS NOT DISTINCT (work_kind, work_ref, work_period),         -- one payable per piece of work
+  CHECK ((work_kind = 'runner_month') = (work_period IS NOT NULL)),
+  CHECK ((status = 'held') = (hold_reason IS NOT NULL)),
+  CHECK (hold_reason NOT IN ('fraud_review','misconduct_review') OR held_by IS NOT NULL),
+  CHECK (status NOT IN ('in_run','paid') OR payment_line_id IS NOT NULL),
+  CHECK (accepted_at >= assigned_at)
+);
+-- No column records a verdict, inspection outcome, risk flag or report state (RUL-26). The consumer of
+-- work.accepted receives only work_kind, work_ref, professional, case or project, assigned_at, accepted_at and
+-- quantity; a contract test on the event schema fails if a result field is added (ADR-23).
+-- Trigger pro.payable_rate(): rate_card_id is the approved card for the agreement (or, if it has none, the
+-- country's standard card) for the role, unit and scope key valid at assigned_at, and unit_rate equals its rate.
+-- A hold needs a reviewer for fraud or misconduct, is audited and is released by a reviewer (I-38). Cancelling
+-- needs a reviewer and a reason that is not a result of the work.
+
+CREATE TABLE pro_expense_claim (                      -- FR-PRO-004
+  id                 uuid PRIMARY KEY,
+  country_id         uuid NOT NULL REFERENCES cty_country(id),
+  agreement_id       uuid NOT NULL REFERENCES pro_agreement(id),
+  case_id            uuid REFERENCES case_case(id),
+  project_id         uuid REFERENCES bld_project(id),
+  errand_id          uuid REFERENCES tsk_errand(id),                     -- added with TSK in R2
+  kind               text NOT NULL CHECK (kind IN ('official_search_fee','travel','approved_cost')),
+  description        text NOT NULL,
+  amount             numeric(18,2) NOT NULL CHECK (amount > 0),
+  currency           char(3) NOT NULL,
+  incurred_on        date NOT NULL,
+  receipt_evidence_id uuid REFERENCES evd_evidence(id),                  -- photo of the receipt
+  receipt_sha256     bytea UNIQUE,                                       -- one receipt, one claim
+  limit_amount       numeric(18,2) NOT NULL,                             -- country configuration, by role and kind
+  country_config_id  uuid NOT NULL REFERENCES cty_country_config(id),
+  needs_second_approval boolean GENERATED ALWAYS AS
+                       (receipt_evidence_id IS NULL OR amount > limit_amount) STORED,
+  approved_by        uuid REFERENCES acc_person(id),
+  approval_request_id uuid REFERENCES core_approval_request(id),        -- pro_expense_exception
+  payment_line_id    uuid REFERENCES pro_payment_line(id),
+  status             text NOT NULL CHECK (status IN ('submitted','approved','rejected','in_run','paid','cancelled')),
+  CHECK (num_nonnulls(case_id, project_id, errand_id) <= 1),
+  CHECK (status NOT IN ('approved','in_run','paid') OR approved_by IS NOT NULL),
+  CHECK (status NOT IN ('approved','in_run','paid') OR NOT needs_second_approval
+         OR approval_request_id IS NOT NULL),
+  CHECK (status NOT IN ('in_run','paid') OR payment_line_id IS NOT NULL)
+);
+-- Trigger pro.expense_approver(): approved_by is staff and not the claimant; the exception approval in
+-- core_approval is by a different staff member again. A claim must name a case, project or errand the claimant
+-- was assigned to, unless its kind is 'approved_cost' agreed in advance. Reimbursed expenses carry no withholding
+-- until the country's rules say otherwise (Q-25, I-39).
+
+CREATE TABLE pro_document (                           -- FR-PRO-007: remittance advices and yearly statements
+  id                 uuid PRIMARY KEY,
+  country_id         uuid NOT NULL REFERENCES cty_country(id),
+  agreement_id       uuid NOT NULL REFERENCES pro_agreement(id),
+  kind               text NOT NULL CHECK (kind IN ('remittance_advice','yearly_statement')),
+  payment_line_id    uuid REFERENCES pro_payment_line(id),
+  tax_year           smallint,
+  evidence_id        uuid NOT NULL REFERENCES evd_evidence(id),          -- PDF, hashed as reports are (ADR-15)
+  issued_at          timestamptz NOT NULL DEFAULT now(),
+  CHECK ((kind = 'remittance_advice') = (payment_line_id IS NOT NULL)),
+  CHECK ((kind = 'yearly_statement') = (tax_year IS NOT NULL))
+);
+CREATE UNIQUE INDEX one_statement_per_year
+  ON pro_document (agreement_id, tax_year) WHERE kind = 'yearly_statement';
+```
+
+**Separation from client money (RUL-27).** Enforced in five places:
+
+| Layer | Control |
+|---|---|
+| Schema | No `pro_*` column references `esc_escrow`, `esc_release_instruction`, `esc_bank_event`, `esc_standing_approval`, `esc_statement_file`, `esc_statement_line` or the view `esc_held_statement`, and no `esc_*` column references a `pro_*` table. A CI schema test lists every foreign key from and to `pro_*` and fails on any target other than `esc_payee`, `acc_*`, `cty_*`, `evd_evidence`, `case_case`, `bld_project`, `tsk_errand`, `adm_partner` and `core_approval_request`. |
+| Code | Import-linter: `profpay` may import from `escrow` only `escrow.selectors.payees`; `escrow` may not import `profpay`. No ESC service accepts a PRO identifier. |
+| Accounts | Every run debits an `adm_partner` of kind `operating_bank` or `operating_mobile_money`. `adm.operating_not_escrow()` keeps those accounts distinct from every escrow and held-funds account. Release instructions are built only by ESC and signed with `kms/release-signing`; the bulk file is built only by PRO and that key cannot sign it (10.5). |
+| Payees | `esc.payee_kind_for_subject()` maps no release subject to `contracted_professional`, and `pro.line_payee()` accepts no other kind. A release cannot pay a professional, and a payment run cannot pay a seller, institution, contractor, carer, supplier, vendor or agency. |
+| Live data | An hourly invariant check (document 06, 8.6) finds any release instruction naming a `contracted_professional` payee, or any payment line naming another kind. |
+
+**States (proposed, I-36).** Payable: approved, held (a reviewer, for fraud or misconduct review, or automatically while the payee is not verified), in run, paid, cancelled; a failed line returns its payables from in run to approved. Expense claim: submitted, approved (a second approval when over the limit or without a receipt), rejected, in run, paid, cancelled. Payment run: draft, pending approval, approved, file issued, partly confirmed, confirmed, closed; draft or pending approval to withdrawn; any line change after approval back to draft.
+
+**Sources by release.** In R1, `work.accepted` comes from RPT when a lawyer's or surveyor's section is signed and passes second review. Where an agreement pays per site visit, PRO creates one `site_visit` payable for each completed visit task of that case at the same time. A case manager closes each runner's month (`runner_month.closed`). From R2, BLD sends submitted inspections and accepted bills of quantities, PMG sends property inspections, and TSK sends errands whose document Fidero has checked (FR-TSK-003, FR-TSK-004).
+
 ---
 
 ## 7. API design
@@ -2510,7 +2824,7 @@ State models for these entities are proposed here because 01 C8 has none for the
 
 ### 7.4 Endpoint catalogue
 
-Roles: CL client, SE seller, DV developer, CM case manager, RV reviewer, LW lawyer, SV surveyor, RN runner, CT contractor, IN inspector, PT partner, AD administrator, QS quantity surveyor, AR authority representative, FM family member, IC institution contact, CE carer or errand agent, TN tenant, IS insurer partner, Pub public. "own" and "asg" mean own or assigned objects only. RR means the reviewer holds release rights.
+Roles: CL client, SE seller, DV developer, CM case manager, RV reviewer, LW lawyer, SV surveyor, RN runner, CT contractor, IN inspector, PT partner, AD administrator, QS quantity surveyor, AR authority representative, FM family member, IC institution contact, CE carer or errand agent, TN tenant, IS insurer partner, Pub public. "own" and "asg" mean own or assigned objects only. RR means the reviewer holds release rights. PR means a contracted professional (lawyer, surveyor, runner, inspector, quantity surveyor or errand agent) acting on their own pay. PY means a reviewer or administrator who holds payment rights (6.4).
 
 | Method | Path | Purpose | Roles | FR IDs |
 |---|---|---|---|---|
@@ -2671,11 +2985,11 @@ Roles: CL client, SE seller, DV developer, CM case manager, RV reviewer, LW lawy
 | POST | `/v1/repairs/{id}/instructions` | Instruction to pay the contractor after inspection pass | CM | FR-PMG-005, RUL-22 |
 | GET, POST | `/v1/managed-properties/{id}/inspections`, `/timeline` | Periodic inspections; rent, repairs, inspections and photos in one timeline | CL own, CM | FR-PMG-006 |
 | GET | `/v1/errand-catalogue?country=` | Catalogue with checklist, official fees, Fidero charge, target time | Pub | FR-TSK-001 |
-| POST | `/v1/errands` | Order an errand, upload checklist documents, pay Fidero's charge; official fees to held funds | CL | FR-TSK-002 |
-| POST | `/v1/errands/{id}/assignments` | Assign a vetted agent and the agency payee | CM | FR-TSK-003 |
+| POST | `/v1/errands` | Order an errand and upload checklist documents; Fidero's charge by card or mobile money through the payment provider (PAY); official fees into held funds at the partner bank | CL | FR-TSK-002 |
+| POST | `/v1/errands/{id}/assignments` | Assign a vetted agent with an active `pro_agreement` and the agency payee | CM | FR-TSK-003 |
 | GET | `/v1/errands/{id}` | Steps in plain language, receipts, result | CL own, CM, CE asg | FR-TSK-003 |
 | POST | `/v1/errands/{id}/steps/{seq}/instructions` | Instruction to pay the official fee to the agency | CM | FR-TSK-003, RUL-22 |
-| POST | `/v1/errands/{id}/result-checks` | Staff check the resulting document; completes the errand | CM, RV | FR-TSK-004 |
+| POST | `/v1/errands/{id}/result-checks` | Staff check the resulting document; completes the errand and sends `work.accepted`, so PRO creates the agent's payable | CM, RV | FR-TSK-004, FR-TSK-003, FR-PRO-002 |
 | POST | `/v1/errands/{id}/handovers` | Handover to representative or courier with signature or photo | CE asg, CM | FR-TSK-005 |
 | GET | `/v1/insurance/products?country=` | Insurer partners' products, with the insurer's name and terms | CL | FR-INS-001 |
 | POST | `/v1/insurance/applications` | Apply; passed to the insurer; premium route shown as the insurer's account | CL | FR-INS-002 |
@@ -2688,6 +3002,25 @@ Roles: CL client, SE seller, DV developer, CM case manager, RV reviewer, LW lawy
 | POST | `/v1/events/{id}/vendor-payments`, `/v1/vendor-payments/{id}/client-approval` | Deposit against signed quote; payment against invoice and delivery evidence | CM; CL own | FR-EVT-002 |
 | POST | `/v1/vendor-payments/{id}/instructions` | Instruction to pay the vendor | CM | FR-EVT-002, RUL-22 |
 | GET | `/v1/events/{id}/receipts` | Receipt for every payment | CL own | FR-EVT-003 |
+| GET | `/v1/me/pro/jobs` | My accepted and pending work with the rate that applies; never the verdict or outcome | PR own | FR-PRO-002, FR-PRO-003 |
+| GET | `/v1/me/pro/payables`, `/v1/me/pro/payables/{id}` | My payables: gross, tax withheld, net, due date, run and status | PR own | FR-PRO-002, FR-PRO-007, FR-PRO-008 |
+| GET, POST | `/v1/me/pro/expense-claims` | Claim an expense with a receipt photo; see the limit and the claim's status | PR own | FR-PRO-004 |
+| GET | `/v1/me/pro/statements`, `/v1/me/pro/statements/{id}/pdf` | Remittance advices and yearly statements | PR own | FR-PRO-007 |
+| GET | `/v1/me/pro/agreement` | My agreement, current rate card and verified payee account (last four digits) | PR own | FR-PRO-001, FR-PRO-006 |
+| GET, POST | `/v1/admin/pro/agreements`, `/v1/admin/pro/agreements/{id}` | Agreements with the signed document and payee link | AD, CM | FR-PRO-001, FR-PRO-006 |
+| GET, POST | `/v1/admin/pro/rate-cards` | Draft a rate card version by country, role, unit and scope | AD | FR-PRO-001, FR-PRO-003 |
+| POST | `/v1/admin/pro/rate-cards/{id}/approvals` | A second administrator approves the version | AD (not the drafter), MFA | FR-PRO-001 |
+| POST | `/v1/pro/runner-months/{agreement_id}/{month}/close` | Close a runner's month; creates the month's payable | CM | FR-PRO-002 |
+| GET | `/v1/pro/payables?status=&overdue=` | Payables queue, overdue first | CM, RV, PY | FR-PRO-002, FR-PRO-008 |
+| POST | `/v1/pro/payables/{id}/holds`, `/v1/pro/payables/{id}/hold-releases` | Hold for a fraud or misconduct review, or release the hold; never for a result | RV | FR-PRO-002, RUL-26 |
+| POST | `/v1/pro/expense-claims/{id}/decisions` | Approve or reject a claim; over the limit or without a receipt opens a second approval | CM, RV (not the claimant) | FR-PRO-004 |
+| POST | `/v1/pro/expense-claims/{id}/approvals` | Second staff approval of an exception claim | CM, RV (a different person), MFA | FR-PRO-004 |
+| GET, POST | `/v1/pro/payment-runs`, `/v1/pro/payment-runs/{id}` | Prepare a run to a cut-off from approved payables and expenses; lines, totals and excluded items with reasons | CM, RV (preparer) | FR-PRO-005, FR-PRO-006 |
+| POST | `/v1/pro/payment-runs/{id}/approvals` | Approve the run; the approver is not the preparer | PY, MFA | FR-PRO-005 |
+| GET | `/v1/pro/payment-runs/{id}/file` | Download the bulk payment file after approval; every download logged | PY, preparer | FR-PRO-005 |
+| POST | `/v1/pro/payment-runs/{id}/confirmations` | Import the bank's or provider's confirmation file and match it to lines | CM, RV | FR-PRO-009 |
+| POST | `/v1/pro/payment-lines/{id}/resolutions` | Resolve a failed or unconfirmed line: next run, cancel, or a bank letter confirms it | CM, RV (a second person checks a bank letter) | FR-PRO-009 |
+| GET | `/v1/pro/cost-per-case` | Cost per case and per report from accepted payables and expenses, by country and line | CM, RV, AD | FR-PRO-010, FR-CASE-011 |
 | POST | `/partner/oauth/token` | Client credentials token | PT | FR-PTR-004 |
 | POST | `/partner/v1/plot-status-queries` | Plot status by reference or coordinates | PT | FR-PTR-001, FR-PTR-002 |
 | GET | `/partner/v1/reports/{id}` | Full report with specific consent | PT | FR-PTR-002 |
@@ -3067,6 +3400,12 @@ The `pay_to` block is read from the bank partner's record only (FR-ESC-003). Pay
 | `escrow.held_funds_reconcile` | integrations | Daily after statement import | Compare `esc_held_statement` with the bank's held-funds account statement; differences to a reviewer | FR-ESC-014, FR-ESC-011 |
 | `countries.copy_config` | default | On demand | Copy a published country configuration into drafts for a new country | FR-CTY-004 |
 | `analytics.publish_country_aggregates` | default | Nightly | Anonymised aggregates per cell to the central metrics bucket | FR-CTY-003 |
+| `profpay.create_payables` | default | `work.accepted`, `runner_month.closed` | Create payables at the rate in force at assignment, with tax from the country configuration; write the case cost entry; idempotent on the work key | FR-PRO-002, FR-PRO-003, FR-PRO-007, FR-PRO-010 |
+| `profpay.overdue_payables` | default | Daily 07:30 GMT | Alert operations to payables and approved expenses past `due_by`, held ones included | FR-PRO-008 |
+| `profpay.build_payment_file` | integrations | `payment_run.approved` | Re-check every payee, build the bulk file in the operating account's format, hash it and store it under Object Lock | FR-PRO-005, FR-PRO-006 |
+| `profpay.import_confirmation` | integrations | On upload; daily 09:00 GMT reminder until each issued run is confirmed | Match confirmation lines to payment lines; failed and unconfirmed lines to the reconciliation queue; remittance advice for each paid line | FR-PRO-009, FR-PRO-007 |
+| `profpay.yearly_statements` | default | After each country's tax year ends (configuration) | Yearly statement per professional | FR-PRO-007 |
+| `profpay.payee_watch` | default | Daily | Agreements whose payee is no longer verified: payables held with `payee_not_verified`; alert | FR-PRO-006 |
 | `core.purge_idempotency` | default | Daily | Remove expired keys | 7.1 |
 
 ---
@@ -3188,6 +3527,7 @@ Flagged items go to the reviewer queue before an inspection is scheduled. Cleari
 | Concerns | A concern form (kind, severity, free text) is encrypted on the device like evidence and sent on the next sync; `urgent` sends immediately when online and shows the Fidero emergency number when offline. The carer sees only that it was received. |
 | Errand steps | Each step shows its description, the acknowledgement or receipt it needs, and whether its official fee has been paid by the bank to the agency. From R2 the agent captures documents through the in-app camera or the app's own document scan only (RUL-08); the server marks provenance. The result document and the handover record (signature on screen or photo) are evidence items. |
 | Minimisation | Between check-in and check-out the app does not track location (NFR-PRIV-02). The carer sees the family member's first name, the address and the plan items, nothing else. Data on the device is deleted after the server confirms receipt (FR-MOB-009). |
+| My pay | From R2, Fidero Field shows each field professional's own jobs, payables, expense claims and statements through `/v1/me/pro/*` (FR-PRO-002, FR-PRO-004, FR-PRO-007). A receipt for a claim is captured with the in-app camera and sent as a signed evidence item, so a gallery image cannot be claimed. Earnings never show a verdict or outcome next to an amount (RUL-26). Carers are not on PRO: they are paid from the client's held funds for confirmed visits (FR-CARE-004). |
 | Safety | The carer can tap a safety button that logs a `safety.incident` row (FR-CASE-010 path) and calls the Fidero duty phone. Carers are assigned to no address flagged as unsafe without a risk screen (principle 7 in 01 B2). The carer's own phone number is never shown to the family; contact runs through Fidero (RUL-17 by analogy). Fidero's duty of care and the carer's own cover are open (01 Q-22). |
 
 ### 8.9 Client app, Fidero (FR-APP-001 to FR-APP-006)
@@ -3276,6 +3616,7 @@ The rent account belongs to the owner, not to Fidero. Fidero reads only the bank
 | Payee registry | A wrong or altered payee record sends a client's money to the wrong account (RUL-22) |
 | Family and health data | Addresses of elderly parents, visit times, readings, concerns and insurance applications; special category under Act 843 |
 | Confirmation codes | A code in the wrong hands pays a carer for a visit that did not happen (RUL-23) |
+| Operating account and payment runs | A false or altered bulk payment file pays Fidero's money to the wrong person; any link to client money would breach RUL-27 |
 | App signing keys and store accounts | A stolen signing key or store account could ship a fake Fidero or Fidero Field update that steals sign-ins or signs false evidence (IF-12) |
 
 ### 10.2 Threat model (STRIDE)
@@ -3320,6 +3661,12 @@ The rent account belongs to the owner, not to Fidero. Fidero reads only the bank
 | Client app | Spoofing | Someone with an unlocked phone approves a release | Biometric unlock only opens the app; every approval needs the MFA step-up | FR-APP-003, FR-ACC-003 |
 | Push | Information disclosure | Lock-screen notification shows an amount, a report finding or a family member's details | Generic push text; details load after unlock; FR-NTF-004 limits applied to push | FR-APP-002, FR-NTF-004 |
 | Account deletion | Repudiation and loss | A user deletes their account while an escrow is open, or deletion removes records the law requires | Preview of what is kept and why; legal holds and retention classes respected; open money matters closed under their terms before deletion completes | FR-APP-004, FR-DPR-004 |
+| Professional pay | Tampering | Rate tampering: an administrator raises a rate, back-dates a card, or links pay to the verdict | Rate cards versioned and immutable once approved; a second administrator for every version (`pro_rate_card_change`); the rate is taken from the card in force at assignment; no column or scope key can hold a result (`pro_scope` seeded by migration, CI test); a rate card change in production alerts (document 06) | FR-PRO-001, FR-PRO-003, RUL-26 |
+| Professional pay | Spoofing | Fake expense claim: a reused receipt, a gallery photo, an inflated amount, or a claim for a case not worked | Receipt hash unique across claims; in-app camera capture from R2; claim tied to an assigned case, project or errand; over the limit or without a receipt needs a second staff approval; the approver is never the claimant; unusual claim volume alerts | FR-PRO-004 |
+| Professional pay | Tampering | Duplicate payable for the same work: a replayed event, a second signer, or a re-run after a failed line | One payable per work kind, work reference and period (unique index); a payable sits in one line at a time; a failed line returns its payables, never copies them; confirmation import matches by line | FR-PRO-002, FR-PRO-009 |
+| Professional pay | Elevation and theft | Paying a non-verified account: a professional's account swapped to a relative's or a staff member's, or a line edited after approval | The payee must be the agreement's verified `contracted_professional` record with a matched name, checked at approval and again at file build; any payee change resets verification (6.11); a line change withdraws the run's approval; the file hash is stored and shown at upload | FR-PRO-006, RUL-22 |
+| Professional pay | Elevation of privilege | A preparer approves their own run, or a professional approves a run that pays them | CHECK `approved_by <> prepared_by`; `core.approval_not_preparer`; payment rights never granted with a contracted role (`acc.no_money_roles`) | FR-PRO-005 |
+| Professional pay and escrow | Elevation and theft | Paying a professional from escrow or held funds, or using client money to cover a payment run | No release subject maps to `contracted_professional`; runs debit only an operating account distinct from every escrow account; no foreign key or import between PRO and escrow tables; hourly invariant check | RUL-27, FR-PRO-006 |
 | Multi-country | Information disclosure | Data of one country read from another cell or by the wrong country's staff | `country_id` row-level security; separate cells where law demands; directory holds no personal data beyond a blind index | FR-CTY-002, C-09 |
 
 ### 10.3 Authentication
@@ -3410,7 +3757,26 @@ Roles added in 01 version 0.3 (FM family member, IC institution contact, CE care
 | Prepare a release instruction for any line | - | - | - | - | - | - | Y | Y | - |
 | Approve a release instruction | client step | - | - | - | - | - | - | RR | - |
 | Open a country configuration draft; publish (two) | - | - | - | - | - | - | - | - | Y |
-| Receive money | never | never | institution's account | own confirmed work, via the bank | never | insurer's account | never | never | never |
+| Receive money | never | never | institution's account | carers: own confirmed visits, via the bank from held funds; errand agents: from Fidero's operating account under PRO, never client money | never | insurer's account | never | never | never |
+
+Professional payments (PRO), added for 01 version 0.8. PR is any contracted professional (LW, SV, RN, IN, QS, or CE as an errand agent). PY holds payment rights.
+
+| Permission | PR | CM | RV | AD | PY |
+|---|---|---|---|---|---|
+| See own jobs, payables, expense claims and statements | own | - | - | - | - |
+| Claim an expense | own | - | - | - | - |
+| Draft an agreement | - | Y | - | Y | - |
+| Draft a rate card version | - | - | - | Y | - |
+| Approve a rate card version | - | - | - | a second AD | - |
+| Close a runner's month | - | Y | - | - | - |
+| Approve an expense claim, or give the second approval of an exception | never own | Y | Y | - | - |
+| Hold or release a payable | - | - | Y | - | - |
+| Prepare a payment run | - | Y | Y | - | - |
+| Approve a payment run | never | - | - | - | Y, not the preparer |
+| Import a confirmation; resolve a line | - | Y | Y | - | - |
+| See any professional's pay | never | Y (own country) | Y | Y | Y |
+
+Payment rights (`payment_rights` on a reviewer or administrator grant) are given by two administrators (`payment_rights_grant`) and are separate from release rights. Nobody who holds a contracted role holds payment rights (6.4).
 
 ### 10.5 Secrets
 
@@ -3418,6 +3784,7 @@ Roles added in 01 version 0.3 (FM family member, IC institution contact, CE care
 - ECS tasks read secrets at start through task roles; nothing in images, environment files or the repository. Secret scanning in CI (document 06).
 - KMS asymmetric key for instruction signing; private key never leaves KMS.
 - APNs token signing key and the FCM service account are kept in Secrets Manager and read only by worker-integrations. App signing: Google holds the Play app signing key (Play App Signing); the Play upload key, the Apple distribution certificate and the App Store Connect API key sit in the CI secret store with two-person access and a break-glass copy (document 06).
+- The operating account's credentials (bank portal users, any mobile money API key, the bulk-file channel) are separate from everything used for release instructions. They live in their own secrets, readable only by the task role of PRO's integration jobs, never by the ESC dispatch task. Bank portal users are named staff with payment rights and the bank's own two-step sign-in. `kms/release-signing` cannot sign a PRO file, and no PRO credential can reach the escrow bank channel (document 06, 12.1 and 12.5).
 - Break-glass AWS access through IAM Identity Center with MFA and session recording in CloudTrail.
 
 ### 10.6 Encryption
@@ -3702,7 +4069,7 @@ A second cell for country 2 adds roughly one more production column, about 1,600
 
 ## 13. Requirement coverage
 
-Every FR ID in document 01 version 0.6 appears below, one row per module, so a text comparison of the two documents finds no gap.
+Every FR ID in document 01 version 0.8 appears below, one row per module, so a text comparison of the two documents finds no gap.
 
 | FR module | FR IDs | Django app and front ends | Main tables | Main endpoints | Sections |
 |---|---|---|---|---|---|
@@ -3732,11 +4099,12 @@ Every FR ID in document 01 version 0.6 appears below, one row per module, so a t
 | FEE | FR-FEE-001, FR-FEE-002, FR-FEE-003, FR-FEE-004, FR-FEE-005, FR-FEE-006, FR-FEE-007 | `fees`; portal, backoffice | `fee_institution`, `fee_institution_contact`, `fee_invoice`, `fee_payment`, `fee_schedule`, `fee_runner_task`, shared `esc_payee`, `esc_escrow` (held_funds), `case_case` (institution_verification) | `/v1/institutions*`, `/v1/invoices*`, `/v1/fee-payments/{id}/receipts`, `/v1/fee-schedules`, `/v1/family-members/{id}/statement` | 5.7, 6.11, 6.12, 7.9, 7.12, IF-10 |
 | CARE | FR-CARE-001, FR-CARE-002, FR-CARE-003, FR-CARE-004, FR-CARE-005, FR-CARE-006 | `care`; portal, backoffice, field app | `care_plan`, `care_plan_item`, `care_carer`, `care_visit`, `care_visit_item`, `care_confirmation`, `care_concern`, shared `acc_vetting`, `mob_checkin` | `/v1/care-plans*`, `/v1/carers*`, `/v1/care-visits*`, `/v1/concerns`, `/v1/mobile/check-ins`, `/v1/mobile/visits/*` | 5.8, 6.12, 7.10, 7.12, 8.8, ADR-19, ADR-20 |
 | PMG | FR-PMG-001, FR-PMG-002, FR-PMG-003, FR-PMG-004, FR-PMG-005, FR-PMG-006 | `propertymgmt`; portal, backoffice, field app | `pmg_managed_property`, `pmg_tenancy`, `pmg_rent_period`, `pmg_statement_mandate`, `pmg_repair`, `pmg_repair_quote`, `pmg_inspection`, shared `acc_bank_account`, `esc_statement_line`, `esc_escrow` (repair) | `/v1/managed-properties*`, `/v1/tenancies/{id}`, `/v1/repairs*` | 5.9, 6.13, 7.11, 7.12, 9.3 |
-| TSK | FR-TSK-001, FR-TSK-002, FR-TSK-003, FR-TSK-004, FR-TSK-005 | `errands`; portal, backoffice, field app | `tsk_errand`, `tsk_errand_document`, `tsk_errand_step`, `tsk_agent`, `tsk_handover`, `adm_config_version` (errand_catalogue), shared `acc_vetting`, `esc_escrow` (held_funds) | `/v1/errand-catalogue`, `/v1/errands*`, `/v1/mobile/errands/*` | 5.10, 6.13, 7.12, 8.8 |
+| TSK | FR-TSK-001, FR-TSK-002, FR-TSK-003, FR-TSK-004, FR-TSK-005 | `errands`; portal, backoffice, field app | `tsk_errand`, `tsk_errand_document`, `tsk_errand_step`, `tsk_agent`, `tsk_handover`, `adm_config_version` (errand_catalogue), shared `acc_vetting`, `esc_escrow` (held_funds), `pay_fee_payment` (Fidero's charge, FR-TSK-002), `pro_payable` (the agent's pay, FR-TSK-003) | `/v1/errand-catalogue`, `/v1/errands*`, `/v1/mobile/errands/*` | 5.10, 5.11, 6.13, 6.14, 7.12, 8.8 |
 | INS | FR-INS-001, FR-INS-002, FR-INS-003, FR-INS-004 | `insurance`; portal, backoffice | `ins_product`, `ins_application`, `ins_policy`, `ins_premium`, `ins_claim`, shared `esc_payee` (insurer) | `/v1/insurance/*` | 6.12, 7.12, IF-11 |
 | EVT | FR-EVT-001, FR-EVT-002, FR-EVT-003 | `events`; portal, backoffice | `evt_event`, `evt_vendor`, `evt_vendor_payment`, shared `esc_payee`, `esc_escrow` (event), `case_case` (vendor_verification), `care_confirmation` | `/v1/events*`, `/v1/vendor-payments/*` | 6.13, ADR-20 |
+| PRO | FR-PRO-001, FR-PRO-002, FR-PRO-003, FR-PRO-004, FR-PRO-005, FR-PRO-006, FR-PRO-007, FR-PRO-008, FR-PRO-009, FR-PRO-010 | `profpay`; backoffice (professionals' My pay and staff screens), Fidero Field from R2 | `pro_agreement`, `pro_scope`, `pro_rate_card`, `pro_payable`, `pro_expense_claim`, `pro_payment_run`, `pro_payment_line`, `pro_document`, shared `esc_payee` (kind `contracted_professional`), `core_approval_request`, `case_cost_item`, `adm_partner` (operating account) | `/v1/me/pro/*`, `/v1/admin/pro/*`, `/v1/pro/*` | ADR-23, 5.11, 6.14, 7.4, 7.12, 8.8, 10.2, 10.4, 10.5 |
 
-Business rules: RUL-01 (ADR-03, 6.4), RUL-02 (6.5), RUL-03 (ADR-12, 5.2), RUL-04 (6.5, ADR-11), RUL-05 (6.3, 6.5), RUL-06 and RUL-07 (6.5), RUL-08 (8.1, 8.8), RUL-09 (6.5, 6.6), RUL-10 (6.6), RUL-11 (6.5, 6.11 `esc_standing_approval`, 10.4), RUL-12 and RUL-13 (6.6, 7.12), RUL-14 (5.5), RUL-15 (6.5), RUL-16 (5.6, 6.7), RUL-17 (6.5, 6.7, 10.9), RUL-18 (5.4, 7.12), RUL-19 (6.8), RUL-20 (6.5), RUL-21 (6.8, 6.11 payee kind supplier only), RUL-22 (ADR-17, 6.5 trigger, 6.11 `esc_payee`, 9.2), RUL-23 (6.5 trigger, 6.12 `care_visit` and `care_confirmation`, 6.13 `tsk_errand_step`, ADR-20), RUL-24 (6.4 `acc_bank_account`, 6.13 `pmg_managed_property` trigger, 9.3), RUL-25 (6.12 `ins_policy`, `ins_premium`, `ins_claim`; no `premium` purpose in `pay_fee_payment`).
+Business rules: RUL-01 (ADR-03, 6.4), RUL-02 (6.5), RUL-03 (ADR-12, 5.2), RUL-04 (6.5, ADR-11), RUL-05 (6.3, 6.5), RUL-06 and RUL-07 (6.5), RUL-08 (8.1, 8.8), RUL-09 (6.5, 6.6), RUL-10 (6.6), RUL-11 (6.5, 6.11 `esc_standing_approval`, 10.4), RUL-12 and RUL-13 (6.6, 7.12), RUL-14 (5.5), RUL-15 (6.5), RUL-16 (5.6, 6.7), RUL-17 (6.5, 6.7, 10.9), RUL-18 (5.4, 7.12), RUL-19 (6.8), RUL-20 (6.5), RUL-21 (6.8, 6.11 payee kind supplier only), RUL-22 (ADR-17, 6.5 trigger, 6.11 `esc_payee`, 9.2), RUL-23 (6.5 trigger, 6.12 `care_visit` and `care_confirmation`, 6.13 `tsk_errand_step`, ADR-20), RUL-24 (6.4 `acc_bank_account`, 6.13 `pmg_managed_property` trigger, 9.3), RUL-25 (6.12 `ins_policy`, `ins_premium`, `ins_claim`; no `premium` purpose in `pay_fee_payment`), RUL-26 (ADR-23, 6.14 `pro_scope`, `pro_rate_card`, `pro_payable`, the `work.accepted` schema), RUL-27 (ADR-23, 6.11 payee kind `contracted_professional`, 6.14 separation table, 10.2, 10.5).
 
 Interfaces: IF-01 to IF-09 (section 9), IF-10 and IF-11 (section 9, 9.2, 9.3), IF-12 (ADR-22, 8.2, 8.10, document 06). Store NFRs: NFR-STORE-01 and NFR-STORE-02 (section 12, 8.10). Journeys: J-01 (5.1, 5.2), J-02 (5.3), J-03 (5.4), J-04 (5.5), J-06 (5.6), J-09 (5.7), J-10 (5.8), J-11 (5.9), J-12 (5.10).
 
@@ -3767,6 +4135,8 @@ Interfaces: IF-01 to IF-09 (section 9), IF-10 and IF-11 (section 9, 9.2, 9.3), I
 | TR-18 | Attestation gaps: phones without Google Play, old Play services, devices failing integrity, or attestation outages | Some field users cannot register; registration delays | Publish the supported device list; lend a supported phone to panel members who need one `[TO VERIFY]`; retry with back-off; never accept a side-loaded build | FR-MOB-004, C-08, NFR-STORE-02 |
 | TR-19 | Store rejection or slow review: payment rules (Q-23), financial app rules (Q-24), privacy disclosures, or a review queue that delays a fix | R2 go-live or an urgent fix slips | Rehearse a first submission early; fees on the web until Q-23 is answered; review notes and demo account ready; review lead time in the release calendar; expedited review request for urgent fixes (document 06) | C-14, NFR-STORE-01, AS-14 |
 | TR-15 | A client with activity in two cells gets a split experience | Confusion, support load | Linked accounts through the directory; one cell at a time in the home dashboard; defer until a second cell exists | ADR-16, TQ-13 |
+| TR-20 | Fidero's operating bank or mobile money provider does not accept a bulk payment file, or changes its format without notice (Q-26) | Each professional is paid by a transfer keyed by hand; pay is late | Spike before build (document 04); fallback is manual entry from the approved run, each entry checked by a second person against the run's lines and hash; format version on `pro_payment_run.file_format` | Q-26, FR-PRO-005, TQ-27 |
+| TR-21 | Withholding tax and reporting rules per country are unknown or change (Q-25) | Wrong deductions, penalties, professionals' trust lost | Rules as versioned country configuration; an accountant signs each country's rules before its first run; deductions shown on every remittance advice; corrections are new lines, never edits | Q-25, FR-PRO-007, TQ-28 |
 
 ### 14.2 Open technical questions
 
@@ -3789,7 +4159,7 @@ Interfaces: IF-01 to IF-09 (section 9), IF-10 and IF-11 (section 9, 9.2, 9.3), I
 | TQ-15 | How does the bank hold held funds: a named sub-account per client, or one trust account with client references? What deposit reference format? | Founder with bank | R1 | FR-ESC-014, ADR-18 |
 | TQ-16 | How is a visit confirmed when the family member has no phone of their own? Is a staff call plus sampling acceptable to the lawyer and insurer? | Operations, lawyer | R2 | FR-CARE-004, ADR-20 |
 | TQ-17 | Will the bank share a customer's account statement with Fidero under the owner's mandate, by file or API? | Founder with bank | R2 | FR-PMG-003, RUL-24, 9.3 |
-| TQ-18 | Are carers and errand agents paid as individuals or through an agency, and which is the payee of record? | Operations, lawyer | R2 | RUL-22, RUL-23, FR-CARE-004, Q-19 |
+| TQ-18 | Are carers paid as individuals or through an agency, and which is the payee of record? Errand agents are paid by Fidero under PRO from 01 v0.8 (FR-TSK-003); their payee is the party named in their agreement (TQ-29). | Operations, lawyer | R2 | RUL-22, RUL-23, FR-CARE-004, Q-19 |
 | TQ-19 | Which of the two premium routes in FR-INS-002 does each insurer accept, and what intermediary licence does each route need? | Founder, lawyer | R2 | FR-INS-002, RUL-25, C-11, Q-17 |
 | TQ-20 | Which institutions can send invoices and receipts by portal or file, and in what format? | Operations | R2 | IF-10, Q-16 |
 | TQ-21 | Source and update cadence of official fees in the errand catalogue per country | Operations | R2 | FR-TSK-001 |
@@ -3798,6 +4168,10 @@ Interfaces: IF-01 to IF-09 (section 9), IF-10 and IF-11 (section 9, 9.2, 9.3), I
 | TQ-25 | Which Play Integrity device verdict level to require, and how to serve field users on phones without Google Play | Operations, engineering | R2 | FR-MOB-004, TR-18 |
 | TQ-26 | Local queue library on both platforms: op-sqlite with SQLCipher, or WatermelonDB over SQLite | Mobile developer | First R2 spike | FR-MOB-005, FR-MOB-009 |
 | TQ-22 | Pricing per line confirms the provisional Fidero fee purposes in `pay_fee_payment` (institution service, care service, property management, errand and event service fees) | Founder | R1, R2 | Q-20, FR-PAY-005 |
+| TQ-27 | Which bulk payment file formats do Fidero's operating bank and mobile money provider accept, through which channel and cut-off times? Do they offer dual authorisation and a confirmation file? | Founder with the bank | R1, before the first payment run | Q-26, FR-PRO-005, FR-PRO-009 |
+| TQ-28 | Withholding rates, registration, filing and remittance deadlines for payments to contracted professionals in each country, and whether reimbursed expenses carry withholding | Accountant, lawyer | R1 start for Ghana; each country's manual phase | Q-25, FR-PRO-007 |
+| TQ-29 | When a law or survey firm signs the agreement, may the firm be the payee instead of the professional? | Lawyer, founder | R1 | FR-PRO-006, I-35 |
+| TQ-30 | Is a runner's part month paid pro rata by calendar days, and who closes the month? | Operations | R1 | FR-PRO-002, I-37 |
 
 ---
 
@@ -3831,3 +4205,10 @@ Resolved by document 01 version 0.2 and 0.3 and removed from this list: I-01 (th
 | I-30 | FR-APP-002 sends push "following the user's channel preferences and FR-NTF-004's limits", but FR-NTF-001 lists only email, SMS and WhatsApp, and FR-NTF-004 limits only SMS and WhatsApp. | C4.9a, C4.16 | Push is a fourth channel in `ntf_preference`, and FR-NTF-004's limits apply to push (8.9). Suggest FR-NTF-001 and FR-NTF-004 name push. |
 | I-31 | FR-APP-003 says approving a release still needs the second factor, but FR-ACC-003 does not say whether a passkey on the same phone counts as that factor. | C4.1, C4.9a | TOTP or a passkey enrolled as an MFA device counts. Biometric app unlock alone never does (8.9, 10.3). |
 | I-32 | NFR-PERF-05 says "its download size" for both apps, and does not say whether the 30 MB limit is per app and per platform. | C7 | Each app on each platform stays under 30 MB to download (8.1). |
+| I-33 | FR-PRO-005 needs an approver "with payment rights", but C2 defines only release rights. Who holds payment rights, who grants them and whether they may sit with release rights is not stated. | C2, C4.20a | `payment_rights` on a reviewer or administrator grant, given by two administrators, never to anyone with a contracted role, separate from release rights (6.4, 10.4). Suggest C2 defines it. |
+| I-34 | C2 lets lawyers and surveyors see their own payables, expenses and statements and lets runners claim expenses, but gives runners no payables or statements and gives inspectors, quantity surveyors and errand agents nothing, although BR-23 says Fidero pays all six. | C2, BR-23 | All six contracted roles see their own pay and claim expenses (10.4). Suggest the C2 rows for Runner, Inspector, Quantity surveyor and Carer or errand agent say so. |
+| I-35 | FR-PRO-006 pays "to an account verified in the professional's own name". Lawyers and surveyors often contract and invoice through a firm. | C4.20a | The payee is the party that signed the agreement: the person, or the firm when the firm signs (`pro_agreement.contracting_party`). The name match still applies (TQ-29). |
+| I-36 | C8 has no state model for a payable, an expense claim or a payment run, although FR-PRO-004, FR-PRO-005, FR-PRO-008 and FR-PRO-009 depend on their states. | C8 | States proposed in 6.14. Suggest 01 adopts them. |
+| I-37 | FR-PRO-002 creates a payable when "a runner's month closed", but does not say who closes it or what a part month pays. | C4.20a | A case manager closes the month; a part month under an active agreement is paid pro rata by calendar days (assumption, TQ-30). The monthly fee does not depend on how many tasks were done. |
+| I-38 | RUL-26 says pay never depends on the verdict or outcome, but 01 does not say whether pay may be held while the work itself is under a fraud or misconduct review (for example evidence flagged under FR-MOB-011). | B7, C4.20a | A reviewer may hold a payable only for a recorded fraud or misconduct review, with a reason, and never for a result (6.14 `hold_reason`). Suggest RUL-26 says so. |
+| I-39 | FR-PRO-007 does not say whether withholding applies to reimbursed expenses. C6 has no interface ID for Fidero's operating bank or mobile money provider, which receives the bulk file (Q-26). | C4.20a, C6 | No withholding on receipted reimbursements until Q-25 is answered. The operating account is an `adm_partner` of kind `operating_bank` or `operating_mobile_money`. Suggest 01 adds an IF row. |

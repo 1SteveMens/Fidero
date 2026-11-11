@@ -5,11 +5,11 @@ Information architecture, user flows, wireframes, interaction and content rules,
 | Item | Value |
 |---|---|
 | Document | 03 of 6 in `docs/specs/` |
-| Version | 0.4 |
-| Date | 7 November 2026 |
+| Version | 0.5 |
+| Date | 11 November 2026 |
 | Status | Draft. For review. Not yet baselined |
 | Owner | Product designer, for the founder as product owner |
-| Source of truth | `01-requirements-and-product-specification.md` v0.6 (personas, features, journeys, rules, FR and NFR IDs, state models) |
+| Source of truth | `01-requirements-and-product-specification.md` v0.8 (personas, features, journeys, rules, FR and NFR IDs, state models) |
 | Other sources | `README.md`, `docs/decisions/2026-11-01-diaspora-platform.md`, `docs/operations/verification-report-template.md`, `docs/operations/milestone-schedule.md`, `docs/product/architecture.md` |
 | Companion | `03-prototype/index.html`, a clickable prototype with sample data |
 
@@ -23,6 +23,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | 0.2 | 1 November 2026 | Redesign for 01 v0.3 and the decision record `docs/decisions/2026-11-01-diaspora-platform.md`: Fidero is the diaspora's trusted agent at home. Adds the principles "Pay the institution, not the relative" and "Country is configuration"; the unified home dashboard (F-35) as the portal home with sections for Property, Family, and Projects and errands; a country selector at onboarding; screens SCR-PTL-36 to SCR-PTL-54, SCR-BO-27 to SCR-BO-32 and SCR-MOB-14 to SCR-MOB-18; flows for J-09 to J-12 with error states; wireframes W-25 to W-36; content rules for who gets paid (RUL-22), rent (RUL-24) and insurer products (RUL-25); components CMP-25 to CMP-32; prototype flows G and H. Client approval added to the escrow flow and tracker (01 v0.2 Escrow state model). Section 11.2 refreshed against 01 v0.3: I-01, I-02, I-03, I-04, I-06, I-07, I-08, I-09, I-10, I-12, I-13 and I-14 closed; I-17 to I-24 added. Design assumptions DA-07 to DA-10 added; DA-06 retired. |
 | 0.3 | 1 November 2026 | Aligned to 01 v0.4: runner cash route removed (DA-10, SCR-BO-30, J-09 flow, W-26, W-28, CMP-25, CMP-30 and content rules now show "not eligible for direct payment"; runners only collect invoices and deliver receipts); standing approvals for care visits and errand steps (W-29, W-34, J-10, J-12); 72-hour reviewer decision, second-person check of call confirmations and code lockout (J-10, W-31, SCR-BO-28); owner's written mandate for rent statement lines (J-11, SCR-PTL-46); premium route stated; "amount held at the bank" wording; issues I-02, I-15, I-18, I-20, I-21 and I-23 closed, I-11 partly closed. Prototype updated to match. |
 | 0.4 | 7 November 2026 | Aligned to 01 v0.6: both app stores, React Native, client app. The field app becomes Fidero Field (iOS and Android); the client app Fidero is added (F-36, FR-APP-001 to FR-APP-006). Adds the client app map with the portal's tabs (2.3a), platform conventions for iOS and Android (2.4a), screens SCR-APP-01 to SCR-APP-06 (push permission explained first, biometric set-up and unlock, account deletion that says what is kept and why, update required, paying Fidero's fee in the app), wireframes W-37 to W-39, a React Native column in the component library, iOS targets and Dynamic Type in the accessibility rules, DA-11 and DA-12, DQ-18 to DQ-20, and issues I-25 to I-27. Prototype flow F relabelled "Fidero Field (iOS and Android)". |
+| 0.5 | 11 November 2026 | Aligned to 01 v0.8: professional payments (F-37, FR-PRO-001 to FR-PRO-010, RUL-26, RUL-27). Adds "My pay" for contracted professionals in the back office from R1 (SCR-BO-33 to SCR-BO-36: jobs and earnings, payable detail, expense claim with receipt photo, statements) and in Fidero Field from R2 (SCR-MOB-19 to SCR-MOB-22); staff screens for agreements and rate cards, payables and expense claims, payment run preparation, payment run approval and reconciliation (SCR-BO-37 to SCR-BO-41); wireframes W-40 (Fidero Field earnings) and W-41 (payment run approval); content rules in 5.6b, including that pay screens never show the verdict next to an amount; the two-person pattern extended to payment runs, rate card versions and expense exceptions; DA-13 (professionals use the back office web app for My pay in R1, not the client portal). Errand payment wording follows FR-TSK-002 and FR-TSK-003: Fidero's charge is paid through the payment provider, official fees into the partner bank, and Fidero pays the agent itself (J-12 flow, W-34, SCR-BO-32, the errands fixed line in 5.6a). Issues I-28 to I-30. The prototype is unchanged. |
 
 ## 0. How this document traces to 01
 
@@ -48,6 +49,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | DA-10 | An institution that cannot receive a bank transfer is marked not eligible for direct payment (FR-FEE-006). The client's screen says so plainly: "[Institution] cannot receive a bank transfer, so Fidero cannot pay it for you. We never pay in cash." No other way to pay through Fidero is offered. A runner may collect an invoice or deliver a receipt in person; that row says "Receipt delivered by a Fidero runner". | 01 v0.4 removed the cash route. The client must know before approving anything. Issue I-20 closed. |
 | DA-11 | The client app shows the portal's signed-in client screens natively and keeps their `SCR-PTL` IDs, content and rules. Only screens with no portal equivalent get `SCR-APP` IDs. Public pages (home and prices, listings, insurer product pages) and the family confirmation link (SCR-PTL-45) stay on the web; the app opens them in the system browser or an in-app browser tab. | FR-APP-001 asks for "the client features of the portal ... on the same API and rules". One design per screen keeps the two consistent and halves review. |
 | DA-12 | Until Q-23 is answered, the client app pays Fidero's fees on the web: "Pay on the Fidero website" opens the portal's payment page (SCR-PTL-10) in the system browser and returns to the app when done. If the stores accept the payment provider in the app, SCR-APP-06 shows the provider's checkout instead. The app never shows a store in-app purchase. | FR-APP-005, AS-14, Q-23. Fees pay for real-world services. Purchase, construction and project money is never paid in either app (RUL-01). |
+| DA-13 | In R1 contracted professionals see their pay in the back office web app, on their phones, under "My pay" (SCR-BO-33 to SCR-BO-36). They already sign in there and do their tasks there (SCR-BO-01, SCR-BO-04). The client portal does not serve professionals. From R2, Fidero Field shows the same screens natively (SCR-MOB-19 to SCR-MOB-22) for field roles. | 01 C1 puts professionals in the back office and the field app. FR-PRO does not name a front end. |
 
 ---
 
@@ -180,6 +182,17 @@ backoffice
 │   └── Carer and agent panel, visit monitoring (R2)  SCR-BO-28
 ├── Property management desk (R2) ........... SCR-BO-31
 ├── Errands desk (R2) ....................... SCR-BO-32
+├── My pay (contracted professionals)
+│   ├── My jobs and earnings ................ SCR-BO-33
+│   ├── Payable detail ...................... SCR-BO-34
+│   ├── Claim an expense .................... SCR-BO-35
+│   └── Statements .......................... SCR-BO-36
+├── Professional payments
+│   ├── Agreements and rate cards ........... SCR-BO-37
+│   ├── Payables and expense claims ......... SCR-BO-38
+│   ├── Payment run preparation ............. SCR-BO-39
+│   ├── Payment run approval ................ SCR-BO-40
+│   └── Payment run reconciliation .......... SCR-BO-41
 ├── Records programme (R3) .................. SCR-BO-26
 ├── Dashboard and exports ................... SCR-BO-23
 ├── Audit log ............................... SCR-BO-22
@@ -216,6 +229,11 @@ Fidero Field (iOS and Android)
 │   │   └── Check out, raise a concern ...... SCR-MOB-16
 │   ├── Errand steps and receipts (agent) ... SCR-MOB-17
 │   └── Property inspection (inspector) ..... SCR-MOB-18
+├── My pay (contracted professionals; carers are paid from the client's held funds)
+│   ├── Earnings: jobs and pay .............. SCR-MOB-19
+│   ├── Payable detail ...................... SCR-MOB-20
+│   ├── Claim an expense .................... SCR-MOB-21
+│   └── Statements .......................... SCR-MOB-22
 ├── Upload queue ............................ SCR-MOB-08
 ├── Account, storage, help .................. SCR-MOB-13
 │   └── Delete my account ................... SCR-APP-04 (shared with Fidero)
@@ -372,7 +390,7 @@ Release follows 01. "Roles" uses 01 C2 role names.
 |---|---|---|---|---|---|
 | SCR-BO-01 | Sign in | Password plus second factor; idle timeout | All staff and professionals | R1 | FR-ACC-003, FR-ACC-009, NFR-SEC-02 |
 | SCR-BO-02 | My work | Queue of cases and tasks by due date; overdue first | Case manager, reviewer, professionals | R1 | FR-CASE-005, FR-NTF-003, J-01 |
-| SCR-BO-03 | Case detail | Steps as tasks, owners, due dates, evidence, client status, costs, pause or cancel | Case manager, reviewer | R1 | F-03, FR-CASE-001 to FR-CASE-004, FR-CASE-007, FR-CASE-008, FR-CASE-011, FR-CASE-012, FR-CASE-013 |
+| SCR-BO-03 | Case detail | Steps as tasks, owners, due dates, evidence, client status, costs (professional pay and expenses fill in from accepted work), pause or cancel | Case manager, reviewer | R1 | F-03, FR-CASE-001 to FR-CASE-004, FR-CASE-007, FR-CASE-008, FR-CASE-011, FR-CASE-012, FR-CASE-013, FR-PRO-010 |
 | SCR-BO-04 | Task detail | Do one task on a phone: evidence, notes, done; log incident | Lawyer, surveyor, runner | R1 | FR-CASE-004, FR-CASE-006, FR-CASE-010, FR-EVD-001 |
 | SCR-BO-05 | Risk screen and assignment | Risk questions; two-person rule on disputed plots | Case manager | R1 | FR-CASE-009, RUL-17 |
 | SCR-BO-06 | Incident log | Restricted safety log | Reviewer, administrator | R1 | FR-CASE-010 |
@@ -401,7 +419,16 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-BO-29 | Country configuration | One record per country: currency, holiday calendar, templates, scope statement, overlay layers, partners, licence bodies, legal texts, errand catalogue, data location; copy a country to open a new one | Administrator | R1 (edit), R2 (copy) | F-28, FR-CTY-001, FR-CTY-002, FR-CTY-004, FR-ADM-005 |
 | SCR-BO-30 | Invoice check and payment queue | Invoices waiting for checks; institution and family member match; amount; approve for release; mark an institution not eligible for direct payment; runner tasks to collect an invoice or deliver a receipt (no money) | Case manager, reviewer | R1 | FR-FEE-002, FR-FEE-003, FR-FEE-006, FR-ESC-014, FR-ESC-015, RUL-22, J-09 |
 | SCR-BO-31 | Property management desk | Managed properties; rent due and late; repair requests and quotes; inspection schedule | Case manager | R2 | FR-PMG-003, FR-PMG-004, FR-PMG-006, RUL-24, J-11 |
-| SCR-BO-32 | Errands desk | Errands by step; agency fees paid; receipts; completion check of the resulting document; handover record | Case manager | R2 | FR-TSK-003, FR-TSK-004, FR-TSK-005, J-12 |
+| SCR-BO-32 | Errands desk | Errands by step; agency fees paid; receipts; completion check of the resulting document, which creates the agent's payable (paid by Fidero, SCR-BO-38); handover record | Case manager | R2 | FR-TSK-003, FR-TSK-004, FR-TSK-005, FR-PRO-002, J-12 |
+| SCR-BO-33 | My jobs and earnings | For a contracted professional: accepted and pending work, the rate for each item, amount and status (accepted, in a payment run, paid, held, failed), totals for the month and the year. Never the verdict or outcome next to an amount (5.6b) | Lawyer, surveyor, runner (R1); inspector, quantity surveyor, errand agent (R2) | R1 | F-37, FR-PRO-002, FR-PRO-003, FR-PRO-008, RUL-26 |
+| SCR-BO-34 | Payable detail | One payable: the work, accepted date, rate card version, gross, tax withheld, net, due date, payment run, paid date and bank reference, remittance advice; if held, the reason in plain words | Same | R1 | FR-PRO-002, FR-PRO-007, FR-PRO-008 |
+| SCR-BO-35 | Claim an expense | Kind, amount, date, case; receipt photo from the phone camera or a file; the limit for the role and kind; what happens over the limit or without a receipt; claim status | Same | R1 | FR-PRO-004 |
+| SCR-BO-36 | My statements | Remittance advice for each payment, yearly statement for each tax year, the agreement and current rate card, the account Fidero pays (last four digits) | Same | R1 | FR-PRO-001, FR-PRO-006, FR-PRO-007 |
+| SCR-BO-37 | Agreements and rate cards | Agreements with the signed document and the verified payee; rate card versions by country, role, unit and scope with start dates; draft a version; a second administrator approves | Administrator; case manager for agreements | R1 | FR-PRO-001, FR-PRO-003, FR-PRO-006, RUL-26 |
+| SCR-BO-38 | Payables and expense claims | Payables queue, overdue first; close a runner's month; hold or release a payable for a fraud or misconduct review; expense claims to approve, with a second approval for exceptions | Case manager, reviewer | R1 | FR-PRO-002, FR-PRO-004, FR-PRO-008, RUL-26 |
+| SCR-BO-39 | Payment run preparation | Pick a cut-off; one line per professional with payables, expenses, tax and net; items left out and why (payee not verified, held, exception not yet approved); totals; send for approval | Case manager, reviewer (preparer) | R1 | FR-PRO-005, FR-PRO-006, RUL-27 |
+| SCR-BO-40 | Payment run approval | A different person with payment rights checks totals, lines and payees and approves with the second factor; then downloads the bulk file, with its hash shown for the upload to the bank's portal | Reviewer or administrator with payment rights | R1 | FR-PRO-005, FR-PRO-006, FR-PRO-007, RUL-26, RUL-27 |
+| SCR-BO-41 | Payment run reconciliation | Import the bank's or provider's confirmation; lines confirmed, failed or unconfirmed; resolve each (next run, cancel, or a bank letter checked by a second person); remittance advices sent | Case manager, reviewer | R1 | FR-PRO-009, FR-PRO-007 |
 
 #### Field app, Fidero Field (iOS and Android)
 
@@ -425,6 +452,10 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-MOB-16 | Care visit: check out | Check out (Fidero then sends the family their own confirmation link and code; the carer never sees the code); raise a concern | Carer | R2 | FR-MOB-012, FR-CARE-004, FR-CARE-006, J-10 |
 | SCR-MOB-17 | Errand steps | Assigned errand; steps; receipt or acknowledgement captured at each step; handover photo or signature | Errand agent | R2 | FR-TSK-003, FR-TSK-005, FR-MOB-010, J-12 |
 | SCR-MOB-18 | Property inspection | Condition inspection or repair inspection with check-in, checklist and photos | Inspector | R2 | FR-PMG-001, FR-PMG-005, FR-MOB-012, J-11 |
+| SCR-MOB-19 | Earnings | My jobs and pay, as SCR-BO-33, with this month's totals and the next payment run date; readable offline from the last sync, marked with its time | Runner, surveyor, inspector, quantity surveyor, errand agent; lawyers if they use the app | R2 | F-37, FR-PRO-002, FR-PRO-003, FR-PRO-008, RUL-26 |
+| SCR-MOB-20 | Payable detail | As SCR-BO-34 | Same | R2 | FR-PRO-002, FR-PRO-007 |
+| SCR-MOB-21 | Claim an expense | Receipt photo with the in-app camera only; kind, amount, case or errand; limit shown; queued offline like evidence | Same | R2 | FR-PRO-004, FR-MOB-002 |
+| SCR-MOB-22 | Statements | Remittance advices and the yearly statement, as SCR-BO-36 | Same | R2 | FR-PRO-007 |
 
 #### Client app, Fidero (iOS and Android)
 
@@ -777,7 +808,7 @@ flowchart TD
     M2 --> M2c{"Checklist complete and readable?"}
     M2c -->|"No"| M2x["Errand stays 'Waiting for your documents: 2 missing'. Nothing is paid"]
     M2x --> M2
-    M2c -->|"Yes"| M3["Pays official fees and Fidero's charge into Partner Bank. Approves each step fee, or gives a standing approval up to a monthly amount · RUL-11"]
+    M2c -->|"Yes"| M3["Pays official fees into Partner Bank and Fidero's charge by card or mobile money · FR-TSK-002. Approves each step fee, or gives a standing approval up to a monthly amount · RUL-11"]
     M3 --> M4["Vetted agent assigned · SCR-BO-28, SCR-BO-32 · FR-TSK-003"]
     M4 --> M5["Agent lodges the application · SCR-MOB-17. Official fee paid to the agency's account only; receipt uploaded · RUL-22"]
     M5 --> M5c{"Agency accepts the application?"}
@@ -787,7 +818,7 @@ flowchart TD
     M6 --> M7{"Resulting document ready?"}
     M7 -->|"Delayed past target time"| M7x["Status: 'The agency is late. New expected date [date]. We are chasing.' Target times are assumptions"]
     M7x --> M7
-    M7 -->|"Yes"| M8["Agent collects it. Fidero checks the document · FR-TSK-004"]
+    M7 -->|"Yes"| M8["Agent collects it. Fidero checks the document · FR-TSK-004. The agent's pay from Fidero is now due · FR-PRO-002"]
     M8 --> M8c{"Document correct?"}
     M8c -->|"Wrong name or details"| M8x["Completion refused. Agent returns to the agency. Ama told plainly"]
     M8x --> M5
@@ -795,7 +826,7 @@ flowchart TD
     M9 --> M10(["Errand: Complete. Fees, receipts and the document on the dashboard · RUL-23"])
 ```
 
-Agent payment follows RUL-23: Fidero's charge is released to the agency only when the errand is complete and the document is checked.
+Who pays whom. Official fees go from Partner Bank to the agency only (RUL-22). Fidero's charge is paid to Fidero through the payment provider when the errand is ordered, never into Partner Bank (FR-TSK-002). The agent is paid by Fidero from its own account, under FR-PRO, once Fidero has checked the resulting document (FR-TSK-003, FR-PRO-002, RUL-23). The client's money never pays the agent (RUL-27).
 
 ---
 
@@ -2006,11 +2037,11 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 |   Paid under your standing approval    |
 |   (up to GHS 300.00 a month, sample)   |
 | Fidero's charge  GHS 180.00 (sample)   |
-|   Held at Partner Bank until the card  |
-|   is in your representative's hands.   |
+|   Paid to Fidero by card, 8 Aug.       |
+|   Receipt >                            |
 | Steps                                  |
 | (v) Documents checked ....... 8 Aug    |
-| (v) Fees paid into Partner Bank 9 Aug  |
+| (v) Official fee paid into bank 9 Aug  |
 | (v) Lodged, receipt uploaded . 11 Aug  |
 | ( ) Card ready ....... expected 9 Sept |
 | ( ) Fidero checks the card             |
@@ -2019,10 +2050,10 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 +----------------------------------------+
 ```
 
-- **Content.** Status sentence, checklist, fees with payees, steps with evidence. The agency is named as payee; the agent is never a payee.
+- **Content.** Status sentence, checklist, fees with payees, steps with evidence. The agency is named as payee; the agent is never paid from the client's money, because Fidero pays the agent itself.
 - **Actions.** Upload a missing document; see receipts; message Fidero; change the representative.
 - **States.** Rejected by the agency: "(x) Rejected by the NIA on 12 Aug: passport photo out of date. We need a new photo from you by 19 Aug." Late: "The agency is late. New expected date 23 Sept. We are chasing." Complete: "Handed to Kofi A. on 10 Sept, signed for. Photo of the card >". Document wrong at check: "The card shows the wrong date of birth. Our agent has returned it to the agency."
-- **Rules.** Official fees to the agency's account only (RUL-22, FR-TSK-003). Each fee needs the client's approval for that step or a standing approval up to a monthly amount, plus its receipt and two Fidero approvals (RUL-11). Completion only on the checked document (FR-TSK-004). Fidero's charge released on completion (RUL-23).
+- **Rules.** Official fees to the agency's account only (RUL-22, FR-TSK-003). Each fee needs the client's approval for that step or a standing approval up to a monthly amount, plus its receipt and two Fidero approvals (RUL-11). Completion only on the checked document (FR-TSK-004). Fidero's charge is paid through the payment provider, not into the partner bank (FR-TSK-002). The agent is paid by Fidero once the document is checked, never from the client's money (FR-TSK-003, RUL-23, RUL-27).
 - **Satisfies.** FR-TSK-002 to FR-TSK-005, RUL-11, RUL-22, RUL-23, J-12.
 
 ### W-35 Insurer product page · SCR-PTL-51
@@ -2192,6 +2223,83 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 - **Rules.** The queue is never deleted by the update (FR-APP-006, FR-MOB-005).
 - **Satisfies.** FR-APP-006, FR-MOB-005.
 
+### W-40 Fidero Field: earnings · SCR-MOB-19
+
+```text
++----------------------------------------+
+| <- My jobs                     Online  |
+| My pay                                 |
+| May 2027 so far (sample amounts)       |
+|   Accepted, not yet paid  GHS 1,350.00 |
+|   Paid this month         GHS 2,100.00 |
+| +------------------------------------+ |
+| | Next payment run: Thu 27 May       | |
+| | Paid by Fidero, from its own       | |
+| | account, to your account ..4471    | |
+| +------------------------------------+ |
+| Jobs                                   |
+| Site visit, FDR-GH-2027-00042          |
+|   Accepted 14 May        GHS 450.00    |
+|   In payment run PAYRUN-GH-2027-014    |
+| Surveyor's section, FDR-GH-2027-00042  |
+|   Accepted 17 May        GHS 600.00    |
+|   Due by 31 May                        |
+| Site visit, FDR-GH-2027-00051          |
+|   Accepted 20 May        GHS 300.00    |
+|   Held: we are checking the evidence   |
+|   on this job. Not about the result.   |
+| [ Claim an expense ]                   |
+| Statements >     Rate card >           |
++----------------------------------------+
+```
+
+- **Content.** Month totals, the next payment run date, the account Fidero pays and "from its own account". Jobs by work type and reference, with amount and status. No verdict, result or risk colour anywhere (5.6b). The same content is SCR-BO-33 in the back office web app in R1 (DA-13).
+- **Actions.** Open a job (SCR-MOB-20); claim an expense with a receipt photo (SCR-MOB-21); statements (SCR-MOB-22); see the rate card that applies.
+- **States.** Offline: "Shown from your last sync at 07:40." Held: the reason in plain words, never the result. Failed: "Your bank returned the payment on 27 May. We will pay it in the next run. Check your account details >". Empty: "No accepted jobs yet this month."
+- **Rules.** RUL-26: the amount is the same whatever the verdict. RUL-27: always "from Fidero's own account", never client money. A professional sees only their own pay.
+- **Satisfies.** FR-PRO-002, FR-PRO-003, FR-PRO-008, RUL-26, RUL-27.
+
+### W-41 Back office: payment run approval · SCR-BO-40
+
+```text
++------------------------------------------------------------------------------------+
+| Payment run PAYRUN-GH-2027-014   Ghana   Cut-off 27 May 2027 12:00 GMT  To approve |
++------------------------------------------------------------------------------------+
+| Pay GHS 18,240.00 to 14 professionals from Fidero's operating account at Sample    |
+| Bank, ending 0912. Not client money. Amounts are samples; tax [TO VERIFY] (Q-25)   |
++------------------------------------------------------------------------------------+
+| Checks (all must pass)                                                             |
+| (v) Every payee verified in the name on the agreement; account name matched        |
+| (v) Every payable is for accepted work; held items left out                        |
+| (v) 3 expense claims over the limit have a second approval                         |
+| (v) Tax withheld per Ghana configuration v7                                        |
+| (v) Debit account is an operating account, not an escrow or held-funds account     |
++------------------------------------------------------------------------------------+
+| Professional       Role       Items  Gross      Tax      Expenses  Net             |
+| A. Owusu-Ansah     Lawyer     6      3,600.00   [rate]   120.00    [net]           |
+| K. Asare           Surveyor   5      2,750.00   [rate]   80.00     [net]           |
+| Y. Darko           Runner     1      1,800.00   [rate]   45.00     [net]           |
+| ... 11 more                                               [ See all lines ]        |
+| Left out: 2 payables held (fraud review), 1 payee not verified    [ See why ]      |
++------------------------------------------------------------------------------------+
+| Prepared by                            | Approval                                  |
+| (v) Efua Owusu, case manager           | You: Kofi Boateng, reviewer,              |
+|     27 May 2027 13:20 GMT              |     payment rights                        |
+|                                        | [x] I checked the totals and payees       |
+|                                        | Code from your authenticator [______]     |
+|                                        | [ Approve run ]   [ Return with comment ] |
++------------------------------------------------------------------------------------+
+| After approval: bulk file built in Sample Bank's format. Its SHA-256 is shown here |
+| for the upload to the bank's portal. Status: File issued, then Confirmed or Failed. |
++------------------------------------------------------------------------------------+
+```
+
+- **Content.** One sentence: how much, to how many professionals, from which account, and "Not client money." The checks. One line per professional with gross, tax, expenses and net. Items left out, with reasons. Two slots: Prepared by and Approval. No verdict column (5.6b).
+- **Actions.** Approve with the second factor; return to the preparer with a comment; open any line; after approval, download the file (logged) and see its hash.
+- **States.** Viewer is the preparer: the approval area reads "You prepared this run. A different person with payment rights must approve it (FR-PRO-005)." Viewer has no payment rights: "You cannot approve payment runs." A payee changed after preparation: "Run returned to draft: K. Asare's bank details changed on 27 May. The account must be checked again." Confirmation imported: line outcomes (Confirmed, Failed with the bank's reason, Unconfirmed) and a link to SCR-BO-41.
+- **Rules.** RUL-27: the debit account is Fidero's operating account only, and every payee is a verified contracted professional (FR-PRO-006). RUL-26: no verdict or outcome is shown or used. The preparer can never approve.
+- **Satisfies.** FR-PRO-005, FR-PRO-006, FR-PRO-007, RUL-26, RUL-27.
+
 ---
 
 ## 5. Interaction and content design
@@ -2266,7 +2374,7 @@ No "Are you sure?" dialogs for routine actions. Reversible actions (dismiss, arc
 
 ### 5.4 The two-person approval pattern
 
-Used for: escrow releases and refunds (RUL-05, FR-ESC-007, FR-ESC-013), report release (RUL-03), locked scope changes (FR-ADM-004), bulk personal data export (FR-DPR-005), and bank detail changes (design rule).
+Used for professional payment runs (FR-PRO-005), rate card versions (FR-PRO-001) and expense exceptions (FR-PRO-004) too, with one change: slot 1 is "Prepared by" and is filled by the preparer, and slot 2 is the one approval, by a different person (W-41). Also used for: escrow releases and refunds (RUL-05, FR-ESC-007, FR-ESC-013), report release (RUL-03), locked scope changes (FR-ADM-004), bulk personal data export (FR-DPR-005), and bank detail changes (design rule).
 
 - The approval card (CMP-10) has two slots, "Approval 1 of 2" and "Approval 2 of 2".
 - Each filled slot shows name, role, date and time in Ghana time, and "code verified".
@@ -2318,9 +2426,23 @@ These sentences are locked text, held in translation files and changed only with
 | Rent (RUL-24) | "Rent is paid by your tenant to your own account at [bank]. Fidero never receives your rent." | SCR-PTL-46, SCR-PTL-47, tenant view (SCR-PTL-54) |
 | Institution payments (RUL-22) | "Fidero pays the school, hospital or agency directly. Money never goes to a relative or a go-between." | SCR-PTL-39, SCR-PTL-40, Family section empty state |
 | Care visits (RUL-23) | "The carer is paid only for visits the family confirms." | SCR-PTL-43, SCR-PTL-44, SCR-MOB-16 |
-| Errands (RUL-23) | "Official fees go to the agency. Fidero's charge is released when the finished document is checked." | SCR-PTL-49, SCR-PTL-50 |
+| Errands (RUL-23, RUL-27) | "Official fees go to the agency. Fidero's charge is paid to Fidero when you order. Fidero pays its agent itself, never from your money." | SCR-PTL-49, SCR-PTL-50 |
 | Project funds and events (RUL-21, RUL-22) | "Suppliers and vendors are paid directly against invoices. Fidero confirms the money was spent as agreed. It does not judge whether the plan will succeed." | SCR-PTL-30, SCR-PTL-53 |
 | Country (B2.9) | "Showing your things in [country]. Prices in [currency]." | Dashboard header when the client has more than one country |
+
+The errands line changed in v0.5 to follow FR-TSK-002 and FR-TSK-003 in 01 v0.8. It needs the lawyer's agreement before it ships.
+
+### 5.6b Professional pay screens (F-37, RUL-26, RUL-27)
+
+These rules apply to My pay (SCR-BO-33 to SCR-BO-36, SCR-MOB-19 to SCR-MOB-22) and to the staff screens SCR-BO-37 to SCR-BO-41.
+
+- **No verdict next to pay (RUL-26).** A job is named by its work type and reference: "Surveyor's section, FDR-GH-2027-00042", "Inspection, milestone 3, BLD-2027-0012". Never its verdict, inspection result, risk colour or a report finding, and never a verdict icon (5.5). A red report and a green report look the same on an earnings screen. Staff pay screens have no verdict column either.
+- **Say whose money (RUL-27).** "Paid by Fidero from its own account to your account ending 4471." Never "paid by the client", "from escrow" or "from money held at Partner Bank".
+- **Status words.** Accepted, In a payment run, Paid, Held, Failed. Failed always says what happens next: "Your bank returned this payment. We will pay it in the next run." Due dates say "Due by 30 May" with the rule in small text: "10 working days after acceptance (assumption)".
+- **Held.** The reason in plain words, never a result: "Held while we check the evidence on this job. This is not about the report's result." or "Held until your bank account is checked again."
+- **Tax.** Gross, tax withheld and net on every payable, remittance advice and statement, with the rule named from the country configuration: "Withholding tax [rate] `[TO VERIFY]`" (Q-25).
+- **Expenses.** The limit shows before the claim is sent: "Up to GHS 300.00 without a second approval (sample)." Without a receipt: "No receipt: a second Fidero staff member must approve this claim."
+- **Nothing about other people's pay.** A professional sees only their own pay (01 C2). Staff screens list pay only for the country they work in.
 
 ### 5.7 Voice and tone
 
@@ -2721,7 +2843,7 @@ Screen to requirement to journey. Rules (`RUL-`) follow the FR IDs where a scree
 | SCR-PTL-54 | FR-PMG-002, FR-PMG-004 | J-11 | - |
 | SCR-BO-01 | FR-ACC-003, FR-ACC-009, NFR-SEC-02 | All | - |
 | SCR-BO-02 | FR-CASE-005, FR-NTF-003 | J-01, J-08 | W-11 |
-| SCR-BO-03 | FR-CASE-001 to FR-CASE-004, FR-CASE-007, FR-CASE-008, FR-CASE-011, FR-CASE-012, FR-CASE-013 | J-01, J-08 | W-12 |
+| SCR-BO-03 | FR-CASE-001 to FR-CASE-004, FR-CASE-007, FR-CASE-008, FR-CASE-011, FR-CASE-012, FR-CASE-013, FR-PRO-010 | J-01, J-08 | W-12 |
 | SCR-BO-04 | FR-CASE-004, FR-CASE-006, FR-CASE-010, FR-EVD-001 | J-01, J-08 | - |
 | SCR-BO-05 | FR-CASE-009; RUL-17 | J-01, J-08 | W-13 |
 | SCR-BO-06 | FR-CASE-010 | J-01 | - |
@@ -2750,7 +2872,16 @@ Screen to requirement to journey. Rules (`RUL-`) follow the FR IDs where a scree
 | SCR-BO-29 | FR-CTY-001, FR-CTY-002, FR-CTY-004, FR-ADM-003, FR-ADM-005 | All | W-36 |
 | SCR-BO-30 | FR-FEE-002, FR-FEE-003, FR-FEE-006, FR-ESC-014, FR-ESC-015; RUL-22 | J-09 | - |
 | SCR-BO-31 | FR-PMG-003, FR-PMG-004, FR-PMG-006; RUL-24 | J-11 | - |
-| SCR-BO-32 | FR-TSK-003, FR-TSK-004, FR-TSK-005 | J-12 | - |
+| SCR-BO-32 | FR-TSK-003, FR-TSK-004, FR-TSK-005, FR-PRO-002 | J-12 | - |
+| SCR-BO-33 | FR-PRO-002, FR-PRO-003, FR-PRO-008; RUL-26 | None (professional pay, F-37) | W-40 (same content) |
+| SCR-BO-34 | FR-PRO-002, FR-PRO-007, FR-PRO-008 | None (F-37) | - |
+| SCR-BO-35 | FR-PRO-004 | None (F-37) | - |
+| SCR-BO-36 | FR-PRO-001, FR-PRO-006, FR-PRO-007 | None (F-37) | - |
+| SCR-BO-37 | FR-PRO-001, FR-PRO-003, FR-PRO-006; RUL-26 | None (F-37) | - |
+| SCR-BO-38 | FR-PRO-002, FR-PRO-004, FR-PRO-008; RUL-26 | None (F-37) | - |
+| SCR-BO-39 | FR-PRO-005, FR-PRO-006; RUL-27 | None (F-37) | - |
+| SCR-BO-40 | FR-PRO-005, FR-PRO-006, FR-PRO-007; RUL-26, RUL-27 | None (F-37) | W-41 |
+| SCR-BO-41 | FR-PRO-009, FR-PRO-007 | None (F-37) | - |
 | SCR-MOB-01 | FR-MOB-001, FR-MOB-004 | J-03, J-10, J-12 | - |
 | SCR-MOB-02 | FR-MOB-001 | J-03 | - |
 | SCR-MOB-03 | FR-BLD-005 | J-03 | - |
@@ -2769,6 +2900,10 @@ Screen to requirement to journey. Rules (`RUL-`) follow the FR IDs where a scree
 | SCR-MOB-16 | FR-MOB-012, FR-CARE-004, FR-CARE-006 | J-10 | W-30 |
 | SCR-MOB-17 | FR-TSK-003, FR-TSK-005, FR-MOB-010 | J-12 | - |
 | SCR-MOB-18 | FR-PMG-001, FR-PMG-005, FR-MOB-012 | J-11 | - |
+| SCR-MOB-19 | FR-PRO-002, FR-PRO-003, FR-PRO-008; RUL-26 | None (F-37) | W-40 |
+| SCR-MOB-20 | FR-PRO-002, FR-PRO-007 | None (F-37) | - |
+| SCR-MOB-21 | FR-PRO-004, FR-MOB-002 | None (F-37) | - |
+| SCR-MOB-22 | FR-PRO-007 | None (F-37) | - |
 | SCR-APP-01 | FR-APP-002, FR-NTF-001, FR-NTF-004 | All client journeys | W-37 |
 | SCR-APP-02 | FR-APP-003, FR-ACC-003 | All client journeys | - |
 | SCR-APP-03 | FR-APP-003 | All client journeys | - |
@@ -2841,3 +2976,6 @@ Document 01 has not been edited. Items marked **Closed** were fixed in 01 v0.2, 
 | I-25 | FR-APP-004 against RUL-11 and the Escrow model | A user can delete their account from inside the app, but 01 does not say what happens to an open escrow, money held at the bank or a standing approval when the client deletes the account. Nobody is left to approve releases. | Open. | SCR-APP-04 and W-38: the request is recorded, the account closes to new orders, and deletion completes when open items end. Fidero contacts the client. |
 | I-26 | FR-APP-002 against FR-NTF-001 and FR-NTF-004 | Push follows "the user's channel preferences and FR-NTF-004's limits", but FR-NTF-001 lists only email, SMS and WhatsApp, and FR-NTF-004 limits only SMS and WhatsApp. | Open. | Push is a fourth channel in SCR-PTL-20. Lock-screen text is generic; amounts and names show only inside the app (SCR-APP-01, W-37). |
 | I-27 | FR-APP-001, C1 front end 5 | The client app serves "clients, family members and tenants". Sellers, developers, institution contacts and insurer partners also use the portal; 01 does not say whether the app serves them. | Open. | They use the portal. The client app shows only screens for the three named groups (2.3a). |
+| I-28 | FR-PRO-005, C2 | A payment run is approved by "a different one with payment rights", but C2 defines only release rights. The UI cannot say who may approve. | Open. | SCR-BO-40 and W-41 show the approval only to reviewers and administrators holding payment rights, never to the preparer. |
+| I-29 | C2 rows for Runner, Inspector, Quantity surveyor, Carer or errand agent; BR-23 | Lawyers and surveyors may see their own payables, expenses and statements; runners may claim expenses; inspectors, quantity surveyors and errand agents have no pay permissions, although Fidero pays all six. | Open. | My pay (SCR-BO-33 to SCR-BO-36, SCR-MOB-19 to SCR-MOB-22) serves all six contracted roles. |
+| I-30 | RUL-26, FR-PRO-002 | RUL-26 says pay never depends on the verdict, but 01 does not say whether pay may be held while the work is under a fraud or misconduct review, or what the professional is told. | Open. | A reviewer may hold a payable for a fraud or misconduct review only; the professional sees "Held while we check the evidence on this job. This is not about the report's result." (5.6b). |
