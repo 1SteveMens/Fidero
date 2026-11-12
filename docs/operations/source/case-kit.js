@@ -1,4 +1,5 @@
-// Builds the R0 case kit Word files (EN-02 report template, EN-07 consent kit).
+// Builds the R0 case kit Word files (EN-02 report template, EN-07 consent kit,
+// client terms and the professional services agreement).
 // Run from this folder:  node case-kit.js && python3 finish.py
 // Needs the `docx` npm package (npm install -g docx). Output goes to ../case-kit/.
 // Text in [[double brackets]] becomes a highlighted fill-in field.
@@ -464,6 +465,219 @@ function witnessSheet() {
   return doc({ title: 'Witness sheet', headerText: 'Tenmina · Witness sheet · Form WS-1', children: k, landscape: true, draft: true });
 }
 
+// =====================================================================
+// Client terms (land verification) and professional services agreement
+// =====================================================================
+const clause = (num, text) => new Paragraph({
+  children: [new TextRun({ text: num + '  ', font: FONT, size: 20, bold: true }), ...runs(text)],
+  indent: { left: 520, hanging: 520 },
+  spacing: { after: 100, line: 276 },
+});
+const ENTITY = '[[Tenmina company name and registration number, TO VERIFY]]';
+
+function clientTerms() {
+  const k = [];
+  k.push(...titleBlock('Your land verification: order and terms', 'Please read these terms before you pay. They explain what we check, what we do not, what it costs, and what happens if something goes wrong.'));
+  k.push(H1('Your order'));
+  k.push(fields([
+    ['Terms version', 'CT-1'],
+    ['Case ID', '[[C001]]'],
+    ['Your name', '[[Full name]]'],
+    ['Where you live', '[[Country]]'],
+    ['Email and WhatsApp', '[[Email, WhatsApp number]]'],
+    ['The plot', '[[Locality, plot number, site plan reference if you have it]]'],
+    ['Seller', '[[Name, and how to reach them]]'],
+    ['Have you paid anything yet?', '[[No / Yes: how much, to whom, when]]'],
+    ['Fee', '[[Amount and currency]]'],
+    ['Extras agreed', '[[None / rush / extra plot / travel beyond the usual area]]'],
+    ['Documents you will send', '[[Site plan, indenture, receipts, allocation note, anything else]]'],
+  ], 3200));
+  k.push(spacer(80));
+  k.push(table([W], [[{ cell: true, fill: TINT, text: [
+    P('To accept', { bold: true, after: 60 }),
+    P('Sign below, or reply to the message that brought you these terms with the words "I agree to Tenmina terms CT-1". We keep your reply with your case. We start work once you have accepted and your fee has arrived.', { after: 120 }),
+    P('Signature: ______________________________          Date: ________________', { after: 0 }),
+  ] }]], { header: false }));
+  k.push(pageBreak());
+
+  k.push(H1('The terms'));
+  k.push(H2('1. Who we are'));
+  k.push(clause('1.1', `Tenmina is ${ENTITY}, of [[address in Ghana]]. You can reach us at [[email]] or on WhatsApp at [[number]].`));
+  k.push(clause('1.2', 'We act for you, the buyer, and no one else. We do not act for the seller, the family or the traditional authority, and no one working on your case may take money from them.'));
+
+  k.push(H2('2. What we will do'));
+  k.push(clause('2.1', 'We check the plot described in your order and give you a written report with a verdict: green, amber or red. The report covers:'));
+  ['that the plot on the site plan is the plot on the ground (plot identity);', 'official searches at the Lands Commission on the plot and on the seller\'s name;', 'a licensed surveyor\'s visit, with the pillars found and any overlap with neighbours;', 'whether the plot falls in a government acquisition, road reserve, wetland, flood zone, known dispute area or a zoning that rules out your use;', 'who the seller is, what right they hold, and whether the family, stool or skin consents, recorded on video with witnesses and a lawyer present;', 'how the seller came to hold the plot (chain of ownership);', 'who is on the land now and any sign of dispute or land guard activity.'].forEach((t) => k.push(bullet(t)));
+  k.push(clause('2.2', 'A licensed lawyer signs the legal sections and a licensed surveyor signs the survey sections. Two people review every report before you receive it.'));
+  k.push(clause('2.3', 'You receive the report as a PDF, with its fingerprint: a code that proves the PDF has not been changed. Anyone can ask us to check a copy against it.'));
+  k.push(clause('2.4', 'We update you at least once a week by WhatsApp or email until the report is delivered.'));
+
+  k.push(H2('3. What we do not do'));
+  ['We do not guarantee title. Only registration at the Lands Commission confirms title in Ghana, and registered title can be challenged.', 'We do not advise on the purchase agreement or negotiate with the seller. Our lawyer or another lawyer of your choice can do that, under a separate agreement.', 'We do not hold, receive or pay your purchase money. Do not pay anyone until you have read the report\'s conditions.', 'We do not register the land or carry out the conveyancing.', 'We do not check anything not listed in section 2, or any plot other than the one in your order.', 'We do not send anyone onto land where there is a threat to their safety, and we never confront occupiers or land guards.'].forEach((t) => k.push(bullet(t)));
+  k.push(note('Section 12 of your report, the scope and limitation statement, sets out these limits in full. It is the same in every report.'));
+
+  k.push(H2('4. What we need from you'));
+  k.push(clause('4.1', 'The documents listed in your order, and the seller\'s contact details. You agree that we may contact the seller, the family or traditional authority, neighbours and public offices about the plot.'));
+  k.push(clause('4.2', 'The truth about what you have already paid or signed. It changes what we check first.'));
+  k.push(clause('4.3', 'If you have not paid the seller, please do not pay until you have our report.'));
+
+  k.push(H2('5. Fee and payment'));
+  k.push(clause('5.1', 'The fee in your order covers the lawyer, the surveyor, our field runner, the standard Lands Commission search fees and travel within [[usual area, TO VERIFY]].'));
+  k.push(clause('5.2', 'You pay the full fee before we start, by the payment link we send you [[payment provider, TO VERIFY]]. We never ask you to pay a person\'s private account.'));
+  k.push(clause('5.3', 'We charge extra only for something you agree to in writing before we do it: a rush job, another plot, travel beyond the usual area, or extra searches.'));
+  k.push(clause('5.4', 'The fee is the same whatever the verdict. Nobody on your case is paid more or less because the plot turns out green, amber or red.'));
+
+  k.push(H2('6. How long it takes'));
+  k.push(clause('6.1', 'We aim to deliver within 20 working days of receiving your fee and the documents in your order (working assumption). The Lands Commission sets its own pace; if a search is late we tell you, and why, in our weekly update.'));
+  k.push(clause('6.2', 'If an early check finds a problem that makes the plot red on its own, we tell you at once. You choose: we stop there and give you a report on what we found, with a refund for the checks not done, or we finish every check.'));
+
+  k.push(H2('7. Cancelling and refunds'));
+  k.push(table([4600, W - 4600], [
+    ['When', 'What you get back'],
+    ['You cancel before we lodge any search or book any visit', 'The whole fee'],
+    ['You cancel after work has started', 'The fee less the cost of work already done, listed item by item'],
+    ['We stop because of a safety risk, or because the seller or family will not allow the checks', 'A report on what we could check, and the fee for the checks not done'],
+    ['We stop early at your choice after a red finding (6.2)', 'A report on what we found, and the fee for the checks not done'],
+    ['The report has been delivered', 'No refund. The report has done its job, whatever the verdict'],
+    ['We made a mistake on something we checked', 'A corrected report, free, as a new version with the reason'],
+  ]));
+  k.push(note('Refund rules are working assumptions until the lawyer confirms them [TO VERIFY]. Refunds go back by the way you paid, less any charge the payment provider does not return [TO VERIFY].'));
+
+  k.push(H2('8. Your report'));
+  k.push(clause('8.1', 'The report is for you. You may share it with your lawyer, your bank, your family or a buyer\'s agent acting for you. Nobody else may rely on it without our written agreement.'));
+  k.push(clause('8.2', 'We never change a released report. A correction is a new version with a new fingerprint and the reason, and we send it to you.'));
+
+  k.push(H2('9. Limits'));
+  k.push(clause('9.1', 'Our liability for the report is limited to the fee you paid, except where the law does not allow that limit. We hold professional indemnity insurance for our reports [[policy reference, TO VERIFY]].'));
+  k.push(clause('9.2', 'We are not responsible for what third parties\' records leave out, or for events after the dates of our searches and site visit.'));
+
+  k.push(H2('10. Your personal data'));
+  k.push(clause('10.1', 'We collect what we need for your case: your name, contact details, documents and messages, and the names, documents, photos and video of the seller, the family or traditional authority and witnesses.'));
+  k.push(clause('10.2', 'Only the people working on your case see it: our lawyer, surveyor, runner and reviewer. It is kept in a restricted folder, with a second copy kept securely, for [[retention period, TO VERIFY with the lawyer]], and then deleted.'));
+  k.push(clause('10.3', 'Our storage may be outside Ghana [[location and legal basis, TO VERIFY with the lawyer]]. We follow the Data Protection Act 2012 (Act 843). You may ask what we hold about you, and ask us to correct it, at [[email]].'));
+
+  k.push(H2('11. Complaints and disputes'));
+  k.push(clause('11.1', 'Tell us at [[email]]. The founder replies within 5 working days (working assumption).'));
+  k.push(clause('11.2', 'If we cannot agree, we will try mediation in Accra before either of us goes to court [[lawyer to confirm, including the Alternative Dispute Resolution Act, 2010 (Act 798), TO VERIFY]]. These terms are governed by the law of Ghana.'));
+  return doc({ title: 'Client terms', headerText: 'Tenmina · Land verification: order and terms · Version CT-1', children: k, draft: true });
+}
+
+function professionalAgreement() {
+  const k = [];
+  k.push(...titleBlock('Professional services agreement', 'For lawyers, surveyors and field runners who work on Tenmina cases. The main terms apply to everyone; the schedule for your role says what you do, how fast, and what you are paid.'));
+  k.push(fields([['Agreement version', 'PA-1'], ['Role', 'Lawyer ☐    Surveyor ☐    Field runner ☐']], 3000));
+
+  k.push(H1('The parties'));
+  k.push(fields([
+    ['Tenmina', ENTITY],
+    ['Address', '[[Tenmina address in Ghana]]'],
+    ['The professional', '[[Full name, and firm if any]]'],
+    ['Licence or registration', '[[Ghana Bar or surveyors\' licence number, or "not applicable" for a runner]]'],
+    ['Address and phone', '[[Address, phone]]'],
+    ['Payment account', '[[Bank or mobile money account in the professional\'s own name]]'],
+    ['Starts on', '[[Date]]'],
+  ], 3000));
+
+  k.push(H1('Main terms'));
+  k.push(H2('1. How we work together'));
+  k.push(clause('1.1', 'You are an independent professional, not an employee of Tenmina. You may work for others, except as clause 3 says.'));
+  k.push(clause('1.2', 'Tenmina offers you jobs by WhatsApp or email, each with a case ID, the plot, what is needed and the date it is due. You accept or decline within 1 working day. Once you accept, you deliver as your schedule says, and you tell Tenmina at once if anything will make you late.'));
+  k.push(clause('1.3', 'You deal with the client only through Tenmina during the case. If the client asks for further work, such as conveyancing, Tenmina introduces you and you agree terms with the client directly.'));
+
+  k.push(H2('2. Pay'));
+  k.push(clause('2.1', 'Tenmina pays the fees in Schedule D. Your fee never depends on the verdict or outcome of your work: a red report pays the same as a green one.'));
+  k.push(clause('2.2', 'A fee is earned when your work is accepted: your signed section passes Tenmina\'s second review, or, for a runner, your month is closed on its last working day. A part month is paid by working days.'));
+  k.push(clause('2.3', 'Tenmina pays within [[10, TO VERIFY]] working days of acceptance, from its own business account, to the account in your own name above. Never in cash, and never from client money.'));
+  k.push(clause('2.4', 'Expenses are paid only if Tenmina approved them before you spent the money, against an official receipt. Lands Commission and other official fees are repaid at cost.'));
+  k.push(clause('2.5', 'Tenmina deducts withholding tax where the law requires it, and gives you a statement of what was deducted [[rates, TO VERIFY]]. You are responsible for your own taxes.'));
+  k.push(clause('2.6', 'Tenmina may hold pay for a job only while a written fraud or misconduct review of that job is open, and tells you why. When the review closes, the pay is released or cancelled.'));
+  k.push(clause('2.7', 'If work does not meet the standard in your schedule, you put it right at no extra fee.'));
+
+  k.push(H2('3. Independence'));
+  k.push(clause('3.1', 'Before each job you sign the declaration in Schedule E. You must not take a job if you, your family or your firm has any link to the seller, the buyer, the family or traditional authority selling the land, a neighbouring owner, or another buyer of the same plot.'));
+  k.push(clause('3.2', 'You take no money, gift or favour from anyone connected with the plot. Customary drinks offered at a meeting are recorded on the consent form, not accepted personally.'));
+  k.push(clause('3.3', 'You do not act for the seller in the same transaction.'));
+
+  k.push(H2('4. Evidence and honesty'));
+  k.push(clause('4.1', 'You follow Tenmina\'s evidence rules (evidence-folders.md): original files only, phone location tag on, upload to the case folder within 24 hours, never by WhatsApp, and never edited, cropped or trimmed.'));
+  k.push(clause('4.2', 'You never invent, alter or reuse evidence. Every file is fingerprinted, and a file used in two cases is detected. Fabricated or reused evidence ends this agreement at once, and Tenmina may report it to your professional body or the police.'));
+  k.push(clause('4.3', 'You report what you find, including what the client will not want to hear.'));
+
+  k.push(H2('5. Safety'));
+  k.push(clause('5.1', 'You never visit a plot flagged as disputed alone, or before Tenmina\'s risk screen is done.'));
+  k.push(clause('5.2', 'If you feel threatened, you leave. You never confront occupiers or land guards and never carry case money. You tell Tenmina the same day, and it is logged.'));
+  k.push(clause('5.3', 'A visit you leave for safety is paid in full. Nobody is paid more for staying.'));
+
+  k.push(H2('6. Confidentiality and personal data'));
+  k.push(clause('6.1', 'Everything about a case is confidential, during this agreement and after it ends.'));
+  k.push(clause('6.2', 'You use personal data only for the job, keep it in Tenmina\'s case folders, and delete it from your phone and computer once Tenmina confirms it is uploaded and copied. You follow the Data Protection Act 2012 (Act 843).'));
+  k.push(clause('6.3', 'You tell Tenmina within 24 hours if a phone, file or document with case data is lost or seen by someone who should not see it.'));
+
+  k.push(H2('7. Licences and insurance'));
+  k.push(clause('7.1', 'Lawyers and surveyors keep their licence current, give Tenmina a copy each year, and tell Tenmina at once if it is suspended or withdrawn.'));
+  k.push(clause('7.2', 'Lawyers and surveyors hold their own professional indemnity insurance [[minimum cover, TO VERIFY]] and give Tenmina proof of it.'));
+  k.push(clause('7.3', 'Your signed section is your professional opinion and your responsibility. Tenmina\'s liability to you is limited to fees due under this agreement.'));
+
+  k.push(H2('8. Ending the agreement'));
+  k.push(clause('8.1', 'Either of us may end this agreement with 14 days\' written notice. Jobs already accepted are finished and paid, unless Tenmina asks you to stop, in which case work done so far is paid.'));
+  k.push(clause('8.2', 'Tenmina may end it at once for a breach of clause 3, 4.2, 5 or 6, or if your licence lapses. Work affected by the breach is not paid.'));
+  k.push(clause('8.3', 'When it ends, you hand back or delete all case data and confirm in writing that you have done so.'));
+
+  k.push(H2('9. Disputes'));
+  k.push(clause('9.1', 'We will try to settle any disagreement by talking, then by mediation in Accra, before going to court [[lawyer to confirm, including the Alternative Dispute Resolution Act, 2010 (Act 798), TO VERIFY]]. This agreement is governed by the law of Ghana.'));
+
+  k.push(H2('Signatures'));
+  k.push(table([2400, 3200, 2638, 1400], [
+    ['', 'Name', 'Signature', 'Date'],
+    ['For Tenmina', '[[Name, role]]', '', ''],
+    ['The professional', '[[Name]]', '', ''],
+  ], { rowHeight: 700 }));
+
+  // Schedules
+  const sched = (letter, title, rows, extra = []) => {
+    k.push(pageBreak());
+    k.push(H1(`Schedule ${letter}. ${title}`));
+    k.push(fields(rows, 2800));
+    extra.forEach((e) => k.push(e));
+  };
+  sched('A', 'Lawyer', [
+    ['What you do', 'Lodge or supervise official Lands Commission searches on the plot and the seller\'s name. Review the documents. Establish the seller\'s authority and the chain of ownership. Lead the consent meeting using Tenmina\'s consent form and script. Write and sign report sections 5, 8 and 9. Check that section 12 is unchanged before signing.'],
+    ['Turnaround', 'Signed legal sections within 10 working days of the search results (working assumption).'],
+    ['Standard', 'Report template EN-02 followed in full. Every finding linked to its evidence. Plain English the client can act on.'],
+    ['Second review', 'Your sections are reviewed by a Tenmina reviewer. Questions are answered within 2 working days.'],
+  ]);
+  sched('B', 'Surveyor', [
+    ['What you do', 'Visit the site, find each pillar, take coordinates, compare the ground with the site plan and the cadastral record, measure any overlap, and photograph each pillar and the plot from each corner. Write and sign report sections 4 and 6, and contribute to section 10.'],
+    ['Turnaround', 'Signed sections within 5 working days of the site visit (working assumption).'],
+    ['Standard', 'Coordinates in [[format, e.g. WGS84 decimal degrees and Ghana National Grid, TO VERIFY]]. Photos with location tag. Overlaps in metres.'],
+    ['Safety', 'Two people at any plot flagged as disputed. Risk screen before every visit.'],
+  ]);
+  sched('C', 'Field runner', [
+    ['What you do', 'Lodge searches and chase results, book site visits and consent meetings, film consent meetings using Tenmina\'s script, photograph sites, upload originals within 24 hours, fingerprint them and log them in the tracker, and keep the case dates up to date.'],
+    ['Hours and area', '[[Days, hours and area covered, TO VERIFY]]'],
+    ['Standard', 'Evidence rules followed every time. Weekly status to Tenmina by [[day]].'],
+    ['Month', 'Closed by Tenmina on the last working day. A part month is paid by working days.'],
+  ]);
+  k.push(pageBreak());
+  k.push(H1('Schedule D. Fees'));
+  k.push(table([2200, 2700, 1500, W - 6400], [
+    ['Role', 'Fee', 'Currency', 'Included'],
+    ['Lawyer', '[[Per report, TO VERIFY]]', '[[GHS]]', 'Searches supervision, document review, consent meeting, sections 5, 8, 9'],
+    ['Surveyor', '[[Per visit, TO VERIFY]]', '[[GHS]]', 'One site visit and sections 4 and 6'],
+    ['Surveyor travel', '[[Per km or fixed, TO VERIFY]]', '[[GHS]]', 'Beyond [[distance]] from [[base]]'],
+    ['Field runner', '[[Per month, TO VERIFY]]', '[[GHS]]', 'All runner work in the agreed area'],
+    ['Official fees', 'At cost', 'GHS', 'Against an official receipt'],
+  ], { rowHeight: 560 }));
+  k.push(note('Fees are agreed per professional and written here. No fee may vary with the verdict or outcome of the work.'));
+  k.push(H1('Schedule E. Declaration for each job'));
+  k.push(P('Before starting each job, I confirm that neither I, my family nor my firm has any link to the seller, the buyer, the family or traditional authority selling the land, a neighbouring owner, or another buyer of this plot, and that I have taken nothing from anyone connected with it.', { size: 18 }));
+  k.push(table([1500, 3400, 1400, 1938, 1400], [
+    ['Case ID', 'Plot', 'Any link? (describe)', 'Signature', 'Date'],
+    ...Array(6).fill(['', '', 'None ☐', '', '']),
+  ], { rowHeight: 520, size: 18 }));
+  return doc({ title: 'Professional services agreement', headerText: 'Tenmina · Professional services agreement · Version PA-1', children: k, draft: true });
+}
+
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   const files = {
@@ -471,6 +685,8 @@ function witnessSheet() {
     'consent-form.docx': consentForm(),
     'consent-video-script.docx': videoScript(),
     'witness-sheet.docx': witnessSheet(),
+    'client-terms.docx': clientTerms(),
+    'professional-agreement.docx': professionalAgreement(),
   };
   for (const [name, d] of Object.entries(files)) {
     fs.writeFileSync(path.join(OUT, name), await Packer.toBuffer(d));

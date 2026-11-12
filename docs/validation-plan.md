@@ -30,7 +30,7 @@ Every report follows the template in `docs/operations/verification-report-templa
 Rules:
 
 - Contract two of each role so one slow professional does not stall the service.
-- Each professional signs a short agreement covering scope, confidentiality, data handling and turnaround.
+- Each professional signs a short agreement covering scope, confidentiality, data handling and turnaround: `docs/operations/case-kit/professional-agreement.docx`. Clients accept `docs/operations/case-kit/client-terms.docx` before paying.
 - Check licences with the Ghana Institution of Surveyors and the Ghana Bar Association `[TO VERIFY]` before the first job.
 - Get a professional indemnity insurance quote in the first 30 days. Do not deliver a report to a paying client without cover in place or a clear written scope limit agreed with a lawyer.
 

@@ -68,6 +68,8 @@ lists={
  'AccessLevel':['View only','Add files'],
  'AccessRole':['Founder','Lawyer','Reviewer','Surveyor','Runner','Other'],
  'ScopeVersion':['S1'],
+ 'TermsVersion':['CT-1'],
+ 'AgreementVersion':['PA-1'],
 }
 ls['A1']='Drop-down lists and settings'; ls['A1'].font=TITLE
 ls['A2']='Edit these lists if you need new options. Yellow cells are settings you must fill in.'; ls['A2'].font=NOTE
@@ -108,9 +110,9 @@ example(le,{'A':'EX-L001','B':date(2027,1,11),'C':'Example client','D':'United K
 
 # ---------- Cases ----------
 cs=sheet('Cases','Cases','One row per paid report. Dates in each step column are the day that step was finished (validation plan sections 1 and 5).',
- ['Case ID','Lead ID','Client','Diaspora client?','Plot (place, plot number)','Price agreed','Currency','Fee in USD','Price point tested','Date fee paid','Lawyer','Surveyor','Runner','Searches lodged','Search results back','Site visit','Consent meeting','Draft report','Second review done','Delivered to client','Working days to deliver','Verdict','Asked for escrow or a safe way to pay?','Asked about building?','Would recommend?','Total cost (USD)','Cost as share of fee','Status','Notes','Released report fingerprint logged?'],
- [11,11,20,11,24,11,9,11,12,13,16,16,16,13,13,13,13,13,13,13,12,10,16,12,12,12,12,12,28,14])
-dates(cs,'J','N','O','P','Q','R','S','T')
+ ['Case ID','Lead ID','Client','Diaspora client?','Plot (place, plot number)','Price agreed','Currency','Fee in USD','Price point tested','Date fee paid','Lawyer','Surveyor','Runner','Searches lodged','Search results back','Site visit','Consent meeting','Draft report','Second review done','Delivered to client','Working days to deliver','Verdict','Asked for escrow or a safe way to pay?','Asked about building?','Would recommend?','Total cost (USD)','Cost as share of fee','Status','Notes','Released report fingerprint logged?','Client terms version accepted','Terms accepted on'],
+ [11,11,20,11,24,11,9,11,12,13,16,16,16,13,13,13,13,13,13,13,12,10,16,12,12,12,12,12,28,14,12,13])
+dates(cs,'J','N','O','P','Q','R','S','T','AF'); dv(cs,'AE',refs['TermsVersion'])
 dv(cs,'D',refs['YesNo']); dv(cs,'G',refs['Currency']); dv(cs,'I',refs['PricePoint']); dv(cs,'V',refs['Verdict']); dv(cs,'W',refs['YesNo']); dv(cs,'X',refs['YesNo']); dv(cs,'Y',refs['YesNo']); dv(cs,'AB',refs['Status'])
 calc(cs,'H','='+usd('F{r}','G{r}'),'#,##0.00')
 calc(cs,'U',f'=IF(OR(A{{r}}="",LEFT(A{{r}},3)="EX-",J{{r}}="",T{{r}}=""),"",NETWORKDAYS(J{{r}},T{{r}},{HOL}))','0')
@@ -119,7 +121,7 @@ calc(cs,'AA','=IF(OR(A{r}="",H{r}="",H{r}=0),"",IFERROR(Z{r}/H{r},""))','0.0%')
 calc(cs,'AD','=IF(OR(A{r}="",LEFT(A{r},3)="EX-",T{r}=""),"",IF(COUNTIFS(\'Reports released\'!$A$5:$A$304,A{r},\'Reports released\'!$L$5:$L$304,"Yes")>0,"Yes","No"))')
 cs['AD4'].comment=Comment('Yes once the delivered report has a row in Reports released with a valid fingerprint (EN-02). Blank until delivery.','Tenmina')
 cs['U4'].comment=Comment('Working days from fee paid to delivery, skipping weekends and the holidays in Lists. Blank for the example row.','Tenmina')
-example(cs,{'A':'EX-C001','B':'EX-L001','C':'Example client','D':'Yes','E':'Kasoa, plot 14','F':450,'G':'USD','I':'450','J':date(2027,1,13),'K':'Lawyer A','L':'Surveyor A','M':'Runner A','N':date(2027,1,15),'O':date(2027,1,29),'P':date(2027,1,20),'Q':date(2027,1,27),'R':date(2027,2,3),'S':date(2027,2,5),'T':date(2027,2,8),'V':'Amber','W':'Yes','X':'No','Y':'Yes','AB':'Delivered'})
+example(cs,{'A':'EX-C001','B':'EX-L001','C':'Example client','D':'Yes','E':'Kasoa, plot 14','F':450,'G':'USD','I':'450','J':date(2027,1,13),'K':'Lawyer A','L':'Surveyor A','M':'Runner A','N':date(2027,1,15),'O':date(2027,1,29),'P':date(2027,1,20),'Q':date(2027,1,27),'R':date(2027,2,3),'S':date(2027,2,5),'T':date(2027,2,8),'V':'Amber','W':'Yes','X':'No','Y':'Yes','AB':'Delivered','AE':'CT-1','AF':date(2027,1,12)})
 
 # ---------- Costs ----------
 co=sheet('Costs','Costs','Every cost against a case: professional fees, official fees, travel. Totals feed the Cases sheet.',
@@ -152,8 +154,8 @@ example(inc,{'A':'EX-I001','B':date(2027,1,20),'C':'EX-C001','D':'Men on site as
 
 # ---------- Professionals ----------
 pr=sheet('Professionals','Professionals','Two of each role, so one slow person does not stall the service (validation plan section 2).',
- ['Name','Role','Licence or registration number','Licence checked on','Agreement signed on','Fee per job','Currency','Phone','Notes'],[22,12,22,14,14,11,9,16,30])
-dates(pr,'D','E'); dv(pr,'B',refs['Role']); dv(pr,'G',refs['Currency'])
+ ['Name','Role','Licence or registration number','Licence checked on','Agreement signed on','Fee per job','Currency','Phone','Notes','Agreement version','Own indemnity insurance checked on'],[22,12,22,14,14,11,9,16,30,11,14])
+dates(pr,'D','E','K'); dv(pr,'J',refs['AgreementVersion']); dv(pr,'B',refs['Role']); dv(pr,'G',refs['Currency'])
 
 # ---------- Evidence log (EN-06) ----------
 HEX='SUMPRODUCT(--ISNUMBER(SEARCH(MID({c},ROW($1:$64),1),"0123456789abcdef")))=64'
@@ -266,6 +268,7 @@ others=[('Leads in total',f'=COUNTIFS({L_})','0','All leads'),
  ('Files found in another case','=COUNTIFS(\'Evidence log\'!$A$5:$A$304,"<>EX-*",\'Evidence log\'!$N$5:$N$304,"Another case")','0','Target 0. Each one needs an explanation'),
  ('Evidence logged later than 24 hours','=COUNTIFS(\'Evidence log\'!$A$5:$A$304,"<>EX-*",\'Evidence log\'!$O$5:$O$304,"No")','0','Target 0'),
  ('Folder access not allowed','=COUNTIFS(\'Folder access\'!$A$5:$A$304,"<>EX-*",\'Folder access\'!$J$5:$J$304,"Not allowed")','0','Target 0. Remove the access at once'),
+ ('Paid cases without accepted client terms',f'=COUNTIFS({real},{Cd("J")},"<>",{Cd("AF")},"")','0','Fee paid but no terms acceptance date. Target 0'),
  ('Released reports without two different reviewers','=COUNTIFS(\'Reports released\'!$A$5:$A$304,"<>EX-*",\'Reports released\'!$M$5:$M$304,"No")','0','Target 0')]
 for name,f,fmt,how in others:
     rv.cell(row=r,column=1,value=name).font=BODY; c=rv.cell(row=r,column=2,value=f); c.fill=CALC; c.font=BODY; c.number_format=fmt
@@ -297,7 +300,7 @@ lines=[('Tenmina R0 tracker',TITLE),
 ('Searches: each Lands Commission search, to time them.',BODY),
 ('Institution payments: every school, hospital or agency paid by hand, with the checks done and the receipt (EN-51).',BODY),
 ('Incidents: every threat or confrontation, however small.',BODY),
-('Professionals: the lawyers, surveyors, runners and reviewers, and when their licences were checked.',BODY),
+('Professionals: the lawyers, surveyors, runners and reviewers, their agreement version, and when their licences and insurance were checked.',BODY),
 ('Evidence log: every evidence file and its fingerprint, pasted from the fingerprint tool (EN-06). Flags a file used in two cases.',BODY),
 ('Reports released: every released report PDF, its fingerprint, scope statement version and both reviewers (EN-02).',BODY),
 ('Folder access: who was given access to which case folder, and when it was removed (EN-06).',BODY),

@@ -8,15 +8,18 @@ Everything needed to run one land verification case by hand, from the first docu
 | `consent-form.docx` | Consent to the sale and to filming, signed or thumbprinted at the consent meeting | EN-07 |
 | `consent-video-script.docx` | What to check before the meeting, the filming rules, the script the lawyer follows, and what to do within 24 hours | EN-07 |
 | `witness-sheet.docx` | Everyone else present at a consent meeting or site visit | EN-07 |
+| `client-terms.docx` | The client's order and terms: what we check and do not, fee, turnaround, refunds, data, complaints. Accepted by signature or by replying "I agree to Tenmina terms CT-1" | Validation plan s1, FR-ORD-003 by hand |
+| `professional-agreement.docx` | For lawyers, surveyors and runners: main terms, one schedule per role, the fee schedule, and a conflict declaration signed before each job | Validation plan s2, RUL-26, RUL-27 |
 | `evidence-folders.md` | One restricted folder per case, file names, fingerprints, who can open what, releasing a report, retention | EN-06 |
 | `fingerprint.html` | Open in any browser. Fingerprints files (SHA-256) on the laptop without uploading anything, makes rows for the tracker, and checks a file against its fingerprint | EN-02, EN-06 |
 
-The tracker (`../r0-tracker.xlsx`) has three tabs for the kit: **Evidence log**, **Reports released** and **Folder access**. The Review tab counts the problems they catch.
+The tracker (`../r0-tracker.xlsx`) has three tabs for the kit: **Evidence log**, **Reports released** and **Folder access**. Cases records which client terms version was accepted and when; Professionals records each agreement version and insurance check. The Review tab counts the problems they catch.
 
 All periods, lengths and limits in the kit are working assumptions. Unknowns are marked `[TO VERIFY]`.
 
 ## How a case uses the kit
 
+0. **Before anything.** Every professional on the case has signed the professional agreement, and signs the Schedule E declaration for this job. The client has accepted the client terms; save their signed copy or reply in folder A and record the version and date in Cases.
 1. **Case opens.** Create the case folder (`evidence-folders.md` section 2). Share it with the lawyer and reviewer; record the access in the tracker.
 2. **Documents arrive.** Save originals into A to D, fingerprint them the same day, paste the rows into the Evidence log.
 3. **Site visit.** The surveyor and runner upload originals into F. Fingerprint and log within 24 hours. Use a witness sheet if anyone else is present.
@@ -27,7 +30,7 @@ All periods, lengths and limits in the kit are working assumptions. Unknowns are
 
 ## Before the first real case: the lawyer must approve
 
-The consent form, script and witness sheet are marked **DRAFT FOR LAWYER REVIEW**. Do not use them with a family or traditional authority until the lawyer has approved them. Ask the lawyer:
+The consent form, script, witness sheet, client terms and professional agreement are marked **DRAFT FOR LAWYER REVIEW**. Do not use them until the lawyer has approved them. Ask the lawyer:
 
 1. Is the consent form right for each kind of land we will see: family land, stool land, skin land and individually held land? Who must sign for each?
 2. Does section 7 (reader and interpreter) meet the Illiterates Protection Act, 1912 (CAP 262), for people who sign by thumbprint `[TO VERIFY]`?
@@ -37,8 +40,13 @@ The consent form, script and witness sheet are marked **DRAFT FOR LAWYER REVIEW*
 6. Should the family receive a copy of the signed form?
 7. Do we need to register with the Data Protection Commission before the first case (EN-08)?
 8. Is the scope and limitation statement (template section 12) right? It needs the insurer's agreement too, and the insurance policy reference once cover is in place.
+9. Client terms: are the refund rules in section 7 fair and enforceable, and does limiting liability to the fee hold for a client who lives abroad? Do consumer laws in the client's country (UK, US, Canada, EU) change anything?
+10. Client terms: is accepting by a WhatsApp or email reply enough, or must the client sign?
+11. Professional agreement: does it keep lawyers, surveyors and runners as independent contractors, not employees, under Ghana's labour and tax law? What withholding tax applies to each, and is the payment period (10 working days) right?
+12. Professional agreement: is paying a visit in full when the professional leaves for safety (clause 5.3) and holding pay only during a recorded misconduct review (clause 2.6) workable?
+13. Both: is mediation in Accra under the Alternative Dispute Resolution Act, 2010 (Act 798) the right route for disputes, and is Tenmina's company name ready to go in the documents?
 
-When the lawyer approves, remove the draft line from each file's header, record the approval date in the decision log, and change the version (for example CF-1 to CF-2) if the wording changed.
+When the lawyer approves, remove the draft line from each file's header, record the approval date in the decision log, and change the version (for example CF-1 to CF-2, CT-1 to CT-2) if the wording changed. A new version also goes into the tracker's Lists tab.
 
 ## Changing the files
 
@@ -46,7 +54,7 @@ The Word files and the tracker are generated, so changes stay consistent:
 
 ```bash
 cd docs/operations/source
-node case-kit.js && python3 finish.py   # the four Word files
+node case-kit.js && python3 finish.py   # the six Word files
 python3 tracker.py                      # the tracker
 ```
 
