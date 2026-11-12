@@ -1,4 +1,5 @@
-// Fidero app design tokens, version 3: "Bloc" (November 2026).
+// Fidero design tokens, version 3: "Bloc" (November 2026). Used by the client app
+// and Fidero Field; the portal uses the same values as CSS custom properties (03 6.1b).
 // Black or white grounds. Lime for proof and the main action. Orange, used
 // sparingly, for anything that needs the client. Yellow appears only as the
 // Amber verdict, so a warning never looks like decoration.

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Field inspection</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0B0B0B}a:hover{color:#3A3A3A}
+@keyframes b-rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes b-pop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:none}}
+@keyframes b-nudge{0%,70%,100%{transform:translateX(0)}80%{transform:translateX(5px)}90%{transform:translateX(0)}}
+@keyframes b-ping{0%{box-shadow:0 0 0 0 rgba(255,106,61,.85)}80%,100%{box-shadow:0 0 0 10px rgba(255,106,61,0)}}
+@keyframes b-draw{from{stroke-dashoffset:60}to{stroke-dashoffset:0}}
+@keyframes b-ring{0%{transform:scale(.8);opacity:.7}100%{transform:scale(1.9);opacity:0}}
+@keyframes b-fill{0%{width:0}70%,100%{width:100%}}
+@keyframes b-grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.r1{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .05s both}.r2{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .17s both}
+.r3{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .29s both}.r4{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .41s both}
+.r5{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .53s both}.r6{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .65s both}
+.r7{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .77s both}.r8{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .89s both}
+.pop{animation:b-pop .45s cubic-bezier(.3,1.5,.5,1) both}
+.nudge{animation:b-nudge 2.4s ease-in-out 1.6s infinite}
+.ping{animation:b-ping 1.8s ease-out infinite}
+.draw{stroke-dasharray:60;animation:b-draw .7s ease-out .5s both}
+.ring{animation:b-ring 2s ease-out infinite}
+.fill{animation:b-fill 3s cubic-bezier(.4,0,.2,1) 1.4s infinite}
+.grow{transform-origin:left;animation:b-grow .9s cubic-bezier(.2,.8,.2,1) .4s both}
+@media (prefers-reduced-motion: reduce){.r1,.r2,.r3,.r4,.r5,.r6,.r7,.r8,.pop,.nudge,.ping,.draw,.ring,.fill,.grow{animation:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #FFFFFF; color: #0B0B0B; font-family: 'Bricolage Grotesque', system-ui, sans-serif; position: relative; overflow: hidden">
+<div style="padding: 52px 20px 22px; display: flex; flex-direction: column; gap: 10px; height: 100%; box-sizing: border-box">
+  <header class="r1" style="display: flex; align-items: center; gap: 12px">
+    <a href="FieldJobs.dc.html" aria-label="Back" style="width: 44px; height: 44px; border-radius: 14px; background: #F3F1EC; display: flex; align-items: center; justify-content: center; flex: none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B0B0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
+    <span style="flex: 1"><span style="display: block; font-size: 24px; font-weight: 800; letter-spacing: -0.03em">Inspection: Blocks</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #6A675F">HOUSE, KASOA · 3 OF 8 CHECKED</span></span>
+  </header>
+  <div class="r2" style="display: flex; gap: 10px; align-items: center; background: #0B0B0B; color: #F7F6F2; border-radius: 14px; padding: 10px 12px; font-size: 13px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A3EE5B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>You have no link to this contractor.</div>
+  <div class="r3" style="background: #F3F1EC; border-radius: 18px; padding: 12px 14px"><div style="display: flex; align-items: center; gap: 10px"><span style="flex: 1; font-size: 15px; font-weight: 600">Walls match drawing</span><span style="width: 40px; height: 40px; border-radius: 12px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B0B0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span><span style="display: flex; gap: 6px"><span style="width: 52px; height: 40px; border-radius: 12px; background: #0B0B0B; color: #A3EE5B; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">Yes</span><span style="width: 52px; height: 40px; border-radius: 12px; background: #FFFFFF; color: #0B0B0B; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">No</span></span></div></div>
+  <div class="r4" style="background: #F3F1EC; border-radius: 18px; padding: 12px 14px"><div style="display: flex; align-items: center; gap: 10px"><span style="flex: 1; font-size: 15px; font-weight: 600">Walls plumb and level</span><span style="width: 40px; height: 40px; border-radius: 12px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B0B0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span><span style="display: flex; gap: 6px"><span style="width: 52px; height: 40px; border-radius: 12px; background: #0B0B0B; color: #A3EE5B; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">Yes</span><span style="width: 52px; height: 40px; border-radius: 12px; background: #FFFFFF; color: #0B0B0B; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">No</span></span></div></div>
+  <div class="r5" style="background: #F3F1EC; border-radius: 18px; padding: 12px 14px"><div style="display: flex; align-items: center; gap: 10px"><span style="flex: 1; font-size: 15px; font-weight: 600">Block quality</span><span style="width: 40px; height: 40px; border-radius: 12px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B0B0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span><span style="display: flex; gap: 6px"><span style="width: 52px; height: 40px; border-radius: 12px; background: #FFFFFF; color: #0B0B0B; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">Yes</span><span style="width: 52px; height: 40px; border-radius: 12px; background: #0B0B0B; color: #F7F6F2; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">No</span></span></div><div style="margin-top: 8px; display: flex; gap: 8px; align-items: center"><span style="flex: 1; font-size: 13px; color: #6A675F">Note: crumbling, east wall</span><span style="height: 32px; padding: 0 12px; border-radius: 10px; background: #0B0B0B; color: #F7F6F2; display: flex; align-items: center; font-size: 13px; font-weight: 700">Add as defect</span></div></div>
+  <div class="r6" style="background: #F3F1EC; border-radius: 18px; padding: 12px 14px"><div style="display: flex; align-items: center; gap: 10px"><span style="flex: 1; font-size: 15px; font-weight: 600">Mortar joints filled</span><span style="width: 40px; height: 40px; border-radius: 12px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B0B0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span><span style="display: flex; gap: 6px"><span style="width: 52px; height: 40px; border-radius: 12px; background: #FFFFFF; color: #0B0B0B; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">Yes</span><span style="width: 52px; height: 40px; border-radius: 12px; background: #FFFFFF; color: #0B0B0B; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">No</span></span></div></div>
+  <section class="r7" aria-label="Result" style="border: 2px solid #ECEAE4; border-radius: 18px; padding: 8px 14px">
+    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #6A675F">RESULT</span>
+    <div style="display: flex; gap: 12px; align-items: center; padding: 8px 0"><span style="width: 22px; height: 22px; border-radius: 50%; border: 2px solid #0B0B0B; display: flex; align-items: center; justify-content: center"></span><span style="flex: 1"><span style="display: block; font-size: 15px; font-weight: 500">Pass</span></span></div><div style="display: flex; gap: 12px; align-items: center; padding: 8px 0"><span style="width: 22px; height: 22px; border-radius: 50%; border: 2px solid #0B0B0B; display: flex; align-items: center; justify-content: center"><span style="width: 10px; height: 10px; border-radius: 50%; background: #0B0B0B"></span></span><span style="flex: 1"><span style="display: block; font-size: 15px; font-weight: 700">Pass with defects</span><span style="display: block; font-size: 13px; color: #6A675F">1 defect · GHS 2,400.00 held back from this milestone</span></span></div><div style="display: flex; gap: 12px; align-items: center; padding: 8px 0"><span style="width: 22px; height: 22px; border-radius: 50%; border: 2px solid #0B0B0B; display: flex; align-items: center; justify-content: center"></span><span style="flex: 1"><span style="display: block; font-size: 15px; font-weight: 500">Fail</span></span></div>
+  </section>
+  <div style="flex: 1"></div>
+  <a class="r8" href="FieldJobs.dc.html" style="height: 60px; border-radius: 18px; background: #A3EE5B; color: #0B0B0B; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; text-decoration: none; opacity: 0.45">Submit result · 5 checks left</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
