@@ -1,9 +1,9 @@
 import { View } from 'react-native';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { space } from '@fidero/tokens';
-import { Button, ErrorView, IconButton, Label, Loading, NeedsYou, Panel, Rise, Screen, StepTrail, T } from '../../components/ui';
+import { Button, ErrorView, IconButton, Label, Loading, NeedsYou, Panel, Rise, Screen, StepTrail, T } from '@fidero/ui';
 import { useLoad } from '../../data';
-import { usePalette } from '../../theme';
+import { usePalette } from '@fidero/ui';
 
 export default function CaseScreen() {
   const p = usePalette('paper');

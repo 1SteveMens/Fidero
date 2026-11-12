@@ -3,9 +3,9 @@ import { router, type Href } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import type { HomeRow } from '@fidero/shared';
 import { brand, radius, space } from '@fidero/tokens';
-import { ArrowBox, ErrorView, IconButton, IconTile, Loading, Panel, Rise, Screen, T, haptic, type IconName } from '../../components/ui';
+import { ArrowBox, ErrorView, IconButton, IconTile, Loading, Panel, Rise, Screen, T, haptic, type IconName } from '@fidero/ui';
 import { useLoad } from '../../data';
-import { usePalette } from '../../theme';
+import { usePalette } from '@fidero/ui';
 
 function rowIcon(title: string): IconName {
   if (/hospital|bill/i.test(title)) return 'receipt-outline';

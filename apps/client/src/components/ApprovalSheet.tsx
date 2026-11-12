@@ -4,9 +4,9 @@ import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { formatMoney, type Money, type Payee } from '@fidero/shared';
 import { brand, holdToApproveMs, radius, space } from '@fidero/tokens';
-import { usePalette, useReducedMotion, useScreenReader } from '../theme';
-import { Button, CodeField, HoldButton, Label, Panel, Pulse, Rise, Screen, T, Tick, haptic } from './ui';
-import { Ticket } from './money';
+import { usePalette, useReducedMotion, useScreenReader } from '@fidero/ui';
+import { Button, CodeField, HoldButton, Label, Panel, Pulse, Rise, Screen, T, Tick, haptic } from '@fidero/ui';
+import { Ticket } from '@fidero/ui';
 
 /** Who approves, in order. Two different Fidero staff, then the bank pays (RUL-05, RUL-11). */
 const CHAIN = ['You', 'Staff 1', 'Staff 2', 'Bank pays'] as const;

@@ -1,34 +1,20 @@
 import { useEffect } from 'react';
 import { Stack, SplashScreen } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useFonts } from 'expo-font';
-import {
-  BricolageGrotesque_400Regular,
-  BricolageGrotesque_600SemiBold,
-  BricolageGrotesque_700Bold,
-  BricolageGrotesque_800ExtraBold,
-} from '@expo-google-fonts/bricolage-grotesque';
-import { IBMPlexMono_500Medium, IBMPlexMono_600SemiBold } from '@expo-google-fonts/ibm-plex-mono';
 import { brand } from '@fidero/tokens';
+import { useBlocFonts } from '@fidero/ui';
 import { ApiProvider, SessionProvider } from '../data';
 
 void SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [loaded, failed] = useFonts({
-    BricolageGrotesque_400Regular,
-    BricolageGrotesque_600SemiBold,
-    BricolageGrotesque_700Bold,
-    BricolageGrotesque_800ExtraBold,
-    IBMPlexMono_500Medium,
-    IBMPlexMono_600SemiBold,
-  });
+  const ready = useBlocFonts();
 
   useEffect(() => {
-    if (loaded || failed) void SplashScreen.hideAsync();
-  }, [loaded, failed]);
+    if (ready) void SplashScreen.hideAsync();
+  }, [ready]);
 
-  if (!loaded && !failed) return null;
+  if (!ready) return null;
 
   // Approvals open as sheets on a black ground; everything else draws its own header.
   const sheet = {

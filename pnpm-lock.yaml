@@ -28,6 +28,9 @@ importers:
       '@fidero/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
+      '@fidero/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       expo:
         specifier: ~58.0.24
         version: 58.0.24(@babel/core@7.29.13)(@expo/dom-webview@58.0.2)(@expo/metro-runtime@58.0.17)(expo-router@58.0.31)(react-dom@19.3.0(react@19.3.0))(react-native-web@0.21.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-native-worklets@0.13.1(@babel/core@7.29.13)(@react-native/metro-config@0.88.1(@babel/core@7.29.13))(react-native@0.88.1(@babel/core@7.29.13)(@react-native/metro-config@0.88.1(@babel/core@7.29.13))(@types/react@19.3.0)(react@19.3.0))(react@19.3.0))(react-native@0.88.1(@babel/core@7.29.13)(@react-native/metro-config@0.88.1(@babel/core@7.29.13))(@types/react@19.3.0)(react@19.3.0))(react@19.3.0)(typescript@6.0.3)
@@ -91,6 +94,45 @@ importers:
         version: 5.1.0(@types/node@26.6.6)(vite@8.3.8(@types/node@26.6.6)(terser@5.51.2))
 
   packages/tokens: {}
+
+  packages/ui:
+    dependencies:
+      '@expo-google-fonts/bricolage-grotesque':
+        specifier: ^0.4.1
+        version: 0.4.1
+      '@expo-google-fonts/ibm-plex-mono':
+        specifier: ^0.4.1
+        version: 0.4.1
+      '@expo/vector-icons':
+        specifier: '*'
+        version: 15.1.1(expo-font@58.0.12)(react-native@0.88.1(@babel/core@7.29.13)(@react-native/metro-config@0.88.1(@babel/core@7.29.13))(@types/react@19.3.0)(react@19.3.0))(react@19.3.0)
+      '@fidero/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@fidero/tokens':
+        specifier: workspace:*
+        version: link:../tokens
+      expo-font:
+        specifier: '*'
+        version: 58.0.12(expo@58.0.24)(react-native@0.88.1(@babel/core@7.29.13)(@react-native/metro-config@0.88.1(@babel/core@7.29.13))(@types/react@19.3.0)(react@19.3.0))(react@19.3.0)
+      expo-haptics:
+        specifier: '*'
+        version: 58.0.8(expo@58.0.24)
+      expo-router:
+        specifier: '*'
+        version: 58.0.31(16dce6adee15ec414a4eb42b76cc64dc)
+      react:
+        specifier: '*'
+        version: 19.3.0
+      react-native:
+        specifier: '*'
+        version: 0.88.1(@babel/core@7.29.13)(@react-native/metro-config@0.88.1(@babel/core@7.29.13))(@types/react@19.3.0)(react@19.3.0)
+      react-native-safe-area-context:
+        specifier: '*'
+        version: 5.11.1(react-native@0.88.1(@babel/core@7.29.13)(@react-native/metro-config@0.88.1(@babel/core@7.29.13))(@types/react@19.3.0)(react@19.3.0))(react@19.3.0)
+      react-native-svg:
+        specifier: '*'
+        version: 15.16.0(react-native@0.88.1(@babel/core@7.29.13)(@react-native/metro-config@0.88.1(@babel/core@7.29.13))(@types/react@19.3.0)(react@19.3.0))(react@19.3.0)
 
 packages:
 

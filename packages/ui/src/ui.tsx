@@ -19,7 +19,7 @@ import * as Haptics from 'expo-haptics';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { brand, minTouch, radius, space, type, type Ground } from '@fidero/tokens';
 import type { CaseStep, Verdict } from '@fidero/shared';
-import { GroundContext, useGround, usePalette, useReducedMotion } from '../theme';
+import { GroundContext, useGround, usePalette, useReducedMotion } from './theme';
 
 export type IconName = keyof typeof Ionicons.glyphMap;
 const nativeDriver = Platform.OS !== 'web';

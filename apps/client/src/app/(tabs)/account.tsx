@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Switch, View } from 'react-native';
 import { router } from 'expo-router';
 import { brand, space } from '@fidero/tokens';
-import { Button, Chip, Label, ListRow, Panel, Rise, Screen, T } from '../../components/ui';
+import { Button, Chip, Label, ListRow, Panel, Rise, Screen, T } from '@fidero/ui';
 import { useSession } from '../../data';
 
 export default function Account() {

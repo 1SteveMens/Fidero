@@ -5,7 +5,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import Svg, { Circle, Defs, Path, Text as SvgText, TextPath } from 'react-native-svg';
 import { formatMoney, type HeldAccount, type Money } from '@fidero/shared';
 import { brand, font, radius, space } from '@fidero/tokens';
-import { usePalette, useReducedMotion } from '../theme';
+import { usePalette, useReducedMotion } from './theme';
 import { Label, T, haptic } from './ui';
 
 const nativeDriver = Platform.OS !== 'web';

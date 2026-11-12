@@ -2,11 +2,11 @@ import { View, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { brand, font, radius, space } from '@fidero/tokens';
-import { Mark } from '../components/Mark';
-import { Seal } from '../components/money';
-import { Button, Label, Pulse, Rise, T } from '../components/ui';
+import { Mark } from '@fidero/ui';
+import { Seal } from '@fidero/ui';
+import { Button, Label, Pulse, Rise, T } from '@fidero/ui';
 import { useSession } from '../data';
-import { GroundContext } from '../theme';
+import { GroundContext } from '@fidero/ui';
 
 /**
  * First screen. The lime block with the seal stands in for the photograph in the

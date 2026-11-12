@@ -1,9 +1,9 @@
 import { View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { brand, space } from '@fidero/tokens';
-import { Button, ErrorView, Label, Loading, Panel, Rise, Screen, T } from '../../components/ui';
+import { Button, ErrorView, Label, Loading, Panel, Rise, Screen, T } from '@fidero/ui';
 import { useLoad } from '../../data';
-import { usePalette } from '../../theme';
+import { usePalette } from '@fidero/ui';
 
 /** In-app account deletion (FR-APP-004), saying plainly what is kept and why. */
 export default function DeleteAccount() {

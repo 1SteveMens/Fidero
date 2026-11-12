@@ -2,9 +2,9 @@ import { Pressable, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { brand, radius, space } from '@fidero/tokens';
-import { ArrowBox, Chip, ErrorView, IconButton, Label, Loading, Panel, Rise, Screen, SegBar, T, VerdictChip, haptic, type IconName } from '../../components/ui';
+import { ArrowBox, Chip, ErrorView, IconButton, Label, Loading, Panel, Rise, Screen, SegBar, T, VerdictChip, haptic, type IconName } from '@fidero/ui';
 import { useLoad } from '../../data';
-import { usePalette } from '../../theme';
+import { usePalette } from '@fidero/ui';
 
 function Start({ icon, title, detail, tone, delay }: { icon: IconName; title: string; detail: string; tone: 'lime' | 'ink' | 'surface'; delay: number }) {
   const p = usePalette();

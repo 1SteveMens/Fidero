@@ -2,11 +2,11 @@ import { Pressable, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { brand, font, radius, space } from '@fidero/tokens';
-import { AccountCards } from '../../components/money';
-import { Mark } from '../../components/Mark';
-import { ErrorView, IconButton, Label, ListRow, Loading, NeedsYou, Panel, Rise, Screen, T, VerdictChip, haptic, type IconName } from '../../components/ui';
+import { AccountCards } from '@fidero/ui';
+import { Mark } from '@fidero/ui';
+import { ErrorView, IconButton, Label, ListRow, Loading, NeedsYou, Panel, Rise, Screen, T, VerdictChip, haptic, type IconName } from '@fidero/ui';
 import { useLoad } from '../../data';
-import { usePalette } from '../../theme';
+import { usePalette } from '@fidero/ui';
 
 function Quick({ icon, label, tone, href, delay }: { icon: IconName; label: string; tone: 'lime' | 'ink' | 'surface'; href: Href; delay: number }) {
   const p = usePalette();

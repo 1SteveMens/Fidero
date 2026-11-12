@@ -4,7 +4,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { formatDay, invoiceBlockers } from '@fidero/shared';
 import { brand, space } from '@fidero/tokens';
 import { ApprovalSheet } from '../../components/ApprovalSheet';
-import { ErrorView, Loading, Screen, T } from '../../components/ui';
+import { ErrorView, Loading, Screen, T } from '@fidero/ui';
 import { useApi, useLoad } from '../../data';
 
 export default function InvoiceSheet() {
