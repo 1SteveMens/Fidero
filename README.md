@@ -95,6 +95,7 @@ Pre-seed: $400k for 18 months `[TO VERIFY]` against the wider scope. It funds th
 | `docs/proposal.md` | Full business proposal |
 | `docs/validation-plan.md` | 90-day plan to launch the manual verification service |
 | `docs/operations/home-payments-survey.md` | The "what else do you pay for at home?" survey for leads and webinars (validation plan 4b) |
+| `docs/operations/payment-providers.md` | Payment provider comparison for Tenmina's own fees (EN-04): Paystack first, Flutterwave as fallback |
 | `docs/partners.md` | Partner types and the first ask to each |
 | `docs/operations/verification-report-template.md` | Structure of the red/amber/green land verification report |
 | `docs/operations/milestone-schedule.md` | Construction milestone schedule, release evidence and inspector checklists |
