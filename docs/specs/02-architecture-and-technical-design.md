@@ -5,11 +5,11 @@ System, database, API, security and infrastructure design for the Tenmina platfo
 | Item | Value |
 |---|---|
 | Document | 02 of 6 in `docs/specs/` |
-| Version | 0.7, working draft |
+| Version | 0.8, working draft |
 | Date | 12 November 2026 |
 | Owner | Product and engineering lead (to be hired; founder acts until then) `[TO VERIFY]` |
 | Status | Draft. For review. Not yet baselined |
-| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01, version 0.13) |
+| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01, version 0.15) |
 | Decision record | `docs/decisions/2026-11-01-diaspora-platform.md`: Tenmina is the diaspora's trusted agent at home. Same engine, more lines, country as configuration from R1 |
 | Supersedes | `docs/product/architecture.md` (kept as the original proposal; this document deepens it and keeps its principles) |
 | Related | Document 05 (tests and traceability), document 06 (delivery, CI/CD and operations) |
@@ -34,6 +34,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | 0.5 | 11 November 2026 | Aligned to 01 v0.8: professional payments. New module PRO (`profpay`, ADR-23) pays the professionals Tenmina contracts (lawyers, surveyors, runners, inspectors, quantity surveyors, errand agents) from Tenmina's operating account, out of fee income, and never touches client money (RUL-27). Goal G-11; tables `pro_agreement`, `pro_scope`, `pro_rate_card`, `pro_payable`, `pro_expense_claim`, `pro_payment_run`, `pro_payment_line` and `pro_document` (6.14); a `work.accepted` event with no result field and a rate fixed at assignment, so pay cannot depend on the verdict (RUL-26); payment runs prepared by one person and approved by a different person with payment rights through `core_approval_request`, which now allows one approver for PRO subjects; a bulk payment file for the operating bank or mobile money provider; tax deductions from the country configuration; sequence 5.11; endpoints for professionals and the back office; jobs; threat model rows; a PRO permission table and `payment_rights` on role grants. The payee registry gains the kind `contracted_professional`, which only PRO may pay and no release instruction may name. Errand agents are paid under PRO (FR-TSK-003); Tenmina's errand charge stays a PAY fee through the payment provider (FR-TSK-002). Coverage for FR-PRO-001 to FR-PRO-010, RUL-26 and RUL-27; TR-20, TR-21; TQ-18 updated, TQ-27 to TQ-30; issues I-33 to I-39. | Product and engineering lead (acting) |
 | 0.6 | 12 November 2026 | Aligned to 01 v0.12: fund and evidence protection. Goal G-12; ADR-24 (payee lock with cooling-off, refund to source) and ADR-25 (evidence from the source: official registry channel, national identity checks, random re-checks). ESC: payee changes only through `esc_payee_change` (fresh national identity and account-name checks, client approval, two staff with release rights, a second-channel notice, then a cooling-off of `payee_cooling_off_hours`, 72 `[TO VERIFY]`), `esc_payee.account_version`, `cooling_off_until` and the escrow's locked payees in `esc_escrow_payee`; account columns writable only by `esc.apply_payee_change()`; the source account of every deposit on `esc_bank_event`; refund instructions name the deposit they refund and go only to its source account unless a RUL-29 exception (`refund_destination` change) has cleared cooling-off; new release blockers in `esc.release_blockers()`. PAY: fee refunds only to the original method through the provider. ACC and CASE: `acc_national_id_check` through IF-03 with no biometric data, `case_party`, and `case_search_request` with staff-only submission and result evidence. RPT: monthly random draw (`rpt_recheck_draw`, `rpt_recheck`), unlinked re-checker, `rpt_incident`, and `esc_incident_freeze`. Sequence 5.12, section 6.15, endpoints, jobs, 9.4 and 9.5, threat rows, permission table, coverage for RUL-28 to RUL-32, FR-ESC-016, FR-ESC-017, FR-PAY-008, FR-CASE-016, FR-ACC-013 and FR-RPT-012; TR-22 to TR-25; TQ-02 linked to Q-28, TQ-31 to TQ-34; issues I-40 to I-46. | Product and engineering lead (acting) |
 | 0.7 | 12 November 2026 | Aligned to 01 v0.13: release timing and escrow account structure. ADR-26 (confirmed funds per escrow, one programme escrow account per currency and country held by the bank as escrow agent, release without a waiting period). ESC: `esc_programme_account`; `esc_escrow.programme_account_id`, `virtual_account_ref` and `held_back_amount`; `esc_bank_event.virtual_account_ref`; daily bank figures per escrow in `esc_bank_position`; view `esc_confirmed_funds` for every escrow kind, with `esc_held_statement` now its held-funds subset; `esc.release_blockers()` refuses any release or refund larger than the escrow's confirmed funds less other live instructions, and any release while the latest bank figure for the escrow is an unresolved mismatch (RUL-34, FR-ESC-019). Release clock columns on `esc_release_instruction` (`clock_started_at`, `last_approval_at`, `send_due_on`, `bank_pay_due_on`), dispatch at once on the last approval with no delay setting, and job `escrow.release_clock_watch` (RUL-33, FR-ESC-018, NFR-PERF-06). Held-back share as a release with its own condition (`release_part`, FR-ESC-020, Could). Fresh-search window `[14 days, TO VERIFY]` counted from `case_search_request.registry_result_date` (RUL-07). Settings for the release timing targets (FR-ADM-005). Sequence 5.3, 6.5, 6.8, 6.11, 6.15, new 6.16, endpoints, jobs (`escrow.held_funds_reconcile` becomes `escrow.reconcile_positions`), IF-01 and 9.1, a threat row, permission rows (10.4), observability alerts (11.6), section 12 row for NFR-PERF-06, coverage for RUL-07, RUL-33, RUL-34, NFR-PERF-06, FR-ESC-018 to FR-ESC-020, Q-29 and Q-30; TR-26, TR-27; TQ-15 widened and linked to Q-29, TQ-35; issues I-47 to I-49. | Product and engineering lead (acting) |
+| 0.8 | 12 November 2026 | Aligned to 01 v0.15: exchange rates and deposit routes. ADR-27 (disclosed exchange with no Tenmina margin: every quote recorded and checked against the bank's confirmed conversion). ESC: an escrow's foreign currency virtual account in `esc_fx_account` beside its local-currency one (RUL-34), so `esc_confirmed_funds` and `esc_bank_position` are per escrow and currency; `esc_escrow.conversion_choice` (`on_deposit` by default, or `at_release`) and `fx_buffer_pct` (RUL-36); trigger `esc.price_currency()` keeps prices in the country's currency until its configuration allows another (Q-32); bank event kinds `conversion_debit` and `conversion_credit`, a currency and the deposit route on `esc_bank_event`; instruction kind `conversion` between an escrow's own two virtual accounts, with `to_currency` and `fx_quote_id`; quotes in `esc_fx_quote` (reference rate and its source, rate, margin, every fee, time, expected amount, accepted by, partner payments to Tenmina, a Tenmina margin fixed at zero); the bank's written programme rate in `esc_programme_rate` (Q-33); the bank's confirmed conversions in `esc_fx_conversion`, compared with the quote and the programme margin (FR-ESC-023); daily rate collection in `esc_fx_rate_observation`, `esc_fx_comparison_run` and `esc_fx_comparison_item` (FR-ESC-024). New release blockers: a conversion without an accepted quote, a release short of the price after conversion (FR-ESC-022), a converting refund without a quote; trigger `esc.unused_funds()` keeps an escrow open until money left in either currency is refunded to source (RUL-29). Partner kinds `rate_source` (IF-14) and `transfer_partner` (IF-15); partner deposits may name no client account, so their refunds take the RUL-29 exception path. Settings `fx_hold_buffer_pct`, `fx_comparison_providers`, `fx_comparison_amounts`, `fx_rate_stale_hours`, `fx_quote_valid_minutes` and `fx_delivery_tolerance` (FR-ADM-005). Release staging, context view, module catalogue, sequence 5.3 note, 6.5, 6.8, 6.9, 6.16, new 6.17, endpoints, jobs (`escrow.fx_collect_rates`, `escrow.fx_conversion_check`, `escrow.fx_convert_on_deposit`, `escrow.fx_buffer_watch`, `escrow.unused_funds`; `administration.refresh_fx` takes the day's reference rate), IF-14 and IF-15 in section 9 and new 9.6, 9.1, threat rows (hidden margin, stale or manipulated reference rate, misleading "best rate", short partner delivery), permission rows (10.4), observability alerts (11.6), coverage for RUL-35, RUL-36, FR-ESC-021 to FR-ESC-024, FR-ADM-005, IF-14, IF-15, Q-32 and Q-33; TR-28 to TR-30; TQ-36 to TQ-38; issues I-50 to I-54. | Product and engineering lead (acting) |
 
 ### Release staging of the architecture
 
@@ -42,7 +43,7 @@ Nothing in this document is built in R0. R0 runs on spreadsheets, templates and 
 | Release | Months | Architecture that ships |
 |---|---|---|
 | R0 | 0-3 | None. Landing page and payment link only |
-| R1 | 3-9 | API, portal, back office, PostgreSQL/PostGIS, evidence store, Celery workers, modules ACC, ORD, PAY, CASE, RPT, GEO (overlays, images), ESC (manual bank entry, held funds, payee registry), EVD, NTF, ADM, AUD, ANL, DPR, FEE (payments to institutions, manual upload of invoices and receipts), CTY (country as configuration, `country_id` everywhere, one cell), PRO (professional payments from Tenmina's operating account: agreements and rate cards, payables for accepted work, payment runs with a bulk payment file, tax per country, remittance advices and statements; in R1 it pays lawyers, surveyors and runners), fund and evidence protection (payee lock with cooling-off, refund to source, official search records, national identity checks for parties, monthly random re-checks; 6.15), release timing and confirmed funds per escrow (release clock, virtual account per escrow, balance check before any release or refund; 6.16), shared kernel. Country 2 runs its manual phase from month 6 with no software |
+| R1 | 3-9 | API, portal, back office, PostgreSQL/PostGIS, evidence store, Celery workers, modules ACC, ORD, PAY, CASE, RPT, GEO (overlays, images), ESC (manual bank entry, held funds, payee registry), EVD, NTF, ADM, AUD, ANL, DPR, FEE (payments to institutions, manual upload of invoices and receipts), CTY (country as configuration, `country_id` everywhere, one cell), PRO (professional payments from Tenmina's operating account: agreements and rate cards, payables for accepted work, payment runs with a bulk payment file, tax per country, remittance advices and statements; in R1 it pays lawyers, surveyors and runners), fund and evidence protection (payee lock with cooling-off, refund to source, official search records, national identity checks for parties, monthly random re-checks; 6.15), release timing and confirmed funds per escrow (release clock, virtual account per escrow, balance check before any release or refund; 6.16), exchange disclosure (deposit routes with recorded quotes, the client's conversion choice and buffer, each quote checked against the bank's confirmed conversion, a daily rate comparison; 6.17), shared kernel. Country 2 runs its manual phase from month 6 with no software |
 | R2 | 9-18 | Two store apps on iOS and Android from one React Native codebase (ADR-22): Tenmina Field for field roles and Tenmina for clients, family members and tenants (APP), published on the App Store and Google Play (IF-12) with push through APNs and FCM; MOB (with check-in and check-out), BLD, PRJ, LST, RAT, DSP, PTR, CARE, PMG, TSK, INS, PRO payables for inspectors, quantity surveyors and errand agents as BLD, PMG and TSK go live, bank statement file and API adapters, institution portal or file adapters, insurer adapters, satellite monitoring, CTY configuration copying (FR-CTY-004) and, if country 2 passes its gate and its law demands it, a second cell (FR-CTY-002) |
 | R3 | 18-36 | EVT, REC, family and stool listings, materials ordering, country 3 configuration and cell if required |
 
@@ -337,6 +338,17 @@ Status: superseded by ADR-16 in version 0.2. Kept for history; the `country_code
 | Alternatives rejected | A stored balance per escrow updated by Tenmina's code (a ledger of client money, against C-01 and ADR-03). Trusting the bank alone to refuse an overdraw on a shared account (one client's money could pay another's release if a reference is wrong). A short waiting period after approval for second thoughts (RUL-33: every check on a purchase happens before release; a delay only gives fraud time and the seller none). |
 | Traces | RUL-33, RUL-34, RUL-01, RUL-05, RUL-06, RUL-07, C-01, FR-ESC-011, FR-ESC-014, FR-ESC-018, FR-ESC-019, FR-ESC-020, FR-ADM-005, NFR-PERF-06, Q-28, Q-29, Q-30 |
 
+### ADR-27 Disclosed exchange with no Tenmina margin, each quote checked against the bank
+
+| Part | Content |
+|---|---|
+| Status | Accepted 12 November 2026 (01 v0.15). Extends ADR-26. |
+| Context | Most clients earn in dollars, pounds or euros and pay in the local currency. The exchange margin is where diaspora money is most often lost without anyone seeing it. RUL-35 says Tenmina takes no margin, shows the reference rate and its source, the rate offered, the margin, every fee and the local amount the payee gets before a deposit and before any release or refund that converts, discloses any payment it receives from an exchange or transfer partner, and says "best rate" only when the day's comparison shows it. Prices and payments to payees follow each country's currency law; in Ghana that is cedis until Q-32 is answered. RUL-36 lets the client convert on deposit (the default) or at release, with a buffer when holding foreign currency. FR-ESC-021 to FR-ESC-024 ask for deposit routes with these figures, the conversion choice and buffer, a record of each accepted quote compared with the bank's confirmed conversion, and a daily comparison of the bank's programme rate with at least `[3, TO VERIFY]` other providers (IF-14, IF-15). RUL-34 already allows one programme escrow account per currency and country. |
+| Decision | (1) Accounts: an escrow keeps its price-currency virtual account on `esc_escrow` and may have one foreign currency virtual account per currency in `esc_fx_account`, in the bank's programme account for that currency. Confirmed funds, the daily bank figure and every blocker are per escrow and currency. A conversion moves money only between an escrow's own two virtual accounts, done by the bank, never between escrows. (2) Quotes: every figure shown to a client before a deposit, a conversion or a converting refund is an `esc_fx_quote` row, insert-only, with the reference rate tied to a stored observation and its source, the offered rate, a generated margin, every fee, the expected amount, any partner payment to Tenmina, a `tenmina_margin` column constrained to zero, a hash of what was shown and who accepted it and when. For a bank route the offered rate must be the bank's written programme rate in force (`esc_programme_rate`, Q-33). (3) Check: when the bank confirms a conversion, or a transfer partner's money arrives, `esc_fx_conversion` records the rate and fees applied and compares them with the quote and the programme margin. Outside the agreed margin, or a partner delivering less than quoted, is an alert and a claim (document 06 AL-61, RB-48); it does not stop the release that the money pays for. (4) Choice and buffer: `conversion_choice` defaults to `on_deposit`. `at_release` copies `fx_hold_buffer_pct` to the escrow; a release waits while the local-currency funds after conversion are short of the amount, and the client is asked to top up. Money left in either currency after the last release is refunded to its source (RUL-29). (5) Comparison: `escrow.fx_collect_rates` stores every rate it collects with source time, collection time and a raw hash. A "best rate" statement renders only from a complete comparison run for that day, pair and amount band in which the programme route delivers the most after fees. (6) Country: prices stay in the country's currency unless the published country configuration allows another for an escrow kind (Q-32). Reference sources, providers, corridors and bands are configuration per country. |
+| Consequences | A client sees the same figures in the portal, the app and the bank instruction, and can check them later. A bank route cannot be offered until the bank gives its programme rate in writing (TR-28, TQ-36). A stale reference rate stops new quotes until a fresh one is collected or entered by hand with proof and a second person (TR-29). Holding foreign currency can leave a release short on completion day (TR-30). Deposits through transfer partners may name only the partner's account, so their refunds take the RUL-29 exception path (TQ-38). |
+| Alternatives rejected | A small Tenmina spread on exchange to fund operations (breaks RUL-35 and the trust the brand rests on). Showing only an "all-in" amount without the reference rate and margin (hides the margin RUL-35 exists to show). Trusting the bank's statement alone without recording the quote (no way to prove the client was charged more than agreed). Converting everything on deposit with no choice (RUL-36 gives the client the choice). Moving money between escrows to cover a shortfall (RUL-34 forbids it). |
+| Traces | RUL-35, RUL-36, RUL-34, RUL-29, C-12, FR-ESC-021, FR-ESC-022, FR-ESC-023, FR-ESC-024, FR-ADM-005, IF-14, IF-15, Q-32, Q-33 |
+
 ---
 
 ## 3. System context and containers
@@ -366,6 +378,8 @@ flowchart LR
     msg["Email, SMS, WhatsApp<br/>IF-07"]
     lands["Lands Commission<br/>IF-09, online portal or client service unit"]
     stores["Apple App Store and Google Play<br/>IF-12, distribution and review,<br/>APNs and FCM push, App Attest and Play Integrity"]
+    rates["Reference rate and rate comparison sources<br/>IF-14"]
+    xfer["Licensed money transfer partners<br/>IF-15, deliver local currency to the escrow"]
 
     client --> tenmina
     seller --> tenmina
@@ -377,6 +391,9 @@ flowchart LR
     tenmina -->|"release instructions"| bank
     bank -->|"deposit and release confirmations"| tenmina
     client -->|"pays purchase, build, fee and project money directly"| bank
+    client -.->|"sends through a partner, FR-ESC-021"| xfer
+    xfer -.->|"local currency to the escrow's virtual account"| bank
+    rates -->|"daily rates, FR-ESC-024"| tenmina
     tenant -->|"pays rent into the owner's own account"| bank
     bank -->|"pays institutions, suppliers, carers,<br/>agencies, vendors and insurers"| inst
     inst -->|"invoices and receipts, IF-10"| tenmina
@@ -395,7 +412,7 @@ flowchart LR
     stores -.->|"installs Tenmina Field"| pros
 ```
 
-The client pays purchase, construction, project, fee and errand money straight to the bank. A tenant pays rent straight into the owner's own account at the bank (RUL-24). The bank pays every payee: seller, contractor, institution, carer, agency, vendor or insurer. Tenmina only verifies, sends instructions and records confirmations. The Lands Commission link has no API: Tenmina staff submit searches and receive results through its online portal or client service unit from Tenmina's own account, never through a runner's hands (RUL-30, IF-09, 9.5). Institutions are mostly people with invoices and receipts in R1; a portal or file link follows in R2 (IF-10). From R2 clients, family members and tenants can use the Tenmina app and field users use Tenmina Field, both installed only from the Apple App Store or Google Play (IF-12, ADR-22). Apple and Google also carry push notifications (APNs and FCM) and answer device attestation checks (App Attest and Play Integrity).
+The client pays purchase, construction, project, fee and errand money straight to the bank. A tenant pays rent straight into the owner's own account at the bank (RUL-24). The bank pays every payee: seller, contractor, institution, carer, agency, vendor or insurer. Tenmina only verifies, sends instructions and records confirmations. The Lands Commission link has no API: Tenmina staff submit searches and receive results through its online portal or client service unit from Tenmina's own account, never through a runner's hands (RUL-30, IF-09, 9.5). Institutions are mostly people with invoices and receipts in R1; a portal or file link follows in R2 (IF-10). From R2 clients, family members and tenants can use the Tenmina app and field users use Tenmina Field, both installed only from the Apple App Store or Google Play (IF-12, ADR-22). Apple and Google also carry push notifications (APNs and FCM) and answer device attestation checks (App Attest and Play Integrity). A client abroad pays foreign currency to the escrow's own foreign currency virtual account at the bank, pays local currency to its local-currency virtual account, or sends through a licensed money transfer partner that delivers local currency to that account (IF-15). Tenmina never receives or converts the money; it shows the rate, margin and fees of each route, records the quote the client accepts and checks it against what the bank or partner delivered (RUL-35, ADR-27). Rates come from published sources and providers each working day (IF-14).
 
 ### 3.2 Containers (C4 level 2)
 
@@ -524,7 +541,7 @@ Uploads go straight from the client, browser or app, to S3 through presigned URL
 | CASE | `cases` | Case lifecycle from templates for every line that verifies something (land, building, fresh search, institution verification, property onboarding, vendor verification), tasks, assignments, due dates, status messages, document requests, risk screens, safety incidents, costs, messages, the parties to be identity-checked, official search requests submitted and received by staff from Tenmina's registry account (ADR-25) | `case_case`, `case_task`, `case_status_message`, `case_document_request`, `case_risk_screen`, `case_cost_item`, `case_message`, `case_party`, `case_search_request`, `safety.incident` | `case.created`, `case.status_changed`, `task.assigned`, `task.completed`, `task.overdue`, `fresh_search.completed`, `search.submitted`, `search.result_received` | `order.paid`, `listing.verification_requested`, `reservation.created`, `report.released`, `national_id_check.completed` | FR-CASE-001 to 016 | R1 |
 | RPT | `reports` | Report versions, sections, verdict rule, locked scope text, signatures, review approvals, PDF and hash, conditions, corrections, anonymised copies, the monthly random re-check of released reports and closed conditions with unlinked professionals, and incidents from failed re-checks (ADR-25) | `rpt_report`, `rpt_section`, `rpt_condition`, `rpt_signature`, `rpt_hash_check`, `rpt_recheck_draw`, `rpt_recheck`, `rpt_incident` | `report.submitted`, `report.released`, `report.corrected`, `work.accepted` (a signed section passed second review; a re-check recorded), `recheck.failed`, `incident.opened`, `incident.closed` | `overlay.completed`, `case.status_changed`, `condition.closed` | FR-RPT-001 to 012 | R1 |
 | GEO | `geo` | Assets and boundaries, overlay layers and results, overlaps, satellite images, monitoring, Ghana Post GPS | `geo_asset`, `geo_boundary_version`, `geo_overlay_layer`, `geo_overlay_layer_version`, `geo_overlay_feature`, `geo_overlay_result`, `geo_overlap_flag`, `geo_satellite_image`, `geo_monitoring_alert` | `asset.boundary_saved`, `overlay.completed`, `overlap.flagged`, `monitoring.alert_raised`, `monitoring.alert_resolved` | `listing.live`, `project.started` | FR-GEO-001 to 008 | R1 |
-| ESC | `escrow` | Escrow mirror for purchase, construction, off-plan, project fund, held funds, repair and event escrows; parties, acceptances, bank payment instructions, conditions, bank events, release and cancel instructions with their payee, dispatch, statement import, the verified payee registry (ADR-17), the derived held statement (ADR-18), the payee lock, payee changes with cooling-off, deposit source accounts and refund to source (ADR-24), freezes from re-check incidents, programme escrow accounts with a virtual account per escrow, confirmed funds per escrow, daily bank figures and the release clock (ADR-26) | `esc_escrow`, `esc_party`, `esc_acceptance`, `esc_condition`, `esc_bank_event`, `esc_release_instruction`, `esc_statement_file`, `esc_statement_line`, `esc_payee`, `esc_payee_change`, `esc_escrow_payee`, `esc_incident_freeze`, `esc_programme_account`, `esc_bank_position`, views `esc_confirmed_funds` and `esc_held_statement` | `escrow.agreed`, `escrow.funded`, `escrow.ready`, `release.approved`, `release.sent`, `release.confirmed`, `escrow.cancelled`, `condition.closed`, `payee.verified`, `payee.suspended`, `payee_change.requested`, `payee_change.applied`, `payee_change.stopped`, `held_funds.deposit_confirmed`, `release.clock_started`, `release.send_overdue`, `release.bank_overdue`, `bank_position.mismatch`, `bank_position.resolved` | `report.released`, `dispute.opened`, `dispute.resolved`, `fresh_search.completed`, `milestone.client_approved`, `reservation.created`, `invoice.client_approved`, `visit.confirmed`, `errand_step.receipted`, `repair.inspected`, `vendor_payment.evidenced`, `national_id_check.completed`, `incident.opened`, `incident.closed` | FR-ESC-001 to 020 | R1 |
+| ESC | `escrow` | Escrow mirror for purchase, construction, off-plan, project fund, held funds, repair and event escrows; parties, acceptances, bank payment instructions, conditions, bank events, release and cancel instructions with their payee, dispatch, statement import, the verified payee registry (ADR-17), the derived held statement (ADR-18), the payee lock, payee changes with cooling-off, deposit source accounts and refund to source (ADR-24), freezes from re-check incidents, programme escrow accounts with a virtual account per escrow, confirmed funds per escrow, daily bank figures and the release clock (ADR-26), foreign currency virtual accounts, deposit routes, quotes, the conversion choice and buffer, conversions checked against the quote and the bank's programme rate, and the daily rate comparison (ADR-27) | `esc_escrow`, `esc_party`, `esc_acceptance`, `esc_condition`, `esc_bank_event`, `esc_release_instruction`, `esc_statement_file`, `esc_statement_line`, `esc_payee`, `esc_payee_change`, `esc_escrow_payee`, `esc_incident_freeze`, `esc_programme_account`, `esc_bank_position`, `esc_fx_account`, `esc_programme_rate`, `esc_fx_quote`, `esc_fx_conversion`, `esc_fx_rate_observation`, `esc_fx_comparison_run`, `esc_fx_comparison_item`, views `esc_confirmed_funds` and `esc_held_statement` | `escrow.agreed`, `escrow.funded`, `escrow.ready`, `release.approved`, `release.sent`, `release.confirmed`, `escrow.cancelled`, `condition.closed`, `payee.verified`, `payee.suspended`, `payee_change.requested`, `payee_change.applied`, `payee_change.stopped`, `held_funds.deposit_confirmed`, `release.clock_started`, `release.send_overdue`, `release.bank_overdue`, `bank_position.mismatch`, `bank_position.resolved`, `fx_quote.accepted`, `fx_conversion.confirmed`, `fx_conversion.outside_margin`, `fx_comparison.published`, `fx.comparison_incomplete`, `escrow.fx_shortfall` | `report.released`, `dispute.opened`, `dispute.resolved`, `fresh_search.completed`, `milestone.client_approved`, `reservation.created`, `invoice.client_approved`, `visit.confirmed`, `errand_step.receipted`, `repair.inspected`, `vendor_payment.evidenced`, `national_id_check.completed`, `incident.opened`, `incident.closed` | FR-ESC-001 to 024 | R1 |
 | EVD | `evidence` | Upload slots, hashing, scan, previews, signed links, links to subjects, provenance, integrity sampling | `evd_evidence`, `evd_link`, `evd_preview`, `evd_scan_result` | `evidence.stored`, `evidence.rejected` | none | FR-EVD-001 to 006 | R1 |
 | MOB | `mobile` | Device registry and keys with attestation on Android and iOS (8.2), sync, signed manifest checks, submissions, check-in and check-out at registered addresses, fraud flags, for every field role | `mob_device`, `mob_signed_manifest`, `mob_submission`, `mob_submission_item`, `mob_checkin`, `mob_fraud_flag` | `submission.received`, `evidence.flagged`, `flags.cleared`, `checkin.recorded`, `checkout.recorded` | `milestone.status_changed`, `task.assigned`, `visit.scheduled`, `errand.assigned`, `inspection.scheduled` | FR-MOB-001 to 012 | R2 |
 | APP | none | The client app is a front end over the same `/v1` API as the portal and owns no server tables (ADR-22, 8.9). Its server needs sit in existing modules: push devices in NTF, in-app account deletion in DPR, minimum versions and the fee payment mode in ADM settings, fee payments in PAY | none | none | none | FR-APP-001 to 006 | R2 |
@@ -757,6 +774,8 @@ sequenceDiagram
 Every blocker is checked again inside the database trigger before the instruction can leave the approved state (section 6.5). If a dispute opens after approval but before dispatch, the dispatcher re-checks and stops (TQ-05). The same holds if a payee change is applied or a re-check incident opens in that window. A cancellation refund follows the same steps, addressed to the source account of the deposit it refunds (RUL-29, FR-ESC-017).
 
 There is no waiting period after the last approval (RUL-33). The release clock starts when the last condition of the release closes (for a release with no conditions, such as a held-funds payment, when the instruction is prepared), and `escrow.release_clock_watch` alerts when the instruction is not sent on the working day of the last approval or the bank has not confirmed payment within `release_bank_pay_working_days` (2, `[TO VERIFY]`) working days of sending (FR-ESC-018, NFR-PERF-06). Working days come from the country's `holiday_calendar`. The bank pays from this escrow's own money in the programme escrow account, identified by its virtual account number or reference; the instruction names it (9.1, RUL-34). Where the escrow terms set a held-back share, the main release leaves it in escrow and a second release pays it when its own condition closes, with the same client and two-staff approvals (FR-ESC-020, Could; I-47). A cooling-off on a changed payee (RUL-28) runs before the release is approved and is not a waiting period after it.
+
+Where the client chose to convert at release (RUL-36), the case manager prepares a `conversion` instruction with the release. The client sees a quote with the reference rate and its source, the programme rate, the margin, every fee and the local amount, and accepts it with MFA (RUL-35); two staff with release rights approve it like any instruction. The bank converts between the escrow's own two virtual accounts and confirms both legs; `escrow.fx_conversion_check` compares the result with the quote and the programme margin (FR-ESC-023). The release itself is then checked against the local-currency confirmed funds: while they are short of the amount, the release is blocked and the client is asked to top up (FR-ESC-022). A conversion outside the programme margin raises an alert and a claim on the bank but does not hold the release. Money left in either currency after the last release goes back to its source (RUL-29, 6.17).
 
 ### 5.4 Milestone capture to release (J-03)
 
@@ -1622,7 +1641,13 @@ CREATE TABLE esc_escrow (
   agreed_amount    numeric(18,2) NOT NULL CHECK (agreed_amount > 0),  -- recorded fact, not a balance
   held_back_amount numeric(18,2) NOT NULL DEFAULT 0 CHECK (held_back_amount >= 0),  -- FR-ESC-020: set only by the
                                                                   -- escrow terms; recorded fact, not a balance
-  currency         char(3) NOT NULL,
+  currency         char(3) NOT NULL,                              -- the price currency: the country's own unless its
+                                                                  -- configuration allows another (RUL-35, Q-32)
+  conversion_choice text NOT NULL DEFAULT 'on_deposit'
+                     CHECK (conversion_choice IN ('on_deposit','at_release')),  -- RUL-36, FR-ESC-022 (6.17)
+  fx_buffer_pct    numeric(5,2) CHECK (fx_buffer_pct >= 0),       -- RUL-36: fx_hold_buffer_pct copied at the choice
+  conversion_chosen_by uuid REFERENCES acc_person(id),            -- the client
+  conversion_chosen_at timestamptz,
   terms_version_id uuid NOT NULL REFERENCES adm_locked_text_version(id),
   status           text NOT NULL CHECK (status IN ('proposed','agreed','funded','ready_to_release',
                      'client_approved','release_approved','partly_released','released','frozen','cancelled')),
@@ -1634,7 +1659,8 @@ CREATE TABLE esc_escrow (
   CHECK (kind IN ('held_funds','event') OR asset_id IS NOT NULL),
   CHECK (kind <> 'held_funds' OR agreed_amount >= 0),             -- a held_funds escrow has no fixed price
   CHECK (status = 'proposed' OR (programme_account_id IS NOT NULL AND virtual_account_ref IS NOT NULL)),  -- RUL-34
-  CHECK (held_back_amount = 0 OR (kind <> 'held_funds' AND held_back_amount < agreed_amount))           -- FR-ESC-020
+  CHECK (held_back_amount = 0 OR (kind <> 'held_funds' AND held_back_amount < agreed_amount)),          -- FR-ESC-020
+  CHECK (conversion_choice = 'on_deposit' OR fx_buffer_pct IS NOT NULL)                                 -- RUL-36
 );
 CREATE INDEX ON esc_escrow (client_id, kind, status);
 CREATE UNIQUE INDEX one_escrow_per_virtual_account
@@ -1643,7 +1669,14 @@ CREATE UNIQUE INDEX one_escrow_per_virtual_account
 -- esc_escrow.virtual_account_ref only. No column holds a Tenmina account number (FR-ESC-003). Trigger
 -- esc.programme_account_match(): the programme account's country and currency equal the escrow's, and a
 -- single_escrow account serves one escrow only. held_back_amount is non-zero only where the terms version has a
--- held-back clause, which each country's lawyer must approve first (Q-30).
+-- held-back clause, which each country's lawyer must approve first (Q-30). Trigger esc.price_currency(): currency
+-- is the country's currency (cty_country.currency) unless the published country configuration lists another price
+-- currency for the escrow kind; Ghana's lists none until the lawyer answers Q-32 (RUL-35). The escrow's foreign
+-- currency virtual accounts, if any, are in esc_fx_account (6.17). conversion_choice may change only before the first
+-- deposit in a foreign currency; later the client converts early by accepting a quote for a conversion instruction.
+-- Trigger esc.unused_funds(): an escrow cannot move to 'released' or 'cancelled' while esc_confirmed_funds shows
+-- held_at_bank above zero in any of its currencies; money left over goes back by refund instructions to the source of
+-- each deposit (RUL-36, RUL-29, FR-ESC-022).
 
 CREATE TABLE esc_condition (
   id            uuid PRIMARY KEY,
@@ -1663,7 +1696,8 @@ CREATE TABLE esc_condition (
 CREATE TABLE esc_release_instruction (
   id               uuid PRIMARY KEY,
   escrow_id        uuid NOT NULL REFERENCES esc_escrow(id),
-  kind             text NOT NULL CHECK (kind IN ('release','partial_release','cancel_refund')),
+  kind             text NOT NULL CHECK (kind IN ('release','partial_release','cancel_refund',
+                     'conversion')),     -- RUL-36: between the escrow's own two virtual accounts, never to a payee (6.17)
   milestone_id     uuid REFERENCES bld_milestone(id),
   subject_type     text CHECK (subject_type IN ('milestone','fee_invoice','care_visit','errand_step',
                      'repair','event_vendor_payment','premium')),   -- FR-ESC-010
@@ -1673,7 +1707,9 @@ CREATE TABLE esc_release_instruction (
   standing_approval_id uuid REFERENCES esc_standing_approval(id), -- RUL-11; care_visit and errand_step only
   amount           numeric(18,2) NOT NULL CHECK (amount > 0),
   holdback_amount  numeric(18,2) NOT NULL DEFAULT 0 CHECK (holdback_amount >= 0),  -- RUL-09
-  currency         char(3) NOT NULL,
+  currency         char(3) NOT NULL,                              -- the currency drawn from; for a conversion, the from currency
+  to_currency      char(3),                                       -- conversion only: the escrow's other virtual account
+  fx_quote_id      uuid REFERENCES esc_fx_quote(id),              -- RUL-35: the accepted quote for a conversion or converting refund
   prepared_by      uuid NOT NULL REFERENCES acc_person(id),
   approval_request_id uuid NOT NULL REFERENCES core_approval_request(id),
   client_approved_at timestamptz,                                -- RUL-11
@@ -1694,7 +1730,10 @@ CREATE TABLE esc_release_instruction (
   bank_pay_due_on  date,                                              -- sent date + release_bank_pay_working_days (NFR-PERF-06)
   CHECK (kind <> 'partial_release' OR milestone_id IS NOT NULL OR subject_id IS NOT NULL),
   CHECK ((subject_type IS NULL) = (subject_id IS NULL)),
-  CHECK (kind = 'cancel_refund' OR payee_id IS NOT NULL),        -- RUL-22: every release names a payee
+  CHECK (kind IN ('cancel_refund','conversion') OR payee_id IS NOT NULL),   -- RUL-22: every release names a payee
+  CHECK ((kind = 'conversion') = (to_currency IS NOT NULL)),
+  CHECK (kind <> 'conversion' OR (payee_id IS NULL AND fx_quote_id IS NOT NULL AND to_currency <> currency
+         AND subject_id IS NULL AND milestone_id IS NULL)),
   CHECK ((kind = 'cancel_refund') = (refund_source_event_id IS NOT NULL)),   -- FR-ESC-017: one deposit per refund
   CHECK (refund_change_id IS NULL OR kind = 'cancel_refund'),
   CHECK ((payee_id IS NULL) = (payee_account_version IS NULL)),
@@ -1755,8 +1794,23 @@ CREATE UNIQUE INDEX one_live_refund_per_deposit
 --     and refund_change_id is not an applied refund_destination change for
 --     that deposit whose cooling_off_until has passed (6.15)              (RUL-29, FR-ESC-017)
 --   an esc_incident_freeze for the escrow is not lifted (6.15)            (RUL-32, FR-RPT-012)
+--   kind 'conversion' and fx_quote_id is not a quote for this escrow with
+--     the same currencies and amount, accepted by the client, of purpose
+--     'release_conversion' (or 'deposit' for conversion on deposit), and
+--     within expires_at at the client's acceptance; or to_currency is
+--     not one of the escrow's own virtual accounts (6.17)                 (RUL-35, RUL-36, FR-ESC-023)
+--   kind 'release' or 'partial_release' and the escrow's confirmed funds
+--     in the instruction's currency, after confirmed conversions and less
+--     other live instructions, are short of the amount: the shortfall is
+--     shown to the client with a top-up request (escrow.fx_shortfall)     (RUL-36, FR-ESC-022)
+--   kind 'cancel_refund' whose currency differs from the currency of the
+--     deposit it refunds, and fx_quote_id is not an accepted quote of
+--     purpose 'refund_conversion' for it (6.17)                            (RUL-35, RUL-29)
 -- The bank instruction for a refund names the deposit's source account exactly as the bank's
 -- confirmation gave it, or the account of the applied refund_destination change (9.1).
+-- A conversion instruction draws on the escrow's virtual account in `currency` and credits its own virtual account in
+-- to_currency; it needs the client's acceptance of the quote (recorded as client_approved_at) and two staff approvals
+-- like any instruction (RUL-05). The confirmed-funds blocker above applies to it in the from currency.
 ```
 
 ### 6.6 Evidence, mobile, construction, listings and disputes
@@ -2035,7 +2089,7 @@ CREATE TABLE safety.incident (
 | `geo_monitoring_alert` | asset, image dates, change score, status | FR-GEO-007 |
 | `esc_party` | escrow, role (buyer, seller, contractor, supplier, developer), person or organisation | FR-ESC-001 |
 | `esc_acceptance` | escrow, party, terms version, accepted at | FR-ESC-002 |
-| `esc_bank_event` | escrow, kind (`deposit`, `release_confirmed`, `refund_confirmed`), amount, source (`api`, `statement`, `manual`), proof evidence, entered by, `checked_by` (a second staff member, required when source is `manual`, CHECK `checked_by <> entered_by`), payee or depositor reference, family member or subject reference for statements. For `deposit`: the source account as the bank's confirmation or statement line gives it (`source_bank_name`, `source_account_number_enc`, `source_account_name_enc`, `source_account_bidx`), required unless `source_account_known` is false because the bank gave none, which forces the RUL-29 exception path for any refund (I-41, TQ-31); never typed from the client's word. Source account columns cannot be updated. `virtual_account_ref` as the bank's confirmation or statement line gives it; trigger `esc.bank_event_account()` rejects an event whose programme account or virtual account reference differs from the escrow's, so a line with a wrong or missing reference stays in the unmatched queue and never counts towards an escrow's confirmed funds (RUL-34) | FR-ESC-004, FR-ESC-009, FR-ESC-014, FR-ESC-017, FR-ESC-019 |
+| `esc_bank_event` | escrow, kind (`deposit`, `release_confirmed`, `refund_confirmed`), amount, source (`api`, `statement`, `manual`), proof evidence, entered by, `checked_by` (a second staff member, required when source is `manual`, CHECK `checked_by <> entered_by`), payee or depositor reference, family member or subject reference for statements. For `deposit`: the source account as the bank's confirmation or statement line gives it (`source_bank_name`, `source_account_number_enc`, `source_account_name_enc`, `source_account_bidx`), required unless `source_account_known` is false because the bank gave none, which forces the RUL-29 exception path for any refund (I-41, TQ-31); never typed from the client's word. Source account columns cannot be updated. `virtual_account_ref` as the bank's confirmation or statement line gives it; trigger `esc.bank_event_account()` rejects an event whose programme account or virtual account reference differs from the escrow's, so a line with a wrong or missing reference stays in the unmatched queue and never counts towards an escrow's confirmed funds (RUL-34). From 01 v0.15: `currency`, set from the virtual account matched (the escrow's own or one of its `esc_fx_account` rows; `esc.bank_event_account()` accepts either); kinds `conversion_debit` and `conversion_credit` for the two legs of a conversion between the escrow's own virtual accounts, each with `fx_conversion_id` and the bank's rate and fees as its advice states them; for `deposit`, `deposit_route` (`bank_transfer`, `transfer_partner`, `bank_correction` for a difference the bank pays back under RB-48) and, for a partner, `transfer_partner_id` and the partner's reference. A partner deposit whose credit names only the partner sets `source_account_known` false, so its refund takes the RUL-29 exception path (IF-15) | FR-ESC-004, FR-ESC-009, FR-ESC-014, FR-ESC-017, FR-ESC-019, FR-ESC-021, FR-ESC-023 |
 | `esc_statement_file`, `esc_statement_line` | imported file hash, account kind (`escrow`, `held_funds`, `owner_rent` under a `pmg_statement_mandate`), programme account, lines with the virtual account reference, match status, matched subject (escrow, rent period); escrow lines match by virtual account number or reference first (RUL-34) | FR-ESC-011, FR-ESC-019, FR-PMG-003 |
 | `mob_submission`, `mob_submission_item` | milestone or task, client UUID (unique), items, manifest | FR-MOB-006 |
 | `bld_defect` | inspection, description, value, status, closing evidence | FR-BLD-006 |
@@ -2050,12 +2104,12 @@ CREATE TABLE safety.incident (
 | `ntf_push_device` | person, app (`client`, `field`), platform (`ios`, `android`), push token (encrypted), provider (`apns`, `fcm`), app version, OS version, last seen, revoked at. One row per app install. Revoked at sign-out, account deletion or when the provider reports the token invalid | FR-APP-002, FR-NTF-001 |
 | `adm_config_version` | kind, `country_id`, product line, version, JSON content, content hash, state, schema version. Kinds now include `errand_catalogue`, `care_plan_template`, `vetting_checklist`, `institution_types`, `holiday_calendar` | FR-ADM-001, FR-TSK-001, FR-CTY-001 |
 | `adm_locked_text_version` | kind (`scope_statement`, `terms`, `privacy_notice`, `escrow_terms`), country, text, approvals, lawyer and insurer approval evidence | FR-ADM-004 |
-| `adm_setting` | key, `country_id`, value, changed by, `approval_request_id` (required for keys flagged `affects_release`, FR-ADM-005 version 0.2); keys include `fresh_search_window_days` (14, `[TO VERIFY]`, counted from the date on the registry's result, RUL-07), `listing_report_max_age_days`, `badge_validity_days`, `plot_buffer_m`, `device_time_gap_s`, `dispute_deadlines`, `client_approval_reminder_days`, `ntf_amount_threshold`, `prj_enhanced_check_amount`, `checkin_radius_m`, `visit_confirm_hours`, `rent_grace_days`, `receipt_target_days`, `min_app_version` (per app and platform, FR-APP-006; a raise needs a second administrator, as it locks out older installs), `app_fee_payment_mode` (per country and platform: `in_app_provider` or `web`, FR-APP-005; `web` until Q-23 is answered), `payee_cooling_off_hours` (72, `[TO VERIFY]`, RUL-28; flagged `affects_release`; a change applies only to changes applied after it), `recheck_sample_pct` (5, `[TO VERIFY]`, RUL-32; flagged `affects_release`), `search_result_overdue_days` (`[TO VERIFY]`), `release_bank_pay_working_days` (2, `[TO VERIFY]`, NFR-PERF-06; flagged `affects_release`), `release_median_target_working_days` (5, `[TO VERIFY]`, NFR-PERF-06; flagged `affects_release`; a reporting target, not a deadline). There is no setting for a wait after the last approval (RUL-33). The 72-hour visit review and the 5-attempt code lockout are fixed by FR-CARE-004, not settings | FR-ADM-005 |
+| `adm_setting` | key, `country_id`, value, changed by, `approval_request_id` (required for keys flagged `affects_release`, FR-ADM-005 version 0.2); keys include `fresh_search_window_days` (14, `[TO VERIFY]`, counted from the date on the registry's result, RUL-07), `listing_report_max_age_days`, `badge_validity_days`, `plot_buffer_m`, `device_time_gap_s`, `dispute_deadlines`, `client_approval_reminder_days`, `ntf_amount_threshold`, `prj_enhanced_check_amount`, `checkin_radius_m`, `visit_confirm_hours`, `rent_grace_days`, `receipt_target_days`, `min_app_version` (per app and platform, FR-APP-006; a raise needs a second administrator, as it locks out older installs), `app_fee_payment_mode` (per country and platform: `in_app_provider` or `web`, FR-APP-005; `web` until Q-23 is answered), `payee_cooling_off_hours` (72, `[TO VERIFY]`, RUL-28; flagged `affects_release`; a change applies only to changes applied after it), `recheck_sample_pct` (5, `[TO VERIFY]`, RUL-32; flagged `affects_release`), `search_result_overdue_days` (`[TO VERIFY]`), `release_bank_pay_working_days` (2, `[TO VERIFY]`, NFR-PERF-06; flagged `affects_release`), `release_median_target_working_days` (5, `[TO VERIFY]`, NFR-PERF-06; flagged `affects_release`; a reporting target, not a deadline), `fx_hold_buffer_pct` (`[TO VERIFY]`, RUL-36; flagged `affects_release`; copied to an escrow when its client chooses conversion at release, so a change applies to later choices only), `fx_comparison_providers` (per country and corridor: the IF-14 and IF-15 partners compared with the bank's programme rate, at least `[3, TO VERIFY]`, FR-ESC-024; changed by two administrators, because it changes what clients are told), `fx_comparison_amounts` (send amounts per corridor for the comparison bands, `[TO VERIFY]`), `fx_rate_stale_hours` (`[TO VERIFY]`; a reference rate older than this cannot back a quote), `fx_quote_valid_minutes` (`[TO VERIFY]`), `fx_delivery_tolerance` (rounding allowed between a transfer partner's quoted and delivered amount, `[TO VERIFY]`). The programme margin is not a setting: it comes from the bank's written agreement in `esc_programme_rate` (6.17). There is no setting for a wait after the last approval (RUL-33). The 72-hour visit review and the 5-attempt code lockout are fixed by FR-CARE-004, not settings | FR-ADM-005 |
 | `dpr_request` | requester, type (access, correction, deletion), source (`portal`, `app`, `staff`), due date, status, export evidence; for deletion, the kept-data statement shown to the user (classes kept, reason, until when) and the open money matters that delay completion | FR-DPR-003, FR-APP-004 |
 | `dpr_retention_rule`, `dpr_legal_hold` | data class, country, period, action; holds by subject | FR-DPR-004 |
 | `dpr_bulk_export` | requester, scope, approval request, file hash | FR-DPR-005 |
 | `rec_allocation` | authority, plot geometry, allottee, date, documents, confirmation status | FR-REC-001, FR-REC-004 |
-| `adm_partner` | kind (`escrow_bank`, `payment_provider`, `identity`, `messaging`, `insurer`, `institution_portal`, `developer`, `bank_api`, `operating_bank`, `operating_mobile_money`, `registry`), `country_id`, adapter per port, bank details with `approval_request_id` for any change (FR-ADM-003 second administrator). The two operating kinds are Tenmina's own accounts that pay professionals (FR-PRO-006). A `registry` partner (the Lands Commission in Ghana) records Tenmina's own account reference there and its channels; the account's credentials are in Secrets Manager (10.5), never a runner's account (RUL-30, IF-09). An `identity` partner records whether it is the national identity system itself or a licensed provider (RUL-31, IF-03); trigger `adm.operating_not_escrow()` rejects an operating account whose account number (keyed hash) matches any `esc_programme_account` or other escrow or held-funds account on record, and the reverse | FR-ADM-003, FR-PRO-006, IF-01 to IF-11, IF-13 |
+| `adm_partner` | kind (`escrow_bank`, `payment_provider`, `identity`, `messaging`, `insurer`, `institution_portal`, `developer`, `bank_api`, `operating_bank`, `operating_mobile_money`, `registry`, `rate_source`, `transfer_partner`), `country_id`, adapter per port, bank details with `approval_request_id` for any change (FR-ADM-003 second administrator). The two operating kinds are Tenmina's own accounts that pay professionals (FR-PRO-006). A `registry` partner (the Lands Commission in Ghana) records Tenmina's own account reference there and its channels; the account's credentials are in Secrets Manager (10.5), never a runner's account (RUL-30, IF-09). An `identity` partner records whether it is the national identity system itself or a licensed provider (RUL-31, IF-03); trigger `adm.operating_not_escrow()` rejects an operating account whose account number (keyed hash) matches any `esc_programme_account` or other escrow or held-funds account on record, and the reverse. A `rate_source` partner (IF-14) records the rate it publishes (reference or provider), the corridors, its terms of use for automated collection and display `[TO VERIFY]` (TQ-37). A `transfer_partner` (IF-15) records its licence and licensing body with evidence, corridors, limits per transfer and per day, its source-of-funds checks, whether it delivers with the escrow's virtual account reference, whether the bank's credit names the sender, and any payment it makes to Tenmina, which every quote for it shows (RUL-35, Q-33, TQ-38) | FR-ADM-003, FR-PRO-006, IF-01 to IF-11, IF-13 to IF-15 |
 | `acc_identity_check`, `acc_vetting` | see 6.4; vetting checklist version per country | FR-ACC-004, FR-CARE-002 |
 | `fee_institution_contact` | institution, person with role `institution_contact`, may confirm invoices, may send receipts | FR-FEE-001, FR-ACC-011 |
 | `fee_schedule` | institution, family member, client, period (`term`, `month`, `quarter`), expected amount, next due, reminder lead days, status; creates `fee_invoice` rows in `draft` for the client's approval | FR-FEE-005 |
@@ -2105,7 +2159,10 @@ CREATE TABLE cty_country_config (                    -- FR-CTY-001, FR-CTY-004; 
                                         -- institution types, vetting checklist, data location statement,
                                         -- professional pay rules (6.14): withholding and other deductions by
                                         -- role and tax status, tax year, expense limits by role and kind,
-                                        -- payment period in working days, operating account file format
+                                        -- payment period in working days, operating account file format,
+                                        -- exchange (6.17): price currencies allowed per escrow kind (the
+                                        -- country's own only until its lawyer answers Q-32), client corridors,
+                                        -- reference rate sources, deposit routes offered
   content_sha256  bytea NOT NULL CHECK (length(content_sha256) = 32),
   state           text NOT NULL CHECK (state IN ('draft','published','retired')),
   copied_from_id  uuid REFERENCES cty_country_config(id),   -- FR-CTY-004: which country's version it started from
@@ -3227,7 +3284,7 @@ CREATE TABLE esc_bank_position (                      -- FR-ESC-019, FR-ESC-011:
   resolution_checked_by uuid REFERENCES acc_person(id),                 -- a second staff member
   resolution_note    text,
   resolution_evidence_id uuid REFERENCES evd_evidence(id),              -- the bank's written explanation
-  UNIQUE (escrow_id, as_of),
+  UNIQUE (escrow_id, currency, as_of),                                  -- one figure per virtual account (01 v0.15, 6.17)
   CHECK (source <> 'manual' OR (proof_evidence_id IS NOT NULL AND entered_by IS NOT NULL
          AND checked_by IS NOT NULL AND checked_by <> entered_by)),
   CHECK ((status = 'matched') = (reported_held_amount = derived_held_at_bank) OR status = 'resolved'),
@@ -3238,19 +3295,28 @@ CREATE TABLE esc_bank_position (                      -- FR-ESC-019, FR-ESC-011:
 -- a missing or wrong event is fixed by a new esc_bank_event with proof, checked by a second person, and the row is
 -- resolved only when the figures agree or the bank explains the difference in writing (document 06 RB-47).
 
-CREATE VIEW esc_confirmed_funds AS                    -- RUL-34, FR-ESC-019: one derivation for every escrow kind
-SELECT e.id AS escrow_id, e.kind, e.client_id, e.country_id, e.currency,
-       e.programme_account_id, e.virtual_account_ref,
-       COALESCE(SUM(b.amount) FILTER (WHERE b.kind = 'deposit'), 0)
-     - COALESCE(SUM(b.amount) FILTER (WHERE b.kind = 'release_confirmed'), 0)
-     - COALESCE(SUM(b.amount) FILTER (WHERE b.kind = 'refund_confirmed'), 0)     AS held_at_bank,
+CREATE VIEW esc_confirmed_funds AS                    -- RUL-34, FR-ESC-019: one derivation for every escrow kind;
+                                                      -- one row per escrow and currency from 01 v0.15 (RUL-36, 6.17)
+WITH va AS (
+  SELECT id AS escrow_id, currency, programme_account_id, virtual_account_ref FROM esc_escrow
+  UNION ALL
+  SELECT escrow_id, currency, programme_account_id, virtual_account_ref FROM esc_fx_account
+)
+SELECT e.id AS escrow_id, e.kind, e.client_id, e.country_id, va.currency,
+       va.programme_account_id, va.virtual_account_ref,
+       COALESCE(SUM(b.amount) FILTER (WHERE b.kind IN ('deposit','conversion_credit')), 0)
+     - COALESCE(SUM(b.amount) FILTER (WHERE b.kind IN ('release_confirmed','refund_confirmed',
+                                                       'conversion_debit')), 0)  AS held_at_bank,
        COALESCE((SELECT SUM(i.amount) FROM esc_release_instruction i
-                 WHERE i.escrow_id = e.id AND i.status IN ('pending_approval','approved','sent')), 0)
+                 WHERE i.escrow_id = e.id AND i.currency = va.currency
+                   AND i.status IN ('pending_approval','approved','sent')), 0)
                                                                                  AS instructed_awaiting_bank,
        MAX(b.occurred_at)                                                        AS last_bank_event_at
 FROM esc_escrow e
-LEFT JOIN esc_bank_event b ON b.escrow_id = e.id      -- only events matched by virtual account (esc.bank_event_account())
-GROUP BY e.id;
+JOIN va ON va.escrow_id = e.id
+LEFT JOIN esc_bank_event b ON b.escrow_id = e.id AND b.currency = va.currency
+                                                      -- only events matched by virtual account (esc.bank_event_account())
+GROUP BY e.id, va.currency, va.programme_account_id, va.virtual_account_ref;
 -- The column is named held_at_bank on purpose; the CI test on '%balance%' stands (ADR-18, ADR-26).
 ```
 
@@ -3259,6 +3325,204 @@ GROUP BY e.id;
 **Held-back share (FR-ESC-020, Could, R1).** Where the accepted escrow terms set `held_back_amount`, the main release pays `agreed_amount - held_back_amount` once the `main` conditions close. The held-back share stays in the escrow's virtual account and is paid by a second instruction with `release_part = 'held_back'` when its own conditions close, after the client's approval and two staff approvals, with the same blockers, payee lock and fresh checks. While a held-back share is open the escrow stays `partly_released`. Whether part of a land price may be held back until registration is lodged, how much and for how long is Q-30; until the lawyer answers it, no terms version carries a held-back clause.
 
 **Data classes.** `esc_programme_account` is class `payee` (bank details). `esc_bank_position` is in 01's Escrow and payment class and kept with the escrow.
+
+### 6.17 Exchange rates, conversion and deposit routes (RUL-35, RUL-36; FR-ESC-021 to FR-ESC-024; IF-14, IF-15; ADR-27)
+
+Two rules from 01 v0.15. Columns added to existing tables are shown in place: `esc_escrow` and `esc_release_instruction` (6.5), `esc_bank_event`, `adm_setting` and `adm_partner` (6.8), `cty_country_config` (6.9), `esc_bank_position` and `esc_confirmed_funds` (6.16). The new tables follow. Rates are `numeric(18,8)` in units of the to currency per one unit of the from currency. A margin is `(reference rate - rate) / reference rate` as a percentage, so a positive margin means the client receives less than at the reference rate.
+
+```sql
+CREATE TABLE esc_fx_account (                         -- RUL-34, RUL-36: an escrow's foreign currency virtual account
+  id                 uuid PRIMARY KEY,
+  country_id         uuid NOT NULL REFERENCES cty_country(id),
+  escrow_id          uuid NOT NULL REFERENCES esc_escrow(id),
+  programme_account_id uuid NOT NULL REFERENCES esc_programme_account(id),  -- the programme account for this currency
+  currency           char(3) NOT NULL,                                     -- never the escrow's own (price) currency
+  virtual_account_ref text NOT NULL,                                       -- issued by the bank
+  opened_at          timestamptz NOT NULL DEFAULT now(),
+  closed_at          timestamptz,
+  UNIQUE (escrow_id, currency),
+  UNIQUE (programme_account_id, virtual_account_ref)
+);
+-- Trigger esc.fx_account_match(): the programme account's country equals the escrow's, its currency equals this row's
+-- and differs from esc_escrow.currency. Opened when the client picks a foreign currency deposit route (FR-ESC-021),
+-- only for currencies in the country configuration's corridors. Closed only when its confirmed funds are zero.
+
+CREATE TABLE esc_programme_rate (                     -- Q-33: the bank's written programme rate for Tenmina deals
+  id                 uuid PRIMARY KEY,
+  country_id         uuid NOT NULL REFERENCES cty_country(id),
+  bank_partner_id    uuid NOT NULL REFERENCES adm_partner(id),             -- kind escrow_bank
+  from_currency      char(3) NOT NULL,
+  to_currency        char(3) NOT NULL,
+  band_from          numeric(18,2) NOT NULL CHECK (band_from >= 0),        -- amount band, in from_currency
+  band_to            numeric(18,2),                                        -- null: no upper limit
+  margin_pct         numeric(7,4) NOT NULL CHECK (margin_pct >= 0),        -- over the reference rate, as agreed
+  tolerance_pct      numeric(7,4) NOT NULL DEFAULT 0 CHECK (tolerance_pct >= 0),  -- rounding the agreement allows [TO VERIFY]
+  fee_schedule       jsonb NOT NULL,                                       -- every fee the bank may charge on a conversion
+  reference_source_id uuid NOT NULL REFERENCES adm_partner(id),            -- kind rate_source: the rate it is measured against
+  valid_from         date NOT NULL,
+  valid_to           date,
+  agreement_evidence_id uuid NOT NULL REFERENCES evd_evidence(id),         -- the bank's written agreement
+  approval_request_id uuid NOT NULL REFERENCES core_approval_request(id),   -- second administrator (FR-ADM-003)
+  CHECK (from_currency <> to_currency),
+  CHECK (band_to IS NULL OR band_to > band_from)
+);
+-- Exclusion constraint: no two rows overlap in dates and amount band for the same bank and pair. Insert-only for
+-- tenmina_app; a new rate is a new row with the same approvals. No bank route is offered for a pair without a row.
+
+CREATE TABLE esc_fx_rate_observation (                -- FR-ESC-024, IF-14, IF-15: every rate collected; never edited
+  id                 uuid PRIMARY KEY,
+  country_id         uuid NOT NULL REFERENCES cty_country(id),
+  source_partner_id  uuid NOT NULL REFERENCES adm_partner(id),             -- rate_source, escrow_bank or transfer_partner
+  kind               text NOT NULL CHECK (kind IN ('reference','programme','provider')),
+  from_currency      char(3) NOT NULL,
+  to_currency        char(3) NOT NULL,
+  rate               numeric(18,8) NOT NULL CHECK (rate > 0),
+  send_amount        numeric(18,2),                                        -- programme and provider rows: the band amount
+  fees_total         numeric(18,2) CHECK (fees_total >= 0),                -- in from_currency
+  delivered_amount   numeric(18,2),                                        -- local amount delivered for send_amount
+  source_published_at timestamptz,                                         -- the time the source gives for its rate
+  collected_at       timestamptz NOT NULL DEFAULT now(),
+  method             text NOT NULL CHECK (method IN ('api','file','manual')),
+  raw_sha256         bytea NOT NULL CHECK (length(raw_sha256) = 32),       -- hash of the response or captured page
+  proof_evidence_id  uuid REFERENCES evd_evidence(id),                     -- required for manual
+  entered_by         uuid REFERENCES acc_person(id),
+  checked_by         uuid REFERENCES acc_person(id),
+  CHECK (kind = 'reference' OR (send_amount IS NOT NULL AND fees_total IS NOT NULL AND delivered_amount IS NOT NULL)),
+  CHECK (method <> 'manual' OR (proof_evidence_id IS NOT NULL AND entered_by IS NOT NULL
+         AND checked_by IS NOT NULL AND checked_by <> entered_by))
+);
+-- tenmina_app has INSERT only. A reference observation is usable for quotes until fx_rate_stale_hours after
+-- source_published_at (or collected_at when the source gives no time).
+
+CREATE TABLE esc_fx_comparison_run (                  -- FR-ESC-024: one per country, pair, band and working day
+  id                 uuid PRIMARY KEY,
+  country_id         uuid NOT NULL REFERENCES cty_country(id),
+  run_date           date NOT NULL,
+  from_currency      char(3) NOT NULL,
+  to_currency        char(3) NOT NULL,
+  send_amount        numeric(18,2) NOT NULL,                               -- from fx_comparison_amounts
+  reference_observation_id uuid REFERENCES esc_fx_rate_observation(id),
+  providers_expected int NOT NULL,                                         -- from fx_comparison_providers, plus the bank
+  providers_fresh    int NOT NULL,
+  status             text NOT NULL CHECK (status IN ('complete','partial','failed')),
+  best_observation_id uuid REFERENCES esc_fx_rate_observation(id),         -- highest delivered_amount after fees
+  programme_rank     int,                                                  -- 1 when the bank's programme route delivers the most
+  published_at       timestamptz,
+  UNIQUE (country_id, run_date, from_currency, to_currency, send_amount),
+  CHECK (status <> 'complete' OR (providers_fresh = providers_expected AND providers_expected >= 1
+         AND reference_observation_id IS NOT NULL AND best_observation_id IS NOT NULL))
+);
+CREATE TABLE esc_fx_comparison_item (
+  run_id             uuid NOT NULL REFERENCES esc_fx_comparison_run(id),
+  observation_id     uuid NOT NULL REFERENCES esc_fx_rate_observation(id),
+  stale              boolean NOT NULL,
+  PRIMARY KEY (run_id, observation_id)
+);
+-- The comparison ranks by local amount delivered for the band's send amount after all fees, not by rate alone (I-53).
+-- A 'partial' or 'failed' run is shown with stale sources marked, publishes fx.comparison_incomplete (document 06
+-- AL-62) and can never support a "best rate" statement.
+
+CREATE TABLE esc_fx_quote (                           -- RUL-35, FR-ESC-021, FR-ESC-023: what the client saw and accepted
+  id                 uuid PRIMARY KEY,
+  country_id         uuid NOT NULL REFERENCES cty_country(id),
+  escrow_id          uuid NOT NULL REFERENCES esc_escrow(id),
+  purpose            text NOT NULL CHECK (purpose IN ('deposit','release_conversion','refund_conversion')),
+  route              text NOT NULL CHECK (route IN (
+                       'escrow_fx_account',      -- client pays foreign currency into the escrow's own foreign
+                                                 -- currency virtual account; the bank converts at the programme rate
+                       'escrow_local_account',   -- client's own bank converts and pays the escrow's local account;
+                                                 -- the client's bank rate is an estimate the client confirms
+                       'transfer_partner')),     -- IF-15 partner delivers local currency to the escrow's local account
+  provider_partner_id uuid NOT NULL REFERENCES adm_partner(id),            -- escrow_bank or transfer_partner
+  from_currency      char(3) NOT NULL,
+  from_amount        numeric(18,2) NOT NULL CHECK (from_amount > 0),
+  to_currency        char(3) NOT NULL,
+  reference_observation_id uuid NOT NULL REFERENCES esc_fx_rate_observation(id),  -- the reference rate, its source, its time
+  reference_rate     numeric(18,8) NOT NULL CHECK (reference_rate > 0),    -- copied from the observation
+  offered_rate       numeric(18,8) NOT NULL CHECK (offered_rate > 0),
+  margin_pct         numeric(7,4) GENERATED ALWAYS AS
+                       ((reference_rate - offered_rate) / reference_rate * 100) STORED,
+  programme_rate_id  uuid REFERENCES esc_programme_rate(id),               -- required for escrow_fx_account
+  fees               jsonb NOT NULL,                                       -- every fee: who charges it, name, amount, currency
+  fees_total_to      numeric(18,2) NOT NULL CHECK (fees_total_to >= 0),    -- all fees in to_currency
+  expected_to_amount numeric(18,2) NOT NULL CHECK (expected_to_amount > 0),  -- what the escrow or payee receives
+  limits_text        text,                                                 -- the route's limits per transfer and per day
+  tenmina_margin     numeric(18,2) NOT NULL DEFAULT 0 CHECK (tenmina_margin = 0),  -- RUL-35: always zero
+  partner_payment_to_tenmina numeric(18,2) NOT NULL DEFAULT 0 CHECK (partner_payment_to_tenmina >= 0),  -- RUL-35: shown
+  partner_payment_currency char(3),
+  best_rate_claim    boolean NOT NULL DEFAULT false,
+  comparison_run_id  uuid REFERENCES esc_fx_comparison_run(id),            -- the day's comparison shown with the quote
+  shown_sha256       bytea NOT NULL CHECK (length(shown_sha256) = 32),     -- hash of the rendered text and figures
+  quoted_at          timestamptz NOT NULL DEFAULT now(),
+  expires_at         timestamptz NOT NULL,                                 -- quoted_at + fx_quote_valid_minutes
+  accepted_by        uuid REFERENCES acc_person(id),                       -- the escrow's client, never staff
+  accepted_at        timestamptz,
+  CHECK (from_currency <> to_currency),
+  CHECK ((accepted_by IS NULL) = (accepted_at IS NULL)),
+  CHECK (accepted_at IS NULL OR accepted_at <= expires_at),
+  CHECK (route <> 'escrow_fx_account' OR programme_rate_id IS NOT NULL),
+  CHECK (partner_payment_to_tenmina = 0 OR partner_payment_currency IS NOT NULL),
+  CHECK (NOT best_rate_claim OR comparison_run_id IS NOT NULL)
+);
+-- tenmina_app has INSERT and one UPDATE that sets accepted_by and accepted_at; nothing else changes. Trigger
+-- esc.fx_quote_checks() at insert: the reference observation is of kind 'reference' for the pair, from the source the
+-- programme rate names (or the country's configured source), and not stale; for 'escrow_fx_account' the offered rate
+-- equals the reference rate less the programme margin for the band, so margin_pct equals margin_pct of the programme
+-- rate; for 'transfer_partner' the figures come from the partner's own quote or that day's observation for it and
+-- partner_payment_to_tenmina from its adm_partner record; to_currency is the escrow's price currency for 'deposit' and
+-- 'release_conversion'; best_rate_claim is true only when comparison_run_id is a 'complete' run for that date, pair and
+-- band with programme_rank 1 (or the partner's observation as best_observation_id for a partner route). The text that
+-- says "best rate" is rendered only from that flag. At accept: accepted_by is the escrow's client, signed in with MFA.
+
+CREATE TABLE esc_fx_conversion (                      -- FR-ESC-023: the confirmed conversion against the quote
+  id                 uuid PRIMARY KEY,
+  country_id         uuid NOT NULL REFERENCES cty_country(id),
+  escrow_id          uuid NOT NULL REFERENCES esc_escrow(id),
+  quote_id           uuid NOT NULL REFERENCES esc_fx_quote(id),
+  route              text NOT NULL CHECK (route IN ('bank_conversion','transfer_partner','client_bank')),
+  instruction_id     uuid REFERENCES esc_release_instruction(id),          -- kind conversion; null when the bank converted
+                                                                           -- on arrival or the money came already converted
+  debit_event_id     uuid REFERENCES esc_bank_event(id),                   -- conversion_debit (bank_conversion only)
+  credit_event_id    uuid NOT NULL REFERENCES esc_bank_event(id),          -- conversion_credit, or the local-currency deposit
+  from_amount        numeric(18,2) NOT NULL,
+  to_amount          numeric(18,2) NOT NULL,
+  applied_rate       numeric(18,8) NOT NULL,                               -- as the bank's advice states it, or to/from
+  applied_fees       numeric(18,2) NOT NULL,                               -- in to_currency
+  reference_observation_id uuid NOT NULL REFERENCES esc_fx_rate_observation(id),  -- reference for the conversion's date
+  reference_rate     numeric(18,8) NOT NULL,
+  margin_pct         numeric(7,4) GENERATED ALWAYS AS
+                       ((reference_rate - applied_rate) / reference_rate * 100) STORED,
+  programme_rate_id  uuid REFERENCES esc_programme_rate(id),               -- bank_conversion only
+  short_of_quote     numeric(18,2) NOT NULL,                               -- expected_to_amount scaled to from_amount, less to_amount
+  status             text NOT NULL CHECK (status IN ('within','outside','not_checked','resolved')),
+  claim_amount       numeric(18,2),                                        -- the difference claimed (RB-48)
+  claimed_at         timestamptz,
+  claim_reference    text,                                                 -- the bank's or partner's reference
+  recovered_event_id uuid REFERENCES esc_bank_event(id),                   -- deposit_route 'bank_correction'
+  resolved_by        uuid REFERENCES acc_person(id),                       -- a reviewer
+  resolution_checked_by uuid REFERENCES acc_person(id),                    -- a second staff member
+  resolution_note    text,
+  resolution_evidence_id uuid REFERENCES evd_evidence(id),
+  CHECK (route <> 'bank_conversion' OR (debit_event_id IS NOT NULL AND programme_rate_id IS NOT NULL)),
+  CHECK (status <> 'resolved' OR (resolved_by IS NOT NULL AND resolution_checked_by IS NOT NULL
+         AND resolution_checked_by <> resolved_by AND resolution_note IS NOT NULL AND resolution_evidence_id IS NOT NULL))
+);
+-- Written by escrow.fx_conversion_check, never by hand. Status 'outside' when, for bank_conversion, margin_pct is
+-- above the programme rate's margin_pct plus tolerance_pct, or applied_fees exceed its fee_schedule; for
+-- transfer_partner, short_of_quote is above fx_delivery_tolerance. 'not_checked' only for client_bank, where the
+-- client's own bank set the rate: the client is shown the local amount that arrived against their estimate.
+-- 'outside' publishes fx_conversion.outside_margin and tells the client; it does not block releases.
+```
+
+**Deposit routes (FR-ESC-021, RUL-35).** `GET /v1/escrows/{id}/deposit-routes` lists, for the client's currency and amount: the escrow's foreign currency virtual account at the bank (programme rate, margin, the bank's fees, any limits), the escrow's local-currency virtual account (paid from the client's own bank, whose rate Tenmina cannot see: the client is shown the reference rate and the local amount needed, and enters their bank's quoted rate to see its margin), and each approved transfer partner for that corridor (the partner's rate, margin, fees, limits and delivered amount, and any payment the partner makes to Tenmina). Each route shows the estimated local amount delivered and the day's comparison with its time and sources. A route whose figures cannot be shown with a fresh reference rate is listed as unavailable today, never with old figures. Choosing a route creates an `esc_fx_quote` with purpose `deposit` for the client to accept; for the foreign currency route this opens the `esc_fx_account` row and shows its virtual account number.
+
+**Conversion choice and buffer (FR-ESC-022, RUL-36).** The default is `on_deposit`. For a deposit into the escrow's foreign currency virtual account the bank converts on arrival under a standing instruction in the escrow terms, where the bank can do this (TQ-36); otherwise `escrow.fx_convert_on_deposit` prepares a `conversion` instruction against the accepted deposit quote on `escrow.funded` for two staff approvals the same working day. With `at_release`, the client is shown the buffer (`fx_hold_buffer_pct`, `[TO VERIFY]`) and the foreign amount it means at the day's programme rate; the escrow is `funded` only when the foreign currency confirmed funds, valued at the day's programme rate, reach the price plus the buffer. The conversion is a `conversion` instruction prepared with the release (5.3); the release waits while local-currency confirmed funds are short of its amount, and `escrow.fx_shortfall` asks the client to top up. A held-funds escrow has no price: conversion at release converts per payment, the buffer is not applied, and each payment waits for its own conversion (I-51). After the last release, `escrow.unused_funds` lists money left in either currency and prepares a refund draft for each deposit to its source; a refund that must convert first needs a `refund_conversion` quote accepted by the client (I-54).
+
+**Quote check (FR-ESC-023).** On every `conversion_credit`, and on every local-currency deposit matched to an accepted `deposit` quote, `escrow.fx_conversion_check` writes an `esc_fx_conversion` row and compares the result with the quote and, for the bank, with the programme rate in force. The client sees each accepted quote beside what arrived. A conversion outside the programme margin, or a partner delivery short of its quote, raises `fx_conversion.outside_margin`; a reviewer claims the difference under the programme or partner agreement and a second staff member checks the resolution (document 06 RB-48). The bank pays any difference back into the escrow's own virtual account as a `bank_correction` deposit; it is then used or refunded like any other money in the escrow.
+
+**Daily comparison (FR-ESC-024).** Each working day `escrow.fx_collect_rates` collects the reference rate and the bank's programme rate and, for each corridor and band in `fx_comparison_amounts`, each provider in `fx_comparison_providers` (at least `[3, TO VERIFY]` besides the bank), through the IF-14 and IF-15 adapters (9.6). Clients and staff see the comparison with each source and its time (`GET /v1/fx/comparison`). A source that fails is retried hourly; if it is still stale at `[TO VERIFY]` local time the run is `partial` or `failed`, the alert goes to operations, and a staff member may enter the rate by hand with a screenshot or the source's document as proof, checked by a second person. A reference rate entered by hand backs quotes only after that check.
+
+**Data classes.** Quotes, conversions and comparison runs are in 01's Escrow and payment class and kept with the escrow. Rate observations and programme rates hold no personal data and are kept as Escrow and payment records `[TO VERIFY]` with Q-08.
 
 ---
 
@@ -3402,15 +3666,24 @@ Roles: CL client, SE seller, DV developer, CM case manager, RV reviewer, LW lawy
 | POST | `/v1/escrows/{id}/acceptances` | Accept escrow terms | CL, SE, DV own | FR-ESC-002 |
 | POST | `/v1/escrows/{id}/bank-events` | Manual deposit or confirmation with proof; a deposit records the source account exactly as the bank's confirmation gives it | CM (a second person checks) | FR-ESC-004, FR-ESC-009, FR-ESC-017 |
 | POST | `/v1/escrows/{id}/conditions/{cid}/close` | Close condition with evidence | CM | FR-ESC-005 |
-| POST | `/v1/escrows/{id}/release-instructions` | Prepare release, partial release or cancel | CM | FR-ESC-006, 010, 013 |
+| POST | `/v1/escrows/{id}/release-instructions` | Prepare release, partial release, cancel or conversion (a conversion names the client's accepted quote) | CM | FR-ESC-006, 010, 013, FR-ESC-022 |
 | POST | `/v1/release-instructions/{id}/client-approval` | Client approves | CL own | RUL-11 |
 | POST | `/v1/release-instructions/{id}/approvals` | Staff approval with MFA; payee, subject and held-funds checks run again | RV (RR) | FR-ESC-007, FR-ESC-015 |
 | GET | `/v1/escrows/{id}/statement?family_member=` | Running statement of a held-funds escrow: bank events and instructions, held at the bank, awaiting the bank | CL own, CM, RV | FR-ESC-014, FR-FEE-007 |
-| GET | `/v1/escrows/{id}/funds` | Confirmed funds for any escrow: virtual account reference, held at the bank, awaiting the bank, latest bank figure and its status | CL own, CM, RV | FR-ESC-019, RUL-34 |
+| GET | `/v1/escrows/{id}/funds` | Confirmed funds for any escrow, per currency from 01 v0.15: virtual account reference, held at the bank, awaiting the bank, latest bank figure and its status | CL own, CM, RV | FR-ESC-019, RUL-34 |
 | GET | `/v1/release-instructions?clock=due_today\|send_overdue\|bank_overdue` | Release clock queue: clock start, last approval, send-due and bank-pay-due dates | CM, RV | FR-ESC-018, NFR-PERF-06 |
 | POST | `/v1/escrows/{id}/bank-positions` | Manual entry of the bank's daily figure for the escrow with proof, where no file or API gives it | CM (a second person checks) | FR-ESC-019, FR-ESC-011 |
 | POST | `/v1/bank-positions/{id}/resolve` | Resolve a mismatch with the bank's written explanation; releases on the escrow resume | RV, then a second staff member | FR-ESC-019 |
 | GET, POST | `/v1/admin/programme-accounts` | Record a programme escrow account or a pilot single-escrow account | AD (second administrator approves) | RUL-34, FR-ADM-003 |
+| GET | `/v1/escrows/{id}/deposit-routes?currency=&amount=` | Deposit routes: the escrow's foreign currency and local-currency virtual accounts and approved transfer partners, each with reference rate and source, rate, margin, fees, limits, any partner payment to Tenmina and the estimated local amount delivered; the day's comparison | CL own, CM | FR-ESC-021, FR-ESC-024, RUL-35 |
+| POST | `/v1/escrows/{id}/fx-quotes` | Issue a quote for a deposit route, a conversion at release or a refund that converts | CL own, CM | FR-ESC-021, FR-ESC-023, RUL-35 |
+| POST | `/v1/fx-quotes/{id}/accept` | Accept a quote exactly as shown; the shown figures' hash is checked | CL own, MFA | FR-ESC-023, RUL-35 |
+| PUT | `/v1/escrows/{id}/conversion-choice` | Convert on deposit (default) or at release; at release, shows and records the buffer | CL own, MFA, before the first foreign currency deposit | FR-ESC-022, RUL-36 |
+| GET | `/v1/escrows/{id}/conversions` | Accepted quotes beside the bank's or partner's confirmed result, the margin against the programme rate, and any claim | CL own, CM, RV | FR-ESC-023 |
+| POST | `/v1/fx-conversions/{id}/resolve` | Record the claim to the bank or partner and its outcome | RV, then a second staff member | FR-ESC-023 |
+| GET | `/v1/fx/comparison?country=&from=&amount=` | The day's rate comparison with each source, its time and stale marks | Pub, CL, CM | FR-ESC-024 |
+| POST | `/v1/admin/fx-observations` | Enter a rate by hand with proof when a source fails | CM, AD (a second person checks) | FR-ESC-024, IF-14 |
+| GET, POST | `/v1/admin/programme-rates` | Record the bank's written programme rate per currency pair and amount band | AD (second administrator approves) | RUL-35, Q-33, FR-ADM-003 |
 | GET, POST | `/v1/payees`, `/v1/payees/{id}` | Payee registry: legal name evidence, bank account name evidence, status | CM, RV, AD | RUL-22, FR-ESC-015 |
 | POST | `/v1/payees/{id}/verifications` | First and second-person verification of a payee's bank details | CM, RV, AD (two people) | FR-ESC-015, FR-ADM-003 |
 | POST | `/v1/payees/{id}/suspensions` | Suspend a payee with reason; withdraws open approvals | RV | RUL-22 |
@@ -3896,7 +4169,7 @@ The `pay_to` block is read from the bank partner's record only (FR-ESC-003). Pay
 | `payments.reconcile` | integrations | Daily 02:00 GMT | Settlement against orders | FR-PAY-006 |
 | `mobile.verify_evidence` | default | Evidence complete | Signature and fraud checks | FR-MOB-011 |
 | `construction.reprice` | default | Before client approval | Cedi re-price against dollar guide | FR-BLD-007 |
-| `administration.refresh_fx` | integrations | Daily | FX guide rates (source `[TO VERIFY]`) | FR-ADM-002 |
+| `administration.refresh_fx` | integrations | Daily, after `escrow.fx_collect_rates` | FX guide rates, taken from the day's IF-14 reference observation so guides and quotes use one source (6.17) | FR-ADM-002, FR-ESC-024 |
 | `listings.expire_badges` | default | Hourly | Expire badges, suspend on alerts | FR-LST-006 |
 | `listings.lapse_reservations` | default | Hourly | Release lapsed reservations | FR-LST-005 |
 | `disputes.deadline_tick` | default | Hourly | Advance states on deadlines | FR-DSP-003 |
@@ -3934,6 +4207,11 @@ The `pay_to` block is read from the bank partner's record only (FR-ESC-003). Pay
 | `profpay.yearly_statements` | default | After each country's tax year ends (configuration) | Yearly statement per professional | FR-PRO-007 |
 | `profpay.payee_watch` | default | Daily | Agreements whose payee is no longer verified: payables held with `payee_not_verified`; alert | FR-PRO-006 |
 | `escrow.release_clock_watch` | default | Every 15 min, and at 15:00 local time on each working day (assumption) | Approved instructions not sent by the end of `send_due_on`: `release.send_overdue` and an alert; sent instructions with no bank confirmation by the end of `bank_pay_due_on`: `release.bank_overdue` and an alert; the 15:00 run lists releases still to send that day | FR-ESC-018, NFR-PERF-06, RUL-33 |
+| `escrow.fx_collect_rates` | integrations | Each working day at `[TO VERIFY]` local time; hourly retries for stale sources until `[TO VERIFY]` | Collect the reference rate, the bank's programme rate and each configured provider's rate, fees and delivered amount per corridor and band (IF-14, IF-15); store observations; build and publish comparison runs; `fx.comparison_incomplete` when a run is partial or failed | FR-ESC-024, RUL-35 |
+| `escrow.fx_conversion_check` | default | Bank event `conversion_credit`; a local-currency deposit matched to an accepted deposit quote | Write `esc_fx_conversion`; compare with the quote and the programme rate; `fx_conversion.outside_margin` and an alert when outside | FR-ESC-023 |
+| `escrow.fx_convert_on_deposit` | default | `escrow.funded` or a foreign currency deposit on an `on_deposit` escrow, where the bank does not convert on arrival | Prepare a `conversion` instruction against the accepted deposit quote for two staff approvals the same working day | FR-ESC-022, RUL-36 |
+| `escrow.fx_buffer_watch` | default | Daily after `escrow.fx_collect_rates` | For `at_release` escrows, value the foreign currency held at the day's programme rate; tell the client when it falls below the price plus the buffer, and `escrow.fx_shortfall` when below the price | FR-ESC-022, RUL-36 |
+| `escrow.unused_funds` | default | `release.confirmed` for an escrow's last release; `escrow.cancelled` | List money left in either currency; prepare refund drafts to each deposit's source, with a `refund_conversion` quote where the refund converts | FR-ESC-022, RUL-36, RUL-29 |
 | `escrow.cooling_off_end` | default | Every 15 min | Tell the client and the case manager when a payee change's cooling-off has ended; releases to the new account then follow 5.3 | FR-ESC-016, RUL-28 |
 | `accounts.national_id_retry` | integrations | Every 15 min while checks are `pending` or `unavailable` | Retry with back-off; after 24 h (assumption) a staff queue item and a plain status message to the client; never falls back to a document check | FR-ACC-013, IF-03 |
 | `cases.search_result_watch` | default | Daily | Alert the case manager when a submitted search has no result from the registry's channel after `search_result_overdue_days`, or a registry-office result waits for staff confirmation | FR-CASE-016, IF-09 |
@@ -4110,6 +4388,8 @@ Each integration has a port in the owning module and adapters chosen per partner
 | IF-09 Lands Commission | `LandsSearch` (CASE) | `online_portal`: Tenmina staff submit the search on the Lands Commission online portal from Tenmina's own account and download the result there (RUL-30, 9.5) | `registry_office`: where a region has no remote channel, the search is lodged in Tenmina's name and a staff member confirms the result with the registry before use; `api` only if offered, none known `[TO VERIFY]` | Portal down: the task waits and the client is told; no runner's copy is used instead. Overdue search raises task alert and client status message. | All releases |
 | IF-10 Institutions | `InstitutionChannel` (FEE) | `manual`: the client or the institution contact uploads the invoice; the case manager or contact uploads the receipt; the bank's payment carries the invoice reference | `portal`: the institution contact signs in to the portal to submit invoices and receipts (R2); `file`: a periodic fee list and receipt file by SFTP or email for large schools and hospitals (format per institution `[TO VERIFY]`, Q-16); `api` only where an institution offers one `[TO VERIFY]` | Invoice reference not recognised by the institution: payment is not instructed until the contact confirms. Receipt not returned within `receipt_target_days`: chase job, then a runner collects it. Institution cannot take a transfer: marked not eligible for direct payment and the client told plainly; no cash route (FR-FEE-006). | R1 manual; R2 portal or file |
 | IF-11 Insurer partners | `InsurerGateway` (INS) | `manual`: application PDF sent to the insurer's named contact by secure email; policy document and claim outcome uploaded by staff or the insurer partner user in the portal | `file`: application and policy batch files per insurer `[TO VERIFY]` (Q-17); `api` where offered | Insurer silent: application stays `submitted` with reminders; the client is told. Premium route per FR-INS-002, chosen per insurer: the client pays the insurer directly, or the bank pays the insurer from money held for that purpose; never Tenmina (RUL-25). Claims: Tenmina records the insurer's status only. | R2 |
+| IF-14 Reference rate and rate comparison | `RateSource` (ESC) | `api` or `file` per source: a published reference rate and each provider's published rate, fees and delivered amount for the comparison bands; sources `[TO VERIFY]` (TQ-37) | `manual`: a staff member enters the rate from the source's page or document with a screenshot as proof, checked by a second person | A source stale after hourly retries leaves that day's run `partial` or `failed`; no "best rate" statement; quotes refuse a stale reference rate. Every response hashed and kept (6.17). | R1 |
+| IF-15 Licensed money transfer partners | `TransferPartner` (ESC) | `manual`: the partner's published rate, fees, limits and delivered amount entered daily, and its delivery into the escrow's local-currency virtual account confirmed through IF-01 like any deposit | `api` where a partner offers quotes and delivery status `[TO VERIFY]` (TQ-38) | Money counts only when the bank confirms it under the escrow's virtual account (RUL-34); a delivery without the reference stays unmatched. The bank's credit may name only the partner, so `source_account_known` is false and a refund takes the RUL-29 exception path. Delivered less than quoted: alert and claim (RB-48). | R1 |
 
 ### 9.1 Release instruction format (IF-01)
 
@@ -4120,6 +4400,7 @@ Each integration has a port in the owning module and adapters chosen per partner
 - Source of funds: the instruction names the programme escrow account and the escrow's virtual account number or reference, and asks the bank to pay only from that escrow's money in it (RUL-34). The amount never exceeds the escrow's confirmed funds (6.5).
 - Timing: the instruction is sent the working day the last approval is recorded and asks for payment with no later value date. No waiting period is added by Tenmina (RUL-33). The bank's cut-off times and payment times per route are TQ-35.
 - Held-back share: a main release with a held-back share states the amount left in escrow and the condition that releases it (FR-ESC-020).
+- Conversion: a `conversion` instruction names the escrow's two virtual accounts, the amount and currency to convert, the programme rate reference and the client's accepted quote (rate, margin, fees, expected amount), and asks the bank to report the rate and fees it applied. It pays no one (RUL-35, RUL-36, FR-ESC-023).
 - Refund: a cancellation refund names the deposit it returns (bank reference and date) and its source account exactly as the bank's confirmation gave it, or, under a RUL-29 exception, the client's own account from the applied `refund_destination` change. The instruction states which, so the bank can check it against its own deposit record (FR-ESC-017, TQ-34).
 
 ### 9.2 Bank account name verification (RUL-22, RUL-24, FR-ESC-015)
@@ -4158,6 +4439,17 @@ The rent account belongs to the owner, not to Tenmina. Tenmina reads only the ba
 | No remote channel | The search is lodged in Tenmina's name at the registry office. Whoever carries the papers, the result counts only after a staff member confirms it with the registry and records the officer's name and post (`/confirmations`) |
 | Copies from others | A copy from a runner, seller, agent or client is stored as `search_copy_unverified`. It never closes a search task. If it differs from the registry's result, a fraud review opens |
 | Fresh searches | FR-CASE-014 fresh searches use the same record, so a fresh-search case cannot complete, and the RUL-07 blocker in 6.5 cannot pass, without a usable search request |
+
+### 9.6 Exchange rates and transfer partners (IF-14, IF-15, RUL-35, FR-ESC-021, FR-ESC-024)
+
+| Topic | Design |
+|---|---|
+| Reference rate | One published reference rate per pair, from the source the bank's programme agreement names (`esc_programme_rate.reference_source_id`); a second configured source is collected too, and a difference between them above `[TO VERIFY]`% is an alert, not a silent switch. Which source is open (TQ-37) |
+| Programme rate | The bank's written margin over the reference rate per pair and amount band, recorded with the agreement and a second administrator (Q-33). It never changes from a message or a call: a new rate is a new row |
+| Providers | At least `[3, TO VERIFY]` providers besides the bank per corridor, chosen by two administrators in `fx_comparison_providers`. The comparison uses each provider's delivered amount for the band's send amount after its fees, as it publishes them. Collection respects each source's terms of use (TQ-37) |
+| Transfer partners | Licensed partners approved in `adm_partner` with licence evidence, corridors, limits and source-of-funds checks (Q-33). They deliver local currency to the escrow's local-currency virtual account with its reference. Tenmina never receives the money and passes partners only the escrow's account and reference, not the client's other data, unless the client sends it themselves |
+| What the client sees | For each route: the reference rate and its source and time, the rate offered, the margin as a percentage, every fee, any limits, any payment from the partner to Tenmina, and the local amount delivered. "Best rate" only from a complete comparison run of the same day (6.17) |
+| Country | Sources, providers, partners, corridors and bands are configuration per country. Nothing names the cedi in code; Ghana's configuration sets it (I-50) |
 
 ---
 
@@ -4233,6 +4525,10 @@ The rent account belongs to the owner, not to Tenmina. Tenmina reads only the ba
 | Payee | Tampering | Payment diversion by changed bank details: a message, email or call says the seller or an institution has a new account, or an insider edits the account before a release | No endpoint or field takes bank details from a message; account columns writable only by `esc.apply_payee_change()`; fresh national identity and account-name checks; client approval first, then two staff with release rights; second-channel notice with a stop link; cooling-off before any release; release trigger checks the locked account version (`esc_escrow_payee`) and `cooling_off_until` | RUL-28, FR-ESC-016 |
 | Refund | Elevation and theft | Refund redirection: on cancellation someone asks for the refund to "a new account", or takes over the client's sign-in and does so | Refund instruction names the deposit and goes to its source account from the bank's confirmation; another account only if in the client's own name, after a fresh identity check of the client, client approval, two staff and the cooling-off; fee refunds only to the original payment method through the provider | RUL-29, FR-ESC-017, FR-PAY-008 |
 | Escrow funds | Elevation and theft | One client's money pays another's release or refund in the shared programme escrow account: a wrong virtual account reference, a deposit matched to the wrong escrow, or an instruction larger than the escrow holds | Each escrow has its own virtual account number or reference; bank events count only when matched by it; the release trigger refuses any amount above the escrow's confirmed funds less other live instructions; the bank's daily figure per escrow is reconciled and a mismatch stops releases on that escrow; manual entries checked by a second person | RUL-34, FR-ESC-019 |
+| Exchange | Tampering and repudiation | Hidden margin: a rate shown without its margin, a fee left out, a Tenmina spread added, or the bank or a partner applying a worse rate than quoted | Every quote stores the reference rate and its source, the offered rate, a generated margin, every fee and the expected amount, with a hash of what was shown and the client's acceptance; `tenmina_margin` constrained to zero; for bank routes the offered rate must equal the written programme rate; partner payments to Tenmina on every quote; each confirmed conversion and partner delivery compared with the quote and the programme margin, and any difference alerted and claimed | RUL-35, FR-ESC-021, FR-ESC-023 |
+| Exchange | Tampering | Stale or manipulated reference rate: a source late, down or altered, or a staff member typing a rate that flatters the offer | Observations insert-only with the source's time, collection time and raw hash; quotes refuse a reference older than `fx_rate_stale_hours`; the reference source fixed by the programme agreement; a second source compared and a divergence alerted; manual entry only with proof and a second person; changes to sources and providers need two administrators | RUL-35, FR-ESC-024, IF-14 |
+| Exchange | Spoofing | Misleading "best rate": the claim made on a day with missing providers, by rate while fees make the route worse, or after choosing providers that lose | The phrase is rendered only from `best_rate_claim`, which needs a complete run of the same day where the route delivers the most after fees for the band; the comparison and its sources are shown beside it; provider list changed only by two administrators and logged; CI test that no template or store listing text contains the phrase outside that component | RUL-35, FR-ESC-024 |
+| Deposits | Elevation and theft | A transfer partner delivers less than quoted, or without the escrow's reference, or a refund of a partner deposit goes to someone who claims to be the sender | Partner money counts only when the bank confirms it under the escrow's virtual account; delivered amount checked against the quote; partner deposits with no client account refunded only through the RUL-29 exception path to an account in the client's own name | IF-15, FR-ESC-021, RUL-29, RUL-34 |
 | Official search | Spoofing | Forged search result handed over by a runner, seller or agent | Searches submitted and received by staff from Tenmina's own registry account; registry reference recorded; `evd.official_search_link()` refuses search evidence from anyone but staff; copies from others stored as unverified and never close the task; registry-office results confirmed by staff with the registry | RUL-30, FR-CASE-016 |
 | Identity | Spoofing | Identity by photocopy: an impostor seller, grantor or payee presents a photocopied or altered identity card | Check against the national identity system through IF-03; no endpoint accepts a card image for it; report release, payee verification and payee changes blocked until a match; the same identity number on two sides of a deal flagged | RUL-31, FR-ACC-013 |
 | Identity | Information disclosure | Biometric data from the identity system kept and later leaked | Adapter drops biometric fields before storage; no column or evidence link can hold them; CI schema test; only result, reference, time and a response hash kept | FR-ACC-013, NFR-PRIV-02 |
@@ -4371,6 +4667,14 @@ Fund and evidence protection, added for 01 version 0.12 (6.15). SE/DV/IC means t
 | Resolve a balance mismatch (two people) | - | - | - | - | second person only | Y | - |
 | Record a programme escrow account | - | - | - | - | - | - | two AD |
 | Change `fresh_search_window_days`, `release_bank_pay_working_days` or `release_median_target_working_days` | - | - | - | - | - | - | two AD |
+| See deposit routes, quotes, conversions and the day's comparison (01 v0.15, 6.17) | own | - | - | - | Y | Y | Y |
+| Accept a quote; choose when to convert | own, MFA | - | never | - | never | never | never |
+| Prepare a conversion instruction | - | - | - | - | Y | Y | - |
+| Approve a conversion instruction (two people, after the client's accepted quote) | - | - | - | - | - | RR | - |
+| Enter a rate by hand when a source fails | - | - | never | - | Y, a second person checks | Y | Y |
+| Resolve a conversion outside the programme margin (two people) | - | - | - | - | second person only | Y | - |
+| Record the bank's programme rate; approve a transfer partner | - | - | - | - | - | - | two AD |
+| Change `fx_hold_buffer_pct`, `fx_comparison_providers`, `fx_comparison_amounts`, `fx_rate_stale_hours`, `fx_quote_valid_minutes` or `fx_delivery_tolerance` | - | - | - | - | - | - | two AD |
 
 A re-check is never visible to the professionals and staff who worked on the case, or to the client, until an incident opens (6.15).
 
@@ -4605,6 +4909,8 @@ DR is rehearsed in staging before R1 go-live and every six months after (assumpt
 | Overlay checks | Over 30 s (NFR-PERF-04) |
 | Release clock | An approved instruction not sent on the working day of its last approval; a sent instruction not confirmed by the bank within `release_bank_pay_working_days` (FR-ESC-018, NFR-PERF-06) |
 | Escrow funds | Any `esc_bank_position` mismatch; an escrow with no bank figure for the last working day (FR-ESC-019) |
+| Exchange | Any `esc_fx_conversion` with status `outside`: a bank conversion outside the programme margin or a partner delivery short of its quote (FR-ESC-023) |
+| Rate comparison | The day's comparison run `partial` or `failed`; a reference rate older than `fx_rate_stale_hours`; the two reference sources differing above `[TO VERIFY]`% (FR-ESC-024) |
 | Backups | Missing backup or failed cross-region copy |
 
 ### 11.7 Cost estimate
@@ -4673,7 +4979,7 @@ A second cell for country 2 adds roughly one more production column, about 1,600
 
 ## 13. Requirement coverage
 
-Every FR ID in document 01 version 0.13 appears below, one row per module, so a text comparison of the two documents finds no gap.
+Every FR ID in document 01 version 0.15 appears below, one row per module, so a text comparison of the two documents finds no gap.
 
 | FR module | FR IDs | Django app and front ends | Main tables | Main endpoints | Sections |
 |---|---|---|---|---|---|
@@ -4683,7 +4989,7 @@ Every FR ID in document 01 version 0.13 appears below, one row per module, so a 
 | CASE | FR-CASE-001, FR-CASE-002, FR-CASE-003, FR-CASE-004, FR-CASE-005, FR-CASE-006, FR-CASE-007, FR-CASE-008, FR-CASE-009, FR-CASE-010, FR-CASE-011, FR-CASE-012, FR-CASE-013, FR-CASE-014, FR-CASE-015, FR-CASE-016 | `cases`; backoffice, portal | `case_case`, `case_task`, `case_status_message`, `case_risk_screen`, `case_party`, `case_search_request`, `safety.incident` | `/v1/cases*`, `/v1/tasks/*`, `/v1/work-queue`, `/v1/assets/{id}/fresh-searches`, `/v1/cases/{id}/parties`, `/v1/cases/{id}/search-requests`, `/v1/search-requests/*` | 6.5, 6.6, 6.7, 6.15, 9.5, ADR-25 |
 | RPT | FR-RPT-001, FR-RPT-002, FR-RPT-003, FR-RPT-004, FR-RPT-005, FR-RPT-006, FR-RPT-007, FR-RPT-008, FR-RPT-009, FR-RPT-010, FR-RPT-011, FR-RPT-012 | `reports`; backoffice, portal | `rpt_report`, `rpt_section`, `rpt_signature`, `rpt_condition`, `rpt_recheck_draw`, `rpt_recheck`, `rpt_incident` | `/v1/reports/*`, `/v1/report-verifications`, `/v1/rechecks*`, `/v1/report-incidents/*` | 5.2, 6.5, 6.15, 7.12, ADR-15, ADR-25 |
 | GEO | FR-GEO-001, FR-GEO-002, FR-GEO-003, FR-GEO-004, FR-GEO-005, FR-GEO-006, FR-GEO-007, FR-GEO-008 | `geo`; backoffice | `geo_asset`, `geo_boundary_version`, `geo_overlay_*`, `geo_monitoring_alert` | `/v1/assets/{id}/*`, `/v1/admin/overlay-layers`, `/v1/geo/ghana-post` | 6.4, IF-04 to IF-06 |
-| ESC | FR-ESC-001, FR-ESC-002, FR-ESC-003, FR-ESC-004, FR-ESC-005, FR-ESC-006, FR-ESC-007, FR-ESC-008, FR-ESC-009, FR-ESC-010, FR-ESC-011, FR-ESC-012, FR-ESC-013, FR-ESC-014, FR-ESC-015, FR-ESC-016, FR-ESC-017, FR-ESC-018, FR-ESC-019, FR-ESC-020 | `escrow`; portal, backoffice | `esc_escrow`, `esc_condition`, `esc_bank_event`, `esc_release_instruction`, `esc_payee`, `esc_payee_change`, `esc_escrow_payee`, `esc_incident_freeze`, `esc_standing_approval`, `esc_programme_account`, `esc_bank_position`, views `esc_confirmed_funds` and `esc_held_statement`, `core_approval*` | `/v1/escrows*`, `/v1/escrows/{id}/statement`, `/v1/escrows/{id}/funds`, `/v1/escrows/{id}/bank-positions`, `/v1/bank-positions/{id}/resolve`, `/v1/escrows/{id}/deposits/{event_id}/refund-exceptions`, `/v1/release-instructions/*`, `/v1/payees*`, `/v1/payee-changes/*`, `/v1/standing-approvals*`, `/v1/bank-statements`, `/v1/admin/programme-accounts` | 5.3, 5.12, 6.5, 6.11, 6.15, 6.16, 7.6, 7.12, 9.1, 9.2, IF-01, ADR-17, ADR-18, ADR-24, ADR-26 |
+| ESC | FR-ESC-001, FR-ESC-002, FR-ESC-003, FR-ESC-004, FR-ESC-005, FR-ESC-006, FR-ESC-007, FR-ESC-008, FR-ESC-009, FR-ESC-010, FR-ESC-011, FR-ESC-012, FR-ESC-013, FR-ESC-014, FR-ESC-015, FR-ESC-016, FR-ESC-017, FR-ESC-018, FR-ESC-019, FR-ESC-020, FR-ESC-021, FR-ESC-022, FR-ESC-023, FR-ESC-024 | `escrow`; portal, backoffice | `esc_escrow`, `esc_condition`, `esc_bank_event`, `esc_release_instruction`, `esc_payee`, `esc_payee_change`, `esc_escrow_payee`, `esc_incident_freeze`, `esc_standing_approval`, `esc_programme_account`, `esc_bank_position`, `esc_fx_account`, `esc_programme_rate`, `esc_fx_quote`, `esc_fx_conversion`, `esc_fx_rate_observation`, `esc_fx_comparison_run`, `esc_fx_comparison_item`, views `esc_confirmed_funds` and `esc_held_statement`, `core_approval*` | `/v1/escrows*`, `/v1/escrows/{id}/statement`, `/v1/escrows/{id}/funds`, `/v1/escrows/{id}/bank-positions`, `/v1/bank-positions/{id}/resolve`, `/v1/escrows/{id}/deposits/{event_id}/refund-exceptions`, `/v1/release-instructions/*`, `/v1/payees*`, `/v1/payee-changes/*`, `/v1/standing-approvals*`, `/v1/bank-statements`, `/v1/admin/programme-accounts`, `/v1/escrows/{id}/deposit-routes`, `/v1/escrows/{id}/fx-quotes`, `/v1/fx-quotes/{id}/accept`, `/v1/escrows/{id}/conversion-choice`, `/v1/escrows/{id}/conversions`, `/v1/fx-conversions/{id}/resolve`, `/v1/fx/comparison`, `/v1/admin/fx-observations`, `/v1/admin/programme-rates` | 5.3, 5.12, 6.5, 6.11, 6.15, 6.16, 6.17, 7.6, 7.12, 9.1, 9.2, 9.6, IF-01, IF-14, IF-15, ADR-17, ADR-18, ADR-24, ADR-26, ADR-27 |
 | EVD | FR-EVD-001, FR-EVD-002, FR-EVD-003, FR-EVD-004, FR-EVD-005, FR-EVD-006 | `evidence`; all | `evd_evidence`, `evd_link` | `/v1/uploads`, `/v1/evidence/{id}/link` | ADR-04, 6.6, 10.7 |
 | MOB | FR-MOB-001, FR-MOB-002, FR-MOB-003, FR-MOB-004, FR-MOB-005, FR-MOB-006, FR-MOB-007, FR-MOB-008, FR-MOB-009, FR-MOB-010, FR-MOB-011, FR-MOB-012 | `mobile`; Tenmina Field on iOS and Android | `mob_device`, `mob_submission*`, `mob_checkin`, `mob_fraud_flag` | `/v1/mobile/*`, `/v1/mobile/devices/challenge`, `/v1/mobile/check-ins`, `/v1/mobile/check-outs` | 5.4, 5.8, 7.7, 8, 8.8, ADR-19, ADR-22 |
 | APP | FR-APP-001, FR-APP-002, FR-APP-003, FR-APP-004, FR-APP-005, FR-APP-006 | No Django app of its own; Tenmina client app (all six), Tenmina Field (FR-APP-004, FR-APP-006); server parts in NTF, DPR, ADM and PAY | `ntf_push_device`, `dpr_request`, `adm_setting` (`min_app_version`, `app_fee_payment_mode`), `pay_fee_payment` | `/v1/auth/token`, `/v1/me/push-devices`, `/v1/me/deletion-requests`, `/v1/app-config`, `/v1/admin/app-versions`, and the portal's client endpoints | 8.9, 8.10, 10.2, 10.3, ADR-22 |
@@ -4694,7 +5000,7 @@ Every FR ID in document 01 version 0.13 appears below, one row per module, so a 
 | DSP | FR-DSP-001, FR-DSP-002, FR-DSP-003, FR-DSP-004, FR-DSP-005 | `disputes`; portal, backoffice | `dsp_dispute`, `dsp_subject_link`, `dsp_statement` | `/v1/disputes*` | 6.5 trigger, 6.6 |
 | PTR | FR-PTR-001, FR-PTR-002, FR-PTR-003, FR-PTR-004 | `partners`; partner API | `ptr_api_client`, `ptr_usage_event`, `dpr_consent` | `/partner/*` | 5.6, 7.8 |
 | NTF | FR-NTF-001, FR-NTF-002, FR-NTF-003, FR-NTF-004, FR-NTF-005 | `notifications` | `ntf_template`, `ntf_message`, `ntf_preference`, `ntf_push_device` | `/v1/me`, `/v1/me/push-devices`, `/v1/admin/notification-templates` | IF-07, 8.9 |
-| ADM | FR-ADM-001, FR-ADM-002, FR-ADM-003, FR-ADM-004, FR-ADM-005 | `administration`; backoffice | `adm_config_version`, `adm_locked_text_version`, `adm_setting`, `adm_price`, `adm_partner` | `/v1/admin/*` | ADR-11, 6.9 |
+| ADM | FR-ADM-001, FR-ADM-002, FR-ADM-003, FR-ADM-004, FR-ADM-005 | `administration`; backoffice | `adm_config_version`, `adm_locked_text_version`, `adm_setting`, `adm_price`, `adm_partner` | `/v1/admin/*` | ADR-11, 6.8 (`adm_setting` keys, including the foreign currency buffer and the comparison providers from 01 v0.15), 6.9, 6.17 |
 | AUD | FR-AUD-001, FR-AUD-002, FR-AUD-003, FR-AUD-004 | `audit`; backoffice | `aud_event`, `aud_anchor` | `/v1/audit-events` | ADR-05, 6.7 |
 | ANL | FR-ANL-001, FR-ANL-002, FR-ANL-003 | `analytics`; backoffice | `anl_*` views, `anl_export_log` | `/v1/analytics/*` | 11.6 |
 | DPR | FR-DPR-001, FR-DPR-002, FR-DPR-003, FR-DPR-004, FR-DPR-005 | `dataprotection`; backoffice | `dpr_*` | `/v1/dpr/*`, `/v1/consents` | 6.10, 10.9 |
@@ -4708,9 +5014,9 @@ Every FR ID in document 01 version 0.13 appears below, one row per module, so a 
 | EVT | FR-EVT-001, FR-EVT-002, FR-EVT-003 | `events`; portal, backoffice | `evt_event`, `evt_vendor`, `evt_vendor_payment`, shared `esc_payee`, `esc_escrow` (event), `case_case` (vendor_verification), `care_confirmation` | `/v1/events*`, `/v1/vendor-payments/*` | 6.13, ADR-20 |
 | PRO | FR-PRO-001, FR-PRO-002, FR-PRO-003, FR-PRO-004, FR-PRO-005, FR-PRO-006, FR-PRO-007, FR-PRO-008, FR-PRO-009, FR-PRO-010 | `profpay`; backoffice (professionals' My pay and staff screens), Tenmina Field from R2 | `pro_agreement`, `pro_scope`, `pro_rate_card`, `pro_payable`, `pro_expense_claim`, `pro_payment_run`, `pro_payment_line`, `pro_document`, shared `esc_payee` (kind `contracted_professional`), `core_approval_request`, `case_cost_item`, `adm_partner` (operating account) | `/v1/me/pro/*`, `/v1/admin/pro/*`, `/v1/pro/*` | ADR-23, 5.11, 6.14, 7.4, 7.12, 8.8, 10.2, 10.4, 10.5 |
 
-Business rules: RUL-01 (ADR-03, 6.4), RUL-02 (6.5), RUL-03 (ADR-12, 5.2), RUL-04 (6.5, ADR-11), RUL-05 (6.3, 6.5), RUL-06 (6.5, with `release_part` for a held-back share), RUL-07 (6.5 trigger, `fresh_search_window_days` 14 `[TO VERIFY]` counted from `case_search_request.registry_result_date`, 6.15), RUL-08 (8.1, 8.8), RUL-09 (6.5, 6.6), RUL-10 (6.6), RUL-11 (6.5, 6.11 `esc_standing_approval`, 10.4), RUL-12 and RUL-13 (6.6, 7.12), RUL-14 (5.5), RUL-15 (6.5), RUL-16 (5.6, 6.7), RUL-17 (6.5, 6.7, 10.9), RUL-18 (5.4, 7.12), RUL-19 (6.8), RUL-20 (6.5), RUL-21 (6.8, 6.11 payee kind supplier only), RUL-22 (ADR-17, 6.5 trigger, 6.11 `esc_payee`, 9.2), RUL-23 (6.5 trigger, 6.12 `care_visit` and `care_confirmation`, 6.13 `tsk_errand_step`, ADR-20), RUL-24 (6.4 `acc_bank_account`, 6.13 `pmg_managed_property` trigger, 9.3), RUL-25 (6.12 `ins_policy`, `ins_premium`, `ins_claim`; no `premium` purpose in `pay_fee_payment`), RUL-26 (ADR-23, 6.14 `pro_scope`, `pro_rate_card`, `pro_payable`, the `work.accepted` schema), RUL-27 (ADR-23, 6.11 payee kind `contracted_professional`, 6.14 separation table, 10.2, 10.5), RUL-28 (ADR-24, 5.12, 6.5 trigger, 6.11 `account_version` and `cooling_off_until`, 6.15 `esc_payee_change` and `esc_escrow_payee`, 10.2), RUL-29 (ADR-24, 6.5 `refund_source_event_id` and trigger, 6.8 `esc_bank_event` source account and `pay_refund`, 6.15, 9.1), RUL-30 (ADR-25, 6.5 and 6.6 triggers, 6.15 `case_search_request`, 9.5, 10.4, 10.5), RUL-31 (ADR-25, 6.11 `esc.payee_identity()`, 6.15 `acc_national_id_check` and `case_party`, 9.4), RUL-32 (ADR-25, 6.14 unit `recheck`, 6.15 `rpt_recheck_draw`, `rpt_recheck`, `rpt_incident`, `esc_incident_freeze`, 7.12), RUL-33 (ADR-26, 5.3, 6.5 release clock columns, 6.16, 7.12 `escrow.dispatch_instruction` and `escrow.release_clock_watch`, 9.1), RUL-34 (ADR-26, 6.5 `programme_account_id`, `virtual_account_ref` and trigger, 6.8 `esc_bank_event.virtual_account_ref`, 6.16 `esc_programme_account`, `esc_bank_position`, `esc_confirmed_funds`, 9.1, 10.2).
+Business rules: RUL-01 (ADR-03, 6.4), RUL-02 (6.5), RUL-03 (ADR-12, 5.2), RUL-04 (6.5, ADR-11), RUL-05 (6.3, 6.5), RUL-06 (6.5, with `release_part` for a held-back share), RUL-07 (6.5 trigger, `fresh_search_window_days` 14 `[TO VERIFY]` counted from `case_search_request.registry_result_date`, 6.15), RUL-08 (8.1, 8.8), RUL-09 (6.5, 6.6), RUL-10 (6.6), RUL-11 (6.5, 6.11 `esc_standing_approval`, 10.4), RUL-12 and RUL-13 (6.6, 7.12), RUL-14 (5.5), RUL-15 (6.5), RUL-16 (5.6, 6.7), RUL-17 (6.5, 6.7, 10.9), RUL-18 (5.4, 7.12), RUL-19 (6.8), RUL-20 (6.5), RUL-21 (6.8, 6.11 payee kind supplier only), RUL-22 (ADR-17, 6.5 trigger, 6.11 `esc_payee`, 9.2), RUL-23 (6.5 trigger, 6.12 `care_visit` and `care_confirmation`, 6.13 `tsk_errand_step`, ADR-20), RUL-24 (6.4 `acc_bank_account`, 6.13 `pmg_managed_property` trigger, 9.3), RUL-25 (6.12 `ins_policy`, `ins_premium`, `ins_claim`; no `premium` purpose in `pay_fee_payment`), RUL-26 (ADR-23, 6.14 `pro_scope`, `pro_rate_card`, `pro_payable`, the `work.accepted` schema), RUL-27 (ADR-23, 6.11 payee kind `contracted_professional`, 6.14 separation table, 10.2, 10.5), RUL-28 (ADR-24, 5.12, 6.5 trigger, 6.11 `account_version` and `cooling_off_until`, 6.15 `esc_payee_change` and `esc_escrow_payee`, 10.2), RUL-29 (ADR-24, 6.5 `refund_source_event_id` and trigger, 6.8 `esc_bank_event` source account and `pay_refund`, 6.15, 9.1), RUL-30 (ADR-25, 6.5 and 6.6 triggers, 6.15 `case_search_request`, 9.5, 10.4, 10.5), RUL-31 (ADR-25, 6.11 `esc.payee_identity()`, 6.15 `acc_national_id_check` and `case_party`, 9.4), RUL-32 (ADR-25, 6.14 unit `recheck`, 6.15 `rpt_recheck_draw`, `rpt_recheck`, `rpt_incident`, `esc_incident_freeze`, 7.12), RUL-33 (ADR-26, 5.3, 6.5 release clock columns, 6.16, 7.12 `escrow.dispatch_instruction` and `escrow.release_clock_watch`, 9.1), RUL-34 (ADR-26, 6.5 `programme_account_id`, `virtual_account_ref` and trigger, 6.8 `esc_bank_event.virtual_account_ref`, 6.16 `esc_programme_account`, `esc_bank_position`, `esc_confirmed_funds`, 9.1, 10.2; from 01 v0.15 per currency with `esc_fx_account`, 6.17), RUL-35 (ADR-27, 6.5 `esc.price_currency()`, 6.17 `esc_fx_quote` with `tenmina_margin` fixed at zero, `esc_programme_rate`, `esc_fx_conversion`, `esc_fx_comparison_run`, 9.1, 9.6, 10.2), RUL-36 (ADR-27, 5.3, 6.5 `conversion_choice`, `fx_buffer_pct`, instruction kind `conversion`, shortfall blocker and `esc.unused_funds()`, 6.17, 7.12 `escrow.fx_buffer_watch` and `escrow.unused_funds`).
 
-Interfaces: IF-01 to IF-09 (section 9; IF-03 also 9.4, IF-09 also 9.5), IF-10 and IF-11 (section 9, 9.2, 9.3), IF-12 (ADR-22, 8.2, 8.10, document 06), IF-13 (6.8 `adm_partner` operating kinds, 6.14). Questions: Q-28 (ADR-24, ADR-26, TQ-02, TQ-34), Q-29 (ADR-26, IF-01, 6.11, TQ-15, TR-26), Q-30 (ADR-26, 6.5 `held_back_amount`, 6.16, I-47). Release timing: NFR-PERF-06 (section 12, 6.16, 7.12, TR-27, TQ-35). Store NFRs: NFR-STORE-01 and NFR-STORE-02 (section 12, 8.10). Journeys: J-01 (5.1, 5.2), J-02 (5.3, 5.12), J-03 (5.4), J-04 (5.5), J-06 (5.6), J-09 (5.7), J-10 (5.8), J-11 (5.9), J-12 (5.10).
+Interfaces: IF-01 to IF-09 (section 9; IF-03 also 9.4, IF-09 also 9.5), IF-10 and IF-11 (section 9, 9.2, 9.3), IF-12 (ADR-22, 8.2, 8.10, document 06), IF-13 (6.8 `adm_partner` operating kinds, 6.14), IF-14 (ADR-27, 6.8 `adm_partner` kind `rate_source`, 6.17 `esc_fx_rate_observation`, section 9 and 9.6, 7.12 `escrow.fx_collect_rates`, TQ-37), IF-15 (ADR-27, 3.1, 6.8 `adm_partner` kind `transfer_partner` and `esc_bank_event.deposit_route`, 6.17, section 9 and 9.6, TQ-38). Questions: Q-28 (ADR-24, ADR-26, TQ-02, TQ-34), Q-29 (ADR-26, IF-01, 6.11, TQ-15, TR-26), Q-30 (ADR-26, 6.5 `held_back_amount`, 6.16, I-47), Q-32 (ADR-27, 6.5 `esc.price_currency()`, 6.9 price currencies in the country configuration), Q-33 (ADR-27, 6.17 `esc_programme_rate`, 6.8 `transfer_partner` limits, TR-28, TQ-36, TQ-38). Release timing: NFR-PERF-06 (section 12, 6.16, 7.12, TR-27, TQ-35). Store NFRs: NFR-STORE-01 and NFR-STORE-02 (section 12, 8.10). Journeys: J-01 (5.1, 5.2), J-02 (5.3, 5.12), J-03 (5.4), J-04 (5.5), J-06 (5.6), J-09 (5.7), J-10 (5.8), J-11 (5.9), J-12 (5.10).
 
 ---
 
@@ -4747,6 +5053,9 @@ Interfaces: IF-01 to IF-09 (section 9; IF-03 also 9.4, IF-09 also 9.5), IF-10 an
 | TR-25 | Too few licensed professionals with no link to a case in a small market | Re-checks late or skipped; RUL-32 not met | Pool re-checkers across regions; skipped items carried into the next draw and reported to the founder each month; recruit re-checkers before R1 go-live `[TO VERIFY]` | RUL-32, FR-RPT-012 |
 | TR-26 | The partner bank cannot give each escrow its own virtual account number or a daily figure per escrow, or gives them only by hand (Q-29) | No per-escrow reconciliation; manual entry load; releases blocked by late figures | Pilot with one bank account per escrow (`single_escrow`, RUL-34) until the bank offers virtual accounts; manual daily entry with a second-person check; ask for virtual accounts in the bank agreement before R1 escrow go-live | RUL-34, FR-ESC-019, Q-29, TQ-15 |
 | TR-27 | The bank's cut-off times or internal approvals make it pay later than `[2 working days, TO VERIFY]`, so NFR-PERF-06 is missed | Sellers wait; completions slip; pressure for a shortcut | The release clock shows where the time goes; instructions sent the same working day; agree payment times and cut-offs in the bank agreement (TQ-35); report the median at each gate; no step of the approval is dropped to save time | NFR-PERF-06, FR-ESC-018, RUL-33 |
+| TR-28 | The partner bank will not give a written programme rate per currency and amount band, will not convert between an escrow's own virtual accounts or on arrival, or does not state the rate and fees applied on each conversion (Q-33, Q-29) | No basis to check a conversion; FR-ESC-023 cannot run on bank routes; clients see estimates only | Make the written programme rate and a conversion advice with rate and fees conditions of escrow go-live (document 06); until then offer only routes that deliver local currency into the escrow, with the delivered amount checked | RUL-35, FR-ESC-022, FR-ESC-023, Q-33, TQ-36 |
+| TR-29 | Rate sources limit automated collection, change format or go down, or providers deliver less than they publish | Comparison partial; no "best rate" statement; quotes refused while the reference is stale | Two reference sources; manual entry with proof and a second person; partner deliveries checked against their quotes; each source's terms of use checked before collection (TQ-37) | FR-ESC-024, IF-14, IF-15 |
+| TR-30 | The exchange rate moves more than the buffer while money is held in foreign currency | A release is short on completion day; the seller waits for a top-up | Conversion on deposit stays the default; `escrow.fx_buffer_watch` warns the client daily; the client may convert early on an accepted quote; the buffer is reviewed with real movements `[TO VERIFY]` | RUL-36, FR-ESC-022 |
 
 ### 14.2 Open technical questions
 
@@ -4787,6 +5096,9 @@ Interfaces: IF-01 to IF-09 (section 9; IF-03 also 9.4, IF-09 also 9.5), IF-10 an
 | TQ-33 | Can a company hold an account on the Lands Commission online portal, submit searches for every region and download results with a reference that can be checked later? Which regions still need the office, and does the client service unit send results to the applicant's account? | Operations | R1 start | FR-CASE-016, RUL-30, IF-09, 9.5 |
 | TQ-34 | Once Q-28 is answered, who is the escrow agent of record, and will the partner bank also enforce the payee lock, the cooling-off and refund to source on its side, or act on Tenmina's instruction alone? Does the three-party agreement need to name these rules? | Founder with lawyer and bank | Before R1 escrow go-live | Q-28, RUL-28, RUL-29, ADR-03, ADR-24 |
 | TQ-35 | What are the bank's cut-off times for release instructions on each channel (secure email, portal, file, API), and how long does it take to pay a seller at the same bank, at another bank in the country and abroad? Can it confirm payment on the same day? | Founder with bank | Before R1 escrow go-live | NFR-PERF-06, FR-ESC-018, RUL-33, TR-27 |
+| TQ-36 | Can the bank convert each deposit on arrival under a standing instruction for one virtual account, and convert on instruction between an escrow's own foreign currency and local-currency virtual accounts? Does each conversion advice state the rate, the fees and the reference rate used? What is the written programme rate per currency and amount band (Q-33)? | Founder with bank | Before R1 escrow go-live | RUL-35, RUL-36, FR-ESC-022, FR-ESC-023, Q-29, Q-33, TR-28 |
+| TQ-37 | Which published reference rate does the programme agreement measure against, and which second source checks it `[TO VERIFY]`? Do the reference sources and the comparison providers allow automated daily collection and showing their rates to clients? | Founder, lawyer | Before R1 escrow go-live | IF-14, FR-ESC-024, TR-29 |
+| TQ-38 | Do the licensed transfer partners deliver into the escrow's local-currency virtual account with its reference, does the bank's credit name the sender, and do they give a firm delivered amount before the client sends? What limits, source-of-funds checks and payments to Tenmina apply (Q-33)? | Founder with partners and bank | Before R1 escrow go-live | IF-15, FR-ESC-021, FR-ESC-017, RUL-29, RUL-35, Q-33 |
 
 ---
 
@@ -4837,3 +5149,8 @@ Resolved by document 01 version 0.2 and 0.3 and removed from this list: I-01 (th
 | I-47 | FR-ESC-020 releases a held-back share on its own later condition, so that condition is still open when the main release is sent. RUL-06 and FR-ESC-006 block a release while any condition is open. | B7, C4.7 | Each condition belongs to one part of the release (`release_part` `main` or `held_back`); RUL-06 is applied to the conditions of the release being sent; a held-back release also needs the main release confirmed (6.5, 6.16). Suggest RUL-06 and FR-ESC-006 say "any condition of that release". **Closed** by 01 v0.13 review fixes: RUL-06 and FR-ESC-006 now apply to the conditions of the release being sent. |
 | I-48 | RUL-07 counts the fresh-search window from the date on the registry's result, but does not say from when the site check is counted, or whether "within 14 days of the release" means the approval, the sending of the instruction or the bank's payment, which can be up to `[2 working days, TO VERIFY]` later (NFR-PERF-06). | B7, C4.7 | Both the registry result date and the site visit date must be within `fresh_search_window_days` of the day the instruction is approved and again of the day it is sent; the bank's payment day is not checked (6.5). Suggest RUL-07 says so. **Closed** by 01 v0.13 review fixes: RUL-07 now counts from the result and site check dates, checked at approval and at sending. |
 | I-49 | FR-ESC-018 applies to every release, but NFR-PERF-06, which sets its targets, covers purchase escrows only. Held-funds, construction and other releases have no stated target. | C4.7, C7 | The release clock and both alerts run on every release with the same settings; the median target is reported for purchase escrows only (6.16). Suggest NFR-PERF-06 states whether its first two targets apply to all releases. **Closed** by 01 v0.13 review fixes: NFR-PERF-06 now says the clock runs on every release and the median applies to purchases. |
+| I-50 | FR-ESC-021 and IF-15 name the "cedi account" and deliveries "into the escrow's cedi account". Country is configuration, and RUL-35 already says "local currency" with cedis as Ghana's case. | C4.7, C6 | The design uses the escrow's local-currency (price currency) virtual account, set by the country configuration; Ghana's is cedis (6.17, 9.6). Suggest FR-ESC-021 and IF-15 say "local-currency account (cedis in Ghana)". |
+| I-51 | RUL-36 and FR-ESC-022 set the buffer above "the local-currency price" and block a release "short of the price". A held-funds escrow (institution fees, care, errands) has no price, only payments approved one at a time. | B7, C4.7 | For held funds, conversion at release converts per payment; no buffer is applied; each payment waits for its own conversion and is blocked while short (6.5, 6.17). Suggest RUL-36 says how the choice and buffer work for held funds, or that held funds convert on deposit only. |
+| I-52 | FR-ESC-023 compares each accepted quote "with the bank's confirmed conversion" and alerts outside "the agreed programme margin". On a transfer partner route the partner converts before the money reaches the bank, and on the client's own bank route nobody Tenmina deals with converts; neither has a programme margin. FR-ESC-021 also asks for the rate, margin and fees of each route, which Tenmina cannot know for the client's own bank. | C4.7 | Partner routes: the local amount the bank confirms is compared with the partner's quoted amount, and a shortfall above `fx_delivery_tolerance` raises the same alert and a claim on the partner (6.17, RB-48 in document 06). Client's own bank: the client is shown the reference rate and the local amount needed, enters their bank's quoted rate to see its margin, and sees the amount that arrived against their estimate; the check is `not_checked`. Suggest FR-ESC-021 and FR-ESC-023 cover both. |
+| I-53 | RUL-35 allows "best rate" only when the day's comparison shows it, but does not say whether the comparison is by rate or by the amount delivered after fees, for what amount, or whether a day with a provider missing counts. | B7, C4.7 | Ranked by local amount delivered after all fees for each send amount in `fx_comparison_amounts`; only a complete run (reference rate, programme rate and every configured provider fresh) can support the claim (6.17). Suggest RUL-35 or FR-ESC-024 states this. |
+| I-54 | RUL-36 refunds unused money to its source (RUL-29). Where money was converted on deposit, what is left is in local currency, while the source account may be a foreign currency account abroad. 01 does not say whether the refund converts back (a second exchange cost to the client) or may go to a local-currency account in the client's own name (the RUL-29 exception path). | B7, C4.7 | The refund goes to the source account; where it must convert first, the client accepts a `refund_conversion` quote showing the same figures as any conversion (RUL-35). A local account in the client's own name uses the RUL-29 exception path (6.17). Suggest RUL-36 states the choice. |

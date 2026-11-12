@@ -5,11 +5,11 @@ Information architecture, user flows, wireframes, interaction and content rules,
 | Item | Value |
 |---|---|
 | Document | 03 of 6 in `docs/specs/` |
-| Version | 0.10 |
+| Version | 0.11 |
 | Date | 12 November 2026 |
 | Status | Draft. For review. Not yet baselined |
 | Owner | Product designer, for the founder as product owner |
-| Source of truth | `01-requirements-and-product-specification.md` v0.13 (personas, features, journeys, rules, FR and NFR IDs, state models) |
+| Source of truth | `01-requirements-and-product-specification.md` v0.15 (personas, features, journeys, rules, FR and NFR IDs, state models) |
 | Other sources | `README.md`, `docs/decisions/2026-11-01-diaspora-platform.md`, `docs/operations/verification-report-template.md`, `docs/operations/milestone-schedule.md`, `docs/product/architecture.md` |
 | Companion | `03-prototype/index.html`, a clickable prototype with sample data |
 
@@ -23,6 +23,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | 0.2 | 1 November 2026 | Redesign for 01 v0.3 and the decision record `docs/decisions/2026-11-01-diaspora-platform.md`: Tenmina is the diaspora's trusted agent at home. Adds the principles "Pay the institution, not the relative" and "Country is configuration"; the unified home dashboard (F-35) as the portal home with sections for Property, Family, and Projects and errands; a country selector at onboarding; screens SCR-PTL-36 to SCR-PTL-54, SCR-BO-27 to SCR-BO-32 and SCR-MOB-14 to SCR-MOB-18; flows for J-09 to J-12 with error states; wireframes W-25 to W-36; content rules for who gets paid (RUL-22), rent (RUL-24) and insurer products (RUL-25); components CMP-25 to CMP-32; prototype flows G and H. Client approval added to the escrow flow and tracker (01 v0.2 Escrow state model). Section 11.2 refreshed against 01 v0.3: I-01, I-02, I-03, I-04, I-06, I-07, I-08, I-09, I-10, I-12, I-13 and I-14 closed; I-17 to I-24 added. Design assumptions DA-07 to DA-10 added; DA-06 retired. |
 | 0.3 | 1 November 2026 | Aligned to 01 v0.4: runner cash route removed (DA-10, SCR-BO-30, J-09 flow, W-26, W-28, CMP-25, CMP-30 and content rules now show "not eligible for direct payment"; runners only collect invoices and deliver receipts); standing approvals for care visits and errand steps (W-29, W-34, J-10, J-12); 72-hour reviewer decision, second-person check of call confirmations and code lockout (J-10, W-31, SCR-BO-28); owner's written mandate for rent statement lines (J-11, SCR-PTL-46); premium route stated; "amount held at the bank" wording; issues I-02, I-15, I-18, I-20, I-21 and I-23 closed, I-11 partly closed. Prototype updated to match. |
 | 0.4 | 7 November 2026 | Aligned to 01 v0.6: both app stores, React Native, client app. The field app becomes Tenmina Field (iOS and Android); the client app Tenmina is added (F-36, FR-APP-001 to FR-APP-006). Adds the client app map with the portal's tabs (2.3a), platform conventions for iOS and Android (2.4a), screens SCR-APP-01 to SCR-APP-06 (push permission explained first, biometric set-up and unlock, account deletion that says what is kept and why, update required, paying Tenmina's fee in the app), wireframes W-37 to W-39, a React Native column in the component library, iOS targets and Dynamic Type in the accessibility rules, DA-11 and DA-12, DQ-18 to DQ-20, and issues I-25 to I-27. Prototype flow F relabelled "Tenmina Field (iOS and Android)". |
+| 0.11 | 12 November 2026 | Aligned to 01 v0.15: exchange rates and deposit routes (RUL-35, RUL-36, FR-ESC-021 to FR-ESC-024, IF-14, IF-15, Q-32, Q-33, FR-ADM-005). New portal screen SCR-PTL-56 "Choose how to pay in", shown natively in the client app under the same ID (DA-11), with wireframe W-44: the price in cedis; one card per route (bank transfer in foreign currency to the escrow's own account; a transfer service into its cedi account; cedis from a bank in Ghana), each with the reference rate and source, rate, margin, fees, limits, time and the cedis delivered; the conversion choice (convert on arrival by default, or hold until release with the buffer); and the daily rate comparison as a sheet. New component CMP-33 (rate quote), shown again before a release or refund that converts money (W-09, W-15). The back office shows each accepted quote against the bank's conversion and the margin alert (SCR-BO-11, SCR-BO-13, My work), a shortfall gate on the release approval (SCR-BO-12, W-15), the buffer and comparison providers in configuration (SCR-BO-18, W-16), the comparison and programme rate (SCR-BO-19) and transfer partners (SCR-BO-21). J-02 flow (route choice, quote, top-up, leftover refund), J-09 and W-28 (adding money opens SCR-PTL-56), W-10 (route and quote amount), design rule 12, five status messages, the money display rule for quotes, four fixed lines (5.6a), section 5.6e with the wording rules ("Tenmina takes no margin on the exchange"; "best rate" only when the day's comparison shows it), a 6.1d note, usability task T11, DA-16 to DA-19, DQ-25 and DQ-26, and issues I-40 to I-43. W-15 now shows the seller paid in cedis (RUL-35); older dollar samples are read as money held until release (DA-19). The prototype is unchanged. |
 | 0.10 | 12 November 2026 | Aligned to 01 v0.13: release timing and escrow account structure (RUL-07 window, RUL-33, RUL-34, NFR-PERF-06, FR-ESC-018 to FR-ESC-020, Q-29, Q-30). No new screen IDs. Bank payment instructions (SCR-PTL-18, W-10) show the escrow's own virtual account number or reference at the partner bank, never Tenmina's account and never another escrow's. The escrow tracker (SCR-PTL-17, W-09) tells the client when the seller will be paid and that there is no waiting period ("Paid within 3 working days of your approval", a working assumption, DA-15), and shows a held-back share as its own release. The back office shows the release clock and the overdue state on the escrow list (SCR-BO-10), the release approval (SCR-BO-12, W-15) and My work (SCR-BO-02); W-15 adds a gate for the escrow's confirmed balance; the escrow detail (SCR-BO-11) shows the virtual account and its bank-confirmed balance; reconciliation (SCR-BO-13) lists deposits the bank credited to another escrow's reference; W-16 adds the release timing targets. J-02 flow: same-day instruction, the balance gate, a payment-overdue alert and the held-back share. Design rule 11, a 5.4 note, status messages, money display rules, two fixed lines (5.6a), section 5.6d, a 6.1d note on the clock, usability task T10, and issues I-38 and I-39 against 01 v0.13. The fresh-search window on W-15 and W-16 now counts from the dates of the registry's result and the site check (01 v0.13 review fixes), and a held-back share's own condition does not block the main release (RUL-06). The prototype is unchanged. |
 | 0.9 | 12 November 2026 | Aligned to 01 v0.12: fund and evidence protection (RUL-28 to RUL-32, FR-ESC-016, FR-ESC-017, FR-PAY-008, FR-CASE-016, FR-ACC-013, FR-RPT-012). Adds the payee change approval for the client (SCR-PTL-55 in the portal, SCR-MOB-23 in the client app, DA-14) and the back office screens for payee change approvals (SCR-BO-42), official search records (SCR-BO-43), party identity checks (SCR-BO-44) and the re-check queue (SCR-BO-45); wireframes W-42 (approve a payee change) and W-43 (payee change approvals); a payee change sub-flow and refund-to-source note in J-02 and two more report release gates in J-01; design rules 9 and 10; status messages, fixed lines (5.6a) and section 5.6c for the payee lock, refunds to source, official records, identity and re-checks, including the line "We never change who gets paid because of a message, email or call."; refund wording on W-07, W-09, W-12 and W-15 (source account; fee to the original payment method); a no-upload rule and a search line for runners on SCR-BO-04 and SCR-MOB-12 (6.1c); payee lock gates on W-15; CMP-30 states; Bloc rules for the new screens (orange only for the client's step and the person's own slot; blocked banners black). Samples now ask for the seller's ID number, not a copy. Usability task T9, DQ-24, issues I-31 to I-37; I-28 to I-30 closed by 01 v0.9. The prototype is unchanged. |
 | 0.8 | 12 November 2026 | Founder decision: the back office uses Bloc too, so all four front ends share one look (DQ-21 closed). Adds section 6.1d (laptop layout, side bar, dense tables, orange only for what is late or waiting on this person, approvals that move money on black with press and hold) and four back office mockups (my work, case detail, two-person release approval, payment run approval). Sections 6.1 and 6.2 are kept only as the record of the earlier direction. |
@@ -57,6 +58,10 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | DA-13 | In R1 contracted professionals see their pay in the back office web app, on their phones, under "My pay" (SCR-BO-33 to SCR-BO-36). They already sign in there and do their tasks there (SCR-BO-01, SCR-BO-04). The client portal does not serve professionals. From R2, Tenmina Field shows the same screens natively (SCR-MOB-19 to SCR-MOB-22) for field roles. | 01 C1 puts professionals in the back office and the field app. FR-PRO does not name a front end. |
 | DA-14 | The client app's payee change approval has its own ID, SCR-MOB-23, as well as the portal's SCR-PTL-55. This is an exception to DA-11 and to the prefix rule in section 0 (`SCR-MOB` is otherwise Tenmina Field). The ID was reserved so that documents 04 to 06 can trace the app's press-and-hold version separately. Content and rules are those of SCR-PTL-55. | Other documents reference SCR-MOB-23. A later version may move it to an `SCR-APP` ID; the ID is never reused. |
 | DA-15 | Before and after approving a purchase release, the client sees "Paid within 3 working days of your approval. No waiting period." as a working assumption. It holds only if the two Tenmina approvals follow the client's on the same working day, so the back office shows the client's approval time on the release and puts it first in My work. Once the instruction is sent the tracker shows the expected date ("Expected paid by 9 May"), never a date the bank has not confirmed as a promise. | NFR-PERF-06 sets same-day sending after the last approval and payment within `[2 working days, TO VERIFY]`, but no target for the staff approvals after the client's (issue I-39). The client's question is when the seller is paid. |
+| DA-16 | A rate quote (CMP-33) shows the time of its reference rate and is good for `[15 minutes, TO VERIFY]`. A quote that is older, or whose reference rate was published before today, cannot be accepted: the screen fetches a new one and says "The rate has been updated." The accepted quote is what FR-ESC-023 records. | 01 says what a quote shows (RUL-35) and that the accepted quote is recorded (FR-ESC-023), but not how long it holds (issue I-40). A client must never accept yesterday's rate. |
+| DA-17 | An escrow that receives money in two currencies (a dollar deposit held until release and a cedi top-up, or two routes) shows one account card per currency, side by side (6.1a), each with its own account number or reference and its own bank-confirmed balance. The shortfall check (FR-ESC-022) adds them at the current quote and compares the total with the cedi price. | RUL-34 gives one escrow account per currency, so an escrow can sit in two. 01 does not say how the two balances are shown or added (issue I-41). |
+| DA-18 | A deposit through a transfer partner (IF-15) records the sender's account as the partner reports it. A refund of that money goes back through the same partner to that account, and the screen names both: "Refund through Sample Transfer Ltd to your account ending 2290." If the partner cannot do this, the RUL-29 exception path applies. | RUL-29 refunds to the source, but for a transfer partner route the bank sees the partner's account, not the client's (issue I-42). |
+| DA-19 | Samples drawn before v0.11 (W-09, the 5.1 and 5.6 lines, the prototype) show escrow money in US dollars. Read them as an escrow whose client chose to hold dollars until release (RUL-36). In Ghana the price and the payment to the seller are always in cedis (RUL-35); W-15 and W-44 show this. | 01 v0.15 RUL-35 and Q-32. Redrawing every sample is left to the next prototype update. |
 
 ---
 
@@ -89,6 +94,7 @@ The principles come from 01 section B2. Each one changes what a user sees.
 9. Who gets paid is locked. Once terms are agreed, the payee and account change only through the payee change approval (SCR-PTL-55, SCR-BO-42), never because of a message, email or call (RUL-28). Refunds go back to the account the money came from (RUL-29).
 10. Proof shows its source. A search result or identity check shows where it came from: the registry's official channel or the national identity system, with its reference and time. A copy handed over by anyone is never shown as proof (RUL-30, RUL-31).
 11. Each escrow has its own account. Payment instructions show the escrow's own virtual account number or reference at the partner bank, never Tenmina's account and never another escrow's. A release draws only on that escrow's bank-confirmed balance. After the last approval the instruction goes that working day, with no waiting period, and the client sees when the seller will be paid (RUL-33, RUL-34).
+12. Show the rate before money changes currency. Before a deposit, and again before a release or refund that converts money, the client sees the reference rate and its source, the rate offered, the margin as a percentage, every fee and the amount in local currency the payee will receive, cedis in Ghana (CMP-33). Tenmina takes no margin on the exchange and says so. The words "best rate" appear only when the day's comparison shows it (RUL-35, RUL-36).
 
 ---
 
@@ -124,6 +130,7 @@ portal
     │   │   ├── Report viewer ............... SCR-PTL-14
     │   │   └── Rate this case (R2) ......... SCR-PTL-33
     │   ├── Escrow offer and terms .......... SCR-PTL-16
+    │   ├── Choose how to pay in ............ SCR-PTL-56
     │   ├── Escrow tracker .................. SCR-PTL-17
     │   │   └── Approve a payee change ...... SCR-PTL-55
     │   ├── Bank payment instructions ....... SCR-PTL-18
@@ -161,7 +168,7 @@ portal
         └── My data ......................... SCR-PTL-34
 ```
 
-A payee change on a held amount in Family or Projects and errands opens the same SCR-PTL-55, from the item's "Needs you" card on the dashboard.
+A payee change on a held amount in Family or Projects and errands opens the same SCR-PTL-55, from the item's "Needs you" card on the dashboard. Adding money to a held amount in Family or Projects and errands opens the same SCR-PTL-56 before the bank details (RUL-35).
 
 The three capitalised groups are the product families in the decision record. The dashboard shows one section per family; a section appears only when the client has something in it. Family lines are offered to every client from R1 (the decision record, "Customer to lead with").
 
@@ -186,7 +193,7 @@ backoffice
 │   ├── Escrow detail and conditions ........ SCR-BO-11
 │   ├── Release approval .................... SCR-BO-12
 │   ├── Payee change approvals .............. SCR-BO-42
-│   └── Bank and fee reconciliation ......... SCR-BO-13
+│   └── Bank, fee and conversion reconciliation  SCR-BO-13
 ├── Re-check queue (random re-checks) ....... SCR-BO-45
 ├── Builds (R2)
 │   ├── Milestone review and fraud flags .... SCR-BO-14
@@ -216,7 +223,7 @@ backoffice
 └── Admin
     ├── Country configuration ............... SCR-BO-29
     ├── Templates and configuration ......... SCR-BO-18
-    ├── Prices, tiers, currencies ........... SCR-BO-19
+    ├── Prices, currencies, rate comparison . SCR-BO-19
     ├── Users, roles, licences .............. SCR-BO-20
     ├── Partners and API keys ............... SCR-BO-21
     ├── Notification templates and log ...... SCR-BO-25
@@ -279,6 +286,7 @@ Tenmina (iOS and Android)
 │   ├── Case tracker, messages, documents ... SCR-PTL-12, 13, 19
 │   ├── Report viewer, check a report ....... SCR-PTL-14, SCR-PTL-15
 │   ├── Escrow terms, tracker, bank details . SCR-PTL-16, 17, 18
+│   ├── Choose how to pay in ................ SCR-PTL-56
 │   ├── Approve a payee change .............. SCR-MOB-23 (as SCR-PTL-55, DA-14)
 │   ├── Build dashboard, milestone, variation SCR-PTL-22, 23, 24
 │   ├── Property dashboard, repairs ......... SCR-PTL-46, 47, 48
@@ -363,9 +371,9 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-PTL-13 | Document request | Upload what Tenmina asked for | Client | R1 | FR-CASE-008, FR-EVD-001 |
 | SCR-PTL-14 | Report viewer | Verdict, reasons, conditions, section verdicts, signatures, PDF, hash, versions | Client | R1 | F-04, FR-RPT-005, FR-RPT-007, FR-RPT-008, FR-RPT-010, J-01 |
 | SCR-PTL-15 | Check a report | Anyone checks a PDF against the stored hash | Public | R1 | FR-RPT-008 |
-| SCR-PTL-16 | Escrow offer and terms | Offer escrow on green or amber; show conditions from section 11; any held-back share and its later condition, only if the terms set one; when the seller is paid after the last approval (no waiting period); accept terms | Client, seller | R1 | F-08, FR-ESC-001, FR-ESC-002, FR-ESC-020, FR-RPT-009, RUL-33, J-02 |
-| SCR-PTL-17 | Escrow tracker | Deposit, conditions, fresh search, approvals, bank confirmation; when the seller will be paid after the client's approval, with no waiting period (DA-15); a held-back share as its own release; the locked payee and any payee change in its cooling-off period; on cancellation, the refund to the source account | Client, seller | R1 | F-08, FR-ESC-004 to FR-ESC-009, FR-ESC-016, FR-ESC-017, FR-ESC-018, FR-ESC-020, RUL-06, RUL-07, RUL-28, RUL-29, RUL-33, J-02 |
-| SCR-PTL-18 | Bank payment instructions | The partner bank's details for the purchase price, with this escrow's own virtual account number or reference; never Tenmina's account | Client | R1 | FR-ESC-003, FR-ESC-019, RUL-01, RUL-34 |
+| SCR-PTL-16 | Escrow offer and terms | Offer escrow on green or amber; show conditions from section 11; any held-back share and its later condition, only if the terms set one; when the seller is paid after the last approval (no waiting period); the price in local currency (cedis in Ghana) and the line that Tenmina takes no margin on the exchange; accept terms, then choose how to pay in (SCR-PTL-56) | Client, seller | R1 | F-08, FR-ESC-001, FR-ESC-002, FR-ESC-020, FR-RPT-009, RUL-33, RUL-35, J-02 |
+| SCR-PTL-17 | Escrow tracker | Deposit, conditions, fresh search, approvals, bank confirmation; when the seller will be paid after the client's approval, with no waiting period (DA-15); a held-back share as its own release; the locked payee and any payee change in its cooling-off period; on cancellation, the refund to the source account; the conversion choice and the rate the deposit converted at; where money is held until release, the rate quote again before the client approves (CMP-33), a "Needs you: top up" card while the converted amount is short, and the refund of anything unused; before a refund that converts, its quote | Client, seller | R1 | F-08, FR-ESC-004 to FR-ESC-009, FR-ESC-016, FR-ESC-017, FR-ESC-018, FR-ESC-020, FR-ESC-022, FR-ESC-023, RUL-06, RUL-07, RUL-28, RUL-29, RUL-33, RUL-35, RUL-36, J-02 |
+| SCR-PTL-18 | Bank payment instructions | The details for the route chosen on SCR-PTL-56: this escrow's own foreign currency or cedi account number or reference at the partner bank, or the transfer partner's steps into the cedi account with this escrow's reference; the amount to send from the accepted quote; never Tenmina's account | Client | R1 | FR-ESC-003, FR-ESC-019, FR-ESC-021, RUL-01, RUL-34 |
 | SCR-PTL-19 | Messages | Case thread with Tenmina | Client | R1 | FR-CASE-015 |
 | SCR-PTL-20 | Profile and notifications | Channels, preferences, representative | All portal users | R1 | FR-ACC-008, FR-ACC-010, FR-NTF-001 |
 | SCR-PTL-21 | Sharing and consent | Grant and withdraw sharing with partners; case study consent | Client | R1 (case study), R2 (partners) | FR-PTR-002, FR-RPT-011, RUL-16, J-06 |
@@ -387,7 +395,7 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-PTL-37 | Choose a country | At onboarding: pick the country where the things are; sets currency, calendar and partners | Public (during sign-up), client | R1 | F-28, FR-CTY-001, FR-ACC-001 |
 | SCR-PTL-38 | Add a family member | Name, relationship, address, phone; who may confirm visits | Client | R1 | FR-ACC-012, FR-CARE-001 (R2 fields) |
 | SCR-PTL-39 | Add an institution | Pick or propose a school, hospital, clinic, pharmacy, agency or utility; see verification status and the verified account | Client | R1 | F-29, FR-FEE-001, RUL-22, J-09 |
-| SCR-PTL-40 | Pay an invoice | Upload an invoice or open one the institution sent; see the checks; approve; pay into the partner bank; payee named | Client | R1 | F-29, FR-FEE-002, FR-FEE-003, FR-ESC-014, FR-ESC-015, RUL-11, RUL-22, J-09 |
+| SCR-PTL-40 | Pay an invoice | Upload an invoice or open one the institution sent; see the checks; approve; pay into the partner bank, choosing how to pay in first (SCR-PTL-56); payee named | Client | R1 | F-29, FR-FEE-002, FR-FEE-003, FR-ESC-014, FR-ESC-015, FR-ESC-021, RUL-11, RUL-22, RUL-35, J-09 |
 | SCR-PTL-41 | Recurring fee schedule | Per term or per month; reminder; approve before each payment; enrolment confirmation | Client | R1 | FR-FEE-005, FR-FEE-004, J-09 |
 | SCR-PTL-42 | Family-member statement | Invoices, payments, receipts, amount held at the bank, running statement; who was paid | Client, representative | R1 | FR-FEE-007, FR-FEE-004, FR-ESC-014, RUL-22, J-09 |
 | SCR-PTL-43 | Care plan setup | Address, visits per week, tasks, agreed photos, who confirms; optional standing approval up to a monthly amount | Client | R2 | F-30, FR-CARE-001, RUL-11, J-10 |
@@ -403,13 +411,14 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-PTL-53 | Event budget | Event, date, budget, verified vendors, payments against invoices and delivery evidence, receipts | Client | R3 | F-34, FR-EVT-001 to FR-EVT-003, RUL-22 |
 | SCR-PTL-54 | Tenant view | The tenant's agreement and rent record; report a repair | Tenant | R2 | FR-PMG-002, FR-PMG-004 |
 | SCR-PTL-55 | Approve a payee change | Who asked for the change and when; the old and new payee and account (masked to the last four digits); the checks done on the new payee (identity against the national identity system, account name from the bank) with dates; the cooling-off end time; approve or reject. Approval is press and hold with the code, like other money approvals (5.4). Rejecting keeps the old payee. Opens from "Needs you" on the dashboard, the escrow tracker or a held-amount statement | Client | R1 | FR-ESC-016, FR-ACC-013, RUL-11, RUL-28, J-02, J-09 |
+| SCR-PTL-56 | Choose how to pay in | The price in local currency. One card per deposit route (FR-ESC-021): bank transfer in foreign currency to this escrow's own account at the partner bank; a transfer service into this escrow's cedi account; cedis from a bank in the country. Each card shows the reference rate with its source and time, the rate offered, the margin as a percentage, every fee by name, the limits, how long it takes, and the cedis delivered for the client's amount, with any payment Tenmina gets from the partner. The conversion choice for a foreign currency deposit: convert on arrival (the default) or hold until release, with the buffer explained and added to the amount (RUL-36). Today's rate comparison, opened from the page (FR-ESC-024). Accepting records the quote (FR-ESC-023) and opens SCR-PTL-18. Also opens from "Add money" on a held amount (W-28). Wireframe W-44 | Client | R1 | F-08, FR-ESC-021, FR-ESC-022, FR-ESC-023, FR-ESC-024, FR-ESC-014, RUL-29, RUL-35, RUL-36, J-02, J-09 |
 
 #### Back office
 
 | Screen | Name | Purpose | Roles | Rel. | Satisfies |
 |---|---|---|---|---|---|
 | SCR-BO-01 | Sign in | Password plus second factor; idle timeout | All staff and professionals | R1 | FR-ACC-003, FR-ACC-009, NFR-SEC-02 |
-| SCR-BO-02 | My work | Queue of cases and tasks by due date; overdue first; a release past its release clock target, or approved by the client and waiting for staff, at the top | Case manager, reviewer, professionals | R1 | FR-CASE-005, FR-NTF-003, FR-ESC-018, J-01 |
+| SCR-BO-02 | My work | Queue of cases and tasks by due date; overdue first; a release past its release clock target, or approved by the client and waiting for staff, at the top; a conversion outside the programme margin (FR-ESC-023) and a release waiting for the client's top-up (FR-ESC-022) | Case manager, reviewer, professionals | R1 | FR-CASE-005, FR-NTF-003, FR-ESC-018, FR-ESC-022, FR-ESC-023, J-01 |
 | SCR-BO-03 | Case detail | Steps as tasks, owners, due dates, evidence, client status, costs (professional pay and expenses fill in from accepted work), pause or cancel | Case manager, reviewer | R1 | F-03, FR-CASE-001 to FR-CASE-004, FR-CASE-007, FR-CASE-008, FR-CASE-011, FR-CASE-012, FR-CASE-013, FR-PRO-010 |
 | SCR-BO-04 | Task detail | Do one task on a phone: evidence, notes, done; log incident. A runner's search task has no upload for a search result: "Search results come from Tenmina's office through the [registry]'s own channel, not from you." (FR-CASE-016) | Lawyer, surveyor, runner | R1 | FR-CASE-004, FR-CASE-006, FR-CASE-010, FR-CASE-016, FR-EVD-001, RUL-30 |
 | SCR-BO-05 | Risk screen and assignment | Risk questions; two-person rule on disputed plots | Case manager | R1 | FR-CASE-009, RUL-17 |
@@ -418,17 +427,17 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-BO-08 | Report builder | Sections 1 to 14, section verdicts, evidence, signatures, locked scope, conditions | Case manager, lawyer, surveyor | R1 | F-04, FR-RPT-001 to FR-RPT-005, FR-RPT-009, RUL-02, RUL-04, RUL-20 |
 | SCR-BO-09 | Report review and release | Two-person review, return with comments, release, new version. Release blocked while a party identity check is missing or failed (SCR-BO-44) or a search has no official channel record (SCR-BO-43) | Lawyer, reviewer | R1 | FR-RPT-006, FR-RPT-007, FR-RPT-010, FR-ACC-013, FR-CASE-016, RUL-03, RUL-30, RUL-31 |
 | SCR-BO-10 | Escrow list | All escrows by state; blocked first; for each release from its last condition closed to the bank's payment, the release clock in working days and an overdue flag (not sent on the day of the last approval, or not paid within the target) | Case manager, reviewer | R1 | F-08, FR-ESC-001, FR-ESC-006, FR-ESC-018, NFR-PERF-06 |
-| SCR-BO-11 | Escrow detail | Parties, terms, the escrow's virtual account number or reference and its bank-confirmed balance, deposit and its source account, any held-back share, the locked payee and any payee change, conditions, fresh search, freeze (dispute or failed re-check) | Case manager, reviewer | R1 | FR-ESC-001, FR-ESC-002, FR-ESC-004, FR-ESC-005, FR-ESC-006, FR-ESC-016, FR-ESC-017, FR-ESC-019, FR-ESC-020, FR-RPT-012, RUL-06, RUL-07, RUL-15, RUL-28, RUL-29, RUL-34 |
-| SCR-BO-12 | Release approval | Two-person approval with gates and second factor; send; bank confirmation. Gates include the payee lock (no payee change in its cooling-off period), the amount within the escrow's confirmed balance and, for a refund, the source account. Shows the release clock; the instruction goes the working day of the last approval | Reviewer with release rights | R1 | FR-ESC-006 to FR-ESC-009, FR-ESC-013, FR-ESC-016, FR-ESC-017, FR-ESC-018, FR-ESC-019, RUL-05, RUL-06, RUL-07, RUL-28, RUL-29, RUL-33, RUL-34 |
-| SCR-BO-13 | Reconciliation | Fee settlements against orders; bank statement lines against escrows by virtual account number or reference; each escrow's balance against the bank's; deposits the bank credited to another escrow's reference, listed for the bank to correct | Case manager | R1 (fees and balances), R2 (bank file) | FR-PAY-004, FR-PAY-006, FR-ESC-011, FR-ESC-019, RUL-34, F-23 |
+| SCR-BO-11 | Escrow detail | Parties, terms, the escrow's virtual account number or reference and its bank-confirmed balance, deposit and its source account, any held-back share, the locked payee and any payee change, conditions, fresh search, freeze (dispute or failed re-check); the deposit route and conversion choice, the buffer, the converted amount against the price, and each accepted quote beside the bank's confirmed conversion, with the margin alert | Case manager, reviewer | R1 | FR-ESC-001, FR-ESC-002, FR-ESC-004, FR-ESC-005, FR-ESC-006, FR-ESC-016, FR-ESC-017, FR-ESC-019, FR-ESC-020, FR-ESC-021, FR-ESC-022, FR-ESC-023, FR-RPT-012, RUL-06, RUL-07, RUL-15, RUL-28, RUL-29, RUL-34, RUL-35, RUL-36 |
+| SCR-BO-12 | Release approval | Two-person approval with gates and second factor; send; bank confirmation. Gates include the payee lock (no payee change in its cooling-off period), the amount within the escrow's confirmed balance, for money held until release the converted amount covering the price, and, for a refund, the source account. Shows the release clock and, where the release or refund converts money, the quote the client accepted; the instruction goes the working day of the last approval | Reviewer with release rights | R1 | FR-ESC-006 to FR-ESC-009, FR-ESC-013, FR-ESC-016, FR-ESC-017, FR-ESC-018, FR-ESC-019, FR-ESC-022, FR-ESC-023, RUL-05, RUL-06, RUL-07, RUL-28, RUL-29, RUL-33, RUL-34, RUL-35, RUL-36 |
+| SCR-BO-13 | Reconciliation | Fee settlements against orders; bank statement lines against escrows by virtual account number or reference; each escrow's balance against the bank's; deposits the bank credited to another escrow's reference, listed for the bank to correct; each bank-confirmed conversion against the quote the client accepted, outside the programme margin flagged | Case manager | R1 (fees, balances and conversions), R2 (bank file) | FR-PAY-004, FR-PAY-006, FR-ESC-011, FR-ESC-019, FR-ESC-023, RUL-34, RUL-35, F-23 |
 | SCR-BO-14 | Milestone review | Submissions, server flags, evidence check, inspector result, approve | Case manager, reviewer | R2 | FR-BLD-005, FR-BLD-010, FR-MOB-011, FR-EVD-006, J-03 |
 | SCR-BO-15 | Panel | Contractors and inspectors, documents, conflicts, track record | Case manager, administrator | R2 | FR-BLD-003, FR-BLD-004, FR-RAT-001, RUL-10 |
 | SCR-BO-16 | Listings moderation | Publish, suspend, remove; monitoring alerts | Reviewer | R2 | FR-LST-002, FR-LST-006, FR-LST-008, FR-GEO-007, FR-RAT-004 |
 | SCR-BO-17 | Dispute management | Deadlines, statements, decision, mediation | Reviewer | R2 | FR-DSP-002 to FR-DSP-005 |
-| SCR-BO-18 | Templates and configuration | Versioned templates, condition sets, schedules, locked scope, configurable values, including the release timing targets | Administrator | R1 | F-11, FR-ADM-001, FR-ADM-004, FR-ADM-005, FR-CTY-001, NFR-PERF-06 |
-| SCR-BO-19 | Prices and currencies | Tiers, prices, exchange-rate guides | Administrator | R1 | FR-ADM-002 |
+| SCR-BO-18 | Templates and configuration | Versioned templates, condition sets, schedules, locked scope, configurable values, including the release timing targets, the foreign currency buffer and the providers in the rate comparison | Administrator | R1 | F-11, FR-ADM-001, FR-ADM-004, FR-ADM-005, FR-CTY-001, NFR-PERF-06, RUL-36 |
+| SCR-BO-19 | Prices, currencies and rate comparison | Tiers, prices, exchange-rate guides; the reference rate sources (IF-14) and the bank's written programme rate with its date (Q-33); today's rate comparison for each corridor, with each provider's rate, margin and collection time, and a missed collection flagged | Administrator; case manager and reviewer (read) | R1 | FR-ADM-002, FR-ESC-024, RUL-35 |
 | SCR-BO-20 | Users, roles, licences | Invite, assign roles, verify licences | Administrator | R1 | FR-ACC-005, FR-ACC-006, FR-ACC-007 |
-| SCR-BO-21 | Partners and API | Banks, professionals, suppliers, API partners, keys, metering | Administrator | R1, R2 | FR-ADM-003, FR-PTR-004 |
+| SCR-BO-21 | Partners and API | Banks, professionals, suppliers, money transfer partners with their limits and any payment they make to Tenmina (IF-15), API partners, keys, metering | Administrator | R1, R2 | FR-ADM-003, FR-PTR-004, FR-ESC-021, RUL-35 |
 | SCR-BO-22 | Audit log | Search the append-only log; chain check | Reviewer, administrator | R1 | F-12, FR-AUD-001 to FR-AUD-004 |
 | SCR-BO-23 | Dashboard and exports | A9 metrics; CSV export | Case manager, reviewer, administrator | R1 | F-13, FR-ANL-001 to FR-ANL-003 |
 | SCR-BO-24 | Data requests and retention | Access and correction requests; retention; bulk export with two approvals | Administrator | R1 | F-14, FR-DPR-003 to FR-DPR-005 |
@@ -556,13 +565,16 @@ flowchart TD
     B1 --> B2{"All parties accept terms?"}
     B2 -->|"Seller does not accept in 10 days · [TO VERIFY]"| B2x["Escrow stays Proposed. Case manager chases. Client can withdraw"]
     B2 -->|"Yes"| B3["Seller's identity and account name checked; seller's account fixed as the payee · RUL-28, RUL-31. State: Agreed. Bank opens escrow"]
-    B3 --> B4["Bank payment instructions · SCR-PTL-18. This escrow's own virtual account number or reference at the bank. Never Tenmina's account · RUL-34"]
+    B3 --> B3r["Choose how to pay in · SCR-PTL-56. Each route with its rate, margin, fees, limits and cedis delivered. Convert on arrival (default) or hold until release with a buffer · RUL-35, RUL-36, FR-ESC-021, FR-ESC-022"]
+    B3r --> B3q["Client accepts the quote. Quote recorded · FR-ESC-023"]
+    B3q --> B4["Bank payment instructions for that route · SCR-PTL-18. This escrow's own account number or reference at the bank. Never Tenmina's account · RUL-34"]
     B4 --> B5{"Bank confirms deposit?"}
     B5 -->|"Amount short or reference missing"| B5x["Failed: deposit not matched. Case manager checks with bank. Client told what to fix"]
     B5x --> B5
     B5 -->|"Credited to another escrow's reference"| B5w["Not counted in this escrow's balance. Listed in reconciliation for the bank to correct · SCR-BO-13, FR-ESC-019"]
     B5w --> B5
-    B5 -->|"Yes"| B6["State: Funded. Tracker shows deposit date and amount · SCR-PTL-17"]
+    B5 -->|"Yes"| B6["State: Funded. Tracker shows deposit date and amount, and the rate it converted at, or that it is held in dollars until release · SCR-PTL-17"]
+    B5 -.->|"Bank's conversion outside the programme margin"| B5m["Alert to case manager. Quote and conversion side by side · SCR-BO-11, SCR-BO-13, FR-ESC-023"]
     B6 --> B7["Close each condition with evidence · SCR-BO-11"]
     B7 --> B7m{"Evidence complete?"}
     B7m -->|"Document missing"| B7r["Condition stays open. Named owner and date shown to client"]
@@ -573,7 +585,13 @@ flowchart TD
     B8f -->|"Out of date"| B8o["Blocked: fresh search older than the window · RUL-07. Re-run"]
     B8o --> B8
     B8f -->|"Yes"| B9["State: Ready to release"]
-    B9 --> B9c["Client approves the release with a one-time code · SCR-PTL-17 · RUL-11, DA-01. Told when the seller will be paid · DA-15"]
+    B9 --> B9h{"Money held in dollars until release?"}
+    B9h -->|"No: converted on arrival"| B9c
+    B9h -->|"Yes"| B9q["Rate quote shown again: reference rate, rate, margin, fees, cedis to the seller, dollars left over · CMP-33, RUL-35"]
+    B9q --> B9s{"Converted amount covers the price?"}
+    B9s -->|"No"| B9t["Blocked: 'Needs you: top up'. Shortfall named. Release waits · RUL-36, FR-ESC-022"]
+    B9t --> B9q
+    B9s -->|"Yes"| B9c["Client approves the release with a one-time code · SCR-PTL-17 · RUL-11, DA-01. Told when the seller will be paid · DA-15"]
     B9c --> B9d{"Client approved?"}
     B9d -->|"No response"| B9r["Reminders on the configured period. Silence is never approval. Escrow stays Ready to release"]
     B9r --> B9c
@@ -588,6 +606,7 @@ flowchart TD
     B13 -->|"Not confirmed within 2 working days · [TO VERIFY]"| B13o["Overdue: case manager alerted · FR-ESC-018, NFR-PERF-06. Client sees 'The bank has not yet confirmed payment'"]
     B13o --> B13
     B13 -->|"Yes"| B14(["State: Released. All parties see bank confirmation"])
+    B14 -.->|"Money left over after conversion"| B14u["Refunded to the account it came from · RUL-36, RUL-29"]
     B13 -->|"Yes, and the terms set a held-back share"| B15["State: Partly released. Held-back share stays at the bank for its own condition · FR-ESC-020"]
     B15 -->|"Its condition closed; client and two staff approve"| B12
     B6 -.->|"Dispute opened"| BF["State: Frozen. Release button removed · RUL-15. Go to J-07"]
@@ -599,6 +618,8 @@ flowchart TD
 The client approval step follows the Escrow state model in 01 v0.2 and later (Ready to release → Client approved). It is the client's step, not a release: two Tenmina staff still approve and the bank pays.
 
 **Release timing (RUL-33, FR-ESC-018, NFR-PERF-06).** There is no waiting period after the last approval. The release clock starts when the last condition of the release closes and shows on SCR-BO-10, SCR-BO-12 and My work. The instruction goes to the bank on the working day of the last approval, and the bank pays within `[2 working days, TO VERIFY]`; the target from last condition closed to seller paid is `[5 working days, TO VERIFY]` at the median. A release not sent that day, or not confirmed paid in time, shows as overdue in the back office and raises an alert. The client never sees the clock; they see when the seller will be paid (DA-15).
+
+**Deposit routes and exchange (RUL-35, RUL-36, FR-ESC-021 to FR-ESC-024).** After the terms are accepted the client chooses how to pay in (SCR-PTL-56, W-44). Each route shows what the payee will receive in cedis for the client's amount, the margin and every fee, so the client can compare. Money sent in dollars is converted on arrival unless the client chooses to hold it until release; then the client sends a buffer of `[TO VERIFY]`% more, sees the quote again before approving, and tops up if it falls short. The shortfall check is made again when the instruction is sent, as a gate on SCR-BO-12. Anything unused goes back to its source. Tenmina takes no margin on the exchange. The bank's conversion is checked against the accepted quote, and one outside the programme margin raises an alert to the case manager (FR-ESC-023). A refund that converts money shows its own quote first.
 
 **Held-back share (RUL-33, FR-ESC-020, Q-30).** Only where the escrow terms set one, for example part of a land price kept until the buyer's registration is lodged, if the lawyer confirms this is allowed (Q-30). The client sees it as its own release with its own condition and the same approvals, never as money Tenmina keeps back. Its open condition does not block the main release (RUL-06).
 
@@ -775,7 +796,7 @@ flowchart TD
     I5x --> I4
     I5c -->|"Unreadable"| I5u["Document request: 'We could not read the amount. Please photograph the whole invoice.'"]
     I5u --> I4
-    I5c -->|"Yes"| I6["Kwabena approves with a one-time code and pays into Partner Bank, or uses the amount held for him at Partner Bank · FR-FEE-003, FR-ESC-014, RUL-11"]
+    I5c -->|"Yes"| I6["Kwabena approves with a one-time code and pays into Partner Bank, after choosing how to pay in with the cedis each route delivers (SCR-PTL-56, RUL-35), or uses the amount held for him at Partner Bank · FR-FEE-003, FR-ESC-014, RUL-11"]
     I6 --> I6d{"Bank confirms the money?"}
     I6d -->|"Not yet"| I6w["Waiting: 'Partner Bank has not confirmed your payment yet. We check every hour.'"]
     I6w --> I6d
@@ -1225,11 +1246,11 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 +----------------------------------------+
 ```
 
-- **Content.** Status sentence, bank and amount, conditions with closing dates, fresh search, the client's own approval, Tenmina's two approvals, next step, and when the seller will be paid: the fixed line "Paid within 3 working days of your approval. No waiting period." (5.6a, DA-15) before and after the client approves. A held-back share, where the terms set one, is its own release card under the first, with its condition and amount: "Release 2 of 2. Held back until your registration is lodged. USD 1,800.00 (sample; share `[TO VERIFY]`, Q-30)." An open condition shows its owner and due date instead of a closing date: "Seller's tax clearance. Owner: seller's lawyer. Due 6 May."
+- **Content.** Status sentence, bank and amount, conditions with closing dates, fresh search, the client's own approval, Tenmina's two approvals, next step, and when the seller will be paid: the fixed line "Paid within 3 working days of your approval. No waiting period." (5.6a, DA-15) before and after the client approves. A held-back share, where the terms set one, is its own release card under the first, with its condition and amount: "Release 2 of 2. Held back until your registration is lodged. USD 1,800.00 (sample; share `[TO VERIFY]`, Q-30)." An open condition shows its owner and due date instead of a closing date: "Seller's tax clearance. Owner: seller's lawyer. Due 6 May." The money card names how it is held: "Converted on 22 Apr at 14.9250 GHS per USD: GHS 270,000.00" or "Held in USD until release (your choice)" (DA-19). Where money is held until release, the rate quote (CMP-33) sits above the client's approval and is refreshed when opened (DA-16).
 - **Actions.** Approve the release once every condition is closed (one-time code, DA-01, RUL-11); view evidence for a closed condition; open a dispute (R2); view bank instructions.
-- **States.** Proposed (waiting for parties), Agreed (waiting for deposit), Funded (conditions closing; approvals show "Start when every condition is closed"), Ready to release ("Your approval is needed. Tenmina staff approve after you."), Client approved, Release approved, Released, Frozen ("A dispute was opened on 4 May. No money can move until it is resolved."), Cancelled ("Refund of USD 18,000.00 to the account it came from, ending 2290."). Release approved: "Tenmina told Partner Bank to pay the seller on 7 May. Expected paid by 9 May." Payment late: "Partner Bank has not yet confirmed payment to the seller. We expected it by 9 May. We are chasing the bank and will update you by 10 May." Partly released, with a held-back share: "Partner Bank paid the seller on 7 May. USD 1,800.00 stays at the bank until your registration is lodged." No response from the client: reminders; silence is never approval. Payee change in progress: a black panel above the conditions, "Payee change: Kofi Asante's new account ending 7710. Waiting for your decision." with an orange "Needs you" block opening SCR-PTL-55; after approval, "No money can go to the new account until 9 May, 14:00 GMT." Frozen after a failed re-check: "A routine re-check found a problem with this case on 4 May. No money can move until we have checked it. We will update you by 8 May."
-- **Rules.** No approval or release while any condition of that release is open (RUL-06); a held-back share's own condition does not hold up the main release; fresh search and site check must be in date at approval and at sending (RUL-07); client approves first and cannot release alone (RUL-11); approver names shown (RUL-05). The payee is locked from Agreed; the fixed line "We never change who gets paid because of a message, email or call." sits under the payee (RUL-28). Refunds name the source account only (RUL-29). No waiting period after the last approval, and no part of a release held back unless the terms set it (RUL-33).
-- **Satisfies.** FR-ESC-004 to FR-ESC-009, FR-ESC-016, FR-ESC-017, FR-ESC-018, FR-ESC-020, FR-RPT-012, RUL-05, RUL-06, RUL-07, RUL-11, RUL-15, RUL-28, RUL-29, RUL-33, J-02.
+- **States.** Proposed (waiting for parties), Agreed (waiting for deposit), Funded (conditions closing; approvals show "Start when every condition is closed"), Ready to release ("Your approval is needed. Tenmina staff approve after you."), Client approved, Release approved, Released, Frozen ("A dispute was opened on 4 May. No money can move until it is resolved."), Cancelled ("Refund of USD 18,000.00 to the account it came from, ending 2290."). Release approved: "Tenmina told Partner Bank to pay the seller on 7 May. Expected paid by 9 May." Payment late: "Partner Bank has not yet confirmed payment to the seller. We expected it by 9 May. We are chasing the bank and will update you by 10 May." Partly released, with a held-back share: "Partner Bank paid the seller on 7 May. USD 1,800.00 stays at the bank until your registration is lodged." No response from the client: reminders; silence is never approval. Payee change in progress: a black panel above the conditions, "Payee change: Kofi Asante's new account ending 7710. Waiting for your decision." with an orange "Needs you" block opening SCR-PTL-55; after approval, "No money can go to the new account until 9 May, 14:00 GMT." Frozen after a failed re-check: "A routine re-check found a problem with this case on 4 May. No money can move until we have checked it. We will update you by 8 May." Top-up needed (held until release): an orange "Needs you" card, "Your dollars now convert to GHS 3,600.00 less than the price. Top up to release. Send to the same account and reference.", with the approval area replaced by the shortfall; it clears only on the bank's confirmation of the top-up (FR-ESC-022). Released with money left over: "USD 512.40 left after paying the seller goes back to the account it came from, ending 2290." Cancelled with converted money: the refund's own quote (CMP-33) is shown before staff approve it.
+- **Rules.** No approval or release while any condition of that release is open (RUL-06); a held-back share's own condition does not hold up the main release; fresh search and site check must be in date at approval and at sending (RUL-07); client approves first and cannot release alone (RUL-11); approver names shown (RUL-05). The payee is locked from Agreed; the fixed line "We never change who gets paid because of a message, email or call." sits under the payee (RUL-28). Refunds name the source account only (RUL-29). No waiting period after the last approval, and no part of a release held back unless the terms set it (RUL-33). No approval while the converted amount is short of the price; nothing unused is kept (RUL-36). A quote shows the margin and every fee, and the fixed line "Tenmina takes no margin on the exchange." (RUL-35).
+- **Satisfies.** FR-ESC-004 to FR-ESC-009, FR-ESC-016, FR-ESC-017, FR-ESC-018, FR-ESC-020, FR-ESC-022, FR-ESC-023, FR-RPT-012, RUL-05, RUL-06, RUL-07, RUL-11, RUL-15, RUL-28, RUL-29, RUL-33, RUL-35, RUL-36, J-02.
 
 ### W-10 Bank payment instructions · SCR-PTL-18
 
@@ -1244,12 +1265,15 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | | to Tenmina.                         | |
 | +------------------------------------+ |
 | Bank ............ Partner Bank [SAMPLE]|
+| Route ........... Bank transfer in USD |
+|   (chosen on the last page) [Change]   |
 | Account name .... Partner Bank Escrow  |
 | Account number .. 9000 0000 0031 [Copy]|
-|   (this escrow's own account number)   |
+|   (this escrow's own USD account)      |
 | SWIFT ........... XXXXGHAC     [Copy]  |
 | Reference ....... ESC-2027-0031 [Copy] |
-| Amount .......... USD 18,000.00        |
+| Amount .......... USD 18,115.46        |
+|   gives GHS 270,000.00 at your quote   |
 |                                        |
 | Always use the reference. Without it   |
 | the bank cannot match your payment.    |
@@ -1262,11 +1286,11 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 +----------------------------------------+
 ```
 
-- **Content.** Bank details from the escrow record only: the bank, the name of its escrow account for the programme, this escrow's own virtual account number or unique reference (RUL-34), SWIFT, the amount. Where a pilot uses one bank account per escrow, that account's number shows in the same place with the same words. Warning about changed details. The escrow account fixed line (5.6a).
+- **Content.** Bank details from the escrow record only, for the route chosen on SCR-PTL-56 (W-44): the bank, the name of its escrow account for the programme in that currency, this escrow's own virtual account number or unique reference (RUL-34), SWIFT, the amount from the accepted quote and the cedis it gives. For a transfer partner route, the partner's name and the steps to send into this escrow's cedi account with its reference, never a payment link. "Change" returns to SCR-PTL-56 and a new quote. Where a pilot uses one bank account per escrow, that account's number shows in the same place with the same words. Warning about changed details. The escrow account fixed line (5.6a).
 - **Actions.** Copy each field; download as PDF; "Report suspicious details".
 - **States.** Escrow not yet Agreed: details hidden with "The bank will open the escrow once everyone has accepted the terms." Agreed, but the bank has not yet issued the escrow's own number or reference: details hidden with "Partner Bank is opening this escrow's own account number. We will tell you when you can pay."
 - **Rules.** Never Tenmina's account (FR-ESC-003, RUL-01). Never another escrow's number or reference; no two open escrows or held amounts share one (FR-ESC-019, RUL-34). Details change only through a two-person admin change, logged.
-- **Satisfies.** FR-ESC-003, FR-ESC-019, RUL-01, RUL-34, J-02.
+- **Satisfies.** FR-ESC-003, FR-ESC-019, FR-ESC-021, RUL-01, RUL-34, RUL-35, J-02.
 
 ### W-11 Back office: my work queue · SCR-BO-02
 
@@ -1381,14 +1405,15 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | Release approval  ESC-2027-0031  Plot 14, Kasoa              Ready to release      |
 | Release clock: day 1 since the last condition closed 6 May. Target: sent today     |
 +------------------------------------------------------------------------------------+
-| Pay USD 18,000.00 from escrow at Partner Bank to Kofi Asante (seller), acct ..4471 |
+| Pay GHS 270,000.00 from escrow at Partner Bank to Kofi Asante (seller), acct ..4471|
 +------------------------------------------------------------------------------------+
 | Gates (all must pass)                                                              |
 | (v) All 4 conditions closed with evidence ......................... view evidence  |
 | (v) Search result 2 May, site check 3 May: inside 14 days [TO VERIFY] ...... view  |
 | (v) No open dispute                                                                |
-| (v) Deposit confirmed by bank 22 Apr, USD 18,000.00                                |
-| (v) Within this escrow's confirmed balance: USD 18,000.00 at ref ESC-2027-0031     |
+| (v) Deposit confirmed by bank 22 Apr: USD 18,115.46, converted to GHS 270,000.00   |
+| (v) Cedis cover the price: converted on arrival at the accepted quote ..... view   |
+| (v) Within this escrow's confirmed balance: GHS 270,000.00 at ref ESC-2027-0031    |
 | (v) Payee matches escrow terms v1.0; no payee change in cooling-off ...... view    |
 | (v) Seller's identity checked with the national identity system, 14 Apr            |
 +------------------------------------------------------------------------------------+
@@ -1407,9 +1432,9 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 
 - **Content.** One sentence saying who gets how much from where. The release clock (5.6d). Gates, including the escrow's confirmed balance at its own virtual account number or reference. Two approval slots with names and times. The client's approval time, so staff approve the same working day (DA-15).
 - **Actions.** Approve with second factor; return with comment; view each piece of evidence.
-- **States.** Any gate failing: approve area replaced by "Release blocked: 1 condition open (seller's tax clearance)." Payee change in cooling-off: "Release blocked: the payee's account changed on 6 May. No release to the new account until 9 May, 14:00 GMT (RUL-28)." Frozen after a failed re-check: "Release blocked: re-check RCK-2027-05-03 failed. See the incident." Same person as approver 1: "You gave approval 1. A different person must give approval 2 (RUL-05)." Over balance: "Release blocked: USD 18,000.00 is more than this escrow's confirmed balance of USD 17,500.00 at Partner Bank (RUL-34)." No override; the balance changes only with the bank's confirmation. Overdue: the clock turns orange, "Overdue: not sent on the day of the last approval" or "Overdue: Partner Bank has not confirmed payment. Expected by 9 May." Held-back share: the sentence reads "Pay USD 16,200.00 … Held back until registration is lodged: USD 1,800.00 (sample)"; the share's own release later uses this screen with its condition as a gate (FR-ESC-020). Frozen by dispute: whole screen read-only with the dispute link. Bank rejects: banner with bank's reason.
-- **Rules.** RUL-05, RUL-06, RUL-07, RUL-15, RUL-28, RUL-33, RUL-34. No "send later" or "hold for N days" control. A refund also draws only on the escrow's confirmed balance. Refund and cancellation use the same screen with "Refund" wording (FR-ESC-013). The refund sentence names the source account from the bank's deposit confirmation, "Refund USD 18,000.00 from escrow at Partner Bank to Ama Mensah, account ending 2290, where the deposit came from", and has a gate "Refund goes to the source account" (FR-ESC-017). Any other account shows "Refund blocked: this is not the account the money came from" unless the RUL-29 exception path is complete (client identity check, client approval, two staff approvals, cooling-off), shown as its own gate.
-- **Satisfies.** FR-ESC-006 to FR-ESC-009, FR-ESC-013, FR-ESC-016, FR-ESC-017, FR-ESC-018, FR-ESC-019, FR-ESC-020.
+- **States.** Any gate failing: approve area replaced by "Release blocked: 1 condition open (seller's tax clearance)." Payee change in cooling-off: "Release blocked: the payee's account changed on 6 May. No release to the new account until 9 May, 14:00 GMT (RUL-28)." Frozen after a failed re-check: "Release blocked: re-check RCK-2027-05-03 failed. See the incident." Same person as approver 1: "You gave approval 1. A different person must give approval 2 (RUL-05)." Over balance: "Release blocked: GHS 270,000.00 is more than this escrow's confirmed balance of GHS 262,500.00 at Partner Bank (RUL-34)." No override; the balance changes only with the bank's confirmation. Overdue: the clock turns orange, "Overdue: not sent on the day of the last approval" or "Overdue: Partner Bank has not confirmed payment. Expected by 9 May." Held-back share: the sentence reads "Pay GHS 243,000.00 … Held back until registration is lodged: GHS 27,000.00 (sample)"; the share's own release later uses this screen with its condition as a gate (FR-ESC-020). Frozen by dispute: whole screen read-only with the dispute link. Bank rejects: banner with bank's reason. Held in dollars until release: the sentence adds the quote the client accepted (CMP-33), and the gate reads "Converted amount covers the price at today's quote"; short: "Release blocked: GHS 3,600.00 short at today's rate. Waiting for the client's top-up (RUL-36)." The gate is checked again when the instruction is sent.
+- **Rules.** RUL-05, RUL-06, RUL-07, RUL-15, RUL-28, RUL-33, RUL-34, RUL-35, RUL-36. No "send later" or "hold for N days" control. A refund also draws only on the escrow's confirmed balance. Refund and cancellation use the same screen with "Refund" wording (FR-ESC-013). The refund sentence names the source account from the bank's deposit confirmation, "Refund GHS 270,000.00 from escrow at Partner Bank to Ama Mensah, account ending 2290, where the deposit came from, as about USD 17,910.45 at the quote shown", with the quote (CMP-33) the client was shown, and has a gate "Refund goes to the source account" (FR-ESC-017). Any other account shows "Refund blocked: this is not the account the money came from" unless the RUL-29 exception path is complete (client identity check, client approval, two staff approvals, cooling-off), shown as its own gate.
+- **Satisfies.** FR-ESC-006 to FR-ESC-009, FR-ESC-013, FR-ESC-016, FR-ESC-017, FR-ESC-018, FR-ESC-019, FR-ESC-020, FR-ESC-022, FR-ESC-023, RUL-35, RUL-36.
 
 ### W-16 Admin: templates and configuration · SCR-BO-18
 
@@ -1423,6 +1448,8 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | Milestones std 1.0      Live       | Dispute response        5 working days        |
 |                                    | Bank pays within  2 working days [TO VERIFY]  |
 |                                    | Seller paid, median 5 working days [TO VERIFY]|
+|                                    | Hold-until-release buffer  3% [TO VERIFY]     |
+|                                    | Rate comparison providers  3 [TO VERIFY] >    |
 | Land case     1.4      Draft >    | [ Edit values ] (change logged, takes effect   |
 |                                    |  for new cases only)                          |
 | Locked scope statement v1.0 (lock)                                                 |
@@ -1431,11 +1458,11 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 +------------------------------------------------------------------------------------+
 ```
 
-- **Content.** Versioned templates and values per country. The fresh-search window counts from the date on the registry's result and the date of the site check, and is checked at the last approval and again when the instruction is sent (RUL-07). The release timing targets come from NFR-PERF-06; the release instruction is always sent on the working day of the last approval, so there is no value for a waiting period.
+- **Content.** Versioned templates and values per country. The fresh-search window counts from the date on the registry's result and the date of the site check, and is checked at the last approval and again when the instruction is sent (RUL-07). The release timing targets come from NFR-PERF-06; the release instruction is always sent on the working day of the last approval, so there is no value for a waiting period. The buffer for money held in foreign currency until release (RUL-36) and the providers in the daily rate comparison (FR-ESC-024) are values here too; a change to the buffer affects releases, so it needs a second administrator (FR-ADM-005), and it applies to new deposits only.
 - **Actions.** Draft, compare, publish a version; edit values; propose scope change.
 - **States.** Publishing a template shows a diff and "Running cases keep version 1.3." Scope proposal waits for a second admin.
 - **Rules.** RUL-04, FR-ADM-004. Values marked `[TO VERIFY]` show a warning chip until confirmed by the owner in 01 B9.
-- **Satisfies.** FR-ADM-001, FR-ADM-004, FR-ADM-005, FR-CTY-001.
+- **Satisfies.** FR-ADM-001, FR-ADM-004, FR-ADM-005, FR-CTY-001, RUL-36.
 
 ### W-17 Tenmina Field: contractor milestone submission with offline queue · SCR-MOB-07
 
@@ -1878,7 +1905,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 ```
 
 - **Content.** Status sentence. Amount held at the bank. Statement rows (CMP-25): date, payee with account ending, invoice reference, amount with sign, links to receipt and any confirmation the institution agreed to share. A receipt a runner delivered in person says so on its row (FR-FEE-006, DA-10). No row ever shows a cash payment.
-- **Actions.** Add money (bank instructions, SCR-PTL-18 pattern); open receipts; download PDF; filter by institution.
+- **Actions.** Add money (choose how to pay in, SCR-PTL-56, then the bank instructions, SCR-PTL-18 pattern); open receipts; download PDF; filter by institution.
 - **States.** Payment pending: row shows "Approved by you 15 Aug. Waiting for Tenmina approvals." in place of the receipt link. Receipt not yet returned: "Receipt expected from the hospital by 18 Aug." Empty: "No payments yet. Add an institution to start."
 - **Rules.** Every row names the payee (RUL-22). The amount is described as held by the bank (RUL-01, DA-08). Health details appear only where the institution agreed and the client asked (FR-FEE-004, NFR-PRIV-02).
 - **Satisfies.** FR-FEE-004, FR-FEE-006, FR-FEE-007, FR-ESC-014, RUL-22, J-09.
@@ -2445,6 +2472,89 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 - **Rules.** RUL-28 and FR-ESC-016. No override of the cooling-off. The person who started the change cannot approve it. Bloc (6.1d): the banner is a black block with a lock icon and white text; orange marks only the approval slot that is this person's; lime ticks the evidence.
 - **Satisfies.** FR-ESC-016, FR-ESC-015, FR-ACC-013, RUL-05, RUL-28.
 
+### W-44 Choose how to pay in · SCR-PTL-56
+
+```text
++----------------------------------------+
+| <- Escrow ESC-2027-0031                |
+| How do you want to pay in?             |
+| Price .......... GHS 270,000.00        |
+| The seller is paid in cedis.           |
+| +------------------------------------+ |
+| | Tenmina takes no margin on the     | |
+| | exchange. The bank or service      | |
+| | does, and we show it below.        | |
+| +------------------------------------+ |
+| Reference rate  15.0000 GHS per USD    |
+|   [source TO VERIFY] 12 May 09:00 GMT  |
+|                                        |
+| (o) Bank transfer in USD to this       |
+|     escrow's own USD account at        |
+|     Partner Bank                       |
+|     Rate 14.9250 · margin 0.50%        |
+|     Fee: Partner Bank USD 25.00        |
+|     Limit: none [TO VERIFY]            |
+|     Arrives in 1-3 working days        |
+|     You send USD 18,115.46             |
+|     Seller's price covered:            |
+|     GHS 270,000.00                     |
+|                                        |
+| ( ) Sample Transfer Ltd into this      |
+|     escrow's cedi account              |
+|     Rate 14.8500 · margin 1.00%        |
+|     Fee: USD 4.99 per transfer         |
+|     Limit: USD 10,000.00 each, so      |
+|     2 transfers [TO VERIFY]            |
+|     You send USD 18,191.80             |
+|     Tenmina receives nothing from      |
+|     Sample Transfer Ltd.               |
+|                                        |
+| ( ) Cedis from a bank in Ghana         |
+|     No exchange. Your bank's fees.     |
+|                                        |
+| When should your dollars change?       |
+| (o) When they arrive. The cedi         |
+|     amount is fixed.                   |
+| ( ) Hold USD until release. Send       |
+|     USD 18,658.17, with 3% extra       |
+|     [TO VERIFY]. If the cedis fall     |
+|     short you top up first. Unused     |
+|     money comes back to you.           |
+|                                        |
+| Compare today's rates (4)        >     |
+|                                        |
+| Quote good until 09:15 GMT             |
+| [ Continue with this route ]           |
++----------------------------------------+
+```
+
+The comparison opens as a sheet over the page:
+
+```text
++----------------------------------------+
+| Today's rates · USD to GHS             |
+| 12 May 09:00 GMT · for USD 18,000.00   |
+|                                        |
+| Provider        Rate     Margin        |
+| Partner Bank    14.9250  0.50%         |
+|   (programme rate, escrow route)       |
+| Sample Transfer 14.8500  1.00%         |
+|   (escrow route)                       |
+| Sample Prov. B  14.7000  2.00%         |
+| Sample Prov. C  14.9400  0.40%         |
+|   [Best rate today]                    |
+|   Cannot pay into escrow.              |
+|                                        |
+| Sources and times for each row >       |
++----------------------------------------+
+```
+
+- **Content.** The price in local currency and who is paid in it (RUL-35, Q-32). The fixed line "Tenmina takes no margin on the exchange." One card per route the country offers (FR-ESC-021), each with the same items in the same order: rate offered, margin as a percentage of the reference rate, each fee by name and who charges it, limits, time to arrive, what the client sends and what it covers in cedis, and for a partner route what Tenmina receives from the partner (5.6a). The reference rate with its source and time sits once above the cards. The conversion choice appears only for a foreign currency route (FR-ESC-022): convert on arrival is selected by default; hold until release shows the buffer from configuration (RUL-36, FR-ADM-005), the larger amount to send, and what happens if the cedis fall short or money is left over. The client may type the amount they plan to send instead; the cards then show the cedis each route delivers for it. Every figure in this drawing is a sample.
+- **Actions.** Pick a route; pick when to convert; open the comparison; continue (accepts the quote, records it under FR-ESC-023 and opens SCR-PTL-18); "Why these routes?" opens a short explanation.
+- **States.** Quote expired (DA-16): "The rate has been updated. Check the new amounts before you continue." Reference rate not yet published today: no quote can be accepted; "Today's rate is not available yet. We will message you when it is." Comparison not collected today: the link reads "Today's comparison is not available yet", and no screen says "best rate" (FR-ESC-024). Amount above a route's limit: the card shows how many transfers it needs, or "Over this route's limit" with the limit. A route a partner has paused: hidden, with one line naming it. Escrow not yet Agreed: the page shows the routes and rates for information only, with no Continue.
+- **Rules.** RUL-35: no Tenmina margin; every fee and the margin shown before the client sends anything; prices and the payee's money in the local currency; any partner payment to Tenmina disclosed; "Best rate today" only on the row the day's comparison puts first, which may not be a route Tenmina offers. RUL-36: convert on arrival is the default; holding needs the buffer. RUL-29: the client is told that refunds go back only to the account the money came from, including through a transfer partner (DA-18). Bloc (5.6e): the page is black, because money moves; the selected route is outlined in lime and Continue is a lime block; no orange, because nothing here waits on the client yet; margins are plain text, never coloured as good or bad.
+- **Satisfies.** FR-ESC-021, FR-ESC-022, FR-ESC-023, FR-ESC-024, FR-ESC-014, RUL-29, RUL-35, RUL-36, J-02, J-09.
+
 ---
 
 ## 5. Interaction and content design
@@ -2469,6 +2579,11 @@ Every case, escrow, milestone, listing and dispute shows one status sentence at 
 | Release payment late (NFR-PERF-06) | "Partner Bank has not yet confirmed payment to the seller. We expected it by 9 May. We are chasing the bank and will update you by 10 May." |
 | Held-back share (FR-ESC-020) | "Partner Bank paid the seller on 7 May. USD 1,800.00 stays at the bank until your registration is lodged, expected by 30 June." |
 | Deposit not matched (RUL-34) | "Partner Bank has not matched your payment of 22 April to this escrow. We have asked the bank to check the reference and will update you by 24 April." |
+| Deposit converted (RUL-35) | "Partner Bank converted your USD 18,115.46 to GHS 270,000.00 on 22 April at 14.9250, the rate you accepted." |
+| Held until release (RUL-36) | "Partner Bank has held your USD 18,658.17 for this escrow since 22 April. It converts when you approve the release." |
+| Top-up needed (RUL-36) | "Your dollars now convert to less than the price. Please top up by 9 May. The release waits until then." |
+| Money left over (RUL-36) | "Partner Bank refunded USD 512.40 left after paying the seller to the account it came from, ending 2290, on 8 May." |
+| Rate updated (DA-16) | "The exchange rate changed at 09:15 GMT. Check the new amounts before you continue." |
 | Institution paid (J-09) | "Partner Bank paid Komfo Anokye Teaching Hospital, account ending 4471, on 15 August at 10:12 GMT. Receipt attached." |
 | Invoice mismatch | "The invoice names a different patient. Nothing has been paid. Check with the hospital and upload a corrected invoice." |
 | Recurring fee due | "Term 2 fees for Kofi and Yaw are due to Sample School by 5 January. Approve the payment by 29 December." |
@@ -2563,7 +2678,7 @@ Verdicts are never colour alone (WCAG 1.4.1). Each uses a distinct **shape**, a 
 
 - Always show the currency code before the amount: `USD 18,000.00`, `GHS 101,500.00` (DA-03). Two decimals for money. Thousands separated with commas.
 - Say who holds it: "held by Partner Bank", "paid to the contractor by Partner Bank". Never "your Tenmina balance".
-- Guide conversions are marked "(guide only)" in smaller text and are never used in a button label.
+- Guide conversions are marked "(guide only)" in smaller text and are never used in a button label. A rate quote (CMP-33) is not a guide: it is what the client accepts before money converts, and it always shows its parts (5.6e).
 - Cedi re-pricing (RUL-18, FR-BLD-007) shows the agreed amount, the new amount, the change as amount and percentage, the reason, the source of the guide and its date, then the amount to pay now. The client ticks "I have seen the new price" before approving.
 - Amounts are not animated and do not count up.
 - SMS and WhatsApp never include amounts above the threshold (FR-NTF-004).
@@ -2577,6 +2692,7 @@ Verdicts are never colour alone (WCAG 1.4.1). Each uses a distinct **shape**, a 
 - **Escrow account (RUL-34, FR-ESC-019).** Payment instructions show the escrow's own account number or reference: `Pay to Partner Bank Escrow, account 9000 0000 0031, for ESC-2027-0031 only`. Staff screens show each escrow's balance as `Confirmed by Partner Bank: USD 18,000.00, 6 May 17:00`. Never a balance built from anything the bank has not confirmed, and never the total of the shared escrow account.
 - **When the seller is paid (RUL-33, NFR-PERF-06).** Before the instruction: `Paid within 3 working days of your approval. No waiting period.` After it: `Expected paid by 9 May`. After the bank confirms: the payee line with the date (`Paid to Kofi Asante, account ending 4471, 7 May`).
 - **Held-back share (FR-ESC-020).** Its own line under the release: `Held back at Partner Bank until your registration is lodged: USD 1,800.00`. Never "kept by Tenmina" or "retained".
+- **Rate quote (RUL-35, FR-ESC-023).** In this order: `Reference rate 15.0000 GHS per USD, [source], 12 May 09:00 GMT` · `Rate offered 14.9250 · margin 0.50%` · each fee by name (`Partner Bank fee USD 25.00`) · `You send USD 18,115.46` · `Seller receives GHS 270,000.00`. Rates to four decimal places, margins to two, in mono. The margin is never rounded to zero and never hidden behind a tap.
 - **Locked payee (RUL-28).** Under every planned payee line on an escrow or held amount: `We never change who gets paid because of a message, email or call.` During a cooling-off period the payee line shows both accounts: `Will be paid to Kofi Asante, account ending 7710, from 9 May 14:00 GMT. Until then: account ending 4471.`
 
 ### 5.6a Fixed lines for partner products and other lines
@@ -2601,8 +2717,12 @@ These sentences are locked text, held in translation files and changed only with
 | Re-checks (RUL-32) | "Each month an independent professional re-checks a random sample of our work, without notice." | SCR-PTL-01 (how it works), SCR-PTL-14 (report footer) |
 | Escrow account (RUL-34) | "This account number is for this escrow only. [Bank] holds the money as escrow agent, not Tenmina." | SCR-PTL-18, escrow terms (SCR-PTL-16), every deposit reminder |
 | Release timing (RUL-33) | "Paid within 3 working days of your approval. No waiting period." | SCR-PTL-16, SCR-PTL-17 before and after the client's approval, the client's approval in the app |
+| No exchange margin (RUL-35) | "Tenmina takes no margin on the exchange." | SCR-PTL-16, SCR-PTL-56, every rate quote (CMP-33), every deposit reminder |
+| Local currency (RUL-35, Q-32) | "The price and the payment to the [payee] are in [currency]." | SCR-PTL-16, SCR-PTL-56, escrow terms |
+| Partner payments (RUL-35) | "Tenmina receives nothing from [partner] for this transfer." or "Tenmina receives [amount] from [partner] for this transfer." | Each transfer partner's card on SCR-PTL-56, the deposit receipt |
+| Holding foreign currency (RUL-36) | "If you hold [foreign currency] until release, the [currency] amount can change. Send [buffer]% extra. If it falls short, the release waits until you top up. Anything unused goes back to the account it came from." | SCR-PTL-56 (hold option), SCR-PTL-17 while money is held |
 
-The errands line changed in v0.5 to follow FR-TSK-002 and FR-TSK-003 in 01 v0.8. The six lines for RUL-28 to RUL-32 were added in v0.9, and the two for RUL-33 and RUL-34 in v0.10. Each needs the lawyer's agreement before it ships. The number of working days in the release timing line is read from the configured target (NFR-PERF-06, FR-ADM-005), now `[2 working days, TO VERIFY]`, and stays a working assumption until the bank agrees it in writing (DA-15). `[registry]` and `[national identity system]` come from the country configuration: in Ghana, "the Lands Commission" and "the National Identification Authority".
+The errands line changed in v0.5 to follow FR-TSK-002 and FR-TSK-003 in 01 v0.8. The six lines for RUL-28 to RUL-32 were added in v0.9, the two for RUL-33 and RUL-34 in v0.10, and the four for RUL-35 and RUL-36 in v0.11. Each needs the lawyer's agreement before it ships. The number of working days in the release timing line is read from the configured target (NFR-PERF-06, FR-ADM-005), now `[2 working days, TO VERIFY]`, and stays a working assumption until the bank agrees it in writing (DA-15). `[registry]` and `[national identity system]` come from the country configuration: in Ghana, "the Lands Commission" and "the National Identification Authority". `[currency]` is "cedis" in Ghana and `[buffer]` is read from FR-ADM-005, now `[TO VERIFY]`. The local currency line may change for non-resident buyers once the lawyer answers Q-32.
 
 ### 5.6b Professional pay screens (F-37, RUL-26, RUL-27)
 
@@ -2640,6 +2760,18 @@ These rules apply to SCR-PTL-16 to SCR-PTL-18, SCR-BO-02 and SCR-BO-10 to SCR-BO
 - **A deposit credited to the wrong escrow.** SCR-BO-13 lists it: "Credited by Partner Bank to ESC-2027-0044's reference. Not matched to that escrow's terms." It cannot be released from either escrow, the escrow it was meant for stays waiting for its deposit, and staff ask the bank to correct it. Only the bank's correcting entry changes either balance; Tenmina never moves money between escrows (issue I-38). The client sees the "Deposit not matched" status message (5.1).
 - **Held-back share (FR-ESC-020).** Shown only where the terms set one: on SCR-PTL-16 before the client accepts, then on SCR-PTL-17 as its own release card with its condition, owner and due date, and the same approval chain. Its open condition never shows as blocking the main release (RUL-06).
 - **Bloc colours.** Lime for the bank-confirmed balance tick, the passed gates and the main action. Orange in the back office only for an overdue clock or a release waiting on this person (6.1d); for the client, only their own approval. The "Paid within 2 working days" line is plain text, not orange, because it does not need the client. A held-back share card is white or black with a lock icon. Yellow stays for the Amber verdict only.
+
+### 5.6e Exchange rates and deposit routes (RUL-35, RUL-36)
+
+These rules apply to SCR-PTL-56, SCR-PTL-16 to SCR-PTL-18, SCR-PTL-40, SCR-PTL-42, SCR-BO-02, SCR-BO-11 to SCR-BO-13, SCR-BO-18, SCR-BO-19 and SCR-BO-21, and to every message that names a rate.
+
+- **Routes (FR-ESC-021).** The routes come from the country configuration and the partners set up on SCR-BO-21 (IF-15). In Ghana: a bank transfer in foreign currency to the escrow's own account at the partner bank; a licensed transfer service into the escrow's cedi account; cedis from a bank in Ghana. Each route card shows the same items in the same order (W-44), so the client can compare like with like. Routes are listed in a fixed order, never sorted to push one, and none is marked "recommended".
+- **The quote (CMP-33, FR-ESC-023).** Shown before a deposit, before the client approves a release that converts money, and before a refund that converts money. It names the reference rate with its source and time (IF-14), the rate offered, the margin as a percentage, every fee and the local-currency amount the payee receives. Accepting it records it with the time. A quote older than its validity, or built on a reference rate from before today, cannot be accepted (DA-16).
+- **The conversion choice (FR-ESC-022, RUL-36).** Convert on arrival is the default and fixes the local-currency amount. Holding foreign currency until release adds the buffer to the amount to send and shows the holding line (5.6a). While money is held, the tracker shows it on its own account card in that currency (DA-17). A shortfall at release shows the orange "Needs you: top up" card and blocks the client's approval and the staff release. Anything unused is refunded to its source with the payee line pattern of a refund (5.6).
+- **The comparison (FR-ESC-024).** A sheet on SCR-PTL-56 and a table on SCR-BO-19: each provider's rate, margin, source and collection time for the client's corridor, sorted by rate, highest first. "Best rate today" appears only on the first row, and only when every configured provider was collected that day. If the bank's programme rate is not first, the client sees that plainly. Providers that cannot pay into escrow are marked so.
+- **Words.** Always "Tenmina takes no margin on the exchange." Never "best rate", "great rate" or "top rate" except as above; never "no fees", "free transfer", "guaranteed rate" or "Tenmina rate". The margin is called "margin", not "spread" or "markup", and is never shown as "0%" when it is not.
+- **Back office.** SCR-BO-11 shows each accepted quote beside the bank's confirmed conversion: rate, margin, amount and the difference. A conversion outside the programme margin (Q-33) shows "Outside programme margin: 0.80% against 0.50% agreed" and goes to the case manager in My work, with "Raise with the bank" and a field to record the bank's answer; nothing about the conversion can be edited. SCR-BO-13 lists every conversion against its quote. SCR-BO-19 shows the day's comparison and any provider not collected. SCR-BO-18 holds the buffer and the comparison providers; a change needs a second administrator.
+- **Bloc colours.** Lime for the reference rate's source tick, the selected route outline and the main action. Orange only for the client's top-up and the client's own approval; in the back office, only for a margin alert or top-up waiting on this person (6.1d). Margins and rates are plain black or white text, never coloured to look good or bad. The "Best rate today" chip is a black chip with white text. Yellow stays for the Amber verdict only.
 
 ### 5.7 Voice and tone
 
@@ -2746,6 +2878,7 @@ The back office is for staff who work long days on dense lists, mostly on a lapt
 - **Verdict chips** appear only on case and report screens, with icon and word, as everywhere else.
 - **Release clock** (FR-ESC-018) is a mono chip on the escrow list, the release approval and My work, black on `#F3F1EC`; it turns orange only when the release is overdue (5.6d).
 - **Payee changes, official records, identity checks and re-checks** (SCR-BO-42 to SCR-BO-45) follow 5.6c. The payee change approval uses the release pattern above, with the client's approval shown first as done. "Release blocked" and "Frozen" banners are black with white text and a lock icon. Orange marks only the slot or task that is this person's, such as a re-check assigned to them that is due.
+- **Rate quotes and margin alerts** (v0.11) follow 5.6e. Quotes and conversions are mono figures side by side, black on `#F3F1EC`. A conversion outside the programme margin is an orange chip only in the queue of the person who must raise it with the bank; elsewhere it is a black "Outside programme margin" strip. The day's comparison on SCR-BO-19 is a plain dense table with no colour on any rate.
 
 ### 6.2 Design tokens
 
@@ -2878,6 +3011,7 @@ Each component lists its states, usage rules, accessibility notes, its React Nat
 | CMP-30 | Payee line | Planned, paid, blocked, not eligible, locked, changing (cooling-off), refund to source | "Paid to [name], account ending [nnnn]" per section 5.6. Sits directly above any approve button and on every statement row. Blocked variant: "Cannot be paid: account not in the institution's name." Not eligible variant: "Cannot be paid: this institution cannot receive a bank transfer." Locked variant adds the lock icon and the payee lock line; changing variant shows both accounts and the cooling-off end time; refund variant names the source account (5.6, 5.6c). | Plain text; the account digits are read as digits. | `TenminaPayee` | `Text` composed by `TenminaPayee(name, last4, state)` |
 | CMP-31 | Partner notice | Insurer, bank, agency | Fixed-text panel from section 5.6a with the partner's name first and larger than Tenmina's. No Tenmina brand colour on the partner's product name. | `<aside aria-label="About this partner">`. | `TenminaPartnerNotice` | `Surface` with partner `Text` at `--text-xl` |
 | CMP-32 | Dashboard section | Property, Family, Projects and errands; collapsed, expanded, empty (hidden), with items needing action | Heading with count and "See" link; items needing the client first, each with "!" and a word; status sentence per item (CMP-06 pattern); at most 3 items shown, then "See all". | `<section>` with `<h2>`; counts in text. | `TenminaDashboardSection` in a `SectionList` with sticky headers | `LazyColumn` section with sticky header |
+| CMP-33 | Rate quote | Deposit, release, refund; current, updating, expired, accepted (with time), not available today | Shows, in order, the reference rate with source and time, the rate offered, the margin as a percentage, each fee by name, the amount sent and the local-currency amount the payee receives (5.6, 5.6e). The fixed line "Tenmina takes no margin on the exchange." under it. Never collapsed to one total. Expired quotes cannot be accepted (DA-16). | A definition list (`<dl>`) so each figure is read with its label; the margin read as "margin, 0.50 per cent"; an update announced politely (`role="status"`), never by moving focus. | `TenminaRateQuote` | `Column` of label and value `Text` rows with `semantics { contentDescription }` |
 
 ---
 
@@ -3014,7 +3148,7 @@ How to use it:
 - In flow G, "Simulate a mismatched invoice" shows the blocked state where the patient on the invoice is not the family member. Nothing can be approved until a corrected invoice is chosen.
 - The dashboard in flow H combines Ama's property items and Kwabena's family items so that every section has something in it. In the real product each client sees only their own things. The signed-in name at the top changes with the flow.
 
-What it does not cover: the client app's own screens (SCR-APP-01 to 06), sign-up, the country selector and identity check, the back-office queue, report builder and institution verification, care visits, property management, errands, insurer pages, disputes, payee changes and refunds, the official search and identity records, the re-check queue, the release clock, the release timing line and a held-back share, and admin screens. These are in the wireframes or the screen inventory.
+What it does not cover: the client app's own screens (SCR-APP-01 to 06), sign-up, the country selector and identity check, the back-office queue, report builder and institution verification, care visits, property management, errands, insurer pages, disputes, payee changes and refunds, the official search and identity records, the re-check queue, the release clock, the release timing line and a held-back share, deposit routes, rate quotes and the rate comparison (SCR-PTL-56, W-44), and admin screens. These are in the wireframes or the screen inventory.
 
 ### 9.2 Usability test plan
 
@@ -3042,8 +3176,9 @@ Tasks:
 | T8 Read the dashboard | "Open your home page. What needs you today?" | Names the two items marked as needing action, in any order |
 | T9 A changed account | "The seller sends you a WhatsApp: his bank account has changed, here are the new details. What do you do?" Then show SCR-PTL-55 for a change the seller started properly. | Does not pass the details on or pay anywhere; says Tenmina will not act on a message; on SCR-PTL-55 names the new account's last four digits and when money could first go to it (critical, RUL-28) |
 | T10 When is the seller paid | "You have just approved the release on your plot. When will the seller get the money, and can anyone hold it back now?" Then show SCR-PTL-18. | Says within 2 working days of the approval, or the date shown, and that there is no waiting period; on SCR-PTL-18 says the account number belongs to this escrow at the bank, not to Tenmina (RUL-33, RUL-34) |
+| T11 How to pay in | "You are in London and need to pay GHS 270,000.00 for the plot. How would you pay in, what will it cost you, and what does Tenmina earn on the exchange?" Then ask: "What happens if you keep dollars until release and the cedi falls short?" | Picks a route and reads what they send and the cedis it covers; names the margin and the fees; says Tenmina takes no margin on the exchange; says the release waits for a top-up and leftover money comes back (RUL-35, RUL-36) |
 
-Participants for T7 and T8 include at least 2 who send money home for fees or bills today (persona P-15).
+Participants for T7 and T8 include at least 2 who send money home for fees or bills today (persona P-15). Participants for T11 include at least 2 who have sent money to Ghana through a transfer service.
 
 Measures:
 
@@ -3077,9 +3212,9 @@ Screen to requirement to journey. Rules (`RUL-`) follow the FR IDs where a scree
 | SCR-PTL-13 | FR-CASE-008, FR-EVD-001 | J-01, J-08 | - |
 | SCR-PTL-14 | FR-RPT-005, FR-RPT-007, FR-RPT-008, FR-RPT-010 | J-01, J-08 | W-08 |
 | SCR-PTL-15 | FR-RPT-008 | J-01 | - |
-| SCR-PTL-16 | FR-ESC-001, FR-ESC-002, FR-ESC-020, FR-RPT-009; RUL-33 | J-02, J-08 | - |
-| SCR-PTL-17 | FR-ESC-004 to FR-ESC-009, FR-ESC-016, FR-ESC-017, FR-ESC-018, FR-ESC-020, FR-RPT-012; RUL-06, RUL-07, RUL-11, RUL-28, RUL-29, RUL-33 | J-02, J-04, J-08 | W-09 |
-| SCR-PTL-18 | FR-ESC-003, FR-ESC-019; RUL-01, RUL-34 | J-02, J-04 | W-10 |
+| SCR-PTL-16 | FR-ESC-001, FR-ESC-002, FR-ESC-020, FR-RPT-009; RUL-33, RUL-35 | J-02, J-08 | - |
+| SCR-PTL-17 | FR-ESC-004 to FR-ESC-009, FR-ESC-016, FR-ESC-017, FR-ESC-018, FR-ESC-020, FR-ESC-022, FR-ESC-023, FR-RPT-012; RUL-06, RUL-07, RUL-11, RUL-28, RUL-29, RUL-33, RUL-35, RUL-36 | J-02, J-04, J-08 | W-09 |
+| SCR-PTL-18 | FR-ESC-003, FR-ESC-019, FR-ESC-021; RUL-01, RUL-34, RUL-35 | J-02, J-04 | W-10 |
 | SCR-PTL-19 | FR-CASE-015 | J-01 | - |
 | SCR-PTL-20 | FR-ACC-008, FR-ACC-010, FR-NTF-001 | J-01 | - |
 | SCR-PTL-21 | FR-PTR-002, FR-RPT-011; RUL-16 | J-06 | W-24 |
@@ -3101,7 +3236,7 @@ Screen to requirement to journey. Rules (`RUL-`) follow the FR IDs where a scree
 | SCR-PTL-37 | FR-CTY-001, FR-ACC-001 | J-01, J-09 | - |
 | SCR-PTL-38 | FR-ACC-012, FR-CARE-001 | J-09, J-10 | - |
 | SCR-PTL-39 | FR-FEE-001; RUL-22 | J-09 | W-26 |
-| SCR-PTL-40 | FR-FEE-002, FR-FEE-003, FR-ESC-014, FR-ESC-015; RUL-11, RUL-22 | J-09 | W-27 |
+| SCR-PTL-40 | FR-FEE-002, FR-FEE-003, FR-ESC-014, FR-ESC-015, FR-ESC-021; RUL-11, RUL-22, RUL-35 | J-09 | W-27 |
 | SCR-PTL-41 | FR-FEE-004, FR-FEE-005; RUL-11 | J-09 | - |
 | SCR-PTL-42 | FR-FEE-004, FR-FEE-006, FR-FEE-007, FR-ESC-014, FR-ESC-017; RUL-22, RUL-29 | J-09 | W-28 |
 | SCR-PTL-43 | FR-CARE-001, FR-CARE-002; RUL-23 | J-10 | W-29 |
@@ -3117,8 +3252,9 @@ Screen to requirement to journey. Rules (`RUL-`) follow the FR IDs where a scree
 | SCR-PTL-53 | FR-EVT-001 to FR-EVT-003; RUL-22 | None (events, R3) | - |
 | SCR-PTL-54 | FR-PMG-002, FR-PMG-004 | J-11 | - |
 | SCR-PTL-55 | FR-ESC-016, FR-ACC-013; RUL-11, RUL-28 | J-02, J-09 | W-42 |
+| SCR-PTL-56 | FR-ESC-021, FR-ESC-022, FR-ESC-023, FR-ESC-024, FR-ESC-014; RUL-29, RUL-35, RUL-36 | J-02, J-09 | W-44 |
 | SCR-BO-01 | FR-ACC-003, FR-ACC-009, NFR-SEC-02 | All | - |
-| SCR-BO-02 | FR-CASE-005, FR-NTF-003, FR-ESC-018 | J-01, J-02, J-08 | W-11 |
+| SCR-BO-02 | FR-CASE-005, FR-NTF-003, FR-ESC-018, FR-ESC-022, FR-ESC-023 | J-01, J-02, J-08 | W-11 |
 | SCR-BO-03 | FR-CASE-001 to FR-CASE-004, FR-CASE-007, FR-CASE-008, FR-CASE-011, FR-CASE-012, FR-CASE-013, FR-CASE-016, FR-PAY-008, FR-PRO-010 | J-01, J-08 | W-12 |
 | SCR-BO-04 | FR-CASE-004, FR-CASE-006, FR-CASE-010, FR-CASE-016, FR-EVD-001; RUL-30 | J-01, J-08 | - |
 | SCR-BO-05 | FR-CASE-009; RUL-17 | J-01, J-08 | W-13 |
@@ -3127,17 +3263,17 @@ Screen to requirement to journey. Rules (`RUL-`) follow the FR IDs where a scree
 | SCR-BO-08 | FR-RPT-001 to FR-RPT-005, FR-RPT-009; RUL-02, RUL-04, RUL-20 | J-01, J-08 | W-14 |
 | SCR-BO-09 | FR-RPT-006, FR-RPT-007, FR-RPT-010, FR-ACC-013, FR-CASE-016; RUL-03, RUL-30, RUL-31 | J-01, J-08 | - |
 | SCR-BO-10 | FR-ESC-001, FR-ESC-006, FR-ESC-018; NFR-PERF-06 | J-02 | - |
-| SCR-BO-11 | FR-ESC-001, FR-ESC-002, FR-ESC-004, FR-ESC-005, FR-ESC-006, FR-ESC-016, FR-ESC-017, FR-ESC-019, FR-ESC-020, FR-RPT-012; RUL-06, RUL-07, RUL-15, RUL-28, RUL-29, RUL-34 | J-02, J-04, J-08 | - |
-| SCR-BO-12 | FR-ESC-006 to FR-ESC-009, FR-ESC-013, FR-ESC-015 to FR-ESC-020; RUL-05, RUL-06, RUL-07, RUL-11, RUL-22, RUL-28, RUL-29, RUL-33, RUL-34 | J-02, J-03, J-05, J-09, J-11, J-12 | W-15 |
-| SCR-BO-13 | FR-PAY-004, FR-PAY-006, FR-ESC-011, FR-ESC-019; RUL-34 | J-01, J-02 | - |
+| SCR-BO-11 | FR-ESC-001, FR-ESC-002, FR-ESC-004, FR-ESC-005, FR-ESC-006, FR-ESC-016, FR-ESC-017, FR-ESC-019, FR-ESC-020, FR-ESC-021, FR-ESC-022, FR-ESC-023, FR-RPT-012; RUL-06, RUL-07, RUL-15, RUL-28, RUL-29, RUL-34, RUL-35, RUL-36 | J-02, J-04, J-08 | - |
+| SCR-BO-12 | FR-ESC-006 to FR-ESC-009, FR-ESC-013, FR-ESC-015 to FR-ESC-020, FR-ESC-022, FR-ESC-023; RUL-05, RUL-06, RUL-07, RUL-11, RUL-22, RUL-28, RUL-29, RUL-33, RUL-34, RUL-35, RUL-36 | J-02, J-03, J-05, J-09, J-11, J-12 | W-15 |
+| SCR-BO-13 | FR-PAY-004, FR-PAY-006, FR-ESC-011, FR-ESC-019, FR-ESC-023; RUL-34, RUL-35 | J-01, J-02 | - |
 | SCR-BO-14 | FR-BLD-005, FR-BLD-010, FR-MOB-011, FR-EVD-006 | J-03 | - |
 | SCR-BO-15 | FR-BLD-003, FR-BLD-004, FR-RAT-001; RUL-10 | J-03 | - |
 | SCR-BO-16 | FR-LST-002, FR-LST-006, FR-LST-008, FR-GEO-007, FR-RAT-004 | J-04 | - |
 | SCR-BO-17 | FR-DSP-002 to FR-DSP-005 | J-07 | - |
-| SCR-BO-18 | FR-ADM-001, FR-ADM-004, FR-ADM-005, FR-CTY-001; NFR-PERF-06 | All | W-16 |
-| SCR-BO-19 | FR-ADM-002 | J-01 | - |
+| SCR-BO-18 | FR-ADM-001, FR-ADM-004, FR-ADM-005, FR-CTY-001; NFR-PERF-06, RUL-36 | All | W-16 |
+| SCR-BO-19 | FR-ADM-002, FR-ESC-024; RUL-35 | J-01, J-02 | - |
 | SCR-BO-20 | FR-ACC-005, FR-ACC-006, FR-ACC-007 | All | - |
-| SCR-BO-21 | FR-ADM-003, FR-PTR-004 | J-06 | - |
+| SCR-BO-21 | FR-ADM-003, FR-PTR-004, FR-ESC-021; RUL-35 | J-02, J-06 | - |
 | SCR-BO-22 | FR-AUD-001 to FR-AUD-004 | All | - |
 | SCR-BO-23 | FR-ANL-001 to FR-ANL-003 | None (operations) | - |
 | SCR-BO-24 | FR-DPR-003 to FR-DPR-005 | None (data rights) | - |
@@ -3227,10 +3363,12 @@ Modules with no screen of their own: FR-ANL (F-35 draws on it for the dashboard 
 | DQ-22 | Which photograph, with what licence or written consent, goes on the client app's welcome screen and store pages? | Founder | Before R2 store submission |
 | DQ-23 | Is 1.2 seconds the right hold time for approvals? Test with older clients and on cheap Android phones. | Designer | R2 usability round |
 | DQ-24 | Which second channel warns the client of a payee change (FR-ESC-016) when their own email or phone may be the one compromised: a call from the case manager to the number confirmed at sign-up, or email and SMS together? This document uses email and SMS, and a call when the request looks like fraud. | Product lead, security | R1 |
+| DQ-25 | Should the daily rate comparison (FR-ESC-024) also be public, on the prices page (SCR-PTL-01), so people can see it before they sign up? This document shows it only to signed-in clients and staff. | Founder, lawyer | R1 |
+| DQ-26 | Should a client be able to set a rate alert, or ask to convert held dollars early when the rate suits them? 01 offers only on deposit or at release (RUL-36). | Product lead | R2 |
 
 ### 11.2 Issues found in document 01
 
-Document 01 has not been edited. Items marked **Closed** were fixed in 01 v0.2, v0.3, v0.4 or v0.9 and are kept here for one version so document 05 can retire its tests against them. Checked against 01 v0.12 in v0.9 and against 01 v0.13 in v0.10 of this document. The rest need a decision by the owner of 01.
+Document 01 has not been edited. Items marked **Closed** were fixed in 01 v0.2, v0.3, v0.4 or v0.9 and are kept here for one version so document 05 can retire its tests against them. Checked against 01 v0.12 in v0.9, against 01 v0.13 in v0.10 and against 01 v0.15 in v0.11 of this document. The rest need a decision by the owner of 01.
 
 | ID | Where in 01 | Issue | Status | Design assumption used here |
 |---|---|---|---|---|
@@ -3273,3 +3411,7 @@ Document 01 has not been edited. Items marked **Closed** were fixed in 01 v0.2, 
 | I-37 | RUL-28 | The cooling-off of `[72 hours, TO VERIFY]` does not say whether it counts calendar hours or bank working hours, or what happens when it ends outside bank hours. | **Closed** by 01 v0.12 review fixes: RUL-28 now counts clock hours from the last approval of the change; a release due outside bank hours waits for the bank. | Calendar hours from the second staff approval, shown in Ghana time and the client's own time. A release after it ends still waits for bank hours. |
 | I-38 | FR-ESC-019, RUL-34, FR-ESC-004 | 01 does not say what happens to a deposit the bank credits to another escrow's virtual account or reference, or to money in an escrow above its agreed price. | Open. | It shows on the escrow that received it as credited but not matched (SCR-BO-11, SCR-BO-13) and cannot be released from either escrow. The escrow it was meant for stays waiting for its deposit. Staff ask the bank to correct it; only the bank's correcting entry changes either balance. The client sees "Deposit not matched" (5.1). **Closed** by 01 v0.13 review fixes: RUL-34 now says misdirected deposits and money above the price cannot be released from any escrow, only the bank's correcting entry changes a balance, and excess is refunded to its source. |
 | I-39 | NFR-PERF-06 against RUL-11 and RUL-33 | NFR-PERF-06 counts from the last approval, which is the second staff approval. No target covers the time between the client's approval and the staff approvals, so "Paid within 3 working days of your approval" is not guaranteed by 01. | Open. | DA-15: the line is a working assumption. The back office shows the client's approval time and puts the release first in My work so staff approve that working day. **Closed** by 01 v0.13 review fixes: NFR-PERF-06 now sets a staff approval target of 1 working day, so the client line reads "Paid within 3 working days of your approval". |
+| I-40 | RUL-35, FR-ESC-023, IF-14, FR-ADM-002 | 01 says what a quote shows and that the accepted quote is recorded, but not how long a quote holds, how old the reference rate may be, or how the reference rate relates to the "exchange-rate guides" of FR-ADM-002. A client could accept a stale rate. | Open. | DA-16: a quote holds for `[15 minutes, TO VERIFY]` and needs today's reference rate; a stale quote cannot be accepted. The reference rate is the guide's source. |
+| I-41 | RUL-34, FR-ESC-019, FR-ESC-022 | RUL-34 gives one escrow account per currency, and FR-ESC-021 lets one escrow receive money in foreign currency and in cedis. 01 does not say whether such an escrow has a virtual account in each currency, how its balances are shown, or how the shortfall check adds them. | Open. | DA-17: one account card per currency, each with its own number and confirmed balance; the shortfall check adds them at the current quote. |
+| I-42 | RUL-29, FR-ESC-023, IF-15 | For a deposit through a transfer partner, the bank's source account is the partner's, so "refund to source" does not say whose account the money returns to. FR-ESC-023 compares the quote with "the bank's confirmed conversion", but on that route the partner converts. | Open. | DA-18: refunds go back through the partner to the sender's account it recorded. The quote on a partner route is compared with the partner's confirmed rate and the cedis the bank confirms; SCR-BO-13 shows both. |
+| I-43 | FR-ESC-022, RUL-36, NFR-PERF-06, FR-ESC-018 | A shortfall at sending blocks a release the client and staff have approved. 01 does not say whether the release clock keeps running while the client tops up, whether the approvals stand, or by when the client must top up. | Open. | The approvals stand if nothing else changes. The clock shows "Waiting for the client's top-up" and raises no overdue alert while it waits. Staff remind the client on the configured period. |
