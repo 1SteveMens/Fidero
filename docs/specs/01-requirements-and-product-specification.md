@@ -5,7 +5,7 @@ Business requirements (BRD), product requirements (PRD) and software requirement
 | Item | Value |
 |---|---|
 | Document | 01 of 6 in `docs/specs/` |
-| Version | 0.11, working draft |
+| Version | 0.12, working draft |
 | Date | 12 November 2026 |
 | Owner | Founder, acting as product owner |
 | Status | For review. Not yet baselined |
@@ -18,6 +18,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 31 October 2026 | First draft |
+| 0.12 | 12 November 2026 | Fund and evidence protection, from the founder's review of fraud and money risks. Adds RUL-28 (payee lock with a cooling-off period), RUL-29 (refund to source), RUL-30 (official records obtained by Tenmina from the official channel, never handed over by a runner or seller), RUL-31 (identity verified against the national identity system, never by photocopy) and RUL-32 (random re-checks by a different professional). Adds FR-ESC-016, FR-ESC-017, FR-PAY-008, FR-CASE-016, FR-ACC-013 and FR-RPT-012, and Q-28 on the legal basis for escrow. IF-03 and IF-09 updated. J-02 and the escrow state model note the payee lock. |
 | 0.11 | 12 November 2026 | Q-27 added: compete or partner with Tulix-style spending apps in Kenya. Founder decision `docs/decisions/2026-11-12-build-with-claude.md`: until revenue allows hiring, Claude writes the code and the founder tests on real phones. C-07 updated; the hired team it described is deferred. Requirements, rules and gates are unchanged. |
 | 0.10 | 11 November 2026 | Founder decisions recorded in C-07: contract developer kept to S14 for professional payments, and Option R2-A for the R2 team. |
 | 0.9 | 11 November 2026 | Clarifies professional payments: payment rights defined; every contracted role sees its own pay; who closes a runner's month and what a part month pays; pay may be held only during a recorded fraud or misconduct review; withholding does not apply to reimbursed expenses unless the law says so; IF-13 for Tenmina's operating bank. No new requirement IDs. |
@@ -360,7 +361,7 @@ Anyone abroad can get anything done at home, from buying land to paying a parent
 ### J-02 Buy through escrow (R1)
 
 1. Ama chooses escrow on a green or amber report.
-2. The release conditions are copied from the report's section 11. Ama, the seller and Tenmina accept the escrow terms. The bank opens the escrow.
+2. The release conditions are copied from the report's section 11. The seller's identity and account name are verified, and the seller's account is fixed as the payee (RUL-28, RUL-31). Ama, the seller and Tenmina accept the escrow terms. The bank opens the escrow.
 3. Ama pays the purchase price to the bank, not to Tenmina. The tracker shows the deposit when the bank confirms it.
 4. A fresh search and site check run before release.
 5. Each condition is closed with evidence, such as the signed indenture and recorded family consent.
@@ -464,6 +465,11 @@ The system must enforce these rules. Each is tested in document 05.
 | RUL-24 | Rent on a managed property is paid by the tenant to the owner's own account at the partner bank, never to Tenmina. |
 | RUL-25 | Insurance is sold as the named licensed insurer's policy. Tenmina collects no premium into its own account and pays no claim. |
 | RUL-26 | A professional's pay never depends on the verdict or outcome of their work. A red report pays the same as a green one; a failed inspection pays the same as a pass. |
+| RUL-28 | The payee and the payee's account on an escrow or a held amount are fixed when its terms are agreed. A change needs the client's approval, approval by two Tenmina staff with release rights, a fresh identity check and account-name check of the new payee, and a cooling-off period of `[72 hours, TO VERIFY]` before any release to the new account. Payee and bank details are never taken from a message, email or call; only through the payee verification flow. |
+| RUL-29 | Money held at the bank is refunded only to the account it came from. If that account can no longer receive it, the refund to another account in the client's own name needs a fresh identity check of the client, the client's approval, two staff approvals and the cooling-off period of RUL-28. Fee refunds go back through the payment provider to the original payment method. |
+| RUL-30 | Official searches and other registry results are requested through the registry's official channel from a Tenmina account, and the result is received by Tenmina directly from that channel (in Ghana, the Lands Commission online portal or its client service unit). A result handed over by a runner, seller, agent, client or anyone else is not evidence until Tenmina obtains the same result from the official channel. Where a registry has no remote channel, a Tenmina staff member confirms the result with the registry before it is used. |
+| RUL-31 | The identity of every seller, grantor, consenting party and individual payee is verified against the national identity system through an approved channel (in Ghana, the National Identification Authority's verification platform, directly or through a licensed provider). A photocopy, scan or photo of an identity card is never proof of identity. |
+| RUL-32 | Each month a random sample of `[5%, TO VERIFY]` of released reports and of closed release conditions is re-checked, without notice, by a licensed professional who did not work on the case and has no link to it. |
 | RUL-27 | Tenmina pays the professionals it contracts from its own operating account, out of its fee income. Client money held at the bank pays only the client's own payees: sellers, institutions, contractors, carers, suppliers, vendors and agencies. No path moves money between the two. |
 
 ## B8. Out of scope for this specification
@@ -503,6 +509,7 @@ The system must enforce these rules. Each is tested in document 05.
 | Q-24 | Does Google Play's financial features declaration, or Apple's rules for financial apps, require any licence or proof from Tenmina or its bank in each country? | Lawyer | Before R2 app submission |
 | Q-25 | What withholding tax, registration and reporting apply when Tenmina pays contracted professionals in Ghana, Nigeria and Kenya? | Accountant, lawyer | R1 start; each country's manual phase |
 | Q-26 | Which bank account and mobile money provider does Tenmina use to pay professionals, and do they accept a bulk payment file? | Founder | R1 start |
+| Q-28 | What is the legal basis for escrow in each country? In Ghana no Bank of Ghana directive licensing escrow agents was found (12 November 2026): must the partner bank act as escrow agent under a three-party agreement with the client and Tenmina, and does Tenmina's role as condition monitor need any payments licence? | Lawyer, partner bank | Before R1 escrow go-live |
 | Q-27 | In Kenya, does Tenmina compete with everyday diaspora spending apps such as Tulix (wallet and merchant vouchers, Nairobi) for family payments, or partner with one for day-to-day spending and keep to verified, high-value payments with proof? | Founder | Kenya manual phase |
 
 ---
@@ -580,6 +587,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-ACC-007 | The system shall enforce role-based access so each user sees only the cases, projects and listings assigned to them, owned by them, or within their operational scope. Case managers and reviewers see the work of their country and team. | Must | R1 | BR-15 |
 | FR-ACC-008 | The system shall let a client name a representative in the home country with limited, read-only access to a case or project. | Should | R1 | BR-01 |
 | FR-ACC-012 | The system shall let a client add family members, properties and institutions to their account and see everything running at home in one dashboard. | Should | R1 | BR-17 |
+| FR-ACC-013 | The system shall verify the identity of each seller, grantor, consenting party and individual payee against the national identity system through IF-03, store the result, its reference and time but never biometric data, and block report release and payee verification while a required check is missing or failed. | Must | R1 | RUL-31, BR-05 |
 | FR-ACC-009 | The system shall lock an account after 5 failed sign-in attempts for 15 minutes and notify the user. | Must | R1 | BR-15 |
 | FR-ACC-010 | The system shall let users manage notification preferences and their preferred channel. | Should | R1 | BR-01 |
 | FR-ACC-011 | The system shall let a developer, seller, institution or insurer create an organisation account with several users. | Should | R2 | BR-10, BR-17 |
@@ -607,6 +615,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-PAY-005 | The system shall keep fee payments completely separate from escrowed money, and shall offer no function to accept purchase, construction or project money. | Must | R1 | RUL-01 |
 | FR-PAY-006 | The system shall reconcile provider settlements against orders daily and list mismatches for a case manager. | Should | R1 | BR-16 |
 | FR-PAY-007 | The system shall invoice sellers for listing fees and success fees. | Should | R2 | BR-10 |
+| FR-PAY-008 | The system shall refund fees only through the payment provider to the original payment method. | Must | R1 | RUL-29 |
 
 ### C4.4 Verification case workflow (CASE)
 
@@ -627,6 +636,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-CASE-013 | The system shall support a building case template with extra steps: building permit check, structural inspection, occupancy and tenancy check, property rates and utility bills check. | Should | R1 | BR-07 |
 | FR-CASE-014 | The system shall support a fresh-search case type that repeats the Lands Commission search and a site check on a previously verified asset. | Must | R1 | RUL-07 |
 | FR-CASE-015 | The system shall let a client message Tenmina inside a case and keep the thread with the case. | Should | R1 | BR-01 |
+| FR-CASE-016 | The system shall record for each official search the registry channel, the Tenmina account and staff member that submitted it, the registry's reference, and the result as received from that channel; and shall not accept a result uploaded by a runner, seller, agent or client as the evidence for a search task. | Must | R1 | RUL-30, BR-06 |
 
 ### C4.5 Report builder (RPT)
 
@@ -642,6 +652,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-RPT-008 | The system shall let anyone with a report reference and PDF check that the PDF matches the stored hash. | Should | R1 | BR-06 |
 | FR-RPT-009 | The system shall record release conditions in section 11 as structured items that can be copied into an escrow. | Must | R1 | BR-05 |
 | FR-RPT-010 | The system shall never change a released report. A correction creates a new version with a reason, and the client is notified. | Must | R1 | BR-02 |
+| FR-RPT-012 | The system shall each month select at random the share of released reports and closed release conditions set in RUL-32, assign each re-check to a licensed professional with no link to the case, and record the result. A failed re-check opens an incident, notifies the client of any correction, and freezes releases on affected open escrows. | Should | R1 | RUL-32, BR-02 |
 | FR-RPT-011 | The system shall produce an anonymised version of a report for case studies only when the client's written consent is on file. | Could | R1 | BR-15 |
 
 ### C4.6 Geospatial checks and monitoring (GEO)
@@ -676,6 +687,8 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-ESC-011 | The system shall import the bank's daily statement file and match lines to escrows, listing unmatched lines. | Should | R2 | BR-05 |
 | FR-ESC-012 | The system shall integrate with the bank's API for deposit and release status where available. | Could | R2 | BR-05 |
 | FR-ESC-013 | The system shall support cancellation and refund instructions with the same two-person approval. | Must | R1 | RUL-05 |
+| FR-ESC-016 | The system shall change a payee or payee account on an agreed escrow or held amount only through the payee verification flow: client approval, two staff approvals with release rights, fresh identity and account-name checks of the new payee, and a notice to the client on a second channel; and shall block any release to the new account until the cooling-off period ends. | Must | R1 | RUL-28, RUL-22 |
+| FR-ESC-017 | The system shall record the source account of every deposit from the bank's confirmation, and shall address refund instructions only to that account unless the RUL-29 exception path is complete. | Must | R1 | RUL-29 |
 
 ### C4.8 Evidence store (EVD)
 
@@ -997,13 +1010,13 @@ Tenmina's own contracted professionals are paid by Tenmina, from its fee income,
 |---|---|---|---|---|
 | IF-01 | Escrow bank or agent | Deposit confirmation, release instructions and confirmation | R1 manual; R2 file or API | Format agreed with the bank `[TO VERIFY]` |
 | IF-02 | Payment provider | Card and mobile money for Tenmina fees | R1 | Provider `[TO VERIFY]` |
-| IF-03 | Identity check provider | Ghana Card and passport checks | R1 | Provider `[TO VERIFY]` |
+| IF-03 | Identity check provider | Client passport and identity card checks; national identity system checks for sellers, grantors, consenting parties and payees (RUL-31). In Ghana, the National Identification Authority's verification platform, directly or through a licensed provider | R1 | Provider and access terms `[TO VERIFY]` |
 | IF-04 | Map layers | Acquisitions, road reserves, wetlands, flood zones, zoning | R1 | Sources `[TO VERIFY]` |
 | IF-05 | Satellite imagery | Images for reports; change detection | R1 images; R2 monitoring | Provider `[TO VERIFY]` |
 | IF-06 | Ghana Post GPS | Address to coordinates | R1 | Availability `[TO VERIFY]` |
 | IF-07 | Email, SMS, WhatsApp | Notifications | R1 | Providers `[TO VERIFY]` |
 | IF-08 | Partner API consumers | Banks and developers | R2 | Defined in document 02 |
-| IF-09 | Lands Commission | Searches | Manual in all releases unless online access is offered `[TO VERIFY]` | |
+| IF-09 | Lands Commission | Searches, submitted and received by Tenmina through the official online portal or client service unit (RUL-30) | Manual through the portal in all releases; no API known `[TO VERIFY]` | A Tenmina account, never a runner's |
 | IF-10 | Institutions: schools, hospitals, agencies | Invoice references and receipts | R1 manual upload; R2 portal or file | Per institution `[TO VERIFY]` |
 | IF-11 | Insurer partners | Applications, premiums, policies, claims | R2 | Per insurer `[TO VERIFY]` |
 | IF-13 | Tenmina's operating bank or mobile money provider | Bulk payment files for professional pay and their confirmations | R1 | Tenmina's own account, separate from the escrow bank relationship (Q-26) |
@@ -1071,7 +1084,9 @@ A case starts once its order is paid (FR-ORD-004). Before that, only the order e
 | Funded, Ready to release, Client approved, Release approved, Partly released | Frozen | Dispute opened (R2). A release approved but not yet confirmed by the bank is recalled `[TO VERIFY]` with the bank (Q-12) |
 | Frozen | The state it came from | Dispute resolved in favour of continuing |
 | Frozen | Cancelled | Dispute resolved in favour of a refund |
-| Agreed, Funded, Ready to release or Partly released | Cancelled | Two-person approved cancellation; bank confirms refund |
+| Agreed, Funded, Ready to release or Partly released | Cancelled | Two-person approved cancellation; bank confirms refund to the source account (RUL-29) |
+
+A payee change (RUL-28) does not change the escrow's state. It blocks any release to the new account until the change is approved and the cooling-off period has ended.
 
 ### Milestone
 
@@ -1139,6 +1154,9 @@ Each functional requirement and business rule has acceptance criteria and test c
 | Bill of quantities | The quantity surveyor's list of materials, labour and costs for a build |
 | Retention | Part of the build value held back until the defects period ends |
 | Release instruction | Tenmina's signed instruction to the bank to pay out escrowed money |
+| Payee lock | The rule that an escrow's payee and account cannot change without the client, two staff, fresh checks and a cooling-off period (RUL-28) |
+| Cooling-off period | The wait after a payee change before any money can go to the new account |
+| Source account | The account a deposit came from; refunds go only there (RUL-29) |
 | Badge | The "Tenmina Verified" mark on a listing, valid for a set period |
 | Institution | A school, hospital, clinic, pharmacy, agency or utility that Tenmina has verified and pays directly |
 | Care plan | The agreed schedule and tasks for visits to a family member |
