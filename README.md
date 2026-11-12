@@ -1,6 +1,6 @@
 # Tenmina
 
-Tenmina (from the Parable of the Minas in Luke 19: "your mina has made ten minas") is the trusted agent at home for people abroad. Anyone in the diaspora who needs something done in their home country, from buying a plot to paying a parent's hospital bill, can have it checked, paid against proof, and shown to them. Ghana is the launch market. Land verification is the launch product. Nigeria follows from month 6 and Kenya from month 15.
+Tenmina (from the Parable of the Minas in Luke 19: "your mina has made ten minas") is the trusted agent at home for people abroad. Anyone in the diaspora who needs something done in their home country, from buying a plot to paying a parent's hospital bill, can have it checked, paid against proof, and shown to them. Ghana is the launch market. The launch has two front doors: family payments against proof (school fees, hospital and household bills) for frequent use, and property checks on land and houses for the largest sums, with a test of building in stages (`docs/decisions/2026-11-12-two-front-doors.md`). Nigeria follows from month 6 and Kenya from month 15.
 
 All figures in this repository are working assumptions, not verified data. Unknown numbers are marked `[TO VERIFY]`.
 
@@ -43,7 +43,7 @@ Clients use the Tenmina app and field staff use the Tenmina Field app. Both are 
 | | Events and ceremonies | Vendors and the budget | Vendors paid against invoices and delivery evidence | R3 |
 | **Later** | Relocation and shipping, vehicles, investing | Demand `[TO VERIFY]` | To be designed | R3 or later |
 
-Land is the launch product because it is the highest-value, least-served problem and it builds the field team and the bank partnership that every other line uses. The family lines create monthly contact with clients.
+The launch has two front doors. Family payments are frequent: they build the habit and bring users. Property checks on land and houses carry the largest sums and the strongest trust story, and build the field team and the bank partnership that every other line uses. Building a house in stages is tested alongside, because it is both frequent and large.
 
 ## Verified listings
 
@@ -91,7 +91,7 @@ Pre-seed: $400k for 18 months `[TO VERIFY]` against the wider scope. It funds th
 |---|---|
 | `README.md` | This summary |
 | `CLAUDE.md` | Context and writing rules for Claude sessions working on Tenmina |
-| `docs/decisions/` | Decision records. Start with `2026-11-01-diaspora-platform.md`, then `2026-11-12-build-with-claude.md` (who builds the software) , `2026-11-12-name-tenmina.md` (the name) and `2026-11-12-checked-plots-and-established-sellers.md` (checked plots test and the escrow pilot mix) |
+| `docs/decisions/` | Decision records. Start with `2026-11-01-diaspora-platform.md`, then `2026-11-12-build-with-claude.md` (who builds the software) , `2026-11-12-name-tenmina.md` (the name) , `2026-11-12-checked-plots-and-established-sellers.md` (checked plots test and the escrow pilot mix) and `2026-11-12-two-front-doors.md` (launch with family payments and property checks) |
 | `docs/proposal.md` | Full business proposal |
 | `docs/validation-plan.md` | 90-day plan to launch the manual verification service |
 | `docs/operations/home-payments-survey.md` | The "what else do you pay for at home?" survey for leads and webinars (validation plan 4b) |

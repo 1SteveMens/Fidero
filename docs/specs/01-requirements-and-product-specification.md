@@ -5,7 +5,7 @@ Business requirements (BRD), product requirements (PRD) and software requirement
 | Item | Value |
 |---|---|
 | Document | 01 of 6 in `docs/specs/` |
-| Version | 0.16, working draft |
+| Version | 0.17, working draft |
 | Date | 12 November 2026 |
 | Owner | Founder, acting as product owner |
 | Status | For review. Not yet baselined |
@@ -18,6 +18,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 31 October 2026 | First draft |
+| 0.17 | 12 November 2026 | Founder decision `docs/decisions/2026-11-12-two-front-doors.md`: the launch has two front doors, family payments against proof and property checks on land and houses, with a test of building in stages. A1 updated. R0 family payments use a verify-and-confirm model (the client pays the verified institution directly) until a licensed partner can pay on the client's behalf. No requirement IDs change; release scope is unchanged. |
 | 0.16 | 12 November 2026 | Adds Q-34 on candidate lines from diaspora habits (household bills, family pot, home watch, funeral package, trip home bundle, repeat prescriptions and NHIS renewal, inheritance and family property, religious giving against proof, farm watch), informed by the R0 survey. No requirement changes. |
 | 0.15 | 12 November 2026 | Exchange rates and deposit routes. Adds RUL-35 (no Tenmina margin on currency exchange, full rate disclosure, prices and payments to payees in the local currency) and RUL-36 (the client chooses to convert on deposit or at release; holding foreign currency needs a buffer). Adds FR-ESC-021 to FR-ESC-024 (deposit routes with the cedis delivered by each, conversion choice and buffer, the accepted quote recorded, a daily rate comparison), IF-14 (reference rate and rate comparison sources), IF-15 (licensed money transfer partners), Q-32 (foreign currency pricing for non-resident buyers under the Foreign Exchange Act 2006, Act 723) and Q-33 (the bank's programme rate and partners' limits). FR-ADM-005 and the glossary updated. Review fixes: local currency, not cedis, in FR-ESC-021 and IF-15; buffer measured against the amount due, with held amounts converted per payment; quote checks cover transfer partners, and the client's own bank is shown as an estimate; "best rate" ranked by amount delivered on a complete day; converted refunds to foreign accounts; a second administrator for comparison providers; quote validity; escrows in more than one currency; refunds of transfer partner deposits; a shortfall found at sending. |
 | 0.14 | 12 November 2026 | Founder decision `docs/decisions/2026-11-12-checked-plots-and-established-sellers.md`: an R0 test of checked plots from screened established sellers, done by hand, decides whether F-19 moves from R2 into R1; the escrow pilot mixes screened established sellers with ordinary sales. Adds Q-31 on seller success fees. No requirement changes. |
@@ -88,7 +89,7 @@ Releases follow the roadmap phases in `docs/proposal.md`. Each release opens onl
 
 ## A1. Purpose
 
-Tenmina is the trusted agent at home for people abroad. Anyone in the diaspora who needs something done in their home country, from buying land to paying a parent's hospital bill, can have it checked, paid against proof and shown to them. Ghana is the launch market. Land verification is the launch product. The redefinition from a land platform to a diaspora platform is recorded in `docs/decisions/2026-11-01-diaspora-platform.md`.
+Tenmina is the trusted agent at home for people abroad. Anyone in the diaspora who needs something done in their home country, from buying land to paying a parent's hospital bill, can have it checked, paid against proof and shown to them. Ghana is the launch market. The launch has two front doors: family payments against proof (school fees, hospital and household bills) for frequent use, and property checks on land and houses for the largest sums, with a test of building in stages (`docs/decisions/2026-11-12-two-front-doors.md`). The redefinition from a land platform to a diaspora platform is recorded in `docs/decisions/2026-11-01-diaspora-platform.md`.
 
 The 90-day manual service (R0) proves demand and the report process with no software. This BRD covers the software that lets the service grow past what a small team can run with spreadsheets, and that turns one-off reports into an escrow, construction and listings business.
 

@@ -4,7 +4,7 @@ Status: working draft. Every figure in this document is an assumption unless mar
 
 ## 1. Executive summary
 
-Tenmina is the trusted agent at home for people abroad. Anyone in the diaspora who needs something done in their home country, from buying a plot to paying a parent's hospital bill, can have it checked, paid against proof and shown to them. Ghana is the launch market. Land verification is the launch product. The redefinition from a land platform to a diaspora platform is recorded in `docs/decisions/2026-11-01-diaspora-platform.md`.
+Tenmina is the trusted agent at home for people abroad. Anyone in the diaspora who needs something done in their home country, from buying a plot to paying a parent's hospital bill, can have it checked, paid against proof and shown to them. Ghana is the launch market. The launch has two front doors: family payments against proof (school fees, hospital and household bills) for frequent use, and property checks on land and houses for the largest sums, with a test of building in stages (`docs/decisions/2026-11-12-two-front-doors.md`). The redefinition from a land platform to a diaspora platform is recorded in `docs/decisions/2026-11-01-diaspora-platform.md`.
 
 Every line runs on one engine. Verify the asset or the people. A licensed bank or escrow agent holds the money. Release it only against evidence, and only to a verified institution, supplier, vendor or professional, never as cash to a relative. Show the client every step.
 
@@ -59,7 +59,7 @@ Lawyers and surveyors exist, but a buyer abroad has no way to find trustworthy o
 
 ## 3. Solution
 
-Tenmina sells trust wherever money sent home is at risk. The engine is the same for every line: verify, hold, release against evidence, show. Land is described first because it is the launch product.
+Tenmina sells trust wherever money sent home is at risk. The engine is the same for every line: verify, hold, release against evidence, show. Land is described first because the engine is easiest to see there; at launch it is one of two front doors, beside family payments against proof.
 
 ### Verify
 

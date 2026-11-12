@@ -55,13 +55,14 @@ lists={
  'YesNo':['Yes','No'],
  'Verdict':['Green','Amber','Red'],
  'Source':['Association or church','Webinar or talk','Friend or family','Referral by a client','Remittance company','Social media','Founder network','Professional network','Other'],
- 'Need':['Land check before buying','Check land already bought','Looking for land','Pay a school or hospital','Other'],
+ 'Need':['Land check before buying','Check land already bought','House check before buying','Looking for land','Pay a school or hospital','Pay household bills','Building in stages','Other'],
  'Outcome':['Open','Quoted','Paid','Declined','No reply'],
  'Status':['Open','On hold','Delivered','Cancelled'],
  'CostType':['Lawyer','Surveyor','Runner','Lands Commission fee','Travel','Other'],
  'Search':['Plot search','Seller name search','Other search'],
  'Role':['Lawyer','Surveyor','Runner','Reviewer'],
- 'InstType':['School','Hospital','Agency','Other'],
+ 'InstType':['School','Hospital','Pharmacy','Utility','Landlord','Agency','Other'],
+ 'BuildStage':['0. Mobilisation','1. Foundation','2. Blocks','3. Lintel','4. Roof','5. Finishing','6. Handover'],
  'PricePoint':['300','450','600','Local GHS price','Other'],
  'EvidenceFolder':['A Client documents','B Searches','C Survey','D Overlays','E Consent','F Site visit','R Report'],
  'AccessFolder':['Whole case','A Client documents','B Searches','C Survey','D Overlays','E Consent','F Site visit','R Report'],
@@ -151,13 +152,13 @@ calc(se,'E','=IF(OR(A{r}="",LEFT(A{r},3)="EX-",C{r}="",D{r}=""),"",D{r}-C{r})','
 example(se,{'A':'EX-C001','B':'Plot search','C':date(2027,1,15),'D':date(2027,1,29),'F':'No registered interest found'})
 
 # ---------- Institution payments (EN-51) ----------
-ip=sheet('Institution payments','Payments to institutions (EN-51)','Every school, hospital or agency paid by hand for a client. Verify the institution before paying; record the receipt.',
- ['Payment ID','Date paid','Client','Family member','Institution','Type','Registration checked?','Bank account in its own name?','Named contact confirmed?','Invoice reference','Amount','Currency','Paid through (bank)','Receipt returned?','Receipt date','Amount in USD','Notes'],
- [11,13,18,18,26,11,13,14,13,16,11,9,18,11,13,12,26])
+ip=sheet('Institution payments','Family payments (EN-51)','Every school, hospital, pharmacy, utility or landlord paid for a client. Verify the payee once, confirm each invoice, record the receipt. In R0 the client pays the verified account directly (validation plan 1a).',
+ ['Payment ID','Date paid','Client','Family member','Institution','Type','Registration checked?','Bank account in its own name?','Named contact confirmed?','Invoice reference','Amount','Currency','Paid by (client directly, or partner)','Receipt returned?','Receipt date','Amount in USD','Notes','Tenmina fee','Fee currency'],
+ [11,13,18,18,26,11,13,14,13,16,11,9,18,11,13,12,26,11,9])
 dates(ip,'B','O')
-for c,k in [('F','InstType'),('G','YesNo'),('H','YesNo'),('I','YesNo'),('L','Currency'),('N','YesNo')]: dv(ip,c,refs[k])
+for c,k in [('F','InstType'),('G','YesNo'),('H','YesNo'),('I','YesNo'),('L','Currency'),('N','YesNo'),('S','Currency')]: dv(ip,c,refs[k])
 calc(ip,'P','='+usd('K{r}','L{r}'),'#,##0.00')
-example(ip,{'A':'EX-P001','B':date(2027,2,10),'C':'Example client','D':'Mother','E':'Example Teaching Hospital','F':'Hospital','G':'Yes','H':'Yes','I':'Yes','J':'INV-0001','K':1860,'L':'GHS','M':'Partner bank','N':'Yes','O':date(2027,2,12)})
+example(ip,{'A':'EX-P001','B':date(2027,2,10),'C':'Example client','D':'Mother','E':'Example Teaching Hospital','F':'Hospital','G':'Yes','H':'Yes','I':'Yes','J':'INV-0001','K':1860,'L':'GHS','M':'Client directly','N':'Yes','O':date(2027,2,12),'R':5,'S':'USD'})
 
 # ---------- Incidents ----------
 inc=sheet('Incidents','Safety incidents','Log every threat or confrontation, however small (validation plan sections 5 and 6).',
@@ -223,6 +224,27 @@ calc(cp,'S','=IF(A{r}="","",IF(AND(J{r}="Green",N(Q{r})<='+VALID+',R{r}="Yes",K{
 cp['S4'].comment=Comment('Yes only for a green report younger than the validity in Lists, from a screened seller who has paid the fixed fee, and not yet sold. A buyer who chooses it still gets a fresh search in their own name.','Tenmina')
 example(cp,{'A':'EX-P01','B':'EX-S01','C':'Oyibi','D':'12','E':'70 x 100 ft','F':45000,'G':'USD','H':'EX-C002','I':date(2027,1,25),'J':'Green','K':date(2027,1,16),'L':'EX-L002'})
 
+# ---------- Build stages (validation plan 1b) ----------
+bs=sheet('Build stages','Building in stages (test)',"Each stage of a client's house: inspected and photographed before the client pays the builder's verified account (validation plan 1b).",
+ ['Stage ID','Date','Client','Project (place)','Builder','Builder account in own name?','Stage','Inspected on','Inspector','Photos fingerprinted and logged?','Stage ready?','Invoice amount','Currency','Defect value held back','Client paid builder on','Receipt from builder?','Notes','OK to pay?'],
+ [11,13,18,18,20,13,16,13,16,14,11,12,9,13,13,12,26,11])
+dates(bs,'B','H','O')
+for c,k in [('F','YesNo'),('G','BuildStage'),('J','YesNo'),('K','YesNo'),('M','Currency'),('P','YesNo')]: dv(bs,c,refs[k])
+calc(bs,'R','=IF(A{r}="","",IF(AND(F{r}="Yes",H{r}<>"",J{r}="Yes",K{r}="Yes"),"Yes","Not yet"))')
+example(bs,{'A':'EX-B001','B':date(2027,2,1),'C':'Example client','D':'Kasoa','E':'Example Builders','F':'Yes','G':'1. Foundation','H':date(2027,2,1),'I':'Inspector A','J':'Yes','K':'Yes','L':18000,'M':'GHS','N':0,'O':date(2027,2,3),'P':'Yes'})
+
+# ---------- Clients (users and repeat use) ----------
+cl=sheet('Clients','Clients','One row per client. Write the name exactly as on the other tabs: the counts match on it.',
+ ['Client ID','Name','Lives in','First contact on','How they heard','Property reports','Family payments confirmed','Building stages inspected','Total transactions','Repeat client?'],
+ [11,22,16,13,22,12,13,13,12,11])
+dates(cl,'D'); dv(cl,'E',refs['Source'])
+calc(cl,'F','=IF(B{r}="","",COUNTIFS(Cases!$C$5:$C$304,B{r},Cases!$A$5:$A$304,"<>EX-*",Cases!$T$5:$T$304,"<>"))','0')
+calc(cl,'G',"=IF(B{r}=\"\",\"\",COUNTIFS('Institution payments'!$C$5:$C$304,B{r},'Institution payments'!$A$5:$A$304,\"<>EX-*\",'Institution payments'!$N$5:$N$304,\"Yes\"))",'0')
+calc(cl,'H',"=IF(B{r}=\"\",\"\",COUNTIFS('Build stages'!$C$5:$C$304,B{r},'Build stages'!$A$5:$A$304,\"<>EX-*\",'Build stages'!$H$5:$H$304,\"<>\"))",'0')
+calc(cl,'I','=IF(B{r}="","",F{r}+G{r}+H{r})','0')
+calc(cl,'J','=IF(OR(B{r}="",LEFT(A{r},3)="EX-"),"",IF(I{r}>=2,"Yes",IF(I{r}=1,"No","")))')
+example(cl,{'A':'EX-K001','B':'Example client','C':'United Kingdom','D':date(2027,1,11),'E':'Webinar or talk'})
+
 # ---------- Review (EN-05) ----------
 rv=wb.create_sheet('Review',0)
 rv['A1']='R0 review'; rv['A1'].font=Font(name=F,size=20,bold=True)
@@ -266,24 +288,27 @@ def crow(name, target, tfmt, actual, afmt, test, how):
     m=rv.cell(row=r,column=4,value=f'=IF(C{r}="","Not yet",IF({test.format(a=f"C{r}",t=f"B{r}")},"Met","Not yet"))'); m.fill=CALC; m.font=BOLD
     rv.cell(row=r,column=5,value=how).font=NOTE
     crit.append(r); r+=1
-crow('Paid reports delivered',30,'0',f'=COUNTIFS({delivB})','0','{a}>={t}','Cases with a delivery date, paid by buyers (seller-paid checks left out)')
+crow('Paid property reports delivered',20,'0',f'=COUNTIFS({delivB})','0','{a}>={t}','Cases with a delivery date, paid by buyers (seller-paid checks left out)')
 crow('Diaspora clients among them',12,'0',f'=COUNTIFS({delivB},{Cd("D")},"Yes")','0','{a}>={t}','Delivered buyer-paid cases marked Diaspora = Yes')
 crow('Median working days to deliver (under)',25,'0',f'=IFERROR(MEDIAN({Cd("U")}),"")','0','{a}<{t}','Median of Working days to deliver')
 crow('Cost as share of fee (under)',0.5,'0%',f'=IFERROR(SUMIFS({Cd("Z")},{deliv})/SUMIFS({Cd("H")},{deliv}),"")','0.0%','{a}<{t}','All costs of delivered cases ÷ their fees, in USD')
 crow('Green-report clients who asked for escrow (at least)',0.3,'0%',f'=IFERROR(COUNTIFS({deliv},{Cd("V")},"Green",{Cd("W")},"Yes")/COUNTIFS({deliv},{Cd("V")},"Green"),"")','0.0%','{a}>={t}','Green reports with Asked for escrow = Yes ÷ all Green reports')
 crow('Safety incidents not managed by the withdraw rule (at most)',0,'0',f'=COUNTIFS(Incidents!$A$5:$A$304,"?*",Incidents!$A$5:$A$304,"<>EX-*",Incidents!$G$5:$G$304,"No")','0','{a}<={t}','Incidents marked Managed = No')
 crow('Professional indemnity cover in place','Yes','@','=B8','@','{a}={t}','From cell B8')
-crow('Institution payments with receipt returned (at least)',5,'0',f'=COUNTIFS(\'Institution payments\'!$A$5:$A$304,"?*",\'Institution payments\'!$A$5:$A$304,"<>EX-*",\'Institution payments\'!$N$5:$N$304,"Yes")','0','{a}>={t}','Payments with Receipt returned = Yes')
+crow('Family payments confirmed with a receipt (at least)',60,'0',f'=COUNTIFS(\'Institution payments\'!$A$5:$A$304,"?*",\'Institution payments\'!$A$5:$A$304,"<>EX-*",\'Institution payments\'!$N$5:$N$304,"Yes")','0','{a}>={t}','Payments with Receipt returned = Yes')
+CLR='Clients!$A$5:$A$304,"?*",Clients!$A$5:$A$304,"<>EX-*"'
+crow('Active clients (at least)',40,'0',f'=COUNTIFS({CLR},Clients!$I$5:$I$304,">0")','0','{a}>={t}','Clients with at least one transaction')
+crow('Repeat clients, share of active (at least)',0.3,'0%',f'=IFERROR(COUNTIFS({CLR},Clients!$I$5:$I$304,">=2")/COUNTIFS({CLR},Clients!$I$5:$I$304,">0"),"")','0.0%','{a}>={t}','Clients with two or more transactions divided by active clients')
 dec=r+1
 rv.cell(row=dec,column=1,value='Day-90 decision').font=Font(name=F,size=13,bold=True)
-c=rv.cell(row=dec,column=2,value=f'=IF($B$6="","Set the start date in B6",IF($B$7<90,"Too early: day "&$B$7&" of 90",IF(COUNTIF(D{crit[0]}:D{crit[-1]},"Met")={len(crit)},"Go to phase 2",IF(OR(AND(ISNUMBER(C{crit[0]}),C{crit[0]}<B{dec+3}),AND(ISNUMBER(C{crit[3]}),C{crit[3]}>B{dec+4}),AND(ISNUMBER(C{crit[2]}),C{crit[2]}>B{dec+5})),"Pause and rework","Not yet"))))')
+c=rv.cell(row=dec,column=2,value=f'=IF($B$6="","Set the start date in B6",IF($B$7<90,"Too early: day "&$B$7&" of 90",IF(COUNTIF(D{crit[0]}:D{crit[-1]},"Met")={len(crit)},"Go to phase 2",IF(OR(AND(ISNUMBER(C{crit[0]}),C{crit[0]}<B{dec+3},ISNUMBER(C{crit[7]}),C{crit[7]}<B{dec+6}),AND(ISNUMBER(C{crit[3]}),C{crit[3]}>B{dec+4}),AND(ISNUMBER(C{crit[2]}),C{crit[2]}>B{dec+5}),AND(ISNUMBER(C{crit[9]}),C{crit[9]}<B{dec+7})),"Pause and rework","Not yet"))))')
 c.font=Font(name=F,size=13,bold=True); c.fill=CALC
 rv.merge_cells(start_row=dec,start_column=2,end_row=dec,end_column=3)
 rv.cell(row=dec+1,column=1,value='The decision appears from day 90. "Stop" conditions in the plan need judgement and are not calculated here.').font=NOTE
 rv.cell(row=dec+2,column=1,value='Pause and rework if any of these hold').font=BOLD
-for i,(name,val,fmt) in enumerate([('Paid reports fewer than',15,'0'),('Cost as share of fee over',0.7,'0%'),('Median working days over',35,'0')]):
+for i,(name,val,fmt) in enumerate([('Property reports fewer than (together with the family payments row)',10,'0'),('Cost as share of fee over',0.7,'0%'),('Median working days over',35,'0'),('Family payments fewer than (together with the property row)',30,'0'),('Repeat clients share under',0.15,'0%')]):
     rv.cell(row=dec+3+i,column=1,value=name).font=BODY; t=rv.cell(row=dec+3+i,column=2,value=val); t.fill=INPUT; t.font=BLUE; t.number_format=fmt
-r=dec+7
+r=dec+9
 rv.cell(row=r,column=1,value='Other measures').font=Font(name=F,size=13,bold=True); r+=1
 hdr(r,['Measure','Value','','','How']); r+=1
 L_=f'Leads!$A$5:$A$304,"?*",Leads!$A$5:$A$304,"<>EX-*"'
@@ -353,7 +378,9 @@ lines=[('Tenmina R0 tracker',TITLE),
 ('Cases: one row per paid report, with the date each step finished, the verdict and what the client asked for (EN-01).',BODY),
 ('Costs: every cost against a case. Totals flow into Cases and Review.',BODY),
 ('Searches: each Lands Commission search, to time them.',BODY),
-('Institution payments: every school, hospital or agency paid by hand, with the checks done and the receipt (EN-51).',BODY),
+('Institution payments: every family payment (school, hospital, pharmacy, utility, landlord), with the checks done and the receipt. In R0 the client pays the verified account directly (EN-51).',BODY),
+('Build stages: the building test, each stage inspected and photographed before the client pays the builder.',BODY),
+("Clients: one row per client; counts each client's reports, family payments and building stages to show active and repeat clients.",BODY),
 ('Incidents: every threat or confrontation, however small.',BODY),
 ('Professionals: the lawyers, surveyors, runners and reviewers, their agreement version, and when their licences and insurance were checked.',BODY),
 ('Sellers: screening of each established seller before their plots are checked or offered (validation plan 4a).',BODY),
