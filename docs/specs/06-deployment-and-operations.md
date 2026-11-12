@@ -8,12 +8,12 @@ How Tenmina builds, ships, runs, watches, recovers and secures the platform. Thi
 |---|---|
 | Document | 06 of 6 in `docs/specs/` |
 | Title | Deployment and Operations |
-| Version | 0.5 |
-| Date | 11 November 2026 |
+| Version | 0.6 |
+| Date | 12 November 2026 |
 | Status | Draft. For review. Not yet baselined |
 | Owner | Product and engineering lead |
 | Approver | Founder, acting as product owner |
-| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01), version 0.8 |
+| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01), version 0.12 |
 | Other sources | `docs/decisions/2026-11-01-diaspora-platform.md`; `docs/product/architecture.md` sections 9 and 10; documents 02 to 05 of this set |
 | Review cycle | Before each release gate (R1, R2, R3) and after every SEV1 or SEV2 incident |
 
@@ -23,6 +23,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 
 | Version | Date | Author | Change |
 |---|---|---|---|
+| 0.6 | 12 November 2026 | Product and engineering lead (draft) | Aligned to 01 v0.12: fund and evidence protection (RUL-28 to RUL-32, FR-ESC-016, FR-ESC-017, FR-PAY-008, FR-CASE-016, FR-ACC-013, FR-RPT-012, IF-03, IF-09, Q-28). Operations rules for the payee lock and cooling-off, refunds to source, official searches from Tenmina's registry account, national identity checks and monthly random re-checks (6.8), with a "Never" list. Roles for the registry account custodian and the re-check coordinator (6.1); escalation and contact rows (6.5, 6.6). `escrow.enabled` also waits for Q-28 (2.6). SLO-25 (payee lock and refund to source, no budget) and SLO-26 (re-check sample completed). Alerts AL-53 to AL-57: release or refund against the payee lock or source account, payee change activity, national identity service, official search record integrity and registry account sign-ins, re-check sample and failed re-checks. Invariant checks 8 and 9 (8.6). SEV examples, a client warning and a correction notice (9.1, 9.4), bank notification rows (9.7). DR-E rows for the national identity service and the registry portal (10.5). Runbooks RB-42 to RB-46: payee or bank-detail change asked by phone, email or WhatsApp; refund to source and the exception path; official searches from the Tenmina registry account; national identity service outage; monthly re-check sample and a failed re-check. Access, secrets and audit rules for the Lands Commission portal account and the identity service (12.1, 12.4, 12.7). Identity check records keep no biometric data (13.1, 13.4). IF-03 and IF-09 vendor rows (15). R1 readiness items (16.1). Issues 32, 33 and 36 resolved by 01 v0.9; issues 37 to 44 added. |
 | 0.5 | 11 November 2026 | Product and engineering lead (draft) | Aligned to 01 v0.8: professional payments (BR-23, F-37, FR-PRO-001 to FR-PRO-010, RUL-26, RUL-27). Payment run operations (6.7): weekly schedule and cut-off, preparer and a different approver with payment rights, upload in the operating bank's portal, reconciliation, holidays and a manual fallback. Roles for payment run preparer and approver (6.1). Kill switch `pro.payment_runs_paused` (2.6). SLO-24 (professional pay on time). Alerts AL-48 to AL-52: overdue payables, failed payment lines, rate card change in production, unusual expense volume, payment run integrity. Invariant check 7 (no path between client money and professional pay). Runbooks RB-40 (failed or wrong payment run) and RB-41 (a professional disputes pay). Bank notification for a wrong bulk file. Access rules: operating account credentials and keys kept apart from release instruction keys (12.1, 12.4, 12.5). Data operations for the professional payables and tax class (13.1, 13.6). Tenmina's operating bank in the vendor table (15). R1 readiness items (16.1). Errand line: agents paid by Tenmina; Tenmina's charge through the payment provider (0.3). Issues 32 to 36. |
 | 0.4 | 7 November 2026 | Product and engineering lead (draft) | Aligned to 01 v0.6: both app stores, React Native, client app. Mobile release pipeline for both apps on both stores (4.8): CI builds for iOS and Android, signing key and certificate custody for Apple and Google, TestFlight to App Store phased release, Play internal to closed to staged rollout, store review lead time, expedited review and halt procedures. Over-the-air JavaScript update policy (4.10). App version support for both apps and platforms with minimum-version enforcement (3.5, FR-APP-006). Push credentials (APNs, FCM) in custody and rotation. SLO-15 widened and SLO-23 added; AL-31 widened and AL-43 to AL-47 added (crash and ANR rates per platform, store ratings, attestation failures, push credentials, store notices). RB-19 updated; RB-35 to RB-39 added (store rejection, emergency halt on each store, rotate push credentials, revoke a signing certificate, raise the minimum app version). Data location register, vendors (IF-12), security operations, cost and R2 readiness (both stores' approval) updated. Issues 7 and 13 resolved by 01 v0.6; issues 28 to 31 added. |
 | 0.3 | 1 November 2026 | Product and engineering lead (draft) | Aligned to 01 v0.4: runner cash route removed (the runner cash flag and the runner-pays step in RB-27 removed; IF-10 row updated; RB-27 marks institutions not eligible for direct payment); account-name sources for FR-ESC-015 with no override (RB-27, RB-28, DR-E fallback in 10.5, checklists); 72-hour reviewer decision, second-person check of call confirmations and code lockout (AL-35, RB-30); owner's written mandate for rent statement lines (`lines.pmg`, RB-31); both premium routes (`lines.ins`, DR-E fallback in 10.5, checklist); fresh search scoped to purchases (invariant check 1); retention classes aligned to 01 C5.2 (13.1); data protection authority per country and Q-21; field app naming; issues 16, 17, 19, 21 and 27 resolved, 22 and 26 partly. |
@@ -84,6 +85,12 @@ This document creates no new functional requirement IDs. Where operations needs 
 | BR-19, RUL-24, FR-PMG-002, FR-PMG-003 | Rent to the owner's own account, never Tenmina; late rent alerts | 2.6 (`lines.pmg`), SLO-19, AL-37, RB-31, 8.6 invariant check 4 |
 | BR-20, FR-TSK-001 to FR-TSK-005 | Errands by vetted agents; fees to the agency; completion proven by the document; Tenmina's charge through the payment provider (FR-TSK-002); agents paid by Tenmina under PRO, never from client money (FR-TSK-003) | 2.6 (`lines.tsk`), AL-38, 6.7, 13.1 |
 | BR-23, RUL-26, RUL-27, FR-PRO-001 to FR-PRO-010 | Tenmina pays the professionals it contracts from its own operating account, for accepted work, in two-person payment runs, with tax per country; never from client money; pay never depends on the verdict | 2.6 (`pro.payment_runs_paused`), 6.1, 6.7, SLO-24, AL-48 to AL-52, 8.6 invariant check 7, 9.7, RB-40, RB-41, 12.1, 12.4, 12.5, 13.1, 13.6, 15, 16.1 |
+| RUL-28, FR-ESC-016 | Payee lock: a payee or account changes only through the payee verification flow, with the client's approval, two staff with release rights, fresh identity and account-name checks, a second-channel notice and a cooling-off `[72 hours, TO VERIFY]`; never from a message, email or call | 6.5, 6.8, SLO-25, AL-53, AL-54, 8.6 invariant check 8, 9.1, 9.4, 9.7, RB-42, 12.7 |
+| RUL-29, FR-ESC-017, FR-PAY-008 | Held money refunded only to its source account, with an exception path; fee refunds through the payment provider to the original method | 6.8, SLO-25, AL-53, 8.6 invariant check 8, 9.7, RB-10, RB-43 |
+| RUL-30, FR-CASE-016, IF-09 | Official searches requested and received by Tenmina through the registry's official channel from a Tenmina account; a result handed over by anyone else is not evidence | 6.1, 6.5, 6.6, 6.8, AL-56, 8.6 invariant check 9, 10.5, RB-44, 12.1, 12.4, 12.7, 13.4, 15, 16.1 |
+| RUL-31, FR-ACC-013, IF-03 | Sellers, grantors, consenting parties and individual payees checked against the national identity system; never by a copy; no biometric data stored; release blocked while a check is missing | 2.6, 6.8, AL-30, AL-55, 8.6 invariant check 9, 10.5, RB-45, 13.1, 13.4, 15, 16.1 |
+| RUL-32, FR-RPT-012 | Monthly random re-checks by an unlinked licensed professional; a failed re-check opens an incident, tells the client and freezes releases | 6.1, 6.8, SLO-26, AL-57, 9.1, 9.4, RB-46, 16.1 |
+| Q-28 | Legal basis for escrow in each country | 2.6 (`escrow.enabled`), 16.1, 17 |
 | BR-21, IF-11, FR-INS-001 to FR-INS-004 | Insurer partner lines | 2.6 (`lines.ins`), SLO-22, AL-39, RB-32, RB-34, 15 |
 | BR-22, FR-EVT-001 to FR-EVT-003 | Events and ceremonies (R3) | 2.6 (`lines.evt`), 16.3 |
 | FR-ADM-003, FR-ADM-005 | Second administrator for bank details and release-affecting settings | 2.5, AL-23, AL-34, RB-27 |
@@ -236,7 +243,7 @@ Flags let code ship before a business dependency is met. A flag is a switch, not
 
 | Flag | Default in production | Turns on when | Who may switch it on | Linked items |
 |---|---|---|---|---|
-| `escrow.enabled` | Off | An escrow agreement with a licensed bank or escrow agent is signed and the release instruction format and channel are agreed and tested (AS-02, Q-01) | Founder plus one other administrator | C-01, FR-ESC-001 to FR-ESC-009 |
+| `escrow.enabled` | Off | An escrow agreement with a licensed bank or escrow agent is signed and the release instruction format and channel are agreed and tested (AS-02, Q-01); the lawyer has recorded the legal basis for escrow in the country, including whether the bank acts as escrow agent under a three-party agreement and whether Tenmina's role needs a payments licence (Q-28); the bank reports each deposit's source account (FR-ESC-017) and the payee lock and cooling-off pass UAT (FR-ESC-016) | Founder plus one other administrator | C-01, FR-ESC-001 to FR-ESC-009 |
 | `escrow.manual_confirmation` | On when `escrow.enabled` is on | Default R1 channel | Two administrators | FR-ESC-004, IF-01 |
 | `escrow.bank_statement_import` | Off | The bank provides a daily statement file and the mapping passes UAT (AS-03) | Two administrators | FR-ESC-011 |
 | `escrow.bank_api` | Off | The bank API passes contract and UAT tests | Two administrators | FR-ESC-012 |
@@ -244,7 +251,7 @@ Flags let code ship before a business dependency is met. A flag is a switch, not
 | `listings.enabled` | Off | The lawyer confirms the Act 1047 position and any licence is in place (C-04, Q-06) | Founder plus one other administrator | FR-LST-001 to FR-LST-010 |
 | `listings.family_and_stool` | Off | R3 gate | Founder plus one other administrator | FR-LST-009 |
 | `payments.mobile_money` | Off until the provider is live | Provider contract and test transactions pass (AS-04, Q-02) | Administrator | FR-PAY-001 |
-| `identity.provider_check` | Off until the provider is live; manual check otherwise | Provider contract signed (AS-05, Q-03) | Administrator | FR-ACC-004 |
+| `identity.provider_check` | Off until the provider is live; manual check otherwise, for the client's own check only | Provider contract signed (AS-05, Q-03). Checks of sellers, grantors, consenting parties and individual payees against the national identity system (FR-ACC-013, RUL-31) have no manual fallback: while they cannot run, report release and payee verification wait (RB-45) | Administrator | FR-ACC-004, FR-ACC-013 |
 | `geo.satellite_monitoring` | Off | R2, provider contract signed | Administrator | FR-GEO-007 |
 | `geo.ghana_post_gps` | Off | Service access confirmed (IF-06) | Administrator | FR-GEO-008 |
 | `partner_api.enabled` | Off | R2, first partner contract and consent flow tested | Founder plus one other administrator | FR-PTR-001 to FR-PTR-004 |
@@ -777,7 +784,7 @@ The team in R1 is assumed to be one product and engineering lead and two develop
 | Incident commander (SEV1, SEV2) | The lead by default; the primary on call if the lead is unreachable | Runs the incident, decides, keeps the timeline (9.2) |
 | Release manager | Whoever starts a deploy | Runs the release checklist (5.2) |
 | Operations lead | Senior case manager `[TO VERIFY]` | Tier 1 owner; owns client communication during incidents; enters bank confirmations in R1 |
-| Release approvers | Reviewers with release rights | The two-person release approval (RUL-05). They are not engineers, so engineering access does not grant release rights and release rights do not grant engineering access |
+| Release approvers | Reviewers with release rights | The two-person release approval (RUL-05), and the two staff approvals of a payee change (RUL-28) and of a refund to another account in the client's name (RUL-29). They are not engineers, so engineering access does not grant release rights and release rights do not grant engineering access |
 | Payment run preparer | Case managers named by the operations lead | Prepares professional payment runs, imports the bank's confirmation and resolves failed lines (6.7). Never approves a run they prepared |
 | Payment run approver | Reviewers or administrators with payment rights, granted by two administrators (document 02, 6.4) | Approves runs with the second factor and uploads the file in the operating bank's portal. Never a contracted professional. Payment rights and release rights are separate grants |
 | Data protection lead | Founder until a dedicated person is named `[TO VERIFY]` | Breach notifications, data subject requests, legal holds, retention sign-off |
@@ -786,6 +793,8 @@ The team in R1 is assumed to be one product and engineering lead and two develop
 | Country lead (country 2 from month 6; country 3 from R2) | Named by the founder `[TO VERIFY]` | Tier 1 owner in that country; owns its holiday calendar, vendor contacts and manual-phase records; signs the 16.4 checklist with the lead and the founder |
 | Welfare escalation owner (R2) | Operations lead; founder as backup | Takes every carer concern (AL-36) and welfare incident (9.8); decides on calling emergency services and the family |
 | Institution verification owner | Operations lead | Verifies and suspends institutions, agencies and vendors (RB-27); owns the payee register |
+| Registry account custodian | Operations lead; a second named case manager as backup `[TO VERIFY]` | Holds Tenmina's account on the Lands Commission online portal (and each later country's registry account) in Tenmina's name; adds and removes named staff users; keeps the two-step sign-in devices; assigns searches; never lets a runner, seller, agent or client use the account (RUL-30, 12.1, RB-44) |
+| Re-check coordinator | A reviewer named by the founder, who does not prepare reports `[TO VERIFY]` | Draws the monthly random sample, assigns each re-check to a licensed professional with no link to the case, tracks results and opens an incident on a failed re-check (RUL-32, RB-46). Does not tell anyone in advance which cases were drawn |
 | Insurer relationship owner (R2) | Founder | Insurer contracts, intermediary licence (C-11), premium routing tests, misrouting incidents (RB-32) |
 
 No one person holds every key. The lead cannot approve their own release instruction (they do not hold release rights) and cannot delete evidence (Object Lock).
@@ -798,7 +807,7 @@ No one person holds every key. The lead cannot approve their own release instruc
 | Paging hours | 24 hours for SEV1. SEV2 pages between 07:00 and 23:00 GMT; outside those hours SEV2 alerts wait until 07:00 unless they affect money, evidence or a person's welfare, which always page. The window widens per 2.7 when a country east of Ghana is live |
 | Response target when paged | Acknowledge within 15 minutes; working on it within 30 minutes |
 | Non-paging alerts | Go to a chat channel and a ticket queue; reviewed at the 09:00 GMT daily check |
-| Daily check | 15 minutes at 09:00 GMT by the primary: overnight alerts, queues, reconciliation results, backup results, pending release instructions. From country 2, one line per country: rent matching, receipts outstanding, unconfirmed visits, calendar coverage |
+| Daily check | 15 minutes at 09:00 GMT by the primary: overnight alerts, queues, reconciliation results, backup results, pending release instructions, payee changes in cooling-off and refunds due. From country 2, one line per country: rent matching, receipts outstanding, unconfirmed visits, calendar coverage |
 | Handover | Written note: open incidents, risky changes, vendor issues, pending bank confirmations |
 | Load limit | If a week has more than 2 out-of-hours pages, the next sprint includes work to remove the cause |
 | Compensation | Time off in lieu after any out-of-hours page `[TO VERIFY]` company policy |
@@ -812,7 +821,7 @@ Alerts that page must be few, real and actionable. Each paging alert is reviewed
 | Tier | Who | Handles | Hands on to |
 |---|---|---|---|
 | Tier 0 | Self-service | Portal help pages, status page, plain status messages, FAQ | Tier 1 through in-case messages, email or WhatsApp |
-| Tier 1 | Tenmina operations staff (case managers, operations lead; from country 2, each live country's own team, 2.7) | Client questions, sign-in help (not resets that bypass MFA), document requests, case status, manual bank confirmation entry, reconciliation lists, institution and invoice questions, missed-visit follow-up (RB-30), rent and errand questions, first look at errors seen by clients | Tier 2 by ticket; by phone to the on-call engineer for anything affecting money, evidence, data protection or many users; to the welfare escalation owner for any carer concern (9.8) |
+| Tier 1 | Tenmina operations staff (case managers, operations lead; from country 2, each live country's own team, 2.7) | Client questions, sign-in help (not resets that bypass MFA), document requests, case status, manual bank confirmation entry, reconciliation lists, institution and invoice questions, missed-visit follow-up (RB-30), rent and errand questions, payee or bank-detail change requests that arrive by message or call (never acted on; RB-42), first look at errors seen by clients | Tier 2 by ticket; by phone to the on-call engineer for anything affecting money, evidence, data protection or many users; to the welfare escalation owner for any carer concern (9.8) |
 | Tier 2 | Engineering on-call | Platform faults, data fixes through approved scripts, integration faults, security events, runbook execution | Tier 3 by vendor support channel |
 | Tier 3 | Vendors and partners | AWS support, payment provider, identity provider, SMS and WhatsApp providers, satellite provider, partner bank operations desk, institution contacts, insurer partner desks, each country's equivalents | Back to Tier 2 |
 
@@ -857,6 +866,11 @@ The portal shows clients the next support reply time in their own time zone.
 | Premium, rent or purchase money found in a Tenmina account | Founder and operations lead at once | Immediately | Bank, insurer (RB-32, RB-31) |
 | Payee account-name mismatch override attempted | Lead and operations lead at once | Immediately | Founder (RB-28) |
 | Country-2 vendor outage (R2) | Country lead and on-call engineer | Per vendor | That country's vendor contacts (6.6, 15) |
+| Payee or bank-detail change asked by phone, email, WhatsApp or any message | Operations lead | Same working day; at once if a release to that payee is due | Founder; bank if it looks like fraud (RB-42, 9.7) |
+| Refund asked to an account that is not the source account | Operations lead | 1 working day | Founder (RB-43) |
+| Search result handed over by a runner, seller or agent, or an official result that differs from one handed over | Registry account custodian | 1 working day | Founder and lawyer; SEV2 if it differs (RB-44) |
+| National identity service down with report releases or payee checks due | On-call engineer and operations lead | 4 working hours | Founder; provider support (RB-45) |
+| Failed re-check | Re-check coordinator and operations lead at once | Immediately | Founder; client notice and freeze (RB-46) |
 
 ### 6.6 Contact list template
 
@@ -895,6 +909,10 @@ The live contact list is kept in the on-call tool and in a printed copy in the o
 | Tenmina's operating bank: business banking desk and bulk payments support (Q-26) | | | | | | |
 | Mobile money provider for professional pay, if used `[TO VERIFY]` | | | | | | |
 | Accountant (withholding tax rules and remittance, Q-25) | | | | | | |
+| Lands Commission client service unit and online portal support `[TO VERIFY]` | | | | | | |
+| National identity verification: National Identification Authority platform, or the licensed provider (IF-03) `[TO VERIFY]` | | | | | | |
+| Re-check panel: licensed lawyers and surveyors with no link to Tenmina's regular cases `[TO VERIFY]` | | | | | | |
+| Country 2 land registry and national identity service contacts `[TO VERIFY]` | | | | | | |
 
 ### 6.7 Professional payment runs (FR-PRO-005 to FR-PRO-009, RUL-27)
 
@@ -913,6 +931,23 @@ Tenmina pays the lawyers, surveyors and runners it contracts (and from R2 inspec
 | Channel in R1 | The bulk file only (document 04, 5.1). No bank API. If the bank rejects the file format, staff key each line from the approved run in the bank's portal, and a second person checks each one against the run's lines and hash (RB-40) |
 | Never | A payment to a professional outside a run, an edit to a paid line, a run approved by its preparer, a payment from the escrow bank channel, or pay held because of a verdict (RUL-26) |
 | Tax | Withholding as the country configuration sets it; the accountant files and remits by the country's deadlines `[TO VERIFY]` (Q-25) and receives a monthly export of deductions |
+
+### 6.8 Fund and evidence protection (RUL-28 to RUL-32)
+
+These rules stop the frauds that a working platform cannot catch on its own: a changed bank account, a refund sent somewhere new, a forged search result, a borrowed identity card and a report nobody checks again. They apply in every country; the registry and identity service named are Ghana's.
+
+| Item | Rule (assumptions until the first quarter of R1) |
+|---|---|
+| Payee lock | The payee and account on an escrow or held amount are fixed when terms are agreed (RUL-28). Staff change them only through the payee verification flow (FR-ESC-016, document 03 SCR-BO-42): a fresh national identity check and account-name check of the new payee, a notice to the client on a second channel, the client's approval, then two staff with release rights. The person who starts a change never approves it |
+| Requests by message | A request to change a payee or bank details that arrives by phone, email, WhatsApp, SMS, a case message or in person is never acted on. Staff start the payee verification flow and warn the client on a second channel (RB-42). Whoever takes the request records it; it is not an error to report one |
+| Cooling-off | `[72 hours, TO VERIFY]` from the second staff approval, counted in calendar hours until 01 says otherwise (17, issue 42). No release to the new account until it ends, and no one can shorten it, including the founder. A release after it ends still waits for bank hours |
+| Refund to source | Held money goes back only to the account the deposit came from, recorded from the bank's confirmation (RUL-29, FR-ESC-017). If that account cannot receive it, the exception path (RB-43): a fresh identity check of the client, the client's approval, two staff approvals, and the cooling-off, to an account in the client's own name only. Fee refunds go through the payment provider to the original payment method (FR-PAY-008) |
+| Official searches | Requested and received by Tenmina from its own Lands Commission online portal account, or at the client service unit by a Tenmina staff member (RUL-30, IF-09). The record holds the channel, the account, the staff member, the registry's reference and the result as received (FR-CASE-016). A result handed over by a runner, seller, agent or client is noted but is not evidence. Where no remote channel exists, a staff member confirms the result with the registry before it is used (RB-44) |
+| Registry account | One Tenmina account per registry, in Tenmina's name, with named staff users and two-step sign-in where the registry offers it `[TO VERIFY]`. Held by the registry account custodian (6.1). Never a runner's or a personal account (12.1, 12.4) |
+| National identity checks | Every seller, grantor, consenting party and individual payee is checked against the national identity system through IF-03 (in Ghana, the National Identification Authority's verification platform, directly or through a licensed provider) (RUL-31, FR-ACC-013). Tenmina stores the result, the reference and the time, never biometric data. A photocopy, scan or photo of an identity card is never proof. If the service is down, report release and payee verification wait (RB-45) |
+| Random re-checks | On the first working day of each month the re-check coordinator draws a random sample of `[5%, TO VERIFY]` of the previous month's released reports and closed release conditions, per country, rounded up so that at least one of each is drawn while volumes are small (assumption; 17, issue 44) (RUL-32, FR-RPT-012). Each goes, without notice, to a licensed professional with no link to the case. Results are due by the end of that month (SLO-26). A failed re-check follows RB-46 |
+| Re-check panel | Licensed lawyers and surveyors who did not work on the case, are not related to its parties, and do not work with the professionals whose work they check `[TO VERIFY]`. They are paid by Tenmina from its operating account under PRO like any contracted professional; pay never depends on whether the re-check passes or fails (RUL-26) |
+| Never | A payee or account changed from a message, email or call; a release to a changed account before the cooling-off ends; a refund to any account other than the source without the exception path; a refund of held money to someone other than the client; a fee refund outside the payment provider; a search result accepted from a runner, seller, agent or client; a runner using the registry account; an identity accepted from a photocopy, scan or photo; biometric data stored; a re-check by someone linked to the case; a re-check sample chosen by hand |
 
 ---
 
@@ -948,6 +983,8 @@ SLOs are internal targets. They are not contractual promises to clients. Each SL
 | SLO-22 | Insurer hand-off | Share of completed applications and premium payment confirmations passed to the insurer within 1 working day, and policy documents stored within the insurer's agreed time `[TO VERIFY]` | 99% | Insurer integration log | FR-INS-002, FR-INS-003, IF-11 | R2 |
 | SLO-23 | Push delivery to the stores' services | Share of push requests accepted by APNs and FCM, excluding tokens the user has revoked | 99% `[TO VERIFY]` | Push send log (`ntf_message` with channel `push`) | FR-APP-002, FR-NTF-005 | R2 |
 | SLO-24 | Professional pay on time | Share of accepted payables and approved expense claims paid (line confirmed by the bank) within 10 working days of acceptance or approval, per country (FR-PRO-008) | 95% `[TO VERIFY]`; any payable held for a reason that is a result of the work counts as a breach (RUL-26) | `pro_payable`, `pro_expense_claim` and `pro_payment_line` timestamps | FR-PRO-008, BR-23 | R1 |
+| SLO-25 | Payee lock and refund to source | Number of release instructions to a changed payee account sent before its cooling-off ended or without every approval and check in FR-ESC-016; and number of refund instructions to an account other than the recorded source account without a completed RUL-29 exception path; and number of fee refunds outside the payment provider | 0. Any breach is a SEV1 | Release and refund instruction records against payee change and source account records; invariant check 8 | FR-ESC-016, FR-ESC-017, FR-PAY-008, RUL-28, RUL-29 | R1 |
+| SLO-26 | Random re-checks done | Share of each month's re-check sample drawn by the second working day and completed (result recorded) by the end of that month, per country | 100% drawn; 95% completed on time `[TO VERIFY]`; the rest completed within the next month | Re-check records (FR-RPT-012) | FR-RPT-012, RUL-32 | R1 |
 
 ### 7.2 Error budgets
 
@@ -957,7 +994,7 @@ SLOs are internal targets. They are not contractual promises to clients. Each SL
 | SLO-02, SLO-03 (95%) | 5% of requests may be slower than target | A slow endpoint used often can burn this quickly |
 | SLO-05 (99%) | 1% of overlay checks may take over 30 seconds | Large or complex polygons |
 | SLO-07 (99.5% web) | 0.5% of uploads may fail with a server error | The client retries; the upload page must say so plainly |
-| SLO-09, SLO-10, SLO-20 (unmatched releases) | No budget | These are safety objectives, not reliability objectives |
+| SLO-09, SLO-10, SLO-20 (unmatched releases), SLO-25 | No budget | These are safety objectives, not reliability objectives |
 | SLO-17, SLO-22 | 5% of payments or hand-offs may run late | Usually an institution or insurer delay, not a platform fault. Tracked so the partner conversation has numbers |
 | SLO-18 (99%) | 1% of visits may be confirmed or flagged late | A late flag means a missed visit is seen late. Reviewed weekly with the operations lead |
 | SLO-21 (99.5% per country) | 216 minutes per country | On the shared pattern, one outage uses every country's budget at once |
@@ -972,6 +1009,7 @@ SLOs are internal targets. They are not contractual promises to clients. Each SL
 | Exhausted | Feature releases stop until the SLO is back on track for 7 days. Reliability work takes the team's capacity. The founder may override in writing for a business-critical change |
 | SLO-09 breached (any wrong instruction) | All changes to escrow code stop until the post-incident review actions are done |
 | SLO-20 breached (any release to an unmatched payee) | All changes to payee and release code stop until the post-incident review actions are done; every active payee is re-checked (RB-27) |
+| SLO-25 breached (any release or refund against the payee lock or the source account) | All changes to payee, refund and release code stop until the post-incident review actions are done; every payee change and refund in the last 90 days is re-checked by a reviewer who did not approve it |
 | SLO-21 exhausted in one country | The error budget policy above applies to that country's stack. On the shared pattern it applies to the platform |
 
 ### 7.4 SLO review
@@ -1024,7 +1062,8 @@ SLOs are internal targets. They are not contractual promises to clients. Each SL
 | Backups | Job success; latest restorable time; cross-region copy status |
 | Cost | Daily spend against budget (14.2) |
 | Mobile (R2) | Per app and platform: crash-free sessions; ANR rate (Android); hangs (iOS); app version adoption; attestation failures (Play Integrity, App Attest); signature verification failures; fraud flags (FR-MOB-011); push acceptance (SLO-23); store ratings; account deletion requests from the apps |
-| Payees | Account-name checks pending, matched, mismatched (FR-ESC-015); mismatch blocks and any override attempt; payee detail changes and who made them |
+| Payees | Account-name checks pending, matched, mismatched (FR-ESC-015); mismatch blocks and any override attempt; payee detail changes and who made them; payee changes by state (checks, client, staff, cooling-off, in force, refused) and by who started them (FR-ESC-016); requests received by message and logged (RB-42); refunds by destination (source account or exception path) (FR-ESC-017) |
+| Evidence sources | Official search records by channel and age; search tasks waiting for the official result; results noted as handed over (FR-CASE-016); registry account sign-ins and users; national identity checks pending, passed, failed and unavailable, and reports or payees waiting on them (FR-ACC-013); re-check sample drawn, assigned, done, failed (FR-RPT-012) |
 | Family lines (R1 FEE; R2 CARE) | Institution verifications pending and failed; invoices awaiting check; receipts outstanding by age; amounts held at the bank by client against the bank's own figure (FR-ESC-014); institutions marked not eligible for direct payment (FR-FEE-006); visits scheduled today, checked in, missed, unconfirmed; concerns open by age |
 | Property and errands (R2) | Rent due, received, late; rent-matching job result; repairs by state; errands by state and overdue; errand documents past their deletion date |
 | Insurer lines (R2) | Applications passed, pending, failed; premium confirmations by state; policy documents outstanding; premium lines seen in any Tenmina or escrow account (must be 0) |
@@ -1094,6 +1133,11 @@ The incident severity (SEV1 to SEV4) is set by the person who responds, using 9.
 | AL-50 | Rate card change in production | Any rate card version approved; any change to expense limits or tax rules in a country configuration; any write to `pro_rate_card` or `pro_scope` outside the approval flow | P3 for an approved change (founder and operations lead told the same day); P1 for a write outside the flow | Founder and operations lead; on call and lead for P1 | RB-21 for P1 |
 | AL-51 | Unusual expense volume | In a week, claims by one professional or total claim value above twice the 8-week average; more than 3 claims without a receipt from one person in a month; a receipt hash seen before (assumptions) | P3 | Operations lead and a reviewer | RB-41 step 2 (check the facts); RB-27 if a payee looks wrong |
 | AL-52 | Payment run integrity | Invariant check 7 fails; a downloaded bulk file's hash differs from the approved run; the operating account's secret is read by any role other than PRO's integration job | P1 | On call, lead and founder | RB-40, RB-21 |
+| AL-53 | Payee lock or refund source breached | Any release instruction to a changed payee account attempted before its cooling-off ends, or without the client's approval, two staff approvals and fresh checks; any refund instruction addressed to an account other than the recorded source account without a completed RUL-29 exception path; any fee refund outside the payment provider; invariant check 8 fails. The platform blocks the instruction; the alert is for the attempt | P1 | On call, operations lead, lead and founder | RB-42, RB-43; RB-24 if anything was sent |
+| AL-54 | Payee change activity | Every payee change started (P3 notice to the operations lead, the client's case manager and the client on a second channel). More than 2 changes on one escrow or held amount, more than 3 started by one staff member in 7 days, or a change started within 7 days of a scheduled release (P2). A change to the same new account across different clients (P1) (assumptions) | P3, P2, P1 | Operations lead; lead for P2; founder for P1 | RB-42 |
+| AL-55 | National identity service | IF-03 national identity checks failing or timing out for 30 minutes, or a report release or payee verification waiting on a check for more than 2 working days (P2); a check result stored with an image or biometric field (P1) | P2; P1 | On call and operations lead; data protection lead for P1 | RB-45; RB-18 for P1 |
+| AL-56 | Official search record integrity | A search task closed without a channel record, a Tenmina account or a registry reference; an upload of a search result attempted from a runner, seller, agent or client account (blocked, P3); an official result that differs from one handed over (P2); a sign-in to the registry portal account from a new device, outside 07:00 to 19:00 local time, or by a user not on the custodian's list, where the registry reports sign-ins `[TO VERIFY]` (P2); invariant check 9 fails for a search (P1) | P3, P2, P1 | Registry account custodian and operations lead; lead for a sign-in alert; founder for P1 | RB-44; RB-21 for a suspicious sign-in |
+| AL-57 | Re-check sample and results | The month's sample not drawn by the second working day, or re-checks overdue at month end (P3); a re-check assigned to someone linked to the case (P2, and the assignment is blocked); any failed re-check (P1, because releases on affected escrows must freeze at once) | P3, P2, P1 | Re-check coordinator and operations lead; founder for P1 | RB-46 |
 
 Alert hygiene rules:
 
@@ -1110,7 +1154,7 @@ Alert hygiene rules:
 |---|---|---|
 | Platform health | On call, lead | Golden signals per service, SLO status and budgets, open alerts, current flag states, current version |
 | Deploy | Release manager | Blue/green target groups, error rate and latency by version, migration status |
-| Escrow operations | Operations lead, reviewers, on call | Approved not sent, sent not confirmed, confirmations by age, bank import results, mismatches. No client personal data beyond escrow reference |
+| Escrow operations | Operations lead, reviewers, on call | Approved not sent, sent not confirmed, confirmations by age, bank import results, mismatches, payee changes in cooling-off with their end times, refunds by destination, escrows frozen after a failed re-check. No client personal data beyond escrow reference |
 | Evidence and uploads | On call | Upload rates, failures, scan backlog, replication lag, integrity checks |
 | Workers | On call | Queue depth and age per queue, job success, retries, dead letters, beat heartbeat |
 | Integrations | On call | Per vendor: request rates, errors, latency, status page state; partner API usage by version (R2) |
@@ -1173,6 +1217,7 @@ The operating dashboard (FR-ANL-001) is a product feature. Operations also watch
 | Metrics by country (FR-CTY-003) | Activity in a country whose `country.<code>` flag is off; a live country with no activity for 5 working days | Daily automated check (P2 if found); weekly review |
 | Client satisfaction | Drop after a release | Monthly |
 | Professional pay: payables accepted, paid within target, overdue, held; expense claims; cost per report from payables, by country and role | Overdue rising; failed lines; a claims spike; a hold with no fraud or misconduct reason | SLO-24; AL-48, AL-49, AL-51; weekly operations review |
+| Fund and evidence protection: payee changes, requests received by message, refunds by destination, searches by channel, identity checks waiting, re-checks drawn, done and failed, by country | Payee changes clustering on one staff member, one new account or one release week; search results handed over rising for one runner; re-check failures for one professional | SLO-25, SLO-26; AL-53 to AL-57; monthly review by the founder |
 | Safety incidents | New entries in the restricted incident log | Operations lead; not routed to engineering |
 
 **Invariant checks** run every hour in production and page (P1) on any failure, because they check money and safety rules in live data, which tests alone cannot do:
@@ -1185,8 +1230,10 @@ The operating dashboard (FR-ANL-001) is a product feature. Operations also watch
 5. No carer or agent payment release references a visit or task without a confirmation record from the family or the resulting document, and no repair release lacks an inspection record (RUL-23, FR-PMG-005). (R2)
 6. No record was read across countries in the last hour by a role without cross-country rights (FR-ACC-007). (R2, when country 2 is live)
 7. No release instruction names a `contracted_professional` payee; no payment line names any other payee kind, or a payee that is not verified with a matched name; no payment run debits an account that is not an operating account; no run was approved by its preparer (RUL-27, FR-PRO-005, FR-PRO-006). (R1)
+8. No release instruction pays an account other than the payee account fixed when terms were agreed, unless a payee change for it has the client's approval, two distinct staff approvals with release rights, passed fresh identity and account-name checks, a recorded second-channel notice, and a cooling-off that ended before the instruction; no change was approved by the person who started it; no refund instruction names an account other than the recorded source account unless the RUL-29 exception path is complete and the account is in the client's own name; no fee refund was made outside the payment provider; no release goes out on an escrow frozen after a failed re-check (RUL-28, RUL-29, FR-ESC-016, FR-ESC-017, FR-PAY-008, FR-RPT-012). (R1)
+9. No report was released, and no payee verified, while a required national identity check was missing or failed; no identity record holds an image or biometric field; no search task was closed without an official channel record naming a Tenmina account, a staff submitter and a registry reference; no search evidence was uploaded by a runner, seller, agent or client account (RUL-30, RUL-31, FR-ACC-013, FR-CASE-016). (R1)
 
-Checks 1, 2 and 4 raise AL-11. Check 3 raises AL-33. Check 5 raises AL-35 at P1. Check 6 raises AL-41 at P1. Check 7 raises AL-52. A check for a line that is off in every country reports "not applicable", never "pass".
+Checks 1, 2 and 4 raise AL-11. Check 3 raises AL-33. Check 5 raises AL-35 at P1. Check 6 raises AL-41 at P1. Check 7 raises AL-52. Check 8 raises AL-53. Check 9 raises AL-55 at P1 for identity and AL-56 at P1 for searches. A check for a line that is off in every country reports "not applicable", never "pass".
 
 ---
 
@@ -1196,8 +1243,8 @@ Checks 1, 2 and 4 raise AL-11. Check 3 raises AL-33. Check 5 raises AL-35 at P1.
 
 | Severity | Definition | Examples | Response | Updates | Review |
 |---|---|---|---|---|---|
-| SEV1 | Money, evidence, personal data or a person's welfare is at risk or harmed, or production is down | A wrong release instruction sent (wrong payee, amount, currency or escrow); a release sent while a condition or dispute was open; a release sent to a payee whose account name was not matched to a verified payee (FR-ESC-015); a premium, rent or purchase payment collected into a Tenmina account or an escrow it should not be in (RUL-01, RUL-24, RUL-25); a carer welfare incident: a family member found hurt, unwell, unsafe or missing during or after a care visit, or a carer harmed, run under the people-first process in 9.8; care, health, tenant or errand documents about an identified person exposed; evidence store compromised, evidence deleted or altered; audit chain broken by tampering; confirmed or likely personal data breach; production down for all users over 15 minutes in any country; region loss | Page now. Incident commander named within 15 minutes. Founder told within 30 minutes | Internal every 30 minutes; clients and bank as in 9.4 | Written review within 5 working days |
-| SEV2 | A key function is broken or degraded for many users, or a safety control is weakened, with no harm yet | Release instructions cannot be sent; bank confirmations cannot be recorded; uploads failing for many users; overlay checks failing; payment provider down; MFA failing for staff; replication to the second copy stopped; backups failing for more than 24 hours; care visit alerts not firing (FR-CARE-005), so missed visits go unseen; the payee name-check unavailable with releases due; institution receipts not returning for more than 2 bank working days across many payments; rent-matching job failing for more than one bank working day; insurer hand-off down with renewals due; a country configuration import that failed half way; a whole country's stack down (pattern B) | Page in hours (P2 rules). Incident commander named within 30 minutes | Internal every 60 minutes; status page if users see it | Written review within 10 working days |
+| SEV1 | Money, evidence, personal data or a person's welfare is at risk or harmed, or production is down | A wrong release instruction sent (wrong payee, amount, currency or escrow); a release sent while a condition or dispute was open; a release sent to a payee whose account name was not matched to a verified payee (FR-ESC-015); a release to a changed payee account before its cooling-off ended or without the full approvals (RUL-28), or a refund sent to an account other than the source without the exception path (RUL-29); a payee change made from a message, email or call; a report released on a search result or identity that turns out to be forged; a failed re-check on a case with an open escrow or a release already made (RUL-32); a premium, rent or purchase payment collected into a Tenmina account or an escrow it should not be in (RUL-01, RUL-24, RUL-25); a carer welfare incident: a family member found hurt, unwell, unsafe or missing during or after a care visit, or a carer harmed, run under the people-first process in 9.8; care, health, tenant or errand documents about an identified person exposed; evidence store compromised, evidence deleted or altered; audit chain broken by tampering; confirmed or likely personal data breach; production down for all users over 15 minutes in any country; region loss | Page now. Incident commander named within 15 minutes. Founder told within 30 minutes | Internal every 30 minutes; clients and bank as in 9.4 | Written review within 5 working days |
+| SEV2 | A key function is broken or degraded for many users, or a safety control is weakened, with no harm yet | Release instructions cannot be sent; bank confirmations cannot be recorded; uploads failing for many users; overlay checks failing; payment provider down; MFA failing for staff; replication to the second copy stopped; backups failing for more than 24 hours; care visit alerts not firing (FR-CARE-005), so missed visits go unseen; the payee name-check unavailable with releases due; institution receipts not returning for more than 2 bank working days across many payments; rent-matching job failing for more than one bank working day; insurer hand-off down with renewals due; a country configuration import that failed half way; a whole country's stack down (pattern B); the national identity service down with report releases or payee verifications due (RB-45); Tenmina locked out of its registry portal account, or a search result handed over that differs from the official one (RB-44); a failed re-check with no open escrow (RB-46) | Page in hours (P2 rules). Incident commander named within 30 minutes | Internal every 60 minutes; status page if users see it | Written review within 10 working days |
 | SEV3 | A function is degraded for some users, with a workaround | One notification channel down with others working; slow back office search; one vendor degraded; a statement import with unmatched lines; a single Celery queue backed up but draining; one institution's invoice channel down; a batch of overdue errands; an insurer's policy documents late; a holiday calendar gap (AL-42) | Next working hours | At start and end | Short note in the incident log; review if it repeats |
 | SEV4 | Minor fault, no client effect | A dashboard broken; a non-critical scheduled job retried; a cosmetic error | Normal backlog | None | None |
 
@@ -1307,6 +1354,26 @@ The operational incident log is separate from the restricted field safety incide
 >
 > [Case manager name] will call you at [time in client's time zone].
 
+**Client warning, payee or bank-detail change request** (sent on a second channel, never the one the request came on; RB-42)
+
+> Dear [name],
+>
+> On [date] we received a request by [phone, email, WhatsApp or message] to change the account that [payee role, for example "the seller"] is paid into for [escrow or item reference]. We have not acted on it. We never change who gets paid because of a message, email or call.
+>
+> If the change is genuine, it will come to you in the Tenmina app or website for your approval, with the checks we have done. Nothing changes unless you approve, and no money can go to a new account until [cooling-off] after that.
+>
+> If you did not expect this, or anyone asks you to pay somewhere new, do not pay. Call [case manager name] on [number from your account page].
+
+**Client notice, correction after a failed re-check** (RB-46; wording reviewed by the lawyer `[TO VERIFY]`)
+
+> Dear [name],
+>
+> Each month an independent professional re-checks a random sample of our work. A re-check of [report or condition reference] found [plain description of what was wrong].
+>
+> What this means for you: [effect in one or two sentences]. We have issued a corrected report, version [n], on [date]. [If an escrow is open: As a precaution, no money can move on [escrow reference] until we have finished checking. The money stays at [bank name].]
+>
+> [Case manager name] will call you at [time in your time zone] to explain and answer questions.
+
 **Insurer notification, misrouted premium** (R2)
 
 > A premium of [amount] for policy [reference] was paid into [Tenmina account or escrow reference] on [date] instead of your account. Tenmina does not hold premiums. We are returning the amount to [payer or insurer, as the agreement says] today and will send proof. Please confirm whether the policy is affected.
@@ -1355,6 +1422,9 @@ Special cases:
 | Personal data breach involving escrow parties | Yes, as agreed in the bank agreement `[TO VERIFY]` | Founder to relationship manager | Within 72 hours `[TO VERIFY]` |
 | Premium, rent or other money that landed in a Tenmina account or in an escrow it should not be in | Yes | Phone to the operations desk; return instruction with two-person approval; written record | Same bank working day (RB-31, RB-32) |
 | Payee account-name mismatch where the bank's name record may be wrong | Yes | Phone to the operations desk; the bank confirms the account holder to a named approver | Before any release to that payee (RB-28) |
+| A payee or bank-detail change request that looks like fraud (a new account for a payee on an open escrow, a request naming the bank, or the same new account across clients) | Yes, if it names an escrow or a held amount | Phone to the operations desk to flag the escrow; written note; the bank confirms no instruction to that account was received (RB-42) | Same bank working day |
+| Refund to another account under the RUL-29 exception | Yes | The release instruction channel; the bank confirms the account is in the client's own name before paying (RB-43) | With the refund instruction |
+| A failed re-check that freezes releases on an open escrow | Yes | Email to the operations desk naming the escrows frozen; any instruction already sent and not yet paid is recalled (RB-24) | Same bank working day |
 | Wrong, duplicate or unauthorised bulk payment file for professionals | Tenmina's operating bank (not the escrow bank, unless invariant check 7 also failed) | Phone to the business banking desk to cancel or recall, then written request (RB-40) | Immediately |
 
 The same steps apply to each further country's bank, through that country's contacts (6.6).
@@ -1485,7 +1555,8 @@ Each scenario starts with: declare an incident (9), pause release instructions (
 | SMS provider (IF-07) | One-time codes and SMS alerts fail | Switch to the secondary SMS provider if contracted `[TO VERIFY]`; send one-time codes by email; staff use authenticator apps, not SMS, for MFA |
 | WhatsApp Business (IF-07) | WhatsApp messages fail | Fall back to SMS or email per user preference |
 | Email (SES) | Receipts and notices fail | Messages queue and retry; SES in a second region as fallback `[TO VERIFY]` data location |
-| Identity check provider (IF-03) | Identity checks pause | Manual document check by staff (AS-05) |
+| Identity check provider (IF-03) | Identity checks pause | Client's own check: manual document check by staff (AS-05, FR-ACC-004). Sellers, grantors, consenting parties and individual payees: no fallback. Their checks wait; report release and payee verification wait; never a photocopy, scan or photo (RUL-31, RB-45). Try the second route if contracted (the National Identification Authority directly, or a second licensed provider `[TO VERIFY]`) |
+| Lands Commission online portal (IF-09) | Searches cannot be submitted or results received online | A Tenmina staff member submits and collects at the Lands Commission client service unit and records the channel (FR-CASE-016). Never a runner's copy as evidence. Reports and fresh searches wait for the official result (RB-44). Tell clients the new expected date |
 | Bank channel (IF-01) | Instructions cannot be sent or confirmations cannot be received | Hold instructions; agree an alternate channel in the bank agreement (for example, signed PDF by email plus voice call-back) `[TO VERIFY]`; never improvise a new channel during an incident without the bank's written agreement |
 | Satellite or map data (IF-04, IF-05) | New images or layers unavailable | Overlay checks still run on current layer versions; satellite image attached later; report waits if the image is required |
 | Institutions (IF-10) | Invoice references or receipts not received from an institution's portal or file (R2) | The client or the institution contact uploads the invoice or receipt in the portal or by email; a case manager attaches it with a second person's check. No payment goes out without a checked invoice (FR-FEE-002) |
@@ -1570,6 +1641,11 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
 | RB-39 | Raise the minimum app version (R2) | Security fix; signature or attestation change; end of a support window (3.5) |
 | RB-40 | Failed or wrong payment run | AL-49, AL-52; a professional or the bank reports a wrong payment |
 | RB-41 | A professional disputes pay | A complaint from a lawyer, surveyor, runner, inspector, quantity surveyor or errand agent; AL-48 |
+| RB-42 | Payee or bank-detail change asked by phone, email or WhatsApp | A request by any message, call or visit; AL-53, AL-54 |
+| RB-43 | Refund to source and the exception path | A cancellation or refund; a refund returned by the bank; AL-53 |
+| RB-44 | Official searches from the Tenmina registry account | Every search; a result handed over by a runner, seller or agent; AL-56; portal account set-up, access change or lock-out |
+| RB-45 | National identity service outage | AL-55, AL-30 for IF-03 |
+| RB-46 | Monthly re-check sample and a failed re-check | First working day of each month; AL-57 |
 
 ### RB-01 Production deploy
 
@@ -2094,6 +2170,81 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
   7. Bank: if the bank shows the line paid but the professional did not receive it, give them the bank reference and ask the bank to trace it.
   8. Reply in writing with the result and any correction. Record the outcome for the monthly review.
 - **Done when:** a written answer is sent, any correction is paid in a run, and the case is recorded.
+
+### RB-42 Payee or bank-detail change asked by phone, email or WhatsApp
+
+- **Who:** whoever receives the request; the operations lead; the client's case manager; two reviewers with release rights if a genuine change goes ahead; the founder for anything that looks like fraud. A request alone is not an incident; a change acted on from a message is a SEV1.
+- **Steps:**
+  1. Do not act on it. Do not change any record, do not reply with a form or a link, and do not confirm or repeat any account details. This applies to every channel: phone, email, WhatsApp, SMS, a case message, a letter or a visit, and to requests that seem to come from the client, the seller, a lawyer, an institution or a Tenmina colleague (RUL-28).
+  2. Record the request against the escrow or held amount: who it claimed to be from, the channel, the time, the number or address it came from, and the details asked for. Keep any message as evidence. Raise AL-54's notice by recording it.
+  3. Warn the client on a second channel, not the one the request came on, using the template in 9.4. Use the contact details already verified on the client's account, never ones in the request. If the request looks like fraud, the case manager also calls the client.
+  4. Check for a pattern: the same new account, phone number or email in other requests or on other cases; a release due soon on this escrow. If found, tell the founder, flag the escrow with the bank (9.7), and open an incident.
+  5. If the payee really needs a change (for example the account is closed), the payee must start it through the payee verification flow, through their lawyer or in person with identity checked. The case manager opens it on SCR-BO-42 (document 03). The new payee's identity is checked against the national identity system (RB-45 if the service is down) and the account name through the bank's name check or a second-checked bank letter (RB-28 step 5).
+  6. The client approves or rejects in the portal or app (document 03 SCR-PTL-55, SCR-MOB-23). Silence is never approval; the old payee stays.
+  7. Two reviewers with release rights, neither the person who started the change, approve with the second factor. The cooling-off starts at the second approval. No one shortens it.
+  8. Releases to the new account wait until the cooling-off ends and then pass the usual gates (SCR-BO-12, invariant check 8). An attempt before that raises AL-53 and is blocked.
+- **Done when:** the request is recorded, the client has been warned on a second channel, and either nothing changed or the change went through the full flow and cooling-off; any fraud pattern is in an incident record.
+
+### RB-43 Refund to source and the exception path
+
+- **Who:** case manager (prepares); two reviewers with release rights; operations lead for the exception path; the founder if anyone pushes for a refund to a new account.
+- **Steps:**
+  1. A refund of held money (a cancelled escrow, an unspent held amount, a dispute decided for a refund) goes to the source account only: the account recorded from the bank's deposit confirmation (FR-ESC-017, document 03 SCR-BO-11). Prepare the refund instruction; the platform fills the account; there is nothing to type.
+  2. Two reviewers approve on the release approval screen with "Refund" wording (FR-ESC-013). Send by the agreed bank channel and record the bank's confirmation.
+  3. If the bank returns the refund because the source account is closed or cannot receive it, or the client tells Tenmina so through their account, start the exception path. A request by message alone is handled as RB-42.
+  4. Exception path (RUL-29): a fresh identity check of the client (FR-ACC-004 route), the new account in the client's own name confirmed by the bank's name check or a second-checked bank letter, the client's approval in the portal or app, two staff approvals with release rights, then the cooling-off of RUL-28. Never an account in another person's name, a relative's or a company's.
+  5. Fee refunds (FR-PAY-008): issue the refund in the payment provider's dashboard or API to the original card or mobile money account only. If the provider cannot refund (for example the card has expired), follow the provider's own procedure back to the same payer `[TO VERIFY]` with the provider. A fee paid offline with proof (FR-ORD-004) has no provider method: hold the refund and ask the founder (17, issue 41).
+  6. Reconcile: refunds of held money against the bank statement (RB-09 in R2; manual entry with the bank's confirmation in R1), fee refunds against the provider settlement (RB-10).
+- **Done when:** the money is back in the source account, or in the client's own account through the complete exception path, with the bank's or provider's confirmation recorded; any attempt to bypass is in an incident record (AL-53).
+
+### RB-44 Official searches from the Tenmina registry account
+
+- **Who:** registry account custodian (6.1); the case manager who owns the search task; a second staff member for a result confirmed in person; the lawyer on the case.
+- **Account set-up and access:**
+  1. The account on the Lands Commission online portal is opened in Tenmina's name, with the company's registered details and an email address on Tenmina's domain that the custodian and the founder can both recover `[TO VERIFY]` the portal's rules.
+  2. Each staff user is named and has their own login where the portal allows it. Where it allows only one login, the credentials are in the secrets manager, read only by named staff, and every use is recorded in the search record. Two-step sign-in is on where offered `[TO VERIFY]`; the second-step device belongs to Tenmina, not to a person, and is kept by the custodian.
+  3. Runners, surveyors, lawyers, sellers, agents and clients never get access. Access is in the quarterly review and removed the same day someone leaves (RB-15). Credentials rotate per 12.4.
+- **Submitting and receiving:**
+  1. The case manager submits the search from the Tenmina account and records the channel, the staff member, the date and the registry's reference on the search record (FR-CASE-016, document 03 SCR-BO-43). Fees are paid as the portal requires, from Tenmina's operating account against the client's fee `[TO VERIFY]`.
+  2. The result is downloaded from the portal by a staff member and attached to the search record as received. Its hash is stored like any evidence (FR-EVD-001).
+  3. Where the portal is down or the search is only available at the client service unit, a Tenmina staff member submits and collects there, records the channel as "client service unit", and a second staff member checks the record (10.5).
+  4. Where a registry has no remote channel at all, a Tenmina staff member confirms the result with the registry before it is used, and records who they spoke to and when (RUL-30).
+- **If a runner, seller, agent or client hands over a result:**
+  1. Thank them; do not use it. Note it on the search record as "handed over, not evidence". It cannot close the task.
+  2. Obtain the result from the official channel as above. If the two differ in any way, treat the handed-over copy as a possible forgery: tell the lawyer and the founder, open a SEV2 incident, and check the runner's or agent's other cases.
+  3. Remind the runner that search results come from Tenmina's office (document 03, 5.6a).
+- **Lost access:** if Tenmina is locked out of the account or a sign-in looks wrong (AL-56), change the password, check the user list and recent searches with the custodian, and follow RB-21 if a credential may be compromised. Searches go to the client service unit meanwhile.
+- **Done when:** every search on the case has an official channel record with a Tenmina account, a staff submitter, a registry reference and the result as received.
+
+### RB-45 National identity service outage
+
+- **Who:** on-call engineer; operations lead; case managers with checks waiting; the founder if releases are delayed more than 2 working days.
+- **Steps:**
+  1. Confirm the outage (AL-55, AL-30): the provider's status page, a test check, and the National Identification Authority's own notices `[TO VERIFY]`.
+  2. Pause, do not work around it. Checks of sellers, grantors, consenting parties and individual payees stay "Service unavailable: waiting" (FR-ACC-013). Report release and payee verification that need them wait. Never proceed on a photocopy, scan, photo of a card, a video call or a staff member's word (RUL-31).
+  3. If a second route is contracted (the NIA platform directly or a second licensed provider `[TO VERIFY]`), switch to it and record the route on each check.
+  4. Tell affected clients plainly with a new expected date: "We cannot check the seller's identity today because the national identity service is down. Your report waits until we can. Expected by [date]." No blame on the seller.
+  5. The client's own identity check (FR-ACC-004) may use its manual fallback (`identity.provider_check`, AS-05). That fallback never applies to the parties above.
+  6. Raise a support case with the provider. After recovery, run the waiting checks oldest first and release reports and verifications that now pass, through the usual gates.
+  7. If the outage lasts more than 2 working days with releases due, the founder decides whether to tell the bank and the parties of new dates; the rule does not change.
+- **Done when:** every waiting check has run through the national identity system, or the case is recorded as waiting with the client told.
+
+### RB-46 Monthly re-check sample and a failed re-check
+
+- **Who:** re-check coordinator (6.1); operations lead; the licensed professionals on the re-check panel; the reviewer and lawyer for the correction; the founder for any failed re-check.
+- **Running the sample:**
+  1. On the first working day of the month, the coordinator runs the sample in the back office (document 03 SCR-BO-45). The platform draws, at random and per country, `[5%, TO VERIFY]` of the reports released and the release conditions closed in the previous month (RUL-32, FR-RPT-012). Nobody picks cases by hand and nobody is told in advance.
+  2. Assign each item to a licensed professional with no link to the case: not on the case team, not related to its parties, not working with the professionals whose work is checked `[TO VERIFY]`. The platform lists only eligible people; record a conflict declaration for each.
+  3. The professional re-checks without notice to the original team: for a report, the searches through the official channel (RB-44), the identity checks, the documents and the section verdicts; for a condition, the evidence that closed it. They record Confirmed or Failed with reasons by the end of the month (SLO-26).
+  4. The coordinator reports the month's results to the founder: drawn, done, failed, overdue (AL-57).
+- **A failed re-check:**
+  1. Open an incident (SEV1 if an escrow on the case is open or money has been released; SEV2 otherwise; 9.1). The platform freezes releases on affected open escrows at once (FR-RPT-012); confirm the freeze on SCR-BO-11. If an instruction has been sent and not yet paid, ask the bank to recall it (RB-24, 9.7).
+  2. The reviewer and lawyer decide what is wrong. A report correction is a new version with a reason (FR-RPT-010); a released report is never changed.
+  3. Tell the client with the correction notice (9.4) and a call from the case manager. Never name the professional to the client.
+  4. Check the same professional's and the same runner's other recent work; widen the sample for them next month.
+  5. Lift the freeze only when the reviewer records the outcome and two reviewers agree the escrow can continue, or cancel with a refund to source (RB-43).
+  6. Pay to the original professional is not cut because of the result (RUL-26). If fraud or misconduct is suspected, hold pay only under the recorded review that 01 allows, and follow RB-41.
+- **Done when:** every item in the month's sample has a result; every failed re-check has a closed incident, a correction issued where needed, the client told, and the freeze lifted or the escrow cancelled.
 
 ---
 

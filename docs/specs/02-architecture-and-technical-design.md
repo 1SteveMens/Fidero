@@ -5,11 +5,11 @@ System, database, API, security and infrastructure design for the Tenmina platfo
 | Item | Value |
 |---|---|
 | Document | 02 of 6 in `docs/specs/` |
-| Version | 0.5, working draft |
-| Date | 11 November 2026 |
+| Version | 0.6, working draft |
+| Date | 12 November 2026 |
 | Owner | Product and engineering lead (to be hired; founder acts until then) `[TO VERIFY]` |
 | Status | Draft. For review. Not yet baselined |
-| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01, version 0.8) |
+| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01, version 0.12) |
 | Decision record | `docs/decisions/2026-11-01-diaspora-platform.md`: Tenmina is the diaspora's trusted agent at home. Same engine, more lines, country as configuration from R1 |
 | Supersedes | `docs/product/architecture.md` (kept as the original proposal; this document deepens it and keeps its principles) |
 | Related | Document 05 (tests and traceability), document 06 (delivery, CI/CD and operations) |
@@ -32,6 +32,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | 0.3 | 1 November 2026 | Aligned to 01 v0.4: runner cash route removed (voucher table, instruction type, endpoints, job, threat row and TR-09 controls replaced by `fee_institution.eligible_for_direct_payment` and a runner task that only collects invoices and delivers receipts); fresh search blocks purchase releases only; standing client approvals for care visits and errand steps (`esc_standing_approval`); account-name sources for FR-ESC-015 with no override; 72-hour reviewer decision, second-person check of call confirmations and code lockout for visits; owner's written mandate for rent statement lines; both premium routes; dispute Withdrawn state; data classes and keys aligned to 01 C5.2; I-16 to I-22, I-25 and I-26 marked resolved. | Product and engineering lead (acting) |
 | 0.4 | 7 November 2026 | Aligned to 01 v0.6: both app stores, React Native, client app. ADR-22 replaces ADR-06: two apps, Tenmina (clients, family members, tenants) and Tenmina Field (field roles), on iOS and Android from one React Native and TypeScript codebase, with native modules for camera-only capture, hardware-backed signing (Android Keystore, iOS Secure Enclave) and attestation (Play Integrity, App Attest). Context and container views show both apps, both stores (IF-12), APNs and FCM. Section 8 covers both platforms and adds the client app (8.9) and store distribution (8.10). New endpoints for attestation challenges, push devices, in-app account deletion and app configuration (minimum version, fee payment mode). `mob_device` gains platform and attestation columns; `ntf_push_device` added. Security, NFR, coverage (FR-APP-001 to FR-APP-006, NFR-STORE-01, NFR-STORE-02), risks TR-16 to TR-19, questions TQ-23 to TQ-26 and issues I-29 to I-32 updated. | Product and engineering lead (acting) |
 | 0.5 | 11 November 2026 | Aligned to 01 v0.8: professional payments. New module PRO (`profpay`, ADR-23) pays the professionals Tenmina contracts (lawyers, surveyors, runners, inspectors, quantity surveyors, errand agents) from Tenmina's operating account, out of fee income, and never touches client money (RUL-27). Goal G-11; tables `pro_agreement`, `pro_scope`, `pro_rate_card`, `pro_payable`, `pro_expense_claim`, `pro_payment_run`, `pro_payment_line` and `pro_document` (6.14); a `work.accepted` event with no result field and a rate fixed at assignment, so pay cannot depend on the verdict (RUL-26); payment runs prepared by one person and approved by a different person with payment rights through `core_approval_request`, which now allows one approver for PRO subjects; a bulk payment file for the operating bank or mobile money provider; tax deductions from the country configuration; sequence 5.11; endpoints for professionals and the back office; jobs; threat model rows; a PRO permission table and `payment_rights` on role grants. The payee registry gains the kind `contracted_professional`, which only PRO may pay and no release instruction may name. Errand agents are paid under PRO (FR-TSK-003); Tenmina's errand charge stays a PAY fee through the payment provider (FR-TSK-002). Coverage for FR-PRO-001 to FR-PRO-010, RUL-26 and RUL-27; TR-20, TR-21; TQ-18 updated, TQ-27 to TQ-30; issues I-33 to I-39. | Product and engineering lead (acting) |
+| 0.6 | 12 November 2026 | Aligned to 01 v0.12: fund and evidence protection. Goal G-12; ADR-24 (payee lock with cooling-off, refund to source) and ADR-25 (evidence from the source: official registry channel, national identity checks, random re-checks). ESC: payee changes only through `esc_payee_change` (fresh national identity and account-name checks, client approval, two staff with release rights, a second-channel notice, then a cooling-off of `payee_cooling_off_hours`, 72 `[TO VERIFY]`), `esc_payee.account_version`, `cooling_off_until` and the escrow's locked payees in `esc_escrow_payee`; account columns writable only by `esc.apply_payee_change()`; the source account of every deposit on `esc_bank_event`; refund instructions name the deposit they refund and go only to its source account unless a RUL-29 exception (`refund_destination` change) has cleared cooling-off; new release blockers in `esc.release_blockers()`. PAY: fee refunds only to the original method through the provider. ACC and CASE: `acc_national_id_check` through IF-03 with no biometric data, `case_party`, and `case_search_request` with staff-only submission and result evidence. RPT: monthly random draw (`rpt_recheck_draw`, `rpt_recheck`), unlinked re-checker, `rpt_incident`, and `esc_incident_freeze`. Sequence 5.12, section 6.15, endpoints, jobs, 9.4 and 9.5, threat rows, permission table, coverage for RUL-28 to RUL-32, FR-ESC-016, FR-ESC-017, FR-PAY-008, FR-CASE-016, FR-ACC-013 and FR-RPT-012; TR-22 to TR-25; TQ-02 linked to Q-28, TQ-31 to TQ-34; issues I-40 to I-46. | Product and engineering lead (acting) |
 
 ### Release staging of the architecture
 
@@ -40,7 +41,7 @@ Nothing in this document is built in R0. R0 runs on spreadsheets, templates and 
 | Release | Months | Architecture that ships |
 |---|---|---|
 | R0 | 0-3 | None. Landing page and payment link only |
-| R1 | 3-9 | API, portal, back office, PostgreSQL/PostGIS, evidence store, Celery workers, modules ACC, ORD, PAY, CASE, RPT, GEO (overlays, images), ESC (manual bank entry, held funds, payee registry), EVD, NTF, ADM, AUD, ANL, DPR, FEE (payments to institutions, manual upload of invoices and receipts), CTY (country as configuration, `country_id` everywhere, one cell), PRO (professional payments from Tenmina's operating account: agreements and rate cards, payables for accepted work, payment runs with a bulk payment file, tax per country, remittance advices and statements; in R1 it pays lawyers, surveyors and runners), shared kernel. Country 2 runs its manual phase from month 6 with no software |
+| R1 | 3-9 | API, portal, back office, PostgreSQL/PostGIS, evidence store, Celery workers, modules ACC, ORD, PAY, CASE, RPT, GEO (overlays, images), ESC (manual bank entry, held funds, payee registry), EVD, NTF, ADM, AUD, ANL, DPR, FEE (payments to institutions, manual upload of invoices and receipts), CTY (country as configuration, `country_id` everywhere, one cell), PRO (professional payments from Tenmina's operating account: agreements and rate cards, payables for accepted work, payment runs with a bulk payment file, tax per country, remittance advices and statements; in R1 it pays lawyers, surveyors and runners), fund and evidence protection (payee lock with cooling-off, refund to source, official search records, national identity checks for parties, monthly random re-checks; 6.15), shared kernel. Country 2 runs its manual phase from month 6 with no software |
 | R2 | 9-18 | Two store apps on iOS and Android from one React Native codebase (ADR-22): Tenmina Field for field roles and Tenmina for clients, family members and tenants (APP), published on the App Store and Google Play (IF-12) with push through APNs and FCM; MOB (with check-in and check-out), BLD, PRJ, LST, RAT, DSP, PTR, CARE, PMG, TSK, INS, PRO payables for inspectors, quantity surveyors and errand agents as BLD, PMG and TSK go live, bank statement file and API adapters, institution portal or file adapters, insurer adapters, satellite monitoring, CTY configuration copying (FR-CTY-004) and, if country 2 passes its gate and its law demands it, a second cell (FR-CTY-002) |
 | R3 | 18-36 | EVT, REC, family and stool listings, materials ordering, country 3 configuration and cell if required |
 
@@ -61,6 +62,7 @@ Nothing in this document is built in R0. R0 runs on spreadsheets, templates and 
 | G-09 | Make it impossible to instruct a release to anyone but a verified institution, supplier, vendor or professional whose bank account is in that name. Never to a relative, never to Tenmina. | BO-10, RUL-22, RUL-23, RUL-24, RUL-25, FR-ESC-015 |
 | G-10 | Run every product line, from land to school fees to care visits, on the one engine: a case template, a condition set, a schedule and the same approvals, evidence store and bank mirror. | BR-17 to BR-22, F-29 to F-35, NFR-MNT-02, decision record |
 | G-11 | Pay the professionals Tenmina contracts only from Tenmina's own operating account, for accepted work, at a rate fixed before the work starts, so that no code path joins client money and Tenmina's own payments and no pay depends on a verdict. | BR-23, RUL-26, RUL-27, FR-PRO-001 to FR-PRO-010 |
+| G-12 | Make it impossible to divert client money by changing a payee's account or a refund's destination, accept as evidence only what Tenmina obtained itself from the official source, and re-check a random sample of finished work. | RUL-28 to RUL-32, FR-ESC-016, FR-ESC-017, FR-PAY-008, FR-CASE-016, FR-ACC-013, FR-RPT-012 |
 
 ## 2. Architecture decision records
 
@@ -301,6 +303,28 @@ Status: superseded by ADR-16 in version 0.2. Kept for history; the `country_code
 | Alternatives rejected | Paying professionals from escrow or held funds as a cost of the case (breaks RUL-27 and C-01). A Tenmina ledger of what each professional is owed, settled later (a second money system with no bank mirror; payables tied to accepted work and bank-confirmed runs replace it). A rate table keyed by verdict or outcome, or a free-form rate rule (breaks RUL-26). One-person runs with the bank's dual control as the only check (the platform could not show who approved). |
 | Traces | BR-23, F-37, RUL-26, RUL-27, RUL-22, FR-PRO-001 to FR-PRO-010, FR-TSK-002, FR-TSK-003, FR-CASE-011, Q-25, Q-26 |
 
+### ADR-24 Payee lock with cooling-off, and refund to source
+
+| Part | Content |
+|---|---|
+| Status | Accepted 12 November 2026 (01 v0.12). Extends ADR-17. |
+| Context | The commonest way to steal escrowed money is not to break an approval but to change where it goes: a message, email or call with "new bank details" for the seller or an institution, or an insider who edits an account (RUL-28). ADR-17 lets a payee's bank details change, resets verification and withdraws open approvals, but then a second verification lets money flow at once. Refunds on cancellation had no payee at all (`payee_id` null for `cancel_refund`), so a request to "refund to this other account" was only a matter of approvals (RUL-29). Whether Tenmina may act as condition monitor without a payments licence, and whether the bank must be the escrow agent under a three-party agreement, is open (Q-28). |
+| Decision | (1) Lock: the payees an escrow may pay, and the account version of each, are written to `esc_escrow_payee` when the escrow is agreed (for held funds, when the client first approves a payment to that payee). A release to a payee whose current `account_version` is not locked on that escrow is refused by `esc.release_blockers()`. (2) Change: a new account or a new payee goes only through `esc_payee_change`: started by the payee signed in, or by staff who met the payee, never from a message, email or call; the account name from the bank's name check or a bank letter checked by a second person; a fresh national identity check of the payee (ADR-25); the client's approval first; then two staff with release rights. `esc.apply_payee_change()`, the only code that can write account columns, raises `account_version`, sets `cooling_off_until` to now plus `payee_cooling_off_hours` (72, `[TO VERIFY]`), withdraws open approvals and sends the client a notice on a second channel with a stop link. No release to the new account until the cooling-off ends; no setting or role can shorten one in progress. (3) Refund to source: every `deposit` bank event records the source account from the bank's confirmation (FR-ESC-017). A `cancel_refund` instruction names the deposit it refunds and goes to that account. A different account needs a `refund_destination` change: an account in the client's own name, a fresh identity check of the client, the client's approval, two staff and the same cooling-off. (4) Fees: PAY refunds only through the payment provider to the original payment method; `pay_refund` has no destination column (FR-PAY-008). |
+| Consequences | A legitimate change of bank details delays payment by the cooling-off period (TR-24). One payee serving many clients (an institution, an agency) needs each client's approval for their own escrow before a release to the new account (I-42). Deposits whose source account the bank does not report can be refunded only through the exception path (I-41, TQ-31). Whether the bank also enforces the lock and refund to source on its side depends on the legal structure in Q-28 (TQ-34). |
+| Alternatives rejected | Re-verification alone, as in ADR-17 (a fraudster who passes the account-name check is paid the same day). A reviewer override of the cooling-off for urgent completions (the override becomes the attack). Refunds to any account in the client's name without a fresh identity check (account takeover of the client becomes refund theft). |
+| Traces | RUL-28, RUL-29, RUL-22, RUL-05, RUL-11, FR-ESC-016, FR-ESC-017, FR-ESC-013, FR-ESC-015, FR-PAY-008, FR-ACC-013, Q-28 |
+
+### ADR-25 Evidence from the source: official channels, national identity checks and random re-checks
+
+| Part | Content |
+|---|---|
+| Status | Accepted 12 November 2026 (01 v0.12). |
+| Context | Three kinds of evidence could be faked by the people around a deal: a search result carried back from the registry by a runner, seller or agent (RUL-30); an identity shown by a photocopy of a card (RUL-31); and a report or condition passed on weak evidence by people who agree to look away (RUL-32). Until v0.12 the IF-09 manual adapter was a runner task with the result uploaded as evidence, and the IF-03 fallback was a staff document check. |
+| Decision | (1) Official searches: CASE records each search in `case_search_request`: the registry partner, Tenmina's own registry account, the channel, the staff member who submitted it, the registry's reference and the result as received. Only Tenmina staff (case managers and reviewers) may submit, receive or confirm a search, and only they may link evidence of kind `official_search_result`; a database trigger refuses the link from anyone else, and a search task cannot be closed without a usable request. Where the registry has no remote channel, a staff member confirms the result with the registry before use. (2) Identity: ACC checks every seller, grantor, consenting party, signatory and individual payee against the national identity system through IF-03 (`acc_national_id_check`). It stores the result, the reference and the time, never a photo, fingerprint or other biometric data. No endpoint accepts a card image for this check. While the service is down the dependent step pauses; there is no fallback to a document check. (3) Re-checks: each month RPT draws a random sample of `recheck_sample_pct` (5, `[TO VERIFY]`) of last month's released reports and closed release conditions, with the seed and the population hash recorded, and assigns each to a licensed professional with no link to the case, checked in the database. The original team is not told. A failed re-check opens an `rpt_incident`; ESC freezes releases on affected open escrows until it closes. |
+| Consequences | Searches need staff time at the portal and, for some offices, at the registry (TR-23, TQ-33). Reports and payee verifications wait on the national identity service (TR-22, TQ-32). Re-checkers are paid under PRO at a flat rate per re-check, whatever the result (RUL-26). Re-checks need a pool of professionals with no link to each case (TR-25). |
+| Alternatives rejected | Accept a runner's copy and spot-check it later (the forged result is already in a released report). Staff look at the card and a selfie (a good forgery passes, and the images are biometric data). Re-checks chosen by staff (a colluding reviewer chooses around their own cases). |
+| Traces | RUL-30, RUL-31, RUL-32, RUL-26, FR-CASE-016, FR-CASE-014, FR-ACC-013, FR-RPT-012, FR-RPT-010, IF-03, IF-09, BR-02, BR-05, BR-06 |
+
 ---
 
 ## 3. System context and containers
@@ -323,12 +347,12 @@ flowchart LR
     inst["Institutions and agencies<br/>schools, hospitals, clinics, pharmacies,<br/>government agencies, utilities, IF-10"]
     insurer["Insurer partners<br/>health and funeral cover, IF-11"]
     payp["Payment provider<br/>IF-02, Tenmina fees only"]
-    idp["Identity check provider<br/>IF-03"]
+    idp["Identity check provider and national identity system<br/>IF-03, RUL-31"]
     maps["Map layer sources<br/>IF-04"]
     sat["Satellite imagery<br/>IF-05"]
     gpgps["Ghana Post GPS<br/>IF-06"]
     msg["Email, SMS, WhatsApp<br/>IF-07"]
-    lands["Lands Commission<br/>IF-09, manual searches by runner"]
+    lands["Lands Commission<br/>IF-09, online portal or client service unit"]
     stores["Apple App Store and Google Play<br/>IF-12, distribution and review,<br/>APNs and FCM push, App Attest and Play Integrity"]
 
     client --> tenmina
@@ -352,13 +376,14 @@ flowchart LR
     sat --> tenmina
     tenmina --> gpgps
     tenmina --> msg
-    pros -.->|"lodge searches in person"| lands
+    tenmina -.->|"staff submit searches from Tenmina's account, RUL-30"| lands
+    lands -.->|"results received by Tenmina staff"| tenmina
     tenmina -->|"app builds for review, push, attestation checks"| stores
     stores -.->|"installs Tenmina"| client
     stores -.->|"installs Tenmina Field"| pros
 ```
 
-The client pays purchase, construction, project, fee and errand money straight to the bank. A tenant pays rent straight into the owner's own account at the bank (RUL-24). The bank pays every payee: seller, contractor, institution, carer, agency, vendor or insurer. Tenmina only verifies, sends instructions and records confirmations. The Lands Commission link is a person, not a system (AS-07). Institutions are mostly people with invoices and receipts in R1; a portal or file link follows in R2 (IF-10). From R2 clients, family members and tenants can use the Tenmina app and field users use Tenmina Field, both installed only from the Apple App Store or Google Play (IF-12, ADR-22). Apple and Google also carry push notifications (APNs and FCM) and answer device attestation checks (App Attest and Play Integrity).
+The client pays purchase, construction, project, fee and errand money straight to the bank. A tenant pays rent straight into the owner's own account at the bank (RUL-24). The bank pays every payee: seller, contractor, institution, carer, agency, vendor or insurer. Tenmina only verifies, sends instructions and records confirmations. The Lands Commission link has no API: Tenmina staff submit searches and receive results through its online portal or client service unit from Tenmina's own account, never through a runner's hands (RUL-30, IF-09, 9.5). Institutions are mostly people with invoices and receipts in R1; a portal or file link follows in R2 (IF-10). From R2 clients, family members and tenants can use the Tenmina app and field users use Tenmina Field, both installed only from the Apple App Store or Google Play (IF-12, ADR-22). Apple and Google also carry push notifications (APNs and FCM) and answer device attestation checks (App Attest and Play Integrity).
 
 ### 3.2 Containers (C4 level 2)
 
@@ -481,13 +506,13 @@ Uploads go straight from the client, browser or app, to S3 through presigned URL
 
 | Module | Django app | Responsibilities | Owned tables (main) | Publishes | Consumes | FR IDs | Rel. |
 |---|---|---|---|---|---|---|---|
-| ACC | `accounts` | Sign-up, sign-in, MFA, lockout, roles and scoped grants, organisations (sellers, developers, institutions, insurers from R2), licences, identity checks, representatives, family members, client-owned bank accounts, vetting records for carers and agents, the home dashboard | `acc_person`, `acc_credential`, `acc_mfa_device`, `acc_refresh_token`, `acc_role_grant`, `acc_organisation`, `acc_membership`, `acc_professional_licence`, `acc_identity_check`, `acc_representative_grant`, `acc_family_member`, `acc_bank_account`, `acc_vetting` | `person.registered`, `identity_check.completed`, `licence.expired`, `account.locked`, `family_member.added`, `vetting.completed` | `config.published` | FR-ACC-001 to 012 | R1 |
+| ACC | `accounts` | Sign-up, sign-in, MFA, lockout, roles and scoped grants, organisations (sellers, developers, institutions, insurers from R2), licences, identity checks, national identity checks of parties and payees through IF-03 with no biometric data (ADR-25), representatives, family members, client-owned bank accounts, vetting records for carers and agents, the home dashboard | `acc_person`, `acc_credential`, `acc_mfa_device`, `acc_refresh_token`, `acc_role_grant`, `acc_organisation`, `acc_membership`, `acc_professional_licence`, `acc_identity_check`, `acc_national_id_check`, `acc_representative_grant`, `acc_family_member`, `acc_bank_account`, `acc_vetting` | `person.registered`, `identity_check.completed`, `national_id_check.completed`, `licence.expired`, `account.locked`, `family_member.added`, `vetting.completed` | `config.published` | FR-ACC-001 to 013 | R1 |
 | ORD | `orders` | Orders, tier quote, terms acceptance, lead source, referrals, extra inspection orders | `ord_order`, `ord_terms_acceptance`, `ord_referral_code`, `ord_referral_reward` | `order.created`, `order.paid` | `payment.confirmed`, `payment.offline_recorded` | FR-ORD-001 to 007 | R1 |
-| PAY | `payments` | Tenmina fee payments only, receipts, refunds, settlement reconciliation, seller invoices | `pay_fee_payment`, `pay_receipt`, `pay_refund`, `pay_settlement_line`, `pay_recon_issue`, `pay_invoice` | `payment.confirmed`, `payment.failed`, `refund.approved` | `order.created`, `listing.submitted`, `listing.sold` | FR-PAY-001 to 007 | R1 |
-| CASE | `cases` | Case lifecycle from templates for every line that verifies something (land, building, fresh search, institution verification, property onboarding, vendor verification), tasks, assignments, due dates, status messages, document requests, risk screens, safety incidents, costs, messages | `case_case`, `case_task`, `case_status_message`, `case_document_request`, `case_risk_screen`, `case_cost_item`, `case_message`, `safety.incident` | `case.created`, `case.status_changed`, `task.assigned`, `task.completed`, `task.overdue`, `fresh_search.completed` | `order.paid`, `listing.verification_requested`, `reservation.created`, `report.released` | FR-CASE-001 to 015 | R1 |
-| RPT | `reports` | Report versions, sections, verdict rule, locked scope text, signatures, review approvals, PDF and hash, conditions, corrections, anonymised copies | `rpt_report`, `rpt_section`, `rpt_condition`, `rpt_signature`, `rpt_hash_check` | `report.submitted`, `report.released`, `report.corrected`, `work.accepted` (a signed section passed second review) | `overlay.completed`, `case.status_changed` | FR-RPT-001 to 011 | R1 |
+| PAY | `payments` | Tenmina fee payments only, receipts, refunds only to the original payment method through the provider (FR-PAY-008), settlement reconciliation, seller invoices | `pay_fee_payment`, `pay_receipt`, `pay_refund`, `pay_settlement_line`, `pay_recon_issue`, `pay_invoice` | `payment.confirmed`, `payment.failed`, `refund.approved` | `order.created`, `listing.submitted`, `listing.sold` | FR-PAY-001 to 008 | R1 |
+| CASE | `cases` | Case lifecycle from templates for every line that verifies something (land, building, fresh search, institution verification, property onboarding, vendor verification), tasks, assignments, due dates, status messages, document requests, risk screens, safety incidents, costs, messages, the parties to be identity-checked, official search requests submitted and received by staff from Tenmina's registry account (ADR-25) | `case_case`, `case_task`, `case_status_message`, `case_document_request`, `case_risk_screen`, `case_cost_item`, `case_message`, `case_party`, `case_search_request`, `safety.incident` | `case.created`, `case.status_changed`, `task.assigned`, `task.completed`, `task.overdue`, `fresh_search.completed`, `search.submitted`, `search.result_received` | `order.paid`, `listing.verification_requested`, `reservation.created`, `report.released`, `national_id_check.completed` | FR-CASE-001 to 016 | R1 |
+| RPT | `reports` | Report versions, sections, verdict rule, locked scope text, signatures, review approvals, PDF and hash, conditions, corrections, anonymised copies, the monthly random re-check of released reports and closed conditions with unlinked professionals, and incidents from failed re-checks (ADR-25) | `rpt_report`, `rpt_section`, `rpt_condition`, `rpt_signature`, `rpt_hash_check`, `rpt_recheck_draw`, `rpt_recheck`, `rpt_incident` | `report.submitted`, `report.released`, `report.corrected`, `work.accepted` (a signed section passed second review; a re-check recorded), `recheck.failed`, `incident.opened`, `incident.closed` | `overlay.completed`, `case.status_changed`, `condition.closed` | FR-RPT-001 to 012 | R1 |
 | GEO | `geo` | Assets and boundaries, overlay layers and results, overlaps, satellite images, monitoring, Ghana Post GPS | `geo_asset`, `geo_boundary_version`, `geo_overlay_layer`, `geo_overlay_layer_version`, `geo_overlay_feature`, `geo_overlay_result`, `geo_overlap_flag`, `geo_satellite_image`, `geo_monitoring_alert` | `asset.boundary_saved`, `overlay.completed`, `overlap.flagged`, `monitoring.alert_raised`, `monitoring.alert_resolved` | `listing.live`, `project.started` | FR-GEO-001 to 008 | R1 |
-| ESC | `escrow` | Escrow mirror for purchase, construction, off-plan, project fund, held funds, repair and event escrows; parties, acceptances, bank payment instructions, conditions, bank events, release and cancel instructions with their payee, dispatch, statement import, the verified payee registry (ADR-17), the derived held statement (ADR-18) | `esc_escrow`, `esc_party`, `esc_acceptance`, `esc_condition`, `esc_bank_event`, `esc_release_instruction`, `esc_statement_file`, `esc_statement_line`, `esc_payee`, view `esc_held_statement` | `escrow.agreed`, `escrow.funded`, `escrow.ready`, `release.approved`, `release.sent`, `release.confirmed`, `escrow.cancelled`, `payee.verified`, `payee.suspended`, `held_funds.deposit_confirmed` | `report.released`, `dispute.opened`, `dispute.resolved`, `fresh_search.completed`, `milestone.client_approved`, `reservation.created`, `invoice.client_approved`, `visit.confirmed`, `errand_step.receipted`, `repair.inspected`, `vendor_payment.evidenced` | FR-ESC-001 to 015 | R1 |
+| ESC | `escrow` | Escrow mirror for purchase, construction, off-plan, project fund, held funds, repair and event escrows; parties, acceptances, bank payment instructions, conditions, bank events, release and cancel instructions with their payee, dispatch, statement import, the verified payee registry (ADR-17), the derived held statement (ADR-18), the payee lock, payee changes with cooling-off, deposit source accounts and refund to source (ADR-24), freezes from re-check incidents | `esc_escrow`, `esc_party`, `esc_acceptance`, `esc_condition`, `esc_bank_event`, `esc_release_instruction`, `esc_statement_file`, `esc_statement_line`, `esc_payee`, `esc_payee_change`, `esc_escrow_payee`, `esc_incident_freeze`, view `esc_held_statement` | `escrow.agreed`, `escrow.funded`, `escrow.ready`, `release.approved`, `release.sent`, `release.confirmed`, `escrow.cancelled`, `condition.closed`, `payee.verified`, `payee.suspended`, `payee_change.requested`, `payee_change.applied`, `payee_change.stopped`, `held_funds.deposit_confirmed` | `report.released`, `dispute.opened`, `dispute.resolved`, `fresh_search.completed`, `milestone.client_approved`, `reservation.created`, `invoice.client_approved`, `visit.confirmed`, `errand_step.receipted`, `repair.inspected`, `vendor_payment.evidenced`, `national_id_check.completed`, `incident.opened`, `incident.closed` | FR-ESC-001 to 017 | R1 |
 | EVD | `evidence` | Upload slots, hashing, scan, previews, signed links, links to subjects, provenance, integrity sampling | `evd_evidence`, `evd_link`, `evd_preview`, `evd_scan_result` | `evidence.stored`, `evidence.rejected` | none | FR-EVD-001 to 006 | R1 |
 | MOB | `mobile` | Device registry and keys with attestation on Android and iOS (8.2), sync, signed manifest checks, submissions, check-in and check-out at registered addresses, fraud flags, for every field role | `mob_device`, `mob_signed_manifest`, `mob_submission`, `mob_submission_item`, `mob_checkin`, `mob_fraud_flag` | `submission.received`, `evidence.flagged`, `flags.cleared`, `checkin.recorded`, `checkout.recorded` | `milestone.status_changed`, `task.assigned`, `visit.scheduled`, `errand.assigned`, `inspection.scheduled` | FR-MOB-001 to 012 | R2 |
 | APP | none | The client app is a front end over the same `/v1` API as the portal and owns no server tables (ADR-22, 8.9). Its server needs sit in existing modules: push devices in NTF, in-app account deletion in DPR, minimum versions and the fee payment mode in ADM settings, fee payments in PAY | none | none | none | FR-APP-001 to 006 | R2 |
@@ -564,6 +589,8 @@ flowchart LR
     ptr --> dpr
     acc --> adm
     cas --> adm
+    cas --> acc
+    esc --> acc
     rpt --> adm
     fee --> esc
     fee --> cas
@@ -594,6 +621,8 @@ flowchart LR
 ```
 
 Arrows show "calls the services of". Events flow the other way through the outbox. Cycles are rejected by the import-linter contract in CI. The six line modules (ADR-21) call ESC for money, CASE for verification cases, MOB for field evidence and ACC for family members and vetting. None of them writes an ESC table.
+
+CASE and ESC call `accounts.services` to run national identity checks for parties and payees (ADR-25). RPT learns of closed conditions from `condition.closed` and never imports `escrow`; ESC learns of re-check incidents from `incident.opened` and `incident.closed` and decides itself which open escrows to freeze (6.15).
 
 PRO (ADR-23) reads ESC only through `escrow.selectors.payees`, to fetch a verified payee of kind `contracted_professional`. An import-linter contract forbids any other import from `escrow` into `profpay`, and any import of `profpay` from `escrow`. PRO writes case cost entries through `cases.services` (FR-PRO-010) and learns of accepted work only from `work.accepted` events (RUL-26, RUL-27).
 
@@ -663,6 +692,8 @@ sequenceDiagram
     R->>A: POST approval slot reviewer
     A->>A: DB rejects same person twice and the preparer, RUL-03
     A->>A: Check client identity check passed, FR-ACC-004
+    A->>A: Check every party has a national identity check, none pending, FR-ACC-013
+    A->>A: Check each search task has a usable official search request, FR-CASE-016
     A->>W: Outbox event report.approved
     W->>W: Render PDF with WeasyPrint
     W->>W: Compute SHA-256 of bytes
@@ -692,6 +723,7 @@ sequenceDiagram
     A->>A: Escrow to ready to release if funded, all closed, fresh search in date
     CM->>A: POST release instruction draft
     A->>A: Check blockers: open condition, open dispute, stale fresh search, RUL-06, RUL-07, RUL-15
+    A->>A: Check payee and account version locked on this escrow, cooling-off ended, RUL-28
     A-->>Cl: Request client approval
     Cl->>A: POST client approval, MFA, RUL-11
     A1->>A: POST approval with MFA step-up
@@ -708,7 +740,7 @@ sequenceDiagram
     A->>A: Escrow released, notify all parties, FR-ESC-009
 ```
 
-Every blocker is checked again inside the database trigger before the instruction can leave the approved state (section 6.5). If a dispute opens after approval but before dispatch, the dispatcher re-checks and stops (TQ-05).
+Every blocker is checked again inside the database trigger before the instruction can leave the approved state (section 6.5). If a dispute opens after approval but before dispatch, the dispatcher re-checks and stops (TQ-05). The same holds if a payee change is applied or a re-check incident opens in that window. A cancellation refund follows the same steps, addressed to the source account of the deposit it refunds (RUL-29, FR-ESC-017).
 
 ### 5.4 Milestone capture to release (J-03)
 
@@ -1016,6 +1048,41 @@ sequenceDiagram
 
 No step reads a verdict, an inspection outcome or a risk flag. Money leaves only Tenmina's operating account; no step touches an escrow or held funds. A failed line sends its payables back to `approved` for the next run once the payee is fixed; a line is never paid outside a run. In R1 the sources are report sections and runner months; inspections, bills of quantities and errands send `work.accepted` from R2.
 
+### 5.12 Change a payee's account (RUL-28, FR-ESC-016, FR-ACC-013)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Py as Payee signed in, or met in person by staff
+    actor CM as Case manager
+    actor Cl as Client
+    actor A1 as Approver 1, release rights
+    actor A2 as Approver 2, release rights
+    participant A as api
+    participant ID as National identity system, IF-03
+    participant N as NTF
+    Py->>A: POST /v1/payees/id/changes with the new account and the bank's name check or a bank letter
+    Note over A: No change is ever taken from a message, email or call
+    CM->>A: Second person checks the account name evidence, FR-ESC-015
+    A->>ID: Fresh national identity check of the payee, FR-ACC-013
+    ID-->>A: Result, reference and time; no photo or biometric data kept
+    A-->>Cl: Approval request showing old and new account name and last four digits
+    Cl->>A: POST client approval with MFA, first
+    A1->>A: Approve with MFA step-up
+    A2->>A: Approve with MFA step-up
+    A->>A: esc.apply_payee_change(): account_version up by one, cooling_off_until set
+    A->>A: Open approvals for instructions to this payee withdrawn
+    A->>N: Notice to the client on a second channel with a stop link
+    alt Client or reviewer stops it during cooling-off
+        Cl->>A: POST stop
+        A->>A: Payee suspended, reviewer case opened, nothing paid to either account
+    else Cooling-off ends
+        Note over A: Releases to the new account follow 5.3
+    end
+```
+
+The cooling-off period is `payee_cooling_off_hours` (72, `[TO VERIFY]` in RUL-28). The second channel is one the client did not use to approve: if they approved in the app, the notice goes by SMS and email. Where one payee serves many clients (an institution, an agency, an insurer), two staff approve the change to the payee record after the same checks, and each client approves the new account for their own escrow or held amount before any release to it; a standing approval never covers a changed account (I-42). A refund to an account other than the deposit's source (RUL-29) is a change of kind `refund_destination`: the account must be in the client's own name, the fresh identity check is of the client, and the same approvals and cooling-off apply (6.15).
+
 ---
 
 ## 6. Database design
@@ -1127,9 +1194,21 @@ erDiagram
     PRO_PAYMENT_LINE ||--o{ PRO_PAYABLE : settles
     PRO_PAYMENT_LINE ||--o{ PRO_EXPENSE_CLAIM : settles
     CASE ||--o{ PRO_PAYABLE : "costed by"
+    PAYEE ||--o{ PAYEE_CHANGE : "changed only by"
+    ESCROW ||--o{ ESCROW_PAYEE : "may pay"
+    PAYEE ||--o{ ESCROW_PAYEE : "locked on"
+    BANK_EVENT ||--o| RELEASE_INSTRUCTION : "refunded to source by"
+    CASE ||--o{ CASE_PARTY : names
+    CASE_PARTY }o--o| NATIONAL_ID_CHECK : "verified by"
+    PAYEE }o--o| NATIONAL_ID_CHECK : "verified by"
+    CASE ||--o{ SEARCH_REQUEST : "searched through"
+    RECHECK_DRAW ||--|{ RECHECK : selects
+    RECHECK ||--o| INCIDENT : opens
+    INCIDENT ||--o{ INCIDENT_FREEZE : freezes
+    ESCROW ||--o{ INCIDENT_FREEZE : "frozen by"
 ```
 
-Every entity except the shared kernel, the audit log and the cell directory carries `country_id` (not drawn). No PRO entity has a relationship to ESCROW, RELEASE_INSTRUCTION or BANK_EVENT (RUL-27, 6.14).
+Every entity except the shared kernel, the audit log and the cell directory carries `country_id` (not drawn). No PRO entity has a relationship to ESCROW, RELEASE_INSTRUCTION or BANK_EVENT (RUL-27, 6.14). PAYEE_CHANGE, ESCROW_PAYEE, NATIONAL_ID_CHECK, SEARCH_REQUEST, RECHECK and INCIDENT are in 6.15.
 
 ### 6.3 Shared kernel tables
 
@@ -1156,7 +1235,8 @@ CREATE TABLE core_approval_request (
                    'payment_rights_grant',      -- 6.4: payment rights granted by two administrators
                    'pro_rate_card_change',      -- FR-PRO-001: a second administrator
                    'pro_payment_run',           -- FR-PRO-005: a different approver with payment rights
-                   'pro_expense_exception')),   -- FR-PRO-004: over the limit or no receipt
+                   'pro_expense_exception',     -- FR-PRO-004: over the limit or no receipt
+                   'payee_change')),            -- FR-ESC-016, RUL-29: two staff with release rights (6.15)
   subject_id    uuid NOT NULL,
   prepared_by   uuid NOT NULL REFERENCES acc_person(id),
   required      smallint NOT NULL DEFAULT 2,
@@ -1458,6 +1538,9 @@ CREATE INDEX ON case_task (assignee_id, status, due_at);
 -- required_evidence has a matching evd_link row (FR-CASE-004).
 -- Trigger case.site_visit_risk(): for step_key 'site_visit' on an asset with disputed_flag,
 -- rejects assignment without a passed case_risk_screen and a second assignee (RUL-17).
+-- Trigger case.search_task_source(): for step_key 'official_search' or 'fresh_search', rejects status 'done'
+-- unless the task has a usable case_search_request (6.15). A copy handed over by a runner, seller, agent or
+-- client may be stored as evidence kind 'search_copy_unverified', which never meets the requirement (RUL-30).
 
 CREATE TABLE rpt_report (
   id               uuid PRIMARY KEY,
@@ -1568,9 +1651,15 @@ CREATE TABLE esc_release_instruction (
   kms_signature    bytea,
   sent_at          timestamptz,
   bank_confirmation_event_id uuid REFERENCES esc_bank_event(id),
+  refund_source_event_id uuid REFERENCES esc_bank_event(id),         -- RUL-29: the deposit this refund returns
+  refund_change_id uuid REFERENCES esc_payee_change(id),             -- RUL-29 exception, kind refund_destination (6.15)
+  payee_account_version int,                                         -- RUL-28: esc_payee.account_version at preparation
   CHECK (kind <> 'partial_release' OR milestone_id IS NOT NULL OR subject_id IS NOT NULL),
   CHECK ((subject_type IS NULL) = (subject_id IS NULL)),
   CHECK (kind = 'cancel_refund' OR payee_id IS NOT NULL),        -- RUL-22: every release names a payee
+  CHECK ((kind = 'cancel_refund') = (refund_source_event_id IS NOT NULL)),   -- FR-ESC-017: one deposit per refund
+  CHECK (refund_change_id IS NULL OR kind = 'cancel_refund'),
+  CHECK ((payee_id IS NULL) = (payee_account_version IS NULL)),
   CHECK (standing_approval_id IS NULL OR subject_type IN ('care_visit','errand_step')),   -- RUL-11
   CHECK (status NOT IN ('sent','confirmed') OR (document_sha256 IS NOT NULL AND kms_signature IS NOT NULL))
 );
@@ -1580,6 +1669,9 @@ CREATE UNIQUE INDEX one_live_instruction_per_milestone
 CREATE UNIQUE INDEX one_live_instruction_per_subject
   ON esc_release_instruction (subject_type, subject_id)
   WHERE status IN ('pending_approval','approved','sent','confirmed') AND subject_id IS NOT NULL;
+CREATE UNIQUE INDEX one_live_refund_per_deposit
+  ON esc_release_instruction (refund_source_event_id)
+  WHERE status IN ('pending_approval','approved','sent','confirmed') AND refund_source_event_id IS NOT NULL;
 -- Trigger esc.release_blockers() BEFORE UPDATE to 'approved' or 'sent' raises if:
 --   any esc_condition for the escrow is 'open'                          (RUL-06)
 --   any open dsp_dispute is linked to the escrow, project or milestone   (RUL-15)
@@ -1606,6 +1698,17 @@ CREATE UNIQUE INDEX one_live_instruction_per_subject
 --     eligible_for_direct_payment                                         (FR-FEE-003, FR-FEE-006, RUL-11)
 --   escrow kind 'held_funds' and amount exceeds the derived available
 --     figure in esc_held_statement (ADR-18)                               (FR-ESC-014)
+--   payee_account_version differs from esc_payee.account_version, the
+--     escrow has no live esc_escrow_payee row for that payee and version,
+--     or the payee's cooling_off_until is in the future (6.15)            (RUL-28, FR-ESC-016)
+--   kind 'cancel_refund' and refund_source_event_id is not a 'deposit' of
+--     this escrow, the amount exceeds that deposit less refunds confirmed
+--     for it, or the deposit's source account is unknown or cannot receive
+--     and refund_change_id is not an applied refund_destination change for
+--     that deposit whose cooling_off_until has passed (6.15)              (RUL-29, FR-ESC-017)
+--   an esc_incident_freeze for the escrow is not lifted (6.15)            (RUL-32, FR-RPT-012)
+-- The bank instruction for a refund names the deposit's source account exactly as the bank's
+-- confirmation gave it, or the account of the applied refund_destination change (9.1).
 ```
 
 ### 6.6 Evidence, mobile, construction, listings and disputes
@@ -1643,7 +1746,8 @@ CREATE TABLE evd_link (
                   'care_visit','care_visit_item','care_concern','checkin',
                   'managed_property','tenancy','rent_period','repair','repair_quote','property_inspection',
                   'errand','errand_document','errand_step','handover',
-                  'policy','premium','claim','event_vendor','event_vendor_payment')),
+                  'policy','premium','claim','event_vendor','event_vendor_payment',
+                  'search_request','payee_change','recheck','report_incident')),   -- 01 v0.12, 6.15
   subject_id    uuid NOT NULL,
   evidence_kind text NOT NULL,                          -- matches template requirement keys
   linked_by     uuid NOT NULL REFERENCES acc_person(id),
@@ -1652,6 +1756,10 @@ CREATE TABLE evd_link (
 );
 -- tenmina_app has INSERT and SELECT only on evd_evidence and evd_link, plus UPDATE on
 -- scan_status, signature_valid and deleted_at columns. No DELETE (FR-EVD-002).
+-- Trigger evd.official_search_link(): a link with evidence_kind 'official_search_result' is accepted only on
+-- subject_type 'search_request', and only when linked_by and the evidence's uploader_id both hold a
+-- 'case_manager' or 'reviewer' grant in the country and neither holds 'runner', 'seller', 'developer',
+-- 'client', 'errand_agent' or 'representative' there (RUL-30, FR-CASE-016).
 
 CREATE TABLE mob_device (                            -- Tenmina Field installs; ADR-22, 8.2
   id               uuid PRIMARY KEY,
@@ -1864,11 +1972,11 @@ CREATE TABLE safety.incident (
 
 | Table | Key columns and rules | FR |
 |---|---|---|
-| `acc_identity_check` | person, provider, provider ref, result, method (`provider`, `manual`), reviewed by | FR-ACC-004 |
+| `acc_identity_check` | person, provider, provider ref, result, method (`provider`, `manual`), reviewed by. The client's own check only; sellers, grantors, consenting parties, signatories and individual payees are checked in `acc_national_id_check` (6.15), never by a document check | FR-ACC-004 |
 | `acc_representative_grant` | client, representative person, case or project, read-only, expiry | FR-ACC-008 |
 | `acc_mfa_device` | person, type (`totp`, `webauthn`), secret or credential (encrypted), last used | FR-ACC-003 |
 | `ord_terms_acceptance` | order, text version, accepted at, IP | FR-ORD-003 |
-| `pay_refund` | payment, amount, reason, approval request | FR-PAY-004 |
+| `pay_refund` | payment, amount, reason, approval request, provider refund reference. No destination column: the refund goes through `FeeGateway.refund(provider_ref)` to the original payment method only; amount not above the payment less earlier refunds (CHECK by trigger). An offline payment is refunded to the account it came from (I-40) | FR-PAY-004, FR-PAY-008 |
 | `pay_settlement_line`, `pay_recon_issue` | provider settlement lines and mismatches | FR-PAY-006 |
 | `case_status_message` | case, template key, rendered text, date, next expected date | FR-CASE-007 |
 | `case_risk_screen` | case, screened by, outcome, people assigned, valid until | FR-CASE-009 |
@@ -1879,7 +1987,7 @@ CREATE TABLE safety.incident (
 | `geo_monitoring_alert` | asset, image dates, change score, status | FR-GEO-007 |
 | `esc_party` | escrow, role (buyer, seller, contractor, supplier, developer), person or organisation | FR-ESC-001 |
 | `esc_acceptance` | escrow, party, terms version, accepted at | FR-ESC-002 |
-| `esc_bank_event` | escrow, kind (`deposit`, `release_confirmed`, `refund_confirmed`), amount, source (`api`, `statement`, `manual`), proof evidence, entered by, `checked_by` (a second staff member, required when source is `manual`, CHECK `checked_by <> entered_by`), payee or depositor reference, family member or subject reference for statements | FR-ESC-004, FR-ESC-009, FR-ESC-014 |
+| `esc_bank_event` | escrow, kind (`deposit`, `release_confirmed`, `refund_confirmed`), amount, source (`api`, `statement`, `manual`), proof evidence, entered by, `checked_by` (a second staff member, required when source is `manual`, CHECK `checked_by <> entered_by`), payee or depositor reference, family member or subject reference for statements. For `deposit`: the source account as the bank's confirmation or statement line gives it (`source_bank_name`, `source_account_number_enc`, `source_account_name_enc`, `source_account_bidx`), required unless `source_account_known` is false because the bank gave none, which forces the RUL-29 exception path for any refund (I-41, TQ-31); never typed from the client's word. Source account columns cannot be updated | FR-ESC-004, FR-ESC-009, FR-ESC-014, FR-ESC-017 |
 | `esc_statement_file`, `esc_statement_line` | imported file hash, account kind (`escrow`, `held_funds`, `owner_rent` under a `pmg_statement_mandate`), lines, match status, matched subject (escrow, rent period) | FR-ESC-011, FR-PMG-003 |
 | `mob_submission`, `mob_submission_item` | milestone or task, client UUID (unique), items, manifest | FR-MOB-006 |
 | `bld_defect` | inspection, description, value, status, closing evidence | FR-BLD-006 |
@@ -1894,12 +2002,12 @@ CREATE TABLE safety.incident (
 | `ntf_push_device` | person, app (`client`, `field`), platform (`ios`, `android`), push token (encrypted), provider (`apns`, `fcm`), app version, OS version, last seen, revoked at. One row per app install. Revoked at sign-out, account deletion or when the provider reports the token invalid | FR-APP-002, FR-NTF-001 |
 | `adm_config_version` | kind, `country_id`, product line, version, JSON content, content hash, state, schema version. Kinds now include `errand_catalogue`, `care_plan_template`, `vetting_checklist`, `institution_types`, `holiday_calendar` | FR-ADM-001, FR-TSK-001, FR-CTY-001 |
 | `adm_locked_text_version` | kind (`scope_statement`, `terms`, `privacy_notice`, `escrow_terms`), country, text, approvals, lawyer and insurer approval evidence | FR-ADM-004 |
-| `adm_setting` | key, `country_id`, value, changed by, `approval_request_id` (required for keys flagged `affects_release`, FR-ADM-005 version 0.2); keys include `fresh_search_window_days`, `listing_report_max_age_days`, `badge_validity_days`, `plot_buffer_m`, `device_time_gap_s`, `dispute_deadlines`, `client_approval_reminder_days`, `ntf_amount_threshold`, `prj_enhanced_check_amount`, `checkin_radius_m`, `visit_confirm_hours`, `rent_grace_days`, `receipt_target_days`, `min_app_version` (per app and platform, FR-APP-006; a raise needs a second administrator, as it locks out older installs), `app_fee_payment_mode` (per country and platform: `in_app_provider` or `web`, FR-APP-005; `web` until Q-23 is answered). The 72-hour visit review and the 5-attempt code lockout are fixed by FR-CARE-004, not settings | FR-ADM-005 |
+| `adm_setting` | key, `country_id`, value, changed by, `approval_request_id` (required for keys flagged `affects_release`, FR-ADM-005 version 0.2); keys include `fresh_search_window_days`, `listing_report_max_age_days`, `badge_validity_days`, `plot_buffer_m`, `device_time_gap_s`, `dispute_deadlines`, `client_approval_reminder_days`, `ntf_amount_threshold`, `prj_enhanced_check_amount`, `checkin_radius_m`, `visit_confirm_hours`, `rent_grace_days`, `receipt_target_days`, `min_app_version` (per app and platform, FR-APP-006; a raise needs a second administrator, as it locks out older installs), `app_fee_payment_mode` (per country and platform: `in_app_provider` or `web`, FR-APP-005; `web` until Q-23 is answered), `payee_cooling_off_hours` (72, `[TO VERIFY]`, RUL-28; flagged `affects_release`; a change applies only to changes applied after it), `recheck_sample_pct` (5, `[TO VERIFY]`, RUL-32; flagged `affects_release`), `search_result_overdue_days` (`[TO VERIFY]`). The 72-hour visit review and the 5-attempt code lockout are fixed by FR-CARE-004, not settings | FR-ADM-005 |
 | `dpr_request` | requester, type (access, correction, deletion), source (`portal`, `app`, `staff`), due date, status, export evidence; for deletion, the kept-data statement shown to the user (classes kept, reason, until when) and the open money matters that delay completion | FR-DPR-003, FR-APP-004 |
 | `dpr_retention_rule`, `dpr_legal_hold` | data class, country, period, action; holds by subject | FR-DPR-004 |
 | `dpr_bulk_export` | requester, scope, approval request, file hash | FR-DPR-005 |
 | `rec_allocation` | authority, plot geometry, allottee, date, documents, confirmation status | FR-REC-001, FR-REC-004 |
-| `adm_partner` | kind (`escrow_bank`, `payment_provider`, `identity`, `messaging`, `insurer`, `institution_portal`, `developer`, `bank_api`, `operating_bank`, `operating_mobile_money`), `country_id`, adapter per port, bank details with `approval_request_id` for any change (FR-ADM-003 second administrator). The two operating kinds are Tenmina's own accounts that pay professionals (FR-PRO-006); trigger `adm.operating_not_escrow()` rejects an operating account whose account number (keyed hash) matches any escrow or held-funds account on record, and the reverse | FR-ADM-003, FR-PRO-006, IF-01 to IF-11 |
+| `adm_partner` | kind (`escrow_bank`, `payment_provider`, `identity`, `messaging`, `insurer`, `institution_portal`, `developer`, `bank_api`, `operating_bank`, `operating_mobile_money`, `registry`), `country_id`, adapter per port, bank details with `approval_request_id` for any change (FR-ADM-003 second administrator). The two operating kinds are Tenmina's own accounts that pay professionals (FR-PRO-006). A `registry` partner (the Lands Commission in Ghana) records Tenmina's own account reference there and its channels; the account's credentials are in Secrets Manager (10.5), never a runner's account (RUL-30, IF-09). An `identity` partner records whether it is the national identity system itself or a licensed provider (RUL-31, IF-03); trigger `adm.operating_not_escrow()` rejects an operating account whose account number (keyed hash) matches any escrow or held-funds account on record, and the reverse | FR-ADM-003, FR-PRO-006, IF-01 to IF-11, IF-13 |
 | `acc_identity_check`, `acc_vetting` | see 6.4; vetting checklist version per country | FR-ACC-004, FR-CARE-002 |
 | `fee_institution_contact` | institution, person with role `institution_contact`, may confirm invoices, may send receipts | FR-FEE-001, FR-ACC-011 |
 | `fee_schedule` | institution, family member, client, period (`term`, `month`, `quarter`), expected amount, next due, reminder lead days, status; creates `fee_invoice` rows in `draft` for the client's approval | FR-FEE-005 |
@@ -2030,15 +2138,24 @@ CREATE TABLE esc_payee (
   verified_at        timestamptz,
   valid_until        date,                                           -- re-verify yearly (assumption)
   suspend_reason     text,
+  national_id_check_id uuid REFERENCES acc_national_id_check(id),    -- RUL-31: an individual payee, or the person
+                                                                     -- who signs for an organisation (I-44)
+  account_version    int NOT NULL DEFAULT 1,                         -- RUL-28: raised only by esc.apply_payee_change()
+  cooling_off_until  timestamptz,                                    -- RUL-28: no release before this time
   row_version        int NOT NULL DEFAULT 1,
   UNIQUE (subject_type, subject_id, kind),            -- a contracted professional's record is separate from any other
   CHECK (verification_status <> 'verified' OR (name_match = 'matched' AND verified_by IS NOT NULL
-         AND second_check_by IS NOT NULL AND second_check_by <> verified_by AND approval_request_id IS NOT NULL))
+         AND second_check_by IS NOT NULL AND second_check_by <> verified_by AND approval_request_id IS NOT NULL)),
+  CHECK (verification_status <> 'verified' OR subject_type <> 'person' OR national_id_check_id IS NOT NULL)
 );
 CREATE INDEX ON esc_payee (country_id, kind, verification_status);
--- Trigger esc.payee_change_resets(): any UPDATE of account_number_enc, account_name_enc, bank_name or
--- legal_name_enc sets verification_status = 'pending', clears verified_by, second_check_by and
--- approval_request_id, and withdraws every open core_approval_request for instructions with this payee.
+-- Trigger esc.payee_identity(): verification is refused while national_id_check_id is missing, or its result
+-- is not 'match' (FR-ACC-013). A photocopy of an identity card is never legal_name_evidence for a person.
+-- Trigger esc.payee_change_resets(): account_number_enc, account_name_enc and bank_name can be changed only
+-- by esc.apply_payee_change() from an approved esc_payee_change (6.15, RUL-28); any other UPDATE of them
+-- raises, except on a payee never verified (verified_at IS NULL) and not yet locked on any escrow. A change of legal_name_enc sets verification_status = 'pending', clears verified_by,
+-- second_check_by and approval_request_id, and withdraws every open core_approval_request for
+-- instructions with this payee. Bank details are never typed from a message, email or call.
 -- Trigger esc.payee_not_relative(): rejects a payee whose subject person is a client with an open escrow
 -- paid to that payee, appears in acc_family_member for that client, or holds a 'representative' grant
 -- for that client (RUL-22 "never to a relative or to the client's representative").
@@ -2566,7 +2683,8 @@ CREATE TABLE pro_rate_card (                          -- FR-PRO-001, FR-PRO-003;
                        'quantity_surveyor','errand_agent')),
   agreement_id       uuid REFERENCES pro_agreement(id),                  -- NULL: the country's standard card for the role
   unit               text NOT NULL CHECK (unit IN ('report_section','site_visit','inspection',
-                       'bill_of_quantities','errand','month')),
+                       'bill_of_quantities','errand','month',
+                       'recheck')),                                      -- RUL-32 re-check, flat whatever the result
   scope_key          text NOT NULL DEFAULT 'standard' REFERENCES pro_scope(key),
   rate               numeric(18,2) NOT NULL CHECK (rate > 0),            -- one flat amount per unit, nothing else
   currency           char(3) NOT NULL,
@@ -2649,9 +2767,10 @@ CREATE TABLE pro_payable (                            -- FR-PRO-002, FR-PRO-003,
   country_id         uuid NOT NULL REFERENCES cty_country(id),
   agreement_id       uuid NOT NULL REFERENCES pro_agreement(id),
   work_kind          text NOT NULL CHECK (work_kind IN ('report_section','site_visit','inspection',
-                       'bill_of_quantities','errand','runner_month')),
+                       'bill_of_quantities','errand','runner_month','recheck')),
   work_ref           uuid NOT NULL,                                      -- rpt_section, case_task, bld_inspection,
-                                                                         -- pmg_inspection, bld_boq, tsk_errand, agreement
+                                                                         -- pmg_inspection, bld_boq, tsk_errand, agreement,
+                                                                         -- rpt_recheck
   work_period        date,                                               -- first day of the month, runner_month only
   source_event_id    uuid NOT NULL,                                      -- work.accepted or runner_month.closed
   case_id            uuid REFERENCES case_case(id),                      -- for the case cost record (FR-PRO-010)
@@ -2749,7 +2868,277 @@ CREATE UNIQUE INDEX one_statement_per_year
 
 **States (proposed, I-36).** Payable: approved, held (a reviewer, for fraud or misconduct review, or automatically while the payee is not verified), in run, paid, cancelled; a failed line returns its payables from in run to approved. Expense claim: submitted, approved (a second approval when over the limit or without a receipt), rejected, in run, paid, cancelled. Payment run: draft, pending approval, approved, file issued, partly confirmed, confirmed, closed; draft or pending approval to withdrawn; any line change after approval back to draft.
 
-**Sources by release.** In R1, `work.accepted` comes from RPT when a lawyer's or surveyor's section is signed and passes second review. Where an agreement pays per site visit, PRO creates one `site_visit` payable for each completed visit task of that case at the same time. A case manager closes each runner's month (`runner_month.closed`). From R2, BLD sends submitted inspections and accepted bills of quantities, PMG sends property inspections, and TSK sends errands whose document Tenmina has checked (FR-TSK-003, FR-TSK-004).
+**Sources by release.** In R1, `work.accepted` comes from RPT when a lawyer's or surveyor's section is signed and passes second review. Where an agreement pays per site visit, PRO creates one `site_visit` payable for each completed visit task of that case at the same time. A case manager closes each runner's month (`runner_month.closed`). RPT sends `work.accepted` with work kind `recheck` when a re-check result is recorded, at the same flat rate whether it confirms or fails the original work (RUL-26, RUL-32). From R2, BLD sends submitted inspections and accepted bills of quantities, PMG sends property inspections, and TSK sends errands whose document Tenmina has checked (FR-TSK-003, FR-TSK-004).
+
+### 6.15 Fund and evidence protection (RUL-28 to RUL-32; FR-ESC-016, FR-ESC-017, FR-PAY-008, FR-CASE-016, FR-ACC-013, FR-RPT-012; ADR-24, ADR-25)
+
+Five rules from 01 v0.12. Columns added to existing tables are shown in place: `esc_payee` (6.11), `esc_release_instruction` (6.5), `esc_bank_event` and `pay_refund` (6.8), `evd_link` (6.6), `pro_rate_card` and `pro_payable` (6.14). The new tables follow.
+
+**Payee lock and payee changes (RUL-28, FR-ESC-016; ESC).**
+
+```sql
+CREATE TABLE esc_escrow_payee (                       -- RUL-28: whom an escrow may pay, and to which account version
+  escrow_id          uuid NOT NULL REFERENCES esc_escrow(id),
+  payee_id           uuid NOT NULL REFERENCES esc_payee(id),
+  account_version    int NOT NULL,                                       -- esc_payee.account_version the client agreed to
+  source             text NOT NULL CHECK (source IN ('terms_agreed','client_approved_payment','payee_change')),
+  change_id          uuid REFERENCES esc_payee_change(id),
+  client_approved_at timestamptz NOT NULL,             -- terms acceptance, approval of a payment, or approval of a change
+  locked_at          timestamptz NOT NULL DEFAULT now(),
+  ended_at           timestamptz,                      -- set when a later version or a new payee replaces it
+  PRIMARY KEY (escrow_id, payee_id, account_version),
+  CHECK ((source = 'payee_change') = (change_id IS NOT NULL))
+);
+-- Rows are written when the escrow moves to 'agreed', for each payee named in the accepted terms (the terms show
+-- the account name as the bank states it and the last four digits). For a held_funds escrow a row is written the
+-- first time the client approves a payment to that payee (an invoice, a carer assignment, an errand, a premium);
+-- a standing approval never writes one. tenmina_app has INSERT only, and UPDATE of ended_at only.
+
+CREATE TABLE esc_payee_change (                       -- FR-ESC-016, FR-ESC-017; RUL-28, RUL-29; ADR-24
+  id                 uuid PRIMARY KEY,
+  country_id         uuid NOT NULL REFERENCES cty_country(id),
+  kind               text NOT NULL CHECK (kind IN ('new_account',        -- same payee, new bank account
+                       'new_payee',                                     -- another payee on an agreed escrow
+                       'refund_destination')),                          -- RUL-29 exception: an account in the client's name
+  payee_id           uuid REFERENCES esc_payee(id),                     -- new_account: the payee; new_payee: the new one
+  replaces_payee_id  uuid REFERENCES esc_payee(id),                     -- new_payee only
+  escrow_id          uuid REFERENCES esc_escrow(id),                    -- null only for a new_account on a shared payee (I-42)
+  deposit_event_id   uuid REFERENCES esc_bank_event(id),                -- refund_destination: the deposit to be refunded
+  reason             text NOT NULL,
+  request_source     text NOT NULL CHECK (request_source IN ('payee_signed_in','staff_in_person',
+                       'client_signed_in')),                            -- never a message, email or call (RUL-28)
+  bank_name          text,
+  account_number_enc bytea,                                             -- new_account and refund_destination
+  account_name_enc   bytea,
+  account_name_bidx  bytea,
+  account_name_source text CHECK (account_name_source IN ('bank_name_check','bank_letter')),   -- 9.2
+  account_name_evidence_id uuid REFERENCES evd_evidence(id),
+  account_checked_by uuid REFERENCES acc_person(id),                    -- second person for a bank letter
+  previous_account_number_enc bytea,                                    -- kept here when applied
+  previous_account_name_enc bytea,
+  national_id_check_id uuid REFERENCES acc_national_id_check(id),        -- fresh: of the payee, or of the client for
+                                                                        -- refund_destination
+  client_approved_at timestamptz,                                       -- with MFA (FR-ACC-003), before staff approvals
+  approval_request_id uuid REFERENCES core_approval_request(id),       -- payee_change: two staff with release rights
+  second_channel_message_id uuid REFERENCES ntf_message(id),            -- the notice to the client (FR-ESC-016)
+  applied_at         timestamptz,
+  cooling_off_until  timestamptz,                                       -- applied_at + payee_cooling_off_hours
+  stopped_by         uuid REFERENCES acc_person(id),
+  stopped_at         timestamptz,
+  requested_by       uuid NOT NULL REFERENCES acc_person(id),
+  requested_at       timestamptz NOT NULL DEFAULT now(),
+  status             text NOT NULL CHECK (status IN ('requested','checks_passed','client_approved',
+                       'pending_approval','applied','stopped','rejected','withdrawn')),
+  CHECK (kind <> 'new_account' OR (payee_id IS NOT NULL AND account_number_enc IS NOT NULL)),
+  CHECK (kind <> 'new_payee' OR (payee_id IS NOT NULL AND replaces_payee_id IS NOT NULL AND escrow_id IS NOT NULL)),
+  CHECK (kind <> 'refund_destination' OR (payee_id IS NULL AND escrow_id IS NOT NULL
+         AND deposit_event_id IS NOT NULL AND account_number_enc IS NOT NULL)),
+  CHECK (account_name_source IS DISTINCT FROM 'bank_letter' OR account_checked_by IS NOT NULL),
+  CHECK (status NOT IN ('applied','stopped') OR (national_id_check_id IS NOT NULL
+         AND approval_request_id IS NOT NULL AND second_channel_message_id IS NOT NULL
+         AND applied_at IS NOT NULL AND cooling_off_until > applied_at
+         AND (escrow_id IS NULL OR client_approved_at IS NOT NULL))),
+  CHECK (status <> 'stopped' OR (stopped_by IS NOT NULL AND stopped_at IS NOT NULL AND stopped_at < cooling_off_until))
+);
+CREATE UNIQUE INDEX one_open_change_per_payee ON esc_payee_change (payee_id)
+  WHERE status IN ('requested','checks_passed','client_approved','pending_approval') AND payee_id IS NOT NULL;
+-- Trigger esc.payee_change_checks(): national_id_check_id has result 'match', was requested after requested_at
+--   and is of the payee (for an organisation, the person who signs for it, I-44), or of the escrow's client for
+--   refund_destination. A new_account needs a fresh account-name check (9.2) and a name match against the payee's
+--   legal name; a refund_destination needs account_name_bidx equal to the client's legal name blind index, so the
+--   account is in the client's own name (RUL-29). A new_payee needs the new payee 'verified' (6.11).
+-- Trigger esc.payee_change_approvers(): approvals for approval_request_id come from two staff holding
+--   release_rights (6.4) who are neither the requester nor the payee, and only after client_approved_at when
+--   escrow_id is set (RUL-28: the client approves first). Silence is never approval (RUL-11).
+-- Function esc.apply_payee_change() (SECURITY DEFINER, the only writer of account columns on esc_payee): copies the
+--   old account into previous_*, writes the new one, raises esc_payee.account_version, sets cooling_off_until on
+--   the change and on the payee to now() + adm_setting 'payee_cooling_off_hours', withdraws every open approval for
+--   an instruction to that payee, ends the old esc_escrow_payee rows, writes a new row for escrow_id with source
+--   'payee_change', and asks NTF for the second-channel notice in the same transaction. For refund_destination it
+--   touches no payee; the refund instruction names the change (6.5).
+-- Stop: while cooling_off_until is in the future, the client (from the notice's single-use link, with MFA) or a
+--   reviewer can stop an applied change. The payee is suspended, a reviewer item opens, and nothing is paid to
+--   either account until a reviewer decides. No setting, role or endpoint shortens a cooling-off in progress.
+```
+
+**Refund to source (RUL-29, FR-ESC-017, FR-PAY-008).** Each `deposit` row in `esc_bank_event` carries its source account from the bank's confirmation or statement line (6.8). A `cancel_refund` instruction names the deposit it refunds (`refund_source_event_id`, one live refund per deposit) and is addressed to that source account (6.5, 9.1). If the source is unknown, or the bank returns the refund because the account cannot receive it, the only way on is a `refund_destination` change above: an account in the client's own name, a fresh national identity check of the client, the client's approval, two staff approvals and the cooling-off. Fee refunds never touch ESC: `pay_refund` calls the provider's refund on the original transaction, so the money returns to the card or mobile money wallet that paid (FR-PAY-008).
+
+**National identity checks for parties and payees (RUL-31, FR-ACC-013; ACC, CASE).**
+
+```sql
+CREATE TABLE acc_national_id_check (                  -- FR-ACC-013, RUL-31; IF-03, 9.4
+  id                 uuid PRIMARY KEY,
+  country_id         uuid NOT NULL REFERENCES cty_country(id),
+  subject_role       text NOT NULL CHECK (subject_role IN ('seller','grantor','consenting_party',
+                       'signatory','payee','client')),   -- client: RUL-29 exception only
+  person_id          uuid REFERENCES acc_person(id),     -- null for a party with no account
+  subject_name_enc   bytea NOT NULL,                     -- the name on the deal documents
+  subject_name_bidx  bytea NOT NULL,                     -- normalised as in 9.2
+  id_number_enc      bytea NOT NULL,                     -- national identity number (Ghana Card number in Ghana)
+  id_number_bidx     bytea NOT NULL,
+  partner_id         uuid NOT NULL REFERENCES adm_partner(id),   -- kind 'identity': the national system or a licensed provider
+  adapter            text NOT NULL CHECK (adapter IN ('api','staff_portal')),  -- never a document check
+  requested_by       uuid NOT NULL REFERENCES acc_person(id),
+  requested_at       timestamptz NOT NULL DEFAULT now(),
+  result             text NOT NULL DEFAULT 'pending'
+                       CHECK (result IN ('pending','match','no_match','not_found','unavailable')),
+  provider_reference text,                               -- the system's or provider's transaction reference
+  response_sha256    bytea,                              -- hash of the raw response; the response itself is not kept
+  checked_at         timestamptz,
+  checked_by         uuid REFERENCES acc_person(id),     -- staff_portal only: who ran it on the official platform
+  CHECK (result IN ('pending','unavailable') OR (provider_reference IS NOT NULL AND checked_at IS NOT NULL)),
+  CHECK (adapter <> 'staff_portal' OR result IN ('pending','unavailable') OR checked_by IS NOT NULL)
+);
+CREATE INDEX ON acc_national_id_check (id_number_bidx);    -- the same person on two sides of a deal is flagged
+-- No column holds a photo, fingerprint, face template or any other biometric data, and evd_link has no subject
+-- type for this table, so no image of a card or a face can be attached. The adapter drops biometric fields from
+-- the response before it reaches the application; a CI schema test fails on a column in acc_* named like
+-- '%photo%', '%biometric%', '%finger%', '%face%' or '%selfie%'. 'match' needs the name the system returns to match
+-- subject_name_bidx after normalisation; the returned name is compared in memory and not stored. 'unavailable'
+-- means the service did not answer: the step that needs the check pauses (9.4).
+
+CREATE TABLE case_party (                             -- FR-ACC-013: who on a case must be identity-checked
+  id                 uuid PRIMARY KEY,
+  country_id         uuid NOT NULL REFERENCES cty_country(id),
+  case_id            uuid NOT NULL REFERENCES case_case(id),
+  role               text NOT NULL CHECK (role IN ('seller','grantor','consenting_party',
+                       'signatory')),                    -- signatory: signs for an organisation seller (I-44)
+  person_id          uuid REFERENCES acc_person(id),
+  for_organisation_id uuid REFERENCES acc_organisation(id),
+  name_enc           bytea NOT NULL,
+  national_id_check_id uuid REFERENCES acc_national_id_check(id),
+  added_by           uuid NOT NULL REFERENCES acc_person(id),
+  status             text NOT NULL CHECK (status IN ('active','removed')),
+  removed_reason     text,
+  CHECK ((role = 'signatory') = (for_organisation_id IS NOT NULL)),
+  CHECK (status <> 'removed' OR removed_reason IS NOT NULL)
+);
+-- Trigger rpt.parties_checked() on rpt_report BEFORE UPDATE to 'approved' or 'released': raises if any active
+-- case_party has no national_id_check_id, or its check is 'pending' or 'unavailable' (FR-ACC-013). A 'no_match'
+-- or 'not_found' result is a finding, not a gap: the report's identity findings must be red, so the report can
+-- be released only as red, and no escrow can be opened from it (I-45). Trigger case.party_check_subject(): the
+-- check's subject_role equals the party's role and its country equals the case's.
+```
+
+**Official searches (RUL-30, FR-CASE-016; CASE).**
+
+```sql
+CREATE TABLE case_search_request (                    -- FR-CASE-016, FR-CASE-014, RUL-30; IF-09, 9.5
+  id                 uuid PRIMARY KEY,
+  country_id         uuid NOT NULL REFERENCES cty_country(id),
+  case_id            uuid NOT NULL REFERENCES case_case(id),
+  task_id            uuid NOT NULL REFERENCES case_task(id),            -- step_key 'official_search' or 'fresh_search'
+  registry_partner_id uuid NOT NULL REFERENCES adm_partner(id),         -- kind 'registry'
+  channel            text NOT NULL CHECK (channel IN ('online_portal','registry_office')),
+  tenmina_account_ref text NOT NULL,                                    -- Tenmina's own account at the registry
+  submitted_by       uuid NOT NULL REFERENCES acc_person(id),           -- Tenmina staff
+  submitted_at       timestamptz NOT NULL,
+  registry_reference text,                                              -- the registry's search or application number
+  result_evidence_id uuid REFERENCES evd_evidence(id),                  -- the result exactly as received
+  result_received_by uuid REFERENCES acc_person(id),
+  result_received_at timestamptz,
+  confirmed_by       uuid REFERENCES acc_person(id),                    -- registry_office: staff confirmed with the registry
+  confirmed_with     text,                                              -- the registry officer's name and post
+  confirmed_at       timestamptz,
+  status             text NOT NULL CHECK (status IN ('submitted','result_received','confirmed','rejected')),
+  rejected_reason    text,
+  CHECK (status IN ('submitted','rejected') OR (registry_reference IS NOT NULL AND result_evidence_id IS NOT NULL
+         AND result_received_by IS NOT NULL AND result_received_at IS NOT NULL)),
+  CHECK (status <> 'confirmed' OR (confirmed_by IS NOT NULL AND confirmed_with IS NOT NULL AND confirmed_at IS NOT NULL)),
+  CHECK (status <> 'rejected' OR rejected_reason IS NOT NULL)
+);
+-- Usable as the search task's evidence: channel 'online_portal' and status 'result_received' or 'confirmed', or
+-- channel 'registry_office' and status 'confirmed' (RUL-30: no remote channel, so staff confirm before use).
+-- Trigger case.search_staff_only(): submitted_by, result_received_by and confirmed_by hold a 'case_manager' or
+-- 'reviewer' grant in the country and no 'runner', 'seller', 'developer', 'client', 'errand_agent' or
+-- 'representative' grant there. The evidence link is checked by evd.official_search_link() (6.6). A runner may
+-- still carry papers to a registry office; what they bring back is stored as 'search_copy_unverified' and never
+-- closes the task (6.5). A copy whose content differs from the registry's result opens a fraud review.
+```
+
+**Random re-checks (RUL-32, FR-RPT-012; RPT, with the freeze in ESC).**
+
+```sql
+CREATE TABLE rpt_recheck_draw (                       -- one random draw per country and month
+  id                 uuid PRIMARY KEY,
+  country_id         uuid NOT NULL REFERENCES cty_country(id),
+  sample_month       date NOT NULL,                                      -- first day of the month sampled
+  sample_pct         numeric(5,2) NOT NULL CHECK (sample_pct > 0 AND sample_pct <= 100),  -- from recheck_sample_pct
+  population_count   int NOT NULL CHECK (population_count >= 0),
+  population_sha256  bytea NOT NULL CHECK (length(population_sha256) = 32),  -- hash of the sorted eligible IDs
+  seed               bytea NOT NULL,                                     -- from a cryptographic random source
+  drawn_at           timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (country_id, sample_month)
+);
+-- Population: reports released and esc_condition rows closed in the month (RPT keeps them from report.released
+-- and condition.closed), plus items skipped last month. The pick is a pure function of seed and population, so an
+-- auditor can repeat it. No endpoint chooses, adds or removes an item. tenmina_app has INSERT only.
+
+CREATE TABLE rpt_recheck (                            -- FR-RPT-012, RUL-32
+  id                 uuid PRIMARY KEY,
+  country_id         uuid NOT NULL REFERENCES cty_country(id),
+  draw_id            uuid NOT NULL REFERENCES rpt_recheck_draw(id),
+  subject_type       text NOT NULL CHECK (subject_type IN ('report','escrow_condition')),
+  subject_id         uuid NOT NULL,                                      -- a released rpt_report or a closed esc_condition
+  case_id            uuid NOT NULL REFERENCES case_case(id),
+  assignee_id        uuid REFERENCES acc_person(id),                     -- a licensed lawyer or surveyor, no link to the case
+  licence_id         uuid REFERENCES acc_professional_licence(id),
+  assigned_at        timestamptz,
+  due_at             timestamptz,
+  result             text CHECK (result IN ('confirmed','correction_needed','failed')),
+  findings_enc       bytea,
+  result_at          timestamptz,
+  incident_id        uuid REFERENCES rpt_incident(id),
+  status             text NOT NULL CHECK (status IN ('selected','assigned','done','skipped')),
+  skipped_by         uuid REFERENCES acc_person(id),                     -- a reviewer; no unlinked professional available
+  skip_reason        text,
+  UNIQUE (draw_id, subject_type, subject_id),
+  CHECK (status = 'selected' OR status = 'skipped' OR (assignee_id IS NOT NULL AND licence_id IS NOT NULL)),
+  CHECK (status <> 'done' OR (result IS NOT NULL AND result_at IS NOT NULL)),
+  CHECK (result IS NULL OR result = 'confirmed' OR incident_id IS NOT NULL),
+  CHECK (status <> 'skipped' OR (skipped_by IS NOT NULL AND skip_reason IS NOT NULL))
+);
+-- Trigger rpt.recheck_no_link(): rejects an assignee who held any case_task, rpt_signature or core_approval on the
+-- case, closed any of its esc_condition rows, is a case_party or the client or their representative, shares an
+-- acc_membership organisation with anyone who did, or appears with any of them in bld_conflict_link; and rejects a
+-- licence that is unverified or expires before due_at (RUL-20). Without notice: selectors hide rpt_recheck rows
+-- from the case's original team and the client until an incident opens, and no notification goes to them.
+
+CREATE TABLE rpt_incident (                           -- FR-RPT-012: a failed or correcting re-check
+  id                 uuid PRIMARY KEY,
+  country_id         uuid NOT NULL REFERENCES cty_country(id),
+  case_id            uuid NOT NULL REFERENCES case_case(id),
+  recheck_id         uuid NOT NULL,                                      -- the rpt_recheck that opened it
+  report_id          uuid REFERENCES rpt_report(id),
+  condition_id       uuid,                                               -- esc_condition, when that was re-checked
+  owner_id           uuid NOT NULL REFERENCES acc_person(id),            -- the reviewer handling it
+  correction_report_id uuid REFERENCES rpt_report(id),                   -- new version under FR-RPT-010
+  client_notified_at timestamptz,
+  status             text NOT NULL CHECK (status IN ('open','closed')),
+  closed_by          uuid REFERENCES acc_person(id),
+  closure_note       text,
+  opened_at          timestamptz NOT NULL DEFAULT now(),
+  CHECK (status <> 'closed' OR (closed_by IS NOT NULL AND closure_note IS NOT NULL)),
+  CHECK (status <> 'closed' OR correction_report_id IS NULL OR client_notified_at IS NOT NULL)
+);
+
+CREATE TABLE esc_incident_freeze (                    -- ESC: releases frozen while an incident is open (I-43)
+  escrow_id          uuid NOT NULL REFERENCES esc_escrow(id),
+  incident_id        uuid NOT NULL REFERENCES rpt_incident(id),
+  prior_status       text NOT NULL,                                      -- restored when the freeze lifts
+  frozen_at          timestamptz NOT NULL DEFAULT now(),
+  lifted_at          timestamptz,
+  PRIMARY KEY (escrow_id, incident_id)
+);
+-- On incident.opened, ESC freezes every escrow not yet released or cancelled whose report_id is the incident's
+-- report or a version it supersedes, or that holds the re-checked condition; the escrow moves to 'frozen' as for
+-- a dispute. On incident.closed it lifts the freeze and restores prior_status unless another freeze or dispute
+-- remains. esc.release_blockers() refuses any instruction while a freeze is not lifted (6.5).
+```
+
+A re-check that finds a correction leads to a new report version under FR-RPT-010, so the client is notified through the existing correction path; an incident with a correction cannot close until the client has been told. A failed condition re-check on an escrow already released cannot recall the money; the incident records it, the client is told, and a reviewer decides on any claim under the professional's agreement or the insurer's cover `[TO VERIFY]`.
+
+**Data classes.** `acc_national_id_check` and `case_party` are class `case_report` and are kept with the case; identity numbers are field-level encrypted with the person's data key, so crypto-shredding removes them (6.10). `esc_payee_change` and `esc_escrow_payee` are class `payee`. `rpt_recheck` and `rpt_incident` are class `case_report`.
 
 ---
 
@@ -2854,7 +3243,7 @@ Roles: CL client, SE seller, DV developer, CM case manager, RV reviewer, LW lawy
 | POST | `/v1/orders/{id}/payments` | Start fee payment | CL own | FR-PAY-001 |
 | GET | `/v1/payments/{id}/receipt` | Receipt | CL own, CM | FR-PAY-003 |
 | POST | `/v1/offline-payments` | Record offline fee payment with proof | CM | FR-ORD-004 |
-| POST | `/v1/refunds`, `/v1/refunds/{id}/approvals` | Refund with reason and approver | CM, RV | FR-PAY-004 |
+| POST | `/v1/refunds`, `/v1/refunds/{id}/approvals` | Refund with reason and approver, only through the payment provider to the original payment method; the request takes no destination | CM, RV | FR-PAY-004, FR-PAY-008 |
 | GET | `/v1/reconciliation/issues` | Settlement mismatches | CM | FR-PAY-006 |
 | GET | `/v1/cases`, `/v1/cases/{id}` | Case list and tracker | CL own, CM, RV, LW/SV/RN asg | FR-CASE-005, FR-CASE-007 |
 | GET | `/v1/work-queue` | Tasks by due date, overdue first | CM, LW, SV, RN | FR-CASE-005, FR-CASE-006 |
@@ -2868,6 +3257,10 @@ Roles: CL client, SE seller, DV developer, CM case manager, RV reviewer, LW lawy
 | POST | `/v1/cases/{id}/costs` | Record case cost item | CM | FR-CASE-011 |
 | POST | `/v1/cases/{id}/hold`, `/resume`, `/cancel` | Pause, resume, cancel with reason | CM | FR-CASE-012 |
 | POST | `/v1/assets/{id}/fresh-searches` | Start fresh-search case | CM, system | FR-CASE-014 |
+| GET, POST | `/v1/cases/{id}/parties` | Record the sellers, grantors, consenting parties and signatories who must be checked against the national identity system | CM, LW asg | FR-ACC-013 |
+| POST | `/v1/cases/{id}/search-requests` | Record an official search submitted from Tenmina's registry account: channel, account, registry reference | CM, RV only | FR-CASE-016, RUL-30 |
+| POST | `/v1/search-requests/{id}/results`, `/v1/search-requests/{id}/confirmations` | Attach the result as received from the registry's channel; confirm it with the registry where there is no remote channel | CM, RV only; never RN, SE, DV, CL | FR-CASE-016, RUL-30 |
+| POST, GET | `/v1/national-id-checks`, `/v1/national-id-checks/{id}` | Check a party, a payee or (for a refund exception) the client against the national identity system; returns result, reference and time only; accepts no card image | CM, RV | FR-ACC-013, RUL-31 |
 | PUT | `/v1/reports/{id}/sections/{n}` | Enter findings and section verdict | Section owner asg | FR-RPT-002 |
 | POST | `/v1/reports/{id}/sections/{n}/signatures` | Sign section | LW, SV asg | FR-RPT-005 |
 | POST | `/v1/reports/{id}/submit-review` | Compute verdict, insert scope text, open approval | CM | FR-RPT-003, FR-RPT-004 |
@@ -2876,6 +3269,10 @@ Roles: CL client, SE seller, DV developer, CM case manager, RV reviewer, LW lawy
 | POST | `/v1/report-verifications` | Check a PDF hash against a reference | Pub | FR-RPT-008 |
 | POST | `/v1/reports/{id}/corrections` | New version with reason | CM, RV | FR-RPT-010 |
 | POST | `/v1/reports/{id}/anonymised-copies` | Case study copy with consent | RV | FR-RPT-011 |
+| GET | `/v1/rechecks?month=` | The month's random draw, items, assignments and results; hidden from the case's original team | RV, AD | FR-RPT-012, RUL-32 |
+| POST | `/v1/rechecks/{id}/assignments`, `/v1/rechecks/{id}/skips` | Assign a licensed professional with no link to the case (checked in the database), or skip with a reason when none is available; a skipped item joins next month's draw | RV | FR-RPT-012, RUL-32 |
+| POST | `/v1/rechecks/{id}/results` | Record the re-check result; a correction or failure opens an incident | LW, SV asg | FR-RPT-012 |
+| POST | `/v1/report-incidents/{id}/close` | Close an incident after any correction and client notice; frozen escrows return to their prior state | RV | FR-RPT-012 |
 | PUT | `/v1/assets/{id}/boundary` | Save polygon, trigger overlay and overlap checks | SV asg, CM | FR-GEO-001, 002, 005 |
 | GET | `/v1/assets/{id}/overlay-results` | Results and proposed section 7 verdict | CM, RV, LW asg | FR-GEO-003 |
 | GET | `/v1/assets/{id}/satellite-image` | Image with boundary | CM, CL own | FR-GEO-006 |
@@ -2883,7 +3280,7 @@ Roles: CL client, SE seller, DV developer, CM case manager, RV reviewer, LW lawy
 | POST | `/v1/escrows` | Propose escrow from a report or project | CL own, CM | FR-ESC-001 |
 | GET | `/v1/escrows/{id}` | Escrow, conditions, bank payment instructions | Parties own, CM, RV | FR-ESC-003, FR-ESC-009 |
 | POST | `/v1/escrows/{id}/acceptances` | Accept escrow terms | CL, SE, DV own | FR-ESC-002 |
-| POST | `/v1/escrows/{id}/bank-events` | Manual deposit or confirmation with proof | CM | FR-ESC-004, FR-ESC-009 |
+| POST | `/v1/escrows/{id}/bank-events` | Manual deposit or confirmation with proof; a deposit records the source account exactly as the bank's confirmation gives it | CM (a second person checks) | FR-ESC-004, FR-ESC-009, FR-ESC-017 |
 | POST | `/v1/escrows/{id}/conditions/{cid}/close` | Close condition with evidence | CM | FR-ESC-005 |
 | POST | `/v1/escrows/{id}/release-instructions` | Prepare release, partial release or cancel | CM | FR-ESC-006, 010, 013 |
 | POST | `/v1/release-instructions/{id}/client-approval` | Client approves | CL own | RUL-11 |
@@ -2892,6 +3289,11 @@ Roles: CL client, SE seller, DV developer, CM case manager, RV reviewer, LW lawy
 | GET, POST | `/v1/payees`, `/v1/payees/{id}` | Payee registry: legal name evidence, bank account name evidence, status | CM, RV, AD | RUL-22, FR-ESC-015 |
 | POST | `/v1/payees/{id}/verifications` | First and second-person verification of a payee's bank details | CM, RV, AD (two people) | FR-ESC-015, FR-ADM-003 |
 | POST | `/v1/payees/{id}/suspensions` | Suspend a payee with reason; withdraws open approvals | RV | RUL-22 |
+| POST | `/v1/payees/{id}/changes` | Request a new account for a payee, or a new payee on an agreed escrow, with the bank's name check or a bank letter; there is no other way to change bank details | SE, DV, IC own (signed in, MFA); CM after meeting the payee | FR-ESC-016, RUL-28 |
+| POST | `/v1/payee-changes/{id}/client-approval` | Client approves the change for their escrow or held amount, shown old and new account name and last four digits | CL own, MFA | FR-ESC-016, RUL-28 |
+| POST | `/v1/payee-changes/{id}/approvals` | Staff approval with MFA; fresh identity and account-name checks must have passed; applies the change and starts the cooling-off at the second approval | RV (RR), two | FR-ESC-016 |
+| POST | `/v1/payee-changes/{id}/stop` | Stop an applied change during the cooling-off; the payee is suspended for review | CL own (single-use link from the second-channel notice, MFA), RV | FR-ESC-016 |
+| POST | `/v1/escrows/{id}/deposits/{event_id}/refund-exceptions` | RUL-29 exception: refund a deposit to another account in the client's own name; then client approval, two staff and the cooling-off as for a payee change | CM prepares; CL own approves; RV (RR) two | FR-ESC-017, RUL-29 |
 | POST | `/v1/bank-statements` | Upload or ingest statement file | CM, system | FR-ESC-011 |
 | GET | `/v1/bank-statements/{id}/unmatched` | Unmatched lines | CM | FR-ESC-011 |
 | GET | `/v1/evidence/{id}/link` | 15-minute signed link | Per subject permission | FR-EVD-003 |
@@ -3406,6 +3808,11 @@ The `pay_to` block is read from the bank partner's record only (FR-ESC-003). Pay
 | `profpay.import_confirmation` | integrations | On upload; daily 09:00 GMT reminder until each issued run is confirmed | Match confirmation lines to payment lines; failed and unconfirmed lines to the reconciliation queue; remittance advice for each paid line | FR-PRO-009, FR-PRO-007 |
 | `profpay.yearly_statements` | default | After each country's tax year ends (configuration) | Yearly statement per professional | FR-PRO-007 |
 | `profpay.payee_watch` | default | Daily | Agreements whose payee is no longer verified: payables held with `payee_not_verified`; alert | FR-PRO-006 |
+| `escrow.cooling_off_end` | default | Every 15 min | Tell the client and the case manager when a payee change's cooling-off has ended; releases to the new account then follow 5.3 | FR-ESC-016, RUL-28 |
+| `accounts.national_id_retry` | integrations | Every 15 min while checks are `pending` or `unavailable` | Retry with back-off; after 24 h (assumption) a staff queue item and a plain status message to the client; never falls back to a document check | FR-ACC-013, IF-03 |
+| `cases.search_result_watch` | default | Daily | Alert the case manager when a submitted search has no result from the registry's channel after `search_result_overdue_days`, or a registry-office result waits for staff confirmation | FR-CASE-016, IF-09 |
+| `reports.draw_recheck_sample` | default | Monthly, first working day, 05:00 GMT | Build last month's population per country, record its hash and a random seed, select `recheck_sample_pct` of it, create re-checks; nothing is sent to the original team | FR-RPT-012, RUL-32 |
+| `reports.recheck_due` | default | Daily | Alert a reviewer to re-checks with no unlinked professional or past `due_at`; summary of the month's results to the founder | FR-RPT-012 |
 | `core.purge_idempotency` | default | Daily | Remove expired keys | 7.1 |
 
 ---
@@ -3566,15 +3973,15 @@ Each integration has a port in the owning module and adapters chosen per partner
 
 | ID | Port (owner) | Primary adapter | Fallback adapters | Failure handling | Release |
 |---|---|---|---|---|---|
-| IF-01 Escrow bank | `BankGateway` (ESC) | `manual`: case manager enters deposit and release confirmations with the bank's document attached; instruction sent as KMS-signed PDF by secure email or bank portal | `file`: daily statement (CSV or MT940 `[TO VERIFY]`) by SFTP; `api`: bank status and instruction API `[TO VERIFY]` | Dispatch retried 3 times, then an alert and manual send. No release state is set without a bank confirmation. Statement lines that do not match go to an unmatched queue. | R1 manual; R2 file or API |
+| IF-01 Escrow bank | `BankGateway` (ESC) | `manual`: case manager enters deposit and release confirmations with the bank's document attached; instruction sent as KMS-signed PDF by secure email or bank portal | `file`: daily statement (CSV or MT940 `[TO VERIFY]`) by SFTP; `api`: bank status and instruction API `[TO VERIFY]` | Dispatch retried 3 times, then an alert and manual send. No release state is set without a bank confirmation. Statement lines that do not match go to an unmatched queue. Every deposit confirmation must carry the source account; one that does not is recorded with `source_account_known` false (FR-ESC-017, TQ-31). | R1 manual; R2 file or API |
 | IF-02 Payment provider | `FeeGateway` (PAY) | Paystack hosted checkout for cards and Ghana mobile money `[TO VERIFY]` | Bank transfer recorded offline with proof (FR-ORD-004) | Webhook missed: reconcile job verifies pending transactions every 15 min and daily settlement check. Provider outage: portal offers bank transfer. | R1 |
-| IF-03 Identity checks | `IdentityVerifier` (ACC) | Smile ID for Ghana Card and passports `[TO VERIFY]` | Manual document check by staff with the document stored as evidence | Timeout: check stays pending; staff queue after 24 h. Images sent only over TLS; provider data location recorded. | R1 |
+| IF-03 Identity checks | `IdentityVerifier` (ACC) for clients; `NationalIdVerifier` (ACC) for parties and payees (9.4) | Clients: Smile ID for Ghana Card and passports `[TO VERIFY]`. Parties and payees: the national identity system through an approved channel; in Ghana, the National Identification Authority's verification platform, directly or through a licensed provider `[TO VERIFY]` (TQ-32) | Clients: manual document check by staff with the document stored as evidence. Parties and payees: `staff_portal`, a named staff member runs the check on the same official platform and records its reference; never a document check (RUL-31) | Timeout: check stays pending; staff queue after 24 h. For parties and payees the dependent step pauses: no report release, payee verification or payee change until a result arrives. Images sent only over TLS; biometric fields dropped before storage; provider data location recorded. | R1 |
 | IF-04 Map layers | `LayerSource` (GEO) | Admin upload of GeoJSON, Shapefile or GeoPackage, validated and versioned | Staff digitise from paper maps (AS-06) | Invalid geometry rejected with a report. Layer version recorded on every result. | R1 |
 | IF-05 Satellite imagery | `ImagerySource` (GEO) | Sentinel-2 through a public catalogue `[TO VERIFY]` | Commercial high-resolution provider `[TO VERIFY]`; manual screenshot with source noted | Cloud cover too high: retry with the next scene; report notes the image date. | R1 images; R2 monitoring |
 | IF-06 Ghana Post GPS | `AddressResolver` (GEO) | Official service where access is allowed `[TO VERIFY]` | Surveyor coordinates; manual entry | Unavailable: field optional, case continues. | R1 |
 | IF-07 Messaging | `Channel` per channel (NTF) | Amazon SES email; Hubtel or Twilio SMS; WhatsApp Business Platform (Meta Cloud API) with approved templates `[TO VERIFY]` | Next channel in the user's preference order; in-portal notice always | Delivery status stored (FR-NTF-005). Content policy blocks report contents, large amounts and third-party personal data in SMS and WhatsApp (FR-NTF-004). | R1 |
 | IF-08 Partner API | Partner API (PTR) | `/partner/v1` with OAuth 2.0 client credentials and webhooks | None needed; partners can also receive a signed PDF with consent | Rate limits and quotas per client; usage metered; failing webhooks paused. | R2 |
-| IF-09 Lands Commission | `LandsSearch` (CASE) | `manual`: runner task with receipt and result uploaded as evidence | `api` adapter only if online access is offered `[TO VERIFY]` | Overdue search raises task alert and client status message. | All releases |
+| IF-09 Lands Commission | `LandsSearch` (CASE) | `online_portal`: Tenmina staff submit the search on the Lands Commission online portal from Tenmina's own account and download the result there (RUL-30, 9.5) | `registry_office`: where a region has no remote channel, the search is lodged in Tenmina's name and a staff member confirms the result with the registry before use; `api` only if offered, none known `[TO VERIFY]` | Portal down: the task waits and the client is told; no runner's copy is used instead. Overdue search raises task alert and client status message. | All releases |
 | IF-10 Institutions | `InstitutionChannel` (FEE) | `manual`: the client or the institution contact uploads the invoice; the case manager or contact uploads the receipt; the bank's payment carries the invoice reference | `portal`: the institution contact signs in to the portal to submit invoices and receipts (R2); `file`: a periodic fee list and receipt file by SFTP or email for large schools and hospitals (format per institution `[TO VERIFY]`, Q-16); `api` only where an institution offers one `[TO VERIFY]` | Invoice reference not recognised by the institution: payment is not instructed until the contact confirms. Receipt not returned within `receipt_target_days`: chase job, then a runner collects it. Institution cannot take a transfer: marked not eligible for direct payment and the client told plainly; no cash route (FR-FEE-006). | R1 manual; R2 portal or file |
 | IF-11 Insurer partners | `InsurerGateway` (INS) | `manual`: application PDF sent to the insurer's named contact by secure email; policy document and claim outcome uploaded by staff or the insurer partner user in the portal | `file`: application and policy batch files per insurer `[TO VERIFY]` (Q-17); `api` where offered | Insurer silent: application stays `submitted` with reminders; the client is told. Premium route per FR-INS-002, chosen per insurer: the client pays the insurer directly, or the bank pays the insurer from money held for that purpose; never Tenmina (RUL-25). Claims: Tenmina records the insurer's status only. | R2 |
 
@@ -3583,7 +3990,8 @@ Each integration has a port in the owning module and adapters chosen per partner
 - Content: escrow reference, bank reference, payee and their bank details from the bank's own records, amount and currency, holdback, conditions closed with evidence references, the two approvers' names and times, and the instruction ID.
 - Form: a PDF for people and a structured file for systems (format agreed with the bank, `[TO VERIFY]`).
 - Integrity: SHA-256 of the document, signed with a KMS asymmetric key (ECC NIST P-256) held only by the dispatch task's IAM role. The bank receives the public key in advance. Who signs on the bank side is open (Q-01, TQ-02).
-- Payee: the instruction names the payee's account exactly as `esc_payee` holds it from the bank's own record, with the payee kind and the subject reference (invoice, visit batch, errand step, repair, vendor payment). Every instruction is a bank transfer to that account. There is no cash instruction type (FR-FEE-006).
+- Payee: the instruction names the payee's account exactly as `esc_payee` holds it from the bank's own record, with the payee kind, the account version and the subject reference (invoice, visit batch, errand step, repair, vendor payment). Every instruction is a bank transfer to that account. There is no cash instruction type (FR-FEE-006).
+- Refund: a cancellation refund names the deposit it returns (bank reference and date) and its source account exactly as the bank's confirmation gave it, or, under a RUL-29 exception, the client's own account from the applied `refund_destination` change. The instruction states which, so the bank can check it against its own deposit record (FR-ESC-017, TQ-34).
 
 ### 9.2 Bank account name verification (RUL-22, RUL-24, FR-ESC-015)
 
@@ -3592,12 +4000,35 @@ Each integration has a port in the owning module and adapters chosen per partner
 | Bank letter | R1, and later for any account the bank's name check does not cover | The payee or owner provides a letter from their bank stating the account name. Staff enter the name exactly as printed with source `bank_letter`; the letter is evidence. A second staff member checks it (FR-ESC-015, FR-ADM-003). |
 | Bank's name check | Wherever the partner bank offers it `[TO VERIFY]` (TQ-14) | The `BankGateway` port gains `lookup_account_name(bank, number)`; the returned name is stored with source `bank_name_check` and its raw response hash. It is the first source under FR-ESC-015 and replaces the letter for accounts it covers. |
 | Statement line | Rent destination only | Not a name source. The first rent line received into the owner's account under the mandate confirms the account is live. |
+| Payee change | Every `new_account` or `refund_destination` change (RUL-28, RUL-29) | A fresh check from one of the two sources above, made for that change. An earlier letter or name check is never reused, and an account number or name sent by message, email or call is never entered. |
 
 Normalisation for `name_match`: upper case, remove punctuation and double spaces, remove the suffixes LTD, LIMITED, PLC, CO, COMPANY, ENTERPRISE(S) and honorifics for individuals `[TO VERIFY]` with the bank's own conventions. The rule is a pure function with tests in document 05. No user, including an administrator, can override a mismatch (FR-ESC-015); a real difference is fixed only by new evidence from one of the two sources.
 
 ### 9.3 Statement access for the owner's rent account (FR-PMG-003, RUL-24)
 
 The rent account belongs to the owner, not to Tenmina. Tenmina reads only the bank's statement lines for that account, and only under the owner's written mandate allowing the bank to share them (`pmg_statement_mandate`, FR-PMG-003). Lines for any other account are refused at import. Adapters: `file` (the bank sends the owner's account statement for that account by SFTP, same format as IF-01), `api` where the bank offers third-party read access `[TO VERIFY]`, and `manual` (the owner uploads the bank's statement for that account; a case manager matches it with the owner's confirmation). Lines are stored in `esc_statement_line` with account kind `owner_rent` and are visible to the owner and case managers only. Whether the bank will share a customer's statement with Tenmina under a mandate is open (TQ-17).
+
+### 9.4 National identity checks for parties and payees (IF-03, RUL-31, FR-ACC-013)
+
+| Topic | Design |
+|---|---|
+| Who | Every seller, grantor, consenting party and signatory recorded in `case_party`, every individual payee and the person who signs for an organisation payee (6.11), and the client under a RUL-29 refund exception |
+| Channel | The national identity system through an approved channel, chosen per country in `adm_partner` (kind `identity`). In Ghana, the National Identification Authority's verification platform, directly or through a licensed provider; access terms `[TO VERIFY]` (TQ-32). A new country adds its own adapter (ADR-10) |
+| Input | The identity number and the name on the deal documents, typed by staff from the party in person or from the deed. Never a photocopy, scan or photo of a card: no endpoint accepts one for this check |
+| Output kept | Result (`match`, `no_match`, `not_found`), the system's reference, the time and a hash of the raw response. The returned name is compared and discarded. Photos, fingerprints, face data and any other biometric field are dropped by the adapter before storage |
+| Service down | Result `unavailable`; the retry job runs every 15 minutes; after 24 hours (assumption) a staff queue item and a client status message. The report, payee verification or payee change waits. There is no manual fallback that skips the official system; the `staff_portal` adapter is the same system used by a named staff member |
+| Effect | Report release blocked while any party check is missing, pending or unavailable; a `no_match` or `not_found` makes the identity findings red (I-45). Payee verification and payee changes blocked until `match`. The same identity number on two sides of one deal raises a reviewer item |
+
+### 9.5 Official searches through the registry's channel (IF-09, RUL-30, FR-CASE-016)
+
+| Topic | Design |
+|---|---|
+| Account | Tenmina holds its own account on the registry's online portal (in Ghana, the Lands Commission). It is an `adm_partner` of kind `registry`; its credentials sit in Secrets Manager and are used only by named staff (10.5). A runner never holds or uses it |
+| Submit | A case manager or reviewer submits the search on the portal and records it with `POST /v1/cases/{id}/search-requests`: channel, account reference, registry reference and time |
+| Receive | The same staff group downloads the result from the portal, or receives it from the client service unit addressed to Tenmina, and attaches it with `/results`. It becomes evidence of kind `official_search_result`, which only staff can link (6.6) |
+| No remote channel | The search is lodged in Tenmina's name at the registry office. Whoever carries the papers, the result counts only after a staff member confirms it with the registry and records the officer's name and post (`/confirmations`) |
+| Copies from others | A copy from a runner, seller, agent or client is stored as `search_copy_unverified`. It never closes a search task. If it differs from the registry's result, a fraud review opens |
+| Fresh searches | FR-CASE-014 fresh searches use the same record, so the RUL-07 blocker in 6.5 reads only usable search requests |
 
 ---
 
