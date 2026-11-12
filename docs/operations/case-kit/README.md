@@ -31,6 +31,8 @@ All periods, lengths and limits in the kit are working assumptions. Unknowns are
 
 ## Before the first real case: the lawyer must approve
 
+Send the lawyer the review pack, a Claude doc with these questions in answer tables (https://claude.ai/artifact/XHZ7xzJ1uy53cybhajLBfQ), with the seven draft Word files.
+
 The consent form, script, witness sheet, client terms, professional agreement and seller agreement are marked **DRAFT FOR LAWYER REVIEW**. Do not use them until the lawyer has approved them. Ask the lawyer:
 
 1. Is the consent form right for each kind of land we will see: family land, stool land, skin land and individually held land? Who must sign for each?
