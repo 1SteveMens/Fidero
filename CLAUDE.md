@@ -19,8 +19,8 @@ The founder is in Ghana and runs three ventures. This repository is only for Ten
 - Clickable prototype: https://claude.ai/artifact/FzGbi543d8uvhyXpDDasLK, built from `docs/specs/03-prototype/index.html`.
 - App mockups canvas: https://claude.ai/artifact/6ph4AuXZ6ciW7QpK91EE14. Client app, field app, back office and how money moves, with sample data.
 - App design directions canvas: https://claude.ai/artifact/5EPmPiRm2cBuJKmy3AJb3K. Four directions (Pulse, Lime, Clarity, Bloc). The founder chose **Bloc** on 12 November 2026 for all four front ends: client app on row 4, Tenmina Field on row 5, back office on row 6. Sources in `docs/specs/03-mockups/` (`bloc/`, `field/`, `backoffice/`); rules in `docs/specs/03` sections 6.1a to 6.1d. Lime for proof and the main action, orange only for what needs the client, yellow only for the Amber verdict.
-- Nigeria launch plan: Claude doc at https://claude.ai/artifact/X1r2egGWXyAH6dhLpy6QiJ.
-- Escrow pilot proposal for partner banks: Claude doc at https://claude.ai/artifact/FZFBcp6pAToDwRyfH6vcB9. Ten land escrows with the bank as escrow agent under a three-party agreement. Lagos manual phase months 6 to 9, gate at month 9, platform by month 12.
+- Nigeria launch plan: Claude doc at https://claude.ai/artifact/X1r2egGWXyAH6dhLpy6QiJ. Lagos manual phase months 6 to 9, gate at month 9, platform by month 12.
+- Escrow pilot proposal for partner banks: Claude doc at https://claude.ai/artifact/FZFBcp6pAToDwRyfH6vcB9. Ten land escrows with the bank as escrow agent under a three-party agreement.
 - Repository documents: see the map in `README.md`. The specification set in `docs/specs/` is the source of truth for the product; document 01 holds every requirement ID.
 
 ## Writing rules
