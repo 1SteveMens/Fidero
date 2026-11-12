@@ -26,4 +26,4 @@ A user story number always equals the number of the functional requirement it im
 
 ## Status
 
-Working drafts, 12 November 2026. Document 01 is at version 0.12; document 03 at 0.9; document 04 at 0.8; documents 02, 05 and 06 at 0.6.
+Working drafts, 12 November 2026. Document 01 is at version 0.13; document 03 at 0.9; document 04 at 0.8; documents 02, 05 and 06 at 0.6.

@@ -5,7 +5,7 @@ Business requirements (BRD), product requirements (PRD) and software requirement
 | Item | Value |
 |---|---|
 | Document | 01 of 6 in `docs/specs/` |
-| Version | 0.12, working draft |
+| Version | 0.13, working draft |
 | Date | 12 November 2026 |
 | Owner | Founder, acting as product owner |
 | Status | For review. Not yet baselined |
@@ -18,6 +18,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 31 October 2026 | First draft |
+| 0.13 | 12 November 2026 | Release timing and escrow account structure. RUL-07 sets the fresh-search window to `[14 days, TO VERIFY]`. Adds RUL-33 (no waiting period after the last approval on a purchase; a held-back share only where the escrow terms set one) and RUL-34 (one escrow account per currency and country held by the bank as escrow agent, with a virtual account and its own balance for each escrow and held amount). Adds NFR-PERF-06 (release timing), FR-ESC-018 (release clock and alerts), FR-ESC-019 (per-escrow balance check), FR-ESC-020 (held-back share released on a later condition), Q-29 (bank account structure, interest, deposit insurance) and Q-30 (holding back part of a land price until registration is lodged). FR-ADM-005, J-02 and the glossary updated. |
 | 0.12 | 12 November 2026 | Fund and evidence protection, from the founder's review of fraud and money risks. Adds RUL-28 (payee lock with a cooling-off period), RUL-29 (refund to source), RUL-30 (official records obtained by Tenmina from the official channel, never handed over by a runner or seller), RUL-31 (identity verified against the national identity system, never by photocopy) and RUL-32 (random re-checks by a different professional). Adds FR-ESC-016, FR-ESC-017, FR-PAY-008, FR-CASE-016, FR-ACC-013 and FR-RPT-012, and Q-28 on the legal basis for escrow. IF-03 and IF-09 updated. J-02 and the escrow state model note the payee lock. Review fixes from aligning 02 to 06: AS-05, AS-07, P-07, the field runner row and FR-ACC-004 brought in line with RUL-30 and RUL-31; signatories of organisations covered; each affected client approves an institution's account change; a failed identity check is reported, not hidden; deposits with no source account refunded through the exception path; FR-ADM-003 and FR-ADM-005 aligned; fee refunds and unverifiable parties given a route; handed-in search copies compared with the official result; C-01 no longer cites Bank of Ghana guidance; cooling-off start, covered payees and sampling defined; FR-PAY-008 covers fees paid offline; a failed re-check freezes an escrow from R1. |
 | 0.11 | 12 November 2026 | Q-27 added: compete or partner with Tulix-style spending apps in Kenya. Founder decision `docs/decisions/2026-11-12-build-with-claude.md`: until revenue allows hiring, Claude writes the code and the founder tests on real phones. C-07 updated; the hired team it described is deferred. Requirements, rules and gates are unchanged. |
 | 0.10 | 11 November 2026 | Founder decisions recorded in C-07: contract developer kept to S14 for professional payments, and Option R2-A for the R2 team. |
@@ -365,7 +366,7 @@ Anyone abroad can get anything done at home, from buying land to paying a parent
 3. Ama pays the purchase price to the bank, not to Tenmina. The tracker shows the deposit when the bank confirms it.
 4. A fresh search and site check run before release.
 5. Each condition is closed with evidence, such as the signed indenture and recorded family consent.
-6. Ama approves the release. Then two Tenmina staff approve. Tenmina sends the release instruction. The bank pays the seller and confirms. Ama sees each step.
+6. Ama approves the release. Then two Tenmina staff approve. Tenmina sends the release instruction the same working day, with no waiting period (RUL-33). The bank pays the seller from this escrow's own balance and confirms. Ama sees each step.
 
 ### J-03 Build with milestone payments (R2)
 
@@ -445,7 +446,7 @@ The system must enforce these rules. Each is tested in document 05.
 | RUL-04 | The scope and limitation statement is inserted from a locked text block. Users cannot edit it in a report. |
 | RUL-05 | Every release instruction needs approval by two different Tenmina staff with release rights. Their names are recorded. |
 | RUL-06 | A release instruction cannot be sent while any release condition is open. |
-| RUL-07 | Before any release on a land, building, off-plan or listing purchase, a fresh search and site check must be recorded within `[TO VERIFY]` days of the release. |
+| RUL-07 | Before any release on a land, building, off-plan or listing purchase, a fresh search and site check must be recorded within `[14 days, TO VERIFY]` of the release, counted from the date on the registry's result. |
 | RUL-08 | Milestone, inspection, care visit and errand evidence must be captured in the Tenmina app from R2. Gallery and file uploads are not accepted as evidence. |
 | RUL-09 | A milestone payment cannot be released without an inspector's pass or pass with defects. A pass with defects holds back the defect value. The only exception is milestone 0, mobilisation, which is released when the contract is signed and a Tenmina staff member confirms site handover. |
 | RUL-10 | The inspector on a project cannot be chosen, paid or employed by the contractor on that project. |
@@ -471,6 +472,8 @@ The system must enforce these rules. Each is tested in document 05.
 | RUL-30 | Official searches and other registry results are requested through the registry's official channel from a Tenmina account, and the result is received by Tenmina directly from that channel (in Ghana, the Lands Commission online portal or its client service unit). A result handed over by a runner, seller, agent, client or anyone else is not evidence until Tenmina obtains the same result from the official channel. Where a registry has no remote channel, a Tenmina staff member confirms the result with the registry before it is used. |
 | RUL-31 | The identity of every seller, grantor, consenting party and individual payee (every person who receives money from an escrow or held amount, and every carer, errand agent and contracted professional Tenmina pays) is verified, as is every person who signs for an organisation that sells or is paid, against the national identity system through an approved channel (in Ghana, the National Identification Authority's verification platform, directly or through a licensed provider). A photocopy, scan or photo of an identity card is never proof of identity. A party with no record in the national identity system is reported as unverified in the report, and no money is paid to them until they are verified. |
 | RUL-32 | Each month a random sample of `[5%, TO VERIFY]` of released reports and of closed release conditions is re-checked, without notice, by a licensed professional who did not work on the case and has no link to it. The sample is drawn per country, with at least one item in any month that has items to sample. Until FR-RPT-012 is built, the sample is drawn and tracked by hand. |
+| RUL-33 | Once the last approval of a release is recorded, the release instruction goes to the bank without a waiting period. Money is not held after approval to give a dispute window, because every check on a purchase happens before release. A share of the price is held back after release only where the escrow terms set one, with its own release condition (FR-ESC-020). |
+| RUL-34 | Escrow money sits only in the partner bank's escrow account for the programme, one per currency and country, held by the bank as escrow agent and never in an account of Tenmina's. Each escrow and each held amount has its own virtual account number or unique reference and its own balance at the bank. A release or refund draws only on that escrow's or held amount's own confirmed balance. A pilot may use one bank account per escrow instead, if the bank prefers. |
 
 ## B8. Out of scope for this specification
 
@@ -511,6 +514,8 @@ The system must enforce these rules. Each is tested in document 05.
 | Q-26 | Which bank account and mobile money provider does Tenmina use to pay professionals, and do they accept a bulk payment file? | Founder | R1 start |
 | Q-27 | In Kenya, does Tenmina compete with everyday diaspora spending apps such as Tulix (wallet and merchant vouchers, Nairobi) for family payments, or partner with one for day-to-day spending and keep to verified, high-value payments with proof? | Founder | Kenya manual phase |
 | Q-28 | What is the legal basis for escrow in each country? In Ghana no Bank of Ghana directive licensing escrow agents was found (12 November 2026): must the partner bank act as escrow agent under a three-party agreement with the client and Tenmina, and does Tenmina's role as condition monitor need any payments licence? | Lawyer, partner bank | Before R1 escrow go-live |
+| Q-29 | Can the partner bank give each escrow and held amount its own virtual account number within one escrow account per currency, report each one's balance daily, and hold dollars or pounds until release? Who receives any interest on held money, and how does deposit insurance apply to each client's money in a shared escrow account? | Founder with partner bank | Before R1 escrow go-live |
+| Q-30 | May part of a land price be held back after release until the buyer's registration is lodged at the Lands Commission, and if so what share and for how long? | Lawyer | Before the first escrow that uses it |
 
 ---
 
@@ -689,6 +694,9 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-ESC-013 | The system shall support cancellation and refund instructions with the same two-person approval. | Must | R1 | RUL-05 |
 | FR-ESC-016 | The system shall change a payee or payee account on an agreed escrow or held amount only through the payee verification flow: client approval, two staff approvals with release rights, fresh identity and account-name checks of the new payee, and a notice to the client on a second channel; and shall block any release to the new account until the cooling-off period ends. | Must | R1 | RUL-28, RUL-22 |
 | FR-ESC-017 | The system shall record the source account of every deposit from the bank's confirmation, and shall address refund instructions only to that account unless the RUL-29 exception path is complete. A deposit whose confirmation shows no source account (for example cash at a branch or some remittance routes) is refunded only through that exception path. | Must | R1 | RUL-29 |
+| FR-ESC-018 | The system shall start a release clock when the last condition of a release closes, show it to case managers, send the release instruction on the working day the last approval is recorded, and alert when the instruction is not sent that day or the bank has not confirmed payment within the target in NFR-PERF-06. | Must | R1 | RUL-33, NFR-PERF-06 |
+| FR-ESC-019 | The system shall keep each escrow's and each held amount's balance from bank-confirmed events only, under its virtual account number or reference, and shall block any release or refund instruction larger than that confirmed balance. | Must | R1 | RUL-34, RUL-01 |
+| FR-ESC-020 | The system shall support a held-back share of a release, set in the escrow terms, released on its own later condition with the same approvals as any release. | Could | R1 | RUL-33, Q-30 |
 
 ### C4.8 Evidence store (EVD)
 
@@ -818,7 +826,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-ADM-002 | The system shall let an administrator manage prices, tiers, currencies and exchange-rate guides. | Must | R1 | BR-01 |
 | FR-ADM-003 | The system shall let an administrator manage partners: banks, professionals, contractors, inspectors, suppliers, API partners. A change to any bank account details needs approval by a second administrator. For a payee on an escrow or held amount, RUL-28 also applies: the change follows the payee verification flow (FR-ESC-016) and takes effect for each client's money only after that client approves and the cooling-off ends. | Must | R1 | BR-03, RUL-28 |
 | FR-ADM-004 | The system shall keep the locked scope statement versioned and changeable only by two administrators with the lawyer's and insurer's approval recorded. | Must | R1 | RUL-04 |
-| FR-ADM-005 | The system shall let an administrator set configurable values: fresh-search window, listing report age, badge validity, plot buffer distances, device-to-server time gap, dispute deadlines, client approval reminder period, the money threshold for SMS and WhatsApp, the project fund amount that triggers enhanced checks, the payee-change cooling-off period (RUL-28) and the monthly re-check share (RUL-32). A change to any value that affects a release needs approval by a second administrator. | Must | R1 | RUL-07, RUL-13 |
+| FR-ADM-005 | The system shall let an administrator set configurable values: fresh-search window, listing report age, badge validity, plot buffer distances, device-to-server time gap, dispute deadlines, client approval reminder period, the money threshold for SMS and WhatsApp, the project fund amount that triggers enhanced checks, the payee-change cooling-off period (RUL-28), the monthly re-check share (RUL-32) and the release timing targets (NFR-PERF-06). A change to any value that affects a release needs approval by a second administrator. | Must | R1 | RUL-07, RUL-13 |
 
 ### C4.18 Audit (AUD)
 
@@ -1031,6 +1039,7 @@ Tenmina's own contracted professionals are paid by Tenmina, from its fee income,
 | NFR-PERF-03 | API reads shall respond within 500 ms and writes within 1 second at the 95th percentile, at 10 times the expected R1 load. Expected R1 load (assumption): 2,000 client accounts, 150 open cases and 50 users at once. | R1 |
 | NFR-PERF-04 | Overlay checks shall complete within 30 seconds of saving a plot polygon. | R1 |
 | NFR-PERF-05 | Both apps shall cold-start in under 3 seconds on a 2 GB RAM Android device and on the oldest supported iPhone, and its download size shall be under 30 MB. | R2 |
+| NFR-PERF-06 | On a purchase escrow, the release instruction shall be sent on the working day the last approval is recorded, the bank shall pay within `[2 working days, TO VERIFY]` of the instruction, and the time from the last condition closed to the seller paid shall be `[5 working days, TO VERIFY]` or less at the median. | R1 |
 | NFR-AVL-01 | The portal and API shall be available 99.5% of each month, excluding maintenance announced 48 hours ahead and limited to 4 hours a month. | R1 |
 | NFR-AVL-02 | Recovery point objective: no more than 1 hour of data loss. Recovery time objective: 4 hours. | R1 |
 | NFR-AVL-03 | Evidence shall be stored with at least two copies in separate data centres, both within the data locations allowed under NFR-PRIV-01. | R1 |
@@ -1157,6 +1166,8 @@ Each functional requirement and business rule has acceptance criteria and test c
 | Release instruction | Tenmina's signed instruction to the bank to pay out escrowed money |
 | Payee lock | The rule that an escrow's payee and account cannot change without the client, two staff, fresh checks and a cooling-off period (RUL-28) |
 | Cooling-off period | The wait after a payee change before any money can go to the new account |
+| Virtual account | An account number or reference the bank gives one escrow inside its shared escrow account, so each escrow's money and balance stay separate (RUL-34) |
+| Held-back share | Part of a price kept in escrow after the main release, paid on a later condition set in the escrow terms |
 | Source account | The account a deposit came from; refunds go only there (RUL-29) |
 | Badge | The "Tenmina Verified" mark on a listing, valid for a set period |
 | Institution | A school, hospital, clinic, pharmacy, agency or utility that Tenmina has verified and pays directly |
