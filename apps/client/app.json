@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "Fidero",
+    "slug": "fidero",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.fidero.client"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#2E3EB0",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.fidero.client"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "output": "single",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ],
+    "scheme": "fidero",
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

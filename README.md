@@ -98,6 +98,8 @@ Pre-seed: $400k for 18 months `[TO VERIFY]` against the wider scope. It funds th
 | `docs/operations/verification-report-template.md` | Structure of the red/amber/green land verification report |
 | `docs/operations/milestone-schedule.md` | Construction milestone schedule, release evidence and inspector checklists |
 | `docs/product/architecture.md` | Early architecture proposal. Superseded in detail by `docs/specs/02` |
+| `apps/client/` | The Fidero client app (Expo, React Native), first build on sample data |
+| `packages/shared/`, `packages/tokens/` | Shared types, rules, sample API and design tokens for the apps |
 | `docs/specs/` | Product specification set: requirements (BRD, PRD, SRS), architecture, UI/UX, project plan and backlog, testing, deployment and operations |
 
 ## Naming note
