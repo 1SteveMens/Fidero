@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bloc land report</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#A3EE5B}a:hover{color:#C2F58F}
+@keyframes b-rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes b-pop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:none}}
+@keyframes b-nudge{0%,70%,100%{transform:translateX(0)}80%{transform:translateX(5px)}90%{transform:translateX(0)}}
+@keyframes b-ping{0%{box-shadow:0 0 0 0 rgba(255,106,61,.85)}80%,100%{box-shadow:0 0 0 10px rgba(255,106,61,0)}}
+@keyframes b-draw{from{stroke-dashoffset:60}to{stroke-dashoffset:0}}
+@keyframes b-ring{0%{transform:scale(.8);opacity:.7}100%{transform:scale(1.9);opacity:0}}
+@keyframes b-fill{0%{width:0}70%,100%{width:100%}}
+@keyframes b-grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.r1{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .05s both}.r2{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .17s both}
+.r3{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .29s both}.r4{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .41s both}
+.r5{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .53s both}.r6{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .65s both}
+.r7{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .77s both}.r8{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .89s both}
+.pop{animation:b-pop .45s cubic-bezier(.3,1.5,.5,1) both}
+.nudge{animation:b-nudge 2.4s ease-in-out 1.6s infinite}
+.ping{animation:b-ping 1.8s ease-out infinite}
+.draw{stroke-dasharray:60;animation:b-draw .7s ease-out .5s both}
+.ring{animation:b-ring 2s ease-out infinite}
+.fill{animation:b-fill 3s cubic-bezier(.4,0,.2,1) 1.4s infinite}
+.grow{transform-origin:left;animation:b-grow .9s cubic-bezier(.2,.8,.2,1) .4s both}
+@media (prefers-reduced-motion: reduce){.r1,.r2,.r3,.r4,.r5,.r6,.r7,.r8,.pop,.nudge,.ping,.draw,.ring,.fill,.grow{animation:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #0B0B0B; color: #F7F6F2; font-family: 'Bricolage Grotesque', system-ui, sans-serif; position: relative; overflow: hidden">
+<div style="padding: 52px 20px 22px; display: flex; flex-direction: column; gap: 12px; height: 100%; box-sizing: border-box">
+  <header class="r1" style="display: flex; align-items: center; gap: 12px">
+    <a href="BlocProgress.dc.html" aria-label="Back" style="width: 44px; height: 44px; border-radius: 14px; background: #1A1A1A; display: flex; align-items: center; justify-content: center; flex: none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F7F6F2" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
+    <h1 style="flex: 1; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.03em">Land report</h1>
+    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #A9A69E">V1 · 1 APR</span>
+  </header>
+
+  <section class="r2" aria-label="Verdict" style="background: #FDE24F; color: #0B0B0B; border-radius: 24px; padding: 18px 20px; display: flex; flex-direction: column; gap: 8px">
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <span style="font-size: 48px; line-height: 1; font-weight: 800; letter-spacing: -0.04em">Amber</span>
+      <span class="pop" style="width: 46px; height: 46px; border-radius: 50%; background: #0B0B0B; color: #FDE24F; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 800; animation-delay: .5s">!</span>
+    </div>
+    <div style="font-size: 17px; font-weight: 600; line-height: 1.3">Do not pay yet. Two things must happen first.</div>
+    <span style="align-self: flex-start; display: flex; align-items: center; gap: 6px; background: #0B0B0B; color: #A3EE5B; font-size: 13px; font-weight: 700; padding: 6px 10px; border-radius: 9px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A3EE5B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>Both are now done</span>
+  </section>
+
+  <section class="r3" aria-label="Must happen first" style="background: #1A1A1A; border-radius: 20px; padding: 6px 16px">
+    <div style="display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid #2C2C2C"><span class="pop" style="width: 22px; height: 22px; border-radius: 7px; background: #A3EE5B; display: flex; align-items: center; justify-content: center; flex: none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0B0B0B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span><span style="flex: 1; font-size: 14px; line-height: 1.35">The family head signs the consent on film, with two witnesses.</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #A9A69E">14 MAR</span></div>
+    <div style="display: flex; gap: 10px; padding: 10px 0"><span class="pop" style="width: 22px; height: 22px; border-radius: 7px; background: #A3EE5B; display: flex; align-items: center; justify-content: center; flex: none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0B0B0B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span><span style="flex: 1; font-size: 14px; line-height: 1.35">The surveyor replaces the missing north-east pillar.</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #A9A69E">20 MAR</span></div>
+  </section>
+
+  <section class="r4" aria-label="What we checked">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 2px"><h2 style="margin: 0; font-size: 17px; font-weight: 700">What we checked</h2><a href="BlocEvidence.dc.html" style="font-size: 14px; font-weight: 600; text-decoration: none">12 photos</a></div>
+    <div style="display: flex; align-items: center; gap: 12px; height: 36px; border-bottom: 1px solid #2C2C2C"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #A9A69E">04</span><span style="flex: 1; font-size: 15px">Plot matches the site plan</span><span style="font-size: 12px; font-weight: 700; padding: 4px 9px; border-radius: 8px; background: #A3EE5B; color: #0B0B0B; white-space: nowrap">Green</span></div><div style="display: flex; align-items: center; gap: 12px; height: 36px; border-bottom: 1px solid #2C2C2C"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #A9A69E">05</span><span style="flex: 1; font-size: 15px">Lands Commission searches</span><span style="font-size: 12px; font-weight: 700; padding: 4px 9px; border-radius: 8px; background: #A3EE5B; color: #0B0B0B; white-space: nowrap">Green</span></div><div style="display: flex; align-items: center; gap: 12px; height: 36px; border-bottom: 1px solid #2C2C2C"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #A9A69E">06</span><span style="flex: 1; font-size: 15px">Surveyor's check</span><span style="font-size: 12px; font-weight: 700; padding: 4px 9px; border-radius: 8px; background: #FDE24F; color: #0B0B0B; white-space: nowrap">Amber</span></div><div style="display: flex; align-items: center; gap: 12px; height: 36px; border-bottom: 1px solid #2C2C2C"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #A9A69E">07</span><span style="flex: 1; font-size: 15px">Map checks</span><span style="font-size: 12px; font-weight: 700; padding: 4px 9px; border-radius: 8px; background: #A3EE5B; color: #0B0B0B; white-space: nowrap">Green</span></div><div style="display: flex; align-items: center; gap: 12px; height: 36px; border-bottom: 1px solid #2C2C2C"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #A9A69E">08</span><span style="flex: 1; font-size: 15px">Seller's right to sell</span><span style="font-size: 12px; font-weight: 700; padding: 4px 9px; border-radius: 8px; background: #FDE24F; color: #0B0B0B; white-space: nowrap">Amber</span></div><div style="display: flex; align-items: center; gap: 12px; height: 36px; border-bottom: 1px solid #2C2C2C"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #A9A69E">09</span><span style="flex: 1; font-size: 15px">Chain of ownership</span><span style="font-size: 12px; font-weight: 700; padding: 4px 9px; border-radius: 8px; background: #A3EE5B; color: #0B0B0B; white-space: nowrap">Green</span></div><div style="display: flex; align-items: center; gap: 12px; height: 36px; border-bottom: 1px solid #2C2C2C"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #A9A69E">10</span><span style="flex: 1; font-size: 15px">Who is on the land</span><span style="font-size: 12px; font-weight: 700; padding: 4px 9px; border-radius: 8px; background: #A3EE5B; color: #0B0B0B; white-space: nowrap">Green</span></div>
+  </section>
+
+  <div style="flex: 1"></div>
+  <footer class="r5" style="display: flex; gap: 10px; align-items: flex-start; font-size: 12px; line-height: 1.4; color: #A9A69E">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A3EE5B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    <span>Signed by Efua Mensah, lawyer, and Kwame Asante, licensed surveyor. Reviewed by Esi Boateng, Fidero.<br><span style="font-family: 'IBM Plex Mono', monospace; color: #F7F6F2">SEALED 9f2c 41d8 … 07be a41e</span></span>
+  </footer>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -54,6 +54,8 @@ export interface Case {
   steps: CaseStep[];
   reportId?: string;
   escrowId?: string;
+  /** Overall verdict once the report is released. */
+  verdict?: Verdict;
 }
 
 export interface ReportSection {
@@ -152,12 +154,28 @@ export interface HomeRow {
   badge?: { label: string; verdict?: Verdict };
 }
 
+/** One account the bank holds for the client. Fidero never holds it (RUL-01). */
+export interface HeldAccount {
+  id: string;
+  /** What the money is for, for example "Plot 14, Kasoa". */
+  label: string;
+  kind: 'escrow' | 'family';
+  bankRef: string;
+  heldAt: string;
+  held: Money;
+  href: string;
+}
+
 export interface Dashboard {
   firstName: string;
+  /** As the bank holds it, shown on the account cards. */
+  fullName: string;
   country: CountryCode;
   currency: Currency;
+  /** Sum of all accounts. */
   held: Money;
   heldAt: string;
+  accounts: HeldAccount[];
   needsYou: NeedsYouItem[];
   property: HomeRow[];
   family: HomeRow[];
@@ -178,6 +196,8 @@ export interface Errand {
   agency: string;
   step: number;
   steps: number;
+  /** Short names for each step, as many as steps. */
+  stepLabels: string[];
   status: string;
 }
 

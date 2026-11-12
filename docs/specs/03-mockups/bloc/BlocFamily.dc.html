@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bloc family</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0B0B0B}a:hover{color:#3A3A3A}
+@keyframes b-rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes b-pop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:none}}
+@keyframes b-nudge{0%,70%,100%{transform:translateX(0)}80%{transform:translateX(5px)}90%{transform:translateX(0)}}
+@keyframes b-ping{0%{box-shadow:0 0 0 0 rgba(255,106,61,.85)}80%,100%{box-shadow:0 0 0 10px rgba(255,106,61,0)}}
+@keyframes b-draw{from{stroke-dashoffset:60}to{stroke-dashoffset:0}}
+@keyframes b-ring{0%{transform:scale(.8);opacity:.7}100%{transform:scale(1.9);opacity:0}}
+@keyframes b-fill{0%{width:0}70%,100%{width:100%}}
+@keyframes b-grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.r1{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .05s both}.r2{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .17s both}
+.r3{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .29s both}.r4{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .41s both}
+.r5{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .53s both}.r6{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .65s both}
+.r7{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .77s both}.r8{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .89s both}
+.pop{animation:b-pop .45s cubic-bezier(.3,1.5,.5,1) both}
+.nudge{animation:b-nudge 2.4s ease-in-out 1.6s infinite}
+.ping{animation:b-ping 1.8s ease-out infinite}
+.draw{stroke-dasharray:60;animation:b-draw .7s ease-out .5s both}
+.ring{animation:b-ring 2s ease-out infinite}
+.fill{animation:b-fill 3s cubic-bezier(.4,0,.2,1) 1.4s infinite}
+.grow{transform-origin:left;animation:b-grow .9s cubic-bezier(.2,.8,.2,1) .4s both}
+@media (prefers-reduced-motion: reduce){.r1,.r2,.r3,.r4,.r5,.r6,.r7,.r8,.pop,.nudge,.ping,.draw,.ring,.fill,.grow{animation:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #FFFFFF; color: #0B0B0B; font-family: 'Bricolage Grotesque', system-ui, sans-serif; position: relative; overflow: hidden">
+<div style="padding: 52px 20px 0; display: flex; flex-direction: column; gap: 14px">
+  <header class="r1" style="display: flex; align-items: center; justify-content: space-between">
+    <h1 style="margin: 0; font-size: 34px; font-weight: 800; letter-spacing: -0.04em">Family</h1>
+    <a href="BlocFamily.dc.html" aria-label="Add a family member" style="width: 44px; height: 44px; border-radius: 14px; background: #A3EE5B; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0B0B0B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></a>
+  </header>
+  <div class="r2" style="display: flex; gap: 10px; align-items: center; background: #0B0B0B; color: #F7F6F2; border-radius: 16px; padding: 12px 14px; font-size: 14px; line-height: 1.35"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#A3EE5B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg><span>We pay hospitals, schools and carers directly. Never cash to a person.</span></div>
+
+  <section class="r3" aria-label="Akua Mensah" style="background: #F3F1EC; border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <span style="width: 48px; height: 48px; border-radius: 16px; background: #0B0B0B; color: #F7F6F2; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800">AM</span>
+      <span style="flex: 1"><span style="display: block; font-size: 19px; font-weight: 800">Akua Mensah</span><span style="display: block; font-size: 13px; color: #6A675F">Mum · Ahodwo, Kumasi</span></span>
+    </div>
+    <a class="ping" href="BlocInvoice.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 16px; background: #FF6A3D; color: #0B0B0B; text-decoration: none"><span style="width: 38px; height: 38px; border-radius: 12px; background: #0B0B0B; display: flex; align-items: center; justify-content: center; flex: none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6A3D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg></span><span style="flex: 1; min-width: 0"><span style="display: block; font-size: 15px; font-weight: 700">Hospital bill, Komfo Anokye</span><span style="display: block; font-size: 13px; opacity: 0.8">GHS 1,860.00 waiting for you</span></span><span style="width: 36px; height: 36px; border-radius: 11px; background: #0B0B0B; display: flex; align-items: center; justify-content: center; flex: none"><svg class="nudge" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6A3D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+    <div style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 16px; background: #FFFFFF; color: #0B0B0B; text-decoration: none"><span style="width: 38px; height: 38px; border-radius: 12px; background: #0B0B0B; display: flex; align-items: center; justify-content: center; flex: none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A3EE5B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></span><span style="flex: 1; min-width: 0"><span style="display: block; font-size: 15px; font-weight: 700">Care visits</span><span style="display: block; font-size: 13px; opacity: 0.8">2 of 2 confirmed this week</span></span><span style="width: 22px; height: 22px; border-radius: 7px; background: #A3EE5B; display: flex; align-items: center; justify-content: center; flex: none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0B0B0B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span></div>
+  </section>
+
+  <section class="r4" aria-label="Kofi Owusu" style="background: #F3F1EC; border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <span style="width: 48px; height: 48px; border-radius: 16px; background: #A3EE5B; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800">KO</span>
+      <span style="flex: 1"><span style="display: block; font-size: 19px; font-weight: 800">Kofi Owusu</span><span style="display: block; font-size: 13px; color: #6A675F">Nephew · St. Mary's School, Kumasi</span></span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 16px; background: #FFFFFF; color: #0B0B0B; text-decoration: none"><span style="width: 38px; height: 38px; border-radius: 12px; background: #0B0B0B; display: flex; align-items: center; justify-content: center; flex: none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A3EE5B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></span><span style="flex: 1; min-width: 0"><span style="display: block; font-size: 15px; font-weight: 700">Term 3 fees</span><span style="display: block; font-size: 13px; opacity: 0.8">GHS 2,450.00 due 28 April</span></span><span style="height: 34px; padding: 0 14px; border-radius: 11px; background: #0B0B0B; color: #F7F6F2; display: flex; align-items: center; font-size: 14px; font-weight: 700">Pay</span></div>
+  </section>
+</div>
+<nav class="r8" aria-label="Main" style="position: absolute; left: 16px; right: 16px; bottom: 16px; height: 66px; border-radius: 22px; background: #0B0B0B; display: flex; align-items: center; justify-content: space-between; padding: 0 10px">
+  <a href="BlocHome.dc.html" aria-label="Home" style="width: 52px; height: 46px; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F7F6F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg></a>
+  <a href="BlocCases.dc.html" aria-label="Property" style="width: 52px; height: 46px; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F7F6F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V8l7-5 7 5v13"/></svg></a>
+  <a href="BlocFamily.dc.html" aria-current="page" style="height: 46px; padding: 0 16px; border-radius: 14px; background: #A3EE5B; color: #0B0B0B; display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: 15px; font-weight: 700"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B0B0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/></svg>Family</a>
+  <a href="BlocProjects.dc.html" aria-label="Projects" style="width: 52px; height: 46px; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F7F6F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12l3 3 5-6"/></svg></a>
+  <a href="BlocAccount.dc.html" aria-label="Account" style="width: 52px; height: 46px; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F7F6F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

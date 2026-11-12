@@ -1,65 +1,81 @@
-import { Text, View } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { View } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { formatDay } from '@fidero/shared';
-import { radius, space, type } from '@fidero/tokens';
-import { Button, Card, ErrorView, Loading, Muted, Screen, VerdictPill } from '../../components/ui';
+import { formatDay, verdictWord } from '@fidero/shared';
+import { brand, font, radius, space } from '@fidero/tokens';
+import { Button, ErrorView, Label, Loading, Panel, Rise, Screen, T, VerdictChip } from '../../components/ui';
 import { useLoad } from '../../data';
-import { usePalette } from '../../theme';
 
 export default function ReportScreen() {
-  const p = usePalette();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: r, error, reload } = useLoad((api) => api.getReport(id), `report-${id}`);
 
-  if (error) return <Screen topInset={false}><ErrorView message={error} onRetry={reload} /></Screen>;
-  if (!r) return <Screen topInset={false}><Loading /></Screen>;
+  if (error) return <Screen ground="ink" back><ErrorView message={error} onRetry={reload} /></Screen>;
+  if (!r) return <Screen ground="ink" back><Loading /></Screen>;
 
-  const tone = { green: { bg: p.successSoft, fg: p.success, icon: 'checkmark-circle' as const }, amber: { bg: p.warningSoft, fg: p.warning, icon: 'alert-circle' as const }, red: { bg: p.dangerSoft, fg: p.danger, icon: 'close-circle' as const } }[r.verdict];
+  const tone = r.verdict === 'green' ? 'lime' : r.verdict === 'amber' ? 'amber' : 'red';
+  const mark = r.verdict === 'green' ? 'checkmark' : r.verdict === 'amber' ? 'alert' : 'close';
 
   return (
-    <Screen topInset={false}>
-      <View style={{ backgroundColor: tone.bg, borderRadius: radius.xl, padding: space[5], gap: space[3] }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[2] }}>
-          <Ionicons name={tone.icon} size={34} color={tone.fg} />
-          <Text style={[type.largeTitle, { color: tone.fg }]}>{r.verdict === 'green' ? 'Green' : r.verdict === 'amber' ? 'Amber' : 'Red'}</Text>
-        </View>
-        <Text style={[type.title, { color: p.text, fontSize: 20 }]}>{r.headline}</Text>
-        <View style={{ gap: space[2] }}>
-          {r.mustHappen.map((m, i) => (
-            <View key={i} style={{ flexDirection: 'row', gap: space[2] }}>
-              <Text style={[type.headline, { color: tone.fg, width: 20 }]}>{i + 1}</Text>
-              <Text style={[type.body, { color: p.text, flex: 1 }]}>{m}</Text>
+    <Screen
+      ground="ink"
+      back
+      title="Land report"
+      trailing={<Label>{`V${r.version} · ${formatDay(r.releasedOn)}`}</Label>}
+      footer={<Button title="Download the PDF" icon="download-outline" variant="dark" onPress={() => undefined} />}
+    >
+      <Rise delay={60}>
+        <Panel tone={tone}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <T v="display" color={brand.ink} style={{ fontSize: 48, lineHeight: 50 }}>{verdictWord(r.verdict)}</T>
+            <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: brand.ink, alignItems: 'center', justifyContent: 'center' }}>
+              <Ionicons name={mark} size={26} color={tone === 'lime' ? brand.lime : tone === 'amber' ? brand.amber : brand.red} />
+            </View>
+          </View>
+          <T v="headline" color={brand.ink} style={{ fontSize: 18, lineHeight: 23 }}>{r.headline}</T>
+        </Panel>
+      </Rise>
+
+      {r.mustHappen.length > 0 ? (
+        <Rise delay={160}>
+          <Panel style={{ gap: 0, paddingVertical: space[2] }}>
+            <Label style={{ paddingVertical: space[2] }}>Must happen before you pay</Label>
+            {r.mustHappen.map((m, i) => (
+              <View key={i} style={{ flexDirection: 'row', gap: space[3], paddingVertical: space[3], borderTopWidth: 1, borderTopColor: '#2C2C2C' }}>
+                <View style={{ width: 22, height: 22, borderRadius: 7, backgroundColor: brand.amber, alignItems: 'center', justifyContent: 'center' }}>
+                  <T v="footnote" color={brand.ink} style={{ fontFamily: font.heavy }}>{i + 1}</T>
+                </View>
+                <T v="callout" style={{ flex: 1 }}>{m}</T>
+              </View>
+            ))}
+          </Panel>
+        </Rise>
+      ) : null}
+
+      <Rise delay={260} style={{ gap: space[2] }}>
+        <T v="headline" header style={{ fontSize: 18 }}>What we checked</T>
+        <View>
+          {r.sections.map((s) => (
+            <View key={s.number} style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], minHeight: 46, borderBottomWidth: 1, borderBottomColor: '#2C2C2C' }}>
+              <Label>{String(s.number).padStart(2, '0')}</Label>
+              <T v="callout" style={{ flex: 1 }}>{s.title}</T>
+              <VerdictChip verdict={s.verdict} />
             </View>
           ))}
         </View>
-        <Muted>Released {formatDay(r.releasedOn)} · version {r.version}</Muted>
-      </View>
+      </Rise>
 
-      <Card style={{ paddingVertical: space[2] }}>
-        {r.sections.map((s, i) => (
-          <View
-            key={s.number}
-            style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], minHeight: 48, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: p.separator }}
-          >
-            <Text style={[type.callout, { color: p.text, flex: 1 }]}>{s.title}</Text>
-            <VerdictPill verdict={s.verdict} />
+      <Rise delay={360}>
+        <View style={{ flexDirection: 'row', gap: space[3], borderRadius: radius.lg, borderWidth: 1, borderColor: '#2C2C2C', padding: space[4] }}>
+          <Ionicons name="lock-closed" size={18} color={brand.lime} />
+          <View style={{ flex: 1, gap: space[2] }}>
+            <T v="footnote" muted>{r.signedBy}</T>
+            <T v="mono">{`Sealed · ${r.fingerprint}`}</T>
+            <T v="footnote" muted>If anyone changes the file, this fingerprint will not match.</T>
           </View>
-        ))}
-      </Card>
-
-      <Muted>{r.signedBy}</Muted>
-
-      <Card style={{ backgroundColor: p.surfaceAlt, shadowOpacity: 0, elevation: 0, gap: space[1] }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[2] }}>
-          <Ionicons name="finger-print" size={20} color={p.primary} />
-          <Text style={[type.headline, { color: p.text }]}>Fingerprint of this PDF</Text>
         </View>
-        <Text style={[type.callout, { color: p.text, fontFamily: 'monospace' }]}>{r.fingerprint}</Text>
-        <Muted>If anyone changes the file, the fingerprint will not match.</Muted>
-      </Card>
-
-      <Button title="Download the PDF" icon="download" variant="secondary" onPress={() => undefined} />
+      </Rise>
+      <Button title="Back to the case" variant="quiet" onPress={() => router.back()} />
     </Screen>
   );
 }

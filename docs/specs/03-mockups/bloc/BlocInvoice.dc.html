@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bloc hospital bill</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#A3EE5B}a:hover{color:#C2F58F}
+@keyframes b-rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes b-pop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:none}}
+@keyframes b-nudge{0%,70%,100%{transform:translateX(0)}80%{transform:translateX(5px)}90%{transform:translateX(0)}}
+@keyframes b-ping{0%{box-shadow:0 0 0 0 rgba(255,106,61,.85)}80%,100%{box-shadow:0 0 0 10px rgba(255,106,61,0)}}
+@keyframes b-draw{from{stroke-dashoffset:60}to{stroke-dashoffset:0}}
+@keyframes b-ring{0%{transform:scale(.8);opacity:.7}100%{transform:scale(1.9);opacity:0}}
+@keyframes b-fill{0%{width:0}70%,100%{width:100%}}
+@keyframes b-grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.r1{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .05s both}.r2{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .17s both}
+.r3{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .29s both}.r4{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .41s both}
+.r5{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .53s both}.r6{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .65s both}
+.r7{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .77s both}.r8{animation:b-rise .6s cubic-bezier(.2,.8,.2,1) .89s both}
+.pop{animation:b-pop .45s cubic-bezier(.3,1.5,.5,1) both}
+.nudge{animation:b-nudge 2.4s ease-in-out 1.6s infinite}
+.ping{animation:b-ping 1.8s ease-out infinite}
+.draw{stroke-dasharray:60;animation:b-draw .7s ease-out .5s both}
+.ring{animation:b-ring 2s ease-out infinite}
+.fill{animation:b-fill 3s cubic-bezier(.4,0,.2,1) 1.4s infinite}
+.grow{transform-origin:left;animation:b-grow .9s cubic-bezier(.2,.8,.2,1) .4s both}
+@media (prefers-reduced-motion: reduce){.r1,.r2,.r3,.r4,.r5,.r6,.r7,.r8,.pop,.nudge,.ping,.draw,.ring,.fill,.grow{animation:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #0B0B0B; color: #F7F6F2; font-family: 'Bricolage Grotesque', system-ui, sans-serif; position: relative; overflow: hidden">
+<div style="padding: 52px 20px 22px; display: flex; flex-direction: column; gap: 14px; height: 100%; box-sizing: border-box">
+  <header class="r1" style="display: flex; align-items: center; gap: 12px">
+    <a href="BlocFamily.dc.html" aria-label="Back" style="width: 44px; height: 44px; border-radius: 14px; background: #1A1A1A; display: flex; align-items: center; justify-content: center; flex: none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F7F6F2" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
+    <h1 style="flex: 1; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.03em">Hospital bill</h1>
+    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #FF6A3D">FOR MUM</span>
+  </header>
+  <section class="r2" aria-label="Bill" style="position: relative; background: #FFFFFF; color: #0B0B0B; border-radius: 22px">
+    <div style="padding: 16px 20px 14px">
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #0B0B0B">KATH-IP-55821 · ISSUED 2 APR</span>
+      <div style="margin-top: 4px; font-size: 42px; font-weight: 800; letter-spacing: -0.04em">GHS 1,860.00</div>
+      <div style="font-size: 14px">Ward stay and medicines, 28 March to 1 April</div>
+    </div>
+    <div style="border-top: 2px dashed rgba(11,11,11,0.3); margin: 0 16px"></div>
+    <span aria-hidden="true" style="position: absolute; left: -11px; top: 110px; width: 22px; height: 22px; border-radius: 50%; background: #0B0B0B"></span><span aria-hidden="true" style="position: absolute; right: -11px; top: 110px; width: 22px; height: 22px; border-radius: 50%; background: #0B0B0B"></span>
+    <div style="padding: 14px 20px 16px; display: flex; align-items: center; gap: 12px">
+      <span style="width: 44px; height: 44px; border-radius: 14px; background: #0B0B0B; color: #A3EE5B; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; flex: none">KA</span>
+      <span style="flex: 1"><span style="display: block; font-size: 17px; font-weight: 700">Komfo Anokye Teaching Hospital</span><span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600">KUMASI · ••4471 · NAME MATCHED</span></span>
+    </div>
+  </section>
+  <section class="r3" aria-label="Checks" style="background: #1A1A1A; border-radius: 20px; padding: 6px 16px"><div style="display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #2C2C2C;"><span class="pop" style="width: 22px; height: 22px; border-radius: 7px; background: #A3EE5B; display: flex; align-items: center; justify-content: center; flex: none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0B0B0B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span><span style="flex: 1; font-size: 15px">Sent by the hospital's finance office</span></div><div style="display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #2C2C2C;"><span class="pop" style="width: 22px; height: 22px; border-radius: 7px; background: #A3EE5B; display: flex; align-items: center; justify-content: center; flex: none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0B0B0B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span><span style="flex: 1; font-size: 15px">Patient matches Mum's details</span></div><div style="display: flex; align-items: center; gap: 10px; padding: 10px 0;"><span class="pop" style="width: 22px; height: 22px; border-radius: 7px; background: #A3EE5B; display: flex; align-items: center; justify-content: center; flex: none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0B0B0B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span><span style="flex: 1; font-size: 15px">Amount matches the hospital's copy</span></div></section>
+  <div class="r4" style="display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.4; color: #A9A69E"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A3EE5B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-6 9 6M5 10v8M9 10v8M15 10v8M19 10v8M3 21h18"/></svg><span>The hospital is paid straight into its own account. You get its receipt here, usually within 2 working days.</span></div>
+  <div style="flex: 1"></div>
+  <a class="r7" href="BlocApproved.dc.html" style="position: relative; overflow: hidden; height: 64px; border-radius: 20px; background: #A3EE5B; color: #0B0B0B; font-size: 18px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none">
+    <span class="fill" aria-hidden="true" style="position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: #FF6A3D"></span>
+    <svg style="position: relative" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0B0B0B" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 11a5 5 0 0 1 10 0v2M5 15c0-4 1-8 7-8M12 11v6M9 13v4M15 13v4"/></svg>
+    <span style="position: relative">Press and hold to approve</span>
+  </a>
+  <p class="r8" style="margin: 0; text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #A9A69E">TWO FIDERO STAFF CHECK IT AFTER YOU</p>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

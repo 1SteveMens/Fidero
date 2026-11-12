@@ -138,3 +138,14 @@ describe('sample API', () => {
     expect(preview.blockedBy.length).toBeGreaterThan(0);
   });
 });
+
+describe('dashboard accounts', () => {
+  it('lists each held account and they add up to the total', async () => {
+    const api = createSampleApi(0);
+    const d = await api.getDashboard();
+    expect(d.accounts.length).toBe(2);
+    const sum = d.accounts.reduce((n, a) => n + a.held.amountMinor, 0);
+    expect(sum).toBe(d.held.amountMinor);
+    expect(d.accounts.every((a) => a.heldAt === 'Partner Bank')).toBe(true);
+  });
+});

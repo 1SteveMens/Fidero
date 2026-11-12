@@ -1,39 +1,38 @@
-import { Text } from 'react-native';
+import { View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { formatDay, invoiceBlockers } from '@fidero/shared';
-import { type } from '@fidero/tokens';
+import { brand, space } from '@fidero/tokens';
 import { ApprovalSheet } from '../../components/ApprovalSheet';
-import { Card, ErrorView, Loading, Muted, Screen } from '../../components/ui';
+import { ErrorView, Loading, Screen, T } from '../../components/ui';
 import { useApi, useLoad } from '../../data';
-import { usePalette } from '../../theme';
 
 export default function InvoiceSheet() {
   const api = useApi();
-  const p = usePalette();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: inv, error, reload } = useLoad((a) => a.getInvoice(id), `invoice-${id}`);
 
+  if (error) return <Screen ground="ink"><ErrorView message={error} onRetry={reload} /></Screen>;
+  if (!inv) return <Screen ground="ink"><Loading /></Screen>;
+
   return (
-    <Screen topInset={false}>
-      {error ? <ErrorView message={error} onRetry={reload} /> : null}
-      {!inv && !error ? <Loading /> : null}
-      {inv ? (
-        <ApprovalSheet
-          eyebrow={`Invoice ${inv.ref} · ${formatDay(inv.issuedOn)}`}
-          title={`Pay ${inv.familyMember}'s hospital bill?`}
-          amount={inv.amount}
-          payee={inv.payee}
-          heldAt="Partner Bank"
-          checks={[{ label: 'Institution verified by Fidero', ok: inv.institutionVerified }, ...inv.checks]}
-          blockers={inv.status === 'awaiting_client' ? invoiceBlockers(inv) : []}
-          onApprove={(code) => api.approveInvoice(inv.id, code)}
-        >
-          <Card>
-            <Text style={[type.callout, { color: p.text }]}>{inv.description}</Text>
-            <Muted>The hospital's receipt comes back here, {inv.receiptExpected}.</Muted>
-          </Card>
-        </ApprovalSheet>
-      ) : null}
-    </Screen>
+    <ApprovalSheet
+      title={`Pay for ${inv.familyMember}`}
+      source={`${inv.ref} · issued ${formatDay(inv.issuedOn)}`}
+      amount={inv.amount}
+      description={inv.description}
+      payee={inv.payee}
+      payeePlace={inv.institutionPlace}
+      checks={[{ label: 'Institution verified by Fidero', ok: inv.institutionVerified }, ...inv.checks]}
+      blockers={inv.status === 'awaiting_client' ? invoiceBlockers(inv) : ['You have already approved this bill. Fidero staff are approving it now.']}
+      onApprove={(code) => api.approveInvoice(inv.id, code)}
+    >
+      <View style={{ flexDirection: 'row', gap: space[3], alignItems: 'flex-start' }}>
+        <Ionicons name="business-outline" size={20} color={brand.lime} />
+        <T v="callout" muted style={{ flex: 1 }}>
+          {`${inv.payee.name} is paid straight into its own account, never to a person. Its receipt comes back here, ${inv.receiptExpected}.`}
+        </T>
+      </View>
+    </ApprovalSheet>
   );
 }

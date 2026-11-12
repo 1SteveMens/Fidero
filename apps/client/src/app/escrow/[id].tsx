@@ -9,26 +9,23 @@ export default function EscrowSheet() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: e, error, reload } = useLoad((a) => a.getEscrow(id), `escrow-${id}`);
 
+  if (error) return <Screen ground="ink"><ErrorView message={error} onRetry={reload} /></Screen>;
+  if (!e) return <Screen ground="ink"><Loading /></Screen>;
+
   return (
-    <Screen topInset={false}>
-      {error ? <ErrorView message={error} onRetry={reload} /> : null}
-      {!e && !error ? <Loading /> : null}
-      {e ? (
-        <ApprovalSheet
-          eyebrow={`Escrow · ${e.bankRef}`}
-          title={`Release to the seller for ${e.title}?`}
-          amount={e.release}
-          payee={e.payee}
-          heldAt={e.heldAt}
-          checks={e.conditions.map((c) => ({ label: c.closedOn ? `${c.text} · ${formatDay(c.closedOn)}` : c.text, ok: !!c.closedOn }))}
-          blockers={
-            e.status === 'ready_to_release'
-              ? releaseBlockers(e, { todayIso: SAMPLE_TODAY, freshSearchWindowDays: SAMPLE_FRESH_SEARCH_WINDOW_DAYS })
-              : []
-          }
-          onApprove={(code) => api.approveRelease(e.id, code)}
-        />
-      ) : null}
-    </Screen>
+    <ApprovalSheet
+      title="Approve release"
+      source={`Release from ${e.bankRef}`}
+      amount={e.release}
+      description={`To the seller for ${e.title}`}
+      payee={e.payee}
+      checks={e.conditions.map((c) => ({ label: c.text, detail: c.closedOn ? formatDay(c.closedOn) : undefined, ok: !!c.closedOn }))}
+      blockers={
+        e.status === 'ready_to_release'
+          ? releaseBlockers(e, { todayIso: SAMPLE_TODAY, freshSearchWindowDays: SAMPLE_FRESH_SEARCH_WINDOW_DAYS })
+          : [`This release is ${e.status.replace(/_/g, ' ')}. Nothing for you to do now.`]
+      }
+      onApprove={(code) => api.approveRelease(e.id, code)}
+    />
   );
 }

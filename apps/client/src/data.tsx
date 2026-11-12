@@ -4,6 +4,26 @@ import { createSampleApi, type FideroApi } from '@fidero/shared';
 
 const ApiContext = createContext<FideroApi | null>(null);
 
+interface Session {
+  signedIn: boolean;
+  signIn: () => void;
+  signOut: () => void;
+}
+const SessionContext = createContext<Session | null>(null);
+
+/** Demo session. Real sign-in (FR-ACC-001 to FR-ACC-003) replaces this; screens only read signedIn. */
+export function SessionProvider({ children }: { children: ReactNode }) {
+  const [signedIn, setSignedIn] = useState(false);
+  const value = useMemo(() => ({ signedIn, signIn: () => setSignedIn(true), signOut: () => setSignedIn(false) }), [signedIn]);
+  return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
+}
+
+export function useSession(): Session {
+  const s = useContext(SessionContext);
+  if (!s) throw new Error('useSession must be used inside SessionProvider');
+  return s;
+}
+
 /** Serves sample data until the /v1 API exists. Swap the implementation here only. */
 export function ApiProvider({ children }: { children: ReactNode }) {
   const api = useMemo(() => createSampleApi(), []);

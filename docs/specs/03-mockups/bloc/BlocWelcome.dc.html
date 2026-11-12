@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bloc welcome</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#A3EE5B}a:hover{color:#C2F58F}
+@keyframes bw-zoom{from{transform:scale(1.12)}to{transform:scale(1)}}
+@keyframes bw-rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+@keyframes bw-fade{from{opacity:0}to{opacity:1}}
+@keyframes bw-nudge{0%,70%,100%{transform:translateX(0)}80%{transform:translateX(6px)}90%{transform:translateX(0)}}
+@keyframes bw-shine{0%,60%{transform:translateX(-120%) skewX(-20deg)}100%{transform:translateX(320%) skewX(-20deg)}}
+@keyframes bw-dot{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.8);opacity:0}}
+.bw-photo{animation:bw-zoom 6s cubic-bezier(.2,.7,.2,1) both}
+.bw-top{animation:bw-fade .8s ease .2s both}
+.bw-r1{animation:bw-rise .7s cubic-bezier(.2,.8,.2,1) .35s both}
+.bw-r2{animation:bw-rise .7s cubic-bezier(.2,.8,.2,1) .5s both}
+.bw-r3{animation:bw-rise .7s cubic-bezier(.2,.8,.2,1) .65s both}
+.bw-r4{animation:bw-rise .7s cubic-bezier(.2,.8,.2,1) .8s both}
+.bw-r5{animation:bw-fade .7s ease 1s both}
+.bw-arrow{animation:bw-nudge 2.6s ease-in-out 1.6s infinite}
+.bw-shine{animation:bw-shine 3.4s ease-in-out 1.4s infinite}
+.bw-dot{animation:bw-dot 1.8s ease-out infinite}
+@media (prefers-reduced-motion: reduce){.bw-photo,.bw-top,.bw-r1,.bw-r2,.bw-r3,.bw-r4,.bw-r5,.bw-arrow,.bw-shine,.bw-dot{animation:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #0B0B0B; color: #F7F6F2; font-family: 'Bricolage Grotesque', system-ui, sans-serif; position: relative; display: flex; flex-direction: column; padding: 52px 24px 28px; overflow: hidden">
+  <div style="position: absolute; left: 0; top: 0; width: 390px; height: 580px; overflow: hidden">
+    <img class="bw-photo" src="/_blob/5b420e6eb88a4dfc8ab844814006027e" alt="A smiling client in a black blazer" style="width: 390px; height: 580px; object-fit: cover; object-position: 50% 12%; transform-origin: 50% 30%">
+  </div>
+  <div aria-hidden="true" style="position: absolute; left: 0; top: 380px; width: 390px; height: 202px; background: linear-gradient(180deg, rgba(11,11,11,0) 0%, rgba(11,11,11,0.8) 60%, #0B0B0B 100%)"></div>
+
+  <div class="bw-top" style="position: relative; display: flex; align-items: center; justify-content: space-between">
+    <span style="display: flex; align-items: center; gap: 8px">
+      <svg width="32" height="32" viewBox="0 0 30 30" aria-hidden="true"><path d="M6 3h18a3 3 0 0 1 3 3v6a3 3 0 0 0 0 6v6a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-6a3 3 0 0 0 0-6V6a3 3 0 0 1 3-3z" fill="#A3EE5B"/><path d="M10 15.5l3.2 3.2L20 11.5" stroke="#0B0B0B" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span style="font-size: 24px; font-weight: 800; letter-spacing: -0.04em; color: #0B0B0B">fidero</span>
+    </span>
+    <a href="BlocHome.dc.html" style="height: 40px; padding: 0 16px; border-radius: 12px; background: #0B0B0B; color: #F7F6F2; font-size: 15px; font-weight: 600; text-decoration: none; display: flex; align-items: center">Sign in</a>
+  </div>
+
+  <div style="flex: 1"></div>
+
+  <div class="bw-r1" style="position: relative; display: flex; align-items: center; gap: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; color: #A3EE5B">
+    <span style="position: relative; width: 8px; height: 8px"><span class="bw-dot" style="position: absolute; inset: 0; border-radius: 50%; background: #A3EE5B"></span><span style="position: absolute; inset: 0; border-radius: 50%; background: #A3EE5B"></span></span>
+    FOR GHANAIANS ABROAD
+  </div>
+  <h1 class="bw-r2" style="position: relative; margin: 10px 0 0; font-size: 54px; line-height: 0.95; font-weight: 800; letter-spacing: -0.045em">Your agent<br>at <span style="color: #A3EE5B">home.</span></h1>
+  <p class="bw-r3" style="position: relative; margin: 12px 0 22px; font-size: 16px; line-height: 1.5; color: #A9A69E; max-width: 320px">Buy, build and pay in Ghana from anywhere. Every cedi checked and shown to you.</p>
+  <a class="bw-r4" href="BlocHome.dc.html" style="position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; height: 62px; padding: 0 22px; border-radius: 18px; background: #A3EE5B; color: #0B0B0B; font-size: 18px; font-weight: 700; text-decoration: none">
+    <span class="bw-shine" aria-hidden="true" style="position: absolute; top: 0; left: 0; width: 70px; height: 100%; background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.55), rgba(255,255,255,0))"></span>
+    <span style="position: relative">Get started</span>
+    <svg class="bw-arrow" style="position: relative" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0B0B0B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  </a>
+  <a class="bw-r5" href="BlocHome.dc.html" style="position: relative; display: flex; align-items: center; justify-content: center; height: 44px; margin-top: 6px; color: #F7F6F2; font-size: 15px; font-weight: 600; text-decoration: none">I already have an account</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -4,17 +4,18 @@ The **Fidero** app for clients, family members and tenants, for iOS and Android 
 
 This first build runs on **sample data** from `@fidero/shared` (`createSampleApi`). Nothing here moves money: approvals change sample state only, and the server will enforce every rule again.
 
-## Design direction
+## Design direction: Bloc
 
-Current, native chrome with a Fidero layer on top:
+The founder chose **Bloc** on 12 November 2026. The full rules are in `docs/specs/03` section 6.1a, and the mockups in `docs/specs/03-mockups/bloc/`.
 
-- Native tab bar (`expo-router/native-tabs`): Liquid Glass on iOS 26, Material 3 on Android. The web preview uses a floating bottom bar instead (`(tabs)/_layout.web.tsx`).
-- Large in-content titles, borderless cards with soft depth, 20-point corners.
-- A deep indigo hero for money held at the bank, in both themes.
-- Approvals open as sheets: amount, exactly who is paid, the bank's name check, every condition, a 6-box code field, then the three steps (you, two Fidero staff, the bank). Haptic feedback on approve.
-- Verdicts always show icon, word and colour together. Full dark mode.
+- Black or white grounds. Lime for proof and the main action, orange only for what needs the client, yellow only for the Amber verdict.
+- Bricolage Grotesque for words and numbers, IBM Plex Mono for references, dates and labels (`@expo-google-fonts`).
+- Money held at the bank shows as account cards side by side, each with a turning seal. No card network logo or chip.
+- Approvals: a ticket with the amount and exactly who is paid, every condition ticked, the approval chain (you, two Fidero staff, the bank), a six-box code, then **press and hold** for 1.2 seconds. With VoiceOver or TalkBack, a double tap approves.
+- A Bloc tab bar on both platforms. Motion everywhere is short and stops when the phone asks for reduced motion.
+- In system dark mode every screen is black.
 
-Tokens live in `packages/tokens`.
+Tokens live in `packages/tokens` (version 3). Components are in `src/components`: `ui.tsx` (text, panels, chips, steps, buttons, hold, code field), `money.tsx` (account cards, seal, ticket), `ApprovalSheet.tsx`, `TabBar.tsx` and `Mark.tsx`.
 
 ## Run it
 
@@ -41,23 +42,25 @@ pnpm -r typecheck
 ```
 
 ```bash
-pnpm --filter @fidero/shared test
+pnpm -r test
 ```
 
 ## Screens
 
 | Route | Screen |
 |---|---|
-| `/` | Home: money held, what needs you, property, family, projects |
+| `/welcome` | Welcome and sign in (demo: any button signs in) |
+| `/` | Home: account cards, quick actions, what needs you, cases and family |
 | `/property`, `/family`, `/projects`, `/account` | The other tabs |
-| `/case/[id]` | Case progress and timeline |
+| `/case/[id]` | Case progress as a step trail |
 | `/report/[id]` | Report verdict, conditions, section results, PDF fingerprint |
-| `/escrow/[id]` | Release approval sheet |
+| `/escrow/[id]` | Release approval: ticket, conditions, code, press and hold |
 | `/invoice/[id]` | Institution invoice approval sheet |
 | `/account/delete` | In-app account deletion: what is deleted, what is kept and why (FR-APP-004) |
 
 ## Next
 
 - Replace the sample API with the HTTP client for `/v1` once the R1 backend exists.
-- Sign-in, push notifications (FR-APP-002), biometric unlock (FR-APP-003), minimum-version check (FR-APP-006).
+- Real sign-in (FR-ACC-001 to FR-ACC-003), push notifications (FR-APP-002), biometric unlock (FR-APP-003), minimum-version check (FR-APP-006).
+- A licensed photograph for the welcome screen (03 DQ-22).
 - Fidero Field in `apps/field`, with the native capture, signing and attestation modules.

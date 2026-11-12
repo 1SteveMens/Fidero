@@ -1,72 +1,105 @@
-import { Text, View } from 'react-native';
-import { router } from 'expo-router';
-import { formatMoney, type HomeRow } from '@fidero/shared';
-import { hero, space, type } from '@fidero/tokens';
-import { ErrorView, Hero, Loading, Pill, Row, Screen, SectionHeader, VerdictPill } from '../../components/ui';
+import { Pressable, View } from 'react-native';
+import { router, type Href } from 'expo-router';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { brand, font, radius, space } from '@fidero/tokens';
+import { AccountCards } from '../../components/money';
+import { Mark } from '../../components/Mark';
+import { ErrorView, IconButton, Label, ListRow, Loading, NeedsYou, Panel, Rise, Screen, T, VerdictChip, haptic, type IconName } from '../../components/ui';
 import { useLoad } from '../../data';
 import { usePalette } from '../../theme';
 
-function RowList({ rows, icon }: { rows: HomeRow[]; icon: 'business' | 'heart' | 'document-text' }) {
+function Quick({ icon, label, tone, href, delay }: { icon: IconName; label: string; tone: 'lime' | 'ink' | 'surface'; href: Href; delay: number }) {
+  const p = usePalette();
+  const bg = tone === 'lime' ? brand.lime : tone === 'ink' ? brand.ink : p.surface;
+  const fg = tone === 'lime' ? brand.ink : tone === 'ink' ? brand.lime : p.text;
   return (
-    <View style={{ gap: space[3] }}>
-      {rows.map((r) => (
-        <Row
-          key={r.id}
-          icon={icon}
-          tone="neutral"
-          title={r.title}
-          detail={r.detail}
-          onPress={r.href ? () => router.push(r.href as never) : undefined}
-          trailing={r.badge?.verdict ? <VerdictPill verdict={r.badge.verdict} /> : undefined}
-        />
-      ))}
-    </View>
+    <Rise delay={delay} style={{ flex: 1 }}>
+      <Pressable
+        onPress={() => {
+          haptic('tap');
+          router.push(href);
+        }}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        style={({ pressed }) => ({ alignItems: 'center', gap: 6, opacity: pressed ? 0.8 : 1, transform: [{ scale: pressed ? 0.96 : 1 }] })}
+      >
+        <View style={{ width: 66, height: 66, borderRadius: radius.lg, backgroundColor: bg, alignItems: 'center', justifyContent: 'center' }}>
+          <Ionicons name={icon} size={26} color={fg} />
+        </View>
+        <T v="footnote" style={{ fontFamily: font.semibold }}>{label}</T>
+      </Pressable>
+    </Rise>
   );
 }
 
 export default function Home() {
-  const p = usePalette();
+  const p = usePalette('paper');
   const { data, error, reload } = useLoad((api) => api.getDashboard(), 'dashboard');
+  const bill = data?.needsYou.find((n) => n.href.startsWith('/invoice'));
+  const latest = data ? [...data.property, ...data.family, ...data.projects] : [];
 
   return (
-    <Screen subtitle="Ghana · GHS" title={data ? `Hello, ${data.firstName}` : 'Hello'}>
+    <Screen ground="paper" tabs>
+      <Rise>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[3] }}>
+          <Mark />
+          <T v="title" header style={{ flex: 1 }}>{data ? `Akwaaba, ${data.firstName}` : 'Akwaaba'}</T>
+          <View>
+            <IconButton icon="notifications-outline" label={data?.needsYou.length ? `Notifications, ${data.needsYou.length} new` : 'Notifications'} onPress={() => undefined} />
+            {data?.needsYou.length ? <View style={{ position: 'absolute', top: 10, right: 11, width: 10, height: 10, borderRadius: 5, backgroundColor: brand.orange, borderWidth: 2, borderColor: p.surface }} /> : null}
+          </View>
+        </View>
+      </Rise>
+
       {error ? <ErrorView message={error} onRetry={reload} /> : null}
       {!data && !error ? <Loading /> : null}
       {data ? (
         <>
-          <Hero>
-            <Text style={[type.footnote, { color: hero.textMuted, fontWeight: '600' }]}>Held for you at {data.heldAt}</Text>
-            <Text style={[type.amount, { color: hero.text, fontVariant: ['tabular-nums'], letterSpacing: -1 }]}>{formatMoney(data.held)}</Text>
-            <Text style={[type.callout, { color: hero.textMuted }]}>
-              Fidero never holds your money. The bank pays only after you and two Fidero staff approve.
-            </Text>
-          </Hero>
+          <AccountCards accounts={data.accounts} holder={data.fullName} total={data.held} />
+
+          <View style={{ flexDirection: 'row', gap: space[2] }}>
+            <Quick icon="location-outline" label="Check land" tone="lime" href="/property" delay={300} />
+            <Quick icon="receipt-outline" label="Pay a bill" tone="ink" href={(bill?.href ?? '/family') as Href} delay={360} />
+            <Quick icon="construct-outline" label="Build" tone="surface" href="/projects" delay={420} />
+            <Quick icon="heart-outline" label="Care visit" tone="surface" href="/family" delay={480} />
+          </View>
 
           {data.needsYou.length > 0 ? (
-            <>
-              <SectionHeader title="Needs you" count={data.needsYou.length} />
-              <View style={{ gap: space[3] }}>
-                {data.needsYou.map((n) => (
-                  <Row key={n.id} icon="hand-left" tone="primary" title={n.title} detail={n.detail} onPress={() => router.push(n.href as never)} />
-                ))}
-              </View>
-            </>
+            <Rise delay={540} style={{ gap: space[3] }}>
+              <NeedsYou title={data.needsYou[0].title} detail={data.needsYou[0].detail} count={data.needsYou.length} onPress={() => router.push(data.needsYou[0].href as Href)} />
+              {data.needsYou.length > 1 ? (
+                <Panel style={{ paddingVertical: space[1], gap: 0 }}>
+                  {data.needsYou.slice(1).map((n, i, all) => (
+                    <ListRow key={n.id} icon="hand-left-outline" iconTone="orange" title={n.title} detail={n.detail} onPress={() => router.push(n.href as Href)} last={i === all.length - 1} />
+                  ))}
+                </Panel>
+              ) : null}
+            </Rise>
           ) : (
-            <View style={{ alignItems: 'flex-start', gap: space[2] }}>
-              <Pill label="Nothing needs you right now" tone="success" icon="checkmark-circle" />
-            </View>
+            <Panel tone="lime" style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="checkmark-circle" size={22} color={brand.ink} />
+              <T v="headline" color={brand.ink}>Nothing needs you right now</T>
+            </Panel>
           )}
 
-          <SectionHeader title="Property" />
-          <RowList rows={data.property} icon="business" />
-
-          <SectionHeader title="Family" />
-          <RowList rows={data.family} icon="heart" />
-
-          <SectionHeader title="Projects and errands" />
-          <RowList rows={data.projects} icon="document-text" />
-
-          <Text style={[type.footnote, { color: p.textMuted, textAlign: 'center' }]}>Sample data for the demo build.</Text>
+          <Rise delay={620} style={{ gap: space[2] }}>
+            <T v="headline" header style={{ fontSize: 18 }}>Your cases and family</T>
+            <View>
+              {latest.map((r, i) => (
+                <ListRow
+                  key={r.id}
+                  icon={r.id.startsWith('p') ? 'business-outline' : r.id.startsWith('f') ? 'heart-outline' : 'document-text-outline'}
+                  iconTone="surface"
+                  title={r.title}
+                  detail={r.detail}
+                  onPress={r.href ? () => router.push(r.href as Href) : undefined}
+                  trailing={r.badge?.verdict ? <VerdictChip verdict={r.badge.verdict} /> : undefined}
+                  last={i === latest.length - 1}
+                />
+              ))}
+            </View>
+          </Rise>
+          <Label style={{ textAlign: 'center' }}>Sample data for the demo build</Label>
         </>
       ) : null}
     </Screen>

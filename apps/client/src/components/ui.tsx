@@ -1,6 +1,8 @@
-import { useRef, type ComponentRef, type ReactNode } from 'react';
+import { useEffect, useRef, type ComponentRef, type ReactNode } from 'react';
 import {
   ActivityIndicator,
+  Animated,
+  Easing,
   Platform,
   Pressable,
   ScrollView,
@@ -8,92 +10,245 @@ import {
   TextInput,
   View,
   type StyleProp,
+  type TextStyle,
   type ViewStyle,
 } from 'react-native';
+import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { hero, minTouch, radius, space, type } from '@fidero/tokens';
-import type { Verdict } from '@fidero/shared';
-import { usePalette } from '../theme';
+import { brand, minTouch, radius, space, type, type Ground } from '@fidero/tokens';
+import type { CaseStep, Verdict } from '@fidero/shared';
+import { GroundContext, useGround, usePalette, useReducedMotion } from '../theme';
 
-type IconName = keyof typeof Ionicons.glyphMap;
+export type IconName = keyof typeof Ionicons.glyphMap;
+const nativeDriver = Platform.OS !== 'web';
 
-export function haptic(kind: 'success' | 'warning' | 'tap') {
+export function haptic(kind: 'success' | 'warning' | 'tap' | 'heavy') {
   if (Platform.OS === 'web') return;
   if (kind === 'tap') void Haptics.selectionAsync();
+  else if (kind === 'heavy') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
   else
     void Haptics.notificationAsync(
       kind === 'success' ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Warning,
     );
 }
 
-/** A scrolling screen with an in-content large title, the current iOS and Material pattern. */
-export function Screen({
-  title,
-  subtitle,
+/* ---------- Text ---------- */
+
+type Variant = keyof typeof type;
+
+export function T({
+  v = 'body',
+  color,
+  muted,
+  style,
   children,
-  trailing,
-  topInset = true,
+  header,
+  numberOfLines,
 }: {
-  title?: string;
-  subtitle?: string;
+  v?: Variant;
+  color?: string;
+  muted?: boolean;
+  style?: StyleProp<TextStyle>;
   children: ReactNode;
-  trailing?: ReactNode;
-  topInset?: boolean;
+  header?: boolean;
+  numberOfLines?: number;
 }) {
   const p = usePalette();
-  const insets = useSafeAreaInsets();
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: p.bg }}
-      contentContainerStyle={{
-        paddingTop: (topInset ? insets.top : 0) + space[4],
-        paddingBottom: insets.bottom + 96,
-        paddingHorizontal: space[5],
-        gap: space[5],
-      }}
-      contentInsetAdjustmentBehavior="never"
+    <Text
+      accessibilityRole={header ? 'header' : undefined}
+      numberOfLines={numberOfLines}
+      style={[type[v], { color: color ?? (muted ? p.textMuted : p.text) }, style]}
     >
-      {title ? (
-        <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: space[3] }}>
-          <View style={{ flex: 1 }}>
-            {subtitle ? <Text style={[type.footnote, { color: p.textMuted, fontWeight: '600' }]}>{subtitle}</Text> : null}
-            <Text accessibilityRole="header" style={[type.largeTitle, { color: p.text, letterSpacing: -0.5 }]}>
-              {title}
-            </Text>
-          </View>
-          {trailing}
-        </View>
-      ) : null}
       {children}
-    </ScrollView>
+    </Text>
   );
 }
 
-export function Card({
+/** Mono uppercase label for references, dates and section tags. */
+export function Label({ children, color, style }: { children: ReactNode; color?: string; style?: StyleProp<TextStyle> }) {
+  const p = usePalette();
+  return <Text style={[type.label, { color: color ?? p.textMuted, textTransform: 'uppercase' }, style]}>{children}</Text>;
+}
+
+export function Muted({ children }: { children: ReactNode }) {
+  return <T v="footnote" muted>{children}</T>;
+}
+
+/* ---------- Motion ---------- */
+
+/** Content rises into place. Skipped when the phone asks for less motion. */
+export function Rise({ children, delay = 0, style }: { children: ReactNode; delay?: number; style?: StyleProp<ViewStyle> }) {
+  const reduced = useReducedMotion();
+  const v = useRef(new Animated.Value(reduced ? 1 : 0)).current;
+  useEffect(() => {
+    if (reduced) {
+      v.setValue(1);
+      return;
+    }
+    Animated.timing(v, { toValue: 1, duration: 520, delay, easing: Easing.out(Easing.cubic), useNativeDriver: nativeDriver }).start();
+  }, [reduced, delay, v]);
+  return (
+    <Animated.View style={[{ opacity: v, transform: [{ translateY: v.interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }] }, style]}>
+      {children}
+    </Animated.View>
+  );
+}
+
+/** A soft orange pulse for the one thing that needs the client. */
+export function Pulse({ children, size, radius: r, color = brand.orange }: { children?: ReactNode; size: number; radius: number; color?: string }) {
+  const reduced = useReducedMotion();
+  const v = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (reduced) return;
+    const loop = Animated.loop(Animated.timing(v, { toValue: 1, duration: 1800, easing: Easing.out(Easing.quad), useNativeDriver: nativeDriver }));
+    loop.start();
+    return () => loop.stop();
+  }, [reduced, v]);
+  return (
+    <View style={{ width: size, height: size }}>
+      {!reduced ? (
+        <Animated.View
+          pointerEvents="none"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            borderRadius: r,
+            backgroundColor: color,
+            opacity: v.interpolate({ inputRange: [0, 1], outputRange: [0.55, 0] }),
+            transform: [{ scale: v.interpolate({ inputRange: [0, 1], outputRange: [1, 1.7] }) }],
+          }}
+        />
+      ) : null}
+      <View style={{ width: size, height: size, borderRadius: r, backgroundColor: color, alignItems: 'center', justifyContent: 'center' }}>{children}</View>
+    </View>
+  );
+}
+
+/* ---------- Screen ---------- */
+
+/** A Bloc screen: black or white ground, big title, optional back button and fixed footer. */
+export function Screen({
+  ground = 'paper',
+  title,
+  eyebrow,
+  trailing,
+  back,
+  tabs,
+  footer,
   children,
+}: {
+  ground?: Ground;
+  title?: string;
+  eyebrow?: string;
+  trailing?: ReactNode;
+  back?: boolean;
+  tabs?: boolean;
+  footer?: ReactNode;
+  children: ReactNode;
+}) {
+  const g = useGround(ground);
+  const p = usePalette(g);
+  const insets = useSafeAreaInsets();
+  return (
+    <GroundContext.Provider value={g}>
+      <View style={{ flex: 1, backgroundColor: p.ground }}>
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{
+            paddingTop: insets.top + space[3],
+            paddingBottom: (tabs ? 100 : space[6]) + (footer ? 0 : insets.bottom),
+            paddingHorizontal: space[5],
+            gap: space[4],
+          }}
+          contentInsetAdjustmentBehavior="never"
+          showsVerticalScrollIndicator={false}
+        >
+          {back || title || eyebrow || trailing ? (
+            <Rise>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], minHeight: minTouch }}>
+                {back ? <IconButton icon="chevron-back" label="Back" onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} /> : null}
+                <View style={{ flex: 1 }}>
+                  {eyebrow ? <Label>{eyebrow}</Label> : null}
+                  {title ? (
+                    <T v={back ? 'title' : 'largeTitle'} header numberOfLines={2}>
+                      {title}
+                    </T>
+                  ) : null}
+                </View>
+                {trailing}
+              </View>
+            </Rise>
+          ) : null}
+          {children}
+        </ScrollView>
+        {footer ? <View style={{ paddingHorizontal: space[5], paddingTop: space[3], paddingBottom: insets.bottom + space[3], gap: space[2], backgroundColor: p.ground }}>{footer}</View> : null}
+      </View>
+    </GroundContext.Provider>
+  );
+}
+
+export function IconButton({ icon, label, onPress, tone = 'surface' }: { icon: IconName; label: string; onPress: () => void; tone?: 'surface' | 'lime' }) {
+  const p = usePalette();
+  const bg = tone === 'lime' ? brand.lime : p.surface;
+  const fg = tone === 'lime' ? brand.ink : p.text;
+  return (
+    <Pressable
+      onPress={() => {
+        haptic('tap');
+        onPress();
+      }}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      hitSlop={6}
+      style={({ pressed }) => ({ width: minTouch, height: minTouch, borderRadius: radius.md, backgroundColor: bg, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.75 : 1 })}
+    >
+      <Ionicons name={icon} size={22} color={fg} />
+    </Pressable>
+  );
+}
+
+/* ---------- Surfaces ---------- */
+
+export type PanelTone = 'surface' | 'raised' | 'lime' | 'orange' | 'amber' | 'red' | 'ground';
+
+export function usePanelColors(tone: PanelTone) {
+  const p = usePalette();
+  switch (tone) {
+    case 'raised':
+      return { bg: p.raised, fg: p.onRaised, muted: p.raised === brand.ink ? '#A9A69E' : '#6A675F' };
+    case 'lime':
+      return { bg: brand.lime, fg: brand.ink, muted: '#3F5A1F' };
+    case 'orange':
+      return { bg: brand.orange, fg: brand.ink, muted: '#4A1A0A' };
+    case 'amber':
+      return { bg: brand.amber, fg: brand.ink, muted: '#5A4E10' };
+    case 'red':
+      return { bg: brand.red, fg: brand.ink, muted: '#4A0E0A' };
+    case 'ground':
+      return { bg: p.ground, fg: p.text, muted: p.textMuted };
+    default:
+      return { bg: p.surface, fg: p.text, muted: p.textMuted };
+  }
+}
+
+export function Panel({
+  tone = 'surface',
   onPress,
+  children,
   style,
   accessibilityLabel,
 }: {
-  children: ReactNode;
+  tone?: PanelTone;
   onPress?: () => void;
+  children: ReactNode;
   style?: StyleProp<ViewStyle>;
   accessibilityLabel?: string;
 }) {
-  const p = usePalette();
-  const base: ViewStyle = {
-    backgroundColor: p.surface,
-    borderRadius: radius.lg,
-    padding: space[4],
-    shadowColor: p.shadow,
-    shadowOpacity: 1,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 2,
-  };
+  const c = usePanelColors(tone);
+  const base: ViewStyle = { backgroundColor: c.bg, borderRadius: radius.xl, padding: space[4], gap: space[3] };
   if (!onPress) return <View style={[base, style]}>{children}</View>;
   return (
     <Pressable
@@ -103,135 +258,247 @@ export function Card({
       }}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      style={({ pressed }) => [base, { opacity: pressed ? 0.85 : 1, transform: [{ scale: pressed ? 0.99 : 1 }] }, style]}
+      style={({ pressed }) => [base, { opacity: pressed ? 0.9 : 1, transform: [{ scale: pressed ? 0.985 : 1 }] }, style]}
     >
       {children}
     </Pressable>
   );
 }
 
-export function SectionHeader({ title, count }: { title: string; count?: number }) {
+/** A square icon block. Black with a lime icon is the default Bloc mark. */
+export function IconTile({ name, tone = 'ink', size = 40 }: { name: IconName; tone?: 'ink' | 'lime' | 'orange' | 'surface' | 'paper'; size?: number }) {
   const p = usePalette();
+  const map = {
+    ink: { bg: brand.ink, fg: brand.lime },
+    lime: { bg: brand.lime, fg: brand.ink },
+    orange: { bg: brand.orange, fg: brand.ink },
+    surface: { bg: p.surface, fg: p.text },
+    paper: { bg: brand.paper, fg: brand.ink },
+  }[tone];
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[2], marginBottom: -space[2] }}>
-      <Text accessibilityRole="header" style={[type.title, { color: p.text, fontSize: 20 }]}>
-        {title}
-      </Text>
-      {count !== undefined ? (
-        <View style={{ backgroundColor: p.accent, borderRadius: radius.pill, minWidth: 22, height: 22, paddingHorizontal: 7, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={[type.caption, { color: '#FFFFFF' }]}>{count}</Text>
-        </View>
-      ) : null}
+    <View style={{ width: size, height: size, borderRadius: size * 0.3, backgroundColor: map.bg, alignItems: 'center', justifyContent: 'center' }}>
+      <Ionicons name={name} size={size * 0.5} color={map.fg} />
     </View>
   );
 }
 
-/** Deep indigo hero used for money held at the bank. */
-export function Hero({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
+/** Black square with an arrow, used at the end of anything that opens. */
+export function ArrowBox({ color = brand.ink, arrow = brand.lime }: { color?: string; arrow?: string }) {
   return (
-    <LinearGradient
-      colors={[hero.from, hero.to]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={[{ borderRadius: radius.xl, padding: space[5], gap: space[2] }, style]}
-    >
-      {children}
-    </LinearGradient>
-  );
-}
-
-export function IconBadge({ name, tone = 'primary' }: { name: IconName; tone?: Tone }) {
-  const c = useTone(tone);
-  return (
-    <View style={{ width: 40, height: 40, borderRadius: radius.md, backgroundColor: c.bg, alignItems: 'center', justifyContent: 'center' }}>
-      <Ionicons name={name} size={22} color={c.fg} />
+    <View style={{ width: 44, height: 44, borderRadius: radius.md, backgroundColor: color, alignItems: 'center', justifyContent: 'center' }}>
+      <Ionicons name="arrow-forward" size={20} color={arrow} />
     </View>
   );
 }
 
-export function Row({
+export type ChipTone = 'lime' | 'orange' | 'amber' | 'red' | 'ink' | 'paper' | 'surface';
+
+export function Chip({ label, tone = 'surface', icon }: { label: string; tone?: ChipTone; icon?: IconName }) {
+  const p = usePalette();
+  const map = {
+    lime: { bg: brand.lime, fg: brand.ink },
+    orange: { bg: brand.orange, fg: brand.ink },
+    amber: { bg: brand.amber, fg: brand.ink },
+    red: { bg: brand.red, fg: brand.ink },
+    ink: { bg: brand.ink, fg: brand.lime },
+    paper: { bg: brand.paper, fg: brand.ink },
+    surface: { bg: p.surface, fg: p.text },
+  }[tone];
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: map.bg, borderRadius: radius.sm, paddingHorizontal: 9, paddingVertical: 4 }}>
+      {icon ? <Ionicons name={icon} size={13} color={map.fg} /> : null}
+      <Text style={[type.footnote, { fontFamily: type.headline.fontFamily, fontSize: 12, lineHeight: 16, color: map.fg }]}>{label}</Text>
+    </View>
+  );
+}
+
+/** A verdict is never colour alone: word, icon and colour together (03 section 5). */
+export function VerdictChip({ verdict, suffix }: { verdict: Verdict; suffix?: string }) {
+  const map = {
+    green: { tone: 'lime' as ChipTone, icon: 'checkmark' as IconName, word: 'Green' },
+    amber: { tone: 'amber' as ChipTone, icon: 'alert' as IconName, word: 'Amber' },
+    red: { tone: 'red' as ChipTone, icon: 'close' as IconName, word: 'Red' },
+  }[verdict];
+  return <Chip tone={map.tone} icon={map.icon} label={suffix ? `${map.word} ${suffix}` : map.word} />;
+}
+
+export function Tick({ ok = true, size = 22 }: { ok?: boolean; size?: number }) {
+  return (
+    <View style={{ width: size, height: size, borderRadius: size * 0.32, backgroundColor: ok ? brand.lime : brand.red, alignItems: 'center', justifyContent: 'center' }}>
+      <Ionicons name={ok ? 'checkmark' : 'close'} size={size * 0.66} color={brand.ink} />
+    </View>
+  );
+}
+
+/** A row inside a panel: icon, title, detail and something on the right. */
+export function ListRow({
   icon,
-  tone,
+  iconTone,
   title,
   detail,
-  onPress,
   trailing,
+  onPress,
+  last,
 }: {
   icon?: IconName;
-  tone?: Tone;
+  iconTone?: 'ink' | 'lime' | 'orange' | 'surface' | 'paper';
   title: string;
   detail?: string;
-  onPress?: () => void;
   trailing?: ReactNode;
+  onPress?: () => void;
+  last?: boolean;
 }) {
   const p = usePalette();
-  return (
-    <Card onPress={onPress} accessibilityLabel={detail ? `${title}. ${detail}` : title}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], minHeight: minTouch }}>
-        {icon ? <IconBadge name={icon} tone={tone} /> : null}
-        <View style={{ flex: 1, gap: 2 }}>
-          <Text style={[type.headline, { color: p.text }]}>{title}</Text>
-          {detail ? <Text style={[type.callout, { color: p.textMuted }]}>{detail}</Text> : null}
-        </View>
-        {trailing}
-        {onPress ? <Ionicons name="chevron-forward" size={20} color={p.textMuted} /> : null}
+  const body = (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], minHeight: 52, paddingVertical: space[2], borderBottomWidth: last ? 0 : 1, borderBottomColor: p.line }}>
+      {icon ? <IconTile name={icon} tone={iconTone} size={38} /> : null}
+      <View style={{ flex: 1, gap: 1 }}>
+        <T v="headline" style={{ fontSize: 15 }}>{title}</T>
+        {detail ? <T v="footnote" muted>{detail}</T> : null}
       </View>
-    </Card>
-  );
-}
-
-export type Tone = 'primary' | 'success' | 'warning' | 'danger' | 'neutral';
-
-function useTone(tone: Tone) {
-  const p = usePalette();
-  switch (tone) {
-    case 'success':
-      return { fg: p.success, bg: p.successSoft };
-    case 'warning':
-      return { fg: p.warning, bg: p.warningSoft };
-    case 'danger':
-      return { fg: p.danger, bg: p.dangerSoft };
-    case 'neutral':
-      return { fg: p.textMuted, bg: p.surfaceAlt };
-    default:
-      return { fg: p.primary, bg: p.primarySoft };
-  }
-}
-
-export function Pill({ label, tone = 'neutral', icon, inline = false }: { label: string; tone?: Tone; icon?: IconName; inline?: boolean }) {
-  const c = useTone(tone);
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: inline ? 'center' : 'flex-start', backgroundColor: c.bg, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5 }}>
-      {icon ? <Ionicons name={icon} size={14} color={c.fg} /> : null}
-      <Text style={[type.caption, { color: c.fg }]}>{label}</Text>
+      {trailing}
+      {onPress && !trailing ? <Ionicons name="chevron-forward" size={18} color={p.textMuted} /> : null}
     </View>
   );
-}
-
-/** A verdict is never colour alone: icon, word and colour together (03 section 5). */
-export function VerdictPill({ verdict }: { verdict: Verdict }) {
-  const map = {
-    green: { tone: 'success' as Tone, icon: 'checkmark-circle' as IconName, label: 'Green' },
-    amber: { tone: 'warning' as Tone, icon: 'alert-circle' as IconName, label: 'Amber' },
-    red: { tone: 'danger' as Tone, icon: 'close-circle' as IconName, label: 'Red' },
-  }[verdict];
-  return <Pill label={map.label} tone={map.tone} icon={map.icon} inline />;
-}
-
-export function ProgressBar({ value, tone = 'primary', onHero = false }: { value: number; tone?: Tone; onHero?: boolean }) {
-  const c = useTone(tone);
-  const p = usePalette();
-  const pct = Math.max(0, Math.min(1, value));
+  if (!onPress) return <View accessible accessibilityLabel={detail ? `${title}. ${detail}` : title}>{body}</View>;
   return (
-    <View
-      accessibilityRole="progressbar"
-      accessibilityValue={{ min: 0, max: 100, now: Math.round(pct * 100) }}
-      style={{ height: 6, borderRadius: 3, backgroundColor: onHero ? hero.chip : p.surfaceAlt, overflow: 'hidden' }}
+    <Pressable
+      onPress={() => {
+        haptic('tap');
+        onPress();
+      }}
+      accessibilityRole="button"
+      accessibilityLabel={detail ? `${title}. ${detail}` : title}
+      style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
     >
-      <View style={{ width: `${pct * 100}%`, height: '100%', borderRadius: 3, backgroundColor: onHero ? '#FFFFFF' : c.fg }} />
+      {body}
+    </Pressable>
+  );
+}
+
+/** The orange card for something only the client can do. */
+export function NeedsYou({ title, detail, count, onPress }: { title: string; detail?: string; count?: number; onPress: () => void }) {
+  return (
+    <Panel tone="orange" onPress={onPress} accessibilityLabel={`Needs you. ${title}. ${detail ?? ''}`} style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], paddingVertical: space[4] }}>
+      <View style={{ flex: 1, gap: 4 }}>
+        <Label color={brand.ink}>{count && count > 1 ? `Needs you · ${count}` : 'Needs you'}</Label>
+        <T v="headline" color={brand.ink} style={{ fontSize: 18, lineHeight: 23 }}>{title}</T>
+        {detail ? <T v="footnote" color="#3A1408">{detail}</T> : null}
+      </View>
+      <ArrowBox arrow={brand.orange} />
+    </Panel>
+  );
+}
+
+/* ---------- Progress ---------- */
+
+export function SegBar({ done, total, current = true, onDark }: { done: number; total: number; current?: boolean; onDark?: boolean }) {
+  const p = usePalette();
+  return (
+    <View accessibilityRole="progressbar" accessibilityValue={{ min: 0, max: total, now: done }} style={{ flexDirection: 'row', gap: 4 }}>
+      {Array.from({ length: total }, (_, i) => (
+        <View
+          key={i}
+          style={{
+            flex: 1,
+            height: 8,
+            borderRadius: 4,
+            backgroundColor: i < done ? (onDark ? brand.lime : brand.ink) : i === done && current ? brand.orange : onDark ? '#2C2C2C' : p.lineStrong,
+          }}
+        />
+      ))}
     </View>
   );
 }
+
+/** The vertical step trail used for a case: black ticks, an orange "now". */
+export function StepTrail({ steps, onStep }: { steps: CaseStep[]; onStep?: (s: CaseStep) => (() => void) | undefined }) {
+  const p = usePalette();
+  return (
+    <View>
+      {steps.map((s, i) => {
+        const last = i === steps.length - 1;
+        const press = onStep?.(s);
+        const marker =
+          s.state === 'done' ? (
+            <View style={{ width: 26, height: 26, borderRadius: 8, backgroundColor: p.text, alignItems: 'center', justifyContent: 'center' }}>
+              <Ionicons name="checkmark" size={15} color={p.ground === brand.ink ? brand.ink : brand.lime} />
+            </View>
+          ) : s.state === 'current' ? (
+            <Pulse size={26} radius={8}>
+              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: brand.ink }} />
+            </Pulse>
+          ) : (
+            <View style={{ width: 26, height: 26, borderRadius: 8, borderWidth: 2, borderColor: p.lineStrong }} />
+          );
+        const content = (
+          <View style={{ flex: 1, paddingBottom: last ? 0 : space[4], gap: 2 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[2], flexWrap: 'wrap' }}>
+              <T v="headline" style={{ fontSize: 16, textDecorationLine: press ? 'underline' : 'none' }} muted={s.state === 'upcoming'}>
+                {s.title}
+              </T>
+              {s.state === 'current' ? <Chip tone="orange" label="Now" /> : null}
+            </View>
+            {s.detail ? <T v="footnote" muted>{s.detail}</T> : null}
+          </View>
+        );
+        return (
+          <Rise key={s.id} delay={80 + i * 60}>
+            <View
+              style={{ flexDirection: 'row', gap: space[3] }}
+              accessible={!press}
+              accessibilityLabel={`${s.title}. ${s.state === 'done' ? 'Done' : s.state === 'current' ? 'Now' : 'Later'}. ${s.detail ?? ''}`}
+            >
+              <View style={{ alignItems: 'center' }}>
+                {marker}
+                {!last ? <View style={{ width: 2, flex: 1, minHeight: 14, backgroundColor: s.state === 'done' ? p.text : p.lineStrong }} /> : null}
+              </View>
+              {press ? (
+                <Pressable onPress={press} accessibilityRole="link" style={{ flex: 1 }}>
+                  {content}
+                </Pressable>
+              ) : (
+                content
+              )}
+            </View>
+          </Rise>
+        );
+      })}
+    </View>
+  );
+}
+
+/** Horizontal dot stepper for errands: ticks, an orange "now", empty circles. */
+export function DotStepper({ labels, done }: { labels: string[]; done: number }) {
+  const p = usePalette();
+  const n = labels.length;
+  return (
+    <View accessibilityRole="progressbar" accessibilityValue={{ min: 0, max: n, now: done }}>
+      <View style={{ position: 'absolute', left: `${50 / n}%`, right: `${50 / n}%`, top: 12, height: 2, backgroundColor: p.lineStrong }} />
+      <View style={{ position: 'absolute', left: `${50 / n}%`, width: `${(done / n) * 100}%`, top: 12, height: 2, backgroundColor: p.text }} />
+      <View style={{ flexDirection: 'row' }}>
+        {labels.map((l, i) => (
+          <View key={l} style={{ flex: 1, alignItems: 'center', gap: 6 }}>
+            {i < done ? (
+              <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: p.text, alignItems: 'center', justifyContent: 'center' }}>
+                <Ionicons name="checkmark" size={14} color={p.ground === brand.ink ? brand.ink : brand.lime} />
+              </View>
+            ) : i === done ? (
+              <Pulse size={26} radius={13}>
+                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: brand.ink }} />
+              </Pulse>
+            ) : (
+              <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: p.ground, borderWidth: 2, borderColor: p.lineStrong }} />
+            )}
+            <Label color={i <= done ? p.text : p.textMuted} style={{ fontSize: 9, letterSpacing: 0.5 }}>{l}</Label>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+/* ---------- Buttons ---------- */
 
 export function Button({
   title,
@@ -243,30 +510,35 @@ export function Button({
 }: {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'quiet' | 'danger';
+  variant?: 'primary' | 'dark' | 'quiet' | 'danger';
   disabled?: boolean;
   loading?: boolean;
   icon?: IconName;
 }) {
   const p = usePalette();
-  const styles = {
-    primary: { bg: p.primary, fg: p.onPrimary },
-    secondary: { bg: p.surfaceAlt, fg: p.text },
-    quiet: { bg: 'transparent', fg: p.primary },
-    danger: { bg: 'transparent', fg: p.danger },
+  const s = {
+    primary: { bg: brand.lime, fg: brand.ink },
+    dark: { bg: p.raised, fg: p.onRaised },
+    quiet: { bg: 'transparent', fg: p.text },
+    // Orange text is only 2.8:1 on white, so on a paper ground danger is an orange block with black text.
+    danger: p.ground === brand.ink ? { bg: 'transparent', fg: brand.orange } : { bg: brand.orange, fg: brand.ink },
   }[variant];
+  const slim = variant === 'quiet' || (variant === 'danger' && p.ground === brand.ink);
   const off = disabled || loading;
   return (
     <Pressable
-      onPress={onPress}
+      onPress={() => {
+        haptic('tap');
+        onPress();
+      }}
       disabled={off}
       accessibilityRole="button"
       accessibilityState={{ disabled: !!off, busy: !!loading }}
       style={({ pressed }) => ({
-        minHeight: 54,
-        borderRadius: radius.md + 2,
-        backgroundColor: styles.bg,
-        opacity: off ? 0.45 : pressed ? 0.85 : 1,
+        minHeight: slim ? 46 : 60,
+        borderRadius: 18,
+        backgroundColor: s.bg,
+        opacity: off ? 0.4 : pressed ? 0.85 : 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
@@ -274,8 +546,67 @@ export function Button({
         paddingHorizontal: space[5],
       })}
     >
-      {loading ? <ActivityIndicator color={styles.fg} /> : icon ? <Ionicons name={icon} size={20} color={styles.fg} /> : null}
-      <Text style={[type.headline, { color: styles.fg }]}>{title}</Text>
+      {loading ? <ActivityIndicator color={s.fg} /> : icon ? <Ionicons name={icon} size={20} color={s.fg} /> : null}
+      <T v="headline" color={s.fg} style={{ fontSize: slim ? 15 : 17 }}>{title}</T>
+    </Pressable>
+  );
+}
+
+/**
+ * Press and hold to approve. Holding is deliberate, so money never moves by a stray tap.
+ * With a screen reader on, a double tap approves, since holding is hard to do there.
+ */
+export function HoldButton({
+  label,
+  onConfirm,
+  disabled,
+  loading,
+  holdMs,
+  screenReader,
+}: {
+  label: string;
+  onConfirm: () => void;
+  disabled?: boolean;
+  loading?: boolean;
+  holdMs: number;
+  screenReader: boolean;
+}) {
+  const fill = useRef(new Animated.Value(0)).current;
+  const off = disabled || loading;
+
+  function start() {
+    if (off || screenReader) return;
+    haptic('tap');
+    Animated.timing(fill, { toValue: 1, duration: holdMs, easing: Easing.linear, useNativeDriver: nativeDriver }).start(({ finished }) => {
+      if (finished) {
+        haptic('heavy');
+        onConfirm();
+        fill.setValue(0);
+      }
+    });
+  }
+  function cancel() {
+    fill.stopAnimation();
+    Animated.timing(fill, { toValue: 0, duration: 180, useNativeDriver: nativeDriver }).start();
+  }
+
+  return (
+    <Pressable
+      onPressIn={start}
+      onPressOut={cancel}
+      onPress={screenReader && !off ? onConfirm : undefined}
+      disabled={off}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityHint={screenReader ? 'Double tap to approve.' : 'Press and hold to approve.'}
+      accessibilityState={{ disabled: !!off, busy: !!loading }}
+      style={{ height: 64, borderRadius: 20, backgroundColor: brand.lime, overflow: 'hidden', opacity: off ? 0.4 : 1, justifyContent: 'center' }}
+    >
+      <Animated.View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, backgroundColor: brand.orange, transformOrigin: 'left', transform: [{ scaleX: fill }] }} />
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space[2] }}>
+        {loading ? <ActivityIndicator color={brand.ink} /> : <Ionicons name="finger-print" size={22} color={brand.ink} />}
+        <T v="headline" color={brand.ink} style={{ fontSize: 17 }}>{screenReader ? label : `Press and hold to ${label.toLowerCase()}`}</T>
+      </View>
     </Pressable>
   );
 }
@@ -287,25 +618,29 @@ export function CodeField({ value, onChange, label }: { value: string; onChange:
   const digits = value.padEnd(6, ' ').slice(0, 6).split('');
   return (
     <Pressable onPress={() => input.current?.focus()} accessibilityLabel={label} style={{ gap: space[2] }}>
-      <Text style={[type.footnote, { color: p.textMuted, fontWeight: '600' }]}>{label}</Text>
+      <T v="footnote" muted>{label}</T>
       <View style={{ flexDirection: 'row', gap: space[2] }}>
-        {digits.map((d, i) => (
-          <View
-            key={i}
-            style={{
-              flex: 1,
-              height: 56,
-              borderRadius: radius.sm + 2,
-              backgroundColor: p.surfaceAlt,
-              borderWidth: 2,
-              borderColor: i === Math.min(value.length, 5) ? p.primary : 'transparent',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Text style={[type.title, { color: p.text, fontVariant: ['tabular-nums'] }]}>{d.trim()}</Text>
-          </View>
-        ))}
+        {digits.map((d, i) => {
+          const filled = d.trim() !== '';
+          const active = i === Math.min(value.length, 5) && value.length < 6;
+          return (
+            <View
+              key={i}
+              style={{
+                flex: 1,
+                height: 56,
+                borderRadius: radius.md,
+                backgroundColor: p.surface,
+                borderWidth: 2,
+                borderColor: filled ? brand.lime : active ? p.text : p.line,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <T v="title" style={{ fontVariant: ['tabular-nums'] }}>{d.trim()}</T>
+            </View>
+          );
+        })}
       </View>
       <TextInput
         ref={input}
@@ -316,35 +651,31 @@ export function CodeField({ value, onChange, label }: { value: string; onChange:
         autoComplete="one-time-code"
         maxLength={6}
         accessibilityLabel={label}
-        style={{ position: 'absolute', opacity: 0.01, height: 56, width: '100%', top: 24 }}
+        style={{ position: 'absolute', opacity: 0.01, height: 56, width: '100%', top: 26 }}
       />
     </Pressable>
   );
 }
 
+/* ---------- States ---------- */
+
 export function Loading() {
   const p = usePalette();
   return (
-    <View style={{ gap: space[4] }} accessibilityLabel="Loading">
-      {[120, 72, 72].map((h, i) => (
-        <View key={i} style={{ height: h, borderRadius: radius.lg, backgroundColor: p.surfaceAlt }} />
+    <View style={{ gap: space[3] }} accessibilityLabel="Loading">
+      {[180, 72, 72].map((h, i) => (
+        <View key={i} style={{ height: h, borderRadius: radius.xl, backgroundColor: p.surface }} />
       ))}
     </View>
   );
 }
 
 export function ErrorView({ message, onRetry }: { message: string; onRetry: () => void }) {
-  const p = usePalette();
   return (
-    <Card>
-      <Text style={[type.headline, { color: p.text }]}>We could not load this</Text>
-      <Text style={[type.callout, { color: p.textMuted, marginVertical: space[2] }]}>{message}</Text>
-      <Button title="Try again" variant="secondary" onPress={onRetry} />
-    </Card>
+    <Panel>
+      <T v="headline">We could not load this</T>
+      <T v="callout" muted>{message}</T>
+      <Button title="Try again" variant="dark" onPress={onRetry} />
+    </Panel>
   );
-}
-
-export function Muted({ children }: { children: ReactNode }) {
-  const p = usePalette();
-  return <Text style={[type.footnote, { color: p.textMuted }]}>{children}</Text>;
 }

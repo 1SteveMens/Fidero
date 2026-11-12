@@ -61,6 +61,7 @@ const cases: Case[] = [
     ],
     reportId: 'rep-0142',
     escrowId: 'esc-2207',
+    verdict: 'amber',
   },
   {
     id: 'case-0150',
@@ -177,7 +178,7 @@ const family: FamilyMember[] = [
 ];
 
 const errands: Errand[] = [
-  { id: 'err-1', title: 'Ghana Card renewal', agency: 'National Identification Authority', step: 3, steps: 5, status: 'Lodged. Waiting for the card.' },
+  { id: 'err-1', title: 'Ghana Card renewal', agency: 'National Identification Authority', step: 3, steps: 5, stepLabels: ['Forms', 'Paid', 'Lodged', 'Ready', 'Collected'], status: 'Lodged. Waiting for the card.' },
 ];
 
 function clone<T>(value: T): T {
@@ -212,10 +213,15 @@ export function createSampleApi(delayMs = 150): FideroApi {
       ].filter((x): x is NonNullable<typeof x> => x !== null);
       return wait({
         firstName: 'Ama',
+        fullName: 'Ama Owusu',
         country: 'GH',
         currency: 'GHS',
         held: { amountMinor: escrow.held.amountMinor + 245_000, currency: 'GHS' },
         heldAt: 'Partner Bank',
+        accounts: [
+          { id: 'acc-esc-2207', label: escrow.title, kind: 'escrow', bankRef: escrow.bankRef, heldAt: escrow.heldAt, held: escrow.held, href: `/case/${escrow.caseId}` },
+          { id: 'acc-fam-0318', label: "Kofi's school fees", kind: 'family', bankRef: 'PB-FAM-0318', heldAt: 'Partner Bank', held: { amountMinor: 245_000, currency: 'GHS' }, href: '/family' },
+        ],
         needsYou,
         property: [
           { id: 'p1', title: 'Plot 14, Kasoa Millennium City', detail: escrow.status === 'ready_to_release' ? 'Escrow ready to release' : 'Release approved by you. Fidero staff approving.', href: '/case/case-0142', badge: { label: 'Amber report', verdict: 'amber' } },

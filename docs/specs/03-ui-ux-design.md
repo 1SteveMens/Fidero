@@ -5,8 +5,8 @@ Information architecture, user flows, wireframes, interaction and content rules,
 | Item | Value |
 |---|---|
 | Document | 03 of 6 in `docs/specs/` |
-| Version | 0.5 |
-| Date | 11 November 2026 |
+| Version | 0.6 |
+| Date | 12 November 2026 |
 | Status | Draft. For review. Not yet baselined |
 | Owner | Product designer, for the founder as product owner |
 | Source of truth | `01-requirements-and-product-specification.md` v0.8 (personas, features, journeys, rules, FR and NFR IDs, state models) |
@@ -23,6 +23,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | 0.2 | 1 November 2026 | Redesign for 01 v0.3 and the decision record `docs/decisions/2026-11-01-diaspora-platform.md`: Fidero is the diaspora's trusted agent at home. Adds the principles "Pay the institution, not the relative" and "Country is configuration"; the unified home dashboard (F-35) as the portal home with sections for Property, Family, and Projects and errands; a country selector at onboarding; screens SCR-PTL-36 to SCR-PTL-54, SCR-BO-27 to SCR-BO-32 and SCR-MOB-14 to SCR-MOB-18; flows for J-09 to J-12 with error states; wireframes W-25 to W-36; content rules for who gets paid (RUL-22), rent (RUL-24) and insurer products (RUL-25); components CMP-25 to CMP-32; prototype flows G and H. Client approval added to the escrow flow and tracker (01 v0.2 Escrow state model). Section 11.2 refreshed against 01 v0.3: I-01, I-02, I-03, I-04, I-06, I-07, I-08, I-09, I-10, I-12, I-13 and I-14 closed; I-17 to I-24 added. Design assumptions DA-07 to DA-10 added; DA-06 retired. |
 | 0.3 | 1 November 2026 | Aligned to 01 v0.4: runner cash route removed (DA-10, SCR-BO-30, J-09 flow, W-26, W-28, CMP-25, CMP-30 and content rules now show "not eligible for direct payment"; runners only collect invoices and deliver receipts); standing approvals for care visits and errand steps (W-29, W-34, J-10, J-12); 72-hour reviewer decision, second-person check of call confirmations and code lockout (J-10, W-31, SCR-BO-28); owner's written mandate for rent statement lines (J-11, SCR-PTL-46); premium route stated; "amount held at the bank" wording; issues I-02, I-15, I-18, I-20, I-21 and I-23 closed, I-11 partly closed. Prototype updated to match. |
 | 0.4 | 7 November 2026 | Aligned to 01 v0.6: both app stores, React Native, client app. The field app becomes Fidero Field (iOS and Android); the client app Fidero is added (F-36, FR-APP-001 to FR-APP-006). Adds the client app map with the portal's tabs (2.3a), platform conventions for iOS and Android (2.4a), screens SCR-APP-01 to SCR-APP-06 (push permission explained first, biometric set-up and unlock, account deletion that says what is kept and why, update required, paying Fidero's fee in the app), wireframes W-37 to W-39, a React Native column in the component library, iOS targets and Dynamic Type in the accessibility rules, DA-11 and DA-12, DQ-18 to DQ-20, and issues I-25 to I-27. Prototype flow F relabelled "Fidero Field (iOS and Android)". |
+| 0.6 | 12 November 2026 | Founder decision: the client app Fidero uses the **Bloc** visual direction (section 6.1a), chosen from four directions on the design canvas. Black or white grounds, lime for proof and the main action, orange only for what needs the client, yellow only for the Amber verdict; Bricolage Grotesque and IBM Plex Mono bundled in the app (DQ-01 answered for the apps). Adds the account cards shown side by side, press and hold to approve (5.4), the Bloc tab bar in place of the platform tab bar (2.4a), motion rules, contrast ratios, and DQ-21 to DQ-23. The portal, back office and Fidero Field keep sections 6.1 and 6.2 until DQ-21 is decided. The prototype is unchanged. |
 | 0.5 | 11 November 2026 | Aligned to 01 v0.8: professional payments (F-37, FR-PRO-001 to FR-PRO-010, RUL-26, RUL-27). Adds "My pay" for contracted professionals in the back office from R1 (SCR-BO-33 to SCR-BO-36: jobs and earnings, payable detail, expense claim with receipt photo, statements) and in Fidero Field from R2 (SCR-MOB-19 to SCR-MOB-22); staff screens for agreements and rate cards, payables and expense claims, payment run preparation, payment run approval and reconciliation (SCR-BO-37 to SCR-BO-41); wireframes W-40 (Fidero Field earnings) and W-41 (payment run approval); content rules in 5.6b, including that pay screens never show the verdict next to an amount; the two-person pattern extended to payment runs, rate card versions and expense exceptions; DA-13 (professionals use the back office web app for My pay in R1, not the client portal). Errand payment wording follows FR-TSK-002 and FR-TSK-003: Fidero's charge is paid through the payment provider, official fees into the partner bank, and Fidero pays the agent itself (J-12 flow, W-34, SCR-BO-32, the errands fixed line in 5.6a). Issues I-28 to I-30. The prototype is unchanged. |
 
 ## 0. How this document traces to 01
@@ -314,7 +315,8 @@ Both apps share screens, content and components (02 ADR-22). Each platform keeps
 | Choices and sharing | Action sheet for 2 to 5 choices; share sheet only to export a report PDF or a receipt from the client app | Bottom sheet for choices; share sheet only to export a report PDF or a receipt from the client app. Fidero Field accepts nothing shared in from other apps (RUL-08) |
 | Safe areas | Content stays inside the safe area: notch, Dynamic Island and the home indicator. Sticky buttons sit above the home indicator | Edge-to-edge with insets for the status bar, display cut-outs and gesture navigation. Sticky buttons sit above the gesture bar |
 | Text size | Dynamic Type up to the largest accessibility size. Layouts reflow; amounts, payee names and references wrap and are never cut | Font scale up to 200%. Same reflow rule |
-| Fonts | System font (San Francisco) | System font (Roboto) |
+| Fonts | System font (San Francisco) in Fidero Field. The client app bundles Bricolage Grotesque and IBM Plex Mono (6.1a) | System font (Roboto) in Fidero Field. The client app bundles the same two typefaces |
+| Tab bar in the client app | The Bloc tab bar (6.1a): a black bar above the home indicator, the current tab a lime block with its name. Replaces the system tab bar so both platforms look the same | Same bar, above the gesture bar |
 | Pickers and keyboards | Native date picker; numeric keypad for codes and amounts; one-time code autofill from messages | Native date picker; numeric keyboard; SMS one-time code autofill |
 | Permissions | Explain first, then the system prompt (SCR-APP-01, camera and location in Fidero Field). If refused, say what will not work and link to Settings | Same. Android 13 and later ask for notifications; older versions do not, and the explainer is skipped |
 | Biometrics wording | "Face ID" or "Touch ID", whichever the phone has | "Fingerprint or face unlock" |
@@ -2382,6 +2384,7 @@ Used for professional payment runs (FR-PRO-005), rate card versions (FR-PRO-001)
 - The person in slot 1 sees slot 2 as "Waiting for a different person". The button is not rendered for them, so it cannot be clicked by mistake.
 - People who closed a condition or authored the work can approve only where 01 allows it. A reviewer cannot be second approver of their own work (01 C2).
 - Clients see the same two slots, read only, on their tracker. This shows "people stay in the loop" (B2.6).
+- In the client app the client's own approval is **press and hold** (6.1a): enter the 6-digit code, then hold the button for 1.2 seconds while it fills with orange. Letting go early cancels. With VoiceOver or TalkBack on, a double tap approves instead, because holding is hard there. Under the button: "Nothing moves until you approve." After it, the client sees the chain: you, first staff check, second staff check, the bank pays.
 - Approvals expire if a gate changes after slot 1 is filled, such as a new dispute or a fresh search going out of date. The card says "Approval 1 was reset because the fresh search expired on 16 May."
 
 ### 5.5 Communicating verdicts
@@ -2473,6 +2476,36 @@ The verdict colours are red, amber and green. So are the colours of the Ghana fl
 - **Sand** neutrals. Warm off-white backgrounds instead of cold grey, easier on low-quality screens in bright light.
 
 The wordmark is "Fidero" set in the system sans at semi-bold. A simple mark: a square plot outline with a tick through one corner, standing for "checked land". No shields with locks, no handshakes, no padlocks on houses.
+
+### 6.1a Client app direction: Bloc (from v0.6)
+
+The founder chose Bloc for the client app Fidero on 12 November 2026, from four directions on the design canvas (Pulse, Lime, Clarity, Bloc). The mockups are at `docs/specs/03-mockups/bloc/`. Code: `packages/tokens` (version 3) and `apps/client`.
+
+**Grounds.** Every screen is black (`ink #0B0B0B`) or white (`paper #FFFFFF`). Tabs that list things (Home, Property, Family, Projects) are white. Screens where money moves or evidence is read (approvals, the report, Account) are black. In system dark mode every screen is black.
+
+**Colour, by meaning.**
+
+| Colour | Hex | Means | Never |
+|---|---|---|---|
+| Lime | `#A3EE5B` | Proof, verified, the main action, the current tab | A verdict on its own (the Green chip adds a tick and the word) |
+| Orange | `#FF6A3D` | Something only the client can do: "Needs you", their step in the approval chain, the current case step, the hold fill | Decoration. Used sparingly so it keeps its meaning |
+| Yellow | `#FDE24F` | The Amber verdict, nothing else | Tiles, cards or highlights |
+| Red | `#FF5A4E` | The Red verdict and a payee whose name the bank did not match | Decoration |
+| Surface | `#F3F1EC` on white, `#1A1A1A` on black | Panels | |
+
+The earlier rule that the brand avoids red, amber and green (6.1) still holds in spirit: yellow and red appear only as verdicts, always with an icon and a word, and lime is a brand colour that is never the only sign of a Green verdict.
+
+**Contrast (WCAG 2.x formula).** Black text on lime 14.0:1, on orange 6.9:1, on yellow 15.2:1, on red 6.4:1. Lime and orange on black 14.0:1 and 6.9:1. Muted text `#A9A69E` on black 8.1:1, on `#1A1A1A` 7.2:1. Muted `#6A675F` on white 5.6:1, on `#F3F1EC` 5.0:1. Orange on white is only 2.8:1, so orange is never text or an icon on a white ground: there it is a block with black text. Lime on white is 1.4:1, so a lime block always carries a black icon or label.
+
+**Type.** Bricolage Grotesque (400, 600, 700, 800) for words and numbers; IBM Plex Mono (500, 600) for references, dates, codes and small uppercase labels. Both are bundled in the app, so there is no download cost per screen; the portal keeps system fonts (NFR-PERF-02). Both cover ɛ and ɔ `[TO VERIFY]` on real devices before release.
+
+**Shapes.** Corners 14 to 24 points, not pills, except chips. Money held at the bank is shown as **account cards side by side**, one per account, the next one peeking in from the right: the account, its bank reference, the amount, the client's name and the bank. Each card carries a slowly turning seal, "Held at the bank · Released on proof". There is no card network logo, chip or contactless sign, so it never looks like a payment card. A **ticket** (a tear line with notches) is used only where money is about to move: the amount above the line, exactly who is paid below it.
+
+**Components in the app.** Account cards; ticket; panel; "Needs you" card (orange, with a black arrow block); step trail for a case (black ticks, orange "Now"); dot stepper for errands; segment bar; verdict chip (icon, word, colour); six-box code field; press-and-hold button; the Bloc tab bar.
+
+**Motion.** Content rises into place in a short stagger (about 0.5 s). The first account card tilts up into place and the second slides in. The seal turns once every 24 seconds. The current step and "Needs you" items pulse softly in orange. The hold button fills. Nothing needs motion to be understood, and every animation stops when the phone asks for reduced motion.
+
+**The welcome screen.** The mockup uses a photograph of a client. The app shows a lime block with the seal until Fidero holds a licence for a photograph for the app and the store pages (DQ-22).
 
 ### 6.2 Design tokens
 
@@ -2922,7 +2955,7 @@ Modules with no screen of their own: FR-ANL (F-35 draws on it for the dashboard 
 
 | ID | Question | Owner | Needed by |
 |---|---|---|---|
-| DQ-01 | Is a brand typeface worth its page weight for headings only, or do system fonts stay for good? | Founder, designer | Before R1 visual design sign-off |
+| DQ-01 | Is a brand typeface worth its page weight for headings only, or do system fonts stay for good? Answered for the apps in v0.6: the client app bundles Bricolage Grotesque and IBM Plex Mono (6.1a). Still open for the portal. | Founder, designer | Before R1 visual design sign-off |
 | DQ-02 | Which local languages first, if any, and for which screens (status messages only, or all)? Needs R0 and R1 data. | Founder | R2 planning |
 | DQ-03 | Should clients receive WhatsApp messages with a deep link to the case, or a neutral "open the app" message only? Links in messages can be copied by fraudsters. | Product lead, security | R1 |
 | DQ-04 | How do we show the seller's side of an escrow in R1, before sellers have full accounts? A one-time link to accept terms, or a lawyer-mediated paper step? | Product lead, lawyer | R1 |
@@ -2942,6 +2975,9 @@ Modules with no screen of their own: FR-ANL (F-35 draws on it for the dashboard 
 | DQ-18 | Do the apps need tablet and iPad layouts in R2, or does the phone layout scaled up do? This document designs phone only. | Designer, product lead | R2 |
 | DQ-19 | Should the client app later show listings natively, or keep opening the web (DA-11)? Store review may ask why the app links out. | Product lead | R2 |
 | DQ-20 | Should the client app offer a passkey on the phone as the second factor for approvals, instead of a code? Faster for clients, but the phone then holds both factors. | Product lead, security | R2 |
+| DQ-21 | Should the portal, back office and Fidero Field adopt Bloc too, or keep the indigo direction in 6.1 and 6.2? One look across all four front ends is simpler to build and recognise. | Founder, designer | Before R1 visual design sign-off |
+| DQ-22 | Which photograph, with what licence or written consent, goes on the client app's welcome screen and store pages? | Founder | Before R2 store submission |
+| DQ-23 | Is 1.2 seconds the right hold time for approvals? Test with older clients and on cheap Android phones. | Designer | R2 usability round |
 
 ### 11.2 Issues found in document 01
 
