@@ -5,19 +5,35 @@ How the founder runs the Fidero apps on an iPhone from a laptop, while the apps 
 ## Once: set up the laptop
 
 1. Install **Node.js**, the LTS version, from https://nodejs.org.
-2. Open Terminal (Mac) or PowerShell (Windows) and turn on pnpm, the package tool this project uses:
+2. Open a new Terminal (Mac) or PowerShell (Windows) window and check that Node is installed. It should print a version number:
 
    ```bash
-   corepack enable
+   node -v
    ```
 
-3. Get the code. Either install GitHub Desktop and clone the `Fidero` repository, or run:
+   If it says "not found", close the window, open a new one and try again. If it still fails, run the Node.js installer again.
+
+3. Install pnpm, the package tool this project uses:
+
+   ```bash
+   npm install -g pnpm@10.28.0
+   ```
+
+   On a Mac, if this ends with "permission denied", run it again with `sudo` in front and type your Mac password:
+
+   ```bash
+   sudo npm install -g pnpm@10.28.0
+   ```
+
+   Check it with `pnpm -v`, which should print `10.28.0`. (Older guides use `corepack enable` instead; newer Node versions no longer include corepack.)
+
+4. Get the code. Either install GitHub Desktop and clone the `Fidero` repository, or run:
 
    ```bash
    git clone https://github.com/1SteveMens/Fidero.git
    ```
 
-4. Go into the folder and switch to the working branch:
+5. Go into the folder and switch to the working branch:
 
    ```bash
    cd Fidero
@@ -27,7 +43,7 @@ How the founder runs the Fidero apps on an iPhone from a laptop, while the apps 
    git checkout claude/quirky-wozniak-an94wx
    ```
 
-5. Install everything the apps need. This takes a few minutes the first time:
+6. Install everything the apps need. This takes a few minutes the first time:
 
    ```bash
    pnpm install
