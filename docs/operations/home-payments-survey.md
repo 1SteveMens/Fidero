@@ -18,12 +18,15 @@ One question for every lead and every webinar attendee (`docs/validation-plan.md
 | Passports, Ghana Card and other papers | Also pays: Paperwork | Paperwork and errands (planned) |
 | Getting ready for a trip home | Also pays: Trip home | Trip home bundle (new) |
 | Church, mosque or hometown dues | Also pays: Church or hometown dues | Payments to institutions; project funds |
+| Zakat, Eid sacrifice or tithes done for me | Also pays: Religious giving | Religious giving against proof (new) |
+| Inherited or family property | Also pays: Inheritance or family property | Inheritance and family property (new) |
+| A farm my family runs for me | Also pays: Farm run by family | Farm watch (new) |
 
 ## Where to ask it
 
 - **Landing page.** Optional tick boxes on the order form. The answers appear in the request message as "Also pays at home: …".
 - **Webinars.** The last slide, as a poll or a show of hands. Write down each attendee's answers against their name if they leave contact details.
-- **WhatsApp.** After a lead's first reply, send: "One quick question to help us plan: apart from land, what else do you pay for at home? Bills, school fees, hospital, costs shared with family, funerals, building, someone to watch your land, papers, a trip home, or church or hometown dues?"
+- **WhatsApp.** After a lead's first reply, send: "One quick question to help us plan: apart from land, what else do you pay for at home? Bills, school fees, hospital, costs shared with family, funerals, building, someone to watch your land, papers, a trip home, church or hometown dues, zakat or the Eid sacrifice done for you, inherited family property, or a farm your family runs?"
 
 ## Recording and reading it
 

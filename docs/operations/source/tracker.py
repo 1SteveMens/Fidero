@@ -112,7 +112,7 @@ def usd(amount, currency):
 
 # ---------- Leads ----------
 # Survey (validation plan 4b): what else the lead pays for at home. One Yes/No column each.
-PAYS=['Household bills','School fees','Hospital or medicines','Shared family costs','Funerals','Building bit by bit','Watching land or a house','Paperwork','Trip home','Church or hometown dues']
+PAYS=['Household bills','School fees','Hospital or medicines','Shared family costs','Funerals','Building bit by bit','Watching land or a house','Paperwork','Trip home','Church or hometown dues','Religious giving','Inheritance or family property','Farm run by family']
 PAYCOLS=[L(17+i) for i in range(len(PAYS))]
 le=sheet('Leads','Leads','Every enquiry, whether or not it becomes a paid report (validation plan section 4).',
  ['Lead ID','Date','Name','Lives in','Diaspora client?','How they heard','What they need','Plot location','Price point offered (USD)','Outcome','Reason or objection','What they compared it to','Case ID if paid','Referred by','Checked plots offered (plot IDs)','Bought a checked plot (plot ID)']+[f'Also pays: {x}' for x in PAYS],
@@ -330,7 +330,7 @@ anyyes='+'.join([f'(Leads!${c}$5:${c}$304="Yes")' for c in PAYCOLS])
 ans=f'SUMPRODUCT(--(({anyyes})>0),--(Leads!$A$5:$A$304<>""),--(LEFT(Leads!$A$5:$A$304,3)<>"EX-"))'
 rv.cell(row=r,column=1,value='Leads who answered the question').font=BOLD
 c=rv.cell(row=r,column=2,value='='+ans); c.fill=CALC; ansrow=r; r+=1
-lines={'Household bills':'Household bills paid directly','School fees':'Payments to institutions (planned)','Hospital or medicines':'Payments to institutions, repeat prescriptions','Shared family costs':'Family pot (new)','Funerals':'Funeral package','Building bit by bit':'Construction (planned)','Watching land or a house':'Home watch (new)','Paperwork':'Paperwork and errands (planned)','Trip home':'Trip home bundle (new)','Church or hometown dues':'Payments to institutions, project funds'}
+lines={'Household bills':'Household bills paid directly','School fees':'Payments to institutions (planned)','Hospital or medicines':'Payments to institutions, repeat prescriptions','Shared family costs':'Family pot (new)','Funerals':'Funeral package','Building bit by bit':'Construction (planned)','Watching land or a house':'Home watch (new)','Paperwork':'Paperwork and errands (planned)','Trip home':'Trip home bundle (new)','Church or hometown dues':'Payments to institutions, project funds','Religious giving':'Religious giving against proof (new)','Inheritance or family property':'Inheritance and family property (new)','Farm run by family':'Farm watch (new)'}
 for x,col in zip(PAYS,PAYCOLS):
     rv.cell(row=r,column=1,value=x).font=BODY
     c=rv.cell(row=r,column=2,value=f'=COUNTIFS({L_},Leads!${col}$5:${col}$304,"Yes")'); c.fill=CALC
