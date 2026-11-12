@@ -251,7 +251,7 @@ R0 tooling is bought or built without developers. It is in the backlog as enable
 | EN-08 | Data Protection Commission registration `[TO VERIFY]` | Stays a legal task |
 | EN-51 | Institution payment register for fees paid by hand | EP-FEE |
 
-Built so far (12 November 2026): EN-01, EN-05 and EN-51 are one workbook, `docs/operations/r0-tracker.xlsx`; EN-03 is `apps/landing/index.html`. Both use the Bloc design and need the founder's contact details and settings before use.
+Built so far (12 November 2026): EN-01, EN-05 and EN-51 are one workbook, `docs/operations/r0-tracker.xlsx`; EN-03 is `apps/landing/index.html`. Both use the Bloc design and need the founder's contact details and settings before use. EN-02, EN-06 and EN-07 are the case kit in `docs/operations/case-kit/`: the report template with the scope statement locked, the evidence folder rules, a fingerprint tool, and the consent form, filming script and witness sheet. The tracker gained Evidence log, Reports released and Folder access tabs. The consent kit waits for the lawyer's approval (EN-07 acceptance); EN-04 and EN-08 are open.
 
 R0 cases that are still open when the portal opens finish in the spreadsheet. Closed cases, leads, reports and institution payments move to the platform in EN-30.
 

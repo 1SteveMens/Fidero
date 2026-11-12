@@ -1,6 +1,6 @@
 # Land verification report template
 
-This is the structure of every Tenmina land verification report. Sections appear in this order. Each section lists the evidence that must be attached. The scope wording in section 12 is fixed and must not be changed without the lawyer's and insurer's approval.
+This is the structure of every Tenmina land verification report. The Word template for R0 is `case-kit/land-report-template.docx`, built from this structure; keep the two the same. Sections appear in this order. Each section lists the evidence that must be attached. The scope wording in section 12 is fixed and must not be changed without the lawyer's and insurer's approval.
 
 Reports are reviewed by two people before release: the lawyer who signed the legal section and one other Tenmina reviewer.
 

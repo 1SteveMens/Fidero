@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tenmina fingerprint tool</title>
+<style>
+:root{--ink:#0B0B0B;--paper:#FFFFFF;--surface:#F3F1EC;--line:#D6D3CB;--muted:#6A675F;--lime:#A3EE5B;--red:#FF5A4E;--amber:#FDE24F}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+main{max-width:1080px;margin:0 auto;padding:28px 16px 64px}
+h1{font-size:34px;line-height:1.05;letter-spacing:-.03em;margin:4px 0 6px;font-weight:800}
+h2{font-size:20px;margin:0 0 8px;font-weight:800;letter-spacing:-.01em}
+.mark{font-weight:800;font-size:20px;letter-spacing:-.04em}
+.lead{color:var(--muted);margin:0 0 22px;max-width:720px}
+.mono,code{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:13px}
+.label{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.panel{background:var(--surface);border-radius:18px;padding:18px;margin-bottom:16px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+label{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:14px}
+input[type=text]{font:inherit;padding:10px 12px;min-height:44px;border:2px solid var(--line);border-radius:12px;background:var(--paper);min-width:0}
+input[type=text]:focus{outline:none;border-color:var(--ink)}
+button,.btn{font:inherit;font-weight:700;min-height:44px;padding:0 18px;border-radius:12px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+button.primary{background:var(--lime);border-color:var(--lime)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,.drop:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.drop{border:2px dashed var(--line);border-radius:18px;padding:28px 16px;text-align:center;background:var(--paper)}
+.drop.over{border-color:var(--ink);background:#F8FDF2}
+.drop p{margin:6px 0}
+.hidden-input{position:absolute;left:-9999px}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:14px}
+th{text-align:left;font-size:12px;color:var(--muted);font-weight:600;background:var(--surface);padding:10px 12px;border-bottom:1px solid var(--line)}
+td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:none}
+.hash{word-break:break-all}
+.panel,.grid>*{min-width:0}
+.warn{display:inline-block;margin-top:4px;font-size:12px;font-weight:600;background:var(--amber);padding:1px 6px;border-radius:6px}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:6px}
+.bar span{display:block;height:100%;width:0;background:var(--ink)}
+.result{overflow-wrap:anywhere;margin-top:12px;border-radius:14px;padding:14px 16px;font-weight:700;display:none}
+.result.ok{display:block;background:var(--lime)}
+.result.bad{display:block;background:var(--red);color:var(--ink)}
+.status{min-height:24px;font-size:14px;color:var(--muted);margin:10px 0 0}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}h1{font-size:28px}}
+.small{font-size:13px;color:var(--muted)}
+.copied{font-size:13px;font-weight:600;margin-left:6px}
+</style>
+</head>
+<body>
+<main>
+  <div class="mark">tenmina</div>
+  <h1>Fingerprint tool</h1>
+  <p class="lead">Gives every file a fingerprint (SHA-256): 64 letters and numbers that change completely if even one dot in the file changes. Log the fingerprint the day a file arrives. Later, anyone can prove the file has not been altered. <strong>Files never leave this computer.</strong> Nothing is uploaded; the page works with the internet off.</p>
+
+  <section class="panel" aria-labelledby="h-add">
+    <h2 id="h-add">1. Fingerprint new evidence</h2>
+    <div class="row" style="margin-bottom:14px">
+      <label>Case ID<input type="text" id="caseId" placeholder="C001" autocomplete="off" style="width:140px"></label>
+      <label>Logged by<input type="text" id="loggedBy" placeholder="Your name" autocomplete="off" style="width:200px"></label>
+    </div>
+    <div class="drop" id="drop" tabindex="0" role="button" aria-describedby="drop-help">
+      <p><strong>Drop files or a whole case folder here</strong></p>
+      <p class="small" id="drop-help">or</p>
+      <div class="row" style="justify-content:center">
+        <button type="button" id="pickFiles">Choose files</button>
+        <button type="button" id="pickFolder">Choose a folder</button>
+      </div>
+      <input class="hidden-input" type="file" id="files" multiple aria-label="Choose files">
+      <input class="hidden-input" type="file" id="folder" webkitdirectory multiple aria-label="Choose a folder">
+    </div>
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+    <div class="tablewrap" id="tableWrap" hidden>
+      <table>
+        <thead><tr><th>File</th><th>Folder</th><th>Size</th><th>Fingerprint (SHA-256)</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button class="primary" type="button" id="copyRows" disabled>Copy rows for the Evidence log</button>
+      <button type="button" id="clear" disabled>Clear</button>
+      <span class="copied" id="copied" role="status" aria-live="polite"></span>
+    </div>
+    <p class="small" style="margin-top:10px">Then open the tracker's <strong>Evidence log</strong> tab, click the first empty cell in column A, and paste. It fills Case ID, File name, Fingerprint, Folder, Logged on and Logged by. Add what each file shows, who took it, when and where.</p>
+  </section>
+
+  <div class="grid">
+    <section class="panel" aria-labelledby="h-check">
+      <h2 id="h-check">2. Check a file</h2>
+      <p class="small" style="margin-top:0">Has this file changed since it was logged? Paste the fingerprint from the tracker, then choose the file. Use it for a released report a client sends back, or any evidence before you rely on it.</p>
+      <label>Fingerprint from the tracker<input type="text" id="expected" class="mono" placeholder="64 characters" autocomplete="off"></label>
+      <div class="row" style="margin-top:12px">
+        <button type="button" id="pickCheck">Choose the file</button>
+        <input class="hidden-input" type="file" id="checkFile" aria-label="Choose the file to check">
+      </div>
+      <div class="bar" aria-hidden="true"><span id="checkBar"></span></div>
+      <div class="result" id="checkResult" role="status" aria-live="polite"></div>
+    </section>
+    <section class="panel" aria-labelledby="h-rules">
+      <h2 id="h-rules">The rules</h2>
+      <ul class="small" style="margin:0;padding-left:18px">
+        <li>Fingerprint the original file from the phone or scanner. Never one sent by WhatsApp, which changes it.</li>
+        <li>Never edit, crop, trim or compress evidence. A changed file gets a new fingerprint.</li>
+        <li>Name files <code>C001_F_2027-01-20_pillar-ne.jpg</code>: case, folder letter, date taken, a few words.</li>
+        <li>The same fingerprint in two cases means the same file was used twice. The tracker flags it; find out why.</li>
+        <li>Full rules: <code>case-kit/evidence-folders.md</code>.</li>
+      </ul>
+    </section>
+  </div>
+</main>
+
+<script>
+// ---------- SHA-256, streaming (FIPS 180-4). Plain JavaScript so it works from a file on disk. ----------
+const K = new Int32Array([
+  0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+  0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+  0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+  0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
+class Sha256 {
+  constructor() {
+    this.h = new Int32Array([0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19]);
+    this.w = new Int32Array(64); this.buf = new Uint8Array(64); this.n = 0; this.len = 0;
+  }
+  block(d, o) {
+    const w = this.w, h = this.h;
+    for (let t = 0; t < 16; t++, o += 4) w[t] = (d[o] << 24) | (d[o + 1] << 16) | (d[o + 2] << 8) | d[o + 3];
+    for (let t = 16; t < 64; t++) {
+      const a = w[t - 15], b = w[t - 2];
+      const s0 = ((a >>> 7) | (a << 25)) ^ ((a >>> 18) | (a << 14)) ^ (a >>> 3);
+      const s1 = ((b >>> 17) | (b << 15)) ^ ((b >>> 19) | (b << 13)) ^ (b >>> 10);
+      w[t] = (w[t - 16] + s0 + w[t - 7] + s1) | 0;
+    }
+    let A = h[0], B = h[1], C = h[2], D = h[3], E = h[4], F = h[5], G = h[6], H = h[7];
+    for (let t = 0; t < 64; t++) {
+      const S1 = ((E >>> 6) | (E << 26)) ^ ((E >>> 11) | (E << 21)) ^ ((E >>> 25) | (E << 7));
+      const t1 = (H + S1 + ((E & F) ^ (~E & G)) + K[t] + w[t]) | 0;
+      const S0 = ((A >>> 2) | (A << 30)) ^ ((A >>> 13) | (A << 19)) ^ ((A >>> 22) | (A << 10));
+      const t2 = (S0 + ((A & B) ^ (A & C) ^ (B & C))) | 0;
+      H = G; G = F; F = E; E = (D + t1) | 0; D = C; C = B; B = A; A = (t1 + t2) | 0;
+    }
+    h[0] = (h[0] + A) | 0; h[1] = (h[1] + B) | 0; h[2] = (h[2] + C) | 0; h[3] = (h[3] + D) | 0;
+    h[4] = (h[4] + E) | 0; h[5] = (h[5] + F) | 0; h[6] = (h[6] + G) | 0; h[7] = (h[7] + H) | 0;
+  }
+  update(d) {
+    let i = 0; this.len += d.length;
+    if (this.n) {
+      while (this.n < 64 && i < d.length) this.buf[this.n++] = d[i++];
+      if (this.n === 64) { this.block(this.buf, 0); this.n = 0; }
+    }
+    for (; i + 64 <= d.length; i += 64) this.block(d, i);
+    while (i < d.length) this.buf[this.n++] = d[i++];
+  }
+  hex() {
+    const hi = Math.floor(this.len / 0x20000000), lo = (this.len % 0x20000000) * 8;
+    const b = this.buf; b[this.n++] = 0x80;
+    if (this.n > 56) { b.fill(0, this.n); this.block(b, 0); this.n = 0; }
+    b.fill(0, this.n, 56);
+    b[56] = hi >>> 24; b[57] = hi >>> 16; b[58] = hi >>> 8; b[59] = hi;
+    b[60] = lo >>> 24; b[61] = lo >>> 16; b[62] = lo >>> 8; b[63] = lo;
+    this.block(b, 0);
+    return Array.from(this.h, (x) => (x >>> 0).toString(16).padStart(8, '0')).join('');
+  }
+}
+const CHUNK = 8 * 1024 * 1024;
+async function hashFile(file, onProgress) {
+  const s = new Sha256();
+  for (let off = 0; off < file.size; off += CHUNK) {
+    s.update(new Uint8Array(await file.slice(off, off + CHUNK).arrayBuffer()));
+    onProgress && onProgress(Math.min(1, (off + CHUNK) / file.size));
+  }
+  onProgress && onProgress(1);
+  return s.hex();
+}
+window.TenminaSha256 = { Sha256, hashFile }; // for testing
+
+// ---------- page ----------
+const $ = (id) => document.getElementById(id);
+const FOLDERS = { A: 'A Client documents', B: 'B Searches', C: 'C Survey', D: 'D Overlays', E: 'E Consent', F: 'F Site visit', R: 'R Report' };
+const NAME_RULE = /^C\d{3,}_[A-FR]_\d{4}-\d{2}-\d{2}_[a-z0-9-]+\.[A-Za-z0-9]+$/;
+const done = [];
+let busy = false;
+
+function folderOf(file) {
+  const parts = (file.webkitRelativePath || file.relPath || '').split('/');
+  if (parts.length >= 2) {
+    const parent = parts[parts.length - 2];
+    const hit = Object.values(FOLDERS).find((f) => f.toLowerCase() === parent.toLowerCase());
+    if (hit) return hit;
+  }
+  const m = file.name.match(/^C\d{3,}_([A-FR])_/);
+  return m ? FOLDERS[m[1]] : '';
+}
+function size(n) {
+  if (n < 1024) return n + ' B';
+  if (n < 1048576) return (n / 1024).toFixed(0) + ' KB';
+  if (n < 1073741824) return (n / 1048576).toFixed(1) + ' MB';
+  return (n / 1073741824).toFixed(2) + ' GB';
+}
+function today() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+async function addFiles(list) {
+  const files = Array.from(list).filter((f) => !f.name.startsWith('.') && f.name !== 'Thumbs.db' && f.name !== 'desktop.ini');
+  if (!files.length || busy) return;
+  busy = true; $('tableWrap').hidden = false; $('copyRows').disabled = true; $('clear').disabled = true;
+  for (let i = 0; i < files.length; i++) {
+    const f = files[i];
+    $('status').textContent = `Fingerprinting ${i + 1} of ${files.length}: ${f.name}`;
+    const tr = document.createElement('tr');
+    const warn = NAME_RULE.test(f.name) ? '' : '<br><span class="warn">Name does not follow the rule</span>';
+    tr.innerHTML = `<td>${esc(f.name)}${warn}</td><td>${esc(folderOf(f) || '—')}</td><td>${size(f.size)}</td><td class="hash mono"><div class="bar"><span></span></div></td><td></td>`;
+    $('rows').appendChild(tr);
+    const bar = tr.querySelector('.bar span');
+    try {
+      const h = await hashFile(f, (p) => { bar.style.width = Math.round(p * 100) + '%'; });
+      tr.cells[3].textContent = h;
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = 'Copy'; b.style.minHeight = '36px'; b.style.padding = '0 12px';
+      b.setAttribute('aria-label', 'Copy fingerprint of ' + f.name);
+      b.onclick = () => copy(h, 'Fingerprint copied');
+      tr.cells[4].appendChild(b);
+      done.push({ name: f.name, folder: folderOf(f), hash: h });
+    } catch (e) {
+      tr.cells[3].textContent = 'Could not read this file: ' + e.message;
+    }
+  }
+  $('status').textContent = `${done.length} file${done.length === 1 ? '' : 's'} fingerprinted.`;
+  busy = false; $('copyRows').disabled = !done.length; $('clear').disabled = false;
+}
+async function copy(text, msg) {
+  try { await navigator.clipboard.writeText(text); }
+  catch (e) { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
+  $('copied').textContent = msg; setTimeout(() => { $('copied').textContent = ''; }, 2500);
+}
+$('copyRows').onclick = () => {
+  const c = $('caseId').value.trim(), by = $('loggedBy').value.trim(), d = today();
+  copy(done.map((r) => [c, r.name, r.hash, r.folder, d, by].join('\t')).join('\n'), `${done.length} row${done.length === 1 ? '' : 's'} copied`);
+};
+$('clear').onclick = () => { done.length = 0; $('rows').innerHTML = ''; $('tableWrap').hidden = true; $('status').textContent = ''; $('copyRows').disabled = true; $('clear').disabled = true; };
+$('pickFiles').onclick = () => $('files').click();
+$('pickFolder').onclick = () => $('folder').click();
+$('files').onchange = (e) => { addFiles(e.target.files); e.target.value = ''; };
+$('folder').onchange = (e) => { addFiles(e.target.files); e.target.value = ''; };
+const drop = $('drop');
+drop.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('files').click(); } };
+['dragenter', 'dragover'].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave', 'drop'].forEach((t) => drop.addEventListener(t, () => drop.classList.remove('over')));
+drop.addEventListener('drop', async (e) => {
+  e.preventDefault();
+  const items = Array.from(e.dataTransfer.items || []).map((i) => i.webkitGetAsEntry && i.webkitGetAsEntry()).filter(Boolean);
+  if (!items.length) return addFiles(e.dataTransfer.files);
+  const out = [];
+  const walk = async (entry, prefix) => {
+    if (entry.isFile) {
+      const f = await new Promise((res, rej) => entry.file(res, rej));
+      f.relPath = prefix + f.name; out.push(f);
+    } else if (entry.isDirectory) {
+      const reader = entry.createReader();
+      let batch;
+      do {
+        batch = await new Promise((res, rej) => reader.readEntries(res, rej));
+        for (const child of batch) await walk(child, prefix + entry.name + '/');
+      } while (batch.length);
+    }
+  };
+  for (const it of items) await walk(it, '');
+  addFiles(out);
+});
+
+// check mode
+$('pickCheck').onclick = () => $('checkFile').click();
+$('checkFile').onchange = async (e) => {
+  const f = e.target.files[0]; e.target.value = '';
+  if (!f) return;
+  const res = $('checkResult'); res.className = 'result'; res.textContent = '';
+  const expected = $('expected').value.trim().toLowerCase().replace(/\s+/g, '');
+  const h = await hashFile(f, (p) => { $('checkBar').style.width = Math.round(p * 100) + '%'; });
+  if (!/^[0-9a-f]{64}$/.test(expected)) {
+    res.className = 'result bad'; res.textContent = 'Paste the 64-character fingerprint from the tracker first. This file\'s fingerprint is ' + h + '.';
+  } else if (h === expected) {
+    res.className = 'result ok'; res.textContent = 'Match. ' + f.name + ' is exactly the file that was logged.';
+  } else {
+    res.className = 'result bad'; res.textContent = 'Does not match. ' + f.name + ' is not the file that was logged, or it has been changed. Do not rely on it. Its fingerprint is ' + h + '.';
+  }
+};
+</script>
+</body>
+</html>
