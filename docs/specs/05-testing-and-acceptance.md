@@ -26,6 +26,7 @@ Test strategy, test cases, acceptance criteria and traceability for the Tenmina 
 | 0.5 | 11 November 2026 | QA and test architect | Aligned to 01 v0.8: professional payments. New functional tests TC-PRO-001-01 to TC-PRO-010-02 (31) for module PRO; rule tests TC-RUL-26-01 to TC-RUL-26-06 and TC-RUL-27-01 to TC-RUL-27-06, with abuse cases for a verdict-linked rate, a payment run approved by its preparer, paying a professional from escrow, an expense with no receipt and a duplicate payable for the same work; security tests TC-SEC-45 to TC-SEC-47; risk row and test data for PRO. FR-TSK-002 and FR-TSK-003 tests updated (TC-TSK-002-01, -02, TC-TSK-004-01, TC-RUL-23-05, TC-E2E-J12-03) and added (TC-TSK-002-04, TC-TSK-003-06, -07): Tenmina's errand charge goes through the payment provider and the agent is paid by Tenmina. UAT-41 to UAT-44 (a lawyer, a surveyor and a runner seeing their pay; two staff running a payment run); OAT-17; partner acceptance with Tenmina's operating bank for the bulk payment file (PAT-24 to PAT-28). R1 release criteria, go/no-go, traceability and coverage counts regenerated. Issues 36 to 41 added. |
 | 0.6 | 12 November 2026 | QA and test architect | Aligned to 01 v0.12: fund and evidence protection. New functional tests TC-ACC-013-01 to -06, TC-PAY-008-01 to -03, TC-CASE-016-01 to -05, TC-RPT-012-01 to -05, TC-ESC-016-01 to -07 and TC-ESC-017-01 to -05 (31); rule tests TC-RUL-28-01 to -06, TC-RUL-29-01 to -05, TC-RUL-30-01 to -04, TC-RUL-31-01 to -05 and TC-RUL-32-01 to -05 (25) in new section 3.7, with abuse cases for bank details changed by WhatsApp, a release during the cooling-off period, a payee change approved twice by one person, a refund addressed to a new account, a search result uploaded by a runner, an identity "check" from a photocopy, the identity service down, a re-check assigned to someone linked to the case and a failed re-check that does not freeze an open escrow. State tests TC-STM-ESC-27 and -28 (TC-STM-ESC-13 now refunds to the source account); journey tests TC-E2E-J01-09, TC-E2E-J02-08 and -09; security tests TC-SEC-48 to TC-SEC-50; UAT-45 to UAT-47; OAT-18; PAT-29 and PAT-30 with the escrow bank. Risk rows, objectives, test data, R1 release criteria, go/no-go, traceability (user stories US-ACC-013, US-PAY-008, US-CASE-016, US-RPT-012, US-ESC-016, US-ESC-017) and coverage counts regenerated: 1,054 test cases. Issues 42 to 48 added. |
 | 0.7 | 12 November 2026 | QA and test architect | Aligned to 01 v0.13: release timing and escrow account structure. New functional tests TC-ESC-018-01 to -06, TC-ESC-019-01 to -07 and TC-ESC-020-01 to -04 (17); rule tests TC-RUL-33-01 to -06 and TC-RUL-34-01 to -07 (13) in new section 3.8, and TC-RUL-07-06 for the fresh-search window counted from the dates of the registry's result and the site check (TC-RUL-07-01 and -02 updated for `[14 days, TO VERIFY]`). Abuse cases cover a waiting period or "send later" after approval, part of an approved release held back without terms, an instruction larger than the escrow's confirmed balance, a release drawing on another escrow's money in the shared escrow account, a deposit credited to the wrong escrow's reference and an escrow account set up in Tenmina's name. NFR tests TC-NFR-PERF-06-01 and -02; state tests TC-STM-ESC-29 and -30; journey tests TC-E2E-J02-10 to -12; security test TC-SEC-51; UAT-48; OAT-03 widened to the release clock alerts; PAT-31 to PAT-33 with the escrow bank (a virtual account per escrow, a statement line credited to the wrong virtual account, payment time). Risk row, objectives, test data, R1 release criteria, go/no-go, traceability (user stories US-ESC-018, US-ESC-019, US-ESC-020) and coverage counts regenerated: 1,099 test cases. TC-RUL-06-05 and TC-RUL-07-07 added for the 01 v0.13 review fixes (a held-back share's own condition does not block the main release; the fresh search and site check are checked at the last approval and again at sending). Issue 1 partly resolved; issues 49 and 50 added. |
+| 0.8 | 12 November 2026 | QA and test architect | Aligned to 01 v0.15: exchange rates and deposit routes. New functional tests TC-ESC-021-01 to -09, TC-ESC-022-01 to -08, TC-ESC-023-01 to -05 and TC-ESC-024-01 to -05 (27), and TC-ADM-005-06 for the buffer and comparison providers; rule tests TC-RUL-35-01 to -08 and TC-RUL-36-01 to -07 (15) in new section 3.9. Abuse cases cover a hidden margin (added by Tenmina, left out of a route, or taken at the bank's conversion), a stale reference rate, "best rate" shown when another provider beat the bank, a price or seller payment in foreign currency while Q-32 is open, and a release attempted while the converted amount is short, including a shortfall found only at sending. State tests TC-STM-ESC-31 to -33; journey tests TC-E2E-J02-13, TC-E2E-J02-14 and TC-E2E-J09-09; security tests TC-SEC-52 (rate manipulation) and TC-SEC-53 (fake deposit route); UAT-49 and UAT-50; OAT-19; PAT-34 and PAT-35 with the escrow bank (programme rate, holding foreign currency) and new section 11.10 with PAT-36 and PAT-37 for a money transfer partner (deposit into the cedi account; source of funds, refund and disclosure). Objectives, risk row, test data, R1 release criteria, go/no-go, traceability (user stories US-ESC-021 to US-ESC-024) and coverage counts regenerated: 1,157 test cases. Tests follow the 01 v0.15 review fixes (ranking by amount delivered after fees on a complete day, the client's own bank as an estimate, held amounts converted per payment with no buffer, partner deliveries checked against their quote, converted refunds to foreign accounts, a second administrator for comparison providers). Issues 51 to 54 added; 53 partly closed. |
 
 Every figure in this document is a working assumption, not verified data. Unknown numbers are marked `[TO VERIFY]`. Test tooling named here is a proposal. The engineering lead confirms it before R1 build starts.
 
@@ -503,6 +504,28 @@ From 01 v0.13. The threats are money held after approval, a dispute window that 
 | TC-RUL-34-06 | RUL-34 | Property test | Random deposits, releases, refunds, corrections and duplicate confirmations across many escrows in one shared account | No instruction exceeds its escrow's confirmed balance; each balance equals the sum of its own bank-confirmed events; the balances add up to the bank's reported total for the account | U | Y | R1 |
 | TC-RUL-34-07 | RUL-34 | Pilot set-up: the bank opens one account per escrow instead of virtual accounts | Run TC-RUL-34-01, -03 and -04 against it | Same results; the escrow's own account number shows where the virtual account number would | A | Y | R1 |
 
+### 3.9 Exchange rate and deposit rules (RUL-35, RUL-36)
+
+From 01 v0.15. The threats are a hidden margin on the exchange, a quote built on a stale reference rate, a "best rate" claim that the day's comparison does not support, a seller paid in the wrong currency, and a release sent while money held in foreign currency converts to less than the price. Rates, the buffer and the quote validity are read from configuration and synthetic fixtures (section 2.7); no test asserts a real market rate.
+
+| ID | Rule | Preconditions | Steps | Expected result | Level | Auto | Rel |
+|---|---|---|---|---|---|---|---|
+| TC-RUL-35-01 | RUL-35 | Agreed Ghana escrow; reference rate published today; bank route and one transfer partner route configured | Client opens the deposit routes for USD 18,000.00 | Every route shows the reference rate with its source and time, the rate offered, the margin as a percentage, every fee, the limits and the GHS amount delivered; the line "Tenmina takes no margin on the exchange" is shown | A/E | Y | R1 |
+| TC-RUL-35-02 | RUL-35 | Abuse, a hidden margin added by Tenmina: an administrator tries to add a Tenmina exchange margin or spread, or to set a route's rate below the bank's or partner's rate | Try through the admin screen, configuration import and the API | Refused in every path; no such setting exists; the rate offered always equals the provider's rate; attempts audited | A/S | Y | R1 |
+| TC-RUL-35-03 | RUL-35 | Abuse, a stale reference rate: the latest reference rate was published yesterday; a second case with a rate older than the quote validity | Client tries to accept a quote in each case, through UI and API | Refused; "The rate has been updated" shown; no accepted quote stored | A | Y | R1 |
+| TC-RUL-35-04 | RUL-35 | Ghana configuration with Q-32 unanswered | Create escrow terms priced in USD; prepare a release instruction paying the seller in USD | Both refused; price and payment to the payee are in GHS; in Testland the configured currency applies | A | Y | R1 |
+| TC-RUL-35-05 | RUL-35 | Escrow holding USD until release at Ready to release; a cancelled escrow whose refund converts GHS to USD | Client opens the approval; staff prepare the refund | A fresh quote with all its parts is shown before the client approves and before the refund is approved; its acceptance is recorded (FR-ESC-023) | A/E | Y | R1 |
+| TC-RUL-35-06 | RUL-35 | Transfer partner that pays Tenmina a fee per deposit; a second partner with no recorded answer | Open the routes; complete a deposit | The payment is shown on the route and on the deposit receipt; the partner with no answer is not offered | A | Y | R1 |
+| TC-RUL-35-07 | RUL-35 | Abuse, "best rate" when another provider beat it: the day's comparison ranks another provider above the bank by the amount delivered after all fees; a provider with a higher rate but larger fees; a day with one provider not collected | Render every client screen, message, receipt and public page; scan the translation files | "Best rate" appears only on the row that delivers the most after all fees, never on a higher rate that delivers less, and nowhere on a day with a missing collection; no template says "best rate", "no fees" or "guaranteed rate" outside that rule | U/A | Y | R1 |
+| TC-RUL-35-08 | RUL-35 | Property test | Random reference rates, offered rates, fees and amounts | The margin shown equals (reference − offered) ÷ reference, to two decimals, and is never shown as 0.00% when positive; the amount delivered equals the amount less fees times the rate, never rounded up; Tenmina's margin is always zero | U | Y | R1 |
+| TC-RUL-36-01 | RUL-36 | Foreign currency route | Client opens the conversion choice | Convert on deposit is preselected; on the bank's confirmation the GHS amount is fixed and shown | A/E | Y | R1 |
+| TC-RUL-36-02 | RUL-36 | Hold until release chosen; buffer read from configuration; then the buffer unset | Show the amount to send; repeat with the buffer unset | The amount includes the configured buffer above the GHS amount due at the current quote; with the buffer unset, hold until release is not offered | A | Y | R1 |
+| TC-RUL-36-03 | RUL-36 | Abuse, a release attempted while the converted amount is short: USD held; at today's quote it converts to GHS 3,600.00 less than the amount due | Client approves; two staff approve; run the send job; try each through the API and as an administrator | Each blocked with the shortfall named; no role can override; the client is asked to top up | A/S | Y | R1 |
+| TC-RUL-36-04 | RUL-36 | Release confirmed with USD 512.40 unused | Prepare instructions for the unused amount to the seller, to a Tenmina account, or none | Only a refund to the source account can be prepared (RUL-29); leaving it in the escrow raises a task until it is refunded | A | Y | R1 |
+| TC-RUL-36-05 | RUL-36 | Property test | Random rate paths between deposit and release, top-ups and buffers | No release instruction is ever generated while the converted amount is below the amount due; the seller always receives the full amount due in GHS; unused money always goes back to its source | U | Y | R1 |
+| TC-RUL-36-06 | RUL-36 | USD held until release; the client tops up in GHS through the cedi account | Bank confirms the top-up; re-check the shortfall | Both currency balances counted from bank confirmations only, the USD at the current quote; the block clears only after the confirmation (section 16, item 52) | A | Y | R1 |
+| TC-RUL-36-07 | RUL-36 | Escrow converted to GHS on deposit is cancelled; the source account is in USD | Prepare the refund; then the client asks to be paid in GHS instead | The refund converts back only at a quote the client accepts; the GHS option goes only to an account in the client's own name through the RUL-29 exception path; any other account refused | A | Y | R1 |
+
 ---
 
 ## 4. Functional test cases
@@ -753,6 +776,33 @@ Each test case also verifies the acceptance criteria of the user story with the 
 | TC-ESC-020-02 | FR-ESC-020 | Share released on its own condition | As TC-ESC-020-01 | Close the share's condition; client and two staff approve | Released after the bank confirms; same approvals as any release; clock restarted (TC-RUL-33-04) | P3 | Y | R1 |
 | TC-ESC-020-03 | FR-ESC-020 | Abuse: share without terms, or released early | Terms with no share; terms with a share whose condition is open | Hold back part of a release; request the share's release | Both refused (TC-RUL-33-03) | P3 | Y | R1 |
 | TC-ESC-020-04 | FR-ESC-020 | No legal answer recorded | Country with no answer to Q-30 recorded | Create terms with a held-back share | Refused | P3 | Y | R1 |
+| TC-ESC-021-01 | FR-ESC-021 | Deposit routes shown with every part | Agreed Ghana escrow; bank USD and GHS accounts and one transfer partner configured; reference rate published today | Client enters USD 18,000.00 and opens "Choose how to pay in" | Each route shows reference rate, source and time, rate, margin %, each fee, limits and the GHS delivered; price in GHS; "Tenmina takes no margin on the exchange" shown (TC-RUL-35-01) | P1 | Y | R1 |
+| TC-ESC-021-02 | FR-ESC-021 | Margin and amount delivered computed | Reference 15.0000; bank rate 14.9250; partner rate 14.8500 (synthetic) | Open the routes | Margins 0.50% and 1.00%; amounts delivered match amount less fees times rate, rounded down | P1 | Y | R1 |
+| TC-ESC-021-03 | FR-ESC-021 | Abuse: a hidden margin | A route with a rate but no margin or fees recorded; a partner that deducts a fee on arrival not in its record | Open the routes; call the routes API | Route without margin or fees not offered; no response carries a rate without its margin and fees; the unlisted fee is flagged to an administrator | P1 | Y | R1 |
+| TC-ESC-021-04 | FR-ESC-021 | Abuse: a stale reference rate | Reference rate from yesterday; a quote older than its validity | Accept the quote | Refused; client told the rate is being updated (TC-RUL-35-03) | P1 | Y | R1 |
+| TC-ESC-021-05 | FR-ESC-021 | Limits per transfer | Partner limit USD 10,000.00 (synthetic); client amount USD 18,000.00; an amount over any route's limit | Open the routes | Number of transfers shown; "Over this route's limit" with the limit for the larger amount; never one transfer above the limit | P1 | Y | R1 |
+| TC-ESC-021-06 | FR-ESC-021 | Partner payment disclosed | A partner that pays Tenmina per deposit; a partner with no recorded answer | Open the routes; complete a deposit | Payment shown on the route and the receipt; partner with no answer not offered (TC-RUL-35-06) | P1 | Y | R1 |
+| TC-ESC-021-07 | FR-ESC-021 | Routes for a held amount | Held amount for school fees in GHS | Client chooses "Add money" | The same routes and quote are shown before the bank details | P1 | Y | R1 |
+| TC-ESC-021-08 | FR-ESC-021 | Country is configuration | Testland escrow with its own currency, bank and partners | Open the routes | Only Testland's routes, currency and partners shown; no Ghana value appears | P1 | Y | R1 |
+| TC-ESC-021-09 | FR-ESC-021 | Client's own bank shown as an estimate | Route "Your own bank converts and sends cedis" configured for Ghana | Open the routes | Figures worked out from the reference rate and marked "Estimate. Your bank's rate and fees are not checked by Tenmina."; no accepted quote is checked against it later | P1 | Y | R1 |
+| TC-ESC-022-01 | FR-ESC-022 | Default: convert on deposit | Foreign currency route | Open the choice; continue | Convert on deposit preselected; choice stored with time and quote; GHS amount fixed when the bank confirms (TC-RUL-36-01) | P1 | Y | R1 |
+| TC-ESC-022-02 | FR-ESC-022 | Hold until release with the buffer | Buffer set in configuration | Choose hold until release | Amount to send includes the buffer; boundary checked at the configured value (TC-RUL-36-02) | P1 | Y | R1 |
+| TC-ESC-022-03 | FR-ESC-022 | Abuse: release while short | USD held; today's quote gives less than the price | Client approves; staff approve; send | Each blocked with the shortfall named; top-up asked; no override (TC-RUL-36-03) | P1 | Y | R1 |
+| TC-ESC-022-04 | FR-ESC-022 | Shortfall found only at sending | All approvals given; the rate falls before the send job runs | Run the send job | Not sent; release waits for the top-up; client told; the clock shows "Waiting for the client's top-up" with no overdue alert (section 16, item 54) | P1 | Y | R1 |
+| TC-ESC-022-05 | FR-ESC-022 | Top-up clears the block only on confirmation | Shortfall open | Client says it paid; then the bank confirms the top-up | No change until the bank's confirmation; then the gate passes and the release can proceed | P1 | Y | R1 |
+| TC-ESC-022-06 | FR-ESC-022 | Unused money refunded to source | Release confirmed; USD 512.40 left | Check the escrow | Refund to the source account prepared for two-person approval (FR-ESC-017); client told (TC-RUL-36-04) | P1 | Y | R1 |
+| TC-ESC-022-07 | FR-ESC-022 | Choice fixed after the deposit is confirmed | Bank confirmed a deposit converted on arrival | Change the choice through UI and API | Refused; audited | P1 | Y | R1 |
+| TC-ESC-022-08 | FR-ESC-022 | Held amount with no price | Held amount for hospital bills; client keeps GBP | Add money; approve two invoices | No buffer asked; each payment shows its own quote before approval and converts when it is made; each quote recorded (FR-ESC-023) | P1 | Y | R1 |
+| TC-ESC-023-01 | FR-ESC-023 | Accepted quote recorded and locked | Client accepts a quote | Read it; try to edit it through the API and the database role the app uses | Reference rate and source, rate, margin, fees, time and expected amount stored; edits refused; audited | P1 | Y | R1 |
+| TC-ESC-023-02 | FR-ESC-023 | Conversion within the programme margin | Bank confirms a conversion at the quoted rate | Record the confirmation | Quote and conversion side by side on the escrow detail and reconciliation; no alert | P1 | Y | R1 |
+| TC-ESC-023-03 | FR-ESC-023 | Abuse: a hidden margin at conversion | Programme margin 0.50% (synthetic); the bank converts at 0.80%; another conversion deducts a fee not in the quote | Record each confirmation | Alert to the case manager and a reviewer; the client is told plainly what differed; the bank's answer is recorded; the conversion cannot be edited | P1 | Y | R1 |
+| TC-ESC-023-04 | FR-ESC-023 | Fresh quote before a release or refund that converts | USD held until release at Ready to release; a refund that converts GHS to USD | Open the client's approval; prepare the refund | New quote shown and its acceptance recorded before the staff approval slots open (TC-RUL-35-05) | P1 | Y | R1 |
+| TC-ESC-023-05 | FR-ESC-023 | Transfer partner route | Deposit through a transfer partner with an accepted quote; the bank confirms the GHS received, once in full and once short | Record each | The GHS received is compared with the partner's quote; the short delivery raises the same alert to the case manager and a reviewer, and the client is told | P1 | Y | R1 |
+| TC-ESC-024-01 | FR-ESC-024 | Daily collection | Working day; bank programme rate and 3 providers configured (`[3, TO VERIFY]`) | Run the collection job | Each rate stored with source and time for each corridor | P2 | Y | R1 |
+| TC-ESC-024-02 | FR-ESC-024 | Comparison shown to clients and staff | Stored comparison | Open it as a client and as a case manager | Rate, margin, fees, source and time for each provider, with the GHS the payee receives after all fees, ranked by that amount; providers that cannot pay into escrow marked | P2 | Y | R1 |
+| TC-ESC-024-03 | FR-ESC-024 | Abuse: "best rate" when another provider beat it | A provider delivers more GHS after all fees than the bank today, although its rate is lower (a smaller fee) | Render screens, messages and receipts | No "best rate" about the bank's route; "Best rate today" only on the provider's row (TC-RUL-35-07) | P2 | Y | R1 |
+| TC-ESC-024-04 | FR-ESC-024 | Collection fails | One provider's source down all day | Reach the end of the working day | Staff alerted; the comparison shows that provider's last collection time; no "best rate" anywhere that day | P2 | Y | R1 |
+| TC-ESC-024-05 | FR-ESC-024 | Non-working day | Public holiday in the country's calendar | Open the comparison | No collection expected; the last working day's comparison shown with its date | P2 | Y | R1 |
 | TC-ESC-011-01 | FR-ESC-011 | Statement file import and match | Statement fixtures | Import | Matches linked; unmatched listed | P2 | Y | R2 |
 | TC-ESC-011-02 | FR-ESC-011 | Bad, duplicate and ambiguous lines | Fixture set in 2.7 | Import | Bad file rejected; duplicates ignored; ambiguous lines go to manual match, never auto-matched | P2 | Y | R2 |
 | TC-ESC-012-01 | FR-ESC-012 | Bank API status | Bank sandbox `[TO VERIFY]` | Poll or receive callback | Deposit and release status updated; signature on callback verified | P3 | Y | R2 |
@@ -979,9 +1029,10 @@ Tests run on both platforms unless the title names one. FR-APP-004 and FR-APP-00
 | TC-ADM-004-02 | FR-ADM-004 | Scope change by one admin or without approvals | Admin | Approve own change; omit insurer approval | Rejected | P1 | Y | R1 |
 | TC-ADM-005-01 | FR-ADM-005 | Configurable values | Admin | Set every value listed in FR-ADM-005 | Values used by rules; change audited | P1 | Y | R1 |
 | TC-ADM-005-02 | FR-ADM-005 | Unsafe values | Admin | Set window to 0 or negative; buffer above maximum | Rejected with allowed range | P1 | Y | R1 |
-| TC-ADM-005-03 | FR-ADM-005 | Release-affecting value needs a second administrator | Admin A | Change fresh-search window, listing report age, badge validity, dispute deadlines, approval reminder period or project fund threshold; admin B approves | Pending until B approves; rules use the old value until then; both audited | P1 | Y | R1 |
+| TC-ADM-005-03 | FR-ADM-005 | Release-affecting value needs a second administrator | Admin A | Change fresh-search window, listing report age, badge validity, dispute deadlines, approval reminder period, project fund threshold or foreign currency buffer; admin B approves | Pending until B approves; rules use the old value until then; both audited | P1 | Y | R1 |
 | TC-ADM-005-04 | FR-ADM-005 | Second administrator missing or the same person | Admin A | A approves own change; no B | Not applied; pending list shows it | P1 | Y | R1 |
 | TC-ADM-005-05 | FR-ADM-005 | Value that does not affect a release | Admin A | Change the SMS money threshold | Applied by one administrator; audited (classification of each value, see section 16) | P1 | Y | R1 |
+| TC-ADM-005-06 | FR-ADM-005 | Buffer and comparison providers | Admin A | Set the foreign currency buffer and the comparison providers; change each; admin B approves | Each change pending until B approves; a buffer change applies to new deposits only; providers used from the next collection after approval; both audited (01 FR-ADM-005) | P1 | Y | R1 |
 
 ### 4.18 Audit (AUD)
 
@@ -1274,6 +1325,9 @@ Concurrency: every money-moving transition is also tested with two parallel requ
 | TC-STM-ESC-28 | Funded, Partly released | Cancelled | No (destination) | Two-person cancellation with the refund addressed to an account that is not a source account and no completed exception | Rejected; state unchanged (RUL-29) | Y | R1 |
 | TC-STM-ESC-29 | Release approved | Partly released | Yes | The bank confirms the main payment of a purchase escrow whose terms set a held-back share | Partly released; the share stays in the escrow's confirmed balance with its own condition (FR-ESC-020) | Y | R1 |
 | TC-STM-ESC-30 | Agreed | Funded | No (wrong escrow) | The bank credits this escrow's deposit to another escrow's virtual account or reference | Stays Agreed; the other escrow shows the money as credited but not matched, with no state change there either (RUL-34) | Y | R1 |
+| TC-STM-ESC-31 | Ready to release | Client approved | No (converted amount short) | Money held in USD until release converts below the price at today's quote; the client tries to approve | Rejected; stays Ready to release; top-up requested (RUL-36) | Y | R1 |
+| TC-STM-ESC-32 | Release approved | Released | No (short at sending) | The rate falls after the last approval; the send job runs | Not sent; stays Release approved waiting for the top-up; once the bank confirms it, sent that working day | Y | R1 |
+| TC-STM-ESC-33 | Agreed | Funded | Yes (with a margin alert) | The bank confirms a deposit converted on arrival at a margin above the programme margin | Funded, because the money is at the bank; margin alert raised; nothing else blocked (FR-ESC-023) | Y | R1 |
 
 ### 5.4 Milestone
 
@@ -1382,6 +1436,8 @@ Run in Playwright on staging against provider sandboxes. Mobile steps in J-03, J
 | TC-E2E-J02-10 | J-02 | Seller paid with no waiting period | P-01, P-03, P-04 | Client pays to the escrow's own virtual account; conditions close; client approves; two staff approve the same working day; the bank confirms the next working day | The payment page shows only the escrow's own number; the instruction goes on the day of the last approval; the client sees "Paid within 2 working days of your approval", then "Expected paid by"; the release clock shows the targets met (RUL-33, RUL-34) | Y | R1 |
 | TC-E2E-J02-11 | J-02 | Deposit with the wrong reference | P-01, P-03 | Client pays with another escrow's reference; the bank credits it there; the case manager asks the bank to correct it; the bank posts the correction | Client sees "Deposit not matched"; neither escrow can release the money; after the correction the right escrow is Funded and the journey continues | Y | R1 |
 | TC-E2E-J02-12 | J-02 | Held-back share until registration | P-01, P-03, P-04, seller | Terms set a held-back share; main release; registration lodged; share released | Partly released after the main payment; the share is paid only after its condition and the usual approvals (FR-ESC-020) | Y | R1 |
+| TC-E2E-J02-13 | J-02 | Pay in through a transfer service, seller paid in cedis | P-01, P-03, P-04, seller | Client compares routes; picks a transfer partner into the escrow's cedi account; accepts the quote; partner delivers; bank confirms GHS received; conditions close; approvals; release | Quote recorded and matched to the GHS received; the seller is paid the GHS price; the client saw the margin, fees and "Tenmina takes no margin on the exchange" before sending | Y | R1 |
+| TC-E2E-J02-14 | J-02 | Hold dollars until release, top up, refund the rest | P-01, P-03, P-04, seller | Client holds USD with the buffer; the rate falls past the buffer; the client is asked to top up and does; fresh quote; approvals; release; leftover refunded | Release blocked until the top-up is confirmed; seller paid the full GHS price; leftover refunded to the source account; every quote recorded | Y | R1 |
 | TC-E2E-J03-01 | J-03 | Build milestone paid on pass | P-01, P-08, P-09, P-04 | Create project; BoQ; contractor; app capture; submit; evidence checked; inspection pass; client approves; two approvals; bank pays | Dashboard shows photos, result and payment | P | R2 |
 | TC-E2E-J03-02 | J-03 | Inspection fail and resubmit | P-08, P-09 | Fail; contractor fixes; resubmit; pass | No payment on fail; payment after pass | P | R2 |
 | TC-E2E-J03-03 | J-03 | Pass with defects | P-09 | Two defects valued | Payment minus defect value; balance after defects closed | P | R2 |
@@ -1416,6 +1472,7 @@ Run in Playwright on staging against provider sandboxes. Mobile steps in J-03, J
 | TC-E2E-J09-06 | J-09 | Receipt never returned | P-03 | Payment confirmed; institution silent past the target | Payment marked receipt overdue; chase task; client told; metric updated | Y | R1 |
 | TC-E2E-J09-07 | J-09 | Institution takes cash only | P-15, P-03 | Kwabena adds a pharmacy that cannot receive a bank transfer | Marked not eligible for direct payment; Kwabena told plainly that Tenmina cannot pay it and never pays cash; no cash or runner payment offered; no invoice can be approved for it (FR-FEE-006) | P | R1 |
 | TC-E2E-J09-08 | J-09 | Family member asks for money instead | P-15 | Kwabena tries to add his nephew as a payee | Rejected: Tenmina pays institutions only; plain explanation (RUL-22) | Y | R1 |
+| TC-E2E-J09-09 | J-09 | Add money to a held amount from abroad | P-15, P-03 | Kwabena adds GBP to the amount held for his mother's bills, choosing a route after comparing the GHS each delivers | Quote shown and recorded before he sends; the statement shows the GBP received, the rate and the GHS held; the bank's conversion checked against the quote | Y | R1 |
 | TC-E2E-J10-01 | J-10 | Care visits confirmed and paid | P-15, P-17, family member, P-03 | Create care plan; vetted carer assigned; carer checks in, completes items, photos, checks out; mother confirms with one-tap code; carer paid for confirmed visits | Dashboard shows each visit with time, items and photos; carer paid only for confirmed visits | P | R2 |
 | TC-E2E-J10-02 | J-10 | Carer confirms own visit | P-17 | Carer enters the family code from own phone | Rejected; flagged; client told (TC-RUL-23-02) | Y | R2 |
 | TC-E2E-J10-03 | J-10 | Missed visit | P-15 | Carer does not check in | Alert to Kwabena and Tenmina within the configured time; visit not paid; replacement visit offered | Y | R2 |
@@ -1545,6 +1602,8 @@ Security testing is threat-driven. The main threats are people who want money re
 | TC-SEC-49 | Forged official search result: an edited PDF of a genuine search, or a result for another plot, injected as evidence | RUL-30, FR-CASE-016, FR-EVD-001 | Upload through the runner's task, the client's document request, a case message and the evidence API with the search-task tag | None accepted as evidence; only a result recorded as received from the registry's channel by a Tenmina account counts | Y | R1 |
 | TC-SEC-50 | Identity check result spoofing: a forged provider callback, a replayed response for another person, or a status field set by API | RUL-31, FR-ACC-013 | Send an unsigned or wrongly signed callback; replay a valid response against another party; set the check status directly | All rejected; the result must be signed, match the request and the party's card number; attempts audited | Y | R1 |
 | TC-SEC-51 | Deposit diverted to another escrow, or money drawn from the shared escrow account | RUL-34, FR-ESC-019, FR-ESC-003 | Send the client a fake message with another escrow's reference; tamper with the reference on the payment page through the API; as an insider, build an instruction against the shared account's total, or write an escrow's balance directly | The payment page shows only the reference from the escrow's bank record; a wrongly credited deposit cannot be released from either escrow; no instruction exceeds its escrow's bank-confirmed balance; no user can write a balance; attempts audited and alerted | Y | R1 |
+| TC-SEC-52 | Rate manipulation: a quote or reference rate changed after acceptance, a forged rate source, or a margin hidden in the rate | RUL-35, FR-ESC-021, FR-ESC-023 | As an insider, edit an accepted quote or a stored reference rate; point the rate source at a forged feed; through the API, submit a quote with a better rate than offered | Accepted quotes and collected rates cannot be edited; a rate from an unconfigured or unsigned source is refused; the server rebuilds every quote and ignores client-sent rates; each attempt audited and alerted | Y | R1 |
+| TC-SEC-53 | Fake deposit route: a fraudster sends the client a "Tenmina transfer partner" link or new account details for paying in | RUL-35, RUL-34, FR-ESC-021, FR-ESC-003 | Send a phishing message with a payment link; try to add an unapproved partner through the API | The routes page lists only partners an administrator approved with a second administrator (FR-ADM-003); it never shows a payment link; the client is warned on every deposit page that Tenmina never sends payment links | P | R1 |
 
 ### 8.3 OWASP ASVS level 2 verification (NFR-SEC-05)
 
@@ -1808,6 +1867,8 @@ Supporting checks: TC-NFR-USE-02-01 and TC-NFR-USE-02-02 for status message plai
 | UAT-46 | Record an official search and check a seller's identity | P-03, P-07 | RUL-30, RUL-31, FR-CASE-016, FR-ACC-013 | Case manager records the search lodged from Tenmina's account and the result from the official channel; a runner's PDF is clearly "not evidence"; the seller's check runs against the national identity system with no photocopy option | R1 |
 | UAT-47 | Run the monthly random re-check | P-04, a licensed professional with no link to the case | RUL-32, FR-RPT-012 | Reviewer sees the month's sample and cannot change it; the professional records the result; a planted failure freezes the affected escrow and starts a correction | R1 |
 | UAT-48 | Pay into an escrow's own account and follow the release to payment | P-01, P-03, P-04 | RUL-33, RUL-34, FR-ESC-018, FR-ESC-019 | Client says the account on the payment page belongs to this escrow at the bank, not to Tenmina; after approving, says when the seller will be paid and that there is no waiting period; the case manager finds a planted overdue release on the escrow list and My work and follows the runbook | R1 |
+| UAT-49 | Choose how to pay in and understand the exchange | P-01 | RUL-35, RUL-36, FR-ESC-021, FR-ESC-022 | Client picks a route and says what they send, what the seller receives in cedis, the margin and the fees, and that Tenmina takes no margin; after choosing to hold dollars, says what happens if the cedi amount falls short and where leftover money goes | R1 |
+| UAT-50 | Check a conversion and handle a margin alert | P-03, P-04 | RUL-35, FR-ESC-023, FR-ESC-024 | Case manager finds a planted conversion outside the programme margin, compares it with the accepted quote, raises it with the bank and records the answer; a reviewer reads the day's rate comparison and says whether the bank's rate was best that day | R1 |
 
 ### 11.4 UAT sign-off form
 
@@ -1858,6 +1919,7 @@ Runbooks and procedures are in document 06. OAT proves they work.
 | OAT-16 | Raise and lower the minimum app version | Runbook followed on staging with two administrators; old builds see the update screen; queued evidence kept; lowering restores access | R2 |
 | OAT-17 | Failed or wrong payment run drill | On staging, a run with one failed line and one planted wrong amount is handled with the runbook in document 06 by someone who did not write it; the failed line is paid once in the next run; the wrong amount is corrected by a new line, never an edit | R1 |
 | OAT-18 | Identity service down and monthly re-check drill | On staging, the identity service is stopped: staff follow the runbook, releases stay blocked and checks resume when it returns; then the monthly re-check sample is drawn, logged and assigned by someone who did not write the runbook (by hand until FR-RPT-012 ships) | R1 |
+| OAT-19 | Rate collection and margin alert drill | On staging, one comparison source and the reference rate feed are stopped: staff follow the runbook, no quote can be accepted on a stale rate and no "best rate" appears; then a conversion outside the programme margin is planted and the alert reaches the case manager within the working day | R1 |
 
 ### 11.6 Partner acceptance with the escrow bank (PAT)
 
@@ -1883,6 +1945,8 @@ Run with the partner bank or licensed escrow agent once the agreement is signed 
 | PAT-31 | A virtual account for each escrow | The bank opens 3 test escrows and 1 held amount in the programme's escrow account for one currency; test deposits to each | Each has its own virtual account number or reference; deposits are credited and reported per number; the bank's daily balance per number matches the tracker; the account is held by the bank as escrow agent (Q-29) `[TO VERIFY]` | R1 |
 | PAT-32 | Statement line credited to the wrong virtual account | The bank posts a test deposit to the wrong number, then its correcting entry | Tenmina records the misposting as not matched and blocks release from both escrows; balances change only with the bank's correction; the bank's correction procedure and time are agreed in writing | R1 |
 | PAT-33 | Payment time | Tenmina sends 5 test instructions on working days, one just before the cut-off | The bank pays each within `[2 working days, TO VERIFY]` and confirms; times recorded against NFR-PERF-06; the agreement states the payment time | R1 |
+| PAT-34 | Programme rate and conversion reporting | The bank converts 5 test deposits on arrival and 2 held amounts at release, in two amount bands | Each conversion uses the written programme margin (Q-33) and the agreed fees; the bank reports the rate, fees and amount for each, per virtual account; Tenmina's quote check finds no difference | R1 |
+| PAT-35 | Holding foreign currency and refunding the rest | The bank holds a test deposit in USD until release, converts at release, and refunds the unused USD to the source account | Balances per currency match the tracker; the conversion at release matches the quote within the programme margin; the refund reaches the source account and is confirmed | R1 |
 
 ### 11.7 Partner acceptance with an institution (PAT, receipt return)
 
@@ -1921,6 +1985,15 @@ Run with the bank, and the mobile money provider if runners are paid that way, t
 | PAT-26 | Confirmation file | The bank returns a confirmation for the test run with one failed line (closed account) and one name query | Tenmina matches every line; the failed line shows the bank's reason; nothing is paid twice | R1 |
 | PAT-27 | Mobile money bulk file, if used | PAT-24 to PAT-26 with the mobile money provider | Same criteria | R1 `[TO VERIFY]` |
 | PAT-28 | Separation and sign-off | The bank confirms the operating account is separate from every escrow and held-funds account and that the file channel cannot debit them | Written acceptance from the bank | R1 |
+
+### 11.10 Partner acceptance with a money transfer partner (PAT, deposits into the cedi account)
+
+Run with each licensed transfer partner offered as a deposit route (IF-15, Q-33) `[TO VERIFY]`, before its route is switched on. The bank's own routes do not need it.
+
+| ID | Test | Steps | Pass criterion | Rel |
+|---|---|---|---|---|
+| PAT-36 | Deposit into the escrow's cedi account | The partner sends 3 test transfers from abroad into a test escrow's cedi account with its reference, one above the per-transfer limit | Each arrives with the reference and the sender's account recorded; the bank credits the right virtual account; the over-limit transfer is refused by the partner; the partner's rate and fees match what the route showed | R1 |
+| PAT-37 | Source of funds, refund and disclosure | The partner runs its source-of-funds check on one sender; Tenmina refunds one test deposit; the partner states in writing whether it pays Tenmina anything | The check outcome and time are reported; the refund returns through the partner to the sender's account (section 16, item 53); any payment to Tenmina matches what the route discloses | R1 |
 
 ---
 
@@ -1992,25 +2065,27 @@ Also:
 
 | Criterion | Evidence |
 |---|---|
-| All R1 Must FRs pass (ACC including FR-ACC-013, ORD, PAY including FR-PAY-008, CASE including FR-CASE-016, RPT, GEO, ESC R1 Must items including FR-ESC-014 to FR-ESC-019 (FR-ESC-020 is Could), EVD R1 items, NTF, ADM, AUD, ANL-003, DPR, FEE Musts, FR-CTY-001 and FR-CTY-003, PRO Musts FR-PRO-001, 002, 003, 005, 006 and 007) | Test report against section 4 |
-| All R1 business rules pass: RUL-01 to RUL-07, RUL-11, RUL-17, RUL-20, RUL-22, RUL-26 to RUL-34 (RUL-32 by the manual check in section 3.7 until FR-RPT-012 ships) | `rul` suite report, zero skips |
+| All R1 Must FRs pass (ACC including FR-ACC-013, ORD, PAY including FR-PAY-008, CASE including FR-CASE-016, RPT, GEO, ESC R1 Must items including FR-ESC-014 to FR-ESC-019 and FR-ESC-021 to FR-ESC-023 (FR-ESC-020 is Could, FR-ESC-024 Should), EVD R1 items, NTF, ADM, AUD, ANL-003, DPR, FEE Musts, FR-CTY-001 and FR-CTY-003, PRO Musts FR-PRO-001, 002, 003, 005, 006 and 007) | Test report against section 4 |
+| All R1 business rules pass: RUL-01 to RUL-07, RUL-11, RUL-17, RUL-20, RUL-22, RUL-26 to RUL-36 (RUL-32 by the manual check in section 3.7 until FR-RPT-012 ships) | `rul` suite report, zero skips |
 | State-transition matrix for Case and Escrow passes, including Client approved, Partly released (amounts held at the bank) and cancellation paths | Section 5 report |
-| J-01, J-02, J-08 and J-09 E2E pass, including unhappy paths (TC-E2E-J01-09, TC-E2E-J02-08 and -09 for the payee lock, official searches and party identity; TC-E2E-J02-10 and -11 for release timing and the escrow's own balance) | Section 6 report |
+| J-01, J-02, J-08 and J-09 E2E pass, including unhappy paths (TC-E2E-J01-09, TC-E2E-J02-08 and -09 for the payee lock, official searches and party identity; TC-E2E-J02-10 and -11 for release timing and the escrow's own balance; TC-E2E-J02-13 and -14 and TC-E2E-J09-09 for deposit routes and conversion) | Section 6 report |
 | R1 NFRs pass: PERF-01 to 04 and PERF-06 (its bank time and median confirmed after the first live month), AVL-01 to 03, SEC-01 to 05, PRIV-01 and 02, USE-01 and 02, A11Y-01 (web), OBS-01, MNT-01, MNT-02 (country), LOC-01, AUD-01 | Section 7 report; NFR-AVL-01 confirmed after first live month |
 | Country isolation tests pass with Ghana and the test country (TC-CTY-001-03, TC-SEC-32); no hard-coded country values | Section 4.28 and 8.2 reports; CI check |
 | Penetration test retest letter: no open high or critical, scope including payee verification and institution flow | Tester's letter |
 | ASVS L2 checklist complete | Checklist |
 | Usability test passes NFR-USE-01 (4 of 5, median under 10 minutes) | Usability report |
-| UAT-01 to UAT-12, UAT-25 to UAT-28, UAT-34 and UAT-41 to UAT-48 accepted | Signed forms |
-| OAT-01 to OAT-08, OAT-12, OAT-17 and OAT-18 pass | OAT report |
-| PAT-01 to PAT-05, PAT-09 to PAT-12 and PAT-29 to PAT-33 pass with the escrow bank, or escrow and institution payment features ship switched off with manual tracking (AS-02) | Bank acceptance letter or product owner decision |
+| UAT-01 to UAT-12, UAT-25 to UAT-28, UAT-34 and UAT-41 to UAT-50 accepted | Signed forms |
+| OAT-01 to OAT-08, OAT-12 and OAT-17 to OAT-19 pass | OAT report |
+| PAT-01 to PAT-05, PAT-09 to PAT-12 and PAT-29 to PAT-35 pass with the escrow bank, or escrow and institution payment features ship switched off with manual tracking (AS-02) | Bank acceptance letter or product owner decision |
+| PAT-36 and PAT-37 pass with each transfer partner offered as a deposit route, or that route stays switched off; the bank's own routes are enough for FR-ESC-021 | Partner acceptance letter or product owner decision |
 | PAT-14 to PAT-16 and PAT-18 pass with at least one school and one hospital, or the FEE line opens only for institutions that accept direct payment; others are marked not eligible (FR-FEE-006, AS-10) | Institution letters or product owner decision |
 | Insurer approves the platform report process (01 B4) | Insurer letter |
 | Data location confirmed (Q-07) and registration with each live country's data protection authority in place (in Ghana, the Data Protection Commission; others per Q-21) `[TO VERIFY]` | Lawyer's note |
-| Configurable values set and approved: fresh-search window (`[14 days, TO VERIFY]`, Q-04), release timing targets (NFR-PERF-06), retention periods (Q-08), receipt return target, payee matching rule, payee-change cooling-off period (RUL-28) and monthly re-check share (RUL-32) | Configuration export signed by lawyer |
+| Configurable values set and approved: fresh-search window (`[14 days, TO VERIFY]`, Q-04), release timing targets (NFR-PERF-06), retention periods (Q-08), receipt return target, payee matching rule, payee-change cooling-off period (RUL-28), monthly re-check share (RUL-32), foreign currency buffer (RUL-36), quote validity and rate comparison providers (FR-ESC-024) | Configuration export signed by lawyer |
 | Pricing for the FEE line set (Q-20) | Founder's decision |
 | Legal basis for escrow confirmed in writing (Q-28), or escrow features ship switched off | Lawyer's note; bank's agreement |
 | Escrow account structure confirmed by the bank: one escrow account per currency and country held as escrow agent, with a virtual account number or reference and a daily balance for each escrow and held amount, or one account per escrow in a pilot (Q-29). Held-back shares stay switched off unless the lawyer has answered Q-30 | Bank's letter; lawyer's note; configuration export |
+| The bank's programme rate agreed in writing (Q-33); the lawyer's view on foreign currency pricing for non-resident buyers on file (Q-32), or prices and payments to sellers stay in cedis | Bank's letter; lawyer's note; configuration export |
 | Access to the national identity system in place for party checks (IF-03, RUL-31); Tenmina's own registry account in place for official searches (IF-09, RUL-30) | Access terms; configuration export |
 | PAT-24 to PAT-26 and PAT-28 pass with Tenmina's operating bank, or payment runs stay manual and two-person, outside the platform, until they pass | Bank acceptance letter or product owner decision |
 | Tax rules for professionals signed by an accountant for each live country (Q-25) and loaded as configuration | Accountant's note; configuration export |
@@ -2059,16 +2134,16 @@ Used at the go/no-go meeting for every release. Chair: product owner. Attendees:
 | # | Check | Yes/No |
 |---|---|---|
 | 1 | All Must requirements for this release pass | |
-| 2 | All active `rul` tests pass with zero skips, including RUL-22 on every line that ships and RUL-28 to RUL-34 | |
+| 2 | All active `rul` tests pass with zero skips, including RUL-22 on every line that ships and RUL-28 to RUL-36 | |
 | 3 | No open S1 or S2 defects | |
 | 4 | Penetration test retest: no open high or critical findings | |
 | 5 | UAT scenarios for this release signed | |
 | 6 | OAT passed, including a restore drill in the last 30 days (assumption) | |
-| 7 | Partner acceptance signed by the escrow bank, or escrow features switched off by decision; and by Tenmina's operating bank for the bulk payment file, or payment runs kept manual by decision | |
+| 7 | Partner acceptance signed by the escrow bank, or escrow features switched off by decision; and by Tenmina's operating bank for the bulk payment file, or payment runs kept manual by decision; and by each transfer partner offered as a deposit route, or that route switched off | |
 | 8 | Partner acceptance signed by each institution and insurer whose line ships, or that line switched off by decision | |
 | 9 | Release candidate on staging is the exact build going to production (same artefact hashes) | |
 | 10 | Rollback plan tested for this release | |
-| 11 | Required legal and insurer approvals on file (scope text, insurer, Act 843, Act 1047 where relevant, C-11 intermediary position, Q-18 licences, Q-28 legal basis for escrow, Q-30 before any held-back share) | |
+| 11 | Required legal and insurer approvals on file (scope text, insurer, Act 843, Act 1047 where relevant, C-11 intermediary position, Q-18 licences, Q-28 legal basis for escrow, Q-30 before any held-back share, Q-32 before any price or payment to a seller in foreign currency) | |
 | 12 | Any country opening in this release has its gate record on file (manual phase and 90-day validation, C-13); countries without it stay "not open" | |
 | 13 | Every app in this release is approved by both the App Store and Google Play for the exact build that passed testing; phased release and halt plan ready on each store (C-14) | |
 | 14 | Configurable values set to approved numbers, exported and signed | |
@@ -2210,6 +2285,10 @@ Read each row left to right: business requirement, feature, functional requireme
 | BR-05 | RUL-33, NFR-PERF-06 | F-08 | FR-ESC-018 | Must | R1 | US-ESC-018 | TC-ESC-018-01, TC-ESC-018-02, TC-ESC-018-03, TC-ESC-018-04, TC-ESC-018-05, TC-ESC-018-06 | TC-RUL-33-01, TC-RUL-33-02, TC-RUL-33-05, TC-RUL-33-06, TC-NFR-PERF-06-01, TC-E2E-J02-10, PAT-33 |
 | BR-05 | RUL-34, RUL-01 | F-08 | FR-ESC-019 | Must | R1 | US-ESC-019 | TC-ESC-019-01, TC-ESC-019-02, TC-ESC-019-03, TC-ESC-019-04, TC-ESC-019-05, TC-ESC-019-06, TC-ESC-019-07 | TC-RUL-34-01, TC-RUL-34-02, TC-RUL-34-03, TC-RUL-34-04, TC-RUL-34-05, TC-RUL-34-06, TC-RUL-34-07, TC-STM-ESC-30, TC-SEC-51, TC-E2E-J02-11, PAT-31, PAT-32 |
 | BR-05 | RUL-33, Q-30 | F-08 | FR-ESC-020 | Could | R1 | US-ESC-020 | TC-ESC-020-01, TC-ESC-020-02, TC-ESC-020-03, TC-ESC-020-04 | TC-RUL-33-03, TC-RUL-33-04, TC-STM-ESC-29, TC-E2E-J02-12 |
+| BR-05 | RUL-35, IF-15 | F-08 | FR-ESC-021 | Must | R1 | US-ESC-021 | TC-ESC-021-01, TC-ESC-021-02, TC-ESC-021-03, TC-ESC-021-04, TC-ESC-021-05, TC-ESC-021-06, TC-ESC-021-07, TC-ESC-021-08, TC-ESC-021-09 | TC-RUL-35-01, TC-RUL-35-02, TC-RUL-35-03, TC-RUL-35-04, TC-RUL-35-06, TC-RUL-35-08, TC-SEC-53, TC-E2E-J02-13, TC-E2E-J09-09, UAT-49, PAT-36, PAT-37 |
+| BR-05 | RUL-36, RUL-29 | F-08 | FR-ESC-022 | Must | R1 | US-ESC-022 | TC-ESC-022-01, TC-ESC-022-02, TC-ESC-022-03, TC-ESC-022-04, TC-ESC-022-05, TC-ESC-022-06, TC-ESC-022-07, TC-ESC-022-08 | TC-RUL-36-01, TC-RUL-36-02, TC-RUL-36-03, TC-RUL-36-04, TC-RUL-36-05, TC-RUL-36-06, TC-RUL-36-07, TC-STM-ESC-31, TC-STM-ESC-32, TC-E2E-J02-14, UAT-49, PAT-35 |
+| BR-05 | RUL-35 | F-08 | FR-ESC-023 | Must | R1 | US-ESC-023 | TC-ESC-023-01, TC-ESC-023-02, TC-ESC-023-03, TC-ESC-023-04, TC-ESC-023-05 | TC-RUL-35-05, TC-STM-ESC-33, TC-SEC-52, TC-E2E-J02-13, UAT-50, OAT-19, PAT-34 |
+| BR-05 | RUL-35, IF-14 | F-08 | FR-ESC-024 | Should | R1 | US-ESC-024 | TC-ESC-024-01, TC-ESC-024-02, TC-ESC-024-03, TC-ESC-024-04, TC-ESC-024-05 | TC-RUL-35-07, UAT-50, OAT-19 |
 
 **EVD — Evidence store**
 
@@ -2339,7 +2418,7 @@ Read each row left to right: business requirement, feature, functional requireme
 | BR-01 | BR-01 | F-11 | FR-ADM-002 | Must | R1 | US-ADM-002 | TC-ADM-002-01, TC-ADM-002-02 | — |
 | BR-03 | BR-03 | F-11 | FR-ADM-003 | Must | R1 | US-ADM-003 | TC-ADM-003-01, TC-ADM-003-02, TC-ADM-003-03, TC-ADM-003-04 | TC-SEC-21, TC-RUL-22-04 |
 | BR-02 | RUL-04 | F-11 | FR-ADM-004 | Must | R1 | US-ADM-004 | TC-ADM-004-01, TC-ADM-004-02 | TC-RUL-04-01, TC-RUL-04-02, TC-RUL-04-03 |
-| BR-05, BR-10 | RUL-07, RUL-13 | F-11 | FR-ADM-005 | Must | R1 | US-ADM-005 | TC-ADM-005-01, TC-ADM-005-02, TC-ADM-005-03, TC-ADM-005-04, TC-ADM-005-05 | TC-RUL-07-01, TC-RUL-07-02, TC-RUL-07-03, TC-RUL-07-04, TC-RUL-13-01, TC-RUL-13-02, TC-RUL-13-03 |
+| BR-05, BR-10 | RUL-07, RUL-13 | F-11 | FR-ADM-005 | Must | R1 | US-ADM-005 | TC-ADM-005-01, TC-ADM-005-02, TC-ADM-005-03, TC-ADM-005-04, TC-ADM-005-05, TC-ADM-005-06 | TC-RUL-07-01, TC-RUL-07-02, TC-RUL-07-03, TC-RUL-07-04, TC-RUL-13-01, TC-RUL-13-02, TC-RUL-13-03 |
 
 **AUD — Audit**
 
@@ -2500,6 +2579,8 @@ Read each row left to right: business requirement, feature, functional requireme
 | RUL-32 | BR-02 | F-04 | FR-RPT-012 | TC-RUL-32-01, TC-RUL-32-02, TC-RUL-32-03, TC-RUL-32-04, TC-RUL-32-05 | TC-RPT-012-03, UAT-47, OAT-18 |
 | RUL-33 | BR-05 | F-08 | FR-ESC-018, FR-ESC-020 | TC-RUL-33-01, TC-RUL-33-02, TC-RUL-33-03, TC-RUL-33-04, TC-RUL-33-05, TC-RUL-33-06 | TC-ESC-018-02, TC-ESC-018-05, TC-ESC-020-03, TC-STM-ESC-29, TC-E2E-J02-10, TC-E2E-J02-12, TC-NFR-PERF-06-01, UAT-48 |
 | RUL-34 | BR-05 | F-08 | FR-ESC-019 | TC-RUL-34-01, TC-RUL-34-02, TC-RUL-34-03, TC-RUL-34-04, TC-RUL-34-05, TC-RUL-34-06, TC-RUL-34-07 | TC-ESC-019-04, TC-ESC-019-06, TC-STM-ESC-30, TC-SEC-51, TC-E2E-J02-11, UAT-48, PAT-31, PAT-32 |
+| RUL-35 | BR-05 | F-08 | FR-ESC-021, FR-ESC-023, FR-ESC-024 | TC-RUL-35-01, TC-RUL-35-02, TC-RUL-35-03, TC-RUL-35-04, TC-RUL-35-05, TC-RUL-35-06, TC-RUL-35-07, TC-RUL-35-08 | TC-ESC-021-03, TC-ESC-023-03, TC-ESC-024-03, TC-STM-ESC-33, TC-SEC-52, TC-SEC-53, TC-E2E-J02-13, TC-E2E-J09-09, UAT-49, UAT-50, OAT-19, PAT-34, PAT-36, PAT-37 |
+| RUL-36 | BR-05 | F-08 | FR-ESC-022, FR-ADM-005 | TC-RUL-36-01, TC-RUL-36-02, TC-RUL-36-03, TC-RUL-36-04, TC-RUL-36-05, TC-RUL-36-06, TC-RUL-36-07 | TC-ESC-022-03, TC-ESC-022-04, TC-ADM-005-06, TC-STM-ESC-31, TC-STM-ESC-32, TC-E2E-J02-14, UAT-49, PAT-35 |
 
 ### 14.3 Non-functional requirements
 
@@ -2554,31 +2635,31 @@ Read each row left to right: business requirement, feature, functional requireme
 
 Counts are of test cases written in this version of the document.
 
-| Item | In document 01 version 0.13 | Covered by at least one test | Notes |
+| Item | In document 01 version 0.15 | Covered by at least one test | Notes |
 |---|---|---|---|
-| Functional requirements | 220 (146 Must, 60 Should, 14 Could) | 220 | Every Must FR has at least one positive and one negative test |
-| Business rules | 34 | 34 | Every rule has 2 to 8 tests; 163 in total |
+| Functional requirements | 224 (149 Must, 61 Should, 14 Could) | 224 | Every Must FR has at least one positive and one negative test |
+| Business rules | 36 | 36 | Every rule has 2 to 8 tests; 178 in total |
 | Non-functional requirements | 27 | 27 | 38 tests |
-| State models | 5 | 5 | 108 named tests plus the generated matrix test per model |
-| Journeys | 12 | 12 | 75 E2E tests |
+| State models | 5 | 5 | 111 named tests plus the generated matrix test per model |
+| Journeys | 12 | 12 | 78 E2E tests |
 | Business requirements | 23 (BR-01 to BR-23) | 23 | Through FRs in section 14.1 |
 
 | Test type | Count |
 |---|---|
-| Functional (`TC-<MODULE>-nnn-xx`) | 538 |
-| Business rule (`TC-RUL-nn-xx`) | 163 |
-| State transition (`TC-STM-…`) | 108 |
-| End-to-end journey (`TC-E2E-J0n-xx`) | 75 |
+| Functional (`TC-<MODULE>-nnn-xx`) | 566 |
+| Business rule (`TC-RUL-nn-xx`) | 178 |
+| State transition (`TC-STM-…`) | 111 |
+| End-to-end journey (`TC-E2E-J0n-xx`) | 78 |
 | Non-functional (`TC-NFR-…`) | 38 |
-| Security threat (`TC-SEC-nn`) | 51 |
+| Security threat (`TC-SEC-nn`) | 53 |
 | Mobile and field (`TC-FLD-nn`) | 20 |
 | App store acceptance (`TC-STORE-nn`) | 7 |
-| User acceptance (`UAT-nn`) | 48 |
-| Operational acceptance (`OAT-nn`) | 18 |
-| Partner acceptance (`PAT-nn`) | 33 |
-| **Total** | **1,099** |
+| User acceptance (`UAT-nn`) | 50 |
+| Operational acceptance (`OAT-nn`) | 19 |
+| Partner acceptance (`PAT-nn`) | 37 |
+| **Total** | **1,157** |
 
-Functional test cases by release: R1 313, R2 213, R3 12.
+Functional test cases by release: R1 341, R2 213, R3 12.
 
 Functional coverage by module:
 
@@ -2590,7 +2671,7 @@ Functional coverage by module:
 | CASE | 16 | 12 | 16 | 33 | 33 |
 | RPT | 12 | 9 | 12 | 27 | 26 |
 | GEO | 8 | 4 | 8 | 12 | 11 |
-| ESC | 20 | 17 | 20 | 75 | 75 |
+| ESC | 24 | 20 | 24 | 102 | 102 |
 | EVD | 6 | 6 | 6 | 13 | 13 |
 | MOB | 12 | 11 | 12 | 37 | 30 |
 | APP | 6 | 4 | 6 | 22 | 16 |
@@ -2601,7 +2682,7 @@ Functional coverage by module:
 | DSP | 5 | 4 | 5 | 10 | 10 |
 | PTR | 4 | 1 | 4 | 6 | 6 |
 | NTF | 5 | 4 | 5 | 9 | 9 |
-| ADM | 5 | 5 | 5 | 15 | 15 |
+| ADM | 5 | 5 | 5 | 16 | 16 |
 | AUD | 4 | 2 | 4 | 7 | 7 |
 | ANL | 3 | 1 | 3 | 4 | 4 |
 | DPR | 5 | 5 | 5 | 11 | 11 |
@@ -2614,15 +2695,15 @@ Functional coverage by module:
 | EVT | 3 | 0 | 3 | 5 | 5 |
 | REC | 4 | 0 | 4 | 5 | 5 |
 | CTY | 4 | 4 | 4 | 12 | 10 |
-| **Total** | **220** | **146** | **220** | **538** | **519** |
+| **Total** | **224** | **149** | **224** | **566** | **547** |
 
-Verification of this version: a script compared every `FR-`, `RUL-` and `NFR-` ID in document 01 version 0.13 with this document. Every ID in 01 appears here, no ID here is absent from 01, and every test ID referenced in a table is defined in a table.
+Verification of this version: a script compared every `FR-`, `RUL-` and `NFR-` ID in document 01 version 0.15 with this document. Every ID in 01 appears here, no ID here is absent from 01, and every test ID referenced in a table is defined in a table.
 
 ### 14.6 Keeping traceability current
 
 - Each automated test carries markers for its TC ID and the FR, RUL or NFR it covers (for example `@pytest.mark.req("FR-ESC-006")`).
 - A CI script builds this matrix from the markers and from document 01. It fails when an FR or RUL in 01 has no test, or when a test points to an ID that does not exist.
-- When document 01 or document 04 changes, the QA lead updates this document in the same pull request. Version 0.3 of document 01 added 36 FRs and 4 rules; version 0.2 of document 05 was that update. Version 0.6 of document 01 added 6 FRs (FR-APP-001 to FR-APP-006) and 2 NFRs (NFR-STORE-01, NFR-STORE-02); version 0.4 of document 05 is that update. Version 0.8 of document 01 added 10 FRs (FR-PRO-001 to FR-PRO-010) and 2 rules (RUL-26, RUL-27); version 0.5 of document 05 is that update. Version 0.12 of document 01 added 6 FRs (FR-ACC-013, FR-PAY-008, FR-CASE-016, FR-RPT-012, FR-ESC-016, FR-ESC-017) and 5 rules (RUL-28 to RUL-32); version 0.6 of document 05 is that update.
+- When document 01 or document 04 changes, the QA lead updates this document in the same pull request. Version 0.3 of document 01 added 36 FRs and 4 rules; version 0.2 of document 05 was that update. Version 0.6 of document 01 added 6 FRs (FR-APP-001 to FR-APP-006) and 2 NFRs (NFR-STORE-01, NFR-STORE-02); version 0.4 of document 05 is that update. Version 0.8 of document 01 added 10 FRs (FR-PRO-001 to FR-PRO-010) and 2 rules (RUL-26, RUL-27); version 0.5 of document 05 is that update. Version 0.12 of document 01 added 6 FRs (FR-ACC-013, FR-PAY-008, FR-CASE-016, FR-RPT-012, FR-ESC-016, FR-ESC-017) and 5 rules (RUL-28 to RUL-32); version 0.6 of document 05 is that update. Version 0.13 of document 01 added 3 FRs (FR-ESC-018 to FR-ESC-020) and 2 rules (RUL-33, RUL-34); version 0.7 of document 05 is that update. Version 0.15 of document 01 added 4 FRs (FR-ESC-021 to FR-ESC-024) and 2 rules (RUL-35, RUL-36); version 0.8 of document 05 is that update.
 
 ---
 
@@ -2702,7 +2783,7 @@ Version 0.1 of this document raised 36 issues. Each was checked against 01 versi
 
 ### 16.2 Open issues
 
-Items 1 to 14 were raised in version 0.1. Items 15 to 30 were added in version 0.2. Items 31 to 35 were added in version 0.4 for the app store decision. Items 36 to 41 were added in version 0.5 for professional payments. Items 42 to 48 were added in version 0.6 for fund and evidence protection. Items 49 and 50 were added in version 0.7 for release timing and escrow accounts. Items resolved by 01 version 0.4 stay in this table, marked resolved, so their numbers remain traceable.
+Items 1 to 14 were raised in version 0.1. Items 15 to 30 were added in version 0.2. Items 31 to 35 were added in version 0.4 for the app store decision. Items 36 to 41 were added in version 0.5 for professional payments. Items 42 to 48 were added in version 0.6 for fund and evidence protection. Items 49 and 50 were added in version 0.7 for release timing and escrow accounts. Items 51 to 54 were added in version 0.8 for exchange rates and deposit routes. Items resolved by 01 version 0.4 stay in this table, marked resolved, so their numbers remain traceable.
 
 | # | Where in 01 | Issue | Effect on testing | Test assumption until resolved |
 |---|---|---|---|---|
@@ -2756,3 +2837,7 @@ Items 1 to 14 were raised in version 0.1. Items 15 to 30 were added in version 0
 | 48 | RUL-31, FR-ACC-013, AS-05 | No path is given for a grantor or consenting party who has no record in the national identity system (for example an elderly family head without a card). AS-05's fallback, a manual document check by staff, may be read as applying to parties, which RUL-31 forbids. | Such a case stays blocked with no expected way forward | Blocked; no manual pass for parties; AS-05's fallback applies to clients only (FR-ACC-004) **Closed** by 01 v0.12 review fixes: RUL-31 now reports such a party as unverified and pays them nothing until verified; AS-05 limits the manual check to the client. |
 | 49 | FR-ESC-019, RUL-34, FR-ESC-004 | 01 does not say what happens to a deposit the bank credits to another escrow's virtual account or reference, or to money above an escrow's agreed price. | TC-RUL-34-05, TC-ESC-019-06, TC-STM-ESC-30 and PAT-32 need a stated outcome | The money counts only where the bank credited it and cannot be released from either escrow; only the bank's correcting entry changes either balance; Tenmina never instructs a move between escrows **Closed** by 01 v0.13 review fixes: RUL-34 now says misdirected deposits and money above the price cannot be released from any escrow, only the bank's correcting entry changes a balance, and excess is refunded to its source. |
 | 50 | NFR-PERF-06, RUL-11, RUL-33 | NFR-PERF-06 counts from the last approval, which is the second staff approval. No target covers the staff approvals after the client approves, so the client-facing line "Paid within 2 working days of your approval" (document 03, DA-15) cannot be tested against 01. | UAT-48 and TC-E2E-J02-10 can check only that the line is shown and that the NFR-PERF-06 targets are met | Test the NFR-PERF-06 targets as written; report the time from the client's approval to the last staff approval as a metric, not a pass or fail **Closed** by 01 v0.13 review fixes: NFR-PERF-06 now sets a staff approval target of 1 working day, so the client line reads "Paid within 3 working days of your approval". |
+| 51 | RUL-35, FR-ESC-023, IF-14 | 01 does not say how long a quote holds or how old the reference rate may be. | TC-RUL-35-03 and TC-ESC-021-04 have no stated boundary | A quote needs a reference rate published today and holds for a configured validity (document 03 DA-16 uses `[15 minutes, TO VERIFY]`); tests read the configured value **Closed** by 01 v0.15 review fixes: FR-ESC-023 now sets quote validity and a same-day reference rate, separate from the FR-ADM-002 guides. |
+| 52 | RUL-34, FR-ESC-019, FR-ESC-022 | 01 does not say whether an escrow that receives money in two currencies has a virtual account in each, or how its balances are added for the shortfall check. | TC-RUL-36-06 needs a stated outcome | One bank-confirmed balance per currency; the shortfall check adds them at the current quote (document 03 DA-17, document 04 I-46) **Closed** by 01 v0.15 review fixes: RUL-34 now gives each currency its own virtual account and balance, and checks a release against the local balance after conversion. |
+| 53 | RUL-29, FR-ESC-023, IF-15 | For a deposit through a transfer partner, 01 does not say whose account a refund returns to. | PAT-37 needs a stated outcome | The refund returns through the same partner to the sender's account it recorded (document 03 DA-18). **Partly closed** by 01 v0.15 review fixes: FR-ESC-023 now compares a partner's delivery with its quote (TC-ESC-023-05). **Closed** by 01 v0.15 review fixes: FR-ESC-017 now refunds transfer partner deposits back through the partner where possible, otherwise through the exception path. |
+| 54 | FR-ESC-022, NFR-PERF-06, FR-ESC-018 | A shortfall found when the instruction is sent blocks an approved release. 01 does not say whether the release clock keeps running or the approvals stand. | TC-ESC-022-04 and TC-STM-ESC-32 have no stated clock outcome | Approvals stand if no other gate changes; the clock shows "Waiting for the client's top-up" and raises no overdue alert **Closed** by 01 v0.15 review fixes: RUL-36 now pauses the clock and keeps approvals for a set time when a shortfall is found at sending. |
