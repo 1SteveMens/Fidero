@@ -58,6 +58,24 @@ Target: 50 paid reports in 90 days (assumption), of which the first 20 come from
 
 Every lead goes into a simple spreadsheet: source, date, price offered, outcome, reason.
 
+## 4a. Test: checked plots from established sellers
+
+Decided 12 November 2026 (`docs/decisions/2026-11-12-checked-plots-and-established-sellers.md`). Buyer-found verification stays the main product. Alongside it, test whether buyers will buy plots Tenmina has already checked.
+
+1. **Weeks 3-6.** Screen 2 or 3 established sellers: registered company, Real Estate Agency Council licence where it applies `[TO VERIFY]`, the estate's title or lease checked at the Lands Commission, a clear court search, clear overlays, at least 3 references from past buyers, and a signed seller agreement. Record each in the tracker's Sellers tab.
+2. **Weeks 5-8.** Check 10 to 20 of their plots in full. Each seller pays a fixed fee per plot `[TO VERIFY]`, the same whatever the verdict, and no success fee. Record each in the Checked plots tab.
+3. **Weeks 6-12.** Offer plots that can be offered (green, in date, screened seller, not sold) to every buyer whose own plot came back red, and to every lead looking for land. Tell them the seller pays Tenmina to check plots. A buyer who chooses one gets a fresh search and a report in their own name, at a reduced fee `[TO VERIFY]`.
+
+Rules: the buyer is always the client; no shortcuts for established sellers; sellers never see a buyer's report first and never pay Tenmina's professionals. Seller-paid checks do not count toward the day-90 demand criteria.
+
+**Decision at day 90 (working assumptions):**
+
+- At least 20% of leads offered a checked plot buy one, and at least 2 sellers accept the fixed fee: propose moving the verified listings marketplace (F-19) from R2 into R1.
+- Under 10% buy: keep F-19 in R2 and keep checked plots as a manual offer only.
+- Between the two: run 30 more days and decide again.
+
+Also record how many established sellers' plots were not green. A high share is a finding in itself: being established is not proof of a clean title.
+
 ## 5. What to measure
 
 | Metric | Target (assumption) | How |
@@ -75,6 +93,8 @@ Every lead goes into a simple spreadsheet: source, date, price offered, outcome,
 | Safety incidents | Zero | Log every threat or confrontation |
 | Clients who take up a direct institution payment | `[TO VERIFY]`, test with the first 20 | Count. Record which institutions accepted direct payment and returned a receipt |
 | Lands Commission search time | Days per search | Log per search |
+| Checked plots bought | At least 20% of leads offered one (assumption) | Tracker Review: share of offered leads who bought |
+| Established sellers' plots not green | Record, no target | Tracker Checked plots tab |
 
 Review the numbers every two weeks.
 
@@ -82,7 +102,7 @@ Review the numbers every two weeks.
 
 Go to phase 2 (escrow partner and client portal) if all of these hold:
 
-- At least 30 paid reports delivered (assumption, 60% of target).
+- At least 30 paid reports delivered (assumption, 60% of target), paid by buyers. Seller-paid checks of checked plots are not counted.
 - At least 12 diaspora clients.
 - Median turnaround under 25 working days.
 - Cost per report under 50% of price.
@@ -110,4 +130,5 @@ Stop if:
 | 2-4 | First webinar. First 5 reports at test prices. Time every step. |
 | 5-8 | Three more webinars. Approach remittance companies. Reports 6-25. First case study. |
 | 5-8 | Offer a direct school or hospital payment to the first 20 clients. Verify each institution by hand: registration, bank account in its own name, named contact. |
+| 3-12 | Checked plots test (section 4a): screen sellers in weeks 3-6, check their plots in weeks 5-8, offer them from week 6. |
 | 9-12 | Referral push. Approach escrow banks with the report numbers. Reports 26-50. Day 90 review against the criteria above. Draft the country 2 plan from the Ghana numbers. |

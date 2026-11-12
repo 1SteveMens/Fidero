@@ -91,15 +91,15 @@ Pre-seed: $400k for 18 months `[TO VERIFY]` against the wider scope. It funds th
 |---|---|
 | `README.md` | This summary |
 | `CLAUDE.md` | Context and writing rules for Claude sessions working on Tenmina |
-| `docs/decisions/` | Decision records. Start with `2026-11-01-diaspora-platform.md`, then `2026-11-12-build-with-claude.md` (who builds the software) and `2026-11-12-name-tenmina.md` (the name) |
+| `docs/decisions/` | Decision records. Start with `2026-11-01-diaspora-platform.md`, then `2026-11-12-build-with-claude.md` (who builds the software) , `2026-11-12-name-tenmina.md` (the name) and `2026-11-12-checked-plots-and-established-sellers.md` (checked plots test and the escrow pilot mix) |
 | `docs/proposal.md` | Full business proposal |
 | `docs/validation-plan.md` | 90-day plan to launch the manual verification service |
 | `docs/partners.md` | Partner types and the first ask to each |
 | `docs/operations/verification-report-template.md` | Structure of the red/amber/green land verification report |
 | `docs/operations/milestone-schedule.md` | Construction milestone schedule, release evidence and inspector checklists |
 | `docs/operations/testing-the-apps.md` | How the founder runs the apps on a phone from a laptop |
-| `docs/operations/r0-tracker.xlsx` | R0 tracker: leads, cases, costs, searches, payments to institutions, incidents, evidence and report fingerprints, folder access, and the fortnightly and day-90 review (EN-01, EN-02, EN-05, EN-06, EN-51) |
-| `docs/operations/case-kit/` | R0 case kit: report template with the locked scope statement, consent form, filming script, witness sheet, client terms, professional agreement, evidence folder rules and the fingerprint tool (EN-02, EN-06, EN-07) |
+| `docs/operations/r0-tracker.xlsx` | R0 tracker: leads, cases, costs, searches, payments to institutions, incidents, evidence and report fingerprints, folder access, established sellers and checked plots, and the fortnightly and day-90 review (EN-01, EN-02, EN-05, EN-06, EN-51) |
+| `docs/operations/case-kit/` | R0 case kit: report template with the locked scope statement, consent form, filming script, witness sheet, client terms, professional agreement, seller agreement, evidence folder rules and the fingerprint tool (EN-02, EN-06, EN-07) |
 | `docs/operations/source/` | Scripts that generate the tracker and the case kit's Word files |
 | `docs/product/architecture.md` | Early architecture proposal. Superseded in detail by `docs/specs/02` |
 | `apps/client/` | The Tenmina client app (Expo, React Native), first build on sample data |

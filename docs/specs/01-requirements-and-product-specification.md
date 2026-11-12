@@ -5,7 +5,7 @@ Business requirements (BRD), product requirements (PRD) and software requirement
 | Item | Value |
 |---|---|
 | Document | 01 of 6 in `docs/specs/` |
-| Version | 0.13, working draft |
+| Version | 0.14, working draft |
 | Date | 12 November 2026 |
 | Owner | Founder, acting as product owner |
 | Status | For review. Not yet baselined |
@@ -18,6 +18,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 31 October 2026 | First draft |
+| 0.14 | 12 November 2026 | Founder decision `docs/decisions/2026-11-12-checked-plots-and-established-sellers.md`: an R0 test of checked plots from screened established sellers, done by hand, decides whether F-19 moves from R2 into R1; the escrow pilot mixes screened established sellers with ordinary sales. Adds Q-31 on seller success fees. No requirement changes. |
 | 0.13 | 12 November 2026 | Release timing and escrow account structure. RUL-07 sets the fresh-search window to `[14 days, TO VERIFY]`. Adds RUL-33 (no waiting period after the last approval on a purchase; a held-back share only where the escrow terms set one) and RUL-34 (one escrow account per currency and country held by the bank as escrow agent, with a virtual account and its own balance for each escrow and held amount). Adds NFR-PERF-06 (release timing), FR-ESC-018 (release clock and alerts), FR-ESC-019 (per-escrow balance check), FR-ESC-020 (held-back share released on a later condition), Q-29 (bank account structure, interest, deposit insurance) and Q-30 (holding back part of a land price until registration is lodged). FR-ADM-005, J-02 and the glossary updated. Review fixes: RUL-06 and FR-ESC-006 apply to the conditions of the release being sent; RUL-07 counts from the result and site check dates, at approval and at sending; NFR-PERF-06 says the clock runs on every release and sets a staff approval target, so the client can be told the seller is paid within `[3 working days, TO VERIFY]` of their own approval; RUL-34 covers deposits credited to the wrong reference and money above the price; RUL-07 counts day 14. |
 | 0.12 | 12 November 2026 | Fund and evidence protection, from the founder's review of fraud and money risks. Adds RUL-28 (payee lock with a cooling-off period), RUL-29 (refund to source), RUL-30 (official records obtained by Tenmina from the official channel, never handed over by a runner or seller), RUL-31 (identity verified against the national identity system, never by photocopy) and RUL-32 (random re-checks by a different professional). Adds FR-ESC-016, FR-ESC-017, FR-PAY-008, FR-CASE-016, FR-ACC-013 and FR-RPT-012, and Q-28 on the legal basis for escrow. IF-03 and IF-09 updated. J-02 and the escrow state model note the payee lock. Review fixes from aligning 02 to 06: AS-05, AS-07, P-07, the field runner row and FR-ACC-004 brought in line with RUL-30 and RUL-31; signatories of organisations covered; each affected client approves an institution's account change; a failed identity check is reported, not hidden; deposits with no source account refunded through the exception path; FR-ADM-003 and FR-ADM-005 aligned; fee refunds and unverifiable parties given a route; handed-in search copies compared with the official result; C-01 no longer cites Bank of Ghana guidance; cooling-off start, covered payees and sampling defined; FR-PAY-008 covers fees paid offline; a failed re-check freezes an escrow from R1. |
 | 0.11 | 12 November 2026 | Q-27 added: compete or partner with Tulix-style spending apps in Kenya. Founder decision `docs/decisions/2026-11-12-build-with-claude.md`: until revenue allows hiring, Claude writes the code and the founder tests on real phones. C-07 updated; the hired team it described is deferred. Requirements, rules and gates are unchanged. |
@@ -326,7 +327,7 @@ Anyone abroad can get anything done at home, from buying land to paying a parent
 | F-16 | Construction projects: bill of quantities, milestones, inspections, build dashboard | P-01, P-08, P-09 | R2 | Must | BLD |
 | F-17 | Off-plan purchase escrow with stage releases | P-01, P-10 | R2 | Should | BLD, ESC |
 | F-18 | Project funds: budgets, suppliers, direct payment against invoices | P-13 | R2 | Should | PRJ |
-| F-19 | Verified listings marketplace (developers first) | P-01, P-10 | R2 | Should | LST |
+| F-19 | Verified listings marketplace (developers first). An R0 checked-plots test decides whether it moves into R1 (validation plan section 4a) | P-01, P-10 | R2 | Should | LST |
 | F-20 | Track records and ratings | P-01, P-10 | R2 | Should | RAT |
 | F-21 | Dispute process | All | R2 | Must (with F-16) | DSP |
 | F-22 | Partner API for banks and developers | P-12 | R2 | Should | PTR |
@@ -516,6 +517,7 @@ The system must enforce these rules. Each is tested in document 05.
 | Q-28 | What is the legal basis for escrow in each country? In Ghana no Bank of Ghana directive licensing escrow agents was found (12 November 2026): must the partner bank act as escrow agent under a three-party agreement with the client and Tenmina, and does Tenmina's role as condition monitor need any payments licence? | Lawyer, partner bank | Before R1 escrow go-live |
 | Q-29 | Can the partner bank give each escrow and held amount its own virtual account number within one escrow account per currency, report each one's balance daily, and hold dollars or pounds until release? Who receives any interest on held money, and how does deposit insurance apply to each client's money in a shared escrow account? | Founder with partner bank | Before R1 escrow go-live |
 | Q-30 | May part of a land price be held back after release until the buyer's registration is lodged at the Lands Commission, and if so what share and for how long? | Lawyer | Before the first escrow that uses it |
+| Q-31 | Should sellers pay a success fee when a listed or checked plot sells? A success fee gives Tenmina a reason to push sales, against acting only for the buyer. The R0 test uses a fixed fee per plot checked and no success fee. If FR-PAY-007 keeps success fees, they must be flat and disclosed to buyers. | Founder, lawyer | Before F-19 starts |
 
 ---
 
@@ -619,7 +621,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-PAY-004 | The system shall record refunds with a reason and an approver. | Should | R1 | BR-01 |
 | FR-PAY-005 | The system shall keep fee payments completely separate from escrowed money, and shall offer no function to accept purchase, construction or project money. | Must | R1 | RUL-01 |
 | FR-PAY-006 | The system shall reconcile provider settlements against orders daily and list mismatches for a case manager. | Should | R1 | BR-16 |
-| FR-PAY-007 | The system shall invoice sellers for listing fees and success fees. | Should | R2 | BR-10 |
+| FR-PAY-007 | The system shall invoice sellers for listing fees and, if Q-31 allows them, success fees. | Should | R2 | BR-10, Q-31 |
 | FR-PAY-008 | The system shall refund fees only through the payment provider to the original payment method. A fee recorded as paid offline (FR-ORD-004) or by bank transfer is refunded only to the account it came from. If the original method or account can no longer receive it, the refund follows the RUL-29 exception path. | Must | R1 | RUL-29 |
 
 ### C4.4 Verification case workflow (CASE)

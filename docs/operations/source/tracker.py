@@ -55,7 +55,7 @@ lists={
  'YesNo':['Yes','No'],
  'Verdict':['Green','Amber','Red'],
  'Source':['Association or church','Webinar or talk','Friend or family','Referral by a client','Remittance company','Social media','Founder network','Professional network','Other'],
- 'Need':['Land check before buying','Check land already bought','Pay a school or hospital','Other'],
+ 'Need':['Land check before buying','Check land already bought','Looking for land','Pay a school or hospital','Other'],
  'Outcome':['Open','Quoted','Paid','Declined','No reply'],
  'Status':['Open','On hold','Delivered','Cancelled'],
  'CostType':['Lawyer','Surveyor','Runner','Lands Commission fee','Travel','Other'],
@@ -70,6 +70,9 @@ lists={
  'ScopeVersion':['S1'],
  'TermsVersion':['CT-1'],
  'AgreementVersion':['PA-1'],
+ 'SellerType':['Estate developer','Land company','Family','Stool or skin','Other'],
+ 'SellerAgreement':['SA-1'],
+ 'WhoPaid':['Buyer','Seller'],
 }
 ls['A1']='Drop-down lists and settings'; ls['A1'].font=TITLE
 ls['A2']='Edit these lists if you need new options. Yellow cells are settings you must fill in.'; ls['A2'].font=NOTE
@@ -98,30 +101,37 @@ for r in range(5,35): c=ls.cell(row=r,column=hc); c.fill=INPUT; c.number_format=
 ls.cell(row=36,column=hc,value='Add each public holiday in the 90 days. Working-day counts skip them.').font=NOTE
 ls.column_dimensions[L(hc)].width=24
 HOL=f"Lists!${L(hc)}$5:${L(hc)}$34"
+vc=hc+2
+ls.cell(row=4,column=vc,value='Checked plot report valid for (days)').font=H_FONT; ls.cell(row=4,column=vc).fill=H_FILL
+c=ls.cell(row=5,column=vc,value=90); c.fill=INPUT; c.font=BLUE
+ls.cell(row=6,column=vc,value='Working assumption [TO VERIFY] (RUL-12). A checked plot is offered only while its green report is younger than this.').font=NOTE
+ls.column_dimensions[L(vc)].width=30
+VALID=f"Lists!${L(vc)}$5"
 def usd(amount, currency):
     return f'IF(OR({amount}="",{currency}=""),"",IFERROR({amount}*INDEX({RATE},MATCH({currency},{CUR},0)),"Set rate in Lists"))'
 
 # ---------- Leads ----------
 le=sheet('Leads','Leads','Every enquiry, whether or not it becomes a paid report (validation plan section 4).',
- ['Lead ID','Date','Name','Lives in','Diaspora client?','How they heard','What they need','Plot location','Price point offered (USD)','Outcome','Reason or objection','What they compared it to','Case ID if paid','Referred by'],
- [11,13,20,16,11,22,24,20,14,12,28,24,13,18])
+ ['Lead ID','Date','Name','Lives in','Diaspora client?','How they heard','What they need','Plot location','Price point offered (USD)','Outcome','Reason or objection','What they compared it to','Case ID if paid','Referred by','Checked plots offered (plot IDs)','Bought a checked plot (plot ID)'],
+ [11,13,20,16,11,22,24,20,14,12,28,24,13,18,22,16])
 dates(le,'B'); dv(le,'E',refs['YesNo']); dv(le,'F',refs['Source']); dv(le,'G',refs['Need']); dv(le,'I',refs['PricePoint']); dv(le,'J',refs['Outcome'])
 example(le,{'A':'EX-L001','B':date(2027,1,11),'C':'Example client','D':'United Kingdom','E':'Yes','F':'Webinar or talk','G':'Land check before buying','H':'Kasoa','I':'450','J':'Paid','K':'','L':'Asking a cousin to look','M':'EX-C001','N':''})
 
 # ---------- Cases ----------
 cs=sheet('Cases','Cases','One row per paid report. Dates in each step column are the day that step was finished (validation plan sections 1 and 5).',
- ['Case ID','Lead ID','Client','Diaspora client?','Plot (place, plot number)','Price agreed','Currency','Fee in USD','Price point tested','Date fee paid','Lawyer','Surveyor','Runner','Searches lodged','Search results back','Site visit','Consent meeting','Draft report','Second review done','Delivered to client','Working days to deliver','Verdict','Asked for escrow or a safe way to pay?','Asked about building?','Would recommend?','Total cost (USD)','Cost as share of fee','Status','Notes','Released report fingerprint logged?','Client terms version accepted','Terms accepted on'],
- [11,11,20,11,24,11,9,11,12,13,16,16,16,13,13,13,13,13,13,13,12,10,16,12,12,12,12,12,28,14,12,13])
-dates(cs,'J','N','O','P','Q','R','S','T','AF'); dv(cs,'AE',refs['TermsVersion'])
+ ['Case ID','Lead ID','Client','Diaspora client?','Plot (place, plot number)','Price agreed','Currency','Fee in USD','Price point tested','Date fee paid','Lawyer','Surveyor','Runner','Searches lodged','Search results back','Site visit','Consent meeting','Draft report','Second review done','Delivered to client','Working days to deliver','Verdict','Asked for escrow or a safe way to pay?','Asked about building?','Would recommend?','Total cost (USD)','Cost as share of fee','Status','Notes','Released report fingerprint logged?','Client terms version accepted','Terms accepted on','Who paid for the report'],
+ [11,11,20,11,24,11,9,11,12,13,16,16,16,13,13,13,13,13,13,13,12,10,16,12,12,12,12,12,28,14,12,13,12])
+dates(cs,'J','N','O','P','Q','R','S','T','AF'); dv(cs,'AE',refs['TermsVersion']); dv(cs,'AG',refs['WhoPaid'])
 dv(cs,'D',refs['YesNo']); dv(cs,'G',refs['Currency']); dv(cs,'I',refs['PricePoint']); dv(cs,'V',refs['Verdict']); dv(cs,'W',refs['YesNo']); dv(cs,'X',refs['YesNo']); dv(cs,'Y',refs['YesNo']); dv(cs,'AB',refs['Status'])
 calc(cs,'H','='+usd('F{r}','G{r}'),'#,##0.00')
 calc(cs,'U',f'=IF(OR(A{{r}}="",LEFT(A{{r}},3)="EX-",J{{r}}="",T{{r}}=""),"",NETWORKDAYS(J{{r}},T{{r}},{HOL}))','0')
 calc(cs,'Z','=IF(A{r}="","",SUMIFS(Costs!$H$5:$H$304,Costs!$B$5:$B$304,A{r}))','#,##0.00')
 calc(cs,'AA','=IF(OR(A{r}="",H{r}="",H{r}=0),"",IFERROR(Z{r}/H{r},""))','0.0%')
 calc(cs,'AD','=IF(OR(A{r}="",LEFT(A{r},3)="EX-",T{r}=""),"",IF(COUNTIFS(\'Reports released\'!$A$5:$A$304,A{r},\'Reports released\'!$L$5:$L$304,"Yes")>0,"Yes","No"))')
+cs['AG4'].comment=Comment('Seller when an established seller paid for the check of a plot to be offered as a checked plot. Seller-paid reports are left out of the day-90 demand counts.','Tenmina')
 cs['AD4'].comment=Comment('Yes once the delivered report has a row in Reports released with a valid fingerprint (EN-02). Blank until delivery.','Tenmina')
 cs['U4'].comment=Comment('Working days from fee paid to delivery, skipping weekends and the holidays in Lists. Blank for the example row.','Tenmina')
-example(cs,{'A':'EX-C001','B':'EX-L001','C':'Example client','D':'Yes','E':'Kasoa, plot 14','F':450,'G':'USD','I':'450','J':date(2027,1,13),'K':'Lawyer A','L':'Surveyor A','M':'Runner A','N':date(2027,1,15),'O':date(2027,1,29),'P':date(2027,1,20),'Q':date(2027,1,27),'R':date(2027,2,3),'S':date(2027,2,5),'T':date(2027,2,8),'V':'Amber','W':'Yes','X':'No','Y':'Yes','AB':'Delivered','AE':'CT-1','AF':date(2027,1,12)})
+example(cs,{'A':'EX-C001','B':'EX-L001','C':'Example client','D':'Yes','E':'Kasoa, plot 14','F':450,'G':'USD','I':'450','J':date(2027,1,13),'K':'Lawyer A','L':'Surveyor A','M':'Runner A','N':date(2027,1,15),'O':date(2027,1,29),'P':date(2027,1,20),'Q':date(2027,1,27),'R':date(2027,2,3),'S':date(2027,2,5),'T':date(2027,2,8),'V':'Amber','W':'Yes','X':'No','Y':'Yes','AB':'Delivered','AE':'CT-1','AF':date(2027,1,12),'AG':'Buyer'})
 
 # ---------- Costs ----------
 co=sheet('Costs','Costs','Every cost against a case: professional fees, official fees, travel. Totals feed the Cases sheet.',
@@ -190,6 +200,26 @@ calc(fa,'J','=IF(OR(C{r}="",D{r}=""),"",IF(AND(OR(D{r}="E Consent",D{r}="Whole c
 fa['J4'].comment=Comment('Surveyors, runners and others never see the consent folder or the whole case folder (evidence-folders.md section 6).','Tenmina')
 example(fa,{'A':'EX-C001','B':'Surveyor A','C':'Surveyor','D':'F Site visit','E':'Add files','F':date(2027,1,15),'G':'Founder','H':date(2027,2,8)})
 
+# ---------- Sellers (checked plots test, validation plan 4a) ----------
+sl=sheet('Sellers','Established sellers','Screening of each seller before any of their plots is checked or offered. Being established earns no shortcuts.',
+ ['Seller ID','Name','Type','Company registration number','Real Estate Agency Council licence','Licence checked on','Estate title or lease checked at Lands Commission on','Court search on','Court search clear?','Overlay checks clear?','References from past buyers (number)','Seller agreement signed on','Agreement version','Fee per plot checked','Currency','Contact','Notes','Screening complete?'],
+ [11,22,14,18,16,13,16,13,11,11,13,13,11,12,9,18,26,12])
+dates(sl,'F','G','H','L'); dv(sl,'C',refs['SellerType']); dv(sl,'I',refs['YesNo']); dv(sl,'J',refs['YesNo']); dv(sl,'M',refs['SellerAgreement']); dv(sl,'O',refs['Currency'])
+calc(sl,'R','=IF(A{r}="","",IF(AND(D{r}<>"",G{r}<>"",H{r}<>"",I{r}="Yes",J{r}="Yes",N(K{r})>=3,L{r}<>""),"Yes","No"))')
+sl['R4'].comment=Comment('Yes only when registration, the Lands Commission check, a clear court search, clear overlays, at least 3 references and a signed agreement are all recorded. The licence is checked where the law requires it [TO VERIFY].','Tenmina')
+example(sl,{'A':'EX-S01','B':'Example Estates Ltd','C':'Estate developer','D':'CS000000000','E':'REAC-0000','F':date(2027,1,8),'G':date(2027,1,12),'H':date(2027,1,12),'I':'Yes','J':'Yes','K':3,'L':date(2027,1,15),'M':'SA-1','N':200,'O':'USD'})
+
+# ---------- Checked plots ----------
+cp=sheet('Checked plots','Checked plots','Plots from screened sellers, checked in full and offered to buyers whose own plot came back red or who have no plot yet.',
+ ['Plot ID','Seller ID','Locality','Plot number','Size','Asking price','Currency','Case ID of the check','Report date','Verdict','Seller fee paid on','Offered to (lead IDs)','Reserved by (lead ID)','Sold on','Paid through escrow?','Notes','Report age (days)','Seller screened?','Can be offered?'],
+ [11,11,16,12,12,12,9,13,13,10,13,22,13,13,12,26,11,11,12])
+dates(cp,'I','K','N'); dv(cp,'G',refs['Currency']); dv(cp,'J',refs['Verdict']); dv(cp,'O',refs['YesNo'])
+calc(cp,'Q','=IF(OR(A{r}="",I{r}=""),"",TODAY()-I{r})','0')
+calc(cp,'R','=IF(B{r}="","",IFERROR(INDEX(Sellers!$R$5:$R$304,MATCH(B{r},Sellers!$A$5:$A$304,0)),"Not found"))')
+calc(cp,'S','=IF(A{r}="","",IF(AND(J{r}="Green",N(Q{r})<='+VALID+',R{r}="Yes",K{r}<>"",N{r}=""),"Yes","No"))')
+cp['S4'].comment=Comment('Yes only for a green report younger than the validity in Lists, from a screened seller who has paid the fixed fee, and not yet sold. A buyer who chooses it still gets a fresh search in their own name.','Tenmina')
+example(cp,{'A':'EX-P01','B':'EX-S01','C':'Oyibi','D':'12','E':'70 x 100 ft','F':45000,'G':'USD','H':'EX-C002','I':date(2027,1,25),'J':'Green','K':date(2027,1,16),'L':'EX-L002'})
+
 # ---------- Review (EN-05) ----------
 rv=wb.create_sheet('Review',0)
 rv['A1']='R0 review'; rv['A1'].font=Font(name=F,size=20,bold=True)
@@ -200,6 +230,7 @@ for c,w in zip('ABCDE',[52,14,14,14,46]): rv.column_dimensions[c].width=w
 C='Cases!$A$5:$A$304'; Cd=lambda col: f'Cases!${col}$5:${col}$304'
 real=f'{C},"?*",{C},"<>EX-*"'
 deliv=f'{real},{Cd("T")},"<>"'
+delivB=f'{deliv},{Cd("AG")},"<>Seller"'
 rv['A5']='Review date'; rv['A5'].font=BOLD; rv['B5']='=TODAY()'; rv['B5'].number_format='d mmm yyyy'
 rv['A6']='Service started on'; rv['A6'].font=BOLD; rv['B6'].fill=INPUT; rv['B6'].number_format='d mmm yyyy'
 rv['A7']='Days since start'; rv['A7'].font=BOLD; rv['B7']='=IF(B6="","",B5-B6)'; rv['B7'].fill=CALC
@@ -232,8 +263,8 @@ def crow(name, target, tfmt, actual, afmt, test, how):
     m=rv.cell(row=r,column=4,value=f'=IF(C{r}="","Not yet",IF({test.format(a=f"C{r}",t=f"B{r}")},"Met","Not yet"))'); m.fill=CALC; m.font=BOLD
     rv.cell(row=r,column=5,value=how).font=NOTE
     crit.append(r); r+=1
-crow('Paid reports delivered',30,'0',f'=COUNTIFS({deliv})','0','{a}>={t}','Cases with a delivery date')
-crow('Diaspora clients among them',12,'0',f'=COUNTIFS({deliv},{Cd("D")},"Yes")','0','{a}>={t}','Delivered cases marked Diaspora = Yes')
+crow('Paid reports delivered',30,'0',f'=COUNTIFS({delivB})','0','{a}>={t}','Cases with a delivery date, paid by buyers (seller-paid checks left out)')
+crow('Diaspora clients among them',12,'0',f'=COUNTIFS({delivB},{Cd("D")},"Yes")','0','{a}>={t}','Delivered buyer-paid cases marked Diaspora = Yes')
 crow('Median working days to deliver (under)',25,'0',f'=IFERROR(MEDIAN({Cd("U")}),"")','0','{a}<{t}','Median of Working days to deliver')
 crow('Cost as share of fee (under)',0.5,'0%',f'=IFERROR(SUMIFS({Cd("Z")},{deliv})/SUMIFS({Cd("H")},{deliv}),"")','0.0%','{a}<{t}','All costs of delivered cases ÷ their fees, in USD')
 crow('Green-report clients who asked for escrow (at least)',0.3,'0%',f'=IFERROR(COUNTIFS({deliv},{Cd("V")},"Green",{Cd("W")},"Yes")/COUNTIFS({deliv},{Cd("V")},"Green"),"")','0.0%','{a}>={t}','Green reports with Asked for escrow = Yes ÷ all Green reports')
@@ -269,6 +300,13 @@ others=[('Leads in total',f'=COUNTIFS({L_})','0','All leads'),
  ('Evidence logged later than 24 hours','=COUNTIFS(\'Evidence log\'!$A$5:$A$304,"<>EX-*",\'Evidence log\'!$O$5:$O$304,"No")','0','Target 0'),
  ('Folder access not allowed','=COUNTIFS(\'Folder access\'!$A$5:$A$304,"<>EX-*",\'Folder access\'!$J$5:$J$304,"Not allowed")','0','Target 0. Remove the access at once'),
  ('Paid cases without accepted client terms',f'=COUNTIFS({real},{Cd("J")},"<>",{Cd("AF")},"")','0','Fee paid but no terms acceptance date. Target 0'),
+ ('Seller-paid checks delivered (checked plots)',f'=COUNTIFS({deliv},{Cd("AG")},"Seller")','0','Not counted in the day-90 demand criteria'),
+ ('Leads looking for land',f'=COUNTIFS({L_},Leads!$G$5:$G$304,"Looking for land")','0','Enquiries with no plot yet'),
+ ('Leads offered a checked plot',f'=COUNTIFS({L_},Leads!$O$5:$O$304,"?*")','0','Leads with plot IDs in Checked plots offered'),
+ ('Bought a checked plot',f'=COUNTIFS({L_},Leads!$P$5:$P$304,"?*")','0','Leads with a plot ID in Bought a checked plot'),
+ ('Share of offered leads who bought (test: at least 20%)',f'=IFERROR(COUNTIFS({L_},Leads!$P$5:$P$304,"?*")/COUNTIFS({L_},Leads!$O$5:$O$304,"?*"),"")','0.0%','Working assumption. Decision rule in validation plan 4a'),
+ ('Checked plots that can be offered now','=COUNTIFS(\'Checked plots\'!$A$5:$A$304,"<>EX-*",\'Checked plots\'!$S$5:$S$304,"Yes")','0','Green, in date, screened seller, not sold'),
+ ('Established sellers\' plots that were not green','=COUNTIFS(\'Checked plots\'!$A$5:$A$304,"<>EX-*",\'Checked plots\'!$J$5:$J$304,"<>Green",\'Checked plots\'!$J$5:$J$304,"?*")','0','Amber or red. Shows how much being established is worth'),
  ('Released reports without two different reviewers','=COUNTIFS(\'Reports released\'!$A$5:$A$304,"<>EX-*",\'Reports released\'!$M$5:$M$304,"No")','0','Target 0')]
 for name,f,fmt,how in others:
     rv.cell(row=r,column=1,value=name).font=BODY; c=rv.cell(row=r,column=2,value=f); c.fill=CALC; c.font=BODY; c.number_format=fmt
@@ -294,13 +332,15 @@ lines=[('Tenmina R0 tracker',TITLE),
 ('',BODY),
 ('What each tab is for',BOLD),
 ('Review: the fortnightly numbers and the day-90 decision (EN-05). Open it at every review.',BODY),
-('Leads: every enquiry, with where it came from and the price offered (EN-01).',BODY),
+('Leads: every enquiry, with where it came from, the price offered, and any checked plots offered or bought (EN-01).',BODY),
 ('Cases: one row per paid report, with the date each step finished, the verdict and what the client asked for (EN-01).',BODY),
 ('Costs: every cost against a case. Totals flow into Cases and Review.',BODY),
 ('Searches: each Lands Commission search, to time them.',BODY),
 ('Institution payments: every school, hospital or agency paid by hand, with the checks done and the receipt (EN-51).',BODY),
 ('Incidents: every threat or confrontation, however small.',BODY),
 ('Professionals: the lawyers, surveyors, runners and reviewers, their agreement version, and when their licences and insurance were checked.',BODY),
+('Sellers: screening of each established seller before their plots are checked or offered (validation plan 4a).',BODY),
+('Checked plots: plots from screened sellers, their report, and who they were offered to and bought by. Can be offered = green, in date, screened seller, not sold.',BODY),
 ('Evidence log: every evidence file and its fingerprint, pasted from the fingerprint tool (EN-06). Flags a file used in two cases.',BODY),
 ('Reports released: every released report PDF, its fingerprint, scope statement version and both reviewers (EN-02).',BODY),
 ('Folder access: who was given access to which case folder, and when it was removed (EN-06).',BODY),

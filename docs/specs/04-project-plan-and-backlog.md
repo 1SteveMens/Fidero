@@ -9,7 +9,7 @@ Every figure in this document is a working assumption, not verified data. That i
 | Item | Value |
 |---|---|
 | Document | 04 of 6 in `docs/specs/` |
-| Version | 0.9 |
+| Version | 0.10 |
 | Date | 12 November 2026 |
 | Status | Draft. For review by the founder as product owner |
 | Owner | Product and engineering lead (once hired). Until then, the founder |
@@ -21,6 +21,7 @@ Every figure in this document is a working assumption, not verified data. That i
 
 | Version | Date | Change | By |
 |---|---|---|---|
+| 0.10 | 12 November 2026 | Aligned to 01 v0.14: the R0 checked-plots test (validation plan section 4a) may move EP-LST into R1 at the day-90 review; Q-31 on seller success fees. No story changes. | Delivery lead |
 | 0.9 | 12 November 2026 | Aligned to 01 v0.13: release timing and escrow account structure (RUL-07 window, RUL-33, RUL-34, NFR-PERF-06, Q-29, Q-30). Three new stories in EP-ESC: US-ESC-018 (release clock and alerts, 3) and US-ESC-019 (each escrow's own bank-confirmed balance, and a block on any larger release or refund, 5), both Must R1 (8 points); and US-ESC-020 (held-back share released on its own later condition, 3), Could R1. No new enablers: EN-53 now covers the bank account structure (Q-29), EN-80 the held-back share (Q-30) and EN-26 the release instruction timing (NFR-PERF-06). US-ESC-019 goes in S10, before the first escrow (M-10); US-ESC-018 in S11, before the first release; US-ESC-020 in R2-D with the other R1 Coulds, after Q-30. R1 Must plan grows from 456 to 464 points against 450 to the end of S14; about 17 points spill into S15. R2 demand 714 against 795 under Option R2-A. US-ESC-006 and US-ADM-005 updated for the window (counted from the result and site check dates, checked at approval and at sending, per the 01 v0.13 review fixes) and the timing targets. Milestones M-07 and M-10, risks DR-46 to DR-48 (DR-02 and DR-09 updated), RACI, budget, go/no-go, traceability and issues I-43 and I-44 updated. | Delivery lead |
 | 0.8 | 12 November 2026 | Aligned to 01 v0.12: fund and evidence protection (RUL-28 to RUL-32, Q-28). Six new stories in existing epics: US-ACC-013 (national identity checks of parties, 5), US-PAY-008 (fee refunds to the original payment method, 2), US-CASE-016 (official search record from Tenmina's own account, 3), US-ESC-016 (payee change flow with a cooling-off period, 5) and US-ESC-017 (refunds only to the source account, 3), all Must R1 (18 points); and US-RPT-012 (monthly random re-checks, 5), Should R1. Enablers EN-80 (legal basis for escrow, Q-28) and EN-81 (access to the national identity system), both Must R1 and not pointed. Each Must sits in the sprint of the feature it protects (S8 to S11; US-PAY-008 in S13). R1 Must plan grows from 438 to 456 points against 450 to the end of S14; about 9 points spill into S15, so the four R1 Shoulds planned in R2-A move to R2-B with US-RPT-012 (proposed, for the founder to confirm). R2 demand 703 against 795 under Option R2-A. R0 note on searches and Ghana Card checks by hand, milestones M-07, M-09, M-10 and M-12, risks DR-43 to DR-45 (DR-04, DR-09 and DR-26 updated), RACI, budget, go/no-go, traceability and issues I-36 to I-42 updated. | Delivery lead |
 | 0.7 | 12 November 2026 | Founder decision `docs/decisions/2026-11-12-build-with-claude.md`: until revenue allows hiring, Claude writes the code and the founder tests on real phones. The sprint capacity plans in sections 2, 5 and 11 no longer plan the work; the order of work by dependency and priority still does. Gates and scope are unchanged. |
@@ -1269,7 +1270,7 @@ Acceptance criteria:
 
 ### EP-LST: Verified listings
 
-11 stories, 47 points.
+11 stories, 47 points. An R0 test of checked plots by hand (validation plan section 4a) decides at the day-90 review whether this epic moves into R1. If it does, the R1 plan needs re-cutting: it is already over capacity. Seller success fees wait for Q-31.
 
 | Story | As a … I want … so that … | Priority | Release | Points | Depends on |
 |---|---|---|---|---|---|

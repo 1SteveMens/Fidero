@@ -504,6 +504,7 @@ function clientTerms() {
   k.push(H2('1. Who we are'));
   k.push(clause('1.1', `Tenmina is ${ENTITY}, of [[address in Ghana]]. You can reach us at [[email]] or on WhatsApp at [[number]].`));
   k.push(clause('1.2', 'We act for you, the buyer, and no one else. We do not act for the seller, the family or the traditional authority, and no one working on your case may take money from them.'));
+  k.push(clause('1.3', 'We may also show you plots we have already checked, from sellers we have screened. Those sellers pay us a fixed fee per plot to have it checked, the same whatever the verdict, and nothing more if you buy. We tell you when a plot comes from such a seller. If you choose one, we run a fresh search and give you the report in your own name, and we still act only for you.'));
 
   k.push(H2('2. What we will do'));
   k.push(clause('2.1', 'We check the plot described in your order and give you a written report with a verdict: green, amber or red. The report covers:'));
@@ -686,6 +687,56 @@ function professionalAgreement() {
   return doc({ title: 'Professional services agreement', headerText: 'Tenmina · Professional services agreement · Version PA-1', children: k, draft: true });
 }
 
+
+function sellerAgreement() {
+  const k = [];
+  k.push(...titleBlock('Seller agreement: checked plots', 'For established sellers whose plots Tenmina checks and offers to buyers. Tenmina checks every plot in full and acts for the buyer; this agreement sets what each side does.'));
+  k.push(fields([['Agreement version', 'SA-1'], ['Seller ID', '[[S01]]']], 3000));
+  k.push(H1('The parties'));
+  k.push(fields([
+    ['Tenmina', ENTITY],
+    ['The seller', '[[Company name and registration number]]'],
+    ['Real Estate Agency Council licence', '[[Number, or "not required" with the lawyer\'s note, TO VERIFY]]'],
+    ['Signing for the seller', '[[Name, role]]'],
+    ['Address and phone', '[[Address, phone]]'],
+    ['Account for sale proceeds', '[[Bank account in the seller\'s own name, verified by Tenmina]]'],
+    ['Starts on', '[[Date]]'],
+  ], 3000));
+  k.push(H1('Terms'));
+  k.push(H2('1. What Tenmina does'));
+  k.push(clause('1.1', 'Tenmina checks each plot the seller puts forward, with the same checks as any other report: Lands Commission searches, a licensed surveyor\'s visit, overlay checks, the seller\'s authority and chain of ownership, and occupation of the land.'));
+  k.push(clause('1.2', 'Tenmina offers a plot to buyers only while its report is green and less than [[90 days, TO VERIFY]] old. Buyers see the full report.'));
+  k.push(clause('1.3', 'When a buyer chooses a plot, Tenmina runs a fresh search and issues the report to that buyer. Tenmina acts for the buyer, not for the seller.'));
+  k.push(clause('1.4', 'Tenmina may stop offering any plot at once if new information arises, and tells the seller why unless the law or a buyer\'s safety prevents it.'));
+  k.push(H2('2. Fee'));
+  k.push(clause('2.1', 'The seller pays [[fixed fee per plot, TO VERIFY]] for each plot checked, before the check starts.'));
+  k.push(clause('2.2', 'The fee is the same whatever the verdict and is not refunded if the plot is amber or red. There is no fee or commission when a plot sells.'));
+  k.push(clause('2.3', 'The seller pays nothing to Tenmina\'s staff, lawyers, surveyors or runners, and offers them no gift or favour. Any such offer ends this agreement.'));
+  k.push(H2('3. What the seller does'));
+  k.push(clause('3.1', 'Gives Tenmina true and complete documents for each plot, access to the site, and the contacts of the family, stool or skin whose consent is needed.'));
+  k.push(clause('3.2', 'Tells Tenmina the same day if a checked plot is sold, reserved, disputed or affected by any claim, and does not sell a plot to two buyers.'));
+  k.push(clause('3.3', 'Keeps the price shown to a buyer for [[30 days, TO VERIFY]] after the buyer reserves the plot through Tenmina.'));
+  k.push(clause('3.4', 'Accepts payment through escrow at Tenmina\'s partner bank when a buyer chooses it, takes no deposit outside escrow on that plot, and accepts that the bank pays only the verified account above. The account changes only under Tenmina\'s payee rules, with a waiting period.'));
+  k.push(clause('3.5', 'Does not pressure buyers, and does not describe Tenmina\'s check as a guarantee of title.'));
+  k.push(H2('4. Independence'));
+  k.push(clause('4.1', 'The seller never sees a buyer\'s report before the buyer and has no say in any verdict. A red report stands.'));
+  k.push(clause('4.2', 'Tenmina tells buyers that the seller pays Tenmina to check plots.'));
+  k.push(H2('5. Personal data and confidentiality'));
+  k.push(clause('5.1', 'Each side uses the other\'s and buyers\' personal data only for the purpose of this agreement, under the Data Protection Act 2012 (Act 843).'));
+  k.push(H2('6. Ending the agreement'));
+  k.push(clause('6.1', 'Either side may end this agreement with [[30 days, TO VERIFY]] written notice. Sales already in escrow complete under their own agreements.'));
+  k.push(clause('6.2', 'Tenmina may end it at once if the seller breaks clause 2.3, 3.2 or 3.4, or gives false information, and may tell buyers with open purchases why.'));
+  k.push(H2('7. Disputes'));
+  k.push(clause('7.1', 'Disagreements go first to talks, then to mediation in Accra, before court [[lawyer to confirm, including the Alternative Dispute Resolution Act, 2010 (Act 798), TO VERIFY]]. This agreement is governed by the law of Ghana.'));
+  k.push(H2('Signatures'));
+  k.push(table([2400, 3200, 2638, 1400], [
+    ['', 'Name', 'Signature', 'Date'],
+    ['For Tenmina', '[[Name, role]]', '', ''],
+    ['For the seller', '[[Name, role]]', '', ''],
+  ], { rowHeight: 700 }));
+  return doc({ title: 'Seller agreement', headerText: 'Tenmina · Seller agreement: checked plots · Version SA-1', children: k, draft: true });
+}
+
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   const files = {
@@ -695,6 +746,7 @@ function professionalAgreement() {
     'witness-sheet.docx': witnessSheet(),
     'client-terms.docx': clientTerms(),
     'professional-agreement.docx': professionalAgreement(),
+    'seller-agreement.docx': sellerAgreement(),
   };
   for (const [name, d] of Object.entries(files)) {
     fs.writeFileSync(path.join(OUT, name), await Packer.toBuffer(d));

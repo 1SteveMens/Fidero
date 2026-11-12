@@ -90,12 +90,28 @@ All figures are assumptions. Unknown numbers are `[TO VERIFY]`.
 - **Developers.** Sell off-plan homes with stage payments held in escrow, and list verified units. First ask: a pilot estate with escrowed stage payments. Phase 3.
 - **Suppliers.** Paid directly for project funds and construction materials. First ask: accept direct payment against invoices and deliver to site with proof of delivery. Phase 3.
 
-## 9. Later partners
+## 9. Established land sellers and developers
+
+**Why.** They supply the checked plots test (`docs/validation-plan.md` section 4a): plots Tenmina has already checked, offered to buyers whose own plot failed or who have none yet. They also make the escrow pilot faster to fill. Decision: `docs/decisions/2026-11-12-checked-plots-and-established-sellers.md`.
+
+**What they get.** Diaspora buyers who trust a plot because an independent check passed it, escrow that lets those buyers pay safely from abroad, and later a place in the verified listings marketplace.
+
+**First ask.** Have 3 to 7 plots checked at a fixed fee per plot `[TO VERIFY]`, paid before the check and the same whatever the verdict. Sign the seller agreement (`docs/operations/case-kit/seller-agreement.docx`). Accept payment through escrow when a buyer chooses it.
+
+**Screening, before any plot is checked.** Registered company. Real Estate Agency Council licence under the Real Estate Agency Act 2020 (Act 1047) where it applies `[TO VERIFY]`. The estate's title or lease checked at the Lands Commission. A clear court search. Clear overlay checks. At least 3 references from past buyers. Recorded in the tracker's Sellers tab.
+
+**Terms to agree.** No success fee. No shortcuts: every plot gets the full checks, and a red report stands. The seller never sees a buyer's report before the buyer and never pays Tenmina's professionals or staff. The seller tells Tenmina the same day if a checked plot is sold elsewhere. No deposits taken outside escrow on a plot a buyer is buying through escrow.
+
+**Escrow pilot mix.** About 6 of the 10 pilot escrows from 2 or 3 screened sellers, no more than 3 from any one, and about 4 from ordinary family or customary sales.
+
+**Targets.** 2 or 3 sellers screened in weeks 3-6; 10 to 20 plots checked by week 8 (assumptions).
+
+## 10. Later partners
 
 - **Traditional authorities.** Stools, skins and families whose allocation records Tenmina digitises under a revenue share, and who later list verified plots. Approach after the verification service has a track record in their area.
 - **Lands Commission.** Formal access to searches or data `[TO VERIFY]`. Approach once volumes justify it.
 - **Materials suppliers.** Bulk supply at a margin of 3-7% (assumption). Approach in phase 3.
-- **Mortgage lenders and developers.** Collateral checks and clean-title land. Approach with the first bank contract in phase 3.
+- **Mortgage lenders.** Collateral checks and clean-title land. Approach with the first bank contract in phase 3. Developers are covered in section 9.
 - **Country 2 partners.** A bank or licensed escrow agent, a law firm, licensed surveyors, an insurer and diaspora associations in Nigeria. Approach from month 6 with the Ghana numbers. The same set in Kenya from month 15.
 - **Event vendors and freight forwarders.** For events and relocation in phase 4.
 
