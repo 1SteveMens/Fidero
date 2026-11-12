@@ -1,10 +1,10 @@
 import { Pressable, View } from 'react-native';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { brand, font, radius, space } from '@fidero/tokens';
-import { ArrowBox, Chip, ErrorView, Label, Loading, Mark, Panel, Rise, Screen, T, haptic } from '@fidero/ui';
+import { brand, font, radius, space } from '@tenmina/tokens';
+import { ArrowBox, Chip, ErrorView, Label, Loading, Mark, Panel, Rise, Screen, T, haptic } from '@tenmina/ui';
 import { useField, useFieldLoad } from '../../store';
-import type { FieldJob } from '@fidero/shared';
+import type { FieldJob } from '@tenmina/shared';
 
 function today(): string {
   return new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase();
@@ -48,7 +48,7 @@ export default function Jobs() {
       <Rise style={{ flexDirection: 'row', alignItems: 'center', gap: space[2] }}>
         <Mark size={30} />
         <View style={{ flex: 1, flexDirection: 'row', alignItems: 'baseline', gap: space[2] }}>
-          <T v="title" style={{ fontFamily: font.heavy, letterSpacing: -1 }}>fidero</T>
+          <T v="title" style={{ fontFamily: font.heavy, letterSpacing: -1 }}>tenmina</T>
           <Label>Field</Label>
         </View>
         <OnlineChip />

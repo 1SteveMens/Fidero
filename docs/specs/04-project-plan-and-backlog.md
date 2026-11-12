@@ -1,6 +1,6 @@
 # 04 — Project Plan and Backlog
 
-How Fidero gets from the manual service to the platform: the delivery approach, roadmap, milestones, release plans, epics, the full product backlog, priorities, roles, risks, budget and governance.
+How Tenmina gets from the manual service to the platform: the delivery approach, roadmap, milestones, release plans, epics, the full product backlog, priorities, roles, risks, budget and governance.
 
 Every figure in this document is a working assumption, not verified data. That includes story points, velocity, dates and costs. Unknown numbers are marked `[TO VERIFY]`.
 
@@ -23,7 +23,7 @@ Every figure in this document is a working assumption, not verified data. That i
 |---|---|---|---|
 | 0.7 | 12 November 2026 | Founder decision `docs/decisions/2026-11-12-build-with-claude.md`: until revenue allows hiring, Claude writes the code and the founder tests on real phones. The sprint capacity plans in sections 2, 5 and 11 no longer plan the work; the order of work by dependency and priority still does. Gates and scope are unchanged. |
 | 0.6 | 11 November 2026 | Founder decisions: the S14 plan (contract developer kept one more sprint for professional payments, payment runs start as the bulk file only, PRO Shoulds move to R2) and Option R2-A (contract developer kept S14 to S31 alongside one mobile developer). Budget, team, I-04 and I-29 updated. |
-| 0.5 | 11 November 2026 | Aligned to 01 v0.8: professional payments. New epic EP-PRO with US-PRO-001 to US-PRO-010 (42 points: 6 Must stories, 28 points; 4 Should stories, 14 points), all R1. Enablers EN-78 (spike on the operating bank's bulk payment file, 2 points) and EN-79 (tax set-up per country with an accountant, not pointed). US-TSK-002 now pays Fidero's errand charge through the payment provider and official fees into the partner bank; US-TSK-003 has the agent paid by Fidero under EP-PRO. R1 Must plan grows from 408 to 438 points against 417 to the end of S13 under Option A+: 21 points short. Recommendation in 5.1: keep the six PRO Musts in R1, start payment runs as the bulk file only, build them in a new S14 with the contract developer kept one more sprint, and move the four PRO Shoulds to R2 (US-PRO-004 in R2-A; US-PRO-009 in R2-C; US-PRO-008 and US-PRO-010 in R2-D). R1 Shoulds displaced from R2-A move to R2-D. R2 demand 682 against 795 under Option R2-A. WSJF, dependencies, risks DR-41 and DR-42, budget, traceability (BR-23 to F-37 to EP-PRO) and issues I-04, I-29 and I-32 to I-35 updated. | Delivery lead |
+| 0.5 | 11 November 2026 | Aligned to 01 v0.8: professional payments. New epic EP-PRO with US-PRO-001 to US-PRO-010 (42 points: 6 Must stories, 28 points; 4 Should stories, 14 points), all R1. Enablers EN-78 (spike on the operating bank's bulk payment file, 2 points) and EN-79 (tax set-up per country with an accountant, not pointed). US-TSK-002 now pays Tenmina's errand charge through the payment provider and official fees into the partner bank; US-TSK-003 has the agent paid by Tenmina under EP-PRO. R1 Must plan grows from 408 to 438 points against 417 to the end of S13 under Option A+: 21 points short. Recommendation in 5.1: keep the six PRO Musts in R1, start payment runs as the bulk file only, build them in a new S14 with the contract developer kept one more sprint, and move the four PRO Shoulds to R2 (US-PRO-004 in R2-A; US-PRO-009 in R2-C; US-PRO-008 and US-PRO-010 in R2-D). R1 Shoulds displaced from R2-A move to R2-D. R2 demand 682 against 795 under Option R2-A. WSJF, dependencies, risks DR-41 and DR-42, budget, traceability (BR-23 to F-37 to EP-PRO) and issues I-04, I-29 and I-32 to I-35 updated. | Delivery lead |
 | 0.4 | 7 November 2026 | Aligned to 01 v0.6: both app stores, React Native, client app. New epic EP-APP with US-APP-001a to US-APP-001e and US-APP-002 to US-APP-006 (61 points). US-MOB-001 and US-MOB-002 cover iOS; US-MOB-004 split into US-MOB-004a (Android) and US-MOB-004b (iOS), and US-MOB-002 re-estimated at 8. EN-33 rewritten for React Native; EN-41 superseded (Q-09 answered); enablers EN-64 to EN-77 for store accounts, signing and push credentials, test tracks, listings, privacy disclosures, the financial declaration, native-module and performance spikes, a submission rehearsal, the store payment position and a client app usability test. R2 "Android developer" becomes "mobile developer (React Native)". R2 capacity recomputed: 638 points of demand against 651 with one mobile developer (2% spare); Option R2-A, keeping the contract developer through R2, is recommended. Store review buffers, milestones M-37 to M-39, risks DR-35 to DR-40 (DR-07 closed), RACI, budget, go/no-go and traceability (F-36, EP-APP) updated. Issues I-29 to I-31 added. | Delivery lead |
 | 0.3 | 1 November 2026 | Aligned to 01 v0.4: runner cash route removed (US-FEE-006 rewritten for institutions not eligible for direct payment and a paper-only runner task; estimate kept at 3 points, so EP-FEE, the R1 totals and the capacity figures are unchanged; DR-31 rewritten); fresh search scoped to purchases (US-ESC-006); standing approvals for care visits and errand steps (US-CARE-001, US-CARE-004, US-TSK-003); account-name sources and no override (US-ESC-015); 72-hour reviewer decision and code lockout (US-CARE-004); owner's written mandate (US-PMG-003); premium routes (US-INS-002); dispute withdrawal (US-DSP-002); carers and agents in the field app (US-MOB-001); "amount held at the bank" wording. Issues I-18, I-20, I-21, I-23 and I-26 resolved, I-19 partly. | Delivery lead |
 | 0.2 | 1 November 2026 | Updated for 01 version 0.3 and the diaspora platform decision. Six new epics (EP-FEE, EP-CARE, EP-PMG, EP-TSK, EP-INS, EP-EVT) with 37 new stories; six stories changed (US-ACC-007, US-ACC-008, US-ACC-011, US-ESC-006, US-ESC-010, US-MOB-010) and the EP-CTY stories rewritten for R1 basic and R2 full. Country 2 manual phase from month 6, its software from month 12, country 3 manual phase in R2, events in R3. Enablers EN-47 to EN-63, milestones M-24 to M-36, gates G-C2 and G-C3, risks DR-25 to DR-34. R1 capacity recomputed (408 points against 384) with a new recommendation. Budget, RACI, traceability and the issues list refreshed | Delivery lead |
@@ -119,7 +119,7 @@ The chart uses month numbers. The axis shows months 0 to 36. Ghana runs on the t
 
 ```mermaid
 gantt
-    title Fidero roadmap, months 0 to 36 (axis numbers are month numbers)
+    title Tenmina roadmap, months 0 to 36 (axis numbers are month numbers)
     dateFormat X
     axisFormat %S
     todayMarker off
@@ -141,11 +141,11 @@ gantt
     On the platform                                :c3c, 19, 36
     section R2 Construction and family
     Mobile set-up, store accounts, native-module spikes, legal, bank and partner spikes :r2a, 9, 10
-    Fidero Field and construction core             :r2b, 10, 13
-    Store review buffer, Fidero Field              :r2s1, 12, 13
+    Tenmina Field and construction core             :r2b, 10, 13
+    Store review buffer, Tenmina Field              :r2s1, 12, 13
     Care, errands, property, off-plan, funds, listings, API :r2c, 13, 16
-    Fidero client app                              :r2app, 13, 16
-    Store review buffer, Fidero client app         :r2s2, 16, 17
+    Tenmina client app                              :r2app, 13, 16
+    Store review buffer, Tenmina client app         :r2s2, 16, 17
     Insurer lines, track records, hardening        :r2d, 16, 18
     section R3 Scale
     Events pilot, relocation and investing discovery :r3a, 18, 21
@@ -161,7 +161,7 @@ gantt
     G3 R3 review                                   :milestone, g3, 36, 0d
 ```
 
-Both apps need Apple App Store and Google Play approval before each go-live (C-14). The roadmap holds a month of store review buffer before Fidero Field goes live for the construction pilot and before the client app goes live. The first submission rehearsal (EN-75, M-37) measures real review times; the buffers shrink if reviews are quick. R1 completion (months 9 to 10) appears because the R1 Must scope does not fit by month 9 even with the recommended contract developer. See section 5.1. Country 2 software starts at month 10 and goes live at month 12 only if G-C2 passes (AS-13). Country 3 follows the same pattern one release later.
+Both apps need Apple App Store and Google Play approval before each go-live (C-14). The roadmap holds a month of store review buffer before Tenmina Field goes live for the construction pilot and before the client app goes live. The first submission rehearsal (EN-75, M-37) measures real review times; the buffers shrink if reviews are quick. R1 completion (months 9 to 10) appears because the R1 Must scope does not fit by month 9 even with the recommended contract developer. See section 5.1. Country 2 software starts at month 10 and goes live at month 12 only if G-C2 passes (AS-13). Country 3 follows the same pattern one release later.
 
 ### 3.2 Gates
 
@@ -196,9 +196,9 @@ Months follow the approved plan in section 5.1 (contract developer S3 to S14, th
 | M-10 | Month 8 | Escrow tracker live | First escrow tracked on the platform with client approval, two-person release and payee name check (US-ESC-006, US-ESC-007, US-ESC-015) | Product owner |
 | M-11 | Month 9 | Gate G1 review | Business targets reviewed. Insurer approval recorded (EN-31) | Founder |
 | M-12 | Month 10 | R1 complete | All R1 Must stories accepted per document 05. Penetration retest passed (EN-29). Overlay checks automatic. Metrics by country live. Professional payment runs live on the platform (S14) | Engineering lead |
-| M-13 | Month 11 | Field app beta | Fidero Field on TestFlight and Play internal testing, on 2 GB Android test devices and the oldest supported iPhone. First contractors and inspectors vetted on the panel. Check-in and check-out working (US-MOB-012) | Engineering lead |
+| M-13 | Month 11 | Field app beta | Tenmina Field on TestFlight and Play internal testing, on 2 GB Android test devices and the oldest supported iPhone. First contractors and inspectors vetted on the panel. Check-in and check-out working (US-MOB-012) | Engineering lead |
 | M-14 | Month 12 | Listings and licence positions known | Act 1047 view in writing (EN-39). Insurer view on inspections and project funds (EN-40). Lawyer's view on property management and errand licences (EN-56) | Founder |
-| M-15 | Month 13 | Construction pilot | Fidero Field approved on both stores (M-38). First milestone paid: app evidence, inspector pass, client approval, two-person release, bank confirmation | Product owner |
+| M-15 | Month 13 | Construction pilot | Tenmina Field approved on both stores (M-38). First milestone paid: app evidence, inspector pass, client approval, two-person release, bank confirmation | Product owner |
 | M-16 | Month 16 | Listings and partner API pilot | Developer listings live if EN-39 allows. One bank calls the partner API in a pilot | Product owner |
 | M-17 | Month 16 | Off-plan and project funds pilot | First off-plan stage and first supplier payment released, if EN-40 allows | Product owner |
 | M-18 | Month 18 | Gate G2 | 40 active builds, one bank contract, 40% of clients with a recurring line `[TO VERIFY]`, country 2 live. R2 penetration test passed (EN-38) | Founder |
@@ -221,8 +221,8 @@ Months follow the approved plan in section 5.1 (contract developer S3 to S14, th
 | M-35 | Month 21 | Events pilot | First vendor paid against delivery evidence (US-EVT-002), if the Could is taken | Product owner |
 | M-36 | Month 30 | Later lines decided | Relocation and shipping, vehicles and investing specified in 01 or dropped (EN-63) | Founder |
 | M-37 | Month 11 | First store submission rehearsal | Internal builds of both apps reviewed by Apple and Google; findings logged; review time measured and put into the release calendar (EN-75) | Engineering lead |
-| M-38 | Month 13 | Fidero Field approved on both stores | Approved on the App Store and Google Play, privacy disclosures matching the data catalogue, financial declaration filed (EN-68, EN-69) | Engineering lead |
-| M-39 | Month 17 | Fidero client app live on both stores | Approved on both stores; fees paid by the route Q-23 allows (US-APP-005); in-app deletion and minimum version working (US-APP-004, US-APP-006) | Product owner |
+| M-38 | Month 13 | Tenmina Field approved on both stores | Approved on the App Store and Google Play, privacy disclosures matching the data catalogue, financial declaration filed (EN-68, EN-69) | Engineering lead |
+| M-39 | Month 17 | Tenmina client app live on both stores | Approved on both stores; fees paid by the route Q-23 allows (US-APP-005); in-app deletion and minimum version working (US-APP-004, US-APP-006) | Product owner |
 
 ## 4. R0 manual service
 
@@ -259,7 +259,7 @@ R0 cases that are still open when the portal opens finish in the spreadsheet. Cl
 
 ### 5.1 R1: Escrow, portal and fees to institutions (months 3 to 9)
 
-**Goal.** Clients order, pay for and track reports online. Staff run every case through a tracked workflow. Reports are built from the template, reviewed by two people and hashed. Escrows are tracked with client approval and two-person release. Clients pay school fees and hospital bills direct to verified institutions and get the receipt back. Fidero pays its lawyers, surveyors and runners from its own account for accepted work, through two-person payment runs. Country is configuration from the first release. Overlay checks run from plot coordinates.
+**Goal.** Clients order, pay for and track reports online. Staff run every case through a tracked workflow. Reports are built from the template, reviewed by two people and hashed. Escrows are tracked with client approval and two-person release. Clients pay school fees and hospital bills direct to verified institutions and get the receipt back. Tenmina pays its lawyers, surveyors and runners from its own account for accepted work, through two-person payment runs. Country is configuration from the first release. Overlay checks run from plot coordinates.
 
 **Objectives served.** BO-01, BO-02, BO-03, BO-07, BO-08, BO-09, BO-10. Business requirements BR-01 to BR-07, BR-14, BR-15, BR-16, BR-17, BR-23.
 
@@ -329,10 +329,10 @@ What the new scope means, plainly: version 0.1 already showed the baseline team 
 
 **Decision, 1 November 2026:** the founder chose Option A+. The contract developer is in the plan from S3 to S13. At the end of S2, when velocity is first measured, if it is more than 20% below the table, the Option C list is applied as well.
 
-**What professional payments add (version 0.5).** 01 v0.8 adds six R1 Must requirements for paying Fidero's own professionals (FR-PRO-001, 002, 003, 005, 006 and 007) and four Shoulds. The Musts and their spike add 30 points to the R1 Must plan: 438 against 417 under Option A+ to the end of S13, so 21 points short. R1 was already near its limit (408 against 417, 9 spare); it is now over. Recommendation, for the founder to decide:
+**What professional payments add (version 0.5).** 01 v0.8 adds six R1 Must requirements for paying Tenmina's own professionals (FR-PRO-001, 002, 003, 005, 006 and 007) and four Shoulds. The Musts and their spike add 30 points to the R1 Must plan: 438 against 417 under Option A+ to the end of S13, so 21 points short. R1 was already near its limit (408 against 417, 9 spare); it is now over. Recommendation, for the founder to decide:
 
-1. **Keep the six PRO Musts in R1.** RUL-27 and the two-person payment run are the controls that keep Fidero's own payments apart from client money. Moving them to R2 by change control would leave professionals paid from spreadsheets for another year, and would make cost per report (BR-16) an estimate through gate G1.
-2. **Start payment runs as the bulk file only.** US-PRO-005 builds preparation, two-person approval and one bulk file format for Fidero's operating bank (or its mobile money provider, if runners need it). Staff upload the file in the bank's portal. No bank API, no second format, and reconciliation (US-PRO-009) is done by hand from the bank's confirmation until it ships. This keeps US-PRO-005 at 8 points.
+1. **Keep the six PRO Musts in R1.** RUL-27 and the two-person payment run are the controls that keep Tenmina's own payments apart from client money. Moving them to R2 by change control would leave professionals paid from spreadsheets for another year, and would make cost per report (BR-16) an estimate through gate G1.
+2. **Start payment runs as the bulk file only.** US-PRO-005 builds preparation, two-person approval and one bulk file format for Tenmina's operating bank (or its mobile money provider, if runners need it). Staff upload the file in the bank's portal. No bank API, no second format, and reconciliation (US-PRO-009) is done by hand from the bank's confirmation until it ships. This keeps US-PRO-005 at 8 points.
 3. **Build them in S14 and keep the contract developer one more sprint.** S14 at 33 points holds the 28 PRO Must points with 5 spare, and the R1 Musts end in S14 (month 10) instead of S13. Gate G1 at month 9 is judged on business numbers, which S14 does not affect. S14 is also the first sprint of Option R2-A in section 5.2; if the founder approves R2-A, the extension costs nothing more. If not, it costs about $1,600 `[TO VERIFY]` (section 11). Without it, about 3 points spill into S15 and the R2-A Shoulds slip by the same amount.
 4. **Move the PRO Shoulds to R2.** US-PRO-004 (expenses, 5) goes first, into R2-A in S15, because it ends the last manual money process. US-PRO-009 (reconciliation, 5) goes to R2-C. US-PRO-008 (overdue alert, 2) and US-PRO-010 (cost record, 2) go to R2-D with the R1 Shoulds that S14 displaces. Until each ships, its step stays manual and two-person, as in R0.
 
@@ -367,8 +367,8 @@ US-CASE-013 (building verification) drops last among Shoulds because it opens th
 | Phase | Sprints | Month | Goal | Items | Points |
 |---|---|---|---|---|---|
 | R2-A | S13-S15 | 9-10 | Mobile set-up (React Native, two app targets), store accounts and credentials, native-module and performance spikes; bank, legal, carer, insurer and country 2 data location spikes; R0 data migration. The web team finishes R1 Musts in S13 and S14 (professional payments in S14, 5.1) and does the first R1 Shoulds in S15 | EN-33, EN-34, EN-64, EN-65, EN-66, EN-70, EN-71, EN-74, EN-69, EN-76, EN-35, EN-45, EN-39, EN-40, EN-54, EN-55, EN-56, US-CASE-013, US-ACC-012, US-FEE-005, US-PRO-004 | 48 |
-| R2-B | S16-S21 | 10-13 | Construction core: Fidero Field on iOS and Android with check-in, inspections, milestone releases, disputes; App Attest and iOS background upload spikes; store listings, privacy disclosures, submission rehearsal and store approval of Fidero Field (M-37, M-38); in-app deletion and minimum version for both apps. Country 2 on the platform by month 12: data location, copy configuration, publish (M-28). Organisation accounts for institutions | EN-72, EN-73, EN-67, EN-68, EN-75, US-MOB-001, US-MOB-002, US-MOB-003, US-MOB-004a, US-MOB-004b, US-MOB-005a, US-MOB-005b, US-MOB-006, US-MOB-007, US-MOB-008, US-MOB-009, US-MOB-011a, US-MOB-011b, US-MOB-012, US-MOB-010, US-EVD-006, US-ESC-010, US-BLD-001, US-BLD-002, US-BLD-003, US-BLD-004, US-BLD-005a, US-BLD-005b, US-BLD-006, US-BLD-007, US-BLD-008, US-BLD-009, US-BLD-010, US-BLD-012, US-DSP-001, US-DSP-002, US-DSP-003, US-DSP-004, US-ORD-007, US-CTY-002a, US-CTY-002b, US-CTY-004, EN-59, US-ACC-011, EN-61, US-PAY-006, US-GEO-005, US-APP-004, US-APP-006 | 213 |
-| R2-C | S22-S27 | 13-16 | Fidero client app on the shared codebase, then store review (M-39 at month 17). Family lines first: care visits and errands (reuse the field app and case workflow), then property management (reuses inspections and the contractor panel), off-plan, project funds, statement import, listings, partner API; remaining R1 Shoulds | US-CARE-002, US-CARE-003, US-CARE-004, US-CARE-005, US-CARE-006, US-CARE-001, US-TSK-002, US-TSK-003, US-TSK-004, US-TSK-001, US-TSK-005, US-PMG-002, US-PMG-003, US-PMG-005, US-PMG-001, US-PMG-004, US-PMG-006, EN-58, US-BLD-011a, US-BLD-011b, US-PRJ-005, US-PRJ-001, US-PRJ-002, US-PRJ-003, US-PRJ-004, US-ESC-011, US-DSP-005, US-LST-002, US-LST-003, US-LST-006, US-LST-008, US-LST-001, US-LST-004a, US-LST-004b, US-LST-005, US-LST-007, US-LST-010, US-PAY-007, US-PTR-002, US-PTR-001, US-PTR-004, EN-36, EN-43, EN-21, US-GEO-006, US-AUD-003, US-AUD-004, US-APP-001a, US-APP-001b, US-APP-001c, US-APP-001d, US-APP-001e, US-APP-002, US-APP-005, EN-77, US-PRO-009 | 255 |
+| R2-B | S16-S21 | 10-13 | Construction core: Tenmina Field on iOS and Android with check-in, inspections, milestone releases, disputes; App Attest and iOS background upload spikes; store listings, privacy disclosures, submission rehearsal and store approval of Tenmina Field (M-37, M-38); in-app deletion and minimum version for both apps. Country 2 on the platform by month 12: data location, copy configuration, publish (M-28). Organisation accounts for institutions | EN-72, EN-73, EN-67, EN-68, EN-75, US-MOB-001, US-MOB-002, US-MOB-003, US-MOB-004a, US-MOB-004b, US-MOB-005a, US-MOB-005b, US-MOB-006, US-MOB-007, US-MOB-008, US-MOB-009, US-MOB-011a, US-MOB-011b, US-MOB-012, US-MOB-010, US-EVD-006, US-ESC-010, US-BLD-001, US-BLD-002, US-BLD-003, US-BLD-004, US-BLD-005a, US-BLD-005b, US-BLD-006, US-BLD-007, US-BLD-008, US-BLD-009, US-BLD-010, US-BLD-012, US-DSP-001, US-DSP-002, US-DSP-003, US-DSP-004, US-ORD-007, US-CTY-002a, US-CTY-002b, US-CTY-004, EN-59, US-ACC-011, EN-61, US-PAY-006, US-GEO-005, US-APP-004, US-APP-006 | 213 |
+| R2-C | S22-S27 | 13-16 | Tenmina client app on the shared codebase, then store review (M-39 at month 17). Family lines first: care visits and errands (reuse the field app and case workflow), then property management (reuses inspections and the contractor panel), off-plan, project funds, statement import, listings, partner API; remaining R1 Shoulds | US-CARE-002, US-CARE-003, US-CARE-004, US-CARE-005, US-CARE-006, US-CARE-001, US-TSK-002, US-TSK-003, US-TSK-004, US-TSK-001, US-TSK-005, US-PMG-002, US-PMG-003, US-PMG-005, US-PMG-001, US-PMG-004, US-PMG-006, EN-58, US-BLD-011a, US-BLD-011b, US-PRJ-005, US-PRJ-001, US-PRJ-002, US-PRJ-003, US-PRJ-004, US-ESC-011, US-DSP-005, US-LST-002, US-LST-003, US-LST-006, US-LST-008, US-LST-001, US-LST-004a, US-LST-004b, US-LST-005, US-LST-007, US-LST-010, US-PAY-007, US-PTR-002, US-PTR-001, US-PTR-004, EN-36, EN-43, EN-21, US-GEO-006, US-AUD-003, US-AUD-004, US-APP-001a, US-APP-001b, US-APP-001c, US-APP-001d, US-APP-001e, US-APP-002, US-APP-005, EN-77, US-PRO-009 | 255 |
 | R2-D | S28-S31 | 16-18 | Insurer partner lines (only if EN-55 allows), track records, hardening: scale test, pen test, accessibility; client app store review and biometric unlock; country 3 manual service runs; Coulds if capacity allows | US-INS-002, US-INS-003, US-INS-001, US-INS-004, US-RAT-001, US-RAT-002, US-RAT-003, US-RAT-004, EN-37, EN-38, EN-42, EN-60, US-GEO-007, US-ESC-012, US-PTR-003, US-ORD-006, US-RPT-011, US-GEO-008, US-APP-003; R1 Shoulds moved from R2-A in version 0.5: US-ORD-005, US-CASE-011, US-CASE-012, US-PAY-004, US-FEE-006, US-ANL-002, US-NTF-005, EN-30, US-ACC-008, US-ACC-010, US-CASE-015, US-RPT-008; US-PRO-008, US-PRO-010 | 107 |
 
 R2 also carries the 59 points of R1 completion in S13 and S14 (31 and 28) and the R1 Shoulds in R2-A to R2-D. In version 0.5, S14 goes to professional payments, so 29 points of R1 Shoulds move from R2-A to R2-D, lowest on the cut line first.
@@ -392,7 +392,7 @@ All figures are assumptions. Version 0.3 left 114 points (18%) unplanned under t
 
 R2 still has the most outside dependencies: the bank's file or API, the Act 1047 position, the insurer's extension, the carer vetting standard, the insurer partner and licence, store review and the store payment position (Q-23), contractor uptake and field defects on low-end phones.
 
-**Cut line for R2.** Coulds first (US-INS-001, US-INS-004, US-ESC-012, US-GEO-007, US-PTR-003, the R1 Coulds), then Shoulds from the lines that are blocked or late: EP-INS if EN-55 fails (the whole line stays off by configuration, including its Must), EP-LST Shoulds if Act 1047 is unclear, off-plan and project funds (US-BLD-011a/b, EP-PRJ) if the insurer will not extend cover, EP-PMG if Q-18 shows a licence is needed, then EP-RAT and EP-PTR Shoulds, then the Should parts of the family lines (US-CARE-001, US-TSK-001, US-TSK-005, US-PMG-001, US-PMG-004, US-PMG-006), then the client app's Shoulds (US-APP-002, US-APP-003). If the client app itself slips past month 17, clients keep using the phone-first portal, which already offers every client feature; F-36 then moves to R3 by change control. Never cut: the construction Must path (EP-MOB, EP-BLD Musts, US-ESC-010, EP-DSP Musts) because gate G2 depends on it; store approval of Fidero Field and the store-rule stories in both apps (US-APP-004, US-APP-006), without which neither app can be published; country 2 on the platform (US-CTY-002a, US-CTY-002b, US-CTY-004, EN-59) because BO-08 and G2 depend on it; and the EP-CARE and EP-TSK Musts because the G2 recurring-line target depends on them.
+**Cut line for R2.** Coulds first (US-INS-001, US-INS-004, US-ESC-012, US-GEO-007, US-PTR-003, the R1 Coulds), then Shoulds from the lines that are blocked or late: EP-INS if EN-55 fails (the whole line stays off by configuration, including its Must), EP-LST Shoulds if Act 1047 is unclear, off-plan and project funds (US-BLD-011a/b, EP-PRJ) if the insurer will not extend cover, EP-PMG if Q-18 shows a licence is needed, then EP-RAT and EP-PTR Shoulds, then the Should parts of the family lines (US-CARE-001, US-TSK-001, US-TSK-005, US-PMG-001, US-PMG-004, US-PMG-006), then the client app's Shoulds (US-APP-002, US-APP-003). If the client app itself slips past month 17, clients keep using the phone-first portal, which already offers every client feature; F-36 then moves to R3 by change control. Never cut: the construction Must path (EP-MOB, EP-BLD Musts, US-ESC-010, EP-DSP Musts) because gate G2 depends on it; store approval of Tenmina Field and the store-rule stories in both apps (US-APP-004, US-APP-006), without which neither app can be published; country 2 on the platform (US-CTY-002a, US-CTY-002b, US-CTY-004, EN-59) because BO-08 and G2 depend on it; and the EP-CARE and EP-TSK Musts because the G2 recurring-line target depends on them.
 
 ### 5.3 R3: Scale (months 18 to 36)
 
@@ -434,14 +434,14 @@ Size: S up to 15 points, M 16 to 30, L 31 to 55, XL over 55.
 |---|---|---|---|---|---|---|---|---|---|
 | EP-ACC | Accounts and identity | Safe sign-up, sign-in, MFA, identity checks, role-based access and the client's home dashboard | F-01, F-35 | FR-ACC-001 to 012 | R1, R2 | Must | 13 | 50 | L |
 | EP-ORD | Orders and leads | Clients order a report or an extra inspection online | F-02 | FR-ORD-001 to 007 | R1, R2 | Must | 7 | 19 | M |
-| EP-PAY | Payments for Fidero fees | Take Fidero's own fees by card and mobile money; never take client money | F-02 | FR-PAY-001 to 007 | R1, R2 | Must | 8 | 25 | M |
+| EP-PAY | Payments for Tenmina fees | Take Tenmina's own fees by card and mobile money; never take client money | F-02 | FR-PAY-001 to 007 | R1, R2 | Must | 8 | 25 | M |
 | EP-CASE | Verification case workflow | Run every case through owned, dated tasks with required evidence | F-03, F-06, F-09 | FR-CASE-001 to 015 | R1 | Must | 15 | 56 | XL |
 | EP-RPT | Report builder | Build, sign, review, hash and version reports from the template | F-04, F-09 | FR-RPT-001 to 011 | R1 | Must | 11 | 39 | L |
 | EP-GEO | Geospatial checks and monitoring | Automatic overlay checks, images and later change detection | F-05, F-24 | FR-GEO-001 to 008 | R1, R2 | Must | 8 | 40 | L |
 | EP-ESC | Escrow tracking | Mirror the bank's escrows and amounts held at the bank; control every release instruction and payee | F-08, F-17, F-23, F-29 | FR-ESC-001 to 015 | R1, R2 | Must | 16 | 60 | XL |
 | EP-EVD | Evidence store | Tamper-evident, never-overwritten evidence served safely | F-07 | FR-EVD-001 to 006 | R1, R2 | Must | 6 | 21 | M |
-| EP-MOB | Field app, Fidero Field (iOS and Android) | Offline, signed, in-app capture, check-in and check-out for all field roles | F-15, F-30 | FR-MOB-001 to 012 | R2 | Must | 15 | 78 | XL |
-| EP-APP | Client mobile app, Fidero (iOS and Android) | The portal's client features on the App Store and Google Play, with push, biometric unlock, in-app account deletion, fees by store rules and a minimum version | F-36 | FR-APP-001 to 006 | R2 | Must | 10 | 61 | XL |
+| EP-MOB | Field app, Tenmina Field (iOS and Android) | Offline, signed, in-app capture, check-in and check-out for all field roles | F-15, F-30 | FR-MOB-001 to 012 | R2 | Must | 15 | 78 | XL |
+| EP-APP | Client mobile app, Tenmina (iOS and Android) | The portal's client features on the App Store and Google Play, with push, biometric unlock, in-app account deletion, fees by store rules and a minimum version | F-36 | FR-APP-001 to 006 | R2 | Must | 10 | 61 | XL |
 | EP-BLD | Construction, off-plan and buildings | Milestone releases, inspections, dashboard, off-plan, materials | F-16, F-17, F-27 | FR-BLD-001 to 013 | R2, R3 | Must | 15 | 78 | XL |
 | EP-PRJ | Project funds | Pay checked suppliers against invoices for funded projects | F-18 | FR-PRJ-001 to 005 | R2 | Should | 5 | 22 | M |
 | EP-LST | Verified listings | List only verified assets and sell them through escrow | F-19, F-26 | FR-LST-001 to 010 | R2, R3 | Should, with Must rules | 11 | 47 | L |
@@ -457,11 +457,11 @@ Size: S up to 15 points, M 16 to 30, L 31 to 55, XL over 55.
 | EP-CARE | Care visits | Vetted carers, check-in and check-out, family confirmation, pay only for confirmed visits | F-30 | FR-CARE-001 to 006 | R2 | Should feature, Must rules | 6 | 26 | M |
 | EP-PMG | Property management | Tenants, rent to the owner's own account, repairs paid against quotes and inspection | F-31 | FR-PMG-001 to 006 | R2 | Should feature, Must rules | 6 | 28 | M |
 | EP-TSK | Paperwork and errands | Catalogue per country, vetted agents, fees to the agency, completion by the document | F-32 | FR-TSK-001 to 005 | R2 | Should feature, Must rules | 5 | 18 | M |
-| EP-INS | Insurer partner lines | Health and funeral cover sold as the insurer's product; premiums never to Fidero | F-33 | FR-INS-001 to 004 | R2 | Could feature, Must rule | 4 | 14 | S |
+| EP-INS | Insurer partner lines | Health and funeral cover sold as the insurer's product; premiums never to Tenmina | F-33 | FR-INS-001 to 004 | R2 | Could feature, Must rule | 4 | 14 | S |
 | EP-EVT | Events and ceremonies | Verified vendors paid against invoices and delivery evidence | F-34 | FR-EVT-001 to 003 | R3 | Could | 3 | 13 | S |
 | EP-REC | Records programme | Digitise authority records and use them in searches | F-25 | FR-REC-001 to 004 | R3 | Should | 4 | 26 | M |
 | EP-CTY | Multi-country | Country as configuration from R1; data kept where each law requires and new countries by copying, in R2 | F-28 | FR-CTY-001 to 004 | R1 basic, R2 full | Must | 6 | 32 | L |
-| EP-PRO | Professional payments | Pay the professionals Fidero contracts from its own account for accepted work, never from client money, with two-person payment runs and tax per country | F-37 | FR-PRO-001 to 010 | R1 | Must | 10 | 42 | L |
+| EP-PRO | Professional payments | Pay the professionals Tenmina contracts from its own account for accepted work, never from client money, with two-person payment runs and tax per country | F-37 | FR-PRO-001 to 010 | R1 | Must | 10 | 42 | L |
 | EP-PLAT | Platform and enablers | Infrastructure, CI/CD, observability, security, performance, accessibility, spikes, R0 tooling, country field teams, app store set-up | NFRs | None (NFR-…, Q-…, AS-…) | R0 to R3 | Must | 79 items | 173 | XL |
 
 ## 7. Product backlog
@@ -493,7 +493,7 @@ Size: S up to 15 points, M 16 to 30, L 31 to 55, XL over 55.
 
 | Story | As a … I want … so that … | Priority | Release | Points | Depends on |
 |---|---|---|---|---|---|
-| US-ACC-001 | As a diaspora buyer (P-01), I want to sign up with my email address and mobile number, each confirmed by a one-time code, so that Fidero can reach me and knows the contact details are mine. | Must | R1 | 5 | EN-09, EN-22 |
+| US-ACC-001 | As a diaspora buyer (P-01), I want to sign up with my email address and mobile number, each confirmed by a one-time code, so that Tenmina can reach me and knows the contact details are mine. | Must | R1 | 5 | EN-09, EN-22 |
 | US-ACC-002 | As a client (P-01, P-02), I want to sign in with email or phone and a password, or with a one-time code, so that I can get in quickly from any device. | Must | R1 | 3 | US-ACC-001 |
 | US-ACC-003 | As a reviewer (P-04), I want multi-factor authentication on my account, so that a stolen password cannot approve a report or a release. | Must | R1 | 5 | US-ACC-002 |
 | US-ACC-004a | As a case manager (P-03), I want each client's identity checked through the identity check provider, so that no report is released and no escrow opened for an unverified person. | Must | R1 | 5 | US-ACC-004b, EN-19 |
@@ -566,7 +566,7 @@ Acceptance criteria:
 
 | Story | As a … I want … so that … | Priority | Release | Points | Depends on |
 |---|---|---|---|---|---|
-| US-ORD-001 | As a diaspora buyer (P-01), I want to order a verification by entering the plot details and seller contact and uploading the site plan, so that Fidero has what it needs to start without phone calls. | Must | R1 | 5 | US-ACC-001, US-EVD-001 |
+| US-ORD-001 | As a diaspora buyer (P-01), I want to order a verification by entering the plot details and seller contact and uploading the site plan, so that Tenmina has what it needs to start without phone calls. | Must | R1 | 5 | US-ACC-001, US-EVD-001 |
 | US-ORD-002 | As a diaspora buyer (P-01), I want to choose a tier and see the price in my currency before paying, so that I know exactly what I will be charged. | Must | R1 | 3 | US-ADM-002 |
 | US-ORD-003 | As a diaspora buyer (P-01), I want to read the scope statement and terms before I pay, so that I know what the report does and does not cover. | Must | R1 | 2 | US-RPT-004 |
 | US-ORD-004 | As a case manager (P-03), I want a case created only after payment is confirmed or an offline payment is recorded with proof, so that we never start work that has not been paid for. | Must | R1 | 3 | US-PAY-001a, US-CASE-001 |
@@ -601,20 +601,20 @@ Acceptance criteria:
   1. Given an active construction project, when the client orders an extra inspection and pays, then an inspection task is created for a conflict-free inspector.
   2. Given the price set by an administrator, when the client orders, then that price is charged.
 
-### EP-PAY: Payments for Fidero fees
+### EP-PAY: Payments for Tenmina fees
 
 8 stories, 25 points.
 
 | Story | As a … I want … so that … | Priority | Release | Points | Depends on |
 |---|---|---|---|---|---|
-| US-PAY-001a | As a diaspora buyer (P-01), I want to pay Fidero's fee by international card, so that I can pay from abroad in minutes. | Must | R1 | 5 | EN-18, US-ORD-002 |
-| US-PAY-001b | As a local buyer (P-02), I want to pay Fidero's fee by Ghana mobile money, so that I can pay the way I pay for everything else. | Must | R1 | 5 | EN-18, US-ORD-002 |
+| US-PAY-001a | As a diaspora buyer (P-01), I want to pay Tenmina's fee by international card, so that I can pay from abroad in minutes. | Must | R1 | 5 | EN-18, US-ORD-002 |
+| US-PAY-001b | As a local buyer (P-02), I want to pay Tenmina's fee by Ghana mobile money, so that I can pay the way I pay for everything else. | Must | R1 | 5 | EN-18, US-ORD-002 |
 | US-PAY-002 | As a reviewer (P-04), I want the system never to store full card numbers, so that a breach cannot leak card data. | Must | R1 | 1 | US-PAY-001a |
 | US-PAY-003 | As a client (P-01, P-02), I want a receipt for every fee payment by email and in the portal, so that I have proof of what I paid. | Must | R1 | 2 | US-PAY-001a, US-NTF-001a |
-| US-PAY-005 | As a reviewer (P-04), I want fee payments kept apart from escrowed money, with no way to accept purchase money, so that Fidero never holds client money (RUL-01, C-01). | Must | R1 | 2 | US-PAY-001a |
+| US-PAY-005 | As a reviewer (P-04), I want fee payments kept apart from escrowed money, with no way to accept purchase money, so that Tenmina never holds client money (RUL-01, C-01). | Must | R1 | 2 | US-PAY-001a |
 | US-PAY-004 | As a case manager (P-03), I want to record refunds with a reason and an approver, so that refunds are controlled and visible. | Should | R1 | 2 | US-PAY-003 |
 | US-PAY-006 | As a case manager (P-03), I want provider settlements reconciled against orders every day, so that I catch missing or duplicate payments early. | Should | R1 | 5 | US-PAY-001a, US-PAY-001b |
-| US-PAY-007 | As a developer (P-10), I want to receive invoices for listing fees and success fees, so that my accounts team can pay Fidero correctly. | Should | R2 | 3 | US-LST-001, US-LST-007 |
+| US-PAY-007 | As a developer (P-10), I want to receive invoices for listing fees and success fees, so that my accounts team can pay Tenmina correctly. | Should | R2 | 3 | US-LST-001, US-LST-007 |
 
 Acceptance criteria:
 
@@ -632,7 +632,7 @@ Acceptance criteria:
   1. Given a confirmed payment, when it is recorded, then a numbered receipt is emailed and shown in the portal.
   2. Given a refund, when it is recorded, then a credit note appears with the original receipt.
 - **US-PAY-005** (implements FR-PAY-005)
-  1. Given any payment endpoint, when a payment is created, then it must link to a Fidero fee order or invoice.
+  1. Given any payment endpoint, when a payment is created, then it must link to a Tenmina fee order or invoice.
   2. Given a request to take purchase, construction or project money, when it reaches the API, then it is rejected because no such payment type exists.
   3. Given the business-rule test suite, when it runs, then a test confirms no route accepts escrow money.
 - **US-PAY-004** (implements FR-PAY-004)
@@ -665,7 +665,7 @@ Acceptance criteria:
 | US-CASE-011 | As a case manager (P-03), I want to record the cost of each case by item, so that the founder can see cost per report (BO-02). | Should | R1 | 3 | US-CASE-002 |
 | US-CASE-012 | As a case manager (P-03), I want to pause, cancel or refund a case with a reason, so that exceptions are handled the same way every time. | Should | R1 | 3 | US-CASE-002, US-PAY-004 |
 | US-CASE-013 | As a diaspora buyer (P-01), I want a building case with permit, structural, occupancy and rates checks, so that I can buy an existing house safely (J-08). | Should | R1 | 3 | US-CASE-002, US-ADM-001 |
-| US-CASE-015 | As a diaspora buyer (P-01), I want to message Fidero inside my case, so that the conversation stays with the case, not in my WhatsApp. | Should | R1 | 3 | US-CASE-001, US-NTF-001a |
+| US-CASE-015 | As a diaspora buyer (P-01), I want to message Tenmina inside my case, so that the conversation stays with the case, not in my WhatsApp. | Should | R1 | 3 | US-CASE-001, US-NTF-001a |
 
 Acceptance criteria:
 
@@ -730,7 +730,7 @@ Acceptance criteria:
 | US-RPT-003 | As a reviewer (P-04), I want the system to block a green overall verdict if any section from 4 to 10 is red, so that no report misleads a client (RUL-02). | Must | R1 | 2 | US-RPT-002 |
 | US-RPT-004 | As a reviewer (P-04), I want the scope and limitation statement inserted from a locked, versioned block, so that no one can change our liability wording (RUL-04). | Must | R1 | 2 | US-ADM-001 |
 | US-RPT-005 | As a lawyer (P-05), I want to sign the legal section with my name, licence number and time, so that my professional sign-off is recorded. | Must | R1 | 3 | US-RPT-002, US-ACC-005 |
-| US-RPT-006 | As a reviewer (P-04), I want release to need approval by the signing lawyer and a second, different Fidero reviewer, so that two people check every report (RUL-03). | Must | R1 | 3 | US-RPT-005 |
+| US-RPT-006 | As a reviewer (P-04), I want release to need approval by the signing lawyer and a second, different Tenmina reviewer, so that two people check every report (RUL-03). | Must | R1 | 3 | US-RPT-005 |
 | US-RPT-007 | As a diaspora buyer (P-01), I want a PDF of my released report with its SHA-256 hash stored, so that I have a document that can be proven unaltered. | Must | R1 | 5 | US-RPT-006, US-EVD-001 |
 | US-RPT-009 | As a lawyer (P-05), I want to record release conditions in section 11 as structured items, so that they can be copied straight into an escrow. | Must | R1 | 3 | US-RPT-002 |
 | US-RPT-010 | As a diaspora buyer (P-01), I want a released report never changed, with corrections issued as new versions, so that I can rely on what I was given. | Must | R1 | 3 | US-RPT-007 |
@@ -825,7 +825,7 @@ Acceptance criteria:
 |---|---|---|---|---|---|
 | US-ESC-001 | As a case manager (P-03), I want to create an escrow record with parties, asset, price, currency, bank reference and conditions copied from the report, so that the escrow starts from the verified facts. | Must | R1 | 3 | US-RPT-009 |
 | US-ESC-002 | As a diaspora buyer (P-01), I want each party's acceptance of the escrow terms recorded with time and terms version, so that everyone is bound to the same terms. | Must | R1 | 2 | US-ESC-001, US-ACC-004b |
-| US-ESC-003 | As a diaspora buyer (P-01), I want to see only the bank's payment instructions, never Fidero's account, so that I pay the bank and not Fidero (RUL-01). | Must | R1 | 2 | US-ESC-002 |
+| US-ESC-003 | As a diaspora buyer (P-01), I want to see only the bank's payment instructions, never Tenmina's account, so that I pay the bank and not Tenmina (RUL-01). | Must | R1 | 2 | US-ESC-002 |
 | US-ESC-004 | As a case manager (P-03), I want to record the bank's deposit confirmation, so that the client sees the money is safe at the bank. | Must | R1 | 3 | US-ESC-002, US-EVD-001 |
 | US-ESC-005 | As a case manager (P-03), I want to close each condition by attaching the evidence that satisfies it, so that release depends on proof. | Must | R1 | 3 | US-ESC-004 |
 | US-ESC-006 | As a reviewer (P-04), I want release blocked while any condition is open, the client has not approved, the fresh search is missing or out of date (purchases only), or (from R2) a dispute is open, so that money never moves on incomplete proof or without the client's approval (RUL-06, RUL-07, RUL-11, RUL-15). | Must | R1 | 5 | US-ESC-005, US-CASE-014, US-ADM-005, US-ACC-003 |
@@ -850,7 +850,7 @@ Acceptance criteria:
   2. Given the terms change, when parties are asked again, then the earlier acceptances stay on the old version.
 - **US-ESC-003** (implements FR-ESC-003)
   1. Given an agreed escrow, when the client opens payment instructions, then only the bank's details from partner configuration are shown.
-  2. Given any screen or message, when it is checked, then no Fidero account details appear for escrow money.
+  2. Given any screen or message, when it is checked, then no Tenmina account details appear for escrow money.
 - **US-ESC-004** (implements FR-ESC-004)
   1. Given a manual entry, when no bank confirmation is attached, then it is refused.
   2. Given a confirmation is recorded, when it is saved, then the escrow moves to Funded and all parties are notified.
@@ -935,13 +935,13 @@ Acceptance criteria:
   1. Given an item with a valid device signature, when it is stored, then it is marked app-captured.
   2. Given a milestone, when an uploaded item is offered as release evidence, then it is refused.
 
-### EP-MOB: Field app, Fidero Field (iOS and Android)
+### EP-MOB: Field app, Tenmina Field (iOS and Android)
 
 15 stories, 78 points. One React Native codebase for iOS and Android (02 ADR-22). Capture, signing, attestation and background upload are native modules on each platform.
 
 | Story | As a … I want … so that … | Priority | Release | Points | Depends on |
 |---|---|---|---|---|---|
-| US-MOB-001 | As a field worker (contractor P-08, inspector, runner P-07, surveyor, carer or errand agent P-17), I want to sign in to Fidero Field on my Android phone or iPhone and see only my assigned projects, cases and tasks, so that I go straight to my work. | Must | R2 | 5 | EN-33, EN-66, US-ACC-007 |
+| US-MOB-001 | As a field worker (contractor P-08, inspector, runner P-07, surveyor, carer or errand agent P-17), I want to sign in to Tenmina Field on my Android phone or iPhone and see only my assigned projects, cases and tasks, so that I go straight to my work. | Must | R2 | 5 | EN-33, EN-66, US-ACC-007 |
 | US-MOB-002 | As a contractor (P-08), I want evidence captured only with the app's own camera, on Android and iOS, so that no one can submit old or borrowed photos (RUL-08). | Must | R2 | 8 | US-MOB-001, EN-70 |
 | US-MOB-003 | As a contractor (P-08), I want position and accuracy recorded at capture with a warning when I am far from the plot, so that I know when the evidence will be flagged. | Must | R2 | 3 | US-MOB-002, US-GEO-001 |
 | US-MOB-004a | As a reviewer (P-04), I want each file captured on an Android phone hashed and the hash, position and device time signed with a key in Android Keystore, registered with key attestation and Play Integrity, so that tampering after capture is detectable. | Must | R2 | 8 | US-MOB-002, EN-34 |
@@ -1017,13 +1017,13 @@ Acceptance criteria:
   2. Given an assigned care visit or errand, when I capture in the app, then items attach to that visit or errand as app-captured.
   3. Given offline capture, when the connection returns, then the task, visit or errand updates.
 
-### EP-APP: Client mobile app, Fidero (iOS and Android)
+### EP-APP: Client mobile app, Tenmina (iOS and Android)
 
 10 stories, 61 points. The client app reuses the field app's codebase (EN-33) and the portal's API, types and validation (02 ADR-22, 8.9). Screens follow the portal's designs (03 section 2.3a). FR-APP-001 is split into five sub-stories by area.
 
 | Story | As a … I want … so that … | Priority | Release | Points | Depends on |
 |---|---|---|---|---|---|
-| US-APP-001a | As a diaspora client (P-01, P-15, P-16), I want to install Fidero from the App Store or Google Play, sign in, and see my home dashboard with the portal's five tabs, so that I can follow everything at home from my phone. | Must | R2 | 8 | EN-33, EN-66, US-ACC-002, US-ACC-012 |
+| US-APP-001a | As a diaspora client (P-01, P-15, P-16), I want to install Tenmina from the App Store or Google Play, sign in, and see my home dashboard with the portal's five tabs, so that I can follow everything at home from my phone. | Must | R2 | 8 | EN-33, EN-66, US-ACC-002, US-ACC-012 |
 | US-APP-001b | As a client (P-01, P-02), I want to order a report, track my case, read the report and check a report's fingerprint in the app, so that I can do the core land journey without a laptop. | Must | R2 | 8 | US-APP-001a, US-ORD-001, US-CASE-007, US-RPT-007, US-RPT-008 |
 | US-APP-001c | As a client (P-01, P-15, P-16), I want to approve escrow releases, invoices, milestones and repair quotes in the app with my second factor, so that I can act the moment I am asked. | Must | R2 | 8 | US-APP-001a, US-ESC-006, US-FEE-003, US-BLD-005b, US-PMG-004 |
 | US-APP-001d | As a family supporter (P-15) or property owner (P-16), I want statements, held amounts, receipts, care visits and property records in the app, so that I see who was paid and what was done. | Must | R2 | 8 | US-APP-001a, US-FEE-007, US-ESC-014, US-CARE-003, US-PMG-003 |
@@ -1031,7 +1031,7 @@ Acceptance criteria:
 | US-APP-002 | As a client (P-01, P-15), I want push notifications for status changes, requests and approvals, following my channel choices and never showing amounts or names on the lock screen, so that I hear at once without exposing my family's details. | Should | R2 | 5 | US-APP-001a, US-NTF-001b, US-NTF-004, EN-65 |
 | US-APP-003 | As a client (P-01), I want to unlock the app with Face ID, Touch ID or my fingerprint, while approvals still ask for my second factor, so that the app is quick to open and still safe. | Should | R2 | 3 | US-APP-001a, US-ACC-003 |
 | US-APP-004 | As any app user (clients, family members, tenants and field users), I want to delete my account from inside either app and be told plainly what is kept and why, so that I control my data as the stores and the law require. | Must | R2 | 5 | US-DPR-004a, US-MOB-001 |
-| US-APP-005 | As a client (P-01, P-02), I want to pay Fidero's fees from the app through the payment provider where the stores allow it, or on the website where they do not, and never pay purchase, construction or project money in the app, so that payment is clear and allowed. | Must | R2 | 5 | US-APP-001b, US-PAY-001a, US-PAY-005, EN-76 |
+| US-APP-005 | As a client (P-01, P-02), I want to pay Tenmina's fees from the app through the payment provider where the stores allow it, or on the website where they do not, and never pay purchase, construction or project money in the app, so that payment is clear and allowed. | Must | R2 | 5 | US-APP-001b, US-PAY-001a, US-PAY-005, EN-76 |
 | US-APP-006 | As any app user, I want the app to tell me when my version is too old and send me to the store, without losing evidence waiting to upload, so that I always run a safe version. | Must | R2 | 3 | EN-33, US-MOB-005a |
 
 Acceptance criteria:
@@ -1049,7 +1049,7 @@ Acceptance criteria:
   3. Given an invoice whose payee is not verified, when the client opens it, then there is no approve button and the reason is shown (RUL-22).
 - **US-APP-001d** (implements FR-APP-001)
   1. Given a family member with paid invoices, when the client opens the statement in the app, then each row names who was paid and shows the receipt.
-  2. Given money held at the bank, when the client views it in the app, then it is shown as held at the partner bank, never as a Fidero balance.
+  2. Given money held at the bank, when the client views it in the app, then it is shown as held at the partner bank, never as a Tenmina balance.
 - **US-APP-001e** (implements FR-APP-001)
   1. Given a case thread, when the client sends a message or uploads a requested document in the app, then the case manager sees it in the back office.
   2. Given the same account on the portal and the app, when the client changes a setting in one, then the other shows the change.
@@ -1071,7 +1071,7 @@ Acceptance criteria:
   3. Given an escrow deposit, construction or project payment, when the client opens it in the app, then only the bank's payment instructions are shown, never a pay button.
 - **US-APP-006** (implements FR-APP-006)
   1. Given an app below the minimum version, when it starts, then the update screen is shown with a link to the store and nothing else is usable.
-  2. Given Fidero Field with queued evidence below the minimum version, when the user updates, then every queued item is still there and uploads.
+  2. Given Tenmina Field with queued evidence below the minimum version, when the user updates, then every queued item is still there and uploads.
   3. Given evidence captured before the minimum was raised, when it uploads after the update, then the server accepts it.
 
 ### EP-BLD: Construction, off-plan and buildings
@@ -1094,7 +1094,7 @@ Acceptance criteria:
 | US-BLD-012 | As a diaspora buyer (P-01), I want retention held for the defects period and released when the inspector confirms all defects closed, so that the contractor fixes defects before final payment. | Must | R2 | 3 | US-BLD-006 |
 | US-BLD-011a | As a developer (P-10), I want my title, permits and company verified as an off-plan case, so that buyers trust my estate. | Should | R2 | 5 | US-CASE-001, US-ADM-001 |
 | US-BLD-011b | As a diaspora buyer (P-01), I want my off-plan stage payments held at the bank and released against app evidence and an inspector, so that I pay only for stages that exist. | Should | R2 | 8 | US-BLD-011a, US-ESC-010, US-BLD-005a |
-| US-BLD-013 | As a diaspora buyer (P-01), I want Fidero to order bulk materials, pay suppliers from held funds through the bank, and show deliveries, so that materials are bought at a fair price and actually arrive. | Could | R3 | 13 | US-BLD-009, US-PRJ-003 |
+| US-BLD-013 | As a diaspora buyer (P-01), I want Tenmina to order bulk materials, pay suppliers from held funds through the bank, and show deliveries, so that materials are bought at a fair price and actually arrive. | Could | R3 | 13 | US-BLD-009, US-PRJ-003 |
 
 Acceptance criteria:
 
@@ -1152,7 +1152,7 @@ Acceptance criteria:
 
 | Story | As a … I want … so that … | Priority | Release | Points | Depends on |
 |---|---|---|---|---|---|
-| US-PRJ-005 | As a project fund owner (P-13), I want every project agreement to say Fidero gives no investment advice and guarantees no returns, so that I understand what Fidero does. | Must | R2 | 1 | US-PRJ-001 |
+| US-PRJ-005 | As a project fund owner (P-13), I want every project agreement to say Tenmina gives no investment advice and guarantees no returns, so that I understand what Tenmina does. | Must | R2 | 1 | US-PRJ-001 |
 | US-PRJ-001 | As a project fund owner (P-13), I want to set up a project with a budget, stages, the person running it and named suppliers, so that my money for my brother's farm has a plan. | Should | R2 | 5 | US-ADM-001, US-ACC-004a |
 | US-PRJ-002 | As a case manager (P-03), I want identity and background checks on the person running the project and each supplier before money reaches the bank, so that money only goes to real, checked people. | Should | R2 | 5 | US-PRJ-001, US-ACC-004a |
 | US-PRJ-003 | As a project fund owner (P-13), I want money released only to checked suppliers against an invoice once the stage is confirmed, so that no cash goes to the person running it (RUL-21). | Should | R2 | 8 | US-PRJ-002, US-ESC-010 |
@@ -1448,13 +1448,13 @@ Acceptance criteria:
 
 | Story | As a … I want … so that … | Priority | Release | Points | Depends on |
 |---|---|---|---|---|---|
-| US-FEE-001 | As a family supporter (P-15), I want to register a school, hospital, clinic, pharmacy, agency or utility, and have Fidero verify its registration, its bank account in its own name and a named contact before any payment, so that my money can only ever reach the real institution (RUL-22). | Must | R1 | 5 | US-ADM-003, US-EVD-001 |
-| US-FEE-002 | As a family supporter (P-15), I want to upload an invoice or fee note with its reference, or have the institution send it to Fidero's reference, and have it checked against the institution and my family member, so that I only pay bills that are real and are ours. | Must | R1 | 3 | US-FEE-001, US-EVD-001 |
+| US-FEE-001 | As a family supporter (P-15), I want to register a school, hospital, clinic, pharmacy, agency or utility, and have Tenmina verify its registration, its bank account in its own name and a named contact before any payment, so that my money can only ever reach the real institution (RUL-22). | Must | R1 | 5 | US-ADM-003, US-EVD-001 |
+| US-FEE-002 | As a family supporter (P-15), I want to upload an invoice or fee note with its reference, or have the institution send it to Tenmina's reference, and have it checked against the institution and my family member, so that I only pay bills that are real and are ours. | Must | R1 | 3 | US-FEE-001, US-EVD-001 |
 | US-FEE-003 | As a family supporter (P-15), I want to approve a checked invoice and pay into the partner bank, with payment instructed to the institution's account only, so that the school or hospital is paid directly and no cash passes through a relative (RUL-22). | Must | R1 | 5 | US-FEE-002, US-ESC-003, US-ESC-007, US-ESC-015 |
 | US-FEE-004 | As a family supporter (P-15), I want the institution's receipt, and where it agrees a confirmation of enrolment, treatment or service, returned to my dashboard, so that I know the fee reached the school and my nephew is enrolled. | Must | R1 | 3 | US-FEE-003, US-NTF-001a |
 | US-FEE-007 | As a family supporter (P-15), I want a statement per family member showing invoices, payments, receipts and the amount held at the bank, so that I can see in one place what I paid for my mother and what is still held. | Must | R1 | 3 | US-FEE-004, US-ESC-014 |
 | US-FEE-005 | As a family supporter (P-15), I want a recurring fee schedule per term or per month, with a reminder and my approval before each payment, so that school fees go out on time each term without me having to remember. | Should | R1 | 3 | US-FEE-003, US-NTF-003 |
-| US-FEE-006 | As a family supporter (P-15), I want an institution that cannot receive a bank transfer marked plainly as not eligible for direct payment, with no cash route offered, and a runner able to collect an invoice or deliver a receipt in person, so that I know at once which institutions Fidero can pay and no cash ever moves on my behalf (AS-10, RUL-22). | Should | R1 | 3 | US-FEE-001, US-CASE-006 |
+| US-FEE-006 | As a family supporter (P-15), I want an institution that cannot receive a bank transfer marked plainly as not eligible for direct payment, with no cash route offered, and a runner able to collect an invoice or deliver a receipt in person, so that I know at once which institutions Tenmina can pay and no cash ever moves on my behalf (AS-10, RUL-22). | Should | R1 | 3 | US-FEE-001, US-CASE-006 |
 
 Acceptance criteria:
 
@@ -1467,7 +1467,7 @@ Acceptance criteria:
   2. Given a case manager confirms the invoice with the institution's named contact, when the check is recorded, then the invoice shows Checked with the checker's name.
   3. Given an invoice naming a payee account other than the verified one, when it is checked, then it is flagged and cannot be approved for payment.
 - **US-FEE-003** (implements FR-FEE-003)
-  1. Given a checked invoice, when I approve it, then I see only the partner bank's payment instructions with the invoice reference, never a Fidero account (RUL-01).
+  1. Given a checked invoice, when I approve it, then I see only the partner bank's payment instructions with the invoice reference, never a Tenmina account (RUL-01).
   2. Given the bank confirms my deposit, when the confirmation is recorded, then a payment instruction to the institution's verified account is prepared and needs two-person approval (RUL-05).
   3. Given a payee account that is not the institution's verified account, when an instruction is prepared, then it is blocked (US-ESC-015).
 - **US-FEE-004** (implements FR-FEE-004)
@@ -1481,7 +1481,7 @@ Acceptance criteria:
   1. Given a schedule, when a due date approaches, then I am reminded the configured number of days before and nothing is paid until I approve.
   2. Given I do not approve, when the due date passes, then no payment is made and I am reminded again; silence is never approval (RUL-11).
 - **US-FEE-006** (implements FR-FEE-006)
-  1. Given an institution that cannot receive a bank transfer into an account in its own name, when a case manager records this and a reviewer checks it, then it is marked Not eligible for direct payment with the reason, and the client sees: "This institution cannot receive a bank transfer, so Fidero cannot pay it. We never pay in cash."
+  1. Given an institution that cannot receive a bank transfer into an account in its own name, when a case manager records this and a reviewer checks it, then it is marked Not eligible for direct payment with the reason, and the client sees: "This institution cannot receive a bank transfer, so Tenmina cannot pay it. We never pay in cash."
   2. Given an institution marked Not eligible, when anyone tries to check, approve or instruct an invoice for it, then it is refused. No cash, voucher or in-person payment option exists anywhere in the product.
   3. Given a runner task to collect an invoice or deliver a receipt, when it is created and done, then it carries no amount and no money, a collected invoice goes through the normal checks (US-FEE-002), and any attempt to make the runner a payee or name them on a release instruction is refused (RUL-22, US-ESC-015).
   Note: rewritten for 01 v0.4. The voucher flow is gone; the estimate stays at 3 points for the eligibility state, the client message and the paper-only runner task.
@@ -1496,7 +1496,7 @@ Acceptance criteria:
 | US-CARE-003 | As a carer or errand agent (P-17), I want to check in at the registered address, complete the plan items, attach the agreed photos or readings and check out, all in the field app, so that my visit is proven without anyone taking my word for it. | Must | R2 | 5 | US-MOB-012, US-MOB-010, US-CARE-002 |
 | US-CARE-004 | As a family member (role in 01 C2), I want to confirm each visit with a one-tap code, a call or the app, with the carer paid only for confirmed visits, so that the carer is paid for visits that happened (RUL-23). | Must | R2 | 5 | US-CARE-003, US-ESC-010, US-NTF-001b |
 | US-CARE-005 | As a family supporter (P-15), I want an alert when a visit is missed, late or unconfirmed within 24 hours, so that I know the same day that my mother was not visited. | Must | R2 | 3 | US-CARE-003, US-NTF-001a |
-| US-CARE-006 | As a carer or errand agent (P-17), I want to raise a concern about health, safety or welfare that reaches the client and a Fidero reviewer the same day, so that a problem I see is acted on, not lost. | Must | R2 | 3 | US-CARE-003, US-CASE-010 |
+| US-CARE-006 | As a carer or errand agent (P-17), I want to raise a concern about health, safety or welfare that reaches the client and a Tenmina reviewer the same day, so that a problem I see is acted on, not lost. | Must | R2 | 3 | US-CARE-003, US-CASE-010 |
 | US-CARE-001 | As a family supporter (P-15), I want to create a care plan for my mother: address, visit frequency, tasks (medicine, meals, readings, companionship, transport) and who in the family may confirm visits, so that the carer knows exactly what to do and who will confirm it. | Should | R2 | 5 | US-ACC-012, US-ADM-001 |
 
 Acceptance criteria:
@@ -1535,19 +1535,19 @@ Acceptance criteria:
 
 | Story | As a … I want … so that … | Priority | Release | Points | Depends on |
 |---|---|---|---|---|---|
-| US-PMG-002 | As a case manager (P-03), I want to record the tenant, the tenancy agreement, the rent and the owner's own account at the partner bank to which rent is paid, so that rent never passes through Fidero (RUL-24). | Must | R2 | 5 | US-ADM-003, US-ESC-003, US-ACC-004b |
+| US-PMG-002 | As a case manager (P-03), I want to record the tenant, the tenancy agreement, the rent and the owner's own account at the partner bank to which rent is paid, so that rent never passes through Tenmina (RUL-24). | Must | R2 | 5 | US-ADM-003, US-ESC-003, US-ACC-004b |
 | US-PMG-003 | As a property owner abroad (P-16), I want rent due and received tracked from the bank's statement lines for my rent account only, under my written mandate allowing the bank to share them, with an alert when rent is late, so that I know the day rent is late, not when my uncle tells me. | Must | R2 | 5 | US-PMG-002, US-ESC-004 |
 | US-PMG-005 | As a property owner abroad (P-16), I want the repair money held at the bank and released to the contractor only after an inspection with photos, so that I pay for repairs that were done (RUL-22). | Must | R2 | 5 | US-ESC-010, US-MOB-010, US-ESC-015 |
-| US-PMG-001 | As a property owner abroad (P-16), I want to register my house and have Fidero inspect it and record its condition with photos before management starts, so that there is an agreed starting point for every later repair. | Should | R2 | 5 | US-ACC-012, US-MOB-010, US-CASE-001 |
-| US-PMG-004 | As a tenant (role in 01 C2), I want to report a repair, with Fidero collecting at least two quotes from vetted contractors and the owner approving one, so that repairs get done at a fair price. | Should | R2 | 5 | US-PMG-002, US-BLD-003 |
+| US-PMG-001 | As a property owner abroad (P-16), I want to register my house and have Tenmina inspect it and record its condition with photos before management starts, so that there is an agreed starting point for every later repair. | Should | R2 | 5 | US-ACC-012, US-MOB-010, US-CASE-001 |
+| US-PMG-004 | As a tenant (role in 01 C2), I want to report a repair, with Tenmina collecting at least two quotes from vetted contractors and the owner approving one, so that repairs get done at a fair price. | Should | R2 | 5 | US-PMG-002, US-BLD-003 |
 | US-PMG-006 | As a property owner abroad (P-16), I want periodic inspections scheduled, and a timeline of rent, repairs and inspections, so that I can see the state of my house over time. | Should | R2 | 3 | US-PMG-003, US-PMG-001 |
 
 Acceptance criteria:
 
 - **US-PMG-002** (implements FR-PMG-002)
   1. Given a managed property, when I record a tenant with an identity check, the agreement and the rent, then the agreement is stored as evidence and the tenant gets a tenant account.
-  2. Given rent payment details, when they are shown to the tenant, then only the owner's own account at the partner bank is shown, never a Fidero account.
-  3. Given an attempt to set a Fidero or staff account as the rent account, when it is saved, then it is refused.
+  2. Given rent payment details, when they are shown to the tenant, then only the owner's own account at the partner bank is shown, never a Tenmina account.
+  3. Given an attempt to set a Tenmina or staff account as the rent account, when it is saved, then it is refused.
 - **US-PMG-003** (implements FR-PMG-003)
   1. Given a rent schedule and the owner's written mandate on file, when the bank's statement lines for that account show a matching credit, then the rent shows Received.
   2. Given no matching credit by the end of the configured grace period, when the job runs, then the owner, the tenant and the case manager are alerted.
@@ -1574,23 +1574,23 @@ Acceptance criteria:
 
 | Story | As a … I want … so that … | Priority | Release | Points | Depends on |
 |---|---|---|---|---|---|
-| US-TSK-002 | As a diaspora buyer (P-01), I want to upload the checklist documents, pay the official fees into the partner bank and pay Fidero's charge through the payment provider, so that my errand starts with everything in hand. | Must | R2 | 3 | US-EVD-001, US-PAY-001a, US-ESC-003 |
-| US-TSK-003 | As a carer or errand agent (P-17), I want to be assigned an errand, have official fees paid to the agency's account only, record each step with the receipt or acknowledgement uploaded, and be paid by Fidero for each errand I complete, so that the client sees progress and the money trail and I am paid without touching the client's money (RUL-22, RUL-23, RUL-27). | Must | R2 | 5 | US-TSK-002, US-ADM-003, US-ESC-010, US-ESC-015, US-MOB-010, US-PRO-002 |
+| US-TSK-002 | As a diaspora buyer (P-01), I want to upload the checklist documents, pay the official fees into the partner bank and pay Tenmina's charge through the payment provider, so that my errand starts with everything in hand. | Must | R2 | 3 | US-EVD-001, US-PAY-001a, US-ESC-003 |
+| US-TSK-003 | As a carer or errand agent (P-17), I want to be assigned an errand, have official fees paid to the agency's account only, record each step with the receipt or acknowledgement uploaded, and be paid by Tenmina for each errand I complete, so that the client sees progress and the money trail and I am paid without touching the client's money (RUL-22, RUL-23, RUL-27). | Must | R2 | 5 | US-TSK-002, US-ADM-003, US-ESC-010, US-ESC-015, US-MOB-010, US-PRO-002 |
 | US-TSK-004 | As a case manager (P-03), I want completion confirmed only when the resulting document or official confirmation is uploaded and checked, so that an errand is done when the document exists, not when someone says so (RUL-23). | Must | R2 | 3 | US-TSK-003 |
-| US-TSK-001 | As an administrator (P-14), I want a catalogue of errands per country, each with a document checklist, official fees, Fidero's charge and a target time, so that clients see exactly what an errand needs and costs before they order. | Should | R2 | 5 | US-CTY-001a, US-ADM-002 |
+| US-TSK-001 | As an administrator (P-14), I want a catalogue of errands per country, each with a document checklist, official fees, Tenmina's charge and a target time, so that clients see exactly what an errand needs and costs before they order. | Should | R2 | 5 | US-CTY-001a, US-ADM-002 |
 | US-TSK-005 | As a carer or errand agent (P-17), I want to record handover of the document to the client's representative or courier with a signature or photo, so that no one can say the document was lost. | Should | R2 | 2 | US-TSK-004, US-ACC-008 |
 
 Acceptance criteria:
 
 - **US-TSK-002** (implements FR-TSK-002)
   1. Given an errand order, when a checklist item is missing, then the order cannot be submitted and the item is named.
-  2. Given the fees, when I pay, then Fidero's charge is taken by card or mobile money through the payment provider (US-PAY-001a), never into the partner bank, and the official fees are paid into the partner bank; the two are shown separately, each with its own receipt (RUL-01).
+  2. Given the fees, when I pay, then Tenmina's charge is taken by card or mobile money through the payment provider (US-PAY-001a), never into the partner bank, and the official fees are paid into the partner bank; the two are shown separately, each with its own receipt (RUL-01).
 - **US-TSK-003** (implements FR-TSK-003)
   1. Given an errand, when a case manager assigns an agent, then only agents on the vetted panel for that country can be chosen.
   2. Given an official fee, when payment is prepared, then the payee must be the agency's verified account (US-ESC-015) and the receipt is required before the step closes.
   3. Given a step, when I mark it done without the receipt or acknowledgement, then it is refused.
   4. Given a standing approval for the errand, when a step fee within the monthly amount is prepared, then no further client approval is asked, but the receipt and two staff approvals are still required; above the amount, the client approves that fee (RUL-11).
-  5. Given an errand whose resulting document Fidero has checked, when the check is recorded, then a payable for the agent is created under US-PRO-002 and paid from Fidero's operating account in a payment run; no instruction from the client's held funds can name the agent (RUL-27).
+  5. Given an errand whose resulting document Tenmina has checked, when the check is recorded, then a payable for the agent is created under US-PRO-002 and paid from Tenmina's operating account in a payment run; no instruction from the client's held funds can name the agent (RUL-27).
   Note: changed in version 0.5 for 01 v0.8. The estimate stays at 5 points, because the agent's pay is built in EP-PRO.
 - **US-TSK-004** (implements FR-TSK-004)
   1. Given an errand with all steps done, when no result document is uploaded, then it cannot be marked Complete.
@@ -1608,26 +1608,26 @@ Acceptance criteria:
 
 | Story | As a … I want … so that … | Priority | Release | Points | Depends on |
 |---|---|---|---|---|---|
-| US-INS-002 | As an insurer partner (role in 01 C2), I want to receive each application from Fidero and have premiums paid to my account, never to Fidero, so that the policy is mine and the money trail is clean (RUL-25). | Must | R2 | 5 | US-ACC-011, US-ESC-003, US-ESC-015, EN-55 |
+| US-INS-002 | As an insurer partner (role in 01 C2), I want to receive each application from Tenmina and have premiums paid to my account, never to Tenmina, so that the policy is mine and the money trail is clean (RUL-25). | Must | R2 | 5 | US-ACC-011, US-ESC-003, US-ESC-015, EN-55 |
 | US-INS-003 | As a family supporter (P-15), I want my policy document, renewal dates and the insurer's claim contact stored, with a reminder before renewal, so that cover does not lapse without my knowing. | Should | R2 | 3 | US-INS-002, US-NTF-003 |
 | US-INS-001 | As a family supporter (P-15), I want to see health and funeral cover from licensed insurers, with the insurer's name, the policy terms and a clear statement that the policy is the insurer's, so that I can cover my mother without being misled about who insures her (RUL-25). | Could | R2 | 3 | US-ADM-003, EN-55 |
-| US-INS-004 | As a family supporter (P-15), I want to start a claim and track the insurer's response, without Fidero deciding the claim, so that I have one place to follow a claim. | Could | R2 | 3 | US-INS-003 |
+| US-INS-004 | As a family supporter (P-15), I want to start a claim and track the insurer's response, without Tenmina deciding the claim, so that I have one place to follow a claim. | Could | R2 | 3 | US-INS-003 |
 
 Acceptance criteria:
 
 - **US-INS-002** (implements FR-INS-002)
   1. Given a client completes an application, when it is submitted, then it is passed to the insurer in the agreed format and the client sees it as Sent to insurer.
-  2. Given a premium, when it is paid, then the route is either the client paying the insurer directly or the bank paying the insurer from money held for that purpose; in both the payee is the insurer's verified account and no Fidero account is shown.
-  3. Given the business-rule test suite, when it runs, then a test confirms no route accepts a premium into a Fidero account.
+  2. Given a premium, when it is paid, then the route is either the client paying the insurer directly or the bank paying the insurer from money held for that purpose; in both the payee is the insurer's verified account and no Tenmina account is shown.
+  3. Given the business-rule test suite, when it runs, then a test confirms no route accepts a premium into a Tenmina account.
 - **US-INS-003** (implements FR-INS-003)
   1. Given a policy returned by the insurer, when it is stored, then its renewal date and claim contact show on my dashboard.
   2. Given renewal within the configured number of days, when the job runs, then I am reminded.
 - **US-INS-001** (implements FR-INS-001)
-  1. Given an insurer partner configured for my country, when I open cover products, then each shows the insurer's name, its terms document and the statement that Fidero is not the insurer.
+  1. Given an insurer partner configured for my country, when I open cover products, then each shows the insurer's name, its terms document and the statement that Tenmina is not the insurer.
   2. Given no licensed insurer partner or no intermediary licence for the country (C-11), when I open cover, then the line is not shown.
 - **US-INS-004** (implements FR-INS-004)
   1. Given a policy, when I start a claim with the required documents, then it is passed to the insurer and shows Sent.
-  2. Given the insurer's response, when it is recorded, then I see the insurer's decision, and no Fidero user can enter a decision.
+  2. Given the insurer's response, when it is recorded, then I see the insurer's decision, and no Tenmina user can enter a decision.
 
 ### EP-EVT: Events and ceremonies
 
@@ -1719,10 +1719,10 @@ Acceptance criteria:
 | US-PRO-001 | As an administrator (P-14), I want a signed agreement and a versioned rate card for each contracted professional, by country and role and per unit (report section, site visit, inspection, bill of quantities, errand or month), with each new version approved by a second administrator, so that every professional is paid the agreed rate and no one person can change it. | Must | R1 | 5 | US-ADM-001, US-CTY-001a, US-EVD-001, US-ACC-006 |
 | US-PRO-002 | As a lawyer (P-05), I want a payable created for me as soon as my signed section passes second review, so that I am paid for accepted work without chasing anyone. | Must | R1 | 5 | US-PRO-001, US-RPT-005, US-RPT-006 |
 | US-PRO-003 | As a reviewer (P-04), I want the system to refuse any rate that varies by verdict, inspection outcome or any other result of the work, so that no professional has a reason to soften a finding (RUL-26). | Must | R1 | 2 | US-PRO-001 |
-| US-PRO-006 | As a reviewer (P-04), I want professionals paid only from Fidero's operating account, to an account verified in the professional's own name, with no link between their pay and client escrow, so that client money can never pay Fidero's costs (RUL-27). | Must | R1 | 3 | US-ESC-015, US-ADM-003 |
+| US-PRO-006 | As a reviewer (P-04), I want professionals paid only from Tenmina's operating account, to an account verified in the professional's own name, with no link between their pay and client escrow, so that client money can never pay Tenmina's costs (RUL-27). | Must | R1 | 3 | US-ESC-015, US-ADM-003 |
 | US-PRO-007 | As a surveyor (P-06), I want withholding tax and other deductions applied as my country requires, a remittance advice for each payment and a yearly statement, so that my tax affairs are in order. | Must | R1 | 5 | US-PRO-002, US-CTY-001a, EN-79 |
-| US-PRO-005 | As a case manager (P-03), I want to group approved payables and expenses into a payment run that a different person with payment rights approves, and get a bulk payment file for Fidero's bank or mobile money provider, so that professionals are paid together and no one person can pay out alone. | Must | R1 | 8 | US-PRO-002, US-PRO-006, US-ACC-003, EN-78 |
-| US-PRO-004 | As a runner (P-07), I want to claim an expense such as an official search fee or travel with a photo of the receipt, within the limit for my role, so that I am paid back what I spent on Fidero's work. | Should | R1 | 5 | US-PRO-001, US-EVD-001 |
+| US-PRO-005 | As a case manager (P-03), I want to group approved payables and expenses into a payment run that a different person with payment rights approves, and get a bulk payment file for Tenmina's bank or mobile money provider, so that professionals are paid together and no one person can pay out alone. | Must | R1 | 8 | US-PRO-002, US-PRO-006, US-ACC-003, EN-78 |
+| US-PRO-004 | As a runner (P-07), I want to claim an expense such as an official search fee or travel with a photo of the receipt, within the limit for my role, so that I am paid back what I spent on Tenmina's work. | Should | R1 | 5 | US-PRO-001, US-EVD-001 |
 | US-PRO-009 | As a case manager (P-03), I want each payment run reconciled against the bank's or provider's confirmation, with failed or unconfirmed lines listed for me to resolve, so that no professional is left unpaid without anyone noticing. | Should | R1 | 5 | US-PRO-005 |
 | US-PRO-008 | As a surveyor (P-06), I want accepted work paid within a set period (10 working days, assumption) and operations alerted when a payment is overdue, so that I can rely on being paid on time. | Should | R1 | 2 | US-PRO-002, US-NTF-003 |
 | US-PRO-010 | As a case manager (P-03), I want each case's cost record filled from its accepted payables and expenses, so that cost per report is measured, not estimated (BR-16). | Should | R1 | 2 | US-PRO-002, US-CASE-011 |
@@ -1744,7 +1744,7 @@ Acceptance criteria:
   2. Given a red report and a green report signed by the same lawyer under the same rate card, then both payables are equal.
   3. Given a request to hold a payable because of its verdict, then it is refused; a reviewer may hold a payable only for a fraud or misconduct review, with a reason.
 - **US-PRO-006** (implements FR-PRO-006)
-  1. Given a payment run, then its debit account is Fidero's operating account and never an escrow or held-funds account.
+  1. Given a payment run, then its debit account is Tenmina's operating account and never an escrow or held-funds account.
   2. Given a professional whose payee account is not verified or whose account name does not match, then their items are left out of the run with the reason.
   3. Given any attempt to instruct a release from an escrow or held funds to a contracted professional, then it is refused; and a payment run cannot name an institution, seller, supplier, contractor, carer, vendor or agency (RUL-27).
 - **US-PRO-007** (implements FR-PRO-007)
@@ -1757,7 +1757,7 @@ Acceptance criteria:
   2. Given a prepared run, when the preparer tries to approve it, then it is refused; when a different staff member with payment rights approves it with the second factor, then the bulk file is produced in the operating account's format and its SHA-256 is stored and shown.
   3. Given an approved run, when any line changes, then the approval is withdrawn and the run returns to draft.
   4. Given a staff member without payment rights, then the approve action is not available to them.
-  Note: R1 builds one file format, for Fidero's operating bank or its mobile money provider (EN-78). No bank API.
+  Note: R1 builds one file format, for Tenmina's operating bank or its mobile money provider (EN-78). No bank API.
 - **US-PRO-004** (implements FR-PRO-004)
   1. Given a claim with a receipt photo within the limit for my role and kind, when a staff member approves it, then it joins the next payment run.
   2. Given a claim above the limit or without a receipt, when one staff member approves it, then it still needs a second, different staff member's approval.
@@ -1783,11 +1783,11 @@ Acceptance criteria:
 | EN-01 | Leads, orders and case tracker spreadsheet: one row per lead and per case, with step dates | R0 | Must | not pointed | - | Every lead and case from day 1 is in the sheet with source, price offered, outcome and step dates | validation-plan s4, s5 |
 | EN-02 | Report template as a locked document, scope statement as protected text, and a SHA-256 hash of each released PDF logged in the tracker | R0 | Must | not pointed | - | First report released from the template with its hash logged | BR-02, RUL-04 |
 | EN-03 | Landing page with service description, prices under test, order and contact form (no-code or bought) | R0 | Must | not pointed | - | Page live; form submissions land in EN-01 | BR-01 |
-| EN-04 | Payment link for Fidero fees by card and mobile money from a provider's standard product | R0 | Must | not pointed | EN-03 | A test payment is received and receipted | BR-01, RUL-01 |
+| EN-04 | Payment link for Tenmina fees by card and mobile money from a provider's standard product | R0 | Must | not pointed | EN-03 | A test payment is received and receipted | BR-01, RUL-01 |
 | EN-05 | Metrics and partner tracker sheet for the fortnightly review | R0 | Must | not pointed | EN-01 | Day-90 numbers in validation-plan s6 can be read from the sheet | BR-16 |
 | EN-06 | Evidence folder convention: one restricted folder per case, file naming, hash log, access list | R0 | Should | not pointed | - | Every R0 case has a folder that follows the convention | BR-06, C-02 |
 | EN-07 | Consent recording kit: consent form, video script, witness sheet | R0 | Must | not pointed | - | Lawyer approves the kit before the first consent meeting | C-02, RUL-17 |
-| EN-08 | Data Protection Commission registration `[TO VERIFY]` whether required at Fidero's size | R0 | Must | not pointed | - | Registration filed, or lawyer's written view that it is not yet needed | BR-15, C-02 |
+| EN-08 | Data Protection Commission registration `[TO VERIFY]` whether required at Tenmina's size | R0 | Must | not pointed | - | Registration filed, or lawyer's written view that it is not yet needed | BR-15, C-02 |
 | EN-09 | Monorepo set-up: Django 5 and DRF API, `portal` and `backoffice` Next.js apps, linting, formatting, decision log | R1 | Must | 5 | - | A hello-world of each app builds and runs locally from one command | NFR-MNT-01 |
 | EN-10 | CI on GitHub Actions: tests, 80% line-coverage gate on the core API, static analysis, dependency and secret scanning | R1 | Must | 5 | EN-09 | A pull request with a failing test, low coverage or a leaked test secret is blocked | NFR-MNT-01, NFR-SEC-04, NFR-SEC-05 |
 | EN-11 | Infrastructure as code in Terraform: network, PostgreSQL with PostGIS, Redis, versioned object storage with a second copy, container hosting as set in document 02 | R1 | Must | 8 | EN-16 | Staging is created from code with no manual console steps | NFR-AVL-03, NFR-SEC-01, C-09 |
@@ -1812,7 +1812,7 @@ Acceptance criteria:
 | EN-30 | Migrate R0 leads, cases and released reports into the platform | R1 | Should | 3 | US-CASE-001, US-RPT-007 | Spot check of 10 migrated cases matches the R0 sheet | BR-16 |
 | EN-31 | Insurer review of the platform report process | R1 | Must | not pointed | US-RPT-006 | Insurer's written approval (R1 finish gate in 01 B4) | B4, C-06 |
 | EN-32 | Business-rule test suite: one automated test per rule in 01 B7 that applies to the release | R1 | Must | 3 | EN-10 | Every R1 rule has a named test that runs in CI | NFR-MNT-01 |
-| EN-33 | Mobile project set-up (rewritten in version 0.4): React Native and TypeScript with two app targets, Fidero and Fidero Field, in the monorepo; shared API client, types and validation packages with the web apps; CI builds for iOS and Android; test devices: 2 GB Android phones and the oldest supported iPhone | R2 | Must | 8 | EN-10, EN-65 | Signed builds of both apps install from CI on a 2 GB Android phone and the oldest supported iPhone | NFR-PERF-05, C-08, C-14 |
+| EN-33 | Mobile project set-up (rewritten in version 0.4): React Native and TypeScript with two app targets, Tenmina and Tenmina Field, in the monorepo; shared API client, types and validation packages with the web apps; CI builds for iOS and Android; test devices: 2 GB Android phones and the oldest supported iPhone | R2 | Must | 8 | EN-10, EN-65 | Signed builds of both apps install from CI on a 2 GB Android phone and the oldest supported iPhone | NFR-PERF-05, C-08, C-14 |
 | EN-34 | Spike: Android Keystore keys, key attestation and Play Integrity on low-end Android, as a native module | R2 | Must | 3 | EN-33 | Signing and attestation work on the oldest supported Android version `[TO VERIFY]` | FR-MOB-004 |
 | EN-35 | Spike: bank statement file and API with the signed bank | R2 | Should | 3 | EN-17 | Sample file and API documentation received, or written confirmation that neither exists | AS-03, IF-01 |
 | EN-36 | Partner API foundation: client-credential authentication, key rotation, versioning, documentation | R2 | Should | 5 | EN-12 | A test partner calls the sandbox with its own credentials | IF-08 |
@@ -1843,7 +1843,7 @@ Acceptance criteria:
 | EN-61 | Field app usability test with carers and errand agents on 2 GB Android devices and iPhones | R2 | Must | 2 | US-MOB-012, EN-24 | 4 of 5 testers complete a check-in, the plan items and a check-out without help | NFR-USE-01, FR-CARE-003 |
 | EN-62 | Country 3 configuration published | R3 | Must | 3 | US-CTY-004, EN-60 | Country 3 cases run on the platform with country 3 data stored where required | FR-CTY-004, BO-08 |
 | EN-63 | Discovery for relocation and shipping, vehicles and investing partners: demand `[TO VERIFY]` and licence position per line | R3 | Could | not pointed | - | Founder decision to specify each line in 01 or drop it | Decision record, 01 B8 |
-| EN-64 | Apple Developer Program and Google Play Console accounts as organisations in Fidero's name, with a D-U-N-S number if Apple requires it `[TO VERIFY]`; two named administrators with hardware security keys | R2 | Must | not pointed | - | Both accounts active for Fidero's legal entity, with the publishing countries set `[TO VERIFY]` | IF-12, C-14 |
+| EN-64 | Apple Developer Program and Google Play Console accounts as organisations in Tenmina's name, with a D-U-N-S number if Apple requires it `[TO VERIFY]`; two named administrators with hardware security keys | R2 | Must | not pointed | - | Both accounts active for Tenmina's legal entity, with the publishing countries set `[TO VERIFY]` | IF-12, C-14 |
 | EN-65 | Signing and push credentials: Apple distribution certificate and provisioning profiles, Play App Signing with a separate upload key, APNs key and FCM project; two-person custody and a break-glass copy (document 06) | R2 | Must | 2 | EN-64 | Both apps signed in CI; custody record signed by two people | IF-12, NFR-SEC-04 |
 | EN-66 | TestFlight and Play internal testing for both apps, with tester groups for staff, panel contractors and pilot clients | R2 | Must | 2 | EN-33, EN-65 | A CI build reaches testers on both stores' test tracks | C-14 |
 | EN-67 | Store listings for both apps on both stores: name, description, screenshots for each required device size, support and privacy policy links, age rating | R2 | Must | 2 | EN-64 | Listings complete and approved by the founder | NFR-STORE-01 |
@@ -1855,9 +1855,9 @@ Acceptance criteria:
 | EN-73 | Spike: background upload on iOS (background URLSession from files) and a queue that survives the app being ended by iOS | R2 | Must | 3 | EN-33 | On the oldest supported iPhone, items queued offline upload after the app is suspended, after iOS ends it and after a restart | FR-MOB-005 |
 | EN-74 | Spike: React Native performance on a 2 GB Android phone: cold start, download size and memory, with Hermes | R2 | Must | 3 | EN-33 | Both apps start in under 3 s and download under 30 MB on the reference phone, or the gaps and fixes are logged | NFR-PERF-05, C-08 |
 | EN-75 | First store submission rehearsal: early internal builds of both apps through App Store review and Google Play review, with review notes and a demo account | R2 | Must | 3 | EN-66, EN-67, EN-68, EN-69 | Both stores have reviewed a build; findings are logged; the measured review time is in the release calendar (document 06) | C-14, NFR-STORE-01 |
-| EN-76 | Store payment position (Q-23): ask both stores, with the payment provider, whether Fidero's fees for real-world services can be paid in the app | R2 | Must | not pointed | EN-64 | Written answer for each store, or the web route in FR-APP-005 confirmed as the default | Q-23, AS-14 |
+| EN-76 | Store payment position (Q-23): ask both stores, with the payment provider, whether Tenmina's fees for real-world services can be paid in the app | R2 | Must | not pointed | EN-64 | Written answer for each store, or the web route in FR-APP-005 confirmed as the default | Q-23, AS-14 |
 | EN-77 | Client app usability test with 5 diaspora users, at least 2 on iPhones and 2 on Android phones | R2 | Should | 2 | US-APP-001e, EN-24 | 4 of 5 testers find a report and approve an invoice in the app without help | NFR-USE-01, F-36 |
-| EN-78 | Spike: bulk payment file of Fidero's operating bank and, if runners need it, one mobile money provider: format, channel, cut-off times, dual authorisation and confirmation file (Q-26) | R1 | Must | 2 | - | A sample file accepted on the bank's test or pilot channel, or a manual-entry fallback agreed in writing | Q-26, FR-PRO-005, FR-PRO-009 |
+| EN-78 | Spike: bulk payment file of Tenmina's operating bank and, if runners need it, one mobile money provider: format, channel, cut-off times, dual authorisation and confirmation file (Q-26) | R1 | Must | 2 | - | A sample file accepted on the bank's test or pilot channel, or a manual-entry fallback agreed in writing | Q-26, FR-PRO-005, FR-PRO-009 |
 | EN-79 | Tax set-up per country with an accountant: withholding rates by role and tax status, registration, filing and remittance deadlines, treatment of reimbursed expenses; loaded as country configuration (Q-25). Repeated in each country's manual phase | R1 | Must | not pointed | - | The accountant's written rules for Ghana before US-PRO-007 goes live; each new country's before its first payment run | Q-25, FR-PRO-007, BR-23 |
 
 ## 8. Prioritisation
@@ -1915,7 +1915,7 @@ How the scores shape the plan:
 - EP-PRO scores in the middle, with high risk reduction (money and tax). It is built last in R1, in S14, because it needs signed and reviewed sections (EP-RPT) and the payee registry (US-ESC-015). Professionals are paid by hand, two-person, until then.
 - EP-CTY scores in the middle. It is built in S4 anyway, because every later table carries a country and retrofitting would cost more than the epic.
 - In R2, EP-MOB and EP-BLD score lowest but carry gate G2 (40 active builds). They are planned first because they are Must and on the gate's critical path. EP-DSP is built with them because F-21 is "Must with F-16".
-- EP-APP ranks last in R2 because it is large and the portal already serves clients on phones. It is planned in R2-C, after Fidero Field, because it reuses that codebase and its store set-up, and it holds a store review buffer before month 17. Its store-rule stories that both apps need (US-APP-004, US-APP-006) come earlier, in R2-B, because Fidero Field cannot be published without them.
+- EP-APP ranks last in R2 because it is large and the portal already serves clients on phones. It is planned in R2-C, after Tenmina Field, because it reuses that codebase and its store set-up, and it holds a store review buffer before month 17. Its store-rule stories that both apps need (US-APP-004, US-APP-006) come earlier, in R2-B, because Tenmina Field cannot be published without them.
 - EP-CARE and EP-TSK rank second and third in R2 and are planned first in R2-C: they reuse the field app and case workflow, and they carry the G2 recurring-line target.
 - EP-INS scores above EP-PMG only because it is small. It is planned last in R2 because it waits on EN-55 (Q-17, C-11) and adds no engine.
 - EP-PTR scores above EP-LST because one bank contract is a G2 target and listings wait on Act 1047.
@@ -2103,9 +2103,9 @@ Likelihood and impact are H (high), M (medium) or L (low). They are assumptions,
 | DR-24 | The scope statement does not allow buyers or banks to rely on a report (issue I-06) | M | H | Lawyer and insurer review the wording before R2-C. Listings and the partner API stay off until the wording allows them | Founder, with the lawyer |
 | DR-25 | Carer safety and vetting: a carer harms or is harmed in a client's home, or vetting misses a bad record (AS-12, Q-19) | M | H | Vetting standard EN-54 before the first carer. Identity, references, background check and training are blocking items (US-CARE-002). Check-in and check-out proof (US-MOB-012). Same-day concern route to a reviewer (US-CARE-006). Risk screen and two people where the family or area is flagged, reusing RUL-17. Insurance for carers `[TO VERIFY]` | Operations |
 | DR-26 | Institution fraud: a fake invoice, an impersonated institution bank account, or a relative inside the institution | M | H | Institution verified by two staff with the account name checked (US-FEE-001). Payee name match block on every release (US-ESC-015). Invoice confirmed with the named contact (US-FEE-002). Receipt chased within a target (US-FEE-004). There is no cash path: an institution that cannot receive a bank transfer is marked not eligible (US-FEE-006) | Operations, reviewer |
-| DR-27 | Insurer licence (C-11): Fidero needs an intermediary licence it does not hold, or no insurer signs (AS-11) | H | M | EN-55 before any EP-INS build. EP-INS planned last, in R2-D. The line stays off by configuration until the licence and agreement exist. No premium ever reaches Fidero (US-INS-002) | Founder, with the lawyer |
+| DR-27 | Insurer licence (C-11): Tenmina needs an intermediary licence it does not hold, or no insurer signs (AS-11) | H | M | EN-55 before any EP-INS build. EP-INS planned last, in R2-D. The line stays off by configuration until the licence and agreement exist. No premium ever reaches Tenmina (US-INS-002) | Founder, with the lawyer |
 | DR-28 | Country 2 partner dependencies: no bank or escrow agent, no insurer, licensed professionals hard to contract, a land registry process that differs from Ghana's | H | M | Manual phase first (EN-44) proves partners before any software. EN-50 talks from month 6. Entry criteria from the decision record checked at G-C2. The gate can fail without touching Ghana | Country 2 lead |
-| DR-29 | Field capacity outside Accra: care visits, errands and institution checks in Kumasi, Tema and rural areas need runners, carers and agents Fidero does not have | H | M | Lines open area by area as configuration. Vetted panel per area with target times per area in the catalogue (US-TSK-001). R0 data on where clients' families live `[TO VERIFY]`. Partner agencies where the panel is thin | Operations |
+| DR-29 | Field capacity outside Accra: care visits, errands and institution checks in Kumasi, Tema and rural areas need runners, carers and agents Tenmina does not have | H | M | Lines open area by area as configuration. Vetted panel per area with target times per area in the catalogue (US-TSK-001). R0 data on where clients' families live `[TO VERIFY]`. Partner agencies where the panel is thin | Operations |
 | DR-30 | Team stretch across two countries: the founder, operations and one engineering team serve Ghana and country 2 at once from month 6 | H | H | Country 2 lead owns the manual phase (EN-47). Country as configuration keeps engineering to one codebase. No country 2 software before G-C2. Monthly steering reviews the stretch and can pause country 2 | Founder |
 | DR-31 | Institutions not eligible for direct payment reduce the line's reach (AS-10, FR-FEE-006). The runner cash path was removed in 01 v0.4 | M | M | No cash route by design. Ask the largest schools and hospitals to accept transfers first. Track the share of requested institutions marked not eligible each month (US-FEE-006) and report it at gate G1 | Founder, with operations |
 | DR-32 | Property management or errand work needs a licence (Q-18, Act 1047) | M | M | EN-56 before EP-PMG and EP-TSK go live. Both behind a switch. Property management may run through a licensed agency partner if needed | Founder, with the lawyer |
@@ -2116,7 +2116,7 @@ Likelihood and impact are H (high), M (medium) or L (low). They are assumptions,
 | DR-37 | Attestation gaps: older Android phones fail Play Integrity, phones without Google Play cannot install the app, or an attestation service is down | M | M | EN-34 and EN-72 spikes on the oldest devices. Publish a supported phone list for the panel. Software-key flag for Android phones without hardware keys. Never accept a side-loaded build. Retry with back-off when a service is down | Engineering lead, operations |
 | DR-38 | Store review delays: a slow review holds back R2 go-live or an urgent fix | M | M | A month of buffer before each app's go-live (section 3.1). Review time measured in EN-75. Expedited review requests and halt procedures in document 06. Server-side switches for features, so most fixes need no app release | Engineering lead |
 | DR-39 | One mobile developer is a key person for native modules on two platforms, and is hard to hire | H | H | Hire early in R2 for both-platform native experience. Option R2-A keeps the contract developer on the TypeScript parts. Native modules documented and reviewed by the engineering lead. Option R2-B as fallback | Engineering lead, founder |
-| DR-41 | Fidero's operating bank or mobile money provider does not accept a bulk payment file, or its format is not known before S14 (Q-26) | M | M | EN-78 in S13. Fallback: staff key each line from the approved run in the bank's portal, each checked by a second person against the run's lines and hash | Founder, engineering lead |
+| DR-41 | Tenmina's operating bank or mobile money provider does not accept a bulk payment file, or its format is not known before S14 (Q-26) | M | M | EN-78 in S13. Fallback: staff key each line from the approved run in the bank's portal, each checked by a second person against the run's lines and hash | Founder, engineering lead |
 | DR-42 | Withholding tax rules for contracted professionals are not known when the first R1 payment run is due (Q-25) | M | H | EN-79 with an accountant before S14. Until then, runs stay manual and the accountant signs each one | Founder |
 | DR-40 | React Native misses the start time or size target on 2 GB Android phones (NFR-PERF-05) | M | M | EN-74 spike before feature work. Hermes, lazy screens, no heavy SDKs, size and start checks in CI. A slow screen can move to a native view | Mobile developer |
 
@@ -2300,12 +2300,12 @@ Items resolved by 01 version 0.4 stay in this table, marked resolved, so their n
 | I-15 | B4 R1 row, AS-02, BO-03 | Gate G1 needs 50 escrows by month 9, but the bank may only sign by month 6. 01 does not say whether escrows run at the bank before the tracker goes live count, or how they are tracked | Gate G1 may be judged on unclear numbers | State that escrows count from the bank's records, tracked manually until US-ESC-004 is live |
 | I-16 | FR-LST-010 | The FR includes a performance target (3 seconds on 3G), which belongs in the NFRs | Tested twice under two IDs | Move the target to an NFR and keep FR-LST-010 for indexing |
 | I-17 | FR-CTY-002, FR-CTY-004, releases table, B4 | Country 2 software is "from month 12 if its gate passes", which is the middle of R2 (months 9 to 18), but FR-CTY-002 and FR-CTY-004 only say "R2". Nothing says they are needed by month 12 | This plan puts them in R2-B (months 10 to 13) with EN-59 | Say "R2, by month 12" on the two FRs, or add the date to BO-08 |
-| I-18 | FR-FEE-006, C-01, RUL-01, RUL-22, AS-10 | The runner draws cash from the bank against a voucher and pays the institution in person. Cash in a Fidero runner's hands is close to Fidero holding client money, and RUL-22 says money goes only to an account in the payee's name | US-FEE-006 is Should and planned after the direct path. DR-31 | **Resolved by 01 v0.4.** FR-FEE-006 removes the cash route: an institution that cannot receive a bank transfer is marked not eligible for direct payment, and a runner may only collect the invoice and deliver the receipt. AS-10's fallback changed to match. US-FEE-006 and DR-31 rewritten |
+| I-18 | FR-FEE-006, C-01, RUL-01, RUL-22, AS-10 | The runner draws cash from the bank against a voucher and pays the institution in person. Cash in a Tenmina runner's hands is close to Tenmina holding client money, and RUL-22 says money goes only to an account in the payee's name | US-FEE-006 is Should and planned after the direct path. DR-31 | **Resolved by 01 v0.4.** FR-FEE-006 removes the cash route: an institution that cannot receive a bank transfer is marked not eligible for direct payment, and a runner may only collect the invoice and deliver the receipt. AS-10's fallback changed to match. US-FEE-006 and DR-31 rewritten |
 | I-19 | FR-FEE-007 and FR-ACC-012; FR-CTY-003 and FR-ANL-001; FR-PMG-005 and FR-PMG-004; FR-TSK-002 and FR-TSK-001; FR-INS-002 and FR-INS-001 | Must requirements depend on Should or Could requirements | US-ANL-001 is pulled into the R1 Must plan (8 points). The other Musts are built with the minimum they need. DR-33 | **Partly resolved by 01 v0.4.** The new priority note says a Must inside a Should or Could feature is required only if that feature ships, and then blocks the feature, not the release. That covers the PMG, TSK and INS pairs. FR-FEE-007 with FR-ACC-012 and FR-CTY-003 with FR-ANL-001 cross features and stay open |
 | I-20 | FR-MOB-001, FR-MOB-010, FR-MOB-012, C1 | FR-MOB-001 lets contractors, inspectors, runners and surveyors sign in to the app. Carers and errand agents are not listed, yet FR-MOB-010 and FR-MOB-012 need them in the app and C1 names them as field app users | US-MOB-001 acceptance in document 05 should cover carers and agents | **Resolved by 01 v0.4.** FR-MOB-001 now lists carers and errand agents, and the module is renamed Field app (MOB). US-MOB-001 updated |
 | I-21 | FR-PMG-003, RUL-24, IF-01, AS-03 | Rent is paid to the owner's own account, not to an escrow. Tracking it "from the bank's statement" needs the owner's consent and the bank to share that account's statement, which IF-01 and AS-03 do not cover | US-PMG-003 falls back to manual confirmation with a second check | **Resolved by 01 v0.4.** FR-PMG-003 now reads the bank's statement lines for that account only, under the owner's written mandate. US-PMG-003 updated. Whether the bank will share lines stays a delivery risk (DR-02) |
 | I-22 | C-04, Q-18, FR-PMG | C-04 covers listing and brokering under Act 1047. Property management may also fall under the Act, but C-04 and the R2 gate do not mention it | EN-56; EP-PMG behind a switch. DR-32 | Extend C-04 to property management once the lawyer answers Q-18 |
-| I-23 | FR-INS-002, C-11, AS-11, B4 | FR-INS-002 is Must R2, but the whole line depends on a licence Fidero may not hold (C-11 `[TO VERIFY]`) and on an insurer signing (AS-11). A Must cannot depend on an unresolved constraint | EP-INS planned last in R2-D behind EN-55. DR-27 | **Resolved by 01 v0.4.** Under the new priority note, FR-INS-002 is required only if F-33 (Could) ships, so EP-INS stays off by configuration without blocking R2. FR-INS-002 also now names the two premium routes |
+| I-23 | FR-INS-002, C-11, AS-11, B4 | FR-INS-002 is Must R2, but the whole line depends on a licence Tenmina may not hold (C-11 `[TO VERIFY]`) and on an insurer signing (AS-11). A Must cannot depend on an unresolved constraint | EP-INS planned last in R2-D behind EN-55. DR-27 | **Resolved by 01 v0.4.** Under the new priority note, FR-INS-002 is required only if F-33 (Could) ships, so EP-INS stays off by configuration without blocking R2. FR-INS-002 also now names the two premium routes |
 | I-24 | A4, C4.1, C4.7, C4.9, C4.28 | New IDs are inserted out of numeric order: BR-17 to BR-22 before BR-15; FR-ACC-012 before FR-ACC-009; FR-ESC-014 and FR-ESC-015 before FR-ESC-011; FR-MOB-012 before FR-MOB-011; FR-CTY-004 before FR-CTY-002 | Readers may miss them. No effect on the backlog | Sort the tables by ID in the next version |
 | I-25 | A9, FR-FEE-004 | A9 asks for the share of institution payments "with receipt returned within target", but no target is set anywhere | US-FEE-004 uses a configured target `[TO VERIFY]` | Add the target to FR-FEE-004 or to the configurable values in FR-ADM-005 |
 | I-26 | B5 F-35, FR-ACC-012, C4.19 | F-35 (unified home dashboard, Should R1) maps to ACC and ANL, but only FR-ACC-012 implements it. FR-ANL has no client-facing requirement | US-ACC-012 carries the whole feature | **Resolved by 01 v0.4.** F-35 now maps to ACC only |
@@ -2315,8 +2315,8 @@ Items resolved by 01 version 0.4 stay in this table, marked resolved, so their n
 | I-30 | FR-APP-004, RUL-11, C8 Escrow | 01 does not say what happens to an open escrow, money held at the bank or a standing approval when a client deletes the account in the app | US-APP-004 records the request and completes it when open items end; criteria 3 assumes this | State the rule in FR-APP-004 or FR-DPR-004 |
 | I-31 | B4, C-14 | Release gates in B4 do not mention store approval, but C-14 makes every app release depend on it | Section 12.4 adds store approval to the R2 go/no-go | Add "both apps approved by both stores" to the R2 finish gate, or say C-14 applies to every gate with an app in scope |
 | I-32 | C2, FR-PRO-005 | A payment run is approved by "a different one with payment rights", but C2 defines only release rights | US-PRO-005 cannot be accepted without knowing who may approve | Define payment rights in C2: held by reviewers or administrators named by two administrators, never by a contracted professional (document 02 assumes this) |
-| I-33 | C2, BR-23 | C2 lets lawyers and surveyors see their own payables, expenses and statements and lets runners claim expenses, but gives runners no payables or statements and gives inspectors, quantity surveyors and errand agents nothing, although BR-23 says Fidero pays all six | US-PRO-002 and US-PRO-004 serve all six roles; acceptance assumes it | Update the C2 rows for Runner, Inspector, Quantity surveyor and Carer or errand agent |
+| I-33 | C2, BR-23 | C2 lets lawyers and surveyors see their own payables, expenses and statements and lets runners claim expenses, but gives runners no payables or statements and gives inspectors, quantity surveyors and errand agents nothing, although BR-23 says Tenmina pays all six | US-PRO-002 and US-PRO-004 serve all six roles; acceptance assumes it | Update the C2 rows for Runner, Inspector, Quantity surveyor and Carer or errand agent |
 | I-34 | FR-PRO-002 | A payable is created when "a runner's month closed", but 01 does not say who closes it or what a part month pays | US-PRO-002 criterion 4 assumes a case manager closes it and a part month is paid pro rata by calendar days | State both in FR-PRO-002 |
 | I-35 | FR-PRO-002 (R1) against FR-BLD, FR-PMG and FR-TSK (R2) | Three of the five acceptance events (inspection submitted, bill of quantities accepted, errand document checked) come from R2 modules, so in R1 only lawyers, surveyors and runners can be paid through the platform | None for R1; US-PRO-002 criterion 5 is tested in R2 | Say "from R2" for those three sources in FR-PRO-002 |
 
-**Note on other documents.** `docs/proposal.md` (section 3) says escrow release keeps "one human approval". 01 (RUL-05) requires two Fidero staff. This plan follows 01. The proposal and the business plan doc should be aligned. Documents 02, 03, 05 and 06 are aligned to 01 version 0.8, as this one is.
+**Note on other documents.** `docs/proposal.md` (section 3) says escrow release keeps "one human approval". 01 (RUL-05) requires two Tenmina staff. This plan follows 01. The proposal and the business plan doc should be aligned. Documents 02, 03, 05 and 06 are aligned to 01 version 0.8, as this one is.

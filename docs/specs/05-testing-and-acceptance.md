@@ -1,6 +1,6 @@
 # 05 — Testing and Acceptance
 
-Test strategy, test cases, acceptance criteria and traceability for the Fidero platform.
+Test strategy, test cases, acceptance criteria and traceability for the Tenmina platform.
 
 ## 1. Document control
 
@@ -20,10 +20,10 @@ Test strategy, test cases, acceptance criteria and traceability for the Fidero p
 | Version | Date | Author | Change |
 |---|---|---|---|
 | 0.1 | 31 October 2026 | QA and test architect | First draft for review, against document 01 version 0.1 |
-| 0.2 | 1 November 2026 | QA and test architect | Updated to document 01 version 0.3 (195 functional requirements, 25 business rules). Fidero is now the diaspora's trusted agent at home, per `docs/decisions/2026-11-01-diaspora-platform.md`. Adds risk rows and functional tests for the new modules FEE, CARE, PMG, TSK, INS and EVT; rule tests for RUL-22 to RUL-25 with abuse cases; tests for the new and changed FRs (FR-ACC-012, FR-ESC-014, FR-ESC-015, FR-MOB-012, FR-CTY-004; FR-ACC-007, FR-ACC-008, FR-ACC-011, FR-ESC-004, FR-ESC-006, FR-ESC-010, FR-MOB-010, FR-ADM-003, FR-ADM-005); state tests for the revised escrow, milestone, listing and dispute models from 01 version 0.2; journeys J-09 to J-12; security threats for institution impersonation, invoice tampering, payee substitution, check-in spoofing, confirmation-code brute force and cross-country access; carer and errand agent field trials; UAT for P-15 to P-17 and an institution contact; partner acceptance with an institution and an insurer; country configuration moved to R1 and the country-2 gate added to release acceptance. NFR tests updated for the renamed NFR-A11Y-01 and the measurable NFR-USE-01, NFR-USE-02, NFR-PERF-03 and NFR-AVL-01. Traceability and counts regenerated. Section 16 refreshed: 22 items closed by 01 versions 0.2 and 0.3, 14 kept, 16 added |
+| 0.2 | 1 November 2026 | QA and test architect | Updated to document 01 version 0.3 (195 functional requirements, 25 business rules). Tenmina is now the diaspora's trusted agent at home, per `docs/decisions/2026-11-01-diaspora-platform.md`. Adds risk rows and functional tests for the new modules FEE, CARE, PMG, TSK, INS and EVT; rule tests for RUL-22 to RUL-25 with abuse cases; tests for the new and changed FRs (FR-ACC-012, FR-ESC-014, FR-ESC-015, FR-MOB-012, FR-CTY-004; FR-ACC-007, FR-ACC-008, FR-ACC-011, FR-ESC-004, FR-ESC-006, FR-ESC-010, FR-MOB-010, FR-ADM-003, FR-ADM-005); state tests for the revised escrow, milestone, listing and dispute models from 01 version 0.2; journeys J-09 to J-12; security threats for institution impersonation, invoice tampering, payee substitution, check-in spoofing, confirmation-code brute force and cross-country access; carer and errand agent field trials; UAT for P-15 to P-17 and an institution contact; partner acceptance with an institution and an insurer; country configuration moved to R1 and the country-2 gate added to release acceptance. NFR tests updated for the renamed NFR-A11Y-01 and the measurable NFR-USE-01, NFR-USE-02, NFR-PERF-03 and NFR-AVL-01. Traceability and counts regenerated. Section 16 refreshed: 22 items closed by 01 versions 0.2 and 0.3, 14 kept, 16 added |
 | 0.3 | 1 November 2026 | QA and test architect | Aligned to 01 v0.4: runner cash route removed (TC-RUL-22-07, TC-FEE-006-01 and TC-FEE-006-02 replaced by tests that an institution is marked not eligible, no cash path exists and no release can name a runner; TC-FEE-006-03, TC-E2E-J09-07 and OAT-12 rewritten); fresh search for purchases only (TC-RUL-07-05, TC-ESC-006-07); standing approvals (TC-RUL-11-07, TC-RUL-11-08, TC-CARE-001-03, TC-TSK-003-05); sellers and developers as payees (TC-RUL-22-08); account-name source and no override (TC-ESC-015-05, TC-ESC-015-06); 72-hour reviewer decision, second-person call check and code lockout at 5 (TC-CARE-004-04 to -06); written mandate (TC-PMG-003-03, -04); premium routes (TC-INS-002-04, PAT-21); dispute Withdrawn state (TC-STM-DSP-15 to -17, TC-DSP-002-03); RUL-08 for inspections, visits and errands (TC-RUL-08-05); field app for carers and agents (TC-MOB-001-03); new data classes (TC-DPR-004-03). 871 test cases. Issues 17, 18, 19, 23, 25, 29 and 30 resolved; 14, 20 and 22 partly. |
-| 0.4 | 7 November 2026 | QA and test architect | Aligned to 01 v0.6: both app stores, React Native, client app. New functional tests TC-APP-001-01 to TC-APP-006-03 (22) for module APP; TC-MOB-001-04, TC-MOB-002-03, TC-MOB-004-03 to -05 and TC-MOB-005-04 to -05 for iOS (camera-only capture, Secure Enclave signing, App Attest, store-only registration, background upload, queue surviving termination by iOS); device matrix adds iPhones (oldest supported iOS, small screen); store acceptance tests TC-STORE-01 to TC-STORE-07; NFR tests for both platforms and NFR-STORE-01 and NFR-STORE-02; TC-SEC-41 to TC-SEC-44; TC-FLD-19 and TC-FLD-20; UAT-36 to UAT-40 for the client app and Fidero Field on iPhone; OAT-09 widened and OAT-15 and OAT-16 added; R2 release acceptance needs both stores' approval of both apps. Traceability and coverage counts regenerated. Issues 31 to 35 added; 4 and 27 updated. |
-| 0.5 | 11 November 2026 | QA and test architect | Aligned to 01 v0.8: professional payments. New functional tests TC-PRO-001-01 to TC-PRO-010-02 (31) for module PRO; rule tests TC-RUL-26-01 to TC-RUL-26-06 and TC-RUL-27-01 to TC-RUL-27-06, with abuse cases for a verdict-linked rate, a payment run approved by its preparer, paying a professional from escrow, an expense with no receipt and a duplicate payable for the same work; security tests TC-SEC-45 to TC-SEC-47; risk row and test data for PRO. FR-TSK-002 and FR-TSK-003 tests updated (TC-TSK-002-01, -02, TC-TSK-004-01, TC-RUL-23-05, TC-E2E-J12-03) and added (TC-TSK-002-04, TC-TSK-003-06, -07): Fidero's errand charge goes through the payment provider and the agent is paid by Fidero. UAT-41 to UAT-44 (a lawyer, a surveyor and a runner seeing their pay; two staff running a payment run); OAT-17; partner acceptance with Fidero's operating bank for the bulk payment file (PAT-24 to PAT-28). R1 release criteria, go/no-go, traceability and coverage counts regenerated. Issues 36 to 41 added. |
+| 0.4 | 7 November 2026 | QA and test architect | Aligned to 01 v0.6: both app stores, React Native, client app. New functional tests TC-APP-001-01 to TC-APP-006-03 (22) for module APP; TC-MOB-001-04, TC-MOB-002-03, TC-MOB-004-03 to -05 and TC-MOB-005-04 to -05 for iOS (camera-only capture, Secure Enclave signing, App Attest, store-only registration, background upload, queue surviving termination by iOS); device matrix adds iPhones (oldest supported iOS, small screen); store acceptance tests TC-STORE-01 to TC-STORE-07; NFR tests for both platforms and NFR-STORE-01 and NFR-STORE-02; TC-SEC-41 to TC-SEC-44; TC-FLD-19 and TC-FLD-20; UAT-36 to UAT-40 for the client app and Tenmina Field on iPhone; OAT-09 widened and OAT-15 and OAT-16 added; R2 release acceptance needs both stores' approval of both apps. Traceability and coverage counts regenerated. Issues 31 to 35 added; 4 and 27 updated. |
+| 0.5 | 11 November 2026 | QA and test architect | Aligned to 01 v0.8: professional payments. New functional tests TC-PRO-001-01 to TC-PRO-010-02 (31) for module PRO; rule tests TC-RUL-26-01 to TC-RUL-26-06 and TC-RUL-27-01 to TC-RUL-27-06, with abuse cases for a verdict-linked rate, a payment run approved by its preparer, paying a professional from escrow, an expense with no receipt and a duplicate payable for the same work; security tests TC-SEC-45 to TC-SEC-47; risk row and test data for PRO. FR-TSK-002 and FR-TSK-003 tests updated (TC-TSK-002-01, -02, TC-TSK-004-01, TC-RUL-23-05, TC-E2E-J12-03) and added (TC-TSK-002-04, TC-TSK-003-06, -07): Tenmina's errand charge goes through the payment provider and the agent is paid by Tenmina. UAT-41 to UAT-44 (a lawyer, a surveyor and a runner seeing their pay; two staff running a payment run); OAT-17; partner acceptance with Tenmina's operating bank for the bulk payment file (PAT-24 to PAT-28). R1 release criteria, go/no-go, traceability and coverage counts regenerated. Issues 36 to 41 added. |
 
 Every figure in this document is a working assumption, not verified data. Unknown numbers are marked `[TO VERIFY]`. Test tooling named here is a proposal. The engineering lead confirms it before R1 build starts.
 
@@ -77,7 +77,7 @@ Suffix `-01` is normally the positive case. `-02` and above are negative, bounda
 
 ### 2.1 Objectives
 
-1. Prove that no function lets Fidero receive or hold client purchase, construction, project, fee, rent or premium money (RUL-01, RUL-24, RUL-25, C-01).
+1. Prove that no function lets Tenmina receive or hold client purchase, construction, project, fee, rent or premium money (RUL-01, RUL-24, RUL-25, C-01).
 2. Prove that money can only be released through the full chain: conditions closed, fresh search in date where required, no open dispute, client approval, two different staff approvals with MFA, signed instruction, bank confirmation.
 3. Prove that money on every line goes only to a verified payee (an institution, supplier, vendor, professional, or the seller or developer in a purchase escrow) whose bank account name matches, and never as cash to a relative or representative (RUL-22, RUL-23).
 4. Prove that evidence and reports cannot be changed, replaced or faked without detection. This includes care visit check-ins, invoices, receipts and the documents that close an errand.
@@ -89,17 +89,17 @@ Suffix `-01` is normally the positive case. `-02` and above are negative, bounda
 
 ### 2.2 Risk-based approach
 
-Testing depth follows risk. Risk is the likelihood of failure times the impact on client money, evidence integrity, personal data, people's safety and Fidero's reputation and insurance. The redefinition in `docs/decisions/2026-11-01-diaspora-platform.md` adds two risks that did not exist before: money-critical payee verification on every line (FEE, RUL-22, FR-ESC-015), and the safety of vulnerable people visited at home (CARE).
+Testing depth follows risk. Risk is the likelihood of failure times the impact on client money, evidence integrity, personal data, people's safety and Tenmina's reputation and insurance. The redefinition in `docs/decisions/2026-11-01-diaspora-platform.md` adds two risks that did not exist before: money-critical payee verification on every line (FEE, RUL-22, FR-ESC-015), and the safety of vulnerable people visited at home (CARE).
 
 | Module | What can go wrong | Likelihood | Impact | Risk | Test depth |
 |---|---|---|---|---|---|
-| ESC Escrow | Release with an open condition, open dispute, stale search, missing client approval or one approver; Fidero account shown to client; wrong amount or payee in instruction; amount held at the bank over-released | Medium | Critical | Very high | Deepest: unit, property-based, integration, contract, E2E, security, partner acceptance, UAT |
+| ESC Escrow | Release with an open condition, open dispute, stale search, missing client approval or one approver; Tenmina account shown to client; wrong amount or payee in instruction; amount held at the bank over-released | Medium | Critical | Very high | Deepest: unit, property-based, integration, contract, E2E, security, partner acceptance, UAT |
 | FEE Payments to institutions | Fake or impersonated institution verified; payee account name does not match the institution; invoice altered or for the wrong person; payment released without the client's approval; receipt never returned; an institution that cannot take a bank transfer paid some other way | High | Critical | Very high | Deepest: unit, property-based on payee matching, integration, E2E, security, partner acceptance with an institution, UAT with P-15 |
 | CARE Care visits | Carer paid for a visit that did not happen; carer or client confirms their own visit; check-in spoofed; missed visit not alerted; concern about a vulnerable person not raised; unvetted carer assigned; family address and health data exposed | Medium | Critical (safety of a vulnerable person) | Very high | Deepest: device tests, field trials with carers, security, integration, UAT with P-15 and P-17; safety cases reviewed with operations |
 | RPT Report builder | Green verdict with a red section; unlocked scope text; single-person release; released report changed; wrong hash | Medium | Critical | Very high | Deepest: unit, property-based, integration, E2E, PDF hash checks, UAT with lawyer and reviewer |
 | EVD Evidence store | Evidence overwritten or deleted silently; public links; malware stored | Medium | Critical | Very high | Deepest: integration with object storage, security, restore tests |
-| MOB Field app (Fidero Field, iOS and Android) | Gallery upload accepted; GPS or clock spoofed; queue lost offline or when iOS ends the app; key extracted; side-loaded build registered | High | Critical | Very high | Deepest: device matrix on both platforms, instrumented tests, field trials, mobile security tests |
-| APP Client app (Fidero, iOS and Android) | Approval without the second factor; push shows amounts or family details on the lock screen; fee taken by in-app purchase or purchase money paid in the app; account deletion loses records the law requires or strands an open escrow; app rejected by a store; an old, unsafe version keeps running | Medium | High | High | Deep: parity tests with the portal API, device tests on both platforms, store acceptance tests (section 9.5), security tests |
+| MOB Field app (Tenmina Field, iOS and Android) | Gallery upload accepted; GPS or clock spoofed; queue lost offline or when iOS ends the app; key extracted; side-loaded build registered | High | Critical | Very high | Deepest: device matrix on both platforms, instrumented tests, field trials, mobile security tests |
+| APP Client app (Tenmina, iOS and Android) | Approval without the second factor; push shows amounts or family details on the lock screen; fee taken by in-app purchase or purchase money paid in the app; account deletion loses records the law requires or strands an open escrow; app rejected by a store; an old, unsafe version keeps running | Medium | High | High | Deep: parity tests with the portal API, device tests on both platforms, store acceptance tests (section 9.5), security tests |
 | BLD Construction | Release without inspector pass; conflicted inspector; defect value not held; re-pricing skipped | Medium | Critical | Very high | Deepest: property-based, integration, E2E, field trials |
 | AUD Audit | Entries edited or missing; chain broken undetected | Low | Critical | High | Deep: database permission tests, hash-chain verification, tamper drills |
 | DPR Data protection | Bulk export by one person; data kept past retention; consent missing | Medium | High | High | Deep: integration, security, UAT with administrator |
@@ -112,11 +112,11 @@ Testing depth follows risk. Risk is the likelihood of failure times the impact o
 | LST Listings | Listing live without a green, in-date report; badge not expired | Medium | Medium | Medium | Standard plus RUL-12 to RUL-14 |
 | NTF Notifications | Report content or money amounts in SMS or WhatsApp | Medium | Medium | Medium | Standard plus content-leak tests |
 | PRJ Project funds | Cash to project runner; unchecked supplier | Low | High | Medium | Standard plus RUL-21 |
-| PMG Property management | Rent routed to a Fidero account or a Fidero-controlled account; repair paid without inspection or against one quote; tenant sees owner data; late rent not alerted | Medium | High | High | Deep: integration, state tests, RUL-24 abuse cases, UAT with P-16 and a tenant |
+| PMG Property management | Rent routed to a Tenmina account or a Tenmina-controlled account; repair paid without inspection or against one quote; tenant sees owner data; late rent not alerted | Medium | High | High | Deep: integration, state tests, RUL-24 abuse cases, UAT with P-16 and a tenant |
 | TSK Paperwork and errands | Official fee paid to the agent, not the agency; errand closed without the resulting document; forged receipt or acknowledgement; client identity documents exposed | Medium | High | High | Deep: integration, E2E, RUL-22 and RUL-23 abuse cases, field trial with agents |
-| INS Insurer partner lines | Premium collected into a Fidero account; policy shown as Fidero's; claim decided by Fidero; application data sent to the wrong insurer | Low | High (licence and legal risk, C-11) | Medium | Standard plus RUL-25 abuse cases and partner acceptance with the insurer |
+| INS Insurer partner lines | Premium collected into a Tenmina account; policy shown as Tenmina's; claim decided by Tenmina; application data sent to the wrong insurer | Low | High (licence and legal risk, C-11) | Medium | Standard plus RUL-25 abuse cases and partner acceptance with the insurer |
 | EVT Events and ceremonies | Vendor paid without invoice or delivery evidence; deposit paid without signed quote; vendor not verified | Low | Medium | Low | Standard at R3 plus RUL-22 |
-| PRO Professional payments | A professional paid from escrow or held funds; pay linked to a verdict; a payment run approved by its preparer; a payable created twice or paid twice; an expense without a receipt paid on one approval; pay sent to an account not in the professional's name; wrong tax withheld | Medium | High | High | Deep: database constraint tests, property-based tests on payable creation and run totals, RUL-26 and RUL-27 abuse cases, partner acceptance with Fidero's operating bank |
+| PRO Professional payments | A professional paid from escrow or held funds; pay linked to a verdict; a payment run approved by its preparer; a payable created twice or paid twice; an expense without a receipt paid on one approval; pay sent to an account not in the professional's name; wrong tax withheld | Medium | High | High | Deep: database constraint tests, property-based tests on payable creation and run totals, RUL-26 and RUL-27 abuse cases, partner acceptance with Tenmina's operating bank |
 | ORD Orders | Case created without payment | Low | Medium | Medium | Standard |
 | ADM Administration | Scope text, bank details or a release-affecting value changed by one person; config change unaudited | Low | High | Medium | Standard plus RUL-04 and second-administrator cases |
 | ANL Analytics | Personal data in dashboards; metrics mixed across countries | Low | Medium | Low | Standard |
@@ -140,7 +140,7 @@ Rules that follow from the matrix:
 | Contract | API schema and partner interfaces stay stable: portal and back office against core API; bank instruction and statement formats; payment provider webhooks | Developers, QA | schemathesis against the OpenAPI schema; Pact for portal, back office and app consumers |
 | API | Business flows through the public API, including authorisation for every role | QA | pytest with an API client; generated role-by-endpoint matrix |
 | End-to-end web | Journeys through portal and back office in a browser | QA | Playwright, including a throttled 3G profile |
-| Mobile | Both apps, Fidero and Fidero Field, on Android emulators, iOS simulators and real devices of both platforms | QA, mobile developer | Detox or Maestro for React Native end-to-end `[TO VERIFY]`; Espresso and XCUITest for native modules; Android emulator network shaping; Network Link Conditioner on iOS |
+| Mobile | Both apps, Tenmina and Tenmina Field, on Android emulators, iOS simulators and real devices of both platforms | QA, mobile developer | Detox or Maestro for React Native end-to-end `[TO VERIFY]`; Espresso and XCUITest for native modules; Android emulator network shaping; Network Link Conditioner on iOS |
 | Non-functional | Performance, availability, recovery, scalability, observability | QA, engineering lead | k6, Lighthouse CI, AWS fault injection `[TO VERIFY]` |
 | Security | SAST, dependency scan, DAST, ASVS L2 checks, threat cases, penetration test | Engineering lead, external tester | Semgrep, Bandit, dependency scanning, OWASP ZAP, MobSF for both apps on both platforms `[TO VERIFY]` |
 | Accessibility | WCAG 2.2 AA | QA, designer | axe-core in Playwright, manual screen reader checks |
@@ -231,13 +231,13 @@ Rules:
 
 **Carers, care plans and families.** Synthetic carers with vetting status (complete, pending, failed, expired). Care plans with two visits a week and three task types. Registered addresses in the synthetic Ghana grid. Family members marked as "may confirm" and "may not confirm". Check-in fixtures: inside the configured radius, just outside, far away, mock location on, GPS denied, no check-out.
 
-**Properties, tenants and repairs.** Managed properties with tenancy agreements, rent due dates and the owner's own account at the partner bank. Negative fixtures: rent account set to a Fidero fee account, to a staff member's account, to the tenant's account. Repair fixtures: two quotes, one quote, quote above budget, inspection photos present and missing.
+**Properties, tenants and repairs.** Managed properties with tenancy agreements, rent due dates and the owner's own account at the partner bank. Negative fixtures: rent account set to a Tenmina fee account, to a staff member's account, to the tenant's account. Repair fixtures: two quotes, one quote, quote above budget, inspection photos present and missing.
 
-**Errands and agents.** A catalogue of five errand types for Ghana and three for the synthetic test country, each with a checklist, official fees and Fidero's charge. Agencies with verified accounts. Negative fixtures: agent's personal account as payee, errand closed without a document, acknowledgement image reused from another errand.
+**Errands and agents.** A catalogue of five errand types for Ghana and three for the synthetic test country, each with a checklist, official fees and Tenmina's charge. Agencies with verified accounts. Negative fixtures: agent's personal account as payee, errand closed without a document, acknowledgement image reused from another errand.
 
 **Professionals and pay.** Synthetic lawyers, surveyors and runners for Ghana and Testland (inspectors, quantity surveyors and errand agents from R2), each with a signed agreement, a verified payee account in their own name and a tax status. Rate card versions with start dates either side of an assignment date. Testland tax rules use synthetic rates, never real ones (Q-25). Pairs of red and green reports signed by the same lawyer under the same card. Negative fixtures: a professional whose payee account is in a relative's name; a payee changed after a run was approved; a scope key or rate field naming a result; a receipt photo reused on two claims; a claim with no receipt; the same `work.accepted` event delivered twice and replayed with a new event ID; an operating account set to the escrow bank's account; a staff member who prepares and then tries to approve a run.
 
-**Insurer and event fixtures.** One synthetic insurer with two products and a sandbox or fake interface `[TO VERIFY]` (IF-11); premium account in the insurer's name; a negative fixture with the premium account set to a Fidero account. Event vendors with invoices, delivery notes and a signed quote for a deposit.
+**Insurer and event fixtures.** One synthetic insurer with two products and a sandbox or fake interface `[TO VERIFY]` (IF-11); premium account in the insurer's name; a negative fixture with the premium account set to a Tenmina account. Event vendors with invoices, delivery notes and a signed quote for a deposit.
 
 **Test country.** A synthetic second country, "Testland", with its own currency, templates, scope statement, overlay layers, licence bodies, holiday calendar, errand catalogue and data location. It is used for isolation tests from R1 so that no test depends on the real country-2 choice (Q-15). Country-2 fixtures are added when the founder confirms the country.
 
@@ -284,7 +284,7 @@ Levels: U unit, I integration, A API, E end-to-end web, M mobile, S security. Au
 
 | ID | Rule | Preconditions | Steps | Expected result | Level | Auto | Rel |
 |---|---|---|---|---|---|---|---|
-| TC-RUL-01-01 | RUL-01 | Escrow in Agreed state | Client opens the escrow payment page | Only the bank's account details and reference are shown. No Fidero account, card form or mobile money prompt appears | E | Y | R1 |
+| TC-RUL-01-01 | RUL-01 | Escrow in Agreed state | Client opens the escrow payment page | Only the bank's account details and reference are shown. No Tenmina account, card form or mobile money prompt appears | E | Y | R1 |
 | TC-RUL-01-02 | RUL-01 | API route inventory generated from the build | Scan every route, Celery task and payment provider product configuration for any intent that takes money other than a fee order | No route, task or provider product accepts purchase, construction or project money. Any new payment route fails the check unless it is linked to a fee order type | U/S | Y | R1 |
 | TC-RUL-01-03 | RUL-01 | Client with a fee order | Tamper the payment request to change order type to "escrow deposit" or amount to the purchase price | Request rejected with a validation error; no payment intent created; attempt audited | A/S | Y | R1 |
 | TC-RUL-01-04 | RUL-01 | Payment provider sandbox | Send a webhook for a payment that is not linked to a fee order | Payment flagged for refund review; no escrow state changes; alert raised | I | Y | R1 |
@@ -304,7 +304,7 @@ Levels: U unit, I integration, A API, E end-to-end web, M mobile, S security. Au
 | TC-RUL-07-05 | RUL-07 | Releases that are not purchases: an institution invoice, a care visit, an errand step, a repair, a project fund stage; no fresh-search case linked | Request release | Not blocked for a missing fresh search; all other checks still apply. A land, building, off-plan or listing purchase without one stays blocked (TC-RUL-07-03) | A | Y | R1 |
 | TC-RUL-11-01 | RUL-11 | Milestone Inspected (pass); client signed in | Client approves | Milestone moves to Client approved only. No instruction is sent until two staff approve | A/E | Y | R2 |
 | TC-RUL-11-02 | RUL-11 | Client signed in | Client calls the staff release-approval endpoint or sends a crafted request to send an instruction | 403; audited; no state change | A/S | Y | R1 |
-| TC-RUL-11-03 | RUL-11 | Client is also a Fidero staff member with release rights (test fixture) | Staff-client approves their own escrow as staff | Rejected: party to the escrow cannot approve its release | A/S | Y | R1 |
+| TC-RUL-11-03 | RUL-11 | Client is also a Tenmina staff member with release rights (test fixture) | Staff-client approves their own escrow as staff | Rejected: party to the escrow cannot approve its release | A/S | Y | R1 |
 | TC-RUL-11-04 | RUL-11 | Purchase escrow Ready to release; client has not approved | Two staff approve | Rejected: client approval missing; state stays Ready to release (01 C8 Escrow, Client approved) | A | Y | R1 |
 | TC-RUL-11-05 | RUL-11 | Milestone Inspected (pass); client silent past the configured reminder period | Run reminder job; try staff approval | Reminders sent; state stays Inspected; staff approval rejected; silence is never approval | A | Y | R2 |
 | TC-RUL-11-06 | RUL-11 | Property test | Random sequences of client, staff and bank events | Instruction is never generated without an explicit client approval event, or an active standing approval for a care visit or errand step, that is later than the last condition change | U | Y | R1 |
@@ -356,7 +356,7 @@ Levels: U unit, I integration, A API, E end-to-end web, M mobile, S security. Au
 | TC-RUL-09-02 | RUL-09 | Inspector pass with defects valued GHS X | Complete approvals | Instruction amount equals milestone amount minus X; X held | A | Y | R2 |
 | TC-RUL-09-03 | RUL-09 | Inspector fail, or no inspection recorded | Request release | Blocked | A | Y | R2 |
 | TC-RUL-09-04 | RUL-09 | Defects valued above milestone amount | Record outcome | Rejected or flagged for reviewer; never a negative release | U | Y | R2 |
-| TC-RUL-09-05 | RUL-09 | Milestone 0 (mobilisation); contract signed; Fidero staff member confirms site handover | Client approves; two staff approve | Release allowed without evidence or inspection (the RUL-09 exception) | A | Y | R2 |
+| TC-RUL-09-05 | RUL-09 | Milestone 0 (mobilisation); contract signed; Tenmina staff member confirms site handover | Client approves; two staff approve | Release allowed without evidence or inspection (the RUL-09 exception) | A | Y | R2 |
 | TC-RUL-09-06 | RUL-09 | Milestone 0; contract unsigned, or handover not confirmed, or confirmed by the contractor | Request release | Blocked; contractor cannot confirm handover | A | Y | R2 |
 | TC-RUL-09-07 | RUL-09 | Milestone 1 (foundation) with the mobilisation flag set by tampering | Request release without inspection | Blocked; the exception applies to milestone 0 only (property test over all milestones) | U/S | Y | R2 |
 | TC-RUL-10-01 | RUL-10 | Inspector with no recorded link to contractor | Assign | Allowed | A | Y | R2 |
@@ -405,26 +405,26 @@ These rules come from the redefinition in `docs/decisions/2026-11-01-diaspora-pl
 | TC-RUL-23-01 | RUL-23 | Carer checked in at the registered address, completed plan items, checked out; family member marked "may confirm" confirms with the one-tap code | Run carer payment | Visit confirmed; carer paid for that visit | A | Y | R2 |
 | TC-RUL-23-02 | RUL-23 | Carer self-confirming: carer enters the family confirmation code from their own device, or from a device registered to the carer | Confirm | Rejected; code accepted only from the family member's registered channel; flagged for reviewer | A/S | Y | R2 |
 | TC-RUL-23-03 | RUL-23 | Check-in missing, or outside the configured radius, or no check-out | Family confirms anyway | Visit marked "confirmed without check-in"; not payable until a reviewer decides; client alerted | A | Y | R2 |
-| TC-RUL-23-04 | RUL-23 | Check-in valid; family does not confirm within the configured period | Run payment | Not paid; client and Fidero alerted (FR-CARE-005); at 72 hours the visit goes to a reviewer, and it is paid only if the reviewer confirms it (FR-CARE-004) | A | Y | R2 |
+| TC-RUL-23-04 | RUL-23 | Check-in valid; family does not confirm within the configured period | Run payment | Not paid; client and Tenmina alerted (FR-CARE-005); at 72 hours the visit goes to a reviewer, and it is paid only if the reviewer confirms it (FR-CARE-004) | A | Y | R2 |
 | TC-RUL-23-05 | RUL-23 | Errand with steps recorded; resulting document not yet uploaded | Look for the agent's payable; request the next step's agency fee without its receipt | No payable for the agent until the document is uploaded and checked (FR-PRO-002); agency fees for official steps only against uploaded receipts (FR-TSK-003, FR-TSK-004) | A | Y | R2 |
 | TC-RUL-23-06 | RUL-23 | Agent uploads a document image already used on another errand | Confirm completion | Hash already seen; flagged; not confirmed | A/S | Y | R2 |
 | TC-RUL-24-01 | RUL-24 | Managed property; owner's own account at the partner bank recorded | Tenant pays rent; statement line imported | Rent marked received against the owner's account; owner sees it | I | Y | R2 |
-| TC-RUL-24-02 | RUL-24 | Rent routed to a Fidero account: staff or owner sets the rent account to a Fidero fee account, a staff member's account or any account not in the owner's name | Save | Rejected by deny list and name check; alert raised; audited | A/S | Y | R2 |
+| TC-RUL-24-02 | RUL-24 | Rent routed to a Tenmina account: staff or owner sets the rent account to a Tenmina fee account, a staff member's account or any account not in the owner's name | Save | Rejected by deny list and name check; alert raised; audited | A/S | Y | R2 |
 | TC-RUL-24-03 | RUL-24 | Build inventory | Scan routes, tasks and bank instruction templates for any path that receives rent | None exists; rent only ever appears as a statement line on the owner's account (extends TC-RUL-01-02) | U/S | Y | R2 |
-| TC-RUL-24-04 | RUL-24 | Tenant signed in | Tenant's rent page | Shows the owner's account at the partner bank and the agreement reference; never Fidero's details | E | Y | R2 |
+| TC-RUL-24-04 | RUL-24 | Tenant signed in | Tenant's rent page | Shows the owner's account at the partner bank and the agreement reference; never Tenmina's details | E | Y | R2 |
 | TC-RUL-25-01 | RUL-25 | Insurer partner verified; product configured | Client applies; premium instruction generated | Instruction names the insurer's account; policy page names the insurer as the policy holder's counterparty | A/E | Y | R2 |
-| TC-RUL-25-02 | RUL-25 | Premium collected by Fidero: administrator sets the premium account to a Fidero account, or a fee order type "premium" is created | Save; attempt payment | Rejected by deny list and order-type allow list; alert raised (extends TC-RUL-01-02) | A/S | Y | R2 |
+| TC-RUL-25-02 | RUL-25 | Premium collected by Tenmina: administrator sets the premium account to a Tenmina account, or a fee order type "premium" is created | Save; attempt payment | Rejected by deny list and order-type allow list; alert raised (extends TC-RUL-01-02) | A/S | Y | R2 |
 | TC-RUL-25-03 | RUL-25 | Claim started by client | Staff tries to record a claim decision | No function to decide; only the insurer's response can be recorded (FR-INS-004) | A | Y | R2 |
-| TC-RUL-25-04 | RUL-25 | Product page and policy document | Inspect text | The insurer's name appears; no wording presents Fidero as insurer; disclaimer text from a locked block | E | Y | R2 |
+| TC-RUL-25-04 | RUL-25 | Product page and policy document | Inspect text | The insurer's name appears; no wording presents Tenmina as insurer; disclaimer text from a locked block | E | Y | R2 |
 
 ### 3.6 Professional pay rules (RUL-26, RUL-27)
 
-From 01 v0.8. The threat is pay that bends with the verdict, or money that crosses between client escrow and Fidero's own account.
+From 01 v0.8. The threat is pay that bends with the verdict, or money that crosses between client escrow and Tenmina's own account.
 
 | ID | Rule | Preconditions | Steps | Expected result | Level | Auto | Rel |
 |---|---|---|---|---|---|---|---|
 | TC-RUL-26-01 | RUL-26 | Same lawyer, same rate card; one report released red, one green | Both legal sections pass second review | Two payables of equal amount; neither the payable nor the `work.accepted` event carries a verdict | A | Y | R1 |
-| TC-RUL-26-02 | RUL-26 | Abuse, verdict-linked rate: an administrator adds a rate for "red" or "pass", a scope key named after a result, or an extra outcome field | Save through UI and API; insert a scope key as `fidero_app` | Refused every time: no such field, unknown fields rejected, `pro_scope` insert denied; the CI schema test fails on any added rate column | A/S | Y | R1 |
+| TC-RUL-26-02 | RUL-26 | Abuse, verdict-linked rate: an administrator adds a rate for "red" or "pass", a scope key named after a result, or an extra outcome field | Save through UI and API; insert a scope key as `tenmina_app` | Refused every time: no such field, unknown fields rejected, `pro_scope` insert denied; the CI schema test fails on any added rate column | A/S | Y | R1 |
 | TC-RUL-26-03 | RUL-26 | Same inspector, same rate card; one inspection passed, one failed | Submit both checklists | Equal payables | A | Y | R2 |
 | TC-RUL-26-04 | RUL-26 | Abuse: a reviewer holds or cancels a payable because the report was red or the inspection failed | Hold or cancel with that reason | Refused; only a fraud or misconduct review is a hold reason; the attempt is audited | A | Y | R1 |
 | TC-RUL-26-05 | RUL-26 | Contract test on the `work.accepted` event schema | Add a verdict or outcome field on a test branch | The contract test fails the build | U | Y | R1 |
@@ -474,7 +474,7 @@ Each test case also verifies the acceptance criteria of the user story with the 
 | TC-ACC-010-01 | FR-ACC-010 | Notification preferences | Signed-in client | Set WhatsApp as preferred; turn off email for status | Next notification follows the preference | P2 | Y | R1 |
 | TC-ACC-011-01 | FR-ACC-011 | Organisation account with several users | Developer signed in | Create organisation; add two users | Users act for the organisation and see its listings | P2 | Y | R2 |
 | TC-ACC-011-02 | FR-ACC-011 | Institution and insurer organisations | Institution contact; insurer partner | Create organisation; add a second user; second user confirms an invoice or returns a policy | Both users act for the organisation; neither sees the client's other activity | P2 | Y | R2 |
-| TC-ACC-011-03 | FR-ACC-011 | Organisation user cannot change the organisation's bank account | Institution user | Edit verified account | Rejected; only Fidero re-verification changes it (FR-FEE-001, FR-ADM-003) | P2 | Y | R2 |
+| TC-ACC-011-03 | FR-ACC-011 | Organisation user cannot change the organisation's bank account | Institution user | Edit verified account | Rejected; only Tenmina re-verification changes it (FR-FEE-001, FR-ADM-003) | P2 | Y | R2 |
 | TC-ACC-012-01 | FR-ACC-012 | Family members, properties and institutions on one dashboard | Client with one case, one institution payment and one family member | Add a property; open home dashboard | All items listed with plain status and next date; nothing from other clients | P2 | Y | R1 |
 | TC-ACC-012-02 | FR-ACC-012 | Family member data limited | Client adds a family member | Enter relationship, address, phone; try to add health details not asked for | Only catalogued fields accepted (NFR-PRIV-02); family member notified that they were added `[TO VERIFY]` consent route | P2 | Y | R1 |
 | TC-ACC-012-03 | FR-ACC-012 | Dashboard on 3G phone | Client with 10 running items | Load on 3G profile | Under NFR-PERF-01 target; items paged | P2 | Y | R1 |
@@ -498,14 +498,14 @@ Each test case also verifies the acceptance criteria of the user story with the 
 | TC-ORD-006-02 | FR-ORD-006 | Self-referral and reused code | Client's own code | Apply own code | Rejected | P3 | Y | R1 |
 | TC-ORD-007-01 | FR-ORD-007 | Order extra inspection | Active project | Client orders extra inspection | Fee charged at configured price; inspection task created | P2 | Y | R2 |
 
-### 4.3 Payments for Fidero fees (PAY)
+### 4.3 Payments for Tenmina fees (PAY)
 
 | TC ID | FR | Title | Preconditions | Steps | Expected result | Pri | Auto | Rel |
 |---|---|---|---|---|---|---|---|---|
 | TC-PAY-001-01 | FR-PAY-001 | Pay by card and by mobile money | Sandbox | Pay with test card; pay with test mobile money wallet | Both confirmed; order paid | P1 | Y | R1 |
 | TC-PAY-001-02 | FR-PAY-001 | Declined, timeout and failed 3-D Secure | Sandbox | Use decline card; let mobile money time out; fail challenge | Order stays unpaid; plain message; retry allowed | P1 | Y | R1 |
-| TC-PAY-002-01 | FR-PAY-002 | Card data never reaches Fidero | Card payment done | Search database, logs, traces and backups for test card number | Not found; only provider token and last 4 digits if any | P1 | Y | R1 |
-| TC-PAY-002-02 | FR-PAY-002 | Card fields hosted by provider | Checkout page | Inspect page | Card entry is in provider-hosted field or redirect; no card field posts to Fidero | P1 | Y | R1 |
+| TC-PAY-002-01 | FR-PAY-002 | Card data never reaches Tenmina | Card payment done | Search database, logs, traces and backups for test card number | Not found; only provider token and last 4 digits if any | P1 | Y | R1 |
+| TC-PAY-002-02 | FR-PAY-002 | Card fields hosted by provider | Checkout page | Inspect page | Card entry is in provider-hosted field or redirect; no card field posts to Tenmina | P1 | Y | R1 |
 | TC-PAY-003-01 | FR-PAY-003 | Receipt by email and portal | Payment confirmed | Check email capture and portal | Receipt in both with amount, currency, date, reference | P1 | Y | R1 |
 | TC-PAY-003-02 | FR-PAY-003 | No receipt for failed payment | Payment failed | Check | No receipt issued | P1 | Y | R1 |
 | TC-PAY-004-01 | FR-PAY-004 | Refund with reason and approver | Paid order | Record refund | Refund stored with reason and approver; provider refund called | P2 | Y | R1 |
@@ -599,10 +599,10 @@ Each test case also verifies the acceptance criteria of the user story with the 
 |---|---|---|---|---|---|---|---|---|
 | TC-ESC-001-01 | FR-ESC-001 | Create escrow from report | Green report; identity passed | Create | Parties, asset, price, currency, bank ref, conditions copied | P1 | Y | R1 |
 | TC-ESC-001-02 | FR-ESC-001 | Invalid escrow | Missing bank ref; currency not configured; price zero | Create | Rejected | P1 | Y | R1 |
-| TC-ESC-002-01 | FR-ESC-002 | All parties accept terms | Proposed escrow | Client, seller, Fidero accept | Agreed; times and terms version stored | P1 | Y | R1 |
+| TC-ESC-002-01 | FR-ESC-002 | All parties accept terms | Proposed escrow | Client, seller, Tenmina accept | Agreed; times and terms version stored | P1 | Y | R1 |
 | TC-ESC-002-02 | FR-ESC-002 | Terms changed after acceptance | One party accepted v1; terms v2 issued | Check state | Earlier acceptance void; all must accept v2 | P1 | Y | R1 |
 | TC-ESC-003-01 | FR-ESC-003 | Bank payment instructions shown | Agreed escrow | Client opens pay page | Bank name, account and escrow reference from bank record | P1 | Y | R1 |
-| TC-ESC-003-02 | FR-ESC-003 | Fidero details never shown | Admin edits bank record to a Fidero account number from the fee account list | Save | Rejected by deny list; alert raised | P1 | Y | R1 |
+| TC-ESC-003-02 | FR-ESC-003 | Tenmina details never shown | Admin edits bank record to a Tenmina account number from the fee account list | Save | Rejected by deny list; alert raised | P1 | Y | R1 |
 | TC-ESC-004-01 | FR-ESC-004 | Deposit by manual entry with confirmation and second-person check | Agreed escrow | Case manager A enters deposit with bank letter; staff member B checks it | Funded only after B's check; letter linked; both names audited | P1 | Y | R1 |
 | TC-ESC-004-02 | FR-ESC-004 | Deposit without confirmation or wrong amount | Agreed escrow | Enter without attachment; enter amount different from price | Without attachment rejected; mismatch flagged for reviewer | P1 | Y | R1 |
 | TC-ESC-004-03 | FR-ESC-004 | Second person missing or the same person | Manual entry by A | A confirms own entry; no second check | Not Funded; entry stays pending; reminder to a second staff member (01 C2: a case manager cannot confirm their own entry) | P1 | Y | R1 |
@@ -684,7 +684,7 @@ Each test case also verifies the acceptance criteria of the user story with the 
 | TC-MOB-005-02 | FR-MOB-005 | Queue survives app kill and reboot | Queue with 10 items | Force stop; reboot phone; reopen | All items still queued and upload once | P1 | Y | R2 |
 | TC-MOB-005-03 | FR-MOB-005 | Connection drops mid-upload | Throttled network with drops | Upload 30 items | Resumes; no duplicates; no lost items | P1 | Y | R2 |
 | TC-MOB-005-04 | FR-MOB-005 | Background upload on iOS | iPhone, 10 items queued offline | Reconnect; send the app to the background and lock the phone | Uploads continue as background transfers or resume at the next launch; each item stored once; queue screen shows the state | P1 | P | R2 |
-| TC-MOB-005-05 | FR-MOB-005 | Queue survives termination by iOS | iPhone with 10 queued items | Let iOS end the app under memory pressure; force-quit; restart the phone; reopen | All items still queued and encrypted; force-quit shows "Open Fidero Field to finish sending"; all upload once after reopening | P1 | P | R2 |
+| TC-MOB-005-05 | FR-MOB-005 | Queue survives termination by iOS | iPhone with 10 queued items | Let iOS end the app under memory pressure; force-quit; restart the phone; reopen | All items still queued and encrypted; force-quit shows "Open Tenmina Field to finish sending"; all upload once after reopening | P1 | P | R2 |
 | TC-MOB-006-01 | FR-MOB-006 | Required evidence list | Foundation milestone | Open milestone | List matches milestone schedule; submit enabled when complete | P1 | Y | R2 |
 | TC-MOB-006-02 | FR-MOB-006 | Submission blocked when incomplete | One item missing | Submit in app; call API directly | Both blocked | P1 | Y | R2 |
 | TC-MOB-007-01 | FR-MOB-007 | Inspector records pass with defects | Inspector assigned | Complete checklist; add 2 defects with photos and values | Outcome stored with defect values | P1 | Y | R2 |
@@ -722,7 +722,7 @@ Tests run on both platforms unless the title names one. FR-APP-004 and FR-APP-00
 | TC-APP-003-02 | FR-APP-003 | New biometric enrolled | Biometric unlock on | Add a new fingerprint or face in the phone's settings; open the app | Biometric unlock refused; the client must sign in again | P1 | P | R2 |
 | TC-APP-003-03 | FR-APP-003 | Biometrics are not the second factor | Client unlocked with biometrics; escrow ready for approval | Approve without entering the second factor; replay the API call without a step-up | Refused with `mfa-required`; no approval recorded | P1 | Y | R2 |
 | TC-APP-004-01 | FR-APP-004 | Delete account in the client app | Client with no open money matters | Account, Delete my account; read the preview; confirm with the second factor | Preview lists what is deleted, what is kept, why and until when; sessions and push tokens revoked at once; deletion request recorded with source `app`; personal data deleted or anonymised by the sweep except kept classes | P1 | Y | R2 |
-| TC-APP-004-02 | FR-APP-004 | Delete account in Fidero Field | Contractor with signed evidence on past milestones | Delete the account in the app | Device keys revoked; sign-in ends; signed evidence kept with its case record under Object Lock; the preview said so | P1 | Y | R2 |
+| TC-APP-004-02 | FR-APP-004 | Delete account in Tenmina Field | Contractor with signed evidence on past milestones | Delete the account in the app | Device keys revoked; sign-in ends; signed evidence kept with its case record under Object Lock; the preview said so | P1 | Y | R2 |
 | TC-APP-004-03 | FR-APP-004 | Open escrow or legal hold | Client with an open escrow; another under a legal hold | Delete each account | Request recorded; account closed to new orders; user told what stays open; held records kept; no escrow cancelled by the deletion | P1 | Y | R2 |
 | TC-APP-004-04 | FR-APP-004 | Deletion reachable and protected | Fresh install, signed in | Find deletion from Account; try to confirm without the second factor | Reached in the app without email or a call; confirmation without the step-up refused where the user has MFA | P1 | P | R2 |
 | TC-APP-005-01 | FR-APP-005 | Fee paid on the web | Fee payment mode `web` | Pay a report fee from the app | System browser opens the portal payment page; on return the app shows the payment result and receipt | P1 | P | R2 |
@@ -730,7 +730,7 @@ Tests run on both platforms unless the title names one. FR-APP-004 and FR-APP-00
 | TC-APP-005-03 | FR-APP-005 | No purchase, construction or project money in the app | Escrow in Agreed; milestone funding due; project fund top-up | Open each; tamper an app payment call to a non-fee purpose | Only the bank's payment instructions shown; tampered call rejected and audited (RUL-01) | P1 | Y | R2 |
 | TC-APP-005-04 | FR-APP-005 | No store in-app purchase | Release builds of both apps on both platforms | Scan the builds and store configurations | No in-app purchase products or billing library present | P1 | Y | R2 |
 | TC-APP-006-01 | FR-APP-006 | Update required | App version below `min_app_version` for its platform | Start the app; call the API with the old version header | "Update required" screen with the right store link; API answers 426 `app-version-unsupported` | P1 | Y | R2 |
-| TC-APP-006-02 | FR-APP-006 | Queued evidence kept through a forced update | Fidero Field with 7 items queued; minimum raised above its version | Open the app; update from the store; reopen | All 7 items kept and uploaded; items captured before the raise accepted by the server | P1 | P | R2 |
+| TC-APP-006-02 | FR-APP-006 | Queued evidence kept through a forced update | Tenmina Field with 7 items queued; minimum raised above its version | Open the app; update from the store; reopen | All 7 items kept and uploaded; items captured before the raise accepted by the server | P1 | P | R2 |
 | TC-APP-006-03 | FR-APP-006 | Old version cannot add new evidence; raise needs two administrators | Old version after the raise; one administrator | Try to capture and upload a new item; one administrator raises the minimum alone | New capture blocked until update; an item signed after the raise refused; the raise waits for a second administrator | P1 | Y | R2 |
 
 ### 4.10 Construction, off-plan and buildings (BLD)
@@ -901,7 +901,7 @@ Tests run on both platforms unless the title names one. FR-APP-004 and FR-APP-00
 | TC-DPR-003-02 | FR-DPR-003 | Export leaks other people's data | Person on a case with others | Export | Only that person's data; third parties redacted | P1 | Y | R1 |
 | TC-DPR-004-01 | FR-DPR-004 | Retention applied | Items past period | Run job | Deleted or anonymised per class | P1 | Y | R1 |
 | TC-DPR-004-02 | FR-DPR-004 | Legal hold respected | Item past period with hold | Run job | Kept; hold reason logged | P1 | Y | R1 |
-| TC-DPR-004-03 | FR-DPR-004 | Data classes added in 01 C5.2 | Health and care, tenancy, identity document and insurance items past their periods; identity documents from an errand past the configured days after handover | Run job | Each class follows its own configured period `[TO VERIFY]`; identity documents deleted from Fidero storage after handover; health and care data stored under its own encryption key | P1 | Y | R2 |
+| TC-DPR-004-03 | FR-DPR-004 | Data classes added in 01 C5.2 | Health and care, tenancy, identity document and insurance items past their periods; identity documents from an errand past the configured days after handover | Run job | Each class follows its own configured period `[TO VERIFY]`; identity documents deleted from Tenmina storage after handover; health and care data stored under its own encryption key | P1 | Y | R2 |
 | TC-DPR-005-01 | FR-DPR-005 | Bulk export with two approvals | Admins A and B | A requests; B approves | Export produced, logged, link expires | P1 | Y | R1 |
 | TC-DPR-005-02 | FR-DPR-005 | Single-person bulk export | Admin A | Approve own request; use CSV export to pull all clients | Blocked; ANL export cannot exceed role or size limit | P1 | Y | R1 |
 
@@ -953,7 +953,7 @@ The R1 money line for family supporters (P-15). Every test here also serves RUL-
 | TC-FEE-001-04 | FR-FEE-001 | Duplicate and look-alike institutions | Institution already verified | Register the same registration number again; register a name one letter different with a different account | Duplicate linked to the existing record; look-alike flagged for a reviewer (TC-SEC-33) | P1 | Y | R1 |
 | TC-FEE-001-05 | FR-FEE-001 | All institution types | School, hospital, clinic, pharmacy, government agency, utility | Register one of each | Each type available with its own fields; same verification steps | P1 | Y | R1 |
 | TC-FEE-002-01 | FR-FEE-002 | Client uploads an invoice | Verified institution; family member on account | Upload invoice with reference | Invoice stored, hashed, linked to institution and family member; checks pass | P1 | Y | R1 |
-| TC-FEE-002-02 | FR-FEE-002 | Institution submits an invoice to Fidero's reference | Institution contact signed in (R2) or file received (R1 manual upload by staff, IF-10) | Submit | Invoice linked to the right client and family member by reference; client notified; nothing shown to the institution beyond its own invoices | P1 | Y | R1 |
+| TC-FEE-002-02 | FR-FEE-002 | Institution submits an invoice to Tenmina's reference | Institution contact signed in (R2) or file received (R1 manual upload by staff, IF-10) | Submit | Invoice linked to the right client and family member by reference; client notified; nothing shown to the institution beyond its own invoices | P1 | Y | R1 |
 | TC-FEE-002-03 | FR-FEE-002 | Invoice fails the checks | Invoice names a different patient or student; institution name differs; amount altered after upload; reference reused | Submit each | Each flagged with reason; cannot be approved until a staff member resolves it (TC-SEC-34) | P1 | Y | R1 |
 | TC-FEE-003-01 | FR-FEE-003 | Client approves and pays into the partner bank | Checked invoice | Client approves; bank payment instructions shown; deposit confirmed | Payment page shows the bank's details only (TC-RUL-01-01); after deposit, two staff approve; instruction names the institution's verified account | P1 | Y | R1 |
 | TC-FEE-003-02 | FR-FEE-003 | Payment to any other account blocked | Checked invoice | Change payee to the family member, the client's representative or an unverified account, through UI and API | Rejected (TC-RUL-22-02, TC-RUL-22-05); audited | P1 | Y | R1 |
@@ -964,7 +964,7 @@ The R1 money line for family supporters (P-15). Every test here also serves RUL-
 | TC-FEE-004-03 | FR-FEE-004 | Confirmation of enrolment or treatment only with the institution's agreement | Institution flagged "does not share confirmations" | Request confirmation | Not requested; client sees receipt only; no health detail stored | P1 | Y | R1 |
 | TC-FEE-005-01 | FR-FEE-005 | Recurring fee schedule with approval each time | Per-term schedule | Clock to reminder date; client approves; pay | Reminder sent; payment only after this term's approval; schedule advances | P2 | Y | R1 |
 | TC-FEE-005-02 | FR-FEE-005 | No approval, no payment | Schedule due; client silent | Clock past due date | Nothing paid; reminders sent; silence is never approval (RUL-11) | P2 | Y | R1 |
-| TC-FEE-006-01 | FR-FEE-006 | Institution marked not eligible for direct payment | Institution that cannot receive a bank transfer into an account in its own name | Case manager records it; reviewer checks; client opens the institution and tries to pay an invoice | Marked "Not eligible for direct payment" with the reason; client told plainly that Fidero cannot pay it and never pays cash; no invoice for it can be checked, approved or instructed | P2 | Y | R1 |
+| TC-FEE-006-01 | FR-FEE-006 | Institution marked not eligible for direct payment | Institution that cannot receive a bank transfer into an account in its own name | Case manager records it; reviewer checks; client opens the institution and tries to pay an invoice | Marked "Not eligible for direct payment" with the reason; client told plainly that Tenmina cannot pay it and never pays cash; no invoice for it can be checked, approved or instructed | P2 | Y | R1 |
 | TC-FEE-006-02 | FR-FEE-006 | No cash path exists | Build inventory; a not-eligible institution | Scan UI, API routes, tasks, instruction templates and settings for any cash, voucher or in-person payment; try to create a release to a runner | None exists; any release naming a runner is blocked (TC-RUL-22-07) | P1 | Y | R1 |
 | TC-FEE-006-03 | FR-FEE-006 | Runner collects an invoice and delivers a receipt | Eligible institution that hands out invoices and receipts on paper only | Runner task to collect the invoice; normal payment by bank transfer; runner task to deliver the receipt | Both tasks carry no amount; the collected invoice goes through the normal checks; the receipt is delivered and recorded with evidence; no money passes through the runner | P2 | Y | R1 |
 | TC-FEE-007-01 | FR-FEE-007 | Statement per family member | Family member with 3 invoices, 2 payments, 2 receipts | Open statement | Invoices, payments, receipts and the amount held at the bank correct; totals match the escrow tracker | P1 | Y | R1 |
@@ -990,9 +990,9 @@ Safety of a vulnerable person is the impact here. Tests that affect safety alert
 | TC-CARE-004-04 | FR-CARE-004 | Confirmation code guessed | Attacker tries codes | Enter 4, then 5, then 6 wrong codes; then the right code | Accepted attempts up to 4; locked at the 5th wrong attempt; the right code is refused once locked; family offered the app or a call; alert (TC-SEC-37) | P1 | Y | R2 |
 | TC-CARE-004-05 | FR-CARE-004 | Call confirmation needs a second staff check | Family confirms by phone | Staff member A records the call; A tries to check it; staff member B checks it | Not payable on A's record alone; A cannot check their own record; payable after B checks | P1 | Y | R2 |
 | TC-CARE-004-06 | FR-CARE-004 | Unconfirmed visit goes to a reviewer at 72 hours | Visit checked out; no confirmation | Clock to 71 and 72 hours after check-out; reviewer decides with the check-in evidence and a call to the family | At 71 hours no change; at 72 hours in the reviewer's queue; "confirmed" makes it payable, "not confirmed" means no payment; a decision without a note of the evidence and the call is rejected | P1 | Y | R2 |
-| TC-CARE-005-01 | FR-CARE-005 | Missed, late and unconfirmed visit alerts | Scheduled visit | No check-in by schedule plus grace; check-in late; no confirmation after 24 hours | Client and Fidero alerted in each case within the configured time; alert names the person and plan | P1 | Y | R2 |
+| TC-CARE-005-01 | FR-CARE-005 | Missed, late and unconfirmed visit alerts | Scheduled visit | No check-in by schedule plus grace; check-in late; no confirmation after 24 hours | Client and Tenmina alerted in each case within the configured time; alert names the person and plan | P1 | Y | R2 |
 | TC-CARE-005-02 | FR-CARE-005 | No false alerts and no missed alerts | Visit on time and confirmed; alert job fails once | Run | No alert for the good visit; failed job retried and alert still sent (property test on schedules across holidays and time zones) | P1 | Y | R2 |
-| TC-CARE-006-01 | FR-CARE-006 | Carer raises a concern | Carer on a visit | Raise health, safety or welfare concern with a note and photo | Client and a Fidero reviewer notified the same day; concern in a restricted log; follow-up task created | P1 | Y | R2 |
+| TC-CARE-006-01 | FR-CARE-006 | Carer raises a concern | Carer on a visit | Raise health, safety or welfare concern with a note and photo | Client and a Tenmina reviewer notified the same day; concern in a restricted log; follow-up task created | P1 | Y | R2 |
 | TC-CARE-006-02 | FR-CARE-006 | Concern not visible to the wrong people | Concern raised | Tenant, other carers, institution contact, other clients | Not visible; 404 | P1 | Y | R2 |
 
 ### 4.23 Property management (PMG)
@@ -1002,10 +1002,10 @@ Safety of a vulnerable person is the impact here. Tests that affect safety alert
 | TC-PMG-001-01 | FR-PMG-001 | Register a property and record its condition | Owner signed in | Register house in Tema; inspector records condition with photos | Property registered; inspection report with app-captured photos before management starts | P2 | Y | R2 |
 | TC-PMG-001-02 | FR-PMG-001 | Management cannot start without an inspection | Property registered; no inspection | Add tenant | Blocked until the condition inspection is recorded | P2 | Y | R2 |
 | TC-PMG-002-01 | FR-PMG-002 | Tenant, agreement, rent and owner's account recorded | Property inspected | Enter tenant, agreement, rent, owner's account at the partner bank | Recorded; account verified in the owner's name; tenant sees agreement and rent account | P1 | Y | R2 |
-| TC-PMG-002-02 | FR-PMG-002 | Rent account not in the owner's name | Property | Enter a Fidero account, a staff account, the tenant's account, an uncle's account | Rejected each time (TC-RUL-24-02) | P1 | Y | R2 |
+| TC-PMG-002-02 | FR-PMG-002 | Rent account not in the owner's name | Property | Enter a Tenmina account, a staff account, the tenant's account, an uncle's account | Rejected each time (TC-RUL-24-02) | P1 | Y | R2 |
 | TC-PMG-002-03 | FR-PMG-002 | Agreement missing | Property | Add tenant without an agreement document | Rejected | P1 | Y | R2 |
 | TC-PMG-003-01 | FR-PMG-003 | Rent due and received | Statement fixture with the tenant's payment | Import statement | Rent marked received on the right month; owner's timeline updated | P1 | Y | R2 |
-| TC-PMG-003-02 | FR-PMG-003 | Late rent alert | Due date passed; no line | Run job | Owner and Fidero alerted; no alert when paid on time (boundary: due date, one day after) | P1 | Y | R2 |
+| TC-PMG-003-02 | FR-PMG-003 | Late rent alert | Due date passed; no line | Run job | Owner and Tenmina alerted; no alert when paid on time (boundary: due date, one day after) | P1 | Y | R2 |
 | TC-PMG-003-03 | FR-PMG-003 | Statement lines for that account only | Statement file with lines for the owner's rent account and for another account | Import | Only the rent account's lines are read; lines for any other account are refused at import and not logged in full | P1 | P | R2 |
 | TC-PMG-003-04 | FR-PMG-003 | No written mandate, no matching | Owner has not signed the written mandate allowing the bank to share the lines | Import a statement; run matching | Nothing is read or matched; owner asked to sign the mandate; rent shows "Not yet confirmed by the bank" | P1 | Y | R2 |
 | TC-PMG-004-01 | FR-PMG-004 | Repair with two quotes and owner approval | Tenant reports a leak | Two vetted contractors quote; owner approves one | Repair approved with the chosen quote; money request created | P2 | Y | R2 |
@@ -1019,21 +1019,21 @@ Safety of a vulnerable person is the impact here. Tests that affect safety alert
 
 | TC ID | FR | Title | Preconditions | Steps | Expected result | Pri | Auto | Rel |
 |---|---|---|---|---|---|---|---|---|
-| TC-TSK-001-01 | FR-TSK-001 | Errand catalogue per country | Ghana and Testland catalogues | Client in each country opens catalogue | Own country's errands only, each with checklist, official fees, Fidero's charge and target time | P2 | Y | R2 |
+| TC-TSK-001-01 | FR-TSK-001 | Errand catalogue per country | Ghana and Testland catalogues | Client in each country opens catalogue | Own country's errands only, each with checklist, official fees, Tenmina's charge and target time | P2 | Y | R2 |
 | TC-TSK-001-02 | FR-TSK-001 | Catalogue item incomplete | Admin | Publish an errand without fees or checklist | Rejected | P2 | Y | R2 |
-| TC-TSK-002-01 | FR-TSK-002 | Upload checklist documents and pay | Errand ordered | Upload each document; pay official fees into the partner bank and Fidero's charge by card or mobile money through the payment provider | Documents hashed and linked; official fees: bank details only (RUL-01); Fidero's charge: provider receipt, never paid into the partner bank; errand funded after bank confirmation | P1 | Y | R2 |
-| TC-TSK-002-02 | FR-TSK-002 | Checklist incomplete or payment short | Errand ordered | Omit one document; deposit less than the official fees; Fidero's charge payment fails | Errand cannot be assigned; client told what is missing | P1 | Y | R2 |
+| TC-TSK-002-01 | FR-TSK-002 | Upload checklist documents and pay | Errand ordered | Upload each document; pay official fees into the partner bank and Tenmina's charge by card or mobile money through the payment provider | Documents hashed and linked; official fees: bank details only (RUL-01); Tenmina's charge: provider receipt, never paid into the partner bank; errand funded after bank confirmation | P1 | Y | R2 |
+| TC-TSK-002-02 | FR-TSK-002 | Checklist incomplete or payment short | Errand ordered | Omit one document; deposit less than the official fees; Tenmina's charge payment fails | Errand cannot be assigned; client told what is missing | P1 | Y | R2 |
 | TC-TSK-002-03 | FR-TSK-002 | Identity documents protected | Documents uploaded | Agent, other clients and institution contact try to open them | Agent sees only the documents the step needs, by signed link; others 404 | P1 | Y | R2 |
-| TC-TSK-002-04 | FR-TSK-002 | Each payment by its own route | Errand ordered | Pay Fidero's charge into the held-funds account; pay official fees through the payment provider | Both refused: Fidero's charge only through the provider (FR-PAY-005), official fees only into the partner bank (RUL-01) | P1 | Y | R2 |
+| TC-TSK-002-04 | FR-TSK-002 | Each payment by its own route | Errand ordered | Pay Tenmina's charge into the held-funds account; pay official fees through the payment provider | Both refused: Tenmina's charge only through the provider (FR-PAY-005), official fees only into the partner bank (RUL-01) | P1 | Y | R2 |
 | TC-TSK-003-01 | FR-TSK-003 | Vetted agent assigned; fees paid to the agency | Funded errand; agency verified | Assign; agent lodges application; receipt uploaded | Official fee instruction names the agency's verified account; step recorded with receipt | P1 | Y | R2 |
 | TC-TSK-003-02 | FR-TSK-003 | Fee to the agent or an unverified agency | Funded errand | Payee set to the agent's personal account; agency unverified | Blocked (RUL-22); agent asking for cash recorded as a flag | P1 | Y | R2 |
 | TC-TSK-003-03 | FR-TSK-003 | Unvetted agent | Agent vetting pending | Assign | Blocked | P1 | Y | R2 |
 | TC-TSK-003-04 | FR-TSK-003 | Step without receipt | Agent marks step done | No receipt or acknowledgement attached | Step not recorded as done; client status unchanged | P1 | Y | R2 |
 | TC-TSK-003-05 | FR-TSK-003 | Step fee under a standing approval | Errand with an active standing approval up to a monthly amount | Prepare a step fee within the amount, then one above it | Within: no new client approval; receipt and two staff approvals still required. Above: the client must approve that fee (TC-RUL-11-08) | P1 | Y | R2 |
-| TC-TSK-003-06 | FR-TSK-003 | Agent paid by Fidero, not from client money | Errand complete; document checked | Run payables and a payment run; try a release from the errand's held funds to the agent | Agent's payable at the per-errand rate, paid in a payment run from the operating account; the release is refused (TC-RUL-27-02) | P1 | Y | R2 |
+| TC-TSK-003-06 | FR-TSK-003 | Agent paid by Tenmina, not from client money | Errand complete; document checked | Run payables and a payment run; try a release from the errand's held funds to the agent | Agent's payable at the per-errand rate, paid in a payment run from the operating account; the release is refused (TC-RUL-27-02) | P1 | Y | R2 |
 | TC-TSK-003-07 | FR-TSK-003 | Agent without an agreement | Vetted agent with no active agreement or verified payee | Assign | Refused: an agent needs an agreement and a verified payee before assignment (FR-PRO-001) | P1 | Y | R2 |
 | TC-TSK-004-01 | FR-TSK-004 | Completion confirmed by the resulting document | All steps done | Agent uploads the new Ghana Card image; staff check it | Errand Complete; the agent's payable is created (FR-PRO-002); client notified | P1 | Y | R2 |
-| TC-TSK-004-02 | FR-TSK-004 | Completion without the document or without Fidero's check | Steps done | Agent marks complete with no document; document uploaded but unchecked | Not Complete in either case (TC-RUL-23-05) | P1 | Y | R2 |
+| TC-TSK-004-02 | FR-TSK-004 | Completion without the document or without Tenmina's check | Steps done | Agent marks complete with no document; document uploaded but unchecked | Not Complete in either case (TC-RUL-23-05) | P1 | Y | R2 |
 | TC-TSK-004-03 | FR-TSK-004 | Reused or altered document | Document image reused from another errand; image metadata altered | Upload | Flagged; not confirmed (TC-RUL-23-06) | P1 | Y | R2 |
 | TC-TSK-005-01 | FR-TSK-005 | Handover recorded | Errand complete | Hand to the representative with signature; courier with photo of the waybill | Handover stored with signature or photo and time; client sees it | P2 | Y | R2 |
 | TC-TSK-005-02 | FR-TSK-005 | Handover to an unnamed person | Errand complete | Record handover to someone not the named representative or courier | Rejected | P2 | Y | R2 |
@@ -1044,14 +1044,14 @@ Safety of a vulnerable person is the impact here. Tests that affect safety alert
 |---|---|---|---|---|---|---|---|---|
 | TC-INS-001-01 | FR-INS-001 | Products shown as the insurer's | Insurer configured with two products | Client opens cover page | Insurer's name, policy terms and "this policy is issued by" text shown for each product (TC-RUL-25-04) | P3 | Y | R2 |
 | TC-INS-001-02 | FR-INS-001 | Unlicensed or unconfigured insurer | Insurer without licence record for the country | Publish product | Rejected (C-11) | P3 | Y | R2 |
-| TC-INS-002-01 | FR-INS-002 | Application passed to the insurer; premium to the insurer's account | Client applies | Submit; pay premium | Application sent to the insurer (IF-11); premium instruction names the insurer's verified account; nothing enters a Fidero account | P1 | Y | R2 |
-| TC-INS-002-02 | FR-INS-002 | Premium to Fidero blocked | Admin or staff | Set premium account to a Fidero account; create a fee order of type "premium" | Rejected (TC-RUL-25-02) | P1 | Y | R2 |
+| TC-INS-002-01 | FR-INS-002 | Application passed to the insurer; premium to the insurer's account | Client applies | Submit; pay premium | Application sent to the insurer (IF-11); premium instruction names the insurer's verified account; nothing enters a Tenmina account | P1 | Y | R2 |
+| TC-INS-002-02 | FR-INS-002 | Premium to Tenmina blocked | Admin or staff | Set premium account to a Tenmina account; create a fee order of type "premium" | Rejected (TC-RUL-25-02) | P1 | Y | R2 |
 | TC-INS-002-03 | FR-INS-002 | Application data goes to the right insurer only | Two insurers configured | Apply for insurer A's product | Insurer B cannot see the application; insurer A sees only applicants for its products | P1 | Y | R2 |
-| TC-INS-002-04 | FR-INS-002 | Both premium routes | Policy A: the client pays the insurer directly. Policy B: the bank pays the insurer from money held for that purpose | Pay a premium on each | A: client shown the insurer's account only; no Fidero instruction. B: instruction from the money held, payee the insurer's verified account, client approval and two staff approvals. Neither route touches a Fidero account | P1 | Y | R2 |
+| TC-INS-002-04 | FR-INS-002 | Both premium routes | Policy A: the client pays the insurer directly. Policy B: the bank pays the insurer from money held for that purpose | Pay a premium on each | A: client shown the insurer's account only; no Tenmina instruction. B: instruction from the money held, payee the insurer's verified account, client approval and two staff approvals. Neither route touches a Tenmina account | P1 | Y | R2 |
 | TC-INS-003-01 | FR-INS-003 | Policy document, renewal and claim contact stored | Policy issued | Insurer returns policy | Document hashed and shown; renewal reminder sent at the configured lead time; claim contact shown | P2 | Y | R2 |
-| TC-INS-003-02 | FR-INS-003 | Renewal lapses | Renewal date passed; no premium | Clock past date | Policy shown as lapsed per the insurer's response; no cover implied by Fidero | P2 | Y | R2 |
-| TC-INS-004-01 | FR-INS-004 | Client starts a claim; insurer's response tracked | Active policy | Start claim; insurer records outcome | Claim status follows the insurer's responses; Fidero records only | P3 | Y | R2 |
-| TC-INS-004-02 | FR-INS-004 | Fidero cannot decide a claim | Open claim | Staff tries to approve or pay a claim | No such function (TC-RUL-25-03) | P1 | Y | R2 |
+| TC-INS-003-02 | FR-INS-003 | Renewal lapses | Renewal date passed; no premium | Clock past date | Policy shown as lapsed per the insurer's response; no cover implied by Tenmina | P2 | Y | R2 |
+| TC-INS-004-01 | FR-INS-004 | Client starts a claim; insurer's response tracked | Active policy | Start claim; insurer records outcome | Claim status follows the insurer's responses; Tenmina records only | P3 | Y | R2 |
+| TC-INS-004-02 | FR-INS-004 | Tenmina cannot decide a claim | Open claim | Staff tries to approve or pay a claim | No such function (TC-RUL-25-03) | P1 | Y | R2 |
 
 ### 4.26 Events and ceremonies (EVT)
 
@@ -1161,7 +1161,7 @@ Concurrency: every money-moving transition is also tested with two parallel requ
 | ID | From | To | Valid | Steps | Expected result | Auto | Rel |
 |---|---|---|---|---|---|---|---|
 | TC-STM-MIL-01 | Not started | Submitted | Yes | Contractor submits complete evidence | Submitted | Y | R2 |
-| TC-STM-MIL-02 | Submitted | Evidence checked | Yes | No flags; Fidero accepts | Evidence checked | Y | R2 |
+| TC-STM-MIL-02 | Submitted | Evidence checked | Yes | No flags; Tenmina accepts | Evidence checked | Y | R2 |
 | TC-STM-MIL-03 | Submitted | Evidence checked | Yes | Flags present; reviewer clears each | Evidence checked; reviewer recorded | Y | R2 |
 | TC-STM-MIL-04 | Submitted | Returned | Yes | Evidence incomplete or flag upheld | Returned with reasons | Y | R2 |
 | TC-STM-MIL-05 | Returned | Submitted | Yes | Contractor resubmits | Submitted; resubmission count and earlier reasons kept | Y | R2 |
@@ -1171,7 +1171,7 @@ Concurrency: every money-moving transition is also tested with two parallel requ
 | TC-STM-MIL-09 | Inspected (pass, pass with defects) | Client approved | Yes | Client approves; re-priced amount shown (RUL-18) | Client approved | Y | R2 |
 | TC-STM-MIL-10 | Client approved | Release approved | Yes | Two staff approve | Release approved | Y | R2 |
 | TC-STM-MIL-11 | Release approved | Paid | Yes | Bank confirms | Paid; any defect value stays held (FR-BLD-006); dashboard updated | Y | R2 |
-| TC-STM-MIL-12 | Not started (milestone 0, mobilisation) | Client approved | Yes | Contract signed; Fidero staff confirm site handover | Client approved without evidence or inspection (RUL-09 exception); then normal staff approvals | Y | R2 |
+| TC-STM-MIL-12 | Not started (milestone 0, mobilisation) | Client approved | Yes | Contract signed; Tenmina staff confirm site handover | Client approved without evidence or inspection (RUL-09 exception); then normal staff approvals | Y | R2 |
 | TC-STM-MIL-13 | Any before Paid | Frozen | Yes | Dispute opened, from each state | Frozen; origin recorded; scheduled inspection kept or cancelled per reviewer | Y | R2 |
 | TC-STM-MIL-14 | Frozen | The state it came from | Yes | Dispute resolved | Returns to origin; approvals re-checked | Y | R2 |
 | TC-STM-MIL-15 | Inspected (pass) | Inspected (pass) | Yes (no change) | Client silent past the configured reminder period (Q-13) | Stays Inspected; reminders sent; silence is never approval (RUL-11); escalation per Q-13 `[TO VERIFY]` | Y | R2 |
@@ -1238,7 +1238,7 @@ Concurrency: every money-moving transition is also tested with two parallel requ
 
 ## 6. End-to-end journey tests
 
-Run in Playwright on staging against provider sandboxes. Mobile steps in J-03, J-05, J-10, J-11 and J-12 run with the field app on an emulator or real device. Each journey has a happy path (`-01`) and unhappy paths. J-09 to J-12 come from the redefinition in `docs/decisions/2026-11-01-diaspora-platform.md`; their unhappy paths are the abuse cases that matter most: money reaching a relative, a visit or errand that did not happen, and rent or premiums touching a Fidero account.
+Run in Playwright on staging against provider sandboxes. Mobile steps in J-03, J-05, J-10, J-11 and J-12 run with the field app on an emulator or real device. Each journey has a happy path (`-01`) and unhappy paths. J-09 to J-12 come from the redefinition in `docs/decisions/2026-11-01-diaspora-platform.md`; their unhappy paths are the abuse cases that matter most: money reaching a relative, a visit or errand that did not happen, and rent or premiums touching a Tenmina account.
 
 | ID | Journey | Scenario | Personas | Steps (short) | Expected result | Auto | Rel |
 |---|---|---|---|---|---|---|---|
@@ -1250,7 +1250,7 @@ Run in Playwright on staging against provider sandboxes. Mobile steps in J-03, J
 | TC-E2E-J01-06 | J-01 | Reviewer returns report | P-04 | Reviewer returns with comments | Case back in progress; lawyer's approval cleared; client status unchanged in tone | Y | R1 |
 | TC-E2E-J01-07 | J-01 | Slow, dropping connection | P-01 | Run J01-01 on 3G profile with a forced drop during site plan upload | Upload resumes or retries cleanly; no duplicate order; under NFR-PERF-01 targets | Y | R1 |
 | TC-E2E-J01-08 | J-01 | Disputed plot site visit | P-03, P-06, P-07 | Plot flagged disputed | Visit cannot be assigned until risk screen and two people | Y | R1 |
-| TC-E2E-J02-01 | J-02 | Purchase through escrow, released | P-01, P-03, P-04, seller | Choose escrow; conditions copied; all accept; bank deposit recorded; fresh search; close conditions; two approvals; instruction; bank confirms | Every step visible to client; client never sees Fidero account details; release confirmed | Y | R1 |
+| TC-E2E-J02-01 | J-02 | Purchase through escrow, released | P-01, P-03, P-04, seller | Choose escrow; conditions copied; all accept; bank deposit recorded; fresh search; close conditions; two approvals; instruction; bank confirms | Every step visible to client; client never sees Tenmina account details; release confirmed | Y | R1 |
 | TC-E2E-J02-02 | J-02 | Open condition blocks | P-03, P-04 | Leave consent condition open; try approval | Blocked with condition named | Y | R1 |
 | TC-E2E-J02-03 | J-02 | Fresh search stale | P-03 | Move clock past window | Blocked; new fresh-search case ordered; release after it | Y | R1 |
 | TC-E2E-J02-04 | J-02 | Only one approver available | P-04 | One approval; wait | Not sent; reminder to second approver; nothing reaches bank | Y | R1 |
@@ -1283,26 +1283,26 @@ Run in Playwright on staging against provider sandboxes. Mobile steps in J-03, J
 | TC-E2E-J08-01 | J-08 | Existing building verified | P-01 | Order building check; extra steps done | Report includes permit, structural, occupancy, rates and bills | Y | R1 |
 | TC-E2E-J08-02 | J-08 | Tenant found | P-01, P-03 | Tenancy found | Amber with vacant possession condition | Y | R1 |
 | TC-E2E-J08-03 | J-08 | Release needs keys and vacant possession | P-03, P-04 | Close all but vacant possession | Release blocked until keys and vacant possession evidence closed | Y | R1 |
-| TC-E2E-J09-01 | J-09 | Pay a hospital bill directly, receipt returned | P-15, P-03, P-04, institution contact | Add mother and hospital; staff verify institution; upload bill; checks pass; Kwabena approves; pays partner bank; two staff approve; bank pays hospital; receipt uploaded | Every step on the dashboard; hospital's account only; receipt on the family member statement; no Fidero account shown | Y | R1 |
+| TC-E2E-J09-01 | J-09 | Pay a hospital bill directly, receipt returned | P-15, P-03, P-04, institution contact | Add mother and hospital; staff verify institution; upload bill; checks pass; Kwabena approves; pays partner bank; two staff approve; bank pays hospital; receipt uploaded | Every step on the dashboard; hospital's account only; receipt on the family member statement; no Tenmina account shown | Y | R1 |
 | TC-E2E-J09-02 | J-09 | School fees each term | P-15 | Set per-term schedule; two terms pass | Reminder each term; payment only after approval; enrolment confirmation returned where the school agrees | Y | R1 |
 | TC-E2E-J09-03 | J-09 | Payee account name mismatch | P-15, P-03 | Institution's account name is a person's name | Verification fails; invoice cannot be approved; client told why in plain words | Y | R1 |
 | TC-E2E-J09-04 | J-09 | Fake institution | Attacker as "institution" | Register a clinic with a copied name and a registration number from another body | Verification fails; look-alike flagged; nothing payable (TC-SEC-33) | Y | R1 |
 | TC-E2E-J09-05 | J-09 | Invoice for the wrong patient or altered | P-15 | Upload a bill naming another patient; upload a bill with the amount edited | Both flagged; approval blocked until staff resolve; original hash kept (TC-SEC-34) | Y | R1 |
 | TC-E2E-J09-06 | J-09 | Receipt never returned | P-03 | Payment confirmed; institution silent past the target | Payment marked receipt overdue; chase task; client told; metric updated | Y | R1 |
-| TC-E2E-J09-07 | J-09 | Institution takes cash only | P-15, P-03 | Kwabena adds a pharmacy that cannot receive a bank transfer | Marked not eligible for direct payment; Kwabena told plainly that Fidero cannot pay it and never pays cash; no cash or runner payment offered; no invoice can be approved for it (FR-FEE-006) | P | R1 |
-| TC-E2E-J09-08 | J-09 | Family member asks for money instead | P-15 | Kwabena tries to add his nephew as a payee | Rejected: Fidero pays institutions only; plain explanation (RUL-22) | Y | R1 |
+| TC-E2E-J09-07 | J-09 | Institution takes cash only | P-15, P-03 | Kwabena adds a pharmacy that cannot receive a bank transfer | Marked not eligible for direct payment; Kwabena told plainly that Tenmina cannot pay it and never pays cash; no cash or runner payment offered; no invoice can be approved for it (FR-FEE-006) | P | R1 |
+| TC-E2E-J09-08 | J-09 | Family member asks for money instead | P-15 | Kwabena tries to add his nephew as a payee | Rejected: Tenmina pays institutions only; plain explanation (RUL-22) | Y | R1 |
 | TC-E2E-J10-01 | J-10 | Care visits confirmed and paid | P-15, P-17, family member, P-03 | Create care plan; vetted carer assigned; carer checks in, completes items, photos, checks out; mother confirms with one-tap code; carer paid for confirmed visits | Dashboard shows each visit with time, items and photos; carer paid only for confirmed visits | P | R2 |
 | TC-E2E-J10-02 | J-10 | Carer confirms own visit | P-17 | Carer enters the family code from own phone | Rejected; flagged; client told (TC-RUL-23-02) | Y | R2 |
-| TC-E2E-J10-03 | J-10 | Missed visit | P-15 | Carer does not check in | Alert to Kwabena and Fidero within the configured time; visit not paid; replacement visit offered | Y | R2 |
+| TC-E2E-J10-03 | J-10 | Missed visit | P-15 | Carer does not check in | Alert to Kwabena and Tenmina within the configured time; visit not paid; replacement visit offered | Y | R2 |
 | TC-E2E-J10-04 | J-10 | Check-in from the wrong place | P-17 | Mock location at the address while 3 km away | Flagged; visit not payable without review (TC-SEC-36) | P | R2 |
-| TC-E2E-J10-05 | J-10 | Family does not confirm | Family member | No confirmation within the configured period | Visit unconfirmed; carer not paid; client and Fidero alerted; reviewer decides | Y | R2 |
+| TC-E2E-J10-05 | J-10 | Family does not confirm | Family member | No confirmation within the configured period | Visit unconfirmed; carer not paid; client and Tenmina alerted; reviewer decides | Y | R2 |
 | TC-E2E-J10-06 | J-10 | Carer raises a welfare concern | P-17, P-04 | Carer finds the mother unwell | Client and reviewer notified same day; concern in restricted log; follow-up recorded | Y | R2 |
 | TC-E2E-J10-07 | J-10 | Carer's vetting lapses mid-plan | P-03 | Background check expires | Assignments suspended; family told who the replacement is; no visit by the lapsed carer is payable | Y | R2 |
-| TC-E2E-J11-01 | J-11 | Property managed: rent to owner, repair paid after inspection | P-16, tenant, P-09, P-08, P-03, P-04 | Register house; condition inspection; tenant and agreement; rent account is Akosua's own; rent lines imported; repair reported; two quotes; Akosua approves; money held; work inspected; two staff approve; contractor paid | Dashboard shows rent received, repair, inspection and photo timeline; rent never touches Fidero | P | R2 |
-| TC-E2E-J11-02 | J-11 | Rent routed to a Fidero account | Staff | Set rent account to a Fidero fee account | Rejected; alert (TC-RUL-24-02) | Y | R2 |
+| TC-E2E-J11-01 | J-11 | Property managed: rent to owner, repair paid after inspection | P-16, tenant, P-09, P-08, P-03, P-04 | Register house; condition inspection; tenant and agreement; rent account is Akosua's own; rent lines imported; repair reported; two quotes; Akosua approves; money held; work inspected; two staff approve; contractor paid | Dashboard shows rent received, repair, inspection and photo timeline; rent never touches Tenmina | P | R2 |
+| TC-E2E-J11-02 | J-11 | Rent routed to a Tenmina account | Staff | Set rent account to a Tenmina fee account | Rejected; alert (TC-RUL-24-02) | Y | R2 |
 | TC-E2E-J11-03 | J-11 | Rent routed to the uncle | P-16 | Enter the uncle's account as the rent account | Rejected: account must be in the owner's name | Y | R2 |
 | TC-E2E-J11-04 | J-11 | Repair with one quote or without inspection | P-03 | Approve with one quote; release before inspection | Both blocked | Y | R2 |
-| TC-E2E-J11-05 | J-11 | Late rent | Tenant | No rent line by due date | Owner and Fidero alerted; tenant reminded | Y | R2 |
+| TC-E2E-J11-05 | J-11 | Late rent | Tenant | No rent line by due date | Owner and Tenmina alerted; tenant reminded | Y | R2 |
 | TC-E2E-J11-06 | J-11 | Tenant tries to see owner data | Tenant | Open owner's dashboard, other properties, repair quotes | 404 | Y | R2 |
 | TC-E2E-J12-01 | J-12 | Ghana Card renewal and title application lodged | P-01, P-17, P-03 | Order two errands; checklist and fees shown; upload documents; pay into partner bank; agent lodges; fees paid to the agency; receipts uploaded; finished document uploaded and checked; handover to representative | Each step in plain language; agency paid only; completion only on the checked document | P | R2 |
 | TC-E2E-J12-02 | J-12 | Agent asks for cash or own account as payee | P-17 | Payee set to the agent | Rejected (RUL-22); flagged | Y | R2 |
@@ -1405,9 +1405,9 @@ Security testing is threat-driven. The main threats are people who want money re
 | TC-SEC-36 | Carer check-in GPS spoofing | FR-MOB-012, FR-CARE-003, RUL-23 | Mock location app; replay of an earlier check-in payload; check-in from a second device at the address while the carer is elsewhere | Mock location detected and flagged; replayed payload rejected (nonce and server time); device not matching the carer's registered device flagged; visit not payable without review; network position cross-check where possible | P | R2 |
 | TC-SEC-37 | Family confirmation code brute force or theft | FR-CARE-004, RUL-23 | Enumerate one-tap codes; reuse a code from an earlier visit; enter the code from the carer's device or IP; intercept the SMS carrying the code `[TO VERIFY]` channel | Code locked after 5 wrong attempts (FR-CARE-004) and rate limited per visit and per device; codes single-use and bound to the visit; code accepted only from the family member's registered channel; alert on lockout | Y | R2 |
 | TC-SEC-38 | Cross-country data access through infrastructure and jobs | FR-CTY-002, NFR-PRIV-01 | Inspect backups, search indexes, analytics stores, log pipelines, retention and reminder jobs for Testland data in Ghana stores and the reverse | No cross-country copy; jobs scoped per country; data location register matches reality | P | R2 |
-| TC-SEC-39 | Rent or premium diverted to a Fidero or staff account | RUL-24, RUL-25, FR-PMG-002, FR-INS-002 | Set the rent or premium account to a Fidero fee account, a staff account or an account with a near-match name; create a fee order type for rent or premium | Rejected by deny list, name check and order-type allow list; alert raised | Y | R2 |
+| TC-SEC-39 | Rent or premium diverted to a Tenmina or staff account | RUL-24, RUL-25, FR-PMG-002, FR-INS-002 | Set the rent or premium account to a Tenmina fee account, a staff account or an account with a near-match name; create a fee order type for rent or premium | Rejected by deny list, name check and order-type allow list; alert raised | Y | R2 |
 | TC-SEC-40 | Vulnerable person's data exposed: care plan, address, health readings | FR-CARE-001, FR-CARE-003, FR-CARE-006, FR-ACC-007 | Access as every role other than the client, the assigned carer and the reviewer; search exports; notification content | Refused; readings and concerns never in SMS, WhatsApp or push (FR-NTF-004); family address shown to the assigned carer only for the visit window | Y | R2 |
-| TC-SEC-41 | Fake or modified Fidero Field registers a device | FR-MOB-004, NFR-STORE-01 | Re-sign the Android build and side-load it; run on an emulator; run an iOS development build; replay a captured attestation | Registration refused (`attestation-failed`); replayed challenge rejected; attempt logged and alerted per platform | P | R2 |
+| TC-SEC-41 | Fake or modified Tenmina Field registers a device | FR-MOB-004, NFR-STORE-01 | Re-sign the Android build and side-load it; run on an emulator; run an iOS development build; replay a captured attestation | Registration refused (`attestation-failed`); replayed challenge rejected; attempt logged and alerted per platform | P | R2 |
 | TC-SEC-42 | Lock-screen push leaks money or family details | FR-APP-002, FR-NTF-004 | Trigger every push template with maximum content; read lock screen and notification centre on both platforms | Generic text only; no amount above the threshold, report content, names of family members or bank details | Y | R2 |
 | TC-SEC-43 | Deep link abuse | FR-APP-001, FR-APP-002 | Open approval and case links from another app, another user's session and a look-alike custom scheme; tamper IDs | App checks the session and permissions; opening never approves; other users' objects return not found; only verified Universal Links and App Links open the app | Y | R2 |
 | TC-SEC-44 | Stolen unlocked phone approves a payment | FR-APP-003, FR-ACC-003 | Use an unlocked phone with the client app open; try every approval type | Every approval asks for the second factor; biometric unlock alone approves nothing | Y | R2 |
@@ -1517,7 +1517,7 @@ Tools: Android emulator network shaping, Network Link Conditioner on iOS, a netw
 
 | Trial | When | Who | Where | Exit criterion |
 |---|---|---|---|---|
-| Internal field trial | R2 beta, first 4 weeks (assumption) | Fidero field staff, 2 surveyors, 2 runners | 3 sites in Greater Accra and Central Region with known poor signal `[TO VERIFY]` sites | All P1 mobile tests pass in the field; no lost evidence |
+| Internal field trial | R2 beta, first 4 weeks (assumption) | Tenmina field staff, 2 surveyors, 2 runners | 3 sites in Greater Accra and Central Region with known poor signal `[TO VERIFY]` sites | All P1 mobile tests pass in the field; no lost evidence |
 | Contractor pilot | After internal trial | 3 to 5 vetted contractors on real builds `[TO VERIFY]` | Real build sites | Each submits at least 2 milestones; time to submit recorded; contractor feedback logged |
 | Inspector pilot | Same period | 2 to 3 independent inspectors | Same sites | Checklists completed in app; defects valued; no paper fallback needed |
 | Carer field trial | R2 beta, 4 weeks (assumption), after Q-19 vetting and care plan content are set | 3 to 5 vetted carers; 3 to 5 families who consent, recruited from R1 clients with a recurring institution payment `[TO VERIFY]` | Family homes in Greater Accra and Kumasi `[TO VERIFY]` | At least 20 visits completed; every visit has check-in, items, agreed photos and check-out; family confirmation rate and time measured; zero unconfirmed visits paid; carers and families understand the confirmation step; no safety incident |
@@ -1529,7 +1529,7 @@ Field trial rules:
 - Every field visit follows the risk screen (RUL-17). Trials do not use disputed plots.
 - Test devices carry no personal data apart from the trial users' own sign-in.
 - Contractors, inspectors, carers, agents and the families in the carer trial sign a consent and data agreement. Families may withdraw at any time and their data is deleted at the end of the trial.
-- The carer trial pays carers for confirmed visits at the normal rate (assumption). It never leaves a vulnerable person without a visit because of a test: a missed test visit is made up by Fidero staff the same day.
+- The carer trial pays carers for confirmed visits at the normal rate (assumption). It never leaves a vulnerable person without a visit because of a test: a missed test visit is made up by Tenmina staff the same day.
 - Findings become defects with photos and device logs attached.
 
 ### 9.5 App store acceptance (R2)
@@ -1542,7 +1542,7 @@ Both apps must pass Apple App Store review and Google Play review at every relea
 | TC-STORE-02 | Play internal testing build | CI builds both apps for Android with Play App Signing and uploads to internal testing; testers install on the Android minimum device | Both builds install and run against staging; signing certificate digest matches the one the server expects (02 section 8.2) | Y | R2 |
 | TC-STORE-03 | Store review checklist against NFR-STORE-01 | Walk the checklist for each app: account deletion in the app, fees outside in-app purchase, privacy policy and support links, permission purpose texts, demo account and review notes, financial features declaration, no hidden features, minimum OS | Every item met, with a screenshot or link as evidence | N | R2 |
 | TC-STORE-04 | Privacy label and Data safety match | Generate disclosures from the data catalogue; capture each app's network traffic on staging over a full regression run; compare with the submitted label and form | Every data type the app sends is declared with the right purpose; nothing declared is missing from the catalogue | P | R2 |
-| TC-STORE-05 | Account deletion as a reviewer would test it | Fresh install; sign up (client app) or accept an invitation (Fidero Field); delete the account inside the app | Deletion starts in the app with no email or call; the kept-data statement shows; sign-in fails afterwards (TC-APP-004-01) | Y | R2 |
+| TC-STORE-05 | Account deletion as a reviewer would test it | Fresh install; sign up (client app) or accept an invitation (Tenmina Field); delete the account inside the app | Deletion starts in the app with no email or call; the kept-data statement shows; sign-in fails afterwards (TC-APP-004-01) | Y | R2 |
 | TC-STORE-06 | Minimum-version prompt | Install the previous build from the test track; raise `min_app_version` on staging; open the app | Update screen with the correct store link on each platform; queued evidence kept (TC-APP-006-02) | Y | R2 |
 | TC-STORE-07 | Oldest supported OS | Run the P1 smoke suite of both apps on Android 8.0 and iOS 15 `[TO VERIFY]` | All pass; any failure blocks submission or raises the minimum through change control (NFR-STORE-02) | P | R2 |
 
@@ -1552,7 +1552,7 @@ Both apps must pass Apple App Store review and Google Play review at every relea
 
 ### 10.1 Accessibility testing (NFR-A11Y-01, WCAG 2.2 AA)
 
-Scope: portal, back office and listing pages from R1. From R2, both apps, Fidero and Fidero Field, on iOS and Android: NFR-A11Y-01 requires the same level for the apps, using Android's and Apple's accessibility guidance. Android is checked with Accessibility Scanner, TalkBack, font scaling to 200% and Espresso accessibility checks; iOS with Accessibility Inspector, VoiceOver, the largest Dynamic Type size, Bold Text and Reduce Motion. Each WCAG 2.2 AA criterion is mapped to a platform check or marked as not applicable to a native app (see section 16 on how conformance is claimed for the apps).
+Scope: portal, back office and listing pages from R1. From R2, both apps, Tenmina and Tenmina Field, on iOS and Android: NFR-A11Y-01 requires the same level for the apps, using Android's and Apple's accessibility guidance. Android is checked with Accessibility Scanner, TalkBack, font scaling to 200% and Espresso accessibility checks; iOS with Accessibility Inspector, VoiceOver, the largest Dynamic Type size, Bold Text and Reduce Motion. Each WCAG 2.2 AA criterion is mapped to a platform check or marked as not applicable to a native app (see section 16 on how conformance is claimed for the apps).
 
 Method:
 
@@ -1573,7 +1573,7 @@ Pass criterion: no open AA failure on any P1 journey. Other AA failures need a f
 
 | Item | Plan |
 |---|---|
-| Participants | 5 diaspora users who have never used Fidero, recruited through associations in at least two countries. Mix of ages and phone types. Not Fidero staff or relatives |
+| Participants | 5 diaspora users who have never used Tenmina, recruited through associations in at least two countries. Mix of ages and phone types. Not Tenmina staff or relatives |
 | Device | Participant's own phone, own network |
 | Environment | staging with sandbox payment and a test card supplied in the session |
 | Task | "You want a plot near Kasoa checked before you pay the seller. Order a report." Participant receives a fixture site plan and seller details beforehand |
@@ -1581,7 +1581,7 @@ Pass criterion: no open AA failure on any P1 journey. Other AA failures need a f
 | Timer | From opening the portal link to seeing the order confirmation and case reference |
 | Pass | At least 4 of the 5 complete without help, and the median time of the completed runs is under 10 minutes (NFR-USE-01) |
 | Also measured | Errors, hesitations over 30 seconds, understanding of tier choice, scope statement and price, confidence score (1 to 5) |
-| Second task (R1, informal) | "Pay your mother's hospital bill through Fidero." Same method with 5 family supporters (P-15). No pass target in 01; results feed the FEE flow design and are reported with the main test |
+| Second task (R1, informal) | "Pay your mother's hospital bill through Tenmina." Same method with 5 family supporters (P-15). No pass target in 01; results feed the FEE flow design and are reported with the main test |
 | When | Prototype stage (informal), R1 beta (formal), and after any change to the order flow |
 | Output | Short report with times, issues, severity and fixes. Failures become S2 defects if they block the task |
 
@@ -1594,7 +1594,7 @@ Supporting checks: TC-NFR-USE-02-01 and TC-NFR-USE-02-02 for status message plai
 ### 11.1 UAT approach
 
 - UAT runs on staging with a release candidate that has passed system test exit criteria.
-- Real people act as each persona. Where a real partner is not yet signed, a Fidero staff member plays the role and this is noted on the sign-off.
+- Real people act as each persona. Where a real partner is not yet signed, a Tenmina staff member plays the role and this is noted on the sign-off.
 - Participants follow scripted scenarios, then spend time on free use.
 - Each scenario is accepted, accepted with minor issues, or rejected. A rejection needs a defect ID.
 - UAT lasts 2 weeks per release (assumption). The product owner chairs a daily 15-minute triage.
@@ -1605,8 +1605,8 @@ Supporting checks: TC-NFR-USE-02-01 and TC-NFR-USE-02-02 for status message plai
 |---|---|---|
 | P-01 Diaspora buyer | 3 to 5 real diaspora clients from the R0 service, with consent | R1, R2 |
 | P-02 Local buyer | 2 local clients from the R0 service | R1 |
-| P-03 Case manager | Fidero operations staff | R1, R2, R3 |
-| P-04 Reviewer | Fidero senior reviewer | R1, R2, R3 |
+| P-03 Case manager | Tenmina operations staff | R1, R2, R3 |
+| P-04 Reviewer | Tenmina senior reviewer | R1, R2, R3 |
 | P-05 Lawyer | Contracted lawyer from R0, who is also paid through the platform from R1 | R1 |
 | P-06 Surveyor | Contracted surveyor from R0 | R1 |
 | P-07 Runner | Contracted runner from R0 | R1, R2 |
@@ -1616,7 +1616,7 @@ Supporting checks: TC-NFR-USE-02-01 and TC-NFR-USE-02-02 for status message plai
 | P-11 Family head or stool secretary | 1 authority partner `[TO VERIFY]` | R3 |
 | P-12 Bank credit officer | Partner bank staff `[TO VERIFY]` | R2 |
 | P-13 Project fund owner | 1 or 2 diaspora clients | R2 |
-| P-14 Administrator | Fidero administrator | R1, R2, R3 |
+| P-14 Administrator | Tenmina administrator | R1, R2, R3 |
 | P-15 Family supporter | 3 to 5 diaspora clients who paid institution fees by hand in R0, with consent | R1, R2 |
 | P-16 Property owner abroad | 1 or 2 diaspora clients with a rented property `[TO VERIFY]` | R2 |
 | P-17 Carer or errand agent | 2 vetted carers and 1 or 2 errand agents from the field trials | R2 |
@@ -1656,7 +1656,7 @@ Supporting checks: TC-NFR-USE-02-01 and TC-NFR-USE-02-02 for status message plai
 | UAT-25 | Pay a parent's hospital bill directly from abroad | P-15 | J-09, F-29, RUL-22 | Institution added and verified; bill uploaded and approved on a phone; bank details only; receipt appears on the family statement; participant understands why a relative cannot be paid | R1 |
 | UAT-26 | Set up and run a term's school fees | P-15, institution contact | J-09, F-29 | Reminder arrives; approval needed each term; school receives payment to its own account and returns receipt and enrolment confirmation | R1 |
 | UAT-27 | Confirm an invoice and return a receipt as an institution | Institution contact | FR-FEE-002, FR-FEE-004, IF-10 | Contact can confirm the invoice and return the receipt with no access to the client's other activity; the steps fit the institution's own process | R1 (manual upload), R2 (portal) |
-| UAT-28 | See everything running at home in one place | P-15, P-01 | F-35, FR-ACC-012 | Case, payments, visits and property on one dashboard with plain status; nothing confusing about what Fidero does and does not do | R1 |
+| UAT-28 | See everything running at home in one place | P-15, P-01 | F-35, FR-ACC-012 | Case, payments, visits and property on one dashboard with plain status; nothing confusing about what Tenmina does and does not do | R1 |
 | UAT-29 | Arrange care visits for a parent and get proof | P-15, family member | J-10, F-30, RUL-23 | Care plan set up; family knows who to expect; each visit shows check-in, items and photos; family confirms with one tap; participant trusts the proof | R2 |
 | UAT-30 | Do a care visit as a carer | P-17 | J-10, FR-CARE-003, FR-MOB-012 | Carer checks in, completes the plan and checks out on own phone without help; understands why an unconfirmed visit is not paid; can raise a concern | R2 |
 | UAT-31 | Have a rented house managed from abroad | P-16, tenant | J-11, F-31, RUL-24 | Rent arrives in the owner's own account and shows on the timeline; repair needs two quotes and inspection; tenant can report a repair and see the agreement, nothing else | R2 |
@@ -1664,20 +1664,20 @@ Supporting checks: TC-NFR-USE-02-01 and TC-NFR-USE-02-02 for status message plai
 | UAT-33 | Buy health or funeral cover for a relative through an insurer partner | P-15, insurer partner | F-33, RUL-25 | Policy clearly the insurer's; premium paid to the insurer; policy document and claim contact on the dashboard; insurer receives the application in a usable form | R2 |
 | UAT-34 | Approve a bank detail change and a release-affecting setting as two administrators | P-14 (two people) | FR-ADM-003, FR-ADM-005 | One administrator cannot apply either change alone; pending changes visible; old values used until approval | R1 |
 | UAT-35 | Fund a family event with vendors paid against evidence | P-15 | F-34 | Vendors verified; deposits against signed quotes; final payments against invoices and delivery evidence; budget against actual clear | R3 |
-| UAT-36 | Pay a parent's hospital bill from the Fidero app on your own phone | P-15 | J-09, F-36, FR-APP-001, FR-APP-002 | App installed from the participant's own store; push for the new invoice understood; invoice approved with the second factor; receipt appears on the statement in the app; participant names the hospital as payee | R2 |
+| UAT-36 | Pay a parent's hospital bill from the Tenmina app on your own phone | P-15 | J-09, F-36, FR-APP-001, FR-APP-002 | App installed from the participant's own store; push for the new invoice understood; invoice approved with the second factor; receipt appears on the statement in the app; participant names the hospital as payee | R2 |
 | UAT-37 | Follow a build and approve a milestone in the app | P-01 | J-03, F-36, FR-APP-001, FR-APP-003 | Photos, inspector result and re-priced amount clear on the phone; biometric unlock opens the app; the approval still asks for the code; participant knows the client cannot release alone | R2 |
 | UAT-38 | Delete your account from the app | P-01 or P-15 | FR-APP-004 | Participant finds deletion without help; understands what is kept and why; with an open item, understands that the account closes when it ends | R2 |
-| UAT-39 | Pay Fidero's fee from the app | P-02 | FR-APP-005, FR-PAY-001 | Fee paid by the route the stores allow (web page or provider in the app) without confusion; receipt in the app; participant knows purchase money goes to the bank, never through the app | R2 |
-| UAT-40 | Capture and submit a milestone with Fidero Field on an iPhone | P-08 | J-03, FR-MOB-001, FR-MOB-004 | Same flow as UAT-13 on an iPhone; evidence arrives signed; contractor understands "Open Fidero Field to finish sending" after a force-quit | R2 |
+| UAT-39 | Pay Tenmina's fee from the app | P-02 | FR-APP-005, FR-PAY-001 | Fee paid by the route the stores allow (web page or provider in the app) without confusion; receipt in the app; participant knows purchase money goes to the bank, never through the app | R2 |
+| UAT-40 | Capture and submit a milestone with Tenmina Field on an iPhone | P-08 | J-03, FR-MOB-001, FR-MOB-004 | Same flow as UAT-13 on an iPhone; evidence arrives signed; contractor understands "Open Tenmina Field to finish sending" after a force-quit | R2 |
 | UAT-41 | See my pay as a lawyer | P-05 | F-37, FR-PRO-002, FR-PRO-007, RUL-26 | Lawyer finds the payable for each signed section after second review; understands gross, tax and net and the due date; sees no verdict next to any amount; finds the remittance advice after the run | R1 |
 | UAT-42 | See my pay and claim a travel expense as a surveyor | P-06 | F-37, FR-PRO-002, FR-PRO-004, FR-PRO-008 | Site visit and section payables visible; an expense claimed from the phone with a receipt photo; the limit understood; status followed to paid. The expense part runs when US-PRO-004 ships (document 04) | R1 |
-| UAT-43 | See my monthly pay as a runner | P-07 | F-37, FR-PRO-002, FR-PRO-006, FR-PRO-007 | The month's payable appears when the month is closed; paid to the runner's own account from Fidero's account; remittance advice understood on a basic phone's browser | R1 |
+| UAT-43 | See my monthly pay as a runner | P-07 | F-37, FR-PRO-002, FR-PRO-006, FR-PRO-007 | The month's payable appears when the month is closed; paid to the runner's own account from Tenmina's account; remittance advice understood on a basic phone's browser | R1 |
 | UAT-44 | Prepare and approve a payment run as two staff | P-03, P-04 | FR-PRO-005, FR-PRO-006, RUL-27 | The preparer cannot approve; the approver sees totals, payees and items left out with reasons; the file uploads in the bank's portal with no manual correction | R1 |
 
 ### 11.4 UAT sign-off form
 
 ```
-FIDERO UAT SIGN-OFF
+TENMINA UAT SIGN-OFF
 
 Release:              R_   Release candidate build: ________
 Scenario ID(s):       UAT-__
@@ -1729,19 +1729,19 @@ Run with the partner bank or licensed escrow agent once the agreement is signed 
 
 | ID | Test | Steps | Pass criterion | Rel |
 |---|---|---|---|---|
-| PAT-01 | Release instruction format | Fidero sends 5 test instructions in the agreed format on the bank's test channel | Bank's system or staff accepts all 5 with no manual correction | R1 |
+| PAT-01 | Release instruction format | Tenmina sends 5 test instructions in the agreed format on the bank's test channel | Bank's system or staff accepts all 5 with no manual correction | R1 |
 | PAT-02 | Instruction signatures | Bank verifies approver signatures and names on each test instruction | Bank confirms the check works; a deliberately altered instruction is rejected by the bank | R1 |
 | PAT-03 | Instruction channel and acknowledgement | Send by the agreed channel; bank acknowledges | Acknowledgement recorded within the agreed time `[TO VERIFY]`; duplicate send is recognised by the bank as a duplicate | R1 |
 | PAT-04 | Deposit confirmation | Bank sends test deposit confirmations | Each matched to the right escrow; manual entry procedure accepted by the bank | R1 |
-| PAT-05 | Refund and cancellation instruction | Send a test cancellation | Bank processes and confirms; Fidero records Cancelled | R1 |
+| PAT-05 | Refund and cancellation instruction | Send a test cancellation | Bank processes and confirms; Tenmina records Cancelled | R1 |
 | PAT-06 | Statement file reconciliation | Bank supplies statement files for 10 test days, including edge cases from section 2.7 | All matched lines correct; every unmatched line listed; totals reconcile to the bank's closing balances | R2 |
 | PAT-07 | Bank API (if offered) | Run deposit and release status calls | Contract tests pass against bank sandbox; error and timeout handling agreed | R2 |
 | PAT-08 | Partial releases | Send milestone partial instructions | Bank pays partial amounts and reports balances that match the tracker | R2 |
 | PAT-09 | Cut-off times and holidays | Send instructions near cut-off and on a public holiday | Behaviour matches the agreement; client-facing dates correct | R1 |
 | PAT-10 | Bank sign-off | Bank's operations and compliance review results | Written acceptance from the bank | R1, R2 |
-| PAT-11 | Amount held at the bank with several small releases | Client deposits money; Fidero sends 5 small instructions over 5 test days to 3 institutions | Bank pays each to the named institution account; the amount the bank reports holding matches the running statement (FR-ESC-014) | R1 |
-| PAT-12 | Payee name check at the bank | Send a test instruction whose payee name does not match the account | Bank rejects or queries it; Fidero records the rejection; confirms whether the bank offers an account-name check, the first account-name source under FR-ESC-015 `[TO VERIFY]` | R1 |
-| PAT-13 | Owner's rent account | Tenant test payment to an owner's account at the bank; statement line supplied | Line matched to the tenancy; Fidero never receives the money; the bank confirms it will share that account's statement lines only, under the owner's written mandate (RUL-24, FR-PMG-003) | R2 |
+| PAT-11 | Amount held at the bank with several small releases | Client deposits money; Tenmina sends 5 small instructions over 5 test days to 3 institutions | Bank pays each to the named institution account; the amount the bank reports holding matches the running statement (FR-ESC-014) | R1 |
+| PAT-12 | Payee name check at the bank | Send a test instruction whose payee name does not match the account | Bank rejects or queries it; Tenmina records the rejection; confirms whether the bank offers an account-name check, the first account-name source under FR-ESC-015 `[TO VERIFY]` | R1 |
+| PAT-13 | Owner's rent account | Tenant test payment to an owner's account at the bank; statement line supplied | Line matched to the tenancy; Tenmina never receives the money; the bank confirms it will share that account's statement lines only, under the owner's written mandate (RUL-24, FR-PMG-003) | R2 |
 
 ### 11.7 Partner acceptance with an institution (PAT, receipt return)
 
@@ -1749,8 +1749,8 @@ Run with at least one school and one hospital that accept direct payment with an
 
 | ID | Test | Steps | Pass criterion | Rel |
 |---|---|---|---|---|
-| PAT-14 | Institution verification | Fidero verifies the institution's registration, account name and named contact with the institution | The institution confirms all three; the account is in the institution's name; the contact is a real role at the institution | R1 |
-| PAT-15 | Invoice reference and payment | Institution issues a test invoice; Fidero pays it through the bank with the reference | Institution matches the payment to the invoice without manual chasing; reference format agreed | R1 |
+| PAT-14 | Institution verification | Tenmina verifies the institution's registration, account name and named contact with the institution | The institution confirms all three; the account is in the institution's name; the contact is a real role at the institution | R1 |
+| PAT-15 | Invoice reference and payment | Institution issues a test invoice; Tenmina pays it through the bank with the reference | Institution matches the payment to the invoice without manual chasing; reference format agreed | R1 |
 | PAT-16 | Receipt return | Institution returns the receipt and, if it agrees, an enrolment or treatment confirmation | Receipt received within the agreed target `[TO VERIFY]` and linked to the payment; the institution's process for returning it is written down | R1 |
 | PAT-17 | Institution portal or file (if offered) | Institution submits an invoice and returns a receipt through the R2 interface | Contract tests pass; the institution contact sees only its own invoices | R2 |
 | PAT-18 | Institution sign-off | Institution's finance lead reviews | Written acceptance that the process fits their rules | R1 |
@@ -1761,23 +1761,23 @@ Run with the first licensed insurer partner per country (Q-17, AS-11, C-11) `[TO
 
 | ID | Test | Steps | Pass criterion | Rel |
 |---|---|---|---|---|
-| PAT-19 | Product presentation | Insurer reviews the product pages and policy wording as shown by Fidero | Insurer confirms the policy is presented as its own and the wording is approved (RUL-25) | R2 |
-| PAT-20 | Application hand-off | Fidero sends 5 test applications through IF-11 | Insurer receives complete applications; data fields agreed; nothing missing or extra | R2 |
-| PAT-21 | Premium routing | For each route in FR-INS-002 the insurer accepts: the client pays a test premium directly to the insurer; the bank pays a test premium from money held for that purpose | Premium lands in the insurer's account; nothing enters a Fidero account; insurer confirms receipt and policy issue | R2 |
+| PAT-19 | Product presentation | Insurer reviews the product pages and policy wording as shown by Tenmina | Insurer confirms the policy is presented as its own and the wording is approved (RUL-25) | R2 |
+| PAT-20 | Application hand-off | Tenmina sends 5 test applications through IF-11 | Insurer receives complete applications; data fields agreed; nothing missing or extra | R2 |
+| PAT-21 | Premium routing | For each route in FR-INS-002 the insurer accepts: the client pays a test premium directly to the insurer; the bank pays a test premium from money held for that purpose | Premium lands in the insurer's account; nothing enters a Tenmina account; insurer confirms receipt and policy issue | R2 |
 | PAT-22 | Policy and claim return | Insurer returns the policy document, renewal date and a test claim outcome | Documents hashed and shown to the client; claim outcome recorded as the insurer's decision | R2 |
-| PAT-23 | Insurer and licence sign-off | Insurer's compliance reviews; lawyer confirms Fidero's intermediary position for the country | Written acceptance from the insurer; lawyer's note on C-11 | R2 |
+| PAT-23 | Insurer and licence sign-off | Insurer's compliance reviews; lawyer confirms Tenmina's intermediary position for the country | Written acceptance from the insurer; lawyer's note on C-11 | R2 |
 
 Other partners get a shorter acceptance: the payment provider (sandbox to live switch, settlement file), the identity provider (pass, fail, manual review), messaging providers (delivery reports, sender ID), agencies for errands (fee account verification, receipt format), and partner API customers (UAT-20 plus their own integration test).
 
-### 11.9 Partner acceptance with Fidero's operating bank (PAT, bulk payment file)
+### 11.9 Partner acceptance with Tenmina's operating bank (PAT, bulk payment file)
 
-Run with the bank, and the mobile money provider if runners are paid that way, that hold Fidero's operating account (Q-26) `[TO VERIFY]`, before the first payment run on the platform. This is Fidero's own money, not client money.
+Run with the bank, and the mobile money provider if runners are paid that way, that hold Tenmina's operating account (Q-26) `[TO VERIFY]`, before the first payment run on the platform. This is Tenmina's own money, not client money.
 
 | ID | Test | Steps | Pass criterion | Rel |
 |---|---|---|---|---|
-| PAT-24 | Bulk file format | Fidero produces a 10-line test run in the agreed format; the bank validates it on its test or pilot channel | Accepted with no manual correction; a file with a wrong total or checksum is rejected | R1 |
-| PAT-25 | Upload and dual authorisation | A named staff member uploads; where the bank offers it, a second bank user authorises | The bank's portal enforces its control; the uploaded file's hash equals the one Fidero stored | R1 |
-| PAT-26 | Confirmation file | The bank returns a confirmation for the test run with one failed line (closed account) and one name query | Fidero matches every line; the failed line shows the bank's reason; nothing is paid twice | R1 |
+| PAT-24 | Bulk file format | Tenmina produces a 10-line test run in the agreed format; the bank validates it on its test or pilot channel | Accepted with no manual correction; a file with a wrong total or checksum is rejected | R1 |
+| PAT-25 | Upload and dual authorisation | A named staff member uploads; where the bank offers it, a second bank user authorises | The bank's portal enforces its control; the uploaded file's hash equals the one Tenmina stored | R1 |
+| PAT-26 | Confirmation file | The bank returns a confirmation for the test run with one failed line (closed account) and one name query | Tenmina matches every line; the failed line shows the bank's reason; nothing is paid twice | R1 |
 | PAT-27 | Mobile money bulk file, if used | PAT-24 to PAT-26 with the mobile money provider | Same criteria | R1 `[TO VERIFY]` |
 | PAT-28 | Separation and sign-off | The bank confirms the operating account is separate from every escrow and held-funds account and that the file channel cannot debit them | Written acceptance from the bank | R1 |
 
@@ -1868,7 +1868,7 @@ Also:
 | Data location confirmed (Q-07) and registration with each live country's data protection authority in place (in Ghana, the Data Protection Commission; others per Q-21) `[TO VERIFY]` | Lawyer's note |
 | Configurable values set and approved: fresh-search window (Q-04), retention periods (Q-08), receipt return target, payee matching rule | Configuration export signed by lawyer |
 | Pricing for the FEE line set (Q-20) | Founder's decision |
-| PAT-24 to PAT-26 and PAT-28 pass with Fidero's operating bank, or payment runs stay manual and two-person, outside the platform, until they pass | Bank acceptance letter or product owner decision |
+| PAT-24 to PAT-26 and PAT-28 pass with Tenmina's operating bank, or payment runs stay manual and two-person, outside the platform, until they pass | Bank acceptance letter or product owner decision |
 | Tax rules for professionals signed by an accountant for each live country (Q-25) and loaded as configuration | Accountant's note; configuration export |
 | No open S1 or S2 | Defect report |
 
@@ -1920,7 +1920,7 @@ Used at the go/no-go meeting for every release. Chair: product owner. Attendees:
 | 4 | Penetration test retest: no open high or critical findings | |
 | 5 | UAT scenarios for this release signed | |
 | 6 | OAT passed, including a restore drill in the last 30 days (assumption) | |
-| 7 | Partner acceptance signed by the escrow bank, or escrow features switched off by decision; and by Fidero's operating bank for the bulk payment file, or payment runs kept manual by decision | |
+| 7 | Partner acceptance signed by the escrow bank, or escrow features switched off by decision; and by Tenmina's operating bank for the bulk payment file, or payment runs kept manual by decision | |
 | 8 | Partner acceptance signed by each institution and insurer whose line ships, or that line switched off by decision | |
 | 9 | Release candidate on staging is the exact build going to production (same artefact hashes) | |
 | 10 | Rollback plan tested for this release | |
@@ -1977,7 +1977,7 @@ Read each row left to right: business requirement, feature, functional requireme
 | BR-16 | BR-16 | F-02 | FR-ORD-006 | Could | R1 | US-ORD-006 | TC-ORD-006-01, TC-ORD-006-02 | — |
 | BR-08 | BR-08 | F-16 | FR-ORD-007 | Should | R2 | US-ORD-007 | TC-ORD-007-01 | — |
 
-**PAY — Payments for Fidero fees**
+**PAY — Payments for Tenmina fees**
 
 | BR | Source in 01 | F | FR | Pri | Rel | US | Test cases | Rule and security tests |
 |---|---|---|---|---|---|---|---|---|
@@ -2069,7 +2069,7 @@ Read each row left to right: business requirement, feature, functional requireme
 | BR-15 | BR-15 | F-07 | FR-EVD-005 | Must | R1 | US-EVD-005 | TC-EVD-005-01, TC-EVD-005-02 | TC-SEC-22 |
 | BR-08 | RUL-08 | F-07, F-15 | FR-EVD-006 | Must | R2 | US-EVD-006 | TC-EVD-006-01, TC-EVD-006-02 | TC-RUL-08-01, TC-RUL-08-02, TC-RUL-08-03, TC-RUL-08-04 |
 
-**MOB — Field app (Fidero Field, iOS and Android)**
+**MOB — Field app (Tenmina Field, iOS and Android)**
 
 | BR | Source in 01 | F | FR | Pri | Rel | US | Test cases | Rule and security tests |
 |---|---|---|---|---|---|---|---|---|
@@ -2086,7 +2086,7 @@ Read each row left to right: business requirement, feature, functional requireme
 | BR-08 | BR-08 | F-15 | FR-MOB-011 | Must | R2 | US-MOB-011 | TC-MOB-011-01, TC-MOB-011-02, TC-MOB-011-03 | TC-SEC-06, TC-SEC-08, TC-SEC-09 |
 | BR-18 | RUL-23 | F-15, F-30 | FR-MOB-012 | Must | R2 | US-MOB-012 | TC-MOB-012-01, TC-MOB-012-02, TC-MOB-012-03, TC-MOB-012-04 | TC-RUL-23-01, TC-RUL-23-03, TC-SEC-36, TC-FLD-14, TC-FLD-15, TC-FLD-16 |
 
-**APP — Client mobile app (Fidero, iOS and Android)**
+**APP — Client mobile app (Tenmina, iOS and Android)**
 
 | BR | Source in 01 | F | FR | Pri | Rel | US | Test cases | Rule and security tests |
 |---|---|---|---|---|---|---|---|---|
@@ -2549,7 +2549,7 @@ Items 1 to 14 were raised in version 0.1. Items 15 to 30 were added in version 0
 | 2 | C8 Milestone; FR-BLD-006, FR-BLD-012 | The milestone model has no state for a held defect value or for retention waiting for the defects period. "Paid" is used while money is still held. | The client sees "Paid" while part of the milestone is held; matrix test cannot check holdback release | Holdback and retention tracked as separate held items with their own release chain |
 | 3 | RUL-15, FR-DSP-002 | "Every release linked to it" is still not defined. A dispute on one milestone may or may not freeze later milestones, the whole project, or a held balance used for several institutions. | TC-RUL-15-03 expectation unclear | Freeze the disputed item only; reviewer can widen the freeze |
 | 4 | FR-ACC-003 | "Any user who approves a release" now covers every client on every line, including family supporters paying small school fees. MFA for them is not stated either way. | MFA tests for clients unclear; usability risk for P-15 | Clients need MFA for any release approval; a remembered device counts for 30 days (assumption). FR-APP-003 (01 v0.6) confirms that in the client app an approval needs the second factor even after biometric unlock (TC-APP-003-03) |
-| 5 | FR-RPT-006, RUL-03 | Still says "a second Fidero reviewer" when only one Fidero reviewer is involved. Still silent on whether the lawyer may be a Fidero employee. | Separation tests unclear | Two different persons; one person cannot hold both roles on the same case |
+| 5 | FR-RPT-006, RUL-03 | Still says "a second Tenmina reviewer" when only one Tenmina reviewer is involved. Still silent on whether the lawyer may be a Tenmina employee. | Separation tests unclear | Two different persons; one person cannot hold both roles on the same case |
 | 6 | FR-ACC-005, RUL-20 | No rule for a licence that expires between signing and release. | TC-RUL-20-04 expectation unclear | Signature valid if the licence was valid at signing |
 | 7 | FR-LST-010 vs NFR-PERF-01 | FR-LST-010 still says "under 3 seconds on 3G" with no percentile or network profile. | Two different targets | Use the NFR-PERF-01 profile and p75 |
 | 8 | FR-RPT-008 | "Anyone" can check a hash. Nothing limits what the checker reveals or how often it can be used. | Privacy and enumeration risk | Match result only; rate limited (TC-RPT-008-02, TC-SEC-25) |
@@ -2569,19 +2569,19 @@ Items 1 to 14 were raised in version 0.1. Items 15 to 30 were added in version 0
 | 22 | FR-MOB-012, FR-CARE-005, FR-FEE-004, A9 | The check-in radius, the time after which an unconfirmed visit is finally not paid, and the receipt return target are not set and not in FR-ADM-005. A9 measures "receipt returned within target" with no target. | Boundary tests and metrics need values | **Partly resolved by 01 v0.4:** an unconfirmed visit goes to a reviewer at 72 hours (FR-CARE-004, TC-CARE-004-06). The check-in radius and the receipt target are still open: configurable values, receipt target `[TO VERIFY]` |
 | 23 | FR-CARE-004 | A visit confirmed "by a call" is logged by one staff member and releases carer pay. No second check, no recording, no limit on code attempts. | A single person can make a visit payable; brute force not covered | **Resolved by 01 v0.4:** a call confirmation is recorded by one staff member and checked by a second, and codes lock after 5 wrong attempts (TC-CARE-004-04, TC-CARE-004-05) |
 | 24 | FR-ACC-012, FR-CARE-001, FR-DPR-002 | Family members, tenants and patients are third parties whose personal and health data the client enters. 01 records consent only for people on video (FR-DPR-002). | No requirement to test consent or notice for family members | Family member is told they were added and can object; health readings only with their consent `[TO VERIFY]` with the lawyer |
-| 25 | FR-PMG-003, RUL-24 | Tracking rent "from the bank's statement" means Fidero reads the owner's own account. 01 does not say what the bank shares or that unrelated lines must be discarded. | Data minimisation untestable | **Resolved by 01 v0.4:** FR-PMG-003 reads the bank's statement lines for that account only, under the owner's written mandate (TC-PMG-003-03, TC-PMG-003-04) |
+| 25 | FR-PMG-003, RUL-24 | Tracking rent "from the bank's statement" means Tenmina reads the owner's own account. 01 does not say what the bank shares or that unrelated lines must be discarded. | Data minimisation untestable | **Resolved by 01 v0.4:** FR-PMG-003 reads the bank's statement lines for that account only, under the owner's written mandate (TC-PMG-003-03, TC-PMG-003-04) |
 | 26 | FR-CTY-004, C-13 | Nothing in 01 makes the system stop a country going live before its manual phase and 90-day validation. C-13 is a business constraint only. | TC-CTY-004-02 has no FR to trace to | A new country stays "not open" until two administrators record the founder's gate decision |
 | 27 | NFR-A11Y-01 | WCAG 2.2 is a web standard. 01 does not say how conformance is claimed for the apps. v0.6 extends the requirement to both apps on iOS and Android, using Android's and Apple's guidance, but the claim is still not defined. | App audit pass criterion unclear | Each WCAG 2.2 AA criterion mapped to an Android or iOS check or marked not applicable (TC-NFR-A11Y-01-03, TC-NFR-A11Y-01-04) |
 | 28 | C2 Institution contact, FR-ACC-011, IF-10 | The institution contact can "confirm an invoice" from R1, but organisation accounts for institutions are R2 and IF-10 is manual in R1. How an institution confirms in R1 is not stated. | UAT-27 and PAT-15 need an R1 path | In R1 staff upload the institution's confirmation and receipt; the contact has no account until R2 |
 | 29 | F-30, F-31, F-32, F-33 vs their FRs | The features are Should or Could, but they hold Must FRs (for example FR-CARE-002, FR-PMG-002, FR-INS-002). It is unclear whether those Musts block a release if the line does not ship. | Release gates unclear | **Resolved by 01 v0.4:** a Must inside a Should or Could feature is required only if that feature ships, and then blocks the feature, not the release |
-| 30 | FR-INS-002, C-11, Q-17 | "Direct premium payment to the insurer's account" does not say whether the client pays through the partner bank (as other lines) or straight to the insurer. C-12 says Fidero moves no money across borders. | Premium routing tests (TC-RUL-25-01, PAT-21) need one route | **Resolved by 01 v0.4:** FR-INS-002 names both routes: the client pays the insurer directly, or the bank pays the insurer from money held for that purpose (TC-INS-002-04, PAT-21) |
+| 30 | FR-INS-002, C-11, Q-17 | "Direct premium payment to the insurer's account" does not say whether the client pays through the partner bank (as other lines) or straight to the insurer. C-12 says Tenmina moves no money across borders. | Premium routing tests (TC-RUL-25-01, PAT-21) need one route | **Resolved by 01 v0.4:** FR-INS-002 names both routes: the client pays the insurer directly, or the bank pays the insurer from money held for that purpose (TC-INS-002-04, PAT-21) |
 | 31 | FR-APP-004, RUL-11, C8 Escrow | A user can delete the account in the app, but 01 does not say what happens to an open escrow, money held at the bank or a standing approval. | TC-APP-004-03 has no stated expected result | Request recorded; account closed to new orders; deletion completes when open items end; held records kept |
 | 32 | FR-APP-002 vs FR-NTF-001, FR-NTF-004 | Push follows the user's channel preferences and FR-NTF-004's limits, but FR-NTF-001 lists only email, SMS and WhatsApp and FR-NTF-004 limits only SMS and WhatsApp. | Push content tests trace only to FR-APP-002 | Push is a channel in the preferences; FR-NTF-004 limits apply to push (TC-APP-002-02, TC-SEC-42) |
 | 33 | FR-APP-006, FR-MOB-005 | "Without losing queued evidence" does not say whether evidence captured by an old version before the minimum was raised is still accepted, or for how long. | TC-APP-006-02 and -03 need a rule | Accepted if captured before the raise and uploaded within 30 days of it (`[TO VERIFY]`, 02 section 8.10, 06 section 3.5); items older than 7 days at upload carry the time-gap flag; new capture blocked |
 | 34 | NFR-STORE-02 | "Versions used by at least 95% of active users" cannot be measured before launch, when there are no active users. | TC-NFR-STORE-02-01 cannot run at R2 go-live | Use public OS share data for each launch country `[TO VERIFY]` source until six months of app analytics exist |
 | 35 | NFR-PERF-05 | "Its download size" for both apps does not say whether 30 MB applies per app and per platform. | Pass criterion ambiguous | Each app on each platform under 30 MB (TC-NFR-PERF-05-01, -02) |
 | 36 | C2, FR-PRO-005 | A run is approved by "a different one with payment rights", but C2 defines only release rights. | TC-PRO-005-02 has no defined set of people who may approve | Reviewers and administrators granted payment rights by two administrators; never a contracted role |
-| 37 | C2, BR-23 | Only lawyers and surveyors may see their payables, expenses and statements; runners only claim expenses; inspectors, quantity surveyors and errand agents have no pay permissions, although Fidero pays all six. | UAT for the other roles unclear | All six roles see their own pay (TC-SEC-46 checks they see nothing else) |
+| 37 | C2, BR-23 | Only lawyers and surveyors may see their payables, expenses and statements; runners only claim expenses; inspectors, quantity surveyors and errand agents have no pay permissions, although Tenmina pays all six. | UAT for the other roles unclear | All six roles see their own pay (TC-SEC-46 checks they see nothing else) |
 | 38 | RUL-26 | 01 does not say whether pay may be held while the work is under a fraud or misconduct review. | TC-RUL-26-04 needs a stated expected result | A reviewer may hold a payable only for a fraud or misconduct review, with a reason, never for a result |
 | 39 | FR-PRO-002 | Who closes a runner's month and what a part month pays are not stated. | TC-PRO-002-04 boundary unclear | A case manager closes the month; a part month is paid pro rata by calendar days (assumption) |
 | 40 | FR-PRO-007, Q-25 | Withholding rates are unknown, and 01 does not say whether reimbursed expenses carry withholding. | No real rate can be asserted | Tests use synthetic Testland rates; real rates come from the accountant's rules (EN-79 in document 04); no withholding on reimbursed expenses until Q-25 is answered |

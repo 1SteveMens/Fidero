@@ -1,7 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
-import { formatDay, releaseBlockers, SAMPLE_FRESH_SEARCH_WINDOW_DAYS, SAMPLE_TODAY } from '@fidero/shared';
+import { formatDay, releaseBlockers, SAMPLE_FRESH_SEARCH_WINDOW_DAYS, SAMPLE_TODAY } from '@tenmina/shared';
 import { ApprovalSheet } from '../../components/ApprovalSheet';
-import { ErrorView, Loading, Screen } from '@fidero/ui';
+import { ErrorView, Loading, Screen } from '@tenmina/ui';
 import { useApi, useLoad } from '../../data';
 
 export default function EscrowSheet() {

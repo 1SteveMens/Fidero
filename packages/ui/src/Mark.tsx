@@ -1,7 +1,7 @@
 import Svg, { Path } from 'react-native-svg';
-import { brand } from '@fidero/tokens';
+import { brand } from '@tenmina/tokens';
 
-/** The Fidero mark: a lime square with notched sides and a check. */
+/** The Tenmina mark: a lime square with notched sides and a check. */
 export function Mark({ size = 32 }: { size?: number }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 30 30" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">

@@ -1,6 +1,6 @@
 # Construction milestone schedule
 
-This is the standard schedule for a Fidero-managed build. Payments are released from the client's held funds only when a milestone is confirmed. Confirmation needs two things: evidence from the contractor through the milestone photo app, and sign-off by an independent inspector.
+This is the standard schedule for a Tenmina-managed build. Payments are released from the client's held funds only when a milestone is confirmed. Confirmation needs two things: evidence from the contractor through the milestone photo app, and sign-off by an independent inspector.
 
 Percentages are assumptions for a standard single-storey house. The quantity surveyor sets the actual split for each project from the bill of quantities.
 
@@ -8,10 +8,10 @@ Percentages are assumptions for a standard single-storey house. The quantity sur
 
 1. Contractor reports the milestone complete in the app.
 2. Contractor uploads the required photos and video. Each is geotagged and time-stamped by the app. Photos must be taken on site and cannot be uploaded from the gallery.
-3. Fidero checks the evidence against the checklist below.
+3. Tenmina checks the evidence against the checklist below.
 4. The independent inspector visits within 5 working days (assumption) and completes the checklist on site.
 5. The inspector submits a pass, a pass with defects, or a fail.
-6. On a pass, Fidero instructs release of the milestone payment to the contractor. On a pass with defects, release is held back by the defect value until fixed. On a fail, no release. The contractor fixes and resubmits.
+6. On a pass, Tenmina instructs release of the milestone payment to the contractor. On a pass with defects, release is held back by the defect value until fixed. On a fail, no release. The contractor fixes and resubmits.
 7. The client sees the evidence, the inspector's result and the payment on the dashboard.
 
 The client can ask for an extra inspection at any time at $50-100 (assumption).
@@ -28,7 +28,7 @@ The client can ask for an extra inspection at any time at $50-100 (assumption).
 | 5. Finishing | `[TO VERIFY]` | Plastering, floors, doors, windows, electrics, plumbing, painting complete |
 | 6. Handover and retention | `[TO VERIFY]`, held for a defects period | Defects period ends with no open defects |
 
-Materials bought by Fidero in bulk are paid by Fidero to the supplier and shown on the dashboard. They are not part of the contractor's milestone payment.
+Materials bought by Tenmina in bulk are paid by Tenmina to the supplier and shown on the dashboard. They are not part of the contractor's milestone payment.
 
 ## Milestone 1: Foundation
 

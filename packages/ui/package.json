@@ -1,5 +1,5 @@
 {
-  "name": "@fidero/ui",
+  "name": "@tenmina/ui",
   "version": "0.1.0",
   "private": true,
   "main": "src/index.ts",
@@ -10,8 +10,8 @@
   "dependencies": {
     "@expo-google-fonts/bricolage-grotesque": "^0.4.1",
     "@expo-google-fonts/ibm-plex-mono": "^0.4.1",
-    "@fidero/shared": "workspace:*",
-    "@fidero/tokens": "workspace:*"
+    "@tenmina/shared": "workspace:*",
+    "@tenmina/tokens": "workspace:*"
   },
   "peerDependencies": {
     "@expo/vector-icons": "*",

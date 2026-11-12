@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
-import { ErrorView, Loading, Screen } from '@fidero/ui';
+import { ErrorView, Loading, Screen } from '@tenmina/ui';
 import { useFieldLoad } from '../../store';
 import { InspectionScreen } from '../../screens/Inspection';
 import { MilestoneScreen } from '../../screens/Milestone';

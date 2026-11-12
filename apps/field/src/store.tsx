@@ -3,9 +3,9 @@ import { Platform } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useNetInfo } from '@react-native-community/netinfo';
 import { Directory, File, Paths } from 'expo-file-system';
-import { createSampleFieldApi, type Capture, type FieldApi, type FieldRole } from '@fidero/shared';
+import { createSampleFieldApi, type Capture, type FieldApi, type FieldRole } from '@tenmina/shared';
 
-/** Something waiting to reach Fidero: a capture or a submitted checklist (FR-MOB-005). */
+/** Something waiting to reach Tenmina: a capture or a submitted checklist (FR-MOB-005). */
 export interface QueueItem {
   id: string;
   jobId: string;
@@ -49,7 +49,7 @@ const EMPTY: Saved = { role: null, captures: [], queue: [], submitted: {} };
 function stateFile(): File | null {
   if (Platform.OS === 'web') return null;
   try {
-    const dir = new Directory(Paths.document, 'fidero-field');
+    const dir = new Directory(Paths.document, 'tenmina-field');
     if (!dir.exists) dir.create({ intermediates: true, idempotent: true });
     return new File(dir, 'state.json');
   } catch {

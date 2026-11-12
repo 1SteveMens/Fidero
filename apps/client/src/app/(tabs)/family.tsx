@@ -1,11 +1,11 @@
 import { Pressable, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import type { HomeRow } from '@fidero/shared';
-import { brand, radius, space } from '@fidero/tokens';
-import { ArrowBox, ErrorView, IconButton, IconTile, Loading, Panel, Rise, Screen, T, haptic, type IconName } from '@fidero/ui';
+import type { HomeRow } from '@tenmina/shared';
+import { brand, radius, space } from '@tenmina/tokens';
+import { ArrowBox, ErrorView, IconButton, IconTile, Loading, Panel, Rise, Screen, T, haptic, type IconName } from '@tenmina/ui';
 import { useLoad } from '../../data';
-import { usePalette } from '@fidero/ui';
+import { usePalette } from '@tenmina/ui';
 
 function rowIcon(title: string): IconName {
   if (/hospital|bill/i.test(title)) return 'receipt-outline';

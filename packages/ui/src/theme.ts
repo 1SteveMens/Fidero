@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { AccessibilityInfo, Platform, useColorScheme } from 'react-native';
-import { ink, paper, type Ground, type Palette } from '@fidero/tokens';
+import { ink, paper, type Ground, type Palette } from '@tenmina/tokens';
 
 /** The ground of the screen being drawn. Screens set it; components read it. */
 export const GroundContext = createContext<Ground>('paper');

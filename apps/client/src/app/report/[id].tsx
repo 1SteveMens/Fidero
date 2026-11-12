@@ -1,9 +1,9 @@
 import { View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { formatDay, verdictWord } from '@fidero/shared';
-import { brand, font, radius, space } from '@fidero/tokens';
-import { Button, ErrorView, Label, Loading, Panel, Rise, Screen, T, VerdictChip } from '@fidero/ui';
+import { formatDay, verdictWord } from '@tenmina/shared';
+import { brand, font, radius, space } from '@tenmina/tokens';
+import { Button, ErrorView, Label, Loading, Panel, Rise, Screen, T, VerdictChip } from '@tenmina/ui';
 import { useLoad } from '../../data';
 
 export default function ReportScreen() {

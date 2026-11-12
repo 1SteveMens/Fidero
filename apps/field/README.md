@@ -1,6 +1,6 @@
-# Fidero Field
+# Tenmina Field
 
-The app for field roles: inspectors, contractors, carers, and later runners, surveyors and errand agents (`docs/specs/01` module MOB). Same code base and Bloc design as the client app (`docs/specs/03` sections 2.3 and 6.1c). Runs on sample data from `@fidero/shared` (`createSampleFieldApi`).
+The app for field roles: inspectors, contractors, carers, and later runners, surveyors and errand agents (`docs/specs/01` module MOB). Same code base and Bloc design as the client app (`docs/specs/03` sections 2.3 and 6.1c). Runs on sample data from `@tenmina/shared` (`createSampleFieldApi`).
 
 ## Run it
 

@@ -1,8 +1,8 @@
 import { Pressable, View } from 'react-native';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { brand, radius, space } from '@fidero/tokens';
-import { Button, Panel, Screen, T, haptic, usePalette } from '@fidero/ui';
+import { brand, radius, space } from '@tenmina/tokens';
+import { Button, Panel, Screen, T, haptic, usePalette } from '@tenmina/ui';
 
 /** Opens the app's camera for one evidence item. */
 export function CaptureButton({ jobId, itemId, label, kind = 'photo', count, compact }: { jobId: string; itemId: string; label: string; kind?: 'photo' | 'video'; count: number; compact?: boolean }) {

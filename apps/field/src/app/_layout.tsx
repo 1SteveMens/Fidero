@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { Stack, SplashScreen } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { brand } from '@fidero/tokens';
-import { useBlocFonts } from '@fidero/ui';
+import { brand } from '@tenmina/tokens';
+import { useBlocFonts } from '@tenmina/ui';
 import { FieldProvider } from '../store';
 
 void SplashScreen.preventAutoHideAsync();

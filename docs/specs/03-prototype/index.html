@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>Fidero Prototype</title>
-<meta name="description" content="Clickable prototype of key Fidero flows, with sample data. Companion to docs/specs/03-ui-ux-design.md.">
+<title>Tenmina Prototype</title>
+<meta name="description" content="Clickable prototype of key Tenmina flows, with sample data. Companion to docs/specs/03-ui-ux-design.md.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap">
@@ -372,7 +372,7 @@ tbody tr:last-child td{border-bottom:0}
 .photos .ph{aspect-ratio:1/1;min-height:0}
 .photos figcaption{font-family:var(--font-mono);font-size:11px;font-weight:500;color:var(--color-text-muted);margin-top:4px}
 
-/* Phone frame for Fidero Field */
+/* Phone frame for Tenmina Field */
 .phone-wrap{display:flex;flex-wrap:wrap;gap:var(--space-5);align-items:flex-start;justify-content:center;padding-top:var(--space-4)}
 .phone{width:min(360px,100%);border-radius:40px;border:10px solid #0B0B0B;outline:1px solid var(--color-border);background:var(--color-bg);box-shadow:var(--elev-3);overflow:hidden;position:relative}
 .p-status{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:11px;font-weight:600;padding:8px 18px;background:var(--color-bg);color:var(--color-text)}
@@ -478,7 +478,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
         <li><button type="button" data-flow="C" data-go="c1">C · Release approval</button></li>
         <li><button type="button" data-flow="D" data-go="d1">D · Listings</button></li>
         <li><button type="button" data-flow="E" data-go="e1">E · Build</button></li>
-        <li><button type="button" data-flow="F" data-go="f1">F · Fidero Field (iOS and Android)</button></li>
+        <li><button type="button" data-flow="F" data-go="f1">F · Tenmina Field (iOS and Android)</button></li>
         <li><button type="button" data-flow="G" data-go="g1">G · Family: pay a hospital bill</button></li>
       </ul>
     </nav>
@@ -497,7 +497,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
 <!-- ================= PORTAL ================= -->
 <div id="portal" class="shell">
   <div class="app-head">
-    <a class="logo" href="#h1" data-go="h1"><svg aria-hidden="true"><use href="#logo"/></svg>Fidero</a>
+    <a class="logo" href="#h1" data-go="h1"><svg aria-hidden="true"><use href="#logo"/></svg>Tenmina</a>
     <span class="country" id="country-chip">Ghana · GHS</span>
     <span class="who" id="who">Signed in as Ama M. (sample)</span>
   </div>
@@ -510,12 +510,12 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
 
     <div class="sec-head"><h2>Property (3)</h2><a href="#a7" data-go="a7">See all</a></div>
     <a class="item" href="#a7" data-go="a7">
-      <span class="t"><span>Plot 14, Kasoa · Land check</span><span class="ref">FID-2027-0142</span></span>
+      <span class="t"><span>Plot 14, Kasoa · Land check</span><span class="ref">TMN-2027-0142</span></span>
       <span class="s">Searches lodged at the Lands Commission on 12 March. Results expected by 2 April.</span>
     </a>
     <a class="item need" href="#b1" data-go="b1" id="h-esc">
       <span class="t"><span>Escrow, Plot 14 · held by Partner Bank</span><span class="need-tag" id="h-esc-tag">Needs you</span></span>
-      <span class="s" id="h-esc-s">All 4 conditions closed. Your approval is needed before Fidero staff can approve the release.</span>
+      <span class="s" id="h-esc-s">All 4 conditions closed. Your approval is needed before Tenmina staff can approve the release.</span>
     </a>
     <a class="item need" href="#e1" data-go="e1" id="h-bld">
       <span class="t"><span>House on Plot 14 · Build</span><span class="need-tag" id="h-bld-tag">Needs you</span></span>
@@ -544,7 +544,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
 
     <div class="card" style="margin-top:var(--space-5)">
       <div class="spread"><span>Held at Partner Bank for you</span><span class="big-money" id="h-held">GHS 5,000.00</span></div>
-      <p class="held" style="margin:var(--space-2) 0 0"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg>Held by Partner Bank, not by Fidero. Used only for payments you approve.</p>
+      <p class="held" style="margin:var(--space-2) 0 0"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg>Held by Partner Bank, not by Tenmina. Used only for payments you approve.</p>
       <button class="btn btn-quiet small" data-go="g5">See the statement</button>
     </div>
     <button class="btn btn-secondary block" data-toast="Chooser: a check on land or a building, a family member, an institution, a property, an errand, a project. Not part of this prototype.">+ Add something at home</button>
@@ -660,7 +660,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     <p class="small"><strong>Summary, not the legal text:</strong> the report tells you what we found on the dates of our checks. It does not guarantee title. It covers only this plot and only the checks listed.</p>
     <details>
       <summary><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg> Scope and limitation statement, version 1.0 (locked text)</summary>
-      <blockquote>This report sets out the results of the checks listed in section 3, carried out on the dates stated, using the documents the client supplied and the public and official records available to Fidero on those dates. It describes the position as found on those dates only.<br><br>The report does not guarantee title. Title to land in Ghana can only be confirmed by registration at the Lands Commission, and registered title can be challenged. … <em>(full text in the report template, section 12)</em></blockquote>
+      <blockquote>This report sets out the results of the checks listed in section 3, carried out on the dates stated, using the documents the client supplied and the public and official records available to Tenmina on those dates. It describes the position as found on those dates only.<br><br>The report does not guarantee title. Title to land in Ghana can only be confirmed by registration at the Lands Commission, and registered title can be challenged. … <em>(full text in the report template, section 12)</em></blockquote>
     </details>
     <div class="check"><input type="checkbox" id="ok-scope" aria-describedby="err-scope"><label for="ok-scope">I have read what the report covers and does not cover</label></div>
     <p id="err-scope" class="field-error" hidden><svg class="icon" aria-hidden="true"><use href="#i-red"/></svg>Error: tick this box to continue</p>
@@ -676,7 +676,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   <!-- A5 Pay -->
   <section class="screen" id="a5" data-flow="A" data-tab="property" aria-labelledby="a5h" hidden>
     <a href="#a4" class="back" data-go="a4"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Back</a>
-    <h1 id="a5h" tabindex="-1">Pay Fidero's fee</h1>
+    <h1 id="a5h" tabindex="-1">Pay Tenmina's fee</h1>
     <div class="card">
       <div class="spread"><span>Fee for a <span id="a5-what">land check, Standard</span></span><span class="big-money" id="a5-fee">USD 450.00</span></div>
       <p class="small muted" id="a5-guide" style="margin:0">About GBP 355.50 (guide only, sample rate)</p>
@@ -688,7 +688,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
       <label class="rcard"><input type="radio" name="pm" value="momo"><span class="r-body"><span class="r-title"><span>Mobile money</span><span class="money" id="a5-ghs">GHS 6,975.00</span></span><span class="small muted">Charged in cedis</span></span></label>
     </fieldset>
     <div id="card-form" class="card" aria-label="Card details">
-      <p class="small muted">In the real product, the payment provider's secure form loads here. Fidero never stores card numbers.</p>
+      <p class="small muted">In the real product, the payment provider's secure form loads here. Tenmina never stores card numbers.</p>
       <div class="field"><label for="cardno">Card number</label><input id="cardno" type="text" inputmode="numeric" value="0000 0000 0000 0000" autocomplete="off"></div>
       <div class="row"><div class="field" style="flex:1"><label for="exp">Expiry</label><input id="exp" type="text" value="12 / 29" autocomplete="off"></div><div class="field" style="flex:1"><label for="cvc">Security code</label><input id="cvc" type="text" value="000" autocomplete="off"></div></div>
     </div>
@@ -698,13 +698,13 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     </div>
     <button class="btn btn-primary block" id="pay-btn">Pay USD 450.00</button>
     <p id="pay-live" class="small muted" role="status" aria-live="polite" style="margin-top:var(--space-2)"></p>
-    <div class="alert info" style="margin-top:var(--space-4)"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg><p>This page is only for Fidero's fee. We never take money for the land. Land money goes to a licensed bank.</p></div>
+    <div class="alert info" style="margin-top:var(--space-4)"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg><p>This page is only for Tenmina's fee. We never take money for the land. Land money goes to a licensed bank.</p></div>
     <div class="proto-note"><strong>Prototype:</strong> try the error state. <br><button class="btn btn-secondary small" id="sim-decline">Simulate a declined card</button></div>
   </section>
 
   <!-- A6 Payment result -->
   <section class="screen" id="a6" data-flow="A" data-tab="property" aria-labelledby="a6h" hidden>
-    <div class="alert success"><svg class="icon lg" aria-hidden="true"><use href="#i-green"/></svg><div><h1 id="a6h" tabindex="-1" style="margin-bottom:var(--space-1)">Payment received</h1><p>Thank you, Ama. Your case reference is <strong class="mono">FID-2027-0142</strong>.</p></div></div>
+    <div class="alert success"><svg class="icon lg" aria-hidden="true"><use href="#i-green"/></svg><div><h1 id="a6h" tabindex="-1" style="margin-bottom:var(--space-1)">Payment received</h1><p>Thank you, Ama. Your case reference is <strong class="mono">TMN-2027-0142</strong>.</p></div></div>
     <div class="card">
       <h2>Receipt</h2>
       <dl class="kv">
@@ -728,7 +728,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   <section class="screen" id="a7" data-flow="A" data-tab="property" aria-labelledby="a7h" hidden>
     <a href="#h1" class="back" data-go="h1"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Home</a>
     <h1 id="a7h" tabindex="-1">Plot 14, Kasoa Millennium City</h1>
-    <p class="ref">Land check · FID-2027-0142</p>
+    <p class="ref">Land check · TMN-2027-0142</p>
     <div class="status" role="status"><span class="now">Now</span><p>Searches lodged at the Lands Commission on 12 March. Results expected by 2 April.</p></div>
     <div class="card" id="req-card">
       <h2 class="spread" style="font-size:var(--text-lg)"><span>We need one thing from you</span><span class="pill" id="req-pill">Due 20 March</span></h2>
@@ -750,13 +750,13 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
         <li><span class="dot"></span><span>Report ready<span class="state">Expected</span></span><span class="when">10 Apr</span></li>
       </ol>
     </div>
-    <div class="row"><button class="btn btn-secondary" data-toast="Messages are not part of this prototype.">Message Fidero</button><a href="#a6" data-go="a6">See receipt</a></div>
+    <div class="row"><button class="btn btn-secondary" data-toast="Messages are not part of this prototype.">Message Tenmina</button><a href="#a6" data-go="a6">See receipt</a></div>
     <div class="proto-note"><strong>Prototype:</strong> skip ahead five weeks to the released report.<br><button class="btn btn-secondary small" data-go="a8">Report released (10 April)</button></div>
   </section>
 
   <!-- A8 Report viewer -->
   <section class="screen" id="a8" data-flow="A" data-tab="property" aria-labelledby="a8h" hidden>
-    <a href="#a7" class="back" data-go="a7"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Case FID-2027-0142</a>
+    <a href="#a7" class="back" data-go="a7"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Case TMN-2027-0142</a>
     <h1 id="a8h" tabindex="-1">Your report</h1>
     <p class="ref">Plot 14, Kasoa Millennium City · Version 1 · released 10 April 2027</p>
     <div class="verdict-hero amber">
@@ -795,7 +795,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
       <dl class="kv">
         <dt>Lawyer</dt><dd>Adwoa Darko · licence GBA-1234 (sample)</dd>
         <dt>Surveyor</dt><dd>Edem Tetteh · licence LS-0567 (sample)</dd>
-        <dt>Reviewer</dt><dd>Kofi Boateng, Fidero</dd>
+        <dt>Reviewer</dt><dd>Kofi Boateng, Tenmina</dd>
       </dl>
     </div>
     <div class="card">
@@ -827,7 +827,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     <div class="card">
       <h2>Money at the bank</h2>
       <div class="spread"><span class="big-money">USD 18,000.00</span><span class="pill">Deposit confirmed 22 Apr</span></div>
-      <p class="held" style="margin:var(--space-2) 0 0"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg>Your money is held by Partner Bank, not by Fidero.</p>
+      <p class="held" style="margin:var(--space-2) 0 0"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg>Your money is held by Partner Bank, not by Tenmina.</p>
       <button class="btn btn-quiet small" data-go="b2">See the bank's payment details</button>
     </div>
     <div class="card">
@@ -847,7 +847,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     <div class="card">
       <h2 class="spread"><span>Release approvals</span><span class="pill primary" id="appr-count">0 of 2</span></h2>
       <ul class="conds" id="appr-list"></ul>
-      <p class="small muted" style="margin:var(--space-2) 0 0">You approve first. Then two different Fidero staff approve, and the bank pays the seller and confirms. You cannot release money alone, and nor can anyone else.</p>
+      <p class="small muted" style="margin:var(--space-2) 0 0">You approve first. Then two different Tenmina staff approve, and the bank pays the seller and confirms. You cannot release money alone, and nor can anyone else.</p>
     </div>
     <div class="proto-note" id="b1-proto"><strong>Prototype:</strong> <span id="b1-proto-text">close the last condition and watch the release become ready.</span><br>
       <button class="btn btn-secondary small" id="close-cond">Seller's tax clearance arrives (6 May)</button>
@@ -859,7 +859,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   <section class="screen" id="b2" data-flow="B" data-tab="property" aria-labelledby="b2h" hidden>
     <a href="#b1" class="back" data-go="b1"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg>Escrow ESC-2027-0031</a>
     <h1 id="b2h" tabindex="-1">Pay the purchase price to the bank</h1>
-    <div class="alert info"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg><p><strong>These are the bank's details, not Fidero's.</strong> Fidero never asks you to pay land money to Fidero.</p></div>
+    <div class="alert info"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg><p><strong>These are the bank's details, not Tenmina's.</strong> Tenmina never asks you to pay land money to Tenmina.</p></div>
     <div class="card">
       <dl class="kv">
         <dt>Bank</dt><dd>Partner Bank (SAMPLE)</dd>
@@ -871,13 +871,13 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
       </dl>
     </div>
     <p>Always use the reference. Without it the bank cannot match your payment.</p>
-    <div class="alert error"><svg class="icon" aria-hidden="true"><use href="#i-red"/></svg><p><strong>Warning:</strong> if anyone sends you different details, by email, WhatsApp or phone, do not pay. Call Fidero first.</p></div>
+    <div class="alert error"><svg class="icon" aria-hidden="true"><use href="#i-red"/></svg><p><strong>Warning:</strong> if anyone sends you different details, by email, WhatsApp or phone, do not pay. Call Tenmina first.</p></div>
   </section>
 
   <!-- D1 Listings search -->
   <section class="screen" id="d1" data-flow="D" data-tab="" aria-labelledby="d1h" hidden>
     <h1 id="d1h" tabindex="-1">Verified listings</h1>
-    <p class="small muted">Every listing here passed Fidero's checks. Prices are set by sellers. All listings are samples.</p>
+    <p class="small muted">Every listing here passed Tenmina's checks. Prices are set by sellers. All listings are samples.</p>
     <div class="field"><label for="q">Search by place</label><input id="q" type="text" placeholder="Tema, East Legon, Kasoa…" autocomplete="off"></div>
     <div class="field"><label for="ltype">Type</label><select id="ltype" class="input"><option value="">All types</option><option value="plot">Plots</option><option value="house">Houses</option></select></div>
     <div class="tabs" role="group" aria-label="View">
@@ -909,7 +909,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
       <h2>Seller</h2>
       <p id="d2-seller" style="margin:0"></p>
     </div>
-    <div class="alert info"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg><p>Before you pay, Fidero runs a fresh search and site check. Your money is held by a licensed bank until every condition is closed.</p></div>
+    <div class="alert info"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg><p>Before you pay, Tenmina runs a fresh search and site check. Your money is held by a licensed bank until every condition is closed.</p></div>
     <div class="actions" id="d2-actions"></div>
   </section>
 
@@ -924,7 +924,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
       <div class="bar" role="img" aria-label="30 percent of the budget released"><span style="width:30%"></span></div>
       <div class="spread small"><span>Released to contractor</span><span class="money">USD 12,600.00 (30%)</span></div>
       <div class="spread small"><span>Held at Partner Bank</span><span class="money">USD 29,400.00</span></div>
-      <p class="held" style="margin:var(--space-2) 0 0"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg>Held by Partner Bank, not by Fidero.</p>
+      <p class="held" style="margin:var(--space-2) 0 0"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg>Held by Partner Bank, not by Tenmina.</p>
     </div>
     <div class="card">
       <h2>Milestones</h2>
@@ -951,7 +951,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
       <p id="approve-err" class="field-error" hidden role="alert"></p>
       <button class="btn btn-primary block" id="approve-ms">Approve this milestone</button>
       <div class="row" style="margin-top:var(--space-2)"><button class="btn btn-quiet small" data-toast="Questions go to your case manager. Not part of this prototype.">Question it</button><button class="btn btn-quiet small" data-toast="Opening a dispute freezes this payment (RUL-15). Not part of this prototype.">Open a dispute</button></div>
-      <p class="small muted">After you approve, two Fidero staff approve and the bank pays the contractor. Your approval alone does not release money.</p>
+      <p class="small muted">After you approve, two Tenmina staff approve and the bank pays the contractor. Your approval alone does not release money.</p>
     </div>
     <div class="card">
       <h2>Photo timeline</h2>
@@ -968,7 +968,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
         <figure><div class="ph" role="img" aria-label="Photo placeholder: reinforcement before concrete, 2 July, on plot, captured in app">Reinforcement</div><figcaption>2 Jul · on plot</figcaption></figure>
         <figure><div class="ph" role="img" aria-label="Photo placeholder: cured foundation, 4 July, on plot, captured in app">Cured</div><figcaption>4 Jul · on plot</figcaption></figure>
       </div>
-      <p class="small muted" style="margin:0">All photos were taken with the Fidero app on site. Small previews load first; tap for a larger image.</p>
+      <p class="small muted" style="margin:0">All photos were taken with the Tenmina app on site. Small previews load first; tap for a larger image.</p>
     </div>
   </section>
 
@@ -981,7 +981,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     <div class="status" role="status"><span class="now">Now</span><p>Komfo Anokye Teaching Hospital sent an invoice for GHS 3,850.00 on 14 August. It is waiting for your approval.</p></div>
     <h2>Institution</h2>
     <div class="inst">
-      <div class="vstat"><svg class="icon" aria-hidden="true"><use href="#i-green"/></svg>VERIFIED BY FIDERO · 12 Jan 2027</div>
+      <div class="vstat"><svg class="icon" aria-hidden="true"><use href="#i-green"/></svg>VERIFIED BY TENMINA · 12 Jan 2027</div>
       <h3 style="margin-bottom:var(--space-1)">Komfo Anokye Teaching Hospital</h3>
       <p class="small muted" style="margin-bottom:var(--space-2)">Kumasi · Hospital</p>
       <dl class="kv">
@@ -989,7 +989,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
         <dt>Bank account</dt><dd>In the hospital's name, ending 4471</dd>
         <dt>Contact</dt><dd>Accounts office</dd>
       </dl>
-      <p class="small" style="margin:var(--space-3) 0 0">Fidero pays the hospital directly. Money never goes to a relative or a go-between.</p>
+      <p class="small" style="margin:var(--space-3) 0 0">Tenmina pays the hospital directly. Money never goes to a relative or a go-between.</p>
     </div>
     <button class="btn btn-primary block" data-go="g2">See the invoice</button>
     <div class="row" style="margin-top:var(--space-3)"><button class="btn btn-quiet small" data-go="g5">Statement</button><button class="btn btn-quiet small" data-toast="Adding an institution (SCR-PTL-39) is in the wireframes (W-26).">Add another institution</button></div>
@@ -1003,7 +1003,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     <p class="ref">Komfo Anokye Teaching Hospital · verified · account ending 4471</p>
     <fieldset>
       <legend>Where is the invoice from?</legend>
-      <label class="rcard"><input type="radio" name="invsrc" value="sent" checked><span class="r-body"><span class="r-title">Sent by the hospital to Fidero</span><span class="small muted">KATH-2027-08812 · received 14 August</span></span></label>
+      <label class="rcard"><input type="radio" name="invsrc" value="sent" checked><span class="r-body"><span class="r-title">Sent by the hospital to Tenmina</span><span class="small muted">KATH-2027-08812 · received 14 August</span></span></label>
       <label class="rcard"><input type="radio" name="invsrc" value="upload"><span class="r-body"><span class="r-title">Upload an invoice</span><span class="small muted">Photo or PDF. We check it against the hospital and your mother.</span></span></label>
     </fieldset>
     <div id="inv-upload" class="field" hidden><label for="inv-file">Invoice file</label><input id="inv-file" type="file"></div>
@@ -1020,9 +1020,9 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
       <h2>Our checks</h2>
       <ul class="checks" id="inv-checks"></ul>
     </div>
-    <div id="inv-blocked" class="alert error" hidden role="alert"><svg class="icon" aria-hidden="true"><use href="#i-red"/></svg><p><strong>Nothing has been paid.</strong> The patient on this invoice is Kwame Mensah, not Comfort Mensah. Check with the hospital. Upload a corrected invoice, or ask Fidero to look into it.</p></div>
+    <div id="inv-blocked" class="alert error" hidden role="alert"><svg class="icon" aria-hidden="true"><use href="#i-red"/></svg><p><strong>Nothing has been paid.</strong> The patient on this invoice is Kwame Mensah, not Comfort Mensah. Check with the hospital. Upload a corrected invoice, or ask Tenmina to look into it.</p></div>
     <button class="btn btn-primary block" id="inv-next" data-go="g3">Approve and pay</button>
-    <div class="row" id="inv-alt" hidden style="margin-top:var(--space-2)"><button class="btn btn-secondary small" data-toast="Upload opens the file picker in the real product.">Upload a corrected invoice</button><button class="btn btn-quiet small" data-toast="Messages go to your case manager. Not part of this prototype.">Ask Fidero</button></div>
+    <div class="row" id="inv-alt" hidden style="margin-top:var(--space-2)"><button class="btn btn-secondary small" data-toast="Upload opens the file picker in the real product.">Upload a corrected invoice</button><button class="btn btn-quiet small" data-toast="Messages go to your case manager. Not part of this prototype.">Ask Tenmina</button></div>
     <div class="proto-note"><strong>Prototype:</strong> try the blocked state.<br><button class="btn btn-secondary small" id="sim-mismatch" aria-pressed="false">Simulate a mismatched invoice</button></div>
   </section>
 
@@ -1033,12 +1033,12 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     <p class="ref">Invoice KATH-2027-08812 · for Comfort Mensah</p>
     <fieldset>
       <legend>How to pay</legend>
-      <label class="rcard"><input type="radio" name="paysrc" value="held" checked><span class="r-body"><span class="r-title"><span>From the money held for you at Partner Bank</span><span class="money">GHS 5,000.00</span></span><span class="small muted">Leaves GHS 1,110.00 held after this payment and Fidero's charge.</span></span></label>
-      <label class="rcard"><input type="radio" name="paysrc" value="new"><span class="r-body"><span class="r-title">Pay GHS 3,850.00 into Partner Bank now</span><span class="small muted">Card or mobile money. The bank confirms, then Fidero instructs the payment.</span></span></label>
+      <label class="rcard"><input type="radio" name="paysrc" value="held" checked><span class="r-body"><span class="r-title"><span>From the money held for you at Partner Bank</span><span class="money">GHS 5,000.00</span></span><span class="small muted">Leaves GHS 1,110.00 held after this payment and Tenmina's charge.</span></span></label>
+      <label class="rcard"><input type="radio" name="paysrc" value="new"><span class="r-body"><span class="r-title">Pay GHS 3,850.00 into Partner Bank now</span><span class="small muted">Card or mobile money. The bank confirms, then Tenmina instructs the payment.</span></span></label>
     </fieldset>
     <div class="card">
       <div class="sum-row"><span>Invoice</span><span class="money">GHS 3,850.00</span></div>
-      <div class="sum-row"><span>Fidero's charge (sample)</span><span class="money">GHS 40.00</span></div>
+      <div class="sum-row"><span>Tenmina's charge (sample)</span><span class="money">GHS 40.00</span></div>
       <div class="total"><span>Total</span><span class="money">GHS 3,890.00</span></div>
       <p class="small muted" style="margin:var(--space-2) 0 0">About USD 251 (guide only, sample rate)</p>
     </div>
@@ -1047,7 +1047,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     <div class="field"><label for="inv-code">Code sent to your phone</label><span class="hint" id="ic-hint">Any 6 digits work in this prototype.</span><input id="inv-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-describedby="ic-hint"></div>
     <p id="inv-err" class="field-error" hidden role="alert"></p>
     <button class="btn btn-primary block" id="inv-approve">Approve: pay GHS 3,850.00 to Komfo Anokye Teaching Hospital</button>
-    <p class="small muted" style="margin-top:var(--space-2)">After you approve, two Fidero staff approve and Partner Bank pays the hospital. Your approval alone does not move money. The receipt comes back to your statement.</p>
+    <p class="small muted" style="margin-top:var(--space-2)">After you approve, two Tenmina staff approve and Partner Bank pays the hospital. Your approval alone does not move money. The receipt comes back to your statement.</p>
   </section>
 
   <!-- G4 Paid (SCR-PTL-40 result) -->
@@ -1057,8 +1057,8 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
       <h2>How it happened</h2>
       <ol class="timeline">
         <li class="done"><span class="dot"><svg class="icon" aria-hidden="true"><use href="#i-tick"/></svg></span><span>You approved the invoice<span class="state">Code verified</span></span><span class="when">15 Aug 09:40</span></li>
-        <li class="done"><span class="dot"><svg class="icon" aria-hidden="true"><use href="#i-tick"/></svg></span><span>Fidero approval 1: Kofi Boateng, reviewer<span class="state">Done</span></span><span class="when">15 Aug 09:55</span></li>
-        <li class="done"><span class="dot"><svg class="icon" aria-hidden="true"><use href="#i-tick"/></svg></span><span>Fidero approval 2: Abena Owusu, reviewer<span class="state">Done · payee account matches the verified hospital</span></span><span class="when">15 Aug 10:01</span></li>
+        <li class="done"><span class="dot"><svg class="icon" aria-hidden="true"><use href="#i-tick"/></svg></span><span>Tenmina approval 1: Kofi Boateng, reviewer<span class="state">Done</span></span><span class="when">15 Aug 09:55</span></li>
+        <li class="done"><span class="dot"><svg class="icon" aria-hidden="true"><use href="#i-tick"/></svg></span><span>Tenmina approval 2: Abena Owusu, reviewer<span class="state">Done · payee account matches the verified hospital</span></span><span class="when">15 Aug 10:01</span></li>
         <li class="done"><span class="dot"><svg class="icon" aria-hidden="true"><use href="#i-tick"/></svg></span><span>Partner Bank paid the hospital<span class="state">Bank reference PB-SAMPLE-4410</span></span><span class="when">15 Aug 10:12</span></li>
         <li class="current"><span class="dot"></span><span>Receipt from the hospital<span class="state">Received</span></span><span class="when">15 Aug 10:40</span></li>
       </ol>
@@ -1068,7 +1068,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
       <dl class="kv">
         <dt>From</dt><dd>Komfo Anokye Teaching Hospital, Accounts office</dd>
         <dt>Receipt no.</dt><dd class="mono">KATH-R-2027-31207 (sample)</dd>
-        <dt>Paid by</dt><dd>Partner Bank, on Fidero's instruction, for Kwabena Osei</dd>
+        <dt>Paid by</dt><dd>Partner Bank, on Tenmina's instruction, for Kwabena Osei</dd>
         <dt>Amount</dt><dd class="money">GHS 3,850.00</dd>
         <dt>Also returned</dt><dd>Discharge note (the hospital agreed to share it with you)</dd>
       </dl>
@@ -1085,7 +1085,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     <div class="status" role="status"><span class="now">Now</span><p id="g5-status"></p></div>
     <div class="card">
       <div class="spread"><span>Held at Partner Bank for you</span><span class="big-money" id="g5-held"></span></div>
-      <p class="held" style="margin:var(--space-2) 0 0"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg>Held by Partner Bank, not by Fidero.</p>
+      <p class="held" style="margin:var(--space-2) 0 0"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg>Held by Partner Bank, not by Tenmina.</p>
       <button class="btn btn-quiet small" data-toast="Bank payment instructions follow the escrow pattern (SCR-PTL-18). Not part of this flow.">Add money</button>
     </div>
     <div class="card">
@@ -1100,7 +1100,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
 <!-- ================= BACK OFFICE ================= -->
 <div id="bo" class="shell wide" hidden>
   <div class="bo-top">
-    <a class="logo" href="#c1" data-go="c1"><svg aria-hidden="true"><use href="#logo"/></svg>Fidero <span class="small muted" style="font-weight:400">back office</span></a>
+    <a class="logo" href="#c1" data-go="c1"><svg aria-hidden="true"><use href="#logo"/></svg>Tenmina <span class="small muted" style="font-weight:400">back office</span></a>
     <nav aria-label="Back office"><ul class="bo-nav">
       <li><a href="#c1" data-toast="Not part of this prototype.">My work</a></li>
       <li><a href="#c1" data-toast="Not part of this prototype.">Cases</a></li>
@@ -1159,20 +1159,20 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   </section>
 </div>
 
-<!-- ================= FIDERO FIELD, iOS and Android (phone frame) ================= -->
+<!-- ================= TENMINA FIELD, iOS and Android (phone frame) ================= -->
 <div id="mob" class="shell wide" hidden>
   <section class="screen" id="f1" data-flow="F" aria-labelledby="f1h" hidden>
-    <h1 id="f1h" tabindex="-1">Fidero Field (iOS and Android): contractor milestone submission</h1>
-    <p class="small muted">Phone-frame mock. The real app, Fidero Field, runs on iOS and Android from one React Native codebase, is installed from the App Store or Google Play, and also serves inspectors, runners, surveyors, carers and errand agents. Shown in HTML for review only. Screens SCR-MOB-04, 07 and 08.</p>
+    <h1 id="f1h" tabindex="-1">Tenmina Field (iOS and Android): contractor milestone submission</h1>
+    <p class="small muted">Phone-frame mock. The real app, Tenmina Field, runs on iOS and Android from one React Native codebase, is installed from the App Store or Google Play, and also serves inspectors, runners, surveyors, carers and errand agents. Shown in HTML for review only. Screens SCR-MOB-04, 07 and 08.</p>
     <div class="phone-wrap">
-      <div class="phone" aria-label="Phone mock of Fidero Field">
+      <div class="phone" aria-label="Phone mock of Tenmina Field">
         <div class="p-status" aria-hidden="true"><span>10:24</span><span id="p-signal">No signal · 41%</span></div>
         <div class="p-banner offline" id="p-banner" role="status" aria-live="polite"></div>
         <div class="p-appbar"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg><span id="p-title">Foundation · House, Kasoa</span></div>
         <div class="p-body" id="p-body"></div>
         <div class="camera" id="camera" hidden>
           <div><div class="viewfinder"><svg class="icon lg" aria-hidden="true"><use href="#i-camera"/></svg></div>
-          <p>Camera (Fidero app only)<br>Position: on plot, ±6 m</p></div>
+          <p>Camera (Tenmina app only)<br>Position: on plot, ±6 m</p></div>
         </div>
         <nav class="p-nav" aria-label="App">
           <button type="button" id="p-jobs" aria-current="true">Jobs</button>
@@ -1193,7 +1193,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
             <li>Camera only. No gallery (RUL-08, FR-MOB-002).</li>
             <li>Submit stays disabled until every required item is captured (FR-MOB-006).</li>
             <li>Queue survives closing the app or a restart (FR-MOB-005).</li>
-            <li>Originals stay on the phone until Fidero confirms receipt (FR-MOB-008).</li>
+            <li>Originals stay on the phone until Tenmina confirms receipt (FR-MOB-008).</li>
           </ul>
         </div>
       </div>
@@ -1233,14 +1233,14 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   /* ---------- Sample data (all samples) ---------- */
   var PRICES = { land:{standard:450, rush:600}, building:{standard:550, rush:750} };
   var RATES = { USD:1, GBP:0.79, EUR:0.92, CAD:1.37, GHS:15.5 }; // sample guide rates only
-  var SAMPLE_REPORT = 'FIDERO SAMPLE REPORT\nReference FID-2027-0142\nVersion 1\nReleased 10 April 2027\nThis is sample data for a prototype. It is not a real report.\n';
+  var SAMPLE_REPORT = 'TENMINA SAMPLE REPORT\nReference TMN-2027-0142\nVersion 1\nReleased 10 April 2027\nThis is sample data for a prototype. It is not a real report.\n';
   var SAMPLE_HASH = '3a8edd728e24409facc451b8c0e63af6d3e18c29b03aa91dd2bc3bc63b1b264f';
   var LISTINGS = [
-    {id:1, type:'plot', title:'Plot, 100 x 70 ft (about 650 m²)', place:'Community 25, Tema', price:'USD 24,000', checked:'3 June 2027', until:'1 September 2027', seller:'Sample Estates Ltd · 12 sales through Fidero, 0 disputes', x:255, y:95},
-    {id:2, type:'house', title:'2-bedroom house', place:'East Legon, Accra', price:'USD 145,000', checked:'18 May 2027', until:'16 August 2027', seller:'Sample Homes Ltd · 4 sales through Fidero, 0 disputes', x:205, y:70},
+    {id:1, type:'plot', title:'Plot, 100 x 70 ft (about 650 m²)', place:'Community 25, Tema', price:'USD 24,000', checked:'3 June 2027', until:'1 September 2027', seller:'Sample Estates Ltd · 12 sales through Tenmina, 0 disputes', x:255, y:95},
+    {id:2, type:'house', title:'2-bedroom house', place:'East Legon, Accra', price:'USD 145,000', checked:'18 May 2027', until:'16 August 2027', seller:'Sample Homes Ltd · 4 sales through Tenmina, 0 disputes', x:205, y:70},
     {id:3, type:'plot', title:'Plot, 50 x 100 ft (about 465 m²)', place:'Millennium City, Kasoa', price:'USD 9,500', checked:'25 May 2027', until:'23 August 2027', seller:'Sample Family Lands (developer account) · 2 sales, 0 disputes', x:110, y:110}
   ];
-  var EXPIRED = {id:9, type:'plot', title:'Plot, 70 x 100 ft (about 650 m²)', place:'Oyarifa, Accra', price:'USD 18,500', checked:'12 February 2027', until:'13 May 2027', seller:'Sample Estates Ltd · 12 sales through Fidero, 0 disputes', expired:true};
+  var EXPIRED = {id:9, type:'plot', title:'Plot, 70 x 100 ft (about 650 m²)', place:'Oyarifa, Accra', price:'USD 18,500', checked:'12 February 2027', until:'13 May 2027', seller:'Sample Estates Ltd · 12 sales through Tenmina, 0 disputes', expired:true};
 
   var S = { line:'land', tier:'standard', cur:'USD', condClosed:false, clientOk:false, appr2:false, bankDone:false, viewAs:'abena', dispute:false,
             online:false, captured:false, submitted:false, queue:[], sending:false, view:'jobs', msApproved:false,
@@ -1257,8 +1257,8 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
 
   /* ---------- Theme ---------- */
   var themeSel=$('#theme');
-  try{var saved=localStorage.getItem('fidero-proto-theme'); if(saved){themeSel.value=saved;}}catch(e){}
-  function applyTheme(){var v=themeSel.value; if(v==='system'){document.documentElement.removeAttribute('data-theme');}else{document.documentElement.setAttribute('data-theme',v);} try{localStorage.setItem('fidero-proto-theme',v);}catch(e){} }
+  try{var saved=localStorage.getItem('tenmina-proto-theme'); if(saved){themeSel.value=saved;}}catch(e){}
+  function applyTheme(){var v=themeSel.value; if(v==='system'){document.documentElement.removeAttribute('data-theme');}else{document.documentElement.setAttribute('data-theme',v);} try{localStorage.setItem('tenmina-proto-theme',v);}catch(e){} }
   themeSel.addEventListener('change',applyTheme); applyTheme();
 
   /* ---------- Router ---------- */
@@ -1376,11 +1376,11 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   function showHashResult(h){
     var ok=h===SAMPLE_HASH, r=$('#hash-result');
     r.innerHTML = ok
-      ? '<div class="alert success">'+icon('i-green')+'<p><strong>Match.</strong> This file is report FID-2027-0142, version 1, released 10 April 2027. It has not been changed.</p></div>'
-      : '<div class="alert error">'+icon('i-red')+'<p><strong>No match.</strong> This file is not the released report, or it has been changed. Do not rely on it. Contact Fidero.</p></div>';
+      ? '<div class="alert success">'+icon('i-green')+'<p><strong>Match.</strong> This file is report TMN-2027-0142, version 1, released 10 April 2027. It has not been changed.</p></div>'
+      : '<div class="alert error">'+icon('i-red')+'<p><strong>No match.</strong> This file is not the released report, or it has been changed. Do not rely on it. Contact Tenmina.</p></div>';
     r.insertAdjacentHTML('beforeend','<p class="small muted">Fingerprint of your file: <span class="mono">'+groups(h)+'</span></p>');
   }
-  function hashFail(){ $('#hash-result').innerHTML='<div class="alert info">'+icon('i-info')+'<p>Your browser cannot work out fingerprints here. Open the file over https, or use Fidero\'s check page.</p></div>'; }
+  function hashFail(){ $('#hash-result').innerHTML='<div class="alert info">'+icon('i-info')+'<p>Your browser cannot work out fingerprints here. Open the file over https, or use Tenmina\'s check page.</p></div>'; }
   $('#hash-file').addEventListener('change',function(){
     var f=this.files[0]; if(!f) return;
     $('#hash-result').textContent='Checking…';
@@ -1399,7 +1399,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   $('#dl-sample').addEventListener('click',function(){
     var a=document.createElement('a');
     a.href=URL.createObjectURL(new Blob([SAMPLE_REPORT],{type:'text/plain'}));
-    a.download='FID-2027-0142-v1-SAMPLE.txt'; document.body.appendChild(a); a.click();
+    a.download='TMN-2027-0142-v1-SAMPLE.txt'; document.body.appendChild(a); a.click();
     setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},500);
     toast('Sample file downloaded. Choose it under "Check a file" to see a match.');
   });
@@ -1417,9 +1417,9 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     var st=escrowState();
     var msg={
       'Funded':'3 of 4 conditions closed. We are waiting for the seller\'s tax clearance, expected by 6 May. Fresh search done on 2 May.',
-      'Ready to release':'All 4 conditions closed. Fresh search done on 2 May. Your approval is needed before Fidero staff can approve the release.',
-      'Client approved':'You approved the release on 6 May. Fidero approval 1 of 2 given. Waiting for a second Fidero approval.',
-      'Release approved':'Both Fidero approvals given on 7 May. The instruction went to Partner Bank at 11:02 GMT. Waiting for the bank to pay the seller.',
+      'Ready to release':'All 4 conditions closed. Fresh search done on 2 May. Your approval is needed before Tenmina staff can approve the release.',
+      'Client approved':'You approved the release on 6 May. Tenmina approval 1 of 2 given. Waiting for a second Tenmina approval.',
+      'Release approved':'Both Tenmina approvals given on 7 May. The instruction went to Partner Bank at 11:02 GMT. Waiting for the bank to pay the seller.',
       'Released':'Partner Bank paid the seller on 7 May at 11:05 GMT. Your purchase is complete.',
       'Frozen':'A dispute was opened on 6 May. No money can move until it is decided. Decision due by 8 June.'
     }[st];
@@ -1432,13 +1432,13 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     /* Client approval (RUL-11, Escrow state Ready to release -> Client approved) */
     var ca=$('#client-appr');
     if(S.clientOk){
-      ca.innerHTML='<p style="margin:0">'+icon('i-green','gate-ok')+' <strong>You approved the release</strong> on 6 May 2027 at 14:00 GMT (code verified).</p><p class="small muted" style="margin:var(--space-1) 0 0">Your approval alone does not release money. Two Fidero staff approve next.</p>';
+      ca.innerHTML='<p style="margin:0">'+icon('i-green','gate-ok')+' <strong>You approved the release</strong> on 6 May 2027 at 14:00 GMT (code verified).</p><p class="small muted" style="margin:var(--space-1) 0 0">Your approval alone does not release money. Two Tenmina staff approve next.</p>';
     } else if(!S.condClosed){
       ca.innerHTML='<p style="margin:0">'+icon('i-lock')+' Your approval starts when every condition is closed. Nothing is paid until you approve.</p>';
     } else if(S.dispute){
       ca.innerHTML='<p style="margin:0">'+icon('i-lock')+' A dispute is open. You cannot approve until it is decided.</p>';
     } else {
-      ca.innerHTML='<div class="payee">'+icon('i-bank')+'<span>If you approve: Partner Bank pays <strong>USD 18,000.00 to Kofi Asante (seller), account ending 4471</strong>, after two Fidero approvals.</span></div>'+
+      ca.innerHTML='<div class="payee">'+icon('i-bank')+'<span>If you approve: Partner Bank pays <strong>USD 18,000.00 to Kofi Asante (seller), account ending 4471</strong>, after two Tenmina approvals.</span></div>'+
         '<div class="check"><input type="checkbox" id="esc-ok"><label for="esc-ok">I have seen the evidence for all 4 conditions and the fresh search</label></div>'+
         '<div class="field"><label for="esc-code">Code sent to your phone</label><span class="hint" id="ec-hint">Any 6 digits work in this prototype.</span><input id="esc-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-describedby="ec-hint"></div>'+
         '<p id="esc-err" class="field-error" role="alert" hidden></p>'+
@@ -1447,7 +1447,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
       $('#esc-approve').addEventListener('click',function(){
         var a=$('#esc-ok').checked, b=/^\d{6}$/.test($('#esc-code').value.trim()), err=$('#esc-err');
         if(!a||!b){err.hidden=false; err.innerHTML=icon('i-red')+'Error: '+(!a?'tick the statement. ':'')+(!b?'enter the 6-digit code.':''); (!a?$('#esc-ok'):$('#esc-code')).focus(); return;}
-        S.clientOk=true; render(); toast('Your approval is recorded. Two Fidero staff approve next.');
+        S.clientOk=true; render(); toast('Your approval is recorded. Two Tenmina staff approve next.');
         var c=$('#client-appr-card'); c.setAttribute('tabindex','-1'); c.focus();
       });
     }
@@ -1455,7 +1455,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     if(!S.condClosed){
       al.innerHTML='<li><span class="c-open">'+icon('i-lock')+'</span><span>Approvals start when every condition is closed<span class="meta">Rule: no release while a condition is open</span></span></li>';
     } else if(!S.clientOk){
-      al.innerHTML='<li><span class="c-open">'+icon('i-lock')+'</span><span>Fidero approvals start after your approval<span class="meta">Rule: the client approves first (RUL-11)</span></span></li>';
+      al.innerHTML='<li><span class="c-open">'+icon('i-lock')+'</span><span>Tenmina approvals start after your approval<span class="meta">Rule: the client approves first (RUL-11)</span></span></li>';
     } else {
       n=1+(S.appr2?1:0);
       al.innerHTML='<li><span class="c-done">'+icon('i-green')+'</span><span>Approval 1: Kofi Boateng, reviewer<span class="meta">6 May 2027, 15:20 GMT</span></span></li>'+
@@ -1497,7 +1497,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
       $('#bank-ok').addEventListener('click',function(){S.bankDone=true; render(); toast('Bank confirmation recorded. Client, seller and staff notified.');});
     } else if(!gatesOk){
       s2.className='slot';
-      s2.innerHTML=h+'<div class="alert error" style="margin:0">'+icon('i-red')+'<p><strong>Release blocked.</strong> '+(S.dispute?'A dispute is open. No approval can be given until it is decided.':(!S.condClosed?'1 condition is still open. Approval starts when every condition is closed.':'The client has not approved the release yet. Fidero approvals start after the client approves (RUL-11).'))+'</p></div>';
+      s2.innerHTML=h+'<div class="alert error" style="margin:0">'+icon('i-red')+'<p><strong>Release blocked.</strong> '+(S.dispute?'A dispute is open. No approval can be given until it is decided.':(!S.condClosed?'1 condition is still open. Approval starts when every condition is closed.':'The client has not approved the release yet. Tenmina approvals start after the client approves (RUL-11).'))+'</p></div>';
     } else if(S.viewAs==='kofi'){
       s2.className='slot';
       s2.innerHTML=h+'<div class="alert locked" style="margin:0">'+icon('i-lock')+'<p>You gave approval 1. <strong>A different person must give approval 2</strong> (RUL-05).</p></div>';
@@ -1534,12 +1534,12 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   function badge(l,large){
     if(l.expired){
       return large
-        ? '<div class="badge-card expired"><div class="title">'+icon('i-clock','lg')+'Badge expired</div><p style="margin:0 0 var(--space-2)">The Fidero Verified badge expired on <strong>'+l.until+'</strong>. The checks done on '+l.checked+' are out of date, so this listing cannot be reserved.</p><button class="btn btn-secondary small" data-report="'+l.id+'">Read the old report</button></div>'
+        ? '<div class="badge-card expired"><div class="title">'+icon('i-clock','lg')+'Badge expired</div><p style="margin:0 0 var(--space-2)">The Tenmina Verified badge expired on <strong>'+l.until+'</strong>. The checks done on '+l.checked+' are out of date, so this listing cannot be reserved.</p><button class="btn btn-secondary small" data-report="'+l.id+'">Read the old report</button></div>'
         : '<span class="vbadge expired">'+icon('i-clock')+'Badge expired</span>';
     }
     return large
-      ? '<div class="badge-card"><div class="title">'+icon('i-green','lg')+'Fidero Verified</div><dl class="kv"><dt>Checks done</dt><dd>'+l.checked+'</dd><dt>Badge valid until</dt><dd>'+l.until+'</dd></dl><p class="small muted" style="margin:var(--space-2) 0">Validity period is a sample [TO VERIFY].</p><button class="btn btn-secondary" data-report="'+l.id+'">'+icon('i-doc')+'Read the full report</button></div>'
-      : '<span class="vbadge">'+icon('i-green')+'Fidero Verified · checked '+l.checked.replace(/ 2027$/,'')+'</span>';
+      ? '<div class="badge-card"><div class="title">'+icon('i-green','lg')+'Tenmina Verified</div><dl class="kv"><dt>Checks done</dt><dd>'+l.checked+'</dd><dt>Badge valid until</dt><dd>'+l.until+'</dd></dl><p class="small muted" style="margin:var(--space-2) 0">Validity period is a sample [TO VERIFY].</p><button class="btn btn-secondary" data-report="'+l.id+'">'+icon('i-doc')+'Read the full report</button></div>'
+      : '<span class="vbadge">'+icon('i-green')+'Tenmina Verified · checked '+l.checked.replace(/ 2027$/,'')+'</span>';
   }
   function filtered(){
     var q=$('#q').value.trim().toLowerCase(), t=$('#ltype').value;
@@ -1548,7 +1548,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   function renderListings(){
     var list=filtered(), p=$('#panel-list');
     p.innerHTML = list.length ? list.map(function(l,i){
-      return '<button class="lcard" data-listing="'+l.id+'" aria-label="'+(i+1)+'. '+l.title+', '+l.place+', '+l.price+', Fidero Verified, checked '+l.checked+'"><div class="ph" aria-hidden="true">'+(i+1)+'</div><div><strong>'+l.title+'</strong><br><span class="small">'+l.place+'</span><br><span class="money">'+l.price+'</span><br>'+badge(l)+'</div></button>';
+      return '<button class="lcard" data-listing="'+l.id+'" aria-label="'+(i+1)+'. '+l.title+', '+l.place+', '+l.price+', Tenmina Verified, checked '+l.checked+'"><div class="ph" aria-hidden="true">'+(i+1)+'</div><div><strong>'+l.title+'</strong><br><span class="small">'+l.place+'</span><br><span class="money">'+l.price+'</span><br>'+badge(l)+'</div></button>';
     }).join('') : '<div class="card"><h2>No listings match</h2><p>Try another place or type.</p><button class="btn btn-secondary" id="clear-f">Clear filters</button></div>';
     var cf=$('#clear-f'); if(cf) cf.addEventListener('click',function(){$('#q').value='';$('#ltype').value='';renderListings();});
     $('#pins').innerHTML=list.map(function(l,i){return '<g transform="translate('+l.x+' '+l.y+')"><circle style="fill:var(--color-primary)" r="12"/><text style="fill:var(--color-on-primary)" text-anchor="middle" y="4" font-size="12" font-weight="700">'+(i+1)+'</text><text style="fill:var(--color-text)" x="16" y="4" font-size="11">'+l.place.split(',')[0]+'</text></g>';}).join('');
@@ -1570,7 +1570,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     $('#d2-seller').textContent=l.seller;
     $('#d2-actions').innerHTML = l.expired
       ? '<p class="small muted" style="margin:0">Reserve is not available while the badge is expired. The seller can order new checks.</p>'
-      : '<button class="btn btn-primary" id="reserve">Reserve this plot</button><button class="btn btn-secondary" data-toast="Enquiries go through Fidero. Not part of this prototype.">Ask Fidero</button>';
+      : '<button class="btn btn-primary" id="reserve">Reserve this plot</button><button class="btn btn-secondary" data-toast="Enquiries go through Tenmina. Not part of this prototype.">Ask Tenmina</button>';
     var rv=$('#reserve'); if(rv) rv.addEventListener('click',function(){toast('Reserving starts a fresh search and site check, then an escrow with a licensed bank (J-04, J-02). Not part of this prototype.');});
     show('d2');
   }
@@ -1589,13 +1589,13 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     var a=$('#seen-price').checked, b=/^\d{6}$/.test($('#client-code').value.trim()), err=$('#approve-err');
     if(!a||!b){err.hidden=false; err.innerHTML=icon('i-red')+'Error: '+(!a?'tick "I have seen the new price". ':'')+(!b?'enter the 6-digit code.':''); (!a?$('#seen-price'):$('#client-code')).focus(); return;}
     S.msApproved=true; renderG();
-    $('#approve-card').innerHTML='<h2>Milestone 2 approved by you</h2><div class="alert success">'+icon('i-green')+'<p>You approved GHS 99,100.00 on 15 August at 18:40 GMT. Next: two Fidero staff approve, then Partner Bank pays the contractor. GHS 2,400.00 stays held until the defect is fixed.</p></div>';
-    $('#e1-status').textContent='You approved the Blocks milestone on 15 August. Two Fidero approvals come next. Payment expected by 19 August.';
-    $('#ms2-state').textContent='Passed with 1 defect · you approved · waiting for Fidero approvals';
+    $('#approve-card').innerHTML='<h2>Milestone 2 approved by you</h2><div class="alert success">'+icon('i-green')+'<p>You approved GHS 99,100.00 on 15 August at 18:40 GMT. Next: two Tenmina staff approve, then Partner Bank pays the contractor. GHS 2,400.00 stays held until the defect is fixed.</p></div>';
+    $('#e1-status').textContent='You approved the Blocks milestone on 15 August. Two Tenmina approvals come next. Payment expected by 19 August.';
+    $('#ms2-state').textContent='Passed with 1 defect · you approved · waiting for Tenmina approvals';
     $('#approve-card').setAttribute('tabindex','-1'); $('#approve-card').focus();
   });
 
-  /* ---------- Flow F: Fidero Field ---------- */
+  /* ---------- Flow F: Tenmina Field ---------- */
   var ITEMS=[
     {name:'Cleared site and setting out', files:1},
     {name:'Trenches with tape measure', files:2},
@@ -1614,14 +1614,14 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     $('#p-signal').textContent = S.online ? '3G · 41%' : 'No signal · 41%';
     if(!S.online){ b.className='p-banner offline'; b.innerHTML=icon('i-offline')+'<span>Offline. '+c.waiting+' item'+(c.waiting===1?'':'s')+' saved on this phone. They upload when you have signal.</span>'; }
     else if(c.waiting>0){ b.className='p-banner sending'; b.innerHTML=icon('i-cloud')+'<span>Sending '+(c.sent+1)+' of '+c.total+'…</span>'; }
-    else { b.className='p-banner sent'; b.innerHTML=icon('i-green')+'<span>All sent. Received by Fidero at 10:31 GMT.</span>'; }
+    else { b.className='p-banner sent'; b.innerHTML=icon('i-green')+'<span>All sent. Received by Tenmina at 10:31 GMT.</span>'; }
     $('#p-qcount').textContent=c.waiting;
     $('#p-jobs').setAttribute('aria-current',String(S.view==='jobs'));
     $('#p-queue').setAttribute('aria-current',String(S.view==='queue'));
     var body=$('#p-body');
     if(S.view==='queue'){
       $('#p-title').textContent='Upload queue';
-      body.innerHTML='<p class="small muted">Items stay on this phone, encrypted, until Fidero confirms receipt.</p>'+S.queue.map(function(q){
+      body.innerHTML='<p class="small muted">Items stay on this phone, encrypted, until Tenmina confirms receipt.</p>'+S.queue.map(function(q){
         var st={waiting:'Waiting',sending:'Sending…',sent:'Sent'}[q.state];
         return '<div class="p-item">'+icon(q.state==='sent'?'i-green':'i-cloud',q.state==='sent'?'gate-ok':'')+'<span>'+q.label+'</span><span class="qstate">'+st+'</span></div>';
       }).join('');
@@ -1636,7 +1636,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
         (ok?'':'<button class="btn btn-secondary small" id="cap">Capture</button>')+'</div>';
     });
     if(S.submitted){
-      html+='<div class="alert '+(c.waiting?'info':'success')+'" style="margin-top:var(--space-3)">'+icon(c.waiting?'i-cloud':'i-green')+'<p>'+(c.waiting?'<strong>Submitted.</strong> It will be sent automatically when you have signal. Keep the app installed.':'<strong>Received by Fidero.</strong> Evidence check next, then the inspector visits.')+'</p></div>';
+      html+='<div class="alert '+(c.waiting?'info':'success')+'" style="margin-top:var(--space-3)">'+icon(c.waiting?'i-cloud':'i-green')+'<p>'+(c.waiting?'<strong>Submitted.</strong> It will be sent automatically when you have signal. Keep the app installed.':'<strong>Received by Tenmina.</strong> Evidence check next, then the inspector visits.')+'</p></div>';
     } else {
       var ready=S.captured;
       html+='<p class="xs muted" style="margin-top:var(--space-3)">All photos are taken with this app. Gallery uploads are not allowed.</p>'+
@@ -1690,13 +1690,13 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     $('#sim-mismatch').textContent = mm ? 'Use the correct invoice again' : 'Simulate a mismatched invoice';
     /* Statement (SCR-PTL-42) */
     var rows=[
-      {d:'14 Jul', t:'Paid to Sample Pharmacy, account ending 0932', sub:'Receipt delivered by a Fidero runner.', amt:'−GHS 210.00'},
-      {d:'14 Jul', t:'Fidero\'s charge', sub:'Receipt R-2027-0388-2', amt:'−GHS 20.00'},
+      {d:'14 Jul', t:'Paid to Sample Pharmacy, account ending 0932', sub:'Receipt delivered by a Tenmina runner.', amt:'−GHS 210.00'},
+      {d:'14 Jul', t:'Tenmina\'s charge', sub:'Receipt R-2027-0388-2', amt:'−GHS 20.00'},
       {d:'1 Jul', t:'Held at Partner Bank', sub:'', amt:'GHS 1,360.00', bal:true}
     ];
     rows.unshift({d:'2 Aug', t:'You paid into Partner Bank', sub:'Bank reference PB-SAMPLE-3301', amt:'+GHS 3,870.00', inn:true});
     if(S.gPaid){
-      rows.unshift({d:'15 Aug', t:'Fidero\'s charge', sub:'Receipt R-2027-0412-2', amt:'−GHS 40.00'});
+      rows.unshift({d:'15 Aug', t:'Tenmina\'s charge', sub:'Receipt R-2027-0412-2', amt:'−GHS 40.00'});
       rows.unshift({d:'15 Aug', t:'Paid to Komfo Anokye Teaching Hospital, account ending 4471', sub:'Invoice KATH-2027-08812 · receipt KATH-R-2027-31207 · discharge note', amt:'−GHS 3,850.00'});
     } else {
       rows.unshift({d:'14 Aug', t:'Invoice from Komfo Anokye Teaching Hospital', sub:'KATH-2027-08812 · waiting for your approval · nothing paid', amt:'GHS 3,850.00', pend:true});
@@ -1713,7 +1713,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
     /* Home dashboard card for the invoice */
     var hf=$('#h-fee'), hs=$('#h-fee-s'), ht=$('#h-fee-tag');
     if(hf){ hf.classList.toggle('need',!S.gPaid); ht.hidden=S.gPaid; hs.textContent = S.gPaid ? 'Paid to Komfo Anokye Teaching Hospital, account ending 4471, on 15 August. Receipt attached.' : 'Invoice GHS 3,850.00 is waiting for your approval. Nothing is paid until you approve.'; }
-    var hb=$('#h-bld'); if(hb){ hb.classList.toggle('need',!S.msApproved); $('#h-bld-tag').hidden=S.msApproved; hb.querySelector('.s').textContent = S.msApproved ? 'You approved the Blocks milestone on 15 August. Two Fidero approvals come next.' : 'Blocks passed inspection on 14 August with 1 defect. Waiting for your approval by 21 August.'; }
+    var hb=$('#h-bld'); if(hb){ hb.classList.toggle('need',!S.msApproved); $('#h-bld-tag').hidden=S.msApproved; hb.querySelector('.s').textContent = S.msApproved ? 'You approved the Blocks milestone on 15 August. Two Tenmina approvals come next.' : 'Blocks passed inspection on 14 August with 1 defect. Waiting for your approval by 21 August.'; }
     var needs = (S.gPaid?0:1) + (escrowState()==='Ready to release'?1:0) + (S.msApproved?0:1);
     $('#h1-need').textContent = needs+' thing'+(needs===1?'':'s')+' need'+(needs===1?'s':'')+' you. '+(7-needs)+' running.';
   }
@@ -1722,7 +1722,7 @@ blockquote{margin:var(--space-3) 0 0;padding-left:var(--space-3);border-left:3px
   $('#inv-approve').addEventListener('click',function(){
     var a=$('#inv-ok').checked, b=/^\d{6}$/.test($('#inv-code').value.trim()), err=$('#inv-err');
     if(!a||!b){err.hidden=false; err.innerHTML=icon('i-red')+'Error: '+(!a?'tick "I have checked this invoice". ':'')+(!b?'enter the 6-digit code.':''); (!a?$('#inv-ok'):$('#inv-code')).focus(); return;}
-    S.gPaid=true; renderG(); show('g4'); toast('Approved. Two Fidero staff approved and Partner Bank paid the hospital (prototype skips ahead).');
+    S.gPaid=true; renderG(); show('g4'); toast('Approved. Two Tenmina staff approved and Partner Bank paid the hospital (prototype skips ahead).');
   });
   $('#reset-g').addEventListener('click',function(){ S.gPaid=false; S.gMismatch=false; $('#inv-ok').checked=false; $('#inv-code').value=''; $('#inv-err').hidden=true; renderG(); toast('Family flow reset.'); });
 

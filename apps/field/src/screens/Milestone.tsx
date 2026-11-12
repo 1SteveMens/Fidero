@@ -1,8 +1,8 @@
 import { View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { distanceWarning, missingEvidence, type FieldJob } from '@fidero/shared';
-import { brand, space } from '@fidero/tokens';
-import { Button, ErrorView, Label, Loading, Panel, Rise, Screen, T, Tick } from '@fidero/ui';
+import { distanceWarning, missingEvidence, type FieldJob } from '@tenmina/shared';
+import { brand, space } from '@tenmina/tokens';
+import { Button, ErrorView, Label, Loading, Panel, Rise, Screen, T, Tick } from '@tenmina/ui';
 import { useField, useFieldLoad } from '../store';
 import { CaptureButton, OfflineBanner, Submitted } from './common';
 
@@ -12,7 +12,7 @@ export function MilestoneScreen({ job }: { job: FieldJob }) {
   const { data: ms, error, reload } = useFieldLoad((api) => api.getMilestone(job.id), `ms-${job.id}`);
 
   if (submitted[job.id]) {
-    return <Submitted title="Milestone submitted." detail={online ? 'It is on its way to Fidero. An inspector checks it next.' : 'Saved on this phone. It is sent by itself when you have signal. Keep the app installed.'} />;
+    return <Submitted title="Milestone submitted." detail={online ? 'It is on its way to Tenmina. An inspector checks it next.' : 'Saved on this phone. It is sent by itself when you have signal. Keep the app installed.'} />;
   }
   if (error) return <Screen ground="ink" back><ErrorView message={error} onRetry={reload} /></Screen>;
   if (!ms) return <Screen ground="ink" back><Loading /></Screen>;
@@ -70,7 +70,7 @@ export function MilestoneScreen({ job }: { job: FieldJob }) {
         <Rise delay={160} style={{ flexDirection: 'row', gap: space[3], alignItems: 'flex-start' }}>
           <Ionicons name={far ? 'alert-circle' : 'locate'} size={20} color={far ? brand.orange : brand.lime} />
           <T v="callout" muted style={{ flex: 1 }}>
-            {far ? `${far} ${far === 1 ? 'capture was' : 'captures were'} taken away from the site, with your reason. Fidero checks them.` : 'All taken with this app. Position checked: on the site.'}
+            {far ? `${far} ${far === 1 ? 'capture was' : 'captures were'} taken away from the site, with your reason. Tenmina checks them.` : 'All taken with this app. Position checked: on the site.'}
           </T>
         </Rise>
       ) : null}

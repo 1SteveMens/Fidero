@@ -17,8 +17,8 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { brand, minTouch, radius, space, type, type Ground } from '@fidero/tokens';
-import type { CaseStep, Verdict } from '@fidero/shared';
+import { brand, minTouch, radius, space, type, type Ground } from '@tenmina/tokens';
+import type { CaseStep, Verdict } from '@tenmina/shared';
 import { GroundContext, useGround, usePalette, useReducedMotion } from './theme';
 
 export type IconName = keyof typeof Ionicons.glyphMap;

@@ -1,14 +1,14 @@
 import { View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { brand, space } from '@fidero/tokens';
-import { Chip, Label, Panel, Rise, Screen, T } from '@fidero/ui';
+import { brand, space } from '@tenmina/tokens';
+import { Chip, Label, Panel, Rise, Screen, T } from '@tenmina/ui';
 import { useField } from '../../store';
 import { timeOfDay } from '../../capture';
 import { OnlineChip } from './index';
 
 const ICON = { capture: 'camera-outline', submission: 'checkmark-done-outline', concern: 'flag-outline' } as const;
 
-/** Upload queue (SCR-MOB-08): everything saved on the phone until Fidero confirms receipt (FR-MOB-005, FR-MOB-008). */
+/** Upload queue (SCR-MOB-08): everything saved on the phone until Tenmina confirms receipt (FR-MOB-005, FR-MOB-008). */
 export default function Queue() {
   const { queue, online } = useField();
   const waiting = queue.filter((q) => q.state !== 'sent');
@@ -28,7 +28,7 @@ export default function Queue() {
         {waiting.length === 0 ? (
           <Panel style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Ionicons name="checkmark-circle" size={22} color={brand.ink} />
-            <T v="callout" style={{ flex: 1 }}>Nothing waiting. Everything has reached Fidero.</T>
+            <T v="callout" style={{ flex: 1 }}>Nothing waiting. Everything has reached Tenmina.</T>
           </Panel>
         ) : (
           <Panel style={{ gap: 0, paddingVertical: space[1] }}>
@@ -47,7 +47,7 @@ export default function Queue() {
       </Rise>
       {sent.length > 0 ? (
         <Rise delay={120}>
-          <Label style={{ marginBottom: space[2] }}>Received by Fidero</Label>
+          <Label style={{ marginBottom: space[2] }}>Received by Tenmina</Label>
           <Panel style={{ gap: 0, paddingVertical: space[1] }}>
             {sent.map((q, i) => (
               <View key={q.id} style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], paddingVertical: space[3], borderBottomWidth: i < sent.length - 1 ? 1 : 0, borderBottomColor: '#ECEAE4' }}>
@@ -59,7 +59,7 @@ export default function Queue() {
           </Panel>
         </Rise>
       ) : null}
-      <T v="footnote" muted>Items stay on this phone, even if the app is closed or the phone restarts, until Fidero confirms it has them. Demo build: there is no server yet, so items are marked received a moment after the phone is online.</T>
+      <T v="footnote" muted>Items stay on this phone, even if the app is closed or the phone restarts, until Tenmina confirms it has them. Demo build: there is no server yet, so items are marked received a moment after the phone is online.</T>
     </Screen>
   );
 }

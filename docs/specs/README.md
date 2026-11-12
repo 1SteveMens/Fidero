@@ -1,6 +1,6 @@
-# Fidero product specification set
+# Tenmina product specification set
 
-Six documents that take Fidero from business case to running service. Document 01 is the source of truth. Every other document traces to its IDs. The business definition they implement is in `../decisions/2026-11-01-diaspora-platform.md`.
+Six documents that take Tenmina from business case to running service. Document 01 is the source of truth. Every other document traces to its IDs. The business definition they implement is in `../decisions/2026-11-01-diaspora-platform.md`.
 
 | No. | Document | What it covers |
 |---|---|---|

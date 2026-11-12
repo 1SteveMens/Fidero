@@ -3,8 +3,8 @@ import { Animated, Easing, Platform, Pressable, ScrollView, View, type NativeScr
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Svg, { Circle, Defs, Path, Text as SvgText, TextPath } from 'react-native-svg';
-import { formatMoney, type HeldAccount, type Money } from '@fidero/shared';
-import { brand, font, radius, space } from '@fidero/tokens';
+import { formatMoney, type HeldAccount, type Money } from '@tenmina/shared';
+import { brand, font, radius, space } from '@tenmina/tokens';
 import { usePalette, useReducedMotion } from './theme';
 import { Label, T, haptic } from './ui';
 
@@ -94,7 +94,7 @@ function AccountCard({ account, holder, index }: { account: HeldAccount; holder:
         </View>
         <View style={{ height: CARD_H - 54, paddingHorizontal: space[5], paddingTop: space[4], justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[2] }}>
-            <T v="headline" color={s.fg} style={{ fontFamily: font.heavy, fontSize: 19, letterSpacing: -0.8 }}>fidero</T>
+            <T v="headline" color={s.fg} style={{ fontFamily: font.heavy, fontSize: 19, letterSpacing: -0.8 }}>tenmina</T>
             <Label color={s.sub} style={{ fontSize: 10 }}>{`${kind} · ${account.bankRef}`}</Label>
           </View>
           <View>

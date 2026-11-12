@@ -1,8 +1,8 @@
 # Land verification report template
 
-This is the structure of every Fidero land verification report. Sections appear in this order. Each section lists the evidence that must be attached. The scope wording in section 12 is fixed and must not be changed without the lawyer's and insurer's approval.
+This is the structure of every Tenmina land verification report. Sections appear in this order. Each section lists the evidence that must be attached. The scope wording in section 12 is fixed and must not be changed without the lawyer's and insurer's approval.
 
-Reports are reviewed by two people before release: the lawyer who signed the legal section and one other Fidero reviewer.
+Reports are reviewed by two people before release: the lawyer who signed the legal section and one other Tenmina reviewer.
 
 ## Verdict colours
 
@@ -10,7 +10,7 @@ Reports are reviewed by two people before release: the lawyer who signed the leg
 |---|---|
 | Green | No material issue found within scope. The buyer may proceed, subject to the conditions listed. |
 | Amber | Issues found that can be resolved before purchase. The report lists what must happen and who must do it. Do not pay until resolved. |
-| Red | A material issue that cannot be resolved by the buyer, or a risk Fidero will not advise proceeding with. Do not buy. |
+| Red | A material issue that cannot be resolved by the buyer, or a risk Tenmina will not advise proceeding with. Do not buy. |
 
 A report cannot be green if any single check in sections 4 to 10 is red.
 
@@ -33,7 +33,7 @@ Keep this to one page. Write for a reader who will read nothing else.
 
 ## 3. Scope of engagement
 
-- What the client asked Fidero to check.
+- What the client asked Tenmina to check.
 - Documents the client supplied, with dates received.
 - Dates of each search and the site visit.
 - Anything the client asked for that is outside scope, and why.
@@ -142,21 +142,21 @@ Keep this to one page. Write for a reader who will read nothing else.
 
 This wording is fixed. Attach it to every report in full.
 
-> This report sets out the results of the checks listed in section 3, carried out on the dates stated, using the documents the client supplied and the public and official records available to Fidero on those dates. It describes the position as found on those dates only.
+> This report sets out the results of the checks listed in section 3, carried out on the dates stated, using the documents the client supplied and the public and official records available to Tenmina on those dates. It describes the position as found on those dates only.
 >
 > The report does not guarantee title. Title to land in Ghana can only be confirmed by registration at the Lands Commission, and registered title can be challenged. The report does not replace legal advice on the purchase agreement, which the client should obtain from the lawyer named in this report or another lawyer of their choice.
 >
-> The report relies on records held by third parties, including the Lands Commission, traditional authorities and local assemblies. Fidero has not verified the completeness of those records and cannot do so. The report relies on statements made by the seller, the traditional authority and witnesses, which Fidero has recorded but cannot independently prove.
+> The report relies on records held by third parties, including the Lands Commission, traditional authorities and local assemblies. Tenmina has not verified the completeness of those records and cannot do so. The report relies on statements made by the seller, the traditional authority and witnesses, which Tenmina has recorded but cannot independently prove.
 >
-> The report covers only the plot described on the cover page and only the matters listed in sections 4 to 10. Anything not listed is outside scope. Fidero's liability for this report is limited to the fee paid for it, except where the law does not allow that limit. Fidero holds professional indemnity insurance in respect of this report [policy reference TO VERIFY].
+> The report covers only the plot described on the cover page and only the matters listed in sections 4 to 10. Anything not listed is outside scope. Tenmina's liability for this report is limited to the fee paid for it, except where the law does not allow that limit. Tenmina holds professional indemnity insurance in respect of this report [policy reference TO VERIFY].
 >
-> The report is for the named client only and may not be relied on by any other person without Fidero's written agreement.
+> The report is for the named client only and may not be relied on by any other person without Tenmina's written agreement.
 
 ## 13. Signatures
 
 - Lawyer: name, licence number, signature, date.
 - Surveyor: name, licence number, signature, date.
-- Fidero reviewer: name, signature, date.
+- Tenmina reviewer: name, signature, date.
 
 ## 14. Appendices
 

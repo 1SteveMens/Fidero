@@ -1,6 +1,6 @@
 # 02 — Architecture and Technical Design
 
-System, database, API, security and infrastructure design for the Fidero platform.
+System, database, API, security and infrastructure design for the Tenmina platform.
 
 | Item | Value |
 |---|---|
@@ -10,7 +10,7 @@ System, database, API, security and infrastructure design for the Fidero platfor
 | Owner | Product and engineering lead (to be hired; founder acts until then) `[TO VERIFY]` |
 | Status | Draft. For review. Not yet baselined |
 | Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01, version 0.8) |
-| Decision record | `docs/decisions/2026-11-01-diaspora-platform.md`: Fidero is the diaspora's trusted agent at home. Same engine, more lines, country as configuration from R1 |
+| Decision record | `docs/decisions/2026-11-01-diaspora-platform.md`: Tenmina is the diaspora's trusted agent at home. Same engine, more lines, country as configuration from R1 |
 | Supersedes | `docs/product/architecture.md` (kept as the original proposal; this document deepens it and keeps its principles) |
 | Related | Document 05 (tests and traceability), document 06 (delivery, CI/CD and operations) |
 
@@ -30,8 +30,8 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | 0.1 | 31 October 2026 | First draft | Product and engineering lead (acting) |
 | 0.2 | 1 November 2026 | Aligned with document 01 version 0.3 and the decision record. New actors (family members, institutions, carers and errand agents, tenants, insurer partners) in the context and container views; the Android app becomes the field app. Six new modules FEE, CARE, PMG, TSK, INS and EVT with tables, events, endpoints and sequences for J-09 to J-12. CTY moves to R1: `country_id` on every tenant-scoped table, versioned `cty_country_config` with copying (FR-CTY-004), and a cell strategy for per-country data location. Verified payee registry and database checks for RUL-22 to RUL-25; held funds as a mirror of the bank for FR-ESC-014 and FR-ESC-015. ADR-16 to ADR-21. Threat model, RBAC, NFR, coverage, risks and questions extended. Issues fixed in 01 version 0.2 and 0.3 removed from section 15; new issues I-17 to I-28 added. Release rights limited to reviewers, as 01 C2 now states. | Product and engineering lead (acting) |
 | 0.3 | 1 November 2026 | Aligned to 01 v0.4: runner cash route removed (voucher table, instruction type, endpoints, job, threat row and TR-09 controls replaced by `fee_institution.eligible_for_direct_payment` and a runner task that only collects invoices and delivers receipts); fresh search blocks purchase releases only; standing client approvals for care visits and errand steps (`esc_standing_approval`); account-name sources for FR-ESC-015 with no override; 72-hour reviewer decision, second-person check of call confirmations and code lockout for visits; owner's written mandate for rent statement lines; both premium routes; dispute Withdrawn state; data classes and keys aligned to 01 C5.2; I-16 to I-22, I-25 and I-26 marked resolved. | Product and engineering lead (acting) |
-| 0.4 | 7 November 2026 | Aligned to 01 v0.6: both app stores, React Native, client app. ADR-22 replaces ADR-06: two apps, Fidero (clients, family members, tenants) and Fidero Field (field roles), on iOS and Android from one React Native and TypeScript codebase, with native modules for camera-only capture, hardware-backed signing (Android Keystore, iOS Secure Enclave) and attestation (Play Integrity, App Attest). Context and container views show both apps, both stores (IF-12), APNs and FCM. Section 8 covers both platforms and adds the client app (8.9) and store distribution (8.10). New endpoints for attestation challenges, push devices, in-app account deletion and app configuration (minimum version, fee payment mode). `mob_device` gains platform and attestation columns; `ntf_push_device` added. Security, NFR, coverage (FR-APP-001 to FR-APP-006, NFR-STORE-01, NFR-STORE-02), risks TR-16 to TR-19, questions TQ-23 to TQ-26 and issues I-29 to I-32 updated. | Product and engineering lead (acting) |
-| 0.5 | 11 November 2026 | Aligned to 01 v0.8: professional payments. New module PRO (`profpay`, ADR-23) pays the professionals Fidero contracts (lawyers, surveyors, runners, inspectors, quantity surveyors, errand agents) from Fidero's operating account, out of fee income, and never touches client money (RUL-27). Goal G-11; tables `pro_agreement`, `pro_scope`, `pro_rate_card`, `pro_payable`, `pro_expense_claim`, `pro_payment_run`, `pro_payment_line` and `pro_document` (6.14); a `work.accepted` event with no result field and a rate fixed at assignment, so pay cannot depend on the verdict (RUL-26); payment runs prepared by one person and approved by a different person with payment rights through `core_approval_request`, which now allows one approver for PRO subjects; a bulk payment file for the operating bank or mobile money provider; tax deductions from the country configuration; sequence 5.11; endpoints for professionals and the back office; jobs; threat model rows; a PRO permission table and `payment_rights` on role grants. The payee registry gains the kind `contracted_professional`, which only PRO may pay and no release instruction may name. Errand agents are paid under PRO (FR-TSK-003); Fidero's errand charge stays a PAY fee through the payment provider (FR-TSK-002). Coverage for FR-PRO-001 to FR-PRO-010, RUL-26 and RUL-27; TR-20, TR-21; TQ-18 updated, TQ-27 to TQ-30; issues I-33 to I-39. | Product and engineering lead (acting) |
+| 0.4 | 7 November 2026 | Aligned to 01 v0.6: both app stores, React Native, client app. ADR-22 replaces ADR-06: two apps, Tenmina (clients, family members, tenants) and Tenmina Field (field roles), on iOS and Android from one React Native and TypeScript codebase, with native modules for camera-only capture, hardware-backed signing (Android Keystore, iOS Secure Enclave) and attestation (Play Integrity, App Attest). Context and container views show both apps, both stores (IF-12), APNs and FCM. Section 8 covers both platforms and adds the client app (8.9) and store distribution (8.10). New endpoints for attestation challenges, push devices, in-app account deletion and app configuration (minimum version, fee payment mode). `mob_device` gains platform and attestation columns; `ntf_push_device` added. Security, NFR, coverage (FR-APP-001 to FR-APP-006, NFR-STORE-01, NFR-STORE-02), risks TR-16 to TR-19, questions TQ-23 to TQ-26 and issues I-29 to I-32 updated. | Product and engineering lead (acting) |
+| 0.5 | 11 November 2026 | Aligned to 01 v0.8: professional payments. New module PRO (`profpay`, ADR-23) pays the professionals Tenmina contracts (lawyers, surveyors, runners, inspectors, quantity surveyors, errand agents) from Tenmina's operating account, out of fee income, and never touches client money (RUL-27). Goal G-11; tables `pro_agreement`, `pro_scope`, `pro_rate_card`, `pro_payable`, `pro_expense_claim`, `pro_payment_run`, `pro_payment_line` and `pro_document` (6.14); a `work.accepted` event with no result field and a rate fixed at assignment, so pay cannot depend on the verdict (RUL-26); payment runs prepared by one person and approved by a different person with payment rights through `core_approval_request`, which now allows one approver for PRO subjects; a bulk payment file for the operating bank or mobile money provider; tax deductions from the country configuration; sequence 5.11; endpoints for professionals and the back office; jobs; threat model rows; a PRO permission table and `payment_rights` on role grants. The payee registry gains the kind `contracted_professional`, which only PRO may pay and no release instruction may name. Errand agents are paid under PRO (FR-TSK-003); Tenmina's errand charge stays a PAY fee through the payment provider (FR-TSK-002). Coverage for FR-PRO-001 to FR-PRO-010, RUL-26 and RUL-27; TR-20, TR-21; TQ-18 updated, TQ-27 to TQ-30; issues I-33 to I-39. | Product and engineering lead (acting) |
 
 ### Release staging of the architecture
 
@@ -40,8 +40,8 @@ Nothing in this document is built in R0. R0 runs on spreadsheets, templates and 
 | Release | Months | Architecture that ships |
 |---|---|---|
 | R0 | 0-3 | None. Landing page and payment link only |
-| R1 | 3-9 | API, portal, back office, PostgreSQL/PostGIS, evidence store, Celery workers, modules ACC, ORD, PAY, CASE, RPT, GEO (overlays, images), ESC (manual bank entry, held funds, payee registry), EVD, NTF, ADM, AUD, ANL, DPR, FEE (payments to institutions, manual upload of invoices and receipts), CTY (country as configuration, `country_id` everywhere, one cell), PRO (professional payments from Fidero's operating account: agreements and rate cards, payables for accepted work, payment runs with a bulk payment file, tax per country, remittance advices and statements; in R1 it pays lawyers, surveyors and runners), shared kernel. Country 2 runs its manual phase from month 6 with no software |
-| R2 | 9-18 | Two store apps on iOS and Android from one React Native codebase (ADR-22): Fidero Field for field roles and Fidero for clients, family members and tenants (APP), published on the App Store and Google Play (IF-12) with push through APNs and FCM; MOB (with check-in and check-out), BLD, PRJ, LST, RAT, DSP, PTR, CARE, PMG, TSK, INS, PRO payables for inspectors, quantity surveyors and errand agents as BLD, PMG and TSK go live, bank statement file and API adapters, institution portal or file adapters, insurer adapters, satellite monitoring, CTY configuration copying (FR-CTY-004) and, if country 2 passes its gate and its law demands it, a second cell (FR-CTY-002) |
+| R1 | 3-9 | API, portal, back office, PostgreSQL/PostGIS, evidence store, Celery workers, modules ACC, ORD, PAY, CASE, RPT, GEO (overlays, images), ESC (manual bank entry, held funds, payee registry), EVD, NTF, ADM, AUD, ANL, DPR, FEE (payments to institutions, manual upload of invoices and receipts), CTY (country as configuration, `country_id` everywhere, one cell), PRO (professional payments from Tenmina's operating account: agreements and rate cards, payables for accepted work, payment runs with a bulk payment file, tax per country, remittance advices and statements; in R1 it pays lawyers, surveyors and runners), shared kernel. Country 2 runs its manual phase from month 6 with no software |
+| R2 | 9-18 | Two store apps on iOS and Android from one React Native codebase (ADR-22): Tenmina Field for field roles and Tenmina for clients, family members and tenants (APP), published on the App Store and Google Play (IF-12) with push through APNs and FCM; MOB (with check-in and check-out), BLD, PRJ, LST, RAT, DSP, PTR, CARE, PMG, TSK, INS, PRO payables for inspectors, quantity surveyors and errand agents as BLD, PMG and TSK go live, bank statement file and API adapters, institution portal or file adapters, insurer adapters, satellite monitoring, CTY configuration copying (FR-CTY-004) and, if country 2 passes its gate and its law demands it, a second cell (FR-CTY-002) |
 | R3 | 18-36 | EVT, REC, family and stool listings, materials ordering, country 3 configuration and cell if required |
 
 ---
@@ -58,9 +58,9 @@ Nothing in this document is built in R0. R0 runs on spreadsheets, templates and 
 | G-06 | Be small enough for a team of two or three to build and run. | C-07 |
 | G-07 | Keep a manual fallback for every external dependency. | AS-02 to AS-07, AS-10, AS-11, AS-14, IF-01 to IF-12 |
 | G-08 | Protect personal data under Act 843 and isolate safety data. | C-02, C-09, BR-15, NFR-PRIV-01, NFR-PRIV-02, RUL-17 |
-| G-09 | Make it impossible to instruct a release to anyone but a verified institution, supplier, vendor or professional whose bank account is in that name. Never to a relative, never to Fidero. | BO-10, RUL-22, RUL-23, RUL-24, RUL-25, FR-ESC-015 |
+| G-09 | Make it impossible to instruct a release to anyone but a verified institution, supplier, vendor or professional whose bank account is in that name. Never to a relative, never to Tenmina. | BO-10, RUL-22, RUL-23, RUL-24, RUL-25, FR-ESC-015 |
 | G-10 | Run every product line, from land to school fees to care visits, on the one engine: a case template, a condition set, a schedule and the same approvals, evidence store and bank mirror. | BR-17 to BR-22, F-29 to F-35, NFR-MNT-02, decision record |
-| G-11 | Pay the professionals Fidero contracts only from Fidero's own operating account, for accepted work, at a rate fixed before the work starts, so that no code path joins client money and Fidero's own payments and no pay depends on a verdict. | BR-23, RUL-26, RUL-27, FR-PRO-001 to FR-PRO-010 |
+| G-11 | Pay the professionals Tenmina contracts only from Tenmina's own operating account, for accepted work, at a rate fixed before the work starts, so that no code path joins client money and Tenmina's own payments and no pay depends on a verdict. | BR-23, RUL-26, RUL-27, FR-PRO-001 to FR-PRO-010 |
 
 ## 2. Architecture decision records
 
@@ -90,10 +90,10 @@ Each record is short. A decision changes only through a new ADR that supersedes 
 
 | Part | Content |
 |---|---|
-| Context | Fidero never holds client money (C-01, RUL-01). A design that has a "balance" or "wallet" invites misuse and regulatory risk. |
-| Decision | There is no balance, wallet, ledger or pooled-account table. The ESC module is a mirror of what the bank reports. Amounts in ESC are recorded facts from the bank, never computed balances Fidero controls. PAY handles only Fidero's own fees, and its `purpose` column is limited by a check constraint to fee types. Payment instructions shown to clients come only from the escrow partner's record. The payment provider merchant account is configured for fee products only. |
+| Context | Tenmina never holds client money (C-01, RUL-01). A design that has a "balance" or "wallet" invites misuse and regulatory risk. |
+| Decision | There is no balance, wallet, ledger or pooled-account table. The ESC module is a mirror of what the bank reports. Amounts in ESC are recorded facts from the bank, never computed balances Tenmina controls. PAY handles only Tenmina's own fees, and its `purpose` column is limited by a check constraint to fee types. Payment instructions shown to clients come only from the escrow partner's record. The payment provider merchant account is configured for fee products only. |
 | Consequences | No code path can take purchase money. Reconciliation of escrow is a matching exercise against bank data, not an accounting system. |
-| Alternatives rejected | Fidero-held client account (prohibited by C-01). Payment-provider split payouts for purchase money (still moves client money through Fidero's merchant account). |
+| Alternatives rejected | Tenmina-held client account (prohibited by C-01). Payment-provider split payouts for purchase money (still moves client money through Tenmina's merchant account). |
 | Traces | C-01, RUL-01, FR-PAY-005, FR-ESC-003, BO-07 |
 
 ### ADR-04 Evidence in S3 with Object Lock in compliance mode
@@ -213,7 +213,7 @@ Status: superseded by ADR-16 in version 0.2. Kept for history; the `country_code
 
 | Part | Content |
 |---|---|
-| Context | Clients and third parties must be able to check a report PDF against Fidero's record (FR-RPT-008). |
+| Context | Clients and third parties must be able to check a report PDF against Tenmina's record (FR-RPT-008). |
 | Decision | Reports render from HTML templates with WeasyPrint in a worker, with fonts and images embedded and the render timestamp fixed to the release time. The SHA-256 of the exact bytes is stored in `rpt_report.pdf_sha256` and printed on a public check page, not inside the PDF itself. Released PDFs are stored in the Object Lock bucket. |
 | Consequences | A re-render is never used for verification; only the stored bytes count. |
 | Alternatives rejected | Headless browser rendering (heavier container). Hash printed inside the PDF (circular). |
@@ -243,10 +243,10 @@ Status: superseded by ADR-16 in version 0.2. Kept for history; the `country_code
 
 | Part | Content |
 |---|---|
-| Context | FR-ESC-014 asks for a held amount from which several small releases are made over time, with a running statement to the client, for institution payments, care visits and errands. FR-FEE-007 asks for a statement per family member. ADR-03 forbids any balance, wallet or ledger that Fidero controls. |
-| Decision | Extends ADR-03. A held-funds escrow (`esc_escrow.kind = 'held_funds'`) is still a mirror. It stores no amount that Fidero computes and keeps. The figure shown as "held at the bank" is a view, `esc_held_statement`, derived at read time from bank-confirmed deposits minus bank-confirmed releases, with approved instructions not yet confirmed shown separately as "instructed, awaiting the bank". A trigger refuses an instruction whose amount exceeds that derived figure, so Fidero never instructs more than the bank has reported holding. The running statement is the ordered list of bank events and instructions for the escrow, filterable by family member, institution or errand. Reconciliation against the bank's statement is daily (FR-ESC-011) and any difference is a reviewer item. Whether the bank holds each client's funds in a named sub-account or in one trust account with client references is the bank's design `[TO VERIFY]` (TQ-15). |
+| Context | FR-ESC-014 asks for a held amount from which several small releases are made over time, with a running statement to the client, for institution payments, care visits and errands. FR-FEE-007 asks for a statement per family member. ADR-03 forbids any balance, wallet or ledger that Tenmina controls. |
+| Decision | Extends ADR-03. A held-funds escrow (`esc_escrow.kind = 'held_funds'`) is still a mirror. It stores no amount that Tenmina computes and keeps. The figure shown as "held at the bank" is a view, `esc_held_statement`, derived at read time from bank-confirmed deposits minus bank-confirmed releases, with approved instructions not yet confirmed shown separately as "instructed, awaiting the bank". A trigger refuses an instruction whose amount exceeds that derived figure, so Tenmina never instructs more than the bank has reported holding. The running statement is the ordered list of bank events and instructions for the escrow, filterable by family member, institution or errand. Reconciliation against the bank's statement is daily (FR-ESC-011) and any difference is a reviewer item. Whether the bank holds each client's funds in a named sub-account or in one trust account with client references is the bank's design `[TO VERIFY]` (TQ-15). |
 | Consequences | The CI schema test that fails on any column named like `%balance%` or `%wallet%` stays. Document 01 version 0.4 says "amount held at the bank" in FR-ESC-014 and FR-FEE-007, which matches this design (I-17, resolved). |
-| Alternatives rejected | A stored running balance updated by application code (a Fidero ledger of client money, against C-01). Per-payment escrows for every school term (too many bank accounts and deposits for small sums). |
+| Alternatives rejected | A stored running balance updated by application code (a Tenmina ledger of client money, against C-01). Per-payment escrows for every school term (too many bank accounts and deposits for small sums). |
 | Traces | C-01, RUL-01, FR-ESC-014, FR-ESC-010, FR-FEE-007, FR-CARE-004, FR-TSK-002 |
 
 ### ADR-19 One field app for every field role, with check-in and check-out
@@ -254,7 +254,7 @@ Status: superseded by ADR-16 in version 0.2. Kept for history; the `country_code
 | Part | Content |
 |---|---|
 | Context | Document 01 version 0.3 renames the milestone app the field app and adds carers and errand agents to its users (C1, P-17, FR-MOB-010, FR-MOB-012). Care visits need a geotagged check-in and check-out at a registered address (RUL-23, FR-CARE-003). Inspections of managed properties need the same (FR-PMG-006). |
-| Decision | Extends ADR-06, now replaced by ADR-22. The same field app, Fidero Field, on iOS and Android, serves contractors, inspectors, runners, surveyors, carers and errand agents. The user's assignments decide which screens appear. A check-in or check-out is a signed manifest item of kind `checkin` or `checkout` with position and time, stored in `mob_checkin` and verified like evidence (distance from the registered address against `adm_setting` `checkin_radius_m`, default 100 m, assumption). Plan items, readings and concerns are form items in the same signed, offline queue. The app never shows a family member's confirmation code (ADR-20). Between check-in and check-out the app does not track location; it records position only at capture events (NFR-PRIV-02). |
+| Decision | Extends ADR-06, now replaced by ADR-22. The same field app, Tenmina Field, on iOS and Android, serves contractors, inspectors, runners, surveyors, carers and errand agents. The user's assignments decide which screens appear. A check-in or check-out is a signed manifest item of kind `checkin` or `checkout` with position and time, stored in `mob_checkin` and verified like evidence (distance from the registered address against `adm_setting` `checkin_radius_m`, default 100 m, assumption). Plan items, readings and concerns are form items in the same signed, offline queue. The app never shows a family member's confirmation code (ADR-20). Between check-in and check-out the app does not track location; it records position only at capture events (NFR-PRIV-02). |
 | Consequences | One field app to build and release on both stores. Screens grow with roles; the install size target in NFR-PERF-05 still applies. Carers on low-end phones get the same `software_key` flag as contractors (TR-04). |
 | Alternatives rejected | A separate care app (second codebase, against C-07). Browser check-in (no camera-only guarantee, weaker position evidence, no offline queue). |
 | Traces | FR-MOB-001, FR-MOB-010, FR-MOB-012, FR-CARE-003, FR-CARE-006, FR-TSK-003, RUL-23, NFR-PERF-05 |
@@ -264,7 +264,7 @@ Status: superseded by ADR-16 in version 0.2. Kept for history; the `country_code
 | Part | Content |
 |---|---|
 | Context | A carer is paid only for visits confirmed by the family (RUL-23, FR-CARE-004). If the confirmation passed through the carer's phone, the carer could confirm their own visit. Many family members at home have a basic phone and no app. |
-| Decision | At check-out the server sends a one-time code and a one-tap link to the registered channel (SMS, WhatsApp or app) of a family member the client named as a confirmer. The code never appears in the carer's app. The family member taps the link, replies with the code or confirms by phone to Fidero staff, who record the call. Codes are 6 digits, live 24 hours, allow 5 tries and are stored hashed (assumptions). A visit left unconfirmed for 24 hours alerts the client and Fidero (FR-CARE-005). A family member with no phone of their own is handled by a staff call plus a monthly sample check `[TO VERIFY]` (TQ-16). The same mechanism confirms deliveries for events (FR-EVT-002). |
+| Decision | At check-out the server sends a one-time code and a one-tap link to the registered channel (SMS, WhatsApp or app) of a family member the client named as a confirmer. The code never appears in the carer's app. The family member taps the link, replies with the code or confirms by phone to Tenmina staff, who record the call. Codes are 6 digits, live 24 hours, allow 5 tries and are stored hashed (assumptions). A visit left unconfirmed for 24 hours alerts the client and Tenmina (FR-CARE-005). A family member with no phone of their own is handled by a staff call plus a monthly sample check `[TO VERIFY]` (TQ-16). The same mechanism confirms deliveries for events (FR-EVT-002). |
 | Consequences | One more SMS or WhatsApp message per visit (cost in 11.7). Confirmation by call relies on a staff member, so those visits are sampled for a second check. |
 | Alternatives rejected | A code shown in the carer's app for the family to read back (the carer sees it). A signature on the carer's phone (not independent). Silent approval after a timeout (RUL-11: silence is never approval). |
 | Traces | RUL-23, RUL-11, FR-CARE-004, FR-CARE-005, FR-EVT-002, FR-NTF-004 |
@@ -284,21 +284,21 @@ Status: superseded by ADR-16 in version 0.2. Kept for history; the `country_code
 | Part | Content |
 |---|---|
 | Status | Accepted 7 November 2026 (01 v0.6 and the follow-up decision in `docs/decisions/2026-11-01-diaspora-platform.md`). Replaces ADR-06. |
-| Context | The founder decided that Fidero's mobile apps are published on the Apple App Store and Google Play (C-14, IF-12). Two apps ship in R2: **Fidero**, the client app for clients, family members and tenants (F-36, FR-APP-001 to FR-APP-006), and **Fidero Field**, the field app for contractors, inspectors, surveyors, runners, carers and errand agents (F-15, FR-MOB-001 to FR-MOB-012). Many contractors use low-end Android phones; many clients abroad use iPhones (C-08). AS-08 is retired. The team is small (C-07) and adds one mobile developer in R2. Evidence must stay camera-only and be signed with a hardware-backed key that the server can attest (RUL-08, FR-MOB-002, FR-MOB-004). |
-| Decision | One React Native codebase in TypeScript, in the same monorepo as the Next.js apps (ADR-07), with two app targets: `apps/client` (Fidero) and `apps/field` (Fidero Field). Each target has its own bundle ID, store listing, permission set and signing identity. Packages shared with the web apps: the API client generated from the OpenAPI document, domain types and validation schemas (package names `[TO VERIFY]`). Packages shared by the two apps: offline queue, design tokens, translation files and platform-adapted components. Native modules, one implementation per platform, cover what must not depend on a JavaScript layer: camera-only capture, hardware-backed signing (ECDSA P-256 in Android Keystore with StrongBox or TEE, and in the iOS Secure Enclave), attestation (Android key attestation and Play Integrity; App Attest on iOS) and background upload (WorkManager on Android; background `URLSession` tasks on iOS). The Hermes engine and the New Architecture are used (versions `[TO VERIFY]`). Minimum OS is Android 8.0 and iOS 15 (01 C3, `[TO VERIFY]`), reviewed under NFR-STORE-02. Section 8 has the detail. |
+| Context | The founder decided that Tenmina's mobile apps are published on the Apple App Store and Google Play (C-14, IF-12). Two apps ship in R2: **Tenmina**, the client app for clients, family members and tenants (F-36, FR-APP-001 to FR-APP-006), and **Tenmina Field**, the field app for contractors, inspectors, surveyors, runners, carers and errand agents (F-15, FR-MOB-001 to FR-MOB-012). Many contractors use low-end Android phones; many clients abroad use iPhones (C-08). AS-08 is retired. The team is small (C-07) and adds one mobile developer in R2. Evidence must stay camera-only and be signed with a hardware-backed key that the server can attest (RUL-08, FR-MOB-002, FR-MOB-004). |
+| Decision | One React Native codebase in TypeScript, in the same monorepo as the Next.js apps (ADR-07), with two app targets: `apps/client` (Tenmina) and `apps/field` (Tenmina Field). Each target has its own bundle ID, store listing, permission set and signing identity. Packages shared with the web apps: the API client generated from the OpenAPI document, domain types and validation schemas (package names `[TO VERIFY]`). Packages shared by the two apps: offline queue, design tokens, translation files and platform-adapted components. Native modules, one implementation per platform, cover what must not depend on a JavaScript layer: camera-only capture, hardware-backed signing (ECDSA P-256 in Android Keystore with StrongBox or TEE, and in the iOS Secure Enclave), attestation (Android key attestation and Play Integrity; App Attest on iOS) and background upload (WorkManager on Android; background `URLSession` tasks on iOS). The Hermes engine and the New Architecture are used (versions `[TO VERIFY]`). Minimum OS is Android 8.0 and iOS 15 (01 C3, `[TO VERIFY]`), reviewed under NFR-STORE-02. Section 8 has the detail. |
 | Consequences | One team and one codebase serve both platforms and both apps. Screens and app logic are written once. Native module work is needed on each platform for camera, keystore and Secure Enclave signing, attestation and background upload; the mobile developer must be comfortable in both platforms' native code, and spikes run before R2 feature work (document 04). Performance on 2 GB Android phones must be proven early: cold start under 3 seconds and download under 30 MB (NFR-PERF-05, TR-16). iOS limits background work, so the queue design must accept that iOS decides when uploads run (TR-17). Store review becomes part of every release (C-14, document 06). Two apps mean two store listings, two privacy labels and two Data safety forms to keep in step with the data catalogue (NFR-STORE-01). |
 | Alternatives rejected | Two native codebases, one per platform: doubles mobile work or halves speed, against C-07, and shares no code with the web apps. Flutter: one codebase too, with the same native module work, but it shares no types, API client or validation with the TypeScript web apps and adds a second language for the team. Progressive web app only: no reliable background upload on iOS, no hardware-backed signing key with attestation on iOS, the photo gallery cannot be fully blocked, and it is not in the stores, against C-14. Keeping ADR-06 and adding an iPhone app later: two codebases and two release trains. |
 | Traces | C-07, C-08, C-14, IF-12, F-15, F-36, RUL-08, FR-MOB-001 to FR-MOB-012, FR-APP-001 to FR-APP-006, NFR-PERF-05, NFR-A11Y-01, NFR-STORE-01, NFR-STORE-02 |
 
-### ADR-23 Professional payments as a separate module on Fidero's own account
+### ADR-23 Professional payments as a separate module on Tenmina's own account
 
 | Part | Content |
 |---|---|
 | Status | Accepted 11 November 2026 (01 v0.8). |
-| Context | BR-23 makes Fidero pay the lawyers, surveyors, runners, inspectors, quantity surveyors and errand agents it contracts, accurately, on time and with tax handled as each country requires. RUL-27 says Fidero pays them from its own operating account, out of fee income, and that client money held at the bank pays only the client's own payees, with no path between the two. RUL-26 says pay never depends on the verdict or outcome of the work. ESC already moves client money only by bank instruction from escrow and held funds (ADR-03, ADR-17, ADR-18). Until v0.8 professionals were paid by hand outside the platform. |
-| Decision | A separate module PRO (`profpay`) holds agreements, versioned rate cards, payables, expense claims, payment runs and their lines, remittance advices and yearly statements (6.14). (1) Money source: a payment run debits only an `adm_partner` of kind `operating_bank` or `operating_mobile_money`, Fidero's own account. PRO has no foreign key to, and no import of, any escrow, held-funds, release-instruction, bank-event, standing-approval or statement table or service. The one shared record is the verified payee registry `esc_payee`, read through a payee-only selector, with a new kind `contracted_professional` that only PRO may pay and that `esc.payee_kind_for_subject()` maps to no release subject. (2) Pay independent of results: a payable is created only from a `work.accepted` event whose schema carries the work item, the professional, the unit and the dates, never a verdict, outcome or risk field. The rate comes from the rate card in force when the work was assigned, before any result existed. A rate card has one flat amount per unit and a scope key from a fixed list of things known at assignment; no column can hold a result or a rule. (3) Two people: a run is prepared by one staff member and approved by a different one with payment rights, through `core_approval_request` (subject `pro_payment_run`) with MFA step-up. Rate card versions and expense exceptions use the same table. (4) Bank channel: R1 produces a bulk payment file in the format of Fidero's operating bank or mobile money provider (Q-26, TQ-27). A named staff member uploads it in the bank's own portal, under the bank's own dual authorisation where offered `[TO VERIFY]`. The confirmation file is imported for reconciliation. No bank API is needed in R1. |
+| Context | BR-23 makes Tenmina pay the lawyers, surveyors, runners, inspectors, quantity surveyors and errand agents it contracts, accurately, on time and with tax handled as each country requires. RUL-27 says Tenmina pays them from its own operating account, out of fee income, and that client money held at the bank pays only the client's own payees, with no path between the two. RUL-26 says pay never depends on the verdict or outcome of the work. ESC already moves client money only by bank instruction from escrow and held funds (ADR-03, ADR-17, ADR-18). Until v0.8 professionals were paid by hand outside the platform. |
+| Decision | A separate module PRO (`profpay`) holds agreements, versioned rate cards, payables, expense claims, payment runs and their lines, remittance advices and yearly statements (6.14). (1) Money source: a payment run debits only an `adm_partner` of kind `operating_bank` or `operating_mobile_money`, Tenmina's own account. PRO has no foreign key to, and no import of, any escrow, held-funds, release-instruction, bank-event, standing-approval or statement table or service. The one shared record is the verified payee registry `esc_payee`, read through a payee-only selector, with a new kind `contracted_professional` that only PRO may pay and that `esc.payee_kind_for_subject()` maps to no release subject. (2) Pay independent of results: a payable is created only from a `work.accepted` event whose schema carries the work item, the professional, the unit and the dates, never a verdict, outcome or risk field. The rate comes from the rate card in force when the work was assigned, before any result existed. A rate card has one flat amount per unit and a scope key from a fixed list of things known at assignment; no column can hold a result or a rule. (3) Two people: a run is prepared by one staff member and approved by a different one with payment rights, through `core_approval_request` (subject `pro_payment_run`) with MFA step-up. Rate card versions and expense exceptions use the same table. (4) Bank channel: R1 produces a bulk payment file in the format of Tenmina's operating bank or mobile money provider (Q-26, TQ-27). A named staff member uploads it in the bank's own portal, under the bank's own dual authorisation where offered `[TO VERIFY]`. The confirmation file is imported for reconciliation. No bank API is needed in R1. |
 | Consequences | Professionals see their jobs, payables, expenses and statements (7.4). Each case's cost record fills from accepted payables and expenses (FR-PRO-010). Withholding tax and other deductions come from the country configuration, so a new country is configuration (G-05); the rules themselves wait for Q-25. A runner can now be a payee, but only of kind `contracted_professional`, which no release instruction can name, so the rule that a runner is never paid client money (FR-FEE-006) still holds. The operating account's credentials are separate from release instruction keys (10.5, document 06). |
-| Alternatives rejected | Paying professionals from escrow or held funds as a cost of the case (breaks RUL-27 and C-01). A Fidero ledger of what each professional is owed, settled later (a second money system with no bank mirror; payables tied to accepted work and bank-confirmed runs replace it). A rate table keyed by verdict or outcome, or a free-form rate rule (breaks RUL-26). One-person runs with the bank's dual control as the only check (the platform could not show who approved). |
+| Alternatives rejected | Paying professionals from escrow or held funds as a cost of the case (breaks RUL-27 and C-01). A Tenmina ledger of what each professional is owed, settled later (a second money system with no bank mirror; payables tied to accepted work and bank-confirmed runs replace it). A rate table keyed by verdict or outcome, or a free-form rate rule (breaks RUL-26). One-person runs with the bank's dual control as the only check (the platform could not show who approved). |
 | Traces | BR-23, F-37, RUL-26, RUL-27, RUL-22, FR-PRO-001 to FR-PRO-010, FR-TSK-002, FR-TSK-003, FR-CASE-011, Q-25, Q-26 |
 
 ---
@@ -313,16 +313,16 @@ flowchart LR
     seller["Seller, developer, family or stool<br/>P-10, P-11"]
     family["Family member at home<br/>confirms visits and deliveries"]
     tenant["Tenant of a managed property<br/>pays rent to the owner's account"]
-    staff["Fidero staff<br/>case managers, reviewers, admins"]
+    staff["Tenmina staff<br/>case managers, reviewers, admins"]
     pros["Professionals and field users<br/>lawyers, surveyors, runners, contractors,<br/>inspectors, carers, errand agents, P-17"]
     partnerSys["Partner systems<br/>banks and developers, P-12"]
 
-    fidero["Fidero platform<br/>verify, hold at the bank, release against evidence, show the client"]
+    tenmina["Tenmina platform<br/>verify, hold at the bank, release against evidence, show the client"]
 
     bank["Escrow bank or licensed agent<br/>IF-01, holds all client money"]
     inst["Institutions and agencies<br/>schools, hospitals, clinics, pharmacies,<br/>government agencies, utilities, IF-10"]
     insurer["Insurer partners<br/>health and funeral cover, IF-11"]
-    payp["Payment provider<br/>IF-02, Fidero fees only"]
+    payp["Payment provider<br/>IF-02, Tenmina fees only"]
     idp["Identity check provider<br/>IF-03"]
     maps["Map layer sources<br/>IF-04"]
     sat["Satellite imagery<br/>IF-05"]
@@ -331,34 +331,34 @@ flowchart LR
     lands["Lands Commission<br/>IF-09, manual searches by runner"]
     stores["Apple App Store and Google Play<br/>IF-12, distribution and review,<br/>APNs and FCM push, App Attest and Play Integrity"]
 
-    client --> fidero
-    seller --> fidero
-    family -->|"confirms visits, one-time code"| fidero
-    tenant -->|"reports repairs"| fidero
-    staff --> fidero
-    pros --> fidero
-    partnerSys -->|"IF-08 partner API"| fidero
-    fidero -->|"release instructions"| bank
-    bank -->|"deposit and release confirmations"| fidero
+    client --> tenmina
+    seller --> tenmina
+    family -->|"confirms visits, one-time code"| tenmina
+    tenant -->|"reports repairs"| tenmina
+    staff --> tenmina
+    pros --> tenmina
+    partnerSys -->|"IF-08 partner API"| tenmina
+    tenmina -->|"release instructions"| bank
+    bank -->|"deposit and release confirmations"| tenmina
     client -->|"pays purchase, build, fee and project money directly"| bank
     tenant -->|"pays rent into the owner's own account"| bank
     bank -->|"pays institutions, suppliers, carers,<br/>agencies, vendors and insurers"| inst
-    inst -->|"invoices and receipts, IF-10"| fidero
-    fidero -->|"applications, premium instructions to the bank"| insurer
-    insurer -->|"policies and claim outcomes, IF-11"| fidero
-    fidero --> payp
-    fidero --> idp
-    maps --> fidero
-    sat --> fidero
-    fidero --> gpgps
-    fidero --> msg
+    inst -->|"invoices and receipts, IF-10"| tenmina
+    tenmina -->|"applications, premium instructions to the bank"| insurer
+    insurer -->|"policies and claim outcomes, IF-11"| tenmina
+    tenmina --> payp
+    tenmina --> idp
+    maps --> tenmina
+    sat --> tenmina
+    tenmina --> gpgps
+    tenmina --> msg
     pros -.->|"lodge searches in person"| lands
-    fidero -->|"app builds for review, push, attestation checks"| stores
-    stores -.->|"installs Fidero"| client
-    stores -.->|"installs Fidero Field"| pros
+    tenmina -->|"app builds for review, push, attestation checks"| stores
+    stores -.->|"installs Tenmina"| client
+    stores -.->|"installs Tenmina Field"| pros
 ```
 
-The client pays purchase, construction, project, fee and errand money straight to the bank. A tenant pays rent straight into the owner's own account at the bank (RUL-24). The bank pays every payee: seller, contractor, institution, carer, agency, vendor or insurer. Fidero only verifies, sends instructions and records confirmations. The Lands Commission link is a person, not a system (AS-07). Institutions are mostly people with invoices and receipts in R1; a portal or file link follows in R2 (IF-10). From R2 clients, family members and tenants can use the Fidero app and field users use Fidero Field, both installed only from the Apple App Store or Google Play (IF-12, ADR-22). Apple and Google also carry push notifications (APNs and FCM) and answer device attestation checks (App Attest and Play Integrity).
+The client pays purchase, construction, project, fee and errand money straight to the bank. A tenant pays rent straight into the owner's own account at the bank (RUL-24). The bank pays every payee: seller, contractor, institution, carer, agency, vendor or insurer. Tenmina only verifies, sends instructions and records confirmations. The Lands Commission link is a person, not a system (AS-07). Institutions are mostly people with invoices and receipts in R1; a portal or file link follows in R2 (IF-10). From R2 clients, family members and tenants can use the Tenmina app and field users use Tenmina Field, both installed only from the Apple App Store or Google Play (IF-12, ADR-22). Apple and Google also carry push notifications (APNs and FCM) and answer device attestation checks (App Attest and Play Integrity).
 
 ### 3.2 Containers (C4 level 2)
 
@@ -366,8 +366,8 @@ The client pays purchase, construction, project, fee and errand money straight t
 flowchart TB
     subgraph users["Users"]
         browser["Phone or laptop browser"]
-        clientapp["Fidero client app, iOS and Android<br/>clients, family members, tenants<br/>React Native, TypeScript"]
-        fieldapp["Fidero Field app, iOS and Android<br/>contractors, inspectors, runners, surveyors,<br/>carers, errand agents<br/>React Native, native capture, signing, upload"]
+        clientapp["Tenmina client app, iOS and Android<br/>clients, family members, tenants<br/>React Native, TypeScript"]
+        fieldapp["Tenmina Field app, iOS and Android<br/>contractors, inspectors, runners, surveyors,<br/>carers, errand agents<br/>React Native, native capture, signing, upload"]
         psys["Partner system"]
     end
 
@@ -454,9 +454,9 @@ flowchart TB
 | worker-integrations | Celery | Bank, payment, identity, messaging, institution and insurer adapters; push through APNs and FCM from R2 | R1 |
 | beat | Celery beat | Schedules in section 7.12 | R1 |
 | clamav | ClamAV daemon | Scan every upload (FR-EVD-005) | R1 |
-| Fidero Field app | React Native and TypeScript, iOS and Android, native modules for capture, signing, attestation and background upload (ADR-22) | Offline signed capture, check-in and check-out, plan items, concerns (FR-MOB-001 to FR-MOB-012); in-app account deletion and minimum version (FR-APP-004, FR-APP-006) | R2 |
-| Fidero client app | React Native and TypeScript, iOS and Android, same codebase (ADR-22) | Client features of the portal on the same API, push notifications, biometric unlock, account deletion, minimum version, fee payment by mode (FR-APP-001 to FR-APP-006) | R2 |
-| Apple and Google services | App Store, Google Play, APNs, FCM, App Attest, Play Integrity (IF-12) | Distribution and review, push delivery, device attestation. External; Fidero holds the accounts | R2 |
+| Tenmina Field app | React Native and TypeScript, iOS and Android, native modules for capture, signing, attestation and background upload (ADR-22) | Offline signed capture, check-in and check-out, plan items, concerns (FR-MOB-001 to FR-MOB-012); in-app account deletion and minimum version (FR-APP-004, FR-APP-006) | R2 |
+| Tenmina client app | React Native and TypeScript, iOS and Android, same codebase (ADR-22) | Client features of the portal on the same API, push notifications, biometric unlock, account deletion, minimum version, fee payment by mode (FR-APP-001 to FR-APP-006) | R2 |
+| Apple and Google services | App Store, Google Play, APNs, FCM, App Attest, Play Integrity (IF-12) | Distribution and review, push delivery, device attestation. External; Tenmina holds the accounts | R2 |
 | PostgreSQL | RDS, Multi-AZ | System of record | R1 |
 | Redis | ElastiCache | Broker, cache, rate-limit counters | R1 |
 | S3 evidence | Versioning, Object Lock compliance, SSE-KMS | Evidence, released PDFs, audit anchors | R1 |
@@ -483,7 +483,7 @@ Uploads go straight from the client, browser or app, to S3 through presigned URL
 |---|---|---|---|---|---|---|---|
 | ACC | `accounts` | Sign-up, sign-in, MFA, lockout, roles and scoped grants, organisations (sellers, developers, institutions, insurers from R2), licences, identity checks, representatives, family members, client-owned bank accounts, vetting records for carers and agents, the home dashboard | `acc_person`, `acc_credential`, `acc_mfa_device`, `acc_refresh_token`, `acc_role_grant`, `acc_organisation`, `acc_membership`, `acc_professional_licence`, `acc_identity_check`, `acc_representative_grant`, `acc_family_member`, `acc_bank_account`, `acc_vetting` | `person.registered`, `identity_check.completed`, `licence.expired`, `account.locked`, `family_member.added`, `vetting.completed` | `config.published` | FR-ACC-001 to 012 | R1 |
 | ORD | `orders` | Orders, tier quote, terms acceptance, lead source, referrals, extra inspection orders | `ord_order`, `ord_terms_acceptance`, `ord_referral_code`, `ord_referral_reward` | `order.created`, `order.paid` | `payment.confirmed`, `payment.offline_recorded` | FR-ORD-001 to 007 | R1 |
-| PAY | `payments` | Fidero fee payments only, receipts, refunds, settlement reconciliation, seller invoices | `pay_fee_payment`, `pay_receipt`, `pay_refund`, `pay_settlement_line`, `pay_recon_issue`, `pay_invoice` | `payment.confirmed`, `payment.failed`, `refund.approved` | `order.created`, `listing.submitted`, `listing.sold` | FR-PAY-001 to 007 | R1 |
+| PAY | `payments` | Tenmina fee payments only, receipts, refunds, settlement reconciliation, seller invoices | `pay_fee_payment`, `pay_receipt`, `pay_refund`, `pay_settlement_line`, `pay_recon_issue`, `pay_invoice` | `payment.confirmed`, `payment.failed`, `refund.approved` | `order.created`, `listing.submitted`, `listing.sold` | FR-PAY-001 to 007 | R1 |
 | CASE | `cases` | Case lifecycle from templates for every line that verifies something (land, building, fresh search, institution verification, property onboarding, vendor verification), tasks, assignments, due dates, status messages, document requests, risk screens, safety incidents, costs, messages | `case_case`, `case_task`, `case_status_message`, `case_document_request`, `case_risk_screen`, `case_cost_item`, `case_message`, `safety.incident` | `case.created`, `case.status_changed`, `task.assigned`, `task.completed`, `task.overdue`, `fresh_search.completed` | `order.paid`, `listing.verification_requested`, `reservation.created`, `report.released` | FR-CASE-001 to 015 | R1 |
 | RPT | `reports` | Report versions, sections, verdict rule, locked scope text, signatures, review approvals, PDF and hash, conditions, corrections, anonymised copies | `rpt_report`, `rpt_section`, `rpt_condition`, `rpt_signature`, `rpt_hash_check` | `report.submitted`, `report.released`, `report.corrected`, `work.accepted` (a signed section passed second review) | `overlay.completed`, `case.status_changed` | FR-RPT-001 to 011 | R1 |
 | GEO | `geo` | Assets and boundaries, overlay layers and results, overlaps, satellite images, monitoring, Ghana Post GPS | `geo_asset`, `geo_boundary_version`, `geo_overlay_layer`, `geo_overlay_layer_version`, `geo_overlay_feature`, `geo_overlay_result`, `geo_overlap_flag`, `geo_satellite_image`, `geo_monitoring_alert` | `asset.boundary_saved`, `overlay.completed`, `overlap.flagged`, `monitoring.alert_raised`, `monitoring.alert_resolved` | `listing.live`, `project.started` | FR-GEO-001 to 008 | R1 |
@@ -505,12 +505,12 @@ Uploads go straight from the client, browser or app, to S3 through presigned URL
 | FEE | `fees` | Institutions and their verification case, named contacts, invoices and fee notes, checks against institution and family member, client approval, payment through held funds to the institution's payee record, receipts and confirmations returned, recurring schedules, institutions marked not eligible for direct payment (no cash route), runner tasks to collect invoices and deliver receipts, statement per family member | `fee_institution`, `fee_institution_contact`, `fee_invoice`, `fee_payment`, `fee_schedule`, `fee_runner_task` | `institution.verified`, `invoice.submitted`, `invoice.client_approved`, `fee_payment.receipted`, `fee_schedule.due` | `case.status_changed`, `release.confirmed`, `held_funds.deposit_confirmed`, `payee.verified`, `payee.suspended` | FR-FEE-001 to 007 | R1 |
 | CARE | `care` | Care plans and plan items, carer panel over `acc_vetting`, visit schedule, check-in and check-out results, plan item results and readings, family confirmation codes, missed and unconfirmed alerts, concerns, pay-per-confirmed-visit instructions | `care_plan`, `care_plan_item`, `care_carer`, `care_visit`, `care_visit_item`, `care_confirmation`, `care_concern` | `visit.scheduled`, `visit.checked_out`, `visit.confirmed`, `visit.unconfirmed`, `visit.missed`, `concern.raised` | `checkin.recorded`, `checkout.recorded`, `evidence.stored`, `release.confirmed`, `vetting.completed` | FR-CARE-001 to 006 | R2 |
 | PMG | `propertymgmt` | Managed properties and their onboarding case, tenancies, rent periods matched to the owner's account statement lines under the owner's written mandate, late rent alerts, repairs with quotes from the panel, repair escrows, inspections, owner timeline | `pmg_managed_property`, `pmg_tenancy`, `pmg_rent_period`, `pmg_statement_mandate`, `pmg_repair`, `pmg_repair_quote`, `pmg_inspection` | `property.onboarded`, `rent.received`, `rent.late`, `repair.reported`, `repair.quote_approved`, `repair.inspected`, `work.accepted` (property inspection submitted) | `case.status_changed`, `statement.line_imported`, `checkin.recorded`, `inspection.recorded`, `release.confirmed`, `payee.verified` | FR-PMG-001 to 006 | R2 |
-| TSK | `errands` | Errand catalogue per country (as configuration), errands, checklist documents, steps with receipts, agent panel over `acc_vetting` (agents are paid by Fidero under PRO for checked errands, never from client money), agencies as payees, official fee instructions, completion check, handover | `tsk_errand`, `tsk_errand_document`, `tsk_errand_step`, `tsk_agent`, `tsk_handover` | `errand.ordered`, `errand.assigned`, `errand_step.receipted`, `errand.completed`, `errand.handed_over`, `work.accepted` (errand document checked) | `config.published`, `held_funds.deposit_confirmed`, `evidence.stored`, `release.confirmed`, `vetting.completed` | FR-TSK-001 to 005 | R2 |
-| INS | `insurance` | Insurer partners' products, applications passed to the insurer, policies and documents, premium schedule with instructions to the insurer's payee record, renewal reminders, claims tracked without a Fidero decision | `ins_product`, `ins_application`, `ins_policy`, `ins_premium`, `ins_claim` | `application.submitted`, `policy.issued`, `premium.due`, `claim.updated` | `release.confirmed`, `payee.verified`, `config.published` | FR-INS-001 to 004 | R2 |
+| TSK | `errands` | Errand catalogue per country (as configuration), errands, checklist documents, steps with receipts, agent panel over `acc_vetting` (agents are paid by Tenmina under PRO for checked errands, never from client money), agencies as payees, official fee instructions, completion check, handover | `tsk_errand`, `tsk_errand_document`, `tsk_errand_step`, `tsk_agent`, `tsk_handover` | `errand.ordered`, `errand.assigned`, `errand_step.receipted`, `errand.completed`, `errand.handed_over`, `work.accepted` (errand document checked) | `config.published`, `held_funds.deposit_confirmed`, `evidence.stored`, `release.confirmed`, `vetting.completed` | FR-TSK-001 to 005 | R2 |
+| INS | `insurance` | Insurer partners' products, applications passed to the insurer, policies and documents, premium schedule with instructions to the insurer's payee record, renewal reminders, claims tracked without a Tenmina decision | `ins_product`, `ins_application`, `ins_policy`, `ins_premium`, `ins_claim` | `application.submitted`, `policy.issued`, `premium.due`, `claim.updated` | `release.confirmed`, `payee.verified`, `config.published` | FR-INS-001 to 004 | R2 |
 | EVT | `events` | Events with budget and date, vendors and their verification case, deposits against signed quotes, vendor payments against invoices and delivery evidence with family confirmation, budget against actual | `evt_event`, `evt_vendor`, `evt_vendor_payment` | `event.created`, `vendor.verified`, `vendor_payment.evidenced` | `case.status_changed`, `release.confirmed`, `payee.verified`, `visit.confirmed` | FR-EVT-001 to 003 | R3 |
 | REC | `records` | Traditional authority records, allottees, matching, revenue share, authority confirmation | `rec_authority`, `rec_allocation`, `rec_allottee`, `rec_match`, `rec_revenue_share` | `record.matched` | `asset.boundary_saved`, `case.status_changed` | FR-REC-001 to 004 | R3 |
 | CTY | `countries` | Country registry, cells and data location, versioned country configuration with copying, activation with two administrators, routing directory, metrics by country | `cty_country`, `cty_cell`, `cty_country_config`, `cty_directory` | `country.activated`, `country_config.published` | `config.published` | FR-CTY-001 to 004 | R1 (copying and second cell R2) |
-| PRO | `profpay` | Professional payments from Fidero's operating account (ADR-23): signed agreements and versioned rate cards per country and role, payables created only for accepted work, expense claims with receipts and limits, payment runs with a preparer and a different approver, bulk payment files, reconciliation against the bank's or provider's confirmation, tax deductions from the country configuration, remittance advices and yearly statements, case cost entries. Never reads or writes an escrow or held-funds table | `pro_agreement`, `pro_scope`, `pro_rate_card`, `pro_payable`, `pro_expense_claim`, `pro_payment_run`, `pro_payment_line`, `pro_document` | `payable.created`, `payable.overdue`, `payment_run.approved`, `payment_run.file_issued`, `payment_line.confirmed`, `payment_line.failed`, `runner_month.closed` | `work.accepted`, `runner_month.closed`, `payee.verified`, `payee.suspended`, `country_config.published` | FR-PRO-001 to 010 | R1 (inspector, quantity surveyor and errand agent payables from R2) |
+| PRO | `profpay` | Professional payments from Tenmina's operating account (ADR-23): signed agreements and versioned rate cards per country and role, payables created only for accepted work, expense claims with receipts and limits, payment runs with a preparer and a different approver, bulk payment files, reconciliation against the bank's or provider's confirmation, tax deductions from the country configuration, remittance advices and yearly statements, case cost entries. Never reads or writes an escrow or held-funds table | `pro_agreement`, `pro_scope`, `pro_rate_card`, `pro_payable`, `pro_expense_claim`, `pro_payment_run`, `pro_payment_line`, `pro_document` | `payable.created`, `payable.overdue`, `payment_run.approved`, `payment_run.file_issued`, `payment_line.confirmed`, `payment_line.failed`, `runner_month.closed` | `work.accepted`, `runner_month.closed`, `payee.verified`, `payee.suspended`, `country_config.published` | FR-PRO-001 to 010 | R1 (inspector, quantity surveyor and errand agent payables from R2) |
 | core | `core` | Outbox, idempotency, approvals, allowed transitions, base types | `core_outbox_event`, `core_consumed_event`, `core_idempotency_key`, `core_approval_request`, `core_approval`, `core_allowed_transition` | all events via outbox | none | supports all | R1 |
 
 ### 4.3 Module dependencies
@@ -716,7 +716,7 @@ Every blocker is checked again inside the database trigger before the instructio
 sequenceDiagram
     autonumber
     actor Ct as Contractor
-    participant App as Fidero Field app
+    participant App as Tenmina Field app
     participant A as api
     participant S3 as S3 quarantine
     participant W as workers
@@ -854,7 +854,7 @@ sequenceDiagram
     A-->>Cl: Dashboard: paid, receipt, statement per family member, FR-FEE-007
 ```
 
-For school fees, `fee_schedule` creates the next invoice each term and asks for the client's approval before payment (FR-FEE-005). An institution that cannot receive a bank transfer is marked not eligible for direct payment (FR-FEE-006, `fee_institution.eligible_for_direct_payment` in 6.12). There is no cash route. The client is told plainly that Fidero cannot pay that institution, and no invoice for it can be checked, approved or instructed. Where an institution hands out invoices or receipts only on paper, a runner task collects the invoice and delivers the receipt in person. The runner carries paper, never money, and is never a payee.
+For school fees, `fee_schedule` creates the next invoice each term and asks for the client's approval before payment (FR-FEE-005). An institution that cannot receive a bank transfer is marked not eligible for direct payment (FR-FEE-006, `fee_institution.eligible_for_direct_payment` in 6.12). There is no cash route. The client is told plainly that Tenmina cannot pay that institution, and no invoice for it can be checked, approved or instructed. Where an institution hands out invoices or receipts only on paper, a runner task collects the invoice and delivers the receipt in person. The runner carries paper, never money, and is never a payee.
 
 ### 5.8 Care visit with check-in, check-out and family confirmation (J-10)
 
@@ -887,10 +887,10 @@ sequenceDiagram
         F->>A: Tap link or reply with code
         A->>A: Visit confirmed, RUL-23
     else Family confirms by call
-        F-->>A: Fidero staff record the call with method call
+        F-->>A: Tenmina staff record the call with method call
         A->>A: A second staff member checks the call record, FR-CARE-004
     else No confirmation in 24 hours
-        A->>A: Visit unconfirmed, alert client and Fidero, FR-CARE-005
+        A->>A: Visit unconfirmed, alert client and Tenmina, FR-CARE-005
     else Still unconfirmed after 72 hours
         A->>A: Reviewer decides from check-in evidence and a call to the family, FR-CARE-004
     end
@@ -901,7 +901,7 @@ sequenceDiagram
 
 A family confirmation code locks after 5 wrong attempts (FR-CARE-004); the visit can then be confirmed in the app, by a call checked by a second staff member, or by the reviewer's decision at 72 hours. A reviewer who decides "not confirmed" means the carer is not paid for that visit.
 
-A concern raised by the carer (FR-CARE-006) is a separate, encrypted record sent the same day to the client and a reviewer. A missed visit (no check-in by the end of the scheduled window) alerts the client and Fidero.
+A concern raised by the carer (FR-CARE-006) is a separate, encrypted record sent the same day to the client and a reviewer. A missed visit (no check-in by the end of the scheduled window) alerts the client and Tenmina.
 
 ### 5.9 Property management: rent to the owner's account, repairs against quotes (J-11)
 
@@ -919,7 +919,7 @@ sequenceDiagram
     O->>A: POST /v1/managed-properties, FR-PMG-001
     A->>A: Property onboarding case: inspection with photos
     O->>A: Register own account at the partner bank as rent destination
-    A->>A: Trigger: account holder is the owner, never a Fidero or payee account, RUL-24
+    A->>A: Trigger: account holder is the owner, never a Tenmina or payee account, RUL-24
     O->>A: Upload written mandate letting the bank share that account's statement lines
     CM->>A: Record tenant, agreement, rent, due day, FR-PMG-002
     T->>B: Pays rent into the owner's account
@@ -928,7 +928,7 @@ sequenceDiagram
     alt Rent received
         A-->>O: Rent received on date
     else Not received by due day plus grace
-        A-->>O: Rent late alert, also to Fidero, FR-PMG-003
+        A-->>O: Rent late alert, also to Tenmina, FR-PMG-003
     end
     T->>A: Report a repair, FR-PMG-004
     CM->>A: Collect two quotes from panel contractors with verified payees
@@ -945,7 +945,7 @@ sequenceDiagram
     A-->>O: Timeline: rent, repairs, inspections, photos, FR-PMG-006
 ```
 
-Fidero never receives rent and never appears as a rent destination (RUL-24). Rent matching reads the bank's statement lines for the owner's rent account only, and only under the owner's written mandate allowing the bank to share them (FR-PMG-003, TQ-17).
+Tenmina never receives rent and never appears as a rent destination (RUL-24). Rent matching reads the bank's statement lines for the owner's rent account only, and only under the owner's written mandate allowing the bank to share them (FR-PMG-003, TQ-17).
 
 ### 5.10 Paperwork and errands (J-12)
 
@@ -960,9 +960,9 @@ sequenceDiagram
     participant App as Field app
     participant Gov as Agency or office
     Cl->>A: GET /v1/errand-catalogue?country=GH, FR-TSK-001
-    A-->>Cl: Checklist, official fees, Fidero charge, target time, from cty_country_config
+    A-->>Cl: Checklist, official fees, Tenmina charge, target time, from cty_country_config
     Cl->>A: POST /v1/errands with checklist documents, FR-TSK-002
-    A->>A: Fidero charge by card or mobile money through PAY and the payment provider, official fees to held funds at the bank, FR-TSK-002
+    A->>A: Tenmina charge by card or mobile money through PAY and the payment provider, official fees to held funds at the bank, FR-TSK-002
     Cl->>A: Optional standing approval for official fees up to a monthly amount, RUL-11
     Cl->>B: Pays official fees into held funds
     B->>A: Deposit confirmed
@@ -978,12 +978,12 @@ sequenceDiagram
     Ag->>App: Upload the resulting document
     CM->>A: Check the document, FR-TSK-004
     A->>A: Errand completed only when checked
-    A->>A: work.accepted creates the agent's payable in PRO, paid by Fidero, FR-TSK-003, RUL-27
+    A->>A: work.accepted creates the agent's payable in PRO, paid by Tenmina, FR-TSK-003, RUL-27
     Ag->>App: Handover to representative or courier with signature or photo, FR-TSK-005
     A-->>Cl: Completed, document, receipts, handover record
 ```
 
-Fidero's own charge is a fee payment through the payment provider (PAY, IF-02), never paid into the partner bank (FR-TSK-002). The agent is paid by Fidero from its operating account under PRO (5.11) for each errand whose document Fidero has checked, at the rate card's per-errand rate; client money never pays the agent (FR-TSK-003, RUL-27). Official fees are client money, held at the bank and paid to the agency only. The agent is never the payee of an official fee. Each step's fee needs the client's approval or a standing approval within its monthly amount (RUL-11), its receipt evidence and two staff approvals.
+Tenmina's own charge is a fee payment through the payment provider (PAY, IF-02), never paid into the partner bank (FR-TSK-002). The agent is paid by Tenmina from its operating account under PRO (5.11) for each errand whose document Tenmina has checked, at the rate card's per-errand rate; client money never pays the agent (FR-TSK-003, RUL-27). Official fees are client money, held at the bank and paid to the agency only. The agent is never the payee of an official fee. Each step's fee needs the client's approval or a standing approval within its monthly amount (RUL-11), its receipt evidence and two staff approvals.
 
 ### 5.11 Pay a contracted professional (FR-PRO-001 to FR-PRO-010, RUL-26, RUL-27)
 
@@ -995,7 +995,7 @@ sequenceDiagram
     participant W as worker
     actor P1 as Preparer, case manager
     actor P2 as Approver with payment rights
-    participant OB as Fidero operating bank or mobile money provider
+    participant OB as Tenmina operating bank or mobile money provider
     Pr->>A: Sign the section, FR-RPT-005
     A->>A: Second review passes, RPT publishes work.accepted with no verdict field
     W->>W: Payable at the rate card in force at assignment, FR-PRO-002, FR-PRO-003, RUL-26
@@ -1014,7 +1014,7 @@ sequenceDiagram
     W->>A: Daily check, payables past due_by alert operations, FR-PRO-008
 ```
 
-No step reads a verdict, an inspection outcome or a risk flag. Money leaves only Fidero's operating account; no step touches an escrow or held funds. A failed line sends its payables back to `approved` for the next run once the payee is fixed; a line is never paid outside a run. In R1 the sources are report sections and runner months; inspections, bills of quantities and errands send `work.accepted` from R2.
+No step reads a verdict, an inspection outcome or a risk flag. Money leaves only Tenmina's operating account; no step touches an escrow or held funds. A failed line sends its payables back to `approved` for the next run once the payee is fixed; a line is never paid outside a run. In R1 the sources are report sections and runner months; inspections, bills of quantities and errands send `work.accepted` from R2.
 
 ---
 
@@ -1025,15 +1025,15 @@ No step reads a verdict, an inspection outcome or a risk flag. Money leaves only
 | Topic | Rule |
 |---|---|
 | Engine | PostgreSQL 16 with PostGIS 3 and `pgcrypto`, on RDS Multi-AZ |
-| Keys | `uuid` primary keys generated in the application (time-ordered UUID version 7). Human references such as `FDR-GH-2027-00042` in a separate unique column |
+| Keys | `uuid` primary keys generated in the application (time-ordered UUID version 7). Human references such as `TMR-GH-2027-00042` in a separate unique column |
 | Time | `timestamptz` in UTC. Display converts to the user's zone and Ghana time (C3) |
 | Money | `numeric(18,2)` plus `char(3)` ISO 4217 currency. Never floating point |
-| Country | `country_id uuid NOT NULL REFERENCES cty_country(id)` on every tenant-scoped row from the first migration (FR-CTY-001). The ISO 3166-1 code lives once, in `cty_country.code`, and appears in human references such as `FDR-GH-2027-00042` and in API filters. Row-level security on `country_id` for country-scoped staff. A CI schema test fails if a table that holds client, case, money, evidence or configuration data lacks `country_id` and is not on the allow list of global tables (`core_*`, `aud_*`, `cty_cell`, `cty_directory`) |
+| Country | `country_id uuid NOT NULL REFERENCES cty_country(id)` on every tenant-scoped row from the first migration (FR-CTY-001). The ISO 3166-1 code lives once, in `cty_country.code`, and appears in human references such as `TMR-GH-2027-00042` and in API filters. Row-level security on `country_id` for country-scoped staff. A CI schema test fails if a table that holds client, case, money, evidence or configuration data lacks `country_id` and is not on the allow list of global tables (`core_*`, `aud_*`, `cty_cell`, `cty_directory`) |
 | State | `text` column `status` with a CHECK list matching document 01 C8, plus the generic transition trigger (6.3) |
 | Concurrency | `row_version int` for optimistic locking; API uses ETag and If-Match |
 | Personal data | Sensitive fields encrypted at field level (section 10.6). Lookups by keyed hash (`*_bidx`) |
 | Retention | Every row with personal data carries `data_class` or inherits it from its parent (6.8) |
-| Roles | `fidero_app` (DML on own tables, no DDL), `fidero_migrate` (DDL, used only by the deploy job), `fidero_audit_owner` (owns `aud_event`), `fidero_safety` (only role with access to schema `safety`), `fidero_readonly` (analytics replica) |
+| Roles | `tenmina_app` (DML on own tables, no DDL), `tenmina_migrate` (DDL, used only by the deploy job), `tenmina_audit_owner` (owns `aud_event`), `tenmina_safety` (only role with access to schema `safety`), `tenmina_readonly` (analytics replica) |
 
 ### 6.2 Logical entity relationships
 
@@ -1308,8 +1308,8 @@ CREATE TABLE acc_bank_account (                      -- a client's OWN account, 
   CHECK (verification_status <> 'verified' OR (name_match = 'matched' AND approval_request_id IS NOT NULL))
 );
 -- Trigger acc.bank_account_holder_name(): name_match = 'matched' only when account_name_bidx equals
--- the holder's normalised full name blind index. There is no holder kind 'fidero' and no column anywhere
--- for a Fidero account number (RUL-01, RUL-24). Trigger acc.bank_account_change_resets(): any change to
+-- the holder's normalised full name blind index. There is no holder kind 'tenmina' and no column anywhere
+-- for a Tenmina account number (RUL-01, RUL-24). Trigger acc.bank_account_change_resets(): any change to
 -- account_number_enc or account_name_enc sets verification_status back to 'pending'.
 
 CREATE TABLE acc_vetting (                           -- FR-CARE-002, FR-TSK-003, shared by carers and agents
@@ -1531,7 +1531,7 @@ CREATE TABLE esc_escrow (
 );
 CREATE INDEX ON esc_escrow (client_id, kind, status);
 -- Bank payment instructions shown to clients are read from adm_partner (bank) and
--- esc_escrow.bank_reference only. No column holds a Fidero account number (FR-ESC-003).
+-- esc_escrow.bank_reference only. No column holds a Tenmina account number (FR-ESC-003).
 
 CREATE TABLE esc_condition (
   id            uuid PRIMARY KEY,
@@ -1650,14 +1650,14 @@ CREATE TABLE evd_link (
   linked_at     timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY (evidence_id, subject_type, subject_id)
 );
--- fidero_app has INSERT and SELECT only on evd_evidence and evd_link, plus UPDATE on
+-- tenmina_app has INSERT and SELECT only on evd_evidence and evd_link, plus UPDATE on
 -- scan_status, signature_valid and deleted_at columns. No DELETE (FR-EVD-002).
 
-CREATE TABLE mob_device (                            -- Fidero Field installs; ADR-22, 8.2
+CREATE TABLE mob_device (                            -- Tenmina Field installs; ADR-22, 8.2
   id               uuid PRIMARY KEY,
   person_id        uuid NOT NULL REFERENCES acc_person(id),
   platform         text NOT NULL CHECK (platform IN ('android','ios')),
-  app_id           text NOT NULL,                       -- package name or bundle ID of Fidero Field
+  app_id           text NOT NULL,                       -- package name or bundle ID of Tenmina Field
   public_key_spki  bytea NOT NULL,                      -- ECDSA P-256
   key_security     text NOT NULL CHECK (key_security IN ('strongbox','tee','secure_enclave','software')),
   attestation_kind text NOT NULL CHECK (attestation_kind IN ('android_key_attestation','app_attest')),
@@ -1821,7 +1821,7 @@ CREATE TABLE aud_event (
   prev_hash    bytea NOT NULL,
   hash         bytea NOT NULL                -- sha256(prev_hash || canonical row content)
 ) PARTITION BY RANGE (occurred_at);
--- Owned by fidero_audit_owner. fidero_app has EXECUTE on aud.append(...) only.
+-- Owned by tenmina_audit_owner. tenmina_app has EXECUTE on aud.append(...) only.
 -- aud.append() takes pg_advisory_xact_lock on the chain, reads the last hash, computes the new one.
 -- Trigger aud.no_change() raises on UPDATE or DELETE. Partitions are monthly.
 -- aud_anchor (seq, hash, anchored_at, s3_object_key) records hourly anchors to Object Lock.
@@ -1845,7 +1845,7 @@ CREATE TABLE dpr_consent (
 );
 CREATE INDEX ON dpr_consent (partner_client_id, person_id) WHERE withdrawn_at IS NULL;
 
-CREATE SCHEMA safety AUTHORIZATION fidero_safety;
+CREATE SCHEMA safety AUTHORIZATION tenmina_safety;
 CREATE TABLE safety.incident (
   id           uuid PRIMARY KEY,
   case_id      uuid NOT NULL,                -- no FK across schemas by design; checked in app
@@ -1856,7 +1856,7 @@ CREATE TABLE safety.incident (
   persons_named_enc bytea,
   created_at   timestamptz NOT NULL DEFAULT now()
 );
--- fidero_app cannot read schema safety. The safety service connects as fidero_safety through a
+-- tenmina_app cannot read schema safety. The safety service connects as tenmina_safety through a
 -- separate connection used only by views that check the 'safety.read' permission (section 10.9).
 ```
 
@@ -1899,7 +1899,7 @@ CREATE TABLE safety.incident (
 | `dpr_retention_rule`, `dpr_legal_hold` | data class, country, period, action; holds by subject | FR-DPR-004 |
 | `dpr_bulk_export` | requester, scope, approval request, file hash | FR-DPR-005 |
 | `rec_allocation` | authority, plot geometry, allottee, date, documents, confirmation status | FR-REC-001, FR-REC-004 |
-| `adm_partner` | kind (`escrow_bank`, `payment_provider`, `identity`, `messaging`, `insurer`, `institution_portal`, `developer`, `bank_api`, `operating_bank`, `operating_mobile_money`), `country_id`, adapter per port, bank details with `approval_request_id` for any change (FR-ADM-003 second administrator). The two operating kinds are Fidero's own accounts that pay professionals (FR-PRO-006); trigger `adm.operating_not_escrow()` rejects an operating account whose account number (keyed hash) matches any escrow or held-funds account on record, and the reverse | FR-ADM-003, FR-PRO-006, IF-01 to IF-11 |
+| `adm_partner` | kind (`escrow_bank`, `payment_provider`, `identity`, `messaging`, `insurer`, `institution_portal`, `developer`, `bank_api`, `operating_bank`, `operating_mobile_money`), `country_id`, adapter per port, bank details with `approval_request_id` for any change (FR-ADM-003 second administrator). The two operating kinds are Tenmina's own accounts that pay professionals (FR-PRO-006); trigger `adm.operating_not_escrow()` rejects an operating account whose account number (keyed hash) matches any escrow or held-funds account on record, and the reverse | FR-ADM-003, FR-PRO-006, IF-01 to IF-11 |
 | `acc_identity_check`, `acc_vetting` | see 6.4; vetting checklist version per country | FR-ACC-004, FR-CARE-002 |
 | `fee_institution_contact` | institution, person with role `institution_contact`, may confirm invoices, may send receipts | FR-FEE-001, FR-ACC-011 |
 | `fee_schedule` | institution, family member, client, period (`term`, `month`, `quarter`), expected amount, next due, reminder lead days, status; creates `fee_invoice` rows in `draft` for the client's approval | FR-FEE-005 |
@@ -1911,7 +1911,7 @@ CREATE TABLE safety.incident (
 | `tsk_agent` | person, agency organisation, `acc_vetting`, status, `pro_agreement` with role `errand_agent` (required before assignment); the agency's `payee_id` is on the organisation. The agent's own pay comes from PRO, never from the errand's escrow | FR-TSK-003, FR-PRO-001 |
 | `tsk_handover` | errand, handed to (representative person, or courier name and tracking reference), method, signature or photo evidence, at | FR-TSK-005 |
 | `ins_product` | insurer partner, kind (`health`, `funeral`), name, terms evidence, country, status, text showing the insurer's name and that the policy is the insurer's | FR-INS-001 |
-| `ins_claim` | policy, started by client, submitted to insurer at, insurer reference, insurer status (`received`, `assessing`, `paid`, `declined`), outcome evidence; no Fidero decision column | FR-INS-004, RUL-25 |
+| `ins_claim` | policy, started by client, submitted to insurer at, insurer reference, insurer status (`received`, `assessing`, `paid`, `declined`), outcome evidence; no Tenmina decision column | FR-INS-004, RUL-25 |
 | `evt_vendor` | event, organisation or person, registration evidence, `payee_id`, verification case, status | FR-EVT-001 |
 | `cty_country` | id, code, name, currency, `cell_id`, status, current published config version, activated by (two administrators) | FR-CTY-001, FR-CTY-002 |
 | `cty_cell` | id, name, AWS region, AWS account, API and portal hosts, data location notes, status | FR-CTY-002, ADR-16 |
@@ -1974,7 +1974,7 @@ CREATE TABLE cty_country_config (                    -- FR-CTY-001, FR-CTY-004; 
 |---|---|---|
 | Does the country's law accept hosting in the Ghana cell's region (af-south-1, `[TO VERIFY]`)? | Yes | The country joins the Ghana cell. Isolation is `country_id`, row-level security, separate KMS keys per country for field-level encryption, and separate S3 prefixes. Cost is configuration only. |
 | | No, data must stay in the country or a named region | A new cell in the compliant region or, if no AWS region qualifies, with another provider `[TO VERIFY]` (TR-01, TR-11). Same code, same Terraform modules, own database, own buckets, own Object Lock, own backups. |
-| How does a user reach the right cell? | | `cty_directory` maps a sign-in blind index (email or phone) and every reference prefix (`FDR-NG-`) to a cell. It holds no other personal data and is replicated to every cell. The edge (CloudFront) routes `api.<domain>` by path prefix or hostname per cell `[TO VERIFY]`. |
+| How does a user reach the right cell? | | `cty_directory` maps a sign-in blind index (email or phone) and every reference prefix (`TMR-NG-`) to a cell. It holds no other personal data and is replicated to every cell. The edge (CloudFront) routes `api.<domain>` by path prefix or hostname per cell `[TO VERIFY]`. |
 | What if a client has activity in two cells? | | One account per cell, linked by the same sign-in through the directory; the home dashboard (FR-ACC-012) shows one cell at a time with a switch. Nothing personal crosses cells `[TO VERIFY]` (TQ-13). |
 | Metrics by country (FR-CTY-003) | | Each cell publishes aggregated, anonymised metric tables (counts, sums, medians) to a central analytics bucket in the Ghana cell. No row-level data crosses a cell boundary. |
 | Staff in several countries | | A staff member has a grant per country. Cross-cell work means signing in to each cell; the back office shows the cell name in the header. |
@@ -1989,7 +1989,7 @@ The one-cell design in R1 keeps C-07. The decision to open a second cell is take
 
 | Step | Design |
 |---|---|
-| Classify | Each table and field is listed in `dpr_data_catalogue` with purpose and data class (NFR-PRIV-02). Classes follow 01 C5.2: `health_care` (hospital invoices, care plans, visit records, readings, carer concerns; special category `[TO VERIFY]`, own KMS key, no analytics, no search index), `tenancy` (tenant identity, agreements, rent records; tenancy plus `[TO VERIFY]`), `identity_documents` (passports, ID cards and certificates handled in errands; deleted from Fidero storage `[TO VERIFY]` days after handover), `insurance` (applications and policy documents; policy life plus `[TO VERIFY]`), `professional_payables` (agreements, rate cards, payables, expense claims and receipts, payment runs and files, tax deductions, remittance advices and statements; as tax law requires in each country `[TO VERIFY]`, Q-25; the professional's bank details sit in `payee`). Two design sub-classes sit under 01's classes: `family` (family members' names and addresses, under Account) and `payee` (bank details of payees, under Escrow and payment). Retention periods `[TO VERIFY]` (Q-08). |
+| Classify | Each table and field is listed in `dpr_data_catalogue` with purpose and data class (NFR-PRIV-02). Classes follow 01 C5.2: `health_care` (hospital invoices, care plans, visit records, readings, carer concerns; special category `[TO VERIFY]`, own KMS key, no analytics, no search index), `tenancy` (tenant identity, agreements, rent records; tenancy plus `[TO VERIFY]`), `identity_documents` (passports, ID cards and certificates handled in errands; deleted from Tenmina storage `[TO VERIFY]` days after handover), `insurance` (applications and policy documents; policy life plus `[TO VERIFY]`), `professional_payables` (agreements, rate cards, payables, expense claims and receipts, payment runs and files, tax deductions, remittance advices and statements; as tax law requires in each country `[TO VERIFY]`, Q-25; the professional's bank details sit in `payee`). Two design sub-classes sit under 01's classes: `family` (family members' names and addresses, under Account) and `payee` (bank details of payees, under Escrow and payment). Retention periods `[TO VERIFY]` (Q-08). |
 | Anchor | Retention runs from an anchor date per class: case release, escrow close, account closure, last lead contact, end of the tax year of the payment (professional payables). Periods are `[TO VERIFY]` (Q-08) except leads at 24 months (assumption from 01 C5.2). |
 | Lock | Evidence objects get an S3 Object Lock date equal to the minimum agreed period. It can be extended for legal holds, never shortened. |
 | Sweep | A nightly job lists expired records, skips any under `dpr_legal_hold`, then deletes or anonymises. |
@@ -2046,8 +2046,8 @@ CREATE INDEX ON esc_payee (country_id, kind, verification_status);
 --   fee_invoice -> institution; errand_step -> agency; care_visit -> carer or agency; repair -> contractor;
 --   event_vendor_payment -> vendor; premium -> insurer (RUL-25); milestone -> contractor, developer or
 --   supplier; purchase release -> seller or developer. No subject maps to a runner (FR-FEE-006). No subject maps
---   to contracted_professional: client money never pays a professional Fidero contracts (RUL-27).
--- Trigger esc.payee_not_staff(): rejects a payee whose subject person holds a Fidero staff role (case manager,
+--   to contracted_professional: client money never pays a professional Tenmina contracts (RUL-27).
+-- Trigger esc.payee_not_staff(): rejects a payee whose subject person holds a Tenmina staff role (case manager,
 -- reviewer, administrator) and, for every kind except contracted_professional, a runner role. A runner can be a
 -- payee only of kind contracted_professional, which no release instruction can name, so a runner is never paid
 -- from client money (FR-FEE-006, RUL-22). A contracted_professional payee must be the contracting party of an
@@ -2056,7 +2056,7 @@ CREATE INDEX ON esc_payee (country_id, kind, verification_status);
 -- bank letter entered by one staff member and checked by a second (bank_letter, second_check_by). A
 -- statement line is never a name source. No user, including an administrator, can override name_match.
 -- A legitimate difference is fixed by new evidence from one of the two sources.
--- fidero_app has no DELETE on esc_payee (history of payees stays for the audit trail).
+-- tenmina_app has no DELETE on esc_payee (history of payees stays for the audit trail).
 ```
 
 **Standing client approvals (RUL-11).** For care visits and errand steps the client may approve once, up to a stated amount per month, instead of approving each payment. Each payment still needs its evidence and two staff approvals. Silence is never approval.
@@ -2108,7 +2108,7 @@ GROUP BY e.id;
 -- family member. The column is named held_at_bank on purpose; the CI test on '%balance%' stands.
 ```
 
-The deposit reference the client uses when paying into held funds is `FDR-<country>-<client reference>`, issued by the bank or agreed with it `[TO VERIFY]` (TQ-15). Deposits with an unmatched reference land in the unmatched queue (FR-ESC-011).
+The deposit reference the client uses when paying into held funds is `TMR-<country>-<client reference>`, issued by the bank or agreed with it `[TO VERIFY]` (TQ-15). Deposits with an unmatched reference land in the unmatched queue (FR-ESC-011).
 
 ### 6.12 Family lines: institutions, care visits, insurer partner lines (FEE, CARE, INS)
 
@@ -2140,7 +2140,7 @@ CREATE UNIQUE INDEX ON fee_institution (country_id, legal_name_bidx);
 -- Trigger fee.institution_follows_payee(): payee.suspended or revoked sets the institution to 'suspended'.
 -- An institution that cannot receive a bank transfer is set 'not_eligible' by a case manager and checked by
 -- a reviewer (FR-FEE-006). There is no cash route: no invoice for it can reach 'checked', and the client is
--- told plainly that Fidero cannot pay it. If the institution later opens an account in its own name, a new
+-- told plainly that Tenmina cannot pay it. If the institution later opens an account in its own name, a new
 -- verification moves it back to 'pending'.
 
 CREATE TABLE fee_invoice (                            -- FR-FEE-002, FR-FEE-003
@@ -2356,7 +2356,7 @@ CREATE TABLE ins_premium (                            -- FR-INS-002
   CHECK (route <> 'held_funds_to_insurer' OR status = 'due' OR release_instruction_id IS NOT NULL),
   CHECK (route <> 'client_direct_to_insurer' OR release_instruction_id IS NULL)   -- the client pays the insurer
 );
--- pay_fee_payment.purpose has no 'premium' value: a premium can never be a Fidero fee (RUL-25, ADR-03).
+-- pay_fee_payment.purpose has no 'premium' value: a premium can never be a Tenmina fee (RUL-25, ADR-03).
 ```
 
 ### 6.13 Property management, errands and events (PMG, TSK, EVT)
@@ -2375,7 +2375,7 @@ CREATE TABLE pmg_managed_property (                   -- FR-PMG-001, FR-PMG-002,
   CHECK (status <> 'managed' OR (rent_account_id IS NOT NULL AND onboarding_case_id IS NOT NULL))
 );
 -- Trigger pmg.rent_account_is_owners(): rent_account_id.holder_person_id = owner_id and the account is
--- 'verified' (RUL-24). acc_bank_account cannot hold a payee's or a Fidero account, so no other
+-- 'verified' (RUL-24). acc_bank_account cannot hold a payee's or a Tenmina account, so no other
 -- destination is possible. A CI schema test also asserts that no column in the schema references
 -- adm_partner bank details as a rent destination.
 
@@ -2408,7 +2408,7 @@ CREATE TABLE pmg_rent_period (                        -- FR-PMG-003
 );
 -- The job pmg.match_rent matches statement lines of the owner's account (under the mandate) to periods
 -- by tenant_reference, then by amount and date within rent_grace_days. Unmatched lines go to the owner
--- and a case manager. The received figure is a bank fact, never a Fidero computation (ADR-03).
+-- and a case manager. The received figure is a bank fact, never a Tenmina computation (ADR-03).
 
 CREATE TABLE pmg_repair (                             -- FR-PMG-004, FR-PMG-005
   id               uuid PRIMARY KEY,
@@ -2453,7 +2453,7 @@ CREATE TABLE tsk_errand (                             -- FR-TSK-001 to FR-TSK-00
   catalogue_version_id uuid NOT NULL REFERENCES adm_config_version(id),  -- kind errand_catalogue
   catalogue_key    text NOT NULL,                                       -- e.g. 'ghana_card_renewal'
   official_fees    numeric(18,2) NOT NULL CHECK (official_fees >= 0), currency char(3) NOT NULL,
-  fidero_fee_payment_id uuid REFERENCES pay_fee_payment(id),           -- Fidero's charge, PAY, purpose errand_fee
+  tenmina_fee_payment_id uuid REFERENCES pay_fee_payment(id),           -- Tenmina's charge, PAY, purpose errand_fee
   escrow_id        uuid REFERENCES esc_escrow(id),                      -- held_funds for official fees
   standing_approval_id uuid REFERENCES esc_standing_approval(id),     -- optional: step fees up to a monthly amount, RUL-11
   agent_id         uuid REFERENCES tsk_agent(id),
@@ -2523,7 +2523,7 @@ State models for these entities are proposed here because 01 C8 has none for the
 
 ### 6.14 Professional payments (PRO; FR-PRO-001 to FR-PRO-010, RUL-26, RUL-27, ADR-23)
 
-PRO pays the professionals Fidero contracts from Fidero's operating account, out of fee income. Its tables never reference an escrow, held-funds, release-instruction, bank-event, standing-approval or statement table. The only money-related record it shares with ESC is the verified payee registry (`esc_payee`, kind `contracted_professional`).
+PRO pays the professionals Tenmina contracts from Tenmina's operating account, out of fee income. Its tables never reference an escrow, held-funds, release-instruction, bank-event, standing-approval or statement table. The only money-related record it shares with ESC is the verified payee registry (`esc_payee`, kind `contracted_professional`).
 
 ```sql
 CREATE TABLE pro_agreement (                          -- FR-PRO-001
@@ -2556,7 +2556,7 @@ CREATE TABLE pro_scope (                              -- FR-PRO-003, RUL-26: the
   known_at           text NOT NULL CHECK (known_at = 'assignment')     -- every key is fixed before work starts
 );
 -- Seeded by migration only: 'standard', report tiers, plot size bands and travel distance bands [TO VERIFY].
--- fidero_app has SELECT only. A CI test fails if a key or description names a result (verdict, outcome, pass,
+-- tenmina_app has SELECT only. A CI test fails if a key or description names a result (verdict, outcome, pass,
 -- fail, green, amber, red, risk, finding, defect).
 
 CREATE TABLE pro_rate_card (                          -- FR-PRO-001, FR-PRO-003; immutable once approved
@@ -2749,7 +2749,7 @@ CREATE UNIQUE INDEX one_statement_per_year
 
 **States (proposed, I-36).** Payable: approved, held (a reviewer, for fraud or misconduct review, or automatically while the payee is not verified), in run, paid, cancelled; a failed line returns its payables from in run to approved. Expense claim: submitted, approved (a second approval when over the limit or without a receipt), rejected, in run, paid, cancelled. Payment run: draft, pending approval, approved, file issued, partly confirmed, confirmed, closed; draft or pending approval to withdrawn; any line change after approval back to draft.
 
-**Sources by release.** In R1, `work.accepted` comes from RPT when a lawyer's or surveyor's section is signed and passes second review. Where an agreement pays per site visit, PRO creates one `site_visit` payable for each completed visit task of that case at the same time. A case manager closes each runner's month (`runner_month.closed`). From R2, BLD sends submitted inspections and accepted bills of quantities, PMG sends property inspections, and TSK sends errands whose document Fidero has checked (FR-TSK-003, FR-TSK-004).
+**Sources by release.** In R1, `work.accepted` comes from RPT when a lawyer's or surveyor's section is signed and passes second review. Where an agreement pays per site visit, PRO creates one `site_visit` payable for each completed visit task of that case at the same time. A case manager closes each runner's month (`runner_month.closed`). From R2, BLD sends submitted inspections and accepted bills of quantities, PMG sends property inspections, and TSK sends errands whose document Tenmina has checked (FR-TSK-003, FR-TSK-004).
 
 ---
 
@@ -2763,7 +2763,7 @@ CREATE UNIQUE INDEX one_statement_per_year
 | Hosts | `api.<domain>` for portal, back office and mobile; `partner-api.<domain>` for partners. Domain `[TO VERIFY]`. |
 | Versioning | Major version in the path: `/v1`, `/partner/v1`. Additive changes only within a version. A breaking change gets `/v2` and at least 6 months of overlap for partners (assumption). `Deprecation` and `Sunset` headers announce retirement. |
 | Contract | OpenAPI 3.1 generated from DRF serialisers (drf-spectacular). One typed TypeScript client is generated from it and shared by the two Next.js apps and the two React Native apps (ADR-22). Contract tests in CI (document 06). |
-| Auth | Web: session cookie plus `X-CSRFToken`. Both mobile apps: `Authorization: Bearer <JWT>`, and a `Fidero-App` header with app, platform and version (for example `field/ios/1.4.0`) checked against the minimum version (8.10). Partner: OAuth 2.0 client credentials bearer token. |
+| Auth | Web: session cookie plus `X-CSRFToken`. Both mobile apps: `Authorization: Bearer <JWT>`, and a `Tenmina-App` header with app, platform and version (for example `field/ios/1.4.0`) checked against the minimum version (8.10). Partner: OAuth 2.0 client credentials bearer token. |
 | Pagination | Cursor-based: `?limit=25&cursor=<opaque>`. Response has `items` and `next_cursor`. Maximum limit 100. |
 | Filtering and sorting | Explicit query parameters per endpoint (`status`, `due_before`, `country`), `sort=due_at` or `sort=-created_at`. |
 | Idempotency | `Idempotency-Key` header (UUID) required on every POST that creates a resource, starts a payment, approves, sends or submits. Stored per principal for 24 hours (assumption). Same key and same body returns the stored response; same key and a different body returns 422 `idempotency-key-reuse`. |
@@ -2814,13 +2814,13 @@ CREATE UNIQUE INDEX one_statement_per_year
 | `evidence-rejected` | 422 | Malware, hash mismatch, bad signature, gallery source |
 | `rate-limited` | 429 | Limit reached |
 | `app-version-unsupported` | 426 | App older than `min_app_version` for its platform (FR-APP-006). Evidence captured before the minimum was raised is still accepted (8.10) |
-| `attestation-failed` | 422 | Fidero Field registration without a valid store build, key attestation, Play Integrity or App Attest result (8.2) |
+| `attestation-failed` | 422 | Tenmina Field registration without a valid store build, key attestation, Play Integrity or App Attest result (8.2) |
 
 ### 7.3 Webhooks
 
 **Inbound** (`/v1/hooks/...`): payment provider, identity provider, WhatsApp and SMS delivery reports and replies (family confirmation codes, ADR-20), bank (if API), institution portals (R2, IF-10) and insurer partners (R2, IF-11) where they offer one. Each adapter verifies the vendor signature, stores the raw body hash, deduplicates on the vendor event ID and then fetches the authoritative state from the vendor before acting (never trusts the body alone).
 
-**Outbound** (partners, R2): events `verification.status_changed`, `order.completed`, `consent.withdrawn`. Body is a minimal envelope with IDs; the partner fetches details through the API so consent is checked at read time. Signed with HMAC-SHA256 over `timestamp.body` in a `Fidero-Signature` header with a per-subscription secret. Delivery is at least once with exponential back-off for 24 hours (assumption), then the subscription is marked failing and the partner is notified.
+**Outbound** (partners, R2): events `verification.status_changed`, `order.completed`, `consent.withdrawn`. Body is a minimal envelope with IDs; the partner fetches details through the API so consent is checked at read time. Signed with HMAC-SHA256 over `timestamp.body` in a `Tenmina-Signature` header with a per-subscription secret. Delivery is at least once with exponential back-off for 24 hours (assumption), then the subscription is marked failing and the partner is notified.
 
 ### 7.4 Endpoint catalogue
 
@@ -2984,8 +2984,8 @@ Roles: CL client, SE seller, DV developer, CM case manager, RV reviewer, LW lawy
 | POST | `/v1/repairs/{id}/inspections` | Schedule and record the repair inspection | CM, IN asg | FR-PMG-005 |
 | POST | `/v1/repairs/{id}/instructions` | Instruction to pay the contractor after inspection pass | CM | FR-PMG-005, RUL-22 |
 | GET, POST | `/v1/managed-properties/{id}/inspections`, `/timeline` | Periodic inspections; rent, repairs, inspections and photos in one timeline | CL own, CM | FR-PMG-006 |
-| GET | `/v1/errand-catalogue?country=` | Catalogue with checklist, official fees, Fidero charge, target time | Pub | FR-TSK-001 |
-| POST | `/v1/errands` | Order an errand and upload checklist documents; Fidero's charge by card or mobile money through the payment provider (PAY); official fees into held funds at the partner bank | CL | FR-TSK-002 |
+| GET | `/v1/errand-catalogue?country=` | Catalogue with checklist, official fees, Tenmina charge, target time | Pub | FR-TSK-001 |
+| POST | `/v1/errands` | Order an errand and upload checklist documents; Tenmina's charge by card or mobile money through the payment provider (PAY); official fees into held funds at the partner bank | CL | FR-TSK-002 |
 | POST | `/v1/errands/{id}/assignments` | Assign a vetted agent with an active `pro_agreement` and the agency payee | CM | FR-TSK-003 |
 | GET | `/v1/errands/{id}` | Steps in plain language, receipts, result | CL own, CM, CE asg | FR-TSK-003 |
 | POST | `/v1/errands/{id}/steps/{seq}/instructions` | Instruction to pay the official fee to the agency | CM | FR-TSK-003, RUL-22 |
@@ -3071,7 +3071,7 @@ paths:
             application/json:
               example:
                 id: 0192f3c1-0000-7000-8000-000000000001
-                reference: FDR-GH-2027-00042
+                reference: TMR-GH-2027-00042
                 status: awaiting_payment
                 price: { amount: "450.00", currency: USD }
                 next: { href: /v1/orders/0192f3c1-0000-7000-8000-000000000001/payments }
@@ -3190,7 +3190,7 @@ paths:
               examples:
                 consented:
                   value: { status: verified, verdict: green, report_date: "2027-03-14",
-                           report_reference: FDR-GH-2027-00042, full_report_available: false }
+                           report_reference: TMR-GH-2027-00042, full_report_available: false }
                 not_consented:
                   value: { status: report_exists }
                 none:
@@ -3242,17 +3242,17 @@ paths:
                 family_member: { id: 0192f500-0000-7000-8000-000000000020, relationship: mother }
                 amount: { amount: "1850.00", currency: GHS }
                 held_funds:
-                  escrow_reference: FDR-GH-HF-2027-00017
+                  escrow_reference: TMR-GH-HF-2027-00017
                   held_at_bank: { amount: "4200.00", currency: GHS }
                   instructed_awaiting_bank: { amount: "0.00", currency: GHS }
                   available_to_instruct: { amount: "4200.00", currency: GHS }
-                next: "Fidero prepares the payment. Two staff approve. The bank pays the hospital. You will see the receipt here."
+                next: "Tenmina prepares the payment. Two staff approve. The bank pays the hospital. You will see the receipt here."
         "401": { description: mfa-required }
         "409": { description: payee-not-verified, held-funds-insufficient or state-conflict }
         "412": { description: precondition-failed }
 ```
 
-If the held funds are short, the response is `409 held-funds-insufficient` with the bank's payment instructions for a top-up and no Fidero account details (FR-ESC-003).
+If the held funds are short, the response is `409 held-funds-insufficient` with the bank's payment instructions for a top-up and no Tenmina account details (FR-ESC-003).
 
 ### 7.10 Example: family member confirms a care visit (J-10)
 
@@ -3262,7 +3262,7 @@ paths:
     post:
       summary: Confirm a visit with the one-time code sent to the family member (FR-CARE-004, RUL-23, ADR-20)
       description: >
-        Called from the one-tap link, from the family member's app, or by a Fidero staff member recording a
+        Called from the one-tap link, from the family member's app, or by a Tenmina staff member recording a
         phone call. The carer's app has no access to this endpoint and never sees the code.
       security: [{ sessionCookie: [] }, { confirmationLink: [] }]
       parameters:
@@ -3296,7 +3296,7 @@ paths:
                 check_in: { at: "2027-06-03T09:02:31Z", within_radius: true }
                 check_out: { at: "2027-06-03T11:05:12Z", within_radius: true }
                 items_done: 3
-                payment: "The carer is paid for this visit in the next weekly batch after two Fidero staff approve."
+                payment: "The carer is paid for this visit in the next weekly batch after two Tenmina staff approve."
         "403": { description: forbidden, the caller is not a named confirmer or staff }
         "409": { description: state-conflict, visit not checked out or already confirmed }
         "422": { description: confirmation-code-invalid, wrong, expired or 5 tries used }
@@ -3338,9 +3338,9 @@ paths:
                   amount: { amount: "6400.00", currency: GHS }
                 quotes_considered: 2
                 escrow:
-                  reference: FDR-GH-RP-2027-00031
+                  reference: TMR-GH-RP-2027-00031
                   status: proposed
-                  pay_to: { bank: "Partner bank", account_name: "Partner Bank Escrow Trust", reference: "FDR-GH-RP-2027-00031" }
+                  pay_to: { bank: "Partner bank", account_name: "Partner Bank Escrow Trust", reference: "TMR-GH-RP-2027-00031" }
                 next: "Pay the amount to the bank. Work starts when the bank confirms. The contractor is paid after our inspector passes the work."
         "409": { description: state-conflict, fewer than two quotes or quote expired }
         "422": { description: validation-error, confirm_amount differs from the quote }
@@ -3388,7 +3388,7 @@ The `pay_to` block is read from the bank partner's record only (FR-ESC-003). Pay
 | `fees.receipt_overdue` | default | Daily | Flag paid invoices with no receipt after `receipt_target_days`; chase the institution contact | FR-FEE-004 |
 | `fees.institution_reverify` | default | Monthly | Re-verify institutions and payees past `valid_until` | FR-FEE-001, RUL-22 |
 | `care.visit_reminders` | notifications | Daily 06:00 GMT and 2 h before a window | Create visits from plan schedules; remind the carer; tell the family who to expect | FR-CARE-002, FR-CARE-003 |
-| `care.missed_and_unconfirmed` | default | Every 15 min | No check-in by window end: missed. No confirmation 24 h after check-out: unconfirmed; alert client and Fidero. Still unconfirmed at 72 h: to a reviewer's queue for a decision | FR-CARE-004, FR-CARE-005 |
+| `care.missed_and_unconfirmed` | default | Every 15 min | No check-in by window end: missed. No confirmation 24 h after check-out: unconfirmed; alert client and Tenmina. Still unconfirmed at 72 h: to a reviewer's queue for a decision | FR-CARE-004, FR-CARE-005 |
 | `care.route_concerns` | notifications | Event `concern.raised` | Deliver to client and reviewer same day; page on urgent | FR-CARE-006 |
 | `care.weekly_payment_batch` | default | Weekly (assumption) | Prepare instructions for confirmed, uninstructed visits per carer or agency | FR-CARE-004 |
 | `propertymgmt.match_rent` | integrations | On statement import; daily 07:00 GMT | Match owner-account statement lines to rent periods; alert late rent after `rent_grace_days` | FR-PMG-003 |
@@ -3412,7 +3412,7 @@ The `pay_to` block is read from the bank partner's record only (FR-ESC-003). Pay
 
 ## 8. Mobile app architecture
 
-Both apps, Fidero and Fidero Field, come from one React Native and TypeScript codebase and run on iOS and Android (ADR-22). Sections 8.1 to 8.8 describe Fidero Field. Section 8.9 describes the client app and 8.10 what both need for store distribution.
+Both apps, Tenmina and Tenmina Field, come from one React Native and TypeScript codebase and run on iOS and Android (ADR-22). Sections 8.1 to 8.8 describe Tenmina Field. Section 8.9 describes the client app and 8.10 what both need for store distribution.
 
 ### 8.1 Structure
 
@@ -3434,11 +3434,11 @@ Download size under 30 MB and cold start under 3 seconds on a 2 GB Android phone
 
 ### 8.2 Device keys and registration
 
-1. On first sign-in Fidero Field asks for a one-time challenge (`POST /v1/mobile/devices/challenge`).
+1. On first sign-in Tenmina Field asks for a one-time challenge (`POST /v1/mobile/devices/challenge`).
 2. On Android the app generates a P-256 key pair in the Keystore, non-exportable, with the challenge as attestation challenge, and requests a Play Integrity token bound to the challenge. On iOS the app generates a P-256 key pair in the Secure Enclave, creates an App Attest key and attests it with a hash of the challenge and the new public key, so the attestation covers the evidence signing key.
 3. The app sends the platform, the public key and the attestation material to `POST /v1/mobile/devices`.
 4. The server checks, on Android: the certificate chain to the Google attestation root, the challenge, the package name, the signing certificate digest and the key security level; and the Play Integrity verdict from Google's server: app recognised by Play, licensed through Play, and device integrity at the level set in `adm_setting` (`[TO VERIFY]`, TQ-25). On iOS: the attestation object to Apple's App Attest root, the challenge and key hash, the team and bundle ID, a counter of zero and the production environment.
-5. **Store builds only.** Production accepts Fidero Field registration only from builds installed from Google Play or the App Store. A side-loaded, re-signed or development build fails registration with `attestation-failed`. Phones without Google Play cannot install the app and so cannot register (TR-18). TestFlight and Play internal testing builds point at staging.
+5. **Store builds only.** Production accepts Tenmina Field registration only from builds installed from Google Play or the App Store. A side-loaded, re-signed or development build fails registration with `attestation-failed`. Phones without Google Play cannot install the app and so cannot register (TR-18). TestFlight and Play internal testing builds point at staging.
 6. Android devices with only software keys (low-end phones, C-08) are allowed, but every item they sign gets a `software_key` flag for reviewer attention. Every supported iPhone has a Secure Enclave.
 7. If Apple's or Google's attestation service cannot be reached, registration waits and retries; the app cannot sign evidence until registration succeeds. A later failed integrity check flags the device (`integrity_failed`) for a reviewer.
 8. A device key is bound to one person. Revoking a device (lost phone, misconduct) stops new items; items already verified stay valid with their history.
@@ -3458,7 +3458,7 @@ The manifest is canonical JSON (RFC 8785, JSON Canonicalization Scheme). The sig
 ```json
 {
   "manifest": {
-    "schema": "fidero.evidence.v1",
+    "schema": "tenmina.evidence.v1",
     "client_item_id": "8d3e5c1a-4b2f-4f7e-9c1d-2e6b7a9f0c13",
     "device_id": "0192f3aa-0000-7000-8000-0000000000d1",
     "subject": { "type": "milestone", "id": "0192f3ff-0000-7000-8000-000000000010",
@@ -3524,37 +3524,37 @@ Flagged items go to the reviewer queue before an inspection is scheduled. Cleari
 | Check-in | The carer taps "I am here". The app reads position and accuracy, builds a signed manifest of kind `checkin` (8.4, with `subject.type` `care_visit`), queues it offline and uploads it. The server computes the distance to the registered address and sets `within_radius`. Outside the radius is allowed but flagged (`outside_address_radius`), so a visit at a hospital instead of the house is reviewed, not blocked. |
 | Plan items | Each item is a form row: tick, reading (for example blood pressure as two integers), or a photo through the in-app camera only (RUL-08). Items are signed and chained like evidence. |
 | Check-out | Same as check-in with kind `checkout`. The server rejects a check-out without a check-in and flags `checkout_too_soon` when the visit lasted less than the plan's minimum (assumption, `adm_setting`). Check-out triggers the family confirmation message (ADR-20). The app shows "Waiting for the family to confirm" and never the code. |
-| Concerns | A concern form (kind, severity, free text) is encrypted on the device like evidence and sent on the next sync; `urgent` sends immediately when online and shows the Fidero emergency number when offline. The carer sees only that it was received. |
+| Concerns | A concern form (kind, severity, free text) is encrypted on the device like evidence and sent on the next sync; `urgent` sends immediately when online and shows the Tenmina emergency number when offline. The carer sees only that it was received. |
 | Errand steps | Each step shows its description, the acknowledgement or receipt it needs, and whether its official fee has been paid by the bank to the agency. From R2 the agent captures documents through the in-app camera or the app's own document scan only (RUL-08); the server marks provenance. The result document and the handover record (signature on screen or photo) are evidence items. |
 | Minimisation | Between check-in and check-out the app does not track location (NFR-PRIV-02). The carer sees the family member's first name, the address and the plan items, nothing else. Data on the device is deleted after the server confirms receipt (FR-MOB-009). |
-| My pay | From R2, Fidero Field shows each field professional's own jobs, payables, expense claims and statements through `/v1/me/pro/*` (FR-PRO-002, FR-PRO-004, FR-PRO-007). A receipt for a claim is captured with the in-app camera and sent as a signed evidence item, so a gallery image cannot be claimed. Earnings never show a verdict or outcome next to an amount (RUL-26). Carers are not on PRO: they are paid from the client's held funds for confirmed visits (FR-CARE-004). |
-| Safety | The carer can tap a safety button that logs a `safety.incident` row (FR-CASE-010 path) and calls the Fidero duty phone. Carers are assigned to no address flagged as unsafe without a risk screen (principle 7 in 01 B2). The carer's own phone number is never shown to the family; contact runs through Fidero (RUL-17 by analogy). Fidero's duty of care and the carer's own cover are open (01 Q-22). |
+| My pay | From R2, Tenmina Field shows each field professional's own jobs, payables, expense claims and statements through `/v1/me/pro/*` (FR-PRO-002, FR-PRO-004, FR-PRO-007). A receipt for a claim is captured with the in-app camera and sent as a signed evidence item, so a gallery image cannot be claimed. Earnings never show a verdict or outcome next to an amount (RUL-26). Carers are not on PRO: they are paid from the client's held funds for confirmed visits (FR-CARE-004). |
+| Safety | The carer can tap a safety button that logs a `safety.incident` row (FR-CASE-010 path) and calls the Tenmina duty phone. Carers are assigned to no address flagged as unsafe without a risk screen (principle 7 in 01 B2). The carer's own phone number is never shown to the family; contact runs through Tenmina (RUL-17 by analogy). Tenmina's duty of care and the carer's own cover are open (01 Q-22). |
 
-### 8.9 Client app, Fidero (FR-APP-001 to FR-APP-006)
+### 8.9 Client app, Tenmina (FR-APP-001 to FR-APP-006)
 
 | Area | Design |
 |---|---|
 | Scope | The client features of the portal (FR-APP-001): home dashboard, orders, case tracking, reports and the fingerprint check, escrow and invoice approvals, statements, messages and settings. It calls the same `/v1` endpoints with the same rules; the app holds no business rules of its own. Tabs follow the portal: Home, Property, Family, Projects, Account (document 03). Family members and tenants see only what their grants allow. |
-| Code | Same codebase as Fidero Field (ADR-22): shared API client, types, validation, design tokens and translation files. The client app has no evidence signing keys and no camera-only rule: client document uploads (invoices, identity documents) are not field evidence under RUL-08 and may come from files or the camera. |
+| Code | Same codebase as Tenmina Field (ADR-22): shared API client, types, validation, design tokens and translation files. The client app has no evidence signing keys and no camera-only rule: client document uploads (invoices, identity documents) are not field evidence under RUL-08 and may come from files or the camera. |
 | Sign-in | As on the portal (FR-ACC-002), then a mobile JWT with a rotating refresh token (10.3). The refresh token is kept in the Keychain or Keystore-backed storage. |
 | Biometric unlock | Face ID, Touch ID or Android BiometricPrompt with a strong biometric unlocks the stored refresh token on this device (FR-APP-003). A new fingerprint or face enrolled on the phone invalidates the key, so the user signs in again. Biometric unlock is never the second factor: approving a release, invoice, milestone or repair quote still asks for the MFA step-up of FR-ACC-003 (10.3, I-31). |
 | Push | The app asks for notification permission only after explaining why (document 03), then registers its token at `POST /v1/me/push-devices` (`ntf_push_device`). NTF treats push as one more channel under the user's preferences. worker-integrations sends through APNs (token-based key) and FCM (HTTP v1). Push text follows FR-NTF-004's limits: no report content, no amounts above the threshold, no third-party personal data; the default text is generic ("You have a request to review") and the details load after unlock (FR-APP-002, I-30). Tokens the provider reports invalid are revoked. |
 | Deep links | Universal Links on iOS and App Links on Android on the portal domain (`[TO VERIFY]`), for example `/cases/{id}` and `/approvals/{id}`. If the app is installed the link opens it; otherwise the portal. Links carry IDs only. The app checks the session and permissions before showing anything, and opening an approval link never approves. |
-| Fees | FR-APP-005. `app_fee_payment_mode` per country and platform. `in_app_provider`: the payment provider's mobile checkout for Fidero's own fees, through PAY, whose `purpose` is limited to fee types (ADR-03). `web`: the app opens the portal's payment page in the system browser. The default is `web` until Q-23 and AS-14 are answered. No store in-app purchase is used. Escrow, held funds, construction and project money are never paid in the app: the app shows only the bank's payment instructions from the escrow partner's record. |
-| Account deletion | FR-APP-004, in both apps. Account, then "Delete my account". The app calls `GET /v1/me/deletion-requests/preview` and shows what will be deleted, what is kept, why and until when (from `dpr_retention_rule` and any `dpr_legal_hold`: for example released reports, escrow records and the audit log). The user confirms, with MFA step-up where they have MFA, and the app calls `POST /v1/me/deletion-requests`, which creates a `dpr_request` of type deletion with source `app`. Sign-in, sessions, push tokens and, in Fidero Field, device keys are revoked at once. Personal data is then deleted or anonymised by the retention sweep (6.10), except what retention or a hold keeps. If money is still held or an escrow is open, the app says the account closes to new orders now and deletion completes when those close; Fidero contacts the client to complete or cancel each under its terms (I-29). Evidence a field user signed stays under Object Lock as part of the case record. |
+| Fees | FR-APP-005. `app_fee_payment_mode` per country and platform. `in_app_provider`: the payment provider's mobile checkout for Tenmina's own fees, through PAY, whose `purpose` is limited to fee types (ADR-03). `web`: the app opens the portal's payment page in the system browser. The default is `web` until Q-23 and AS-14 are answered. No store in-app purchase is used. Escrow, held funds, construction and project money are never paid in the app: the app shows only the bank's payment instructions from the escrow partner's record. |
+| Account deletion | FR-APP-004, in both apps. Account, then "Delete my account". The app calls `GET /v1/me/deletion-requests/preview` and shows what will be deleted, what is kept, why and until when (from `dpr_retention_rule` and any `dpr_legal_hold`: for example released reports, escrow records and the audit log). The user confirms, with MFA step-up where they have MFA, and the app calls `POST /v1/me/deletion-requests`, which creates a `dpr_request` of type deletion with source `app`. Sign-in, sessions, push tokens and, in Tenmina Field, device keys are revoked at once. Personal data is then deleted or anonymised by the retention sweep (6.10), except what retention or a hold keeps. If money is still held or an escrow is open, the app says the account closes to new orders now and deletion completes when those close; Tenmina contacts the client to complete or cancel each under its terms (I-29). Evidence a field user signed stays under Object Lock as part of the case record. |
 | Minimum version | FR-APP-006, in both apps (8.10). |
 
 ### 8.10 Store distribution, minimum version and store rules (IF-12, NFR-STORE-01, NFR-STORE-02)
 
 | Area | Design |
 |---|---|
-| Identities | Two apps, each with its own bundle ID and application ID (for example `com.fidero.client` and `com.fidero.field`, `[TO VERIFY]`), under organisation accounts in Fidero's name on the Apple Developer Program and Google Play Console (IF-12). |
+| Identities | Two apps, each with its own bundle ID and application ID (for example `com.tenmina.client` and `com.tenmina.field`, `[TO VERIFY]`), under organisation accounts in Tenmina's name on the Apple Developer Program and Google Play Console (IF-12). |
 | Builds and release | CI builds both apps for both platforms, signs them and sends them to TestFlight and Play internal testing, then to store review, App Store phased release and Play staged rollout. Pipeline, key custody and store review lead time are in document 06. |
-| Minimum version | At start, and on return to the foreground after 24 hours (assumption), the app calls `GET /v1/app-config`. Every API call also carries the `Fidero-App` header. If the version is below `min_app_version` for its app and platform, the server answers `426 app-version-unsupported` and the app shows "Update required" with a store link. In Fidero Field, queued evidence stays encrypted on the phone; the queue database is migrated forward on update and never wiped. Evidence registration and upload keep accepting items whose signed capture time is before the minimum was raised, for 30 days after the raise (`[TO VERIFY]`, document 06 section 3.5), so an update never loses evidence (FR-APP-006, FR-MOB-005). Items captured more than 7 days before upload still get the time-gap flag in 8.7. New capture waits for the update. |
+| Minimum version | At start, and on return to the foreground after 24 hours (assumption), the app calls `GET /v1/app-config`. Every API call also carries the `Tenmina-App` header. If the version is below `min_app_version` for its app and platform, the server answers `426 app-version-unsupported` and the app shows "Update required" with a store link. In Tenmina Field, queued evidence stays encrypted on the phone; the queue database is migrated forward on update and never wiped. Evidence registration and upload keep accepting items whose signed capture time is before the minimum was raised, for 30 days after the raise (`[TO VERIFY]`, document 06 section 3.5), so an update never loses evidence (FR-APP-006, FR-MOB-005). Items captured more than 7 days before upload still get the time-gap flag in 8.7. New capture waits for the update. |
 | Over-the-air updates | JavaScript-only updates may be delivered over the air for fixes that change no native code, stay within both stores' rules and do not change money, approval, evidence or signing logic. Those changes ship only as a store release. Tool and policy in document 06 (`[TO VERIFY]`, TQ-23). |
 | Privacy disclosures | Apple privacy labels and the Play Data safety form for each app are generated from `dpr_data_catalogue`: each field an app collects or sends maps to a store data category and purpose. A CI check fails when a field the app collects has no mapping, or when the generated disclosure differs from the last submitted one without review (NFR-STORE-01, NFR-PRIV-02). Third-party SDKs in the apps (crash reporting) are included. The iOS privacy manifest lists required-reason APIs. |
-| Permissions | Fidero Field: camera, location while in use, notifications. No photo library, no background location, no contacts. Fidero: notifications, camera for document scans, Face ID. Purpose texts in plain English (document 03). |
-| Store rules on money | Fees are for real-world services and use the payment provider or the web, not in-app purchase (FR-APP-005, AS-14, Q-23). The Play financial features declaration and Apple review notes state that Fidero holds no client money and name the licensed bank in each country (Q-24, C-01). |
+| Permissions | Tenmina Field: camera, location while in use, notifications. No photo library, no background location, no contacts. Tenmina: notifications, camera for document scans, Face ID. Purpose texts in plain English (document 03). |
+| Store rules on money | Fees are for real-world services and use the payment provider or the web, not in-app purchase (FR-APP-005, AS-14, Q-23). The Play financial features declaration and Apple review notes state that Tenmina holds no client money and name the licensed bank in each country (Q-24, C-01). |
 | Review access | Store reviewers get a demo account in production with sample data only, no real money and no real personal data, enabled only while a submission is in review `[TO VERIFY]` whether the stores accept a separate review environment instead. |
 | OS support | Android 8.0 and iOS 15 at launch (01 C3, `[TO VERIFY]`). Every six months the share of active users per OS version in each launch country is checked; the minimum moves only while at least 95% stay supported (NFR-STORE-02). |
 
@@ -3576,7 +3576,7 @@ Each integration has a port in the owning module and adapters chosen per partner
 | IF-08 Partner API | Partner API (PTR) | `/partner/v1` with OAuth 2.0 client credentials and webhooks | None needed; partners can also receive a signed PDF with consent | Rate limits and quotas per client; usage metered; failing webhooks paused. | R2 |
 | IF-09 Lands Commission | `LandsSearch` (CASE) | `manual`: runner task with receipt and result uploaded as evidence | `api` adapter only if online access is offered `[TO VERIFY]` | Overdue search raises task alert and client status message. | All releases |
 | IF-10 Institutions | `InstitutionChannel` (FEE) | `manual`: the client or the institution contact uploads the invoice; the case manager or contact uploads the receipt; the bank's payment carries the invoice reference | `portal`: the institution contact signs in to the portal to submit invoices and receipts (R2); `file`: a periodic fee list and receipt file by SFTP or email for large schools and hospitals (format per institution `[TO VERIFY]`, Q-16); `api` only where an institution offers one `[TO VERIFY]` | Invoice reference not recognised by the institution: payment is not instructed until the contact confirms. Receipt not returned within `receipt_target_days`: chase job, then a runner collects it. Institution cannot take a transfer: marked not eligible for direct payment and the client told plainly; no cash route (FR-FEE-006). | R1 manual; R2 portal or file |
-| IF-11 Insurer partners | `InsurerGateway` (INS) | `manual`: application PDF sent to the insurer's named contact by secure email; policy document and claim outcome uploaded by staff or the insurer partner user in the portal | `file`: application and policy batch files per insurer `[TO VERIFY]` (Q-17); `api` where offered | Insurer silent: application stays `submitted` with reminders; the client is told. Premium route per FR-INS-002, chosen per insurer: the client pays the insurer directly, or the bank pays the insurer from money held for that purpose; never Fidero (RUL-25). Claims: Fidero records the insurer's status only. | R2 |
+| IF-11 Insurer partners | `InsurerGateway` (INS) | `manual`: application PDF sent to the insurer's named contact by secure email; policy document and claim outcome uploaded by staff or the insurer partner user in the portal | `file`: application and policy batch files per insurer `[TO VERIFY]` (Q-17); `api` where offered | Insurer silent: application stays `submitted` with reminders; the client is told. Premium route per FR-INS-002, chosen per insurer: the client pays the insurer directly, or the bank pays the insurer from money held for that purpose; never Tenmina (RUL-25). Claims: Tenmina records the insurer's status only. | R2 |
 
 ### 9.1 Release instruction format (IF-01)
 
@@ -3597,7 +3597,7 @@ Normalisation for `name_match`: upper case, remove punctuation and double spaces
 
 ### 9.3 Statement access for the owner's rent account (FR-PMG-003, RUL-24)
 
-The rent account belongs to the owner, not to Fidero. Fidero reads only the bank's statement lines for that account, and only under the owner's written mandate allowing the bank to share them (`pmg_statement_mandate`, FR-PMG-003). Lines for any other account are refused at import. Adapters: `file` (the bank sends the owner's account statement for that account by SFTP, same format as IF-01), `api` where the bank offers third-party read access `[TO VERIFY]`, and `manual` (the owner uploads the bank's statement for that account; a case manager matches it with the owner's confirmation). Lines are stored in `esc_statement_line` with account kind `owner_rent` and are visible to the owner and case managers only. Whether the bank will share a customer's statement with Fidero under a mandate is open (TQ-17).
+The rent account belongs to the owner, not to Tenmina. Tenmina reads only the bank's statement lines for that account, and only under the owner's written mandate allowing the bank to share them (`pmg_statement_mandate`, FR-PMG-003). Lines for any other account are refused at import. Adapters: `file` (the bank sends the owner's account statement for that account by SFTP, same format as IF-01), `api` where the bank offers third-party read access `[TO VERIFY]`, and `manual` (the owner uploads the bank's statement for that account; a case manager matches it with the owner's confirmation). Lines are stored in `esc_statement_line` with account kind `owner_rent` and are visible to the owner and case managers only. Whether the bank will share a customer's statement with Tenmina under a mandate is open (TQ-17).
 
 ---
 
@@ -3616,8 +3616,8 @@ The rent account belongs to the owner, not to Fidero. Fidero reads only the bank
 | Payee registry | A wrong or altered payee record sends a client's money to the wrong account (RUL-22) |
 | Family and health data | Addresses of elderly parents, visit times, readings, concerns and insurance applications; special category under Act 843 |
 | Confirmation codes | A code in the wrong hands pays a carer for a visit that did not happen (RUL-23) |
-| Operating account and payment runs | A false or altered bulk payment file pays Fidero's money to the wrong person; any link to client money would breach RUL-27 |
-| App signing keys and store accounts | A stolen signing key or store account could ship a fake Fidero or Fidero Field update that steals sign-ins or signs false evidence (IF-12) |
+| Operating account and payment runs | A false or altered bulk payment file pays Tenmina's money to the wrong person; any link to client money would breach RUL-27 |
+| App signing keys and store accounts | A stolen signing key or store account could ship a fake Tenmina or Tenmina Field update that steals sign-ins or signs false evidence (IF-12) |
 
 ### 10.2 Threat model (STRIDE)
 
@@ -3634,7 +3634,7 @@ The rent account belongs to the owner, not to Fidero. Fidero reads only the bank
 | Evidence | Repudiation | Contractor denies submitting | Signature by a key bound to the contractor's device | FR-MOB-004 |
 | Evidence | Information disclosure | Public bucket or guessable links | Private buckets, 15-min signed links, CloudFront signed URLs for previews | FR-EVD-003 |
 | Evidence | Denial of service | Huge or malicious uploads | Size limits in presigned policy, malware scan, quarantine prefix | FR-EVD-005 |
-| Reports | Spoofing | Fake PDF presented as Fidero's | Public hash check page; reference lookup | FR-RPT-008 |
+| Reports | Spoofing | Fake PDF presented as Tenmina's | Public hash check page; reference lookup | FR-RPT-008 |
 | Reports | Tampering | Released report edited | Released rows frozen by trigger; corrections create a new version | FR-RPT-010 |
 | Reports | Elevation of privilege | Unlicensed person signs a section | Licence check trigger, MFA on signing | RUL-20 |
 | PII | Information disclosure | Professional browses unassigned cases | Object-level permissions by assignment; queries scoped; tests per role | FR-ACC-007 |
@@ -3656,8 +3656,8 @@ The rent account belongs to the owner, not to Fidero. Fidero reads only the bank
 | Family and health data | Information disclosure | Insurance application data kept or exposed | Pass-through with field-level encryption; retained only until the insurer confirms receipt plus `[TO VERIFY]` days; never in SMS or WhatsApp | FR-INS-002, FR-NTF-004 |
 | Carer safety | Physical harm | Carer sent to an unsafe address or threatened by a household | Risk screen on first visit to a new address; safety button in the app; incident log isolated; carer's number hidden from the family | RUL-17, FR-CASE-010 |
 | Tenant | Information disclosure | Tenant sees the owner's details or other properties | Tenant grant scoped to one tenancy; selectors filter by scope | FR-ACC-007 |
-| App distribution | Spoofing | Side-loaded, re-signed or emulated Fidero Field used to create false evidence | Store builds only: Android key attestation of package and signing digest, Play Integrity app and licence verdicts, App Attest in production; signing key bound to the device and person (8.2) | FR-MOB-004, RUL-08, NFR-STORE-01 |
-| App distribution | Tampering | Attacker with store account access publishes a malicious update | Organisation accounts in Fidero's name; two-person access with hardware security keys; Play App Signing with a separate upload key; phased and staged releases; halt runbook (document 06) | IF-12, C-14 |
+| App distribution | Spoofing | Side-loaded, re-signed or emulated Tenmina Field used to create false evidence | Store builds only: Android key attestation of package and signing digest, Play Integrity app and licence verdicts, App Attest in production; signing key bound to the device and person (8.2) | FR-MOB-004, RUL-08, NFR-STORE-01 |
+| App distribution | Tampering | Attacker with store account access publishes a malicious update | Organisation accounts in Tenmina's name; two-person access with hardware security keys; Play App Signing with a separate upload key; phased and staged releases; halt runbook (document 06) | IF-12, C-14 |
 | Client app | Spoofing | Someone with an unlocked phone approves a release | Biometric unlock only opens the app; every approval needs the MFA step-up | FR-APP-003, FR-ACC-003 |
 | Push | Information disclosure | Lock-screen notification shows an amount, a report finding or a family member's details | Generic push text; details load after unlock; FR-NTF-004 limits applied to push | FR-APP-002, FR-NTF-004 |
 | Account deletion | Repudiation and loss | A user deletes their account while an escrow is open, or deletion removes records the law requires | Preview of what is kept and why; legal holds and retention classes respected; open money matters closed under their terms before deletion completes | FR-APP-004, FR-DPR-004 |
@@ -3676,7 +3676,7 @@ The rent account belongs to the owner, not to Fidero. Fidero reads only the bank
 | Client, seller, developer | Email or phone with password, or one-time code | Optional; mandatory when approving a release or milestone (FR-ACC-003) | Cookie session, 60 min idle and 7 days absolute (assumption). In the client app from R2: JWT 10 min, refresh 30 days rotating with reuse detection (assumption), refresh token unlocked by biometrics (FR-APP-003); approvals still need the MFA step-up |
 | Staff, reviewers, administrators | Email and password | Mandatory TOTP or WebAuthn | 30 min idle (NFR-SEC-02), 12 h absolute (assumption) |
 | Lawyers, surveyors, QS | Email and password | Mandatory | As staff |
-| Contractors, inspectors, runners (Fidero Field, iOS and Android) | Phone and one-time code, then device registration with attestation (8.2) | Device key plus PIN or biometric unlock of the app (assumption) | JWT 10 min, refresh 30 days rotating with reuse detection (assumption) |
+| Contractors, inspectors, runners (Tenmina Field, iOS and Android) | Phone and one-time code, then device registration with attestation (8.2) | Device key plus PIN or biometric unlock of the app (assumption) | JWT 10 min, refresh 30 days rotating with reuse detection (assumption) |
 | Partner systems | OAuth 2.0 client credentials | Not applicable; IP allow list optional | Token 15 min (assumption) |
 | Family member | Phone one-time code; one-tap confirmation links signed per visit, single use, 24 h life | Not required; confirming a visit is not a release approval. The client's standing approval covers the payment (RUL-11) | Short session, 30 min (assumption) |
 | Institution contact | Email and password | Mandatory TOTP from R2 organisation accounts; one-time code in R1 (assumption) | 60 min idle |
@@ -3757,7 +3757,7 @@ Roles added in 01 version 0.3 (FM family member, IC institution contact, CE care
 | Prepare a release instruction for any line | - | - | - | - | - | - | Y | Y | - |
 | Approve a release instruction | client step | - | - | - | - | - | - | RR | - |
 | Open a country configuration draft; publish (two) | - | - | - | - | - | - | - | - | Y |
-| Receive money | never | never | institution's account | carers: own confirmed visits, via the bank from held funds; errand agents: from Fidero's operating account under PRO, never client money | never | insurer's account | never | never | never |
+| Receive money | never | never | institution's account | carers: own confirmed visits, via the bank from held funds; errand agents: from Tenmina's operating account under PRO, never client money | never | insurer's account | never | never | never |
 
 Professional payments (PRO), added for 01 version 0.8. PR is any contracted professional (LW, SV, RN, IN, QS, or CE as an errand agent). PY holds payment rights.
 
@@ -3840,7 +3840,7 @@ Mapped to ASVS 4.0.3 chapters. Re-mapping to ASVS 5.0 is `[TO VERIFY]` before th
 | Bulk export | Two-person approval, logged, encrypted file with 24 h link (FR-DPR-005) |
 | Processors | Each vendor recorded with data categories and location; data processing agreements `[TO VERIFY]` |
 | Breach response | Security events feed an incident runbook in document 06; notification time `[TO VERIFY]` |
-| Safety-log isolation | Schema `safety`, role `fidero_safety`, own KMS key, no read replica copy, no analytics, no search index, access only with `safety.read` granted to named people, every read audited |
+| Safety-log isolation | Schema `safety`, role `tenmina_safety`, own KMS key, no read replica copy, no analytics, no search index, access only with `safety.read` granted to named people, every read audited |
 | Special category data | Hospital invoices, care plans, visit records, readings, concerns and insurance applications are health data `[TO VERIFY]` under Act 843 section 37 or its equivalent in each country. Own KMS key, no analytics or search, access by scope only, every read of a concern audited, insurance data passed through and not kept beyond `[TO VERIFY]` days (TR-12) |
 | Family members without accounts | Treated as data subjects with their own notice (`acc_family_member.consent_id`) delivered by the client and confirmed on the first confirmation message; access and correction requests through the client or directly (FR-DPR-003) |
 | Per-country data location | `cty_cell` records where each country's data lives; `dpr_data_location` lists every service and vendor per cell (NFR-PRIV-01, FR-CTY-002) |
@@ -3863,7 +3863,7 @@ Logged to the audit log and to CloudWatch, with alerts to the on-call channel:
 | Partner rate-limit breaches and consent failures | Repeated failures |
 | Break-glass access, AWS root use, KMS key policy change, Object Lock configuration change | Always |
 | WAF blocks above baseline | Spike |
-| Fidero Field registration failing attestation, by platform; `integrity_failed` flags | Spike above baseline per platform |
+| Tenmina Field registration failing attestation, by platform; `integrity_failed` flags | Spike above baseline per platform |
 | Minimum app version changed; store account role or signing certificate changed | Always |
 
 ---
@@ -3874,13 +3874,13 @@ Logged to the audit log and to CloudWatch, with alerts to the on-call channel:
 
 | AWS account | Contents |
 |---|---|
-| `fidero-management` | AWS Organizations, IAM Identity Center, consolidated billing. No workloads |
-| `fidero-security` | CloudTrail organisation trail, AWS Config, security findings, log archive with Object Lock, `audit-anchors` bucket |
-| `fidero-shared` | ECR registry, Terraform state, CI role trust |
-| `fidero-dev`, `fidero-staging`, `fidero-prod` | Workloads, one account per environment |
-| `fidero-backup` | AWS Backup vault copies for production with Vault Lock, second region `[TO VERIFY]` |
+| `tenmina-management` | AWS Organizations, IAM Identity Center, consolidated billing. No workloads |
+| `tenmina-security` | CloudTrail organisation trail, AWS Config, security findings, log archive with Object Lock, `audit-anchors` bucket |
+| `tenmina-shared` | ECR registry, Terraform state, CI role trust |
+| `tenmina-dev`, `tenmina-staging`, `tenmina-prod` | Workloads, one account per environment |
+| `tenmina-backup` | AWS Backup vault copies for production with Vault Lock, second region `[TO VERIFY]` |
 
-This matches the account layout in document 06, which owns the detail. A second cell (ADR-16, 6.9) adds `fidero-prod-<country>` and `fidero-backup-<country>` accounts in the compliant region, applied from the same Terraform roots with the cell's variables; dev and staging stay shared unless the country's rule covers test data too `[TO VERIFY]`.
+This matches the account layout in document 06, which owns the detail. A second cell (ADR-16, 6.9) adds `tenmina-prod-<country>` and `tenmina-backup-<country>` accounts in the compliant region, applied from the same Terraform roots with the cell's variables; dev and staging stay shared unless the country's rule covers test data too `[TO VERIFY]`.
 
 | Environment | Purpose | Data | Scale (assumption) |
 |---|---|---|---|
@@ -3956,7 +3956,7 @@ flowchart TB
 | `evidence` | Versioning, Object Lock compliance, SSE-KMS, block public access, replication to second region, lifecycle to Infrequent Access after 90 days (assumption) |
 | `quarantine` | Uploads land here; objects deleted after 24 h if not promoted |
 | `previews` | SSE-KMS, served by CloudFront signed URLs; listing images public through CloudFront only |
-| `audit-anchors` | Object Lock compliance, in the `fidero-security` account |
+| `audit-anchors` | Object Lock compliance, in the `tenmina-security` account |
 | `exports` | SSE-KMS, 24 h lifecycle |
 
 ### 11.4 Backups and disaster recovery (NFR-AVL-02, NFR-AVL-03)
@@ -4081,8 +4081,8 @@ Every FR ID in document 01 version 0.8 appears below, one row per module, so a t
 | GEO | FR-GEO-001, FR-GEO-002, FR-GEO-003, FR-GEO-004, FR-GEO-005, FR-GEO-006, FR-GEO-007, FR-GEO-008 | `geo`; backoffice | `geo_asset`, `geo_boundary_version`, `geo_overlay_*`, `geo_monitoring_alert` | `/v1/assets/{id}/*`, `/v1/admin/overlay-layers`, `/v1/geo/ghana-post` | 6.4, IF-04 to IF-06 |
 | ESC | FR-ESC-001, FR-ESC-002, FR-ESC-003, FR-ESC-004, FR-ESC-005, FR-ESC-006, FR-ESC-007, FR-ESC-008, FR-ESC-009, FR-ESC-010, FR-ESC-011, FR-ESC-012, FR-ESC-013, FR-ESC-014, FR-ESC-015 | `escrow`; portal, backoffice | `esc_escrow`, `esc_condition`, `esc_bank_event`, `esc_release_instruction`, `esc_payee`, `esc_standing_approval`, view `esc_held_statement`, `core_approval*` | `/v1/escrows*`, `/v1/escrows/{id}/statement`, `/v1/release-instructions/*`, `/v1/payees*`, `/v1/standing-approvals*`, `/v1/bank-statements` | 5.3, 6.5, 6.11, 7.6, 9.2, IF-01, ADR-17, ADR-18 |
 | EVD | FR-EVD-001, FR-EVD-002, FR-EVD-003, FR-EVD-004, FR-EVD-005, FR-EVD-006 | `evidence`; all | `evd_evidence`, `evd_link` | `/v1/uploads`, `/v1/evidence/{id}/link` | ADR-04, 6.6, 10.7 |
-| MOB | FR-MOB-001, FR-MOB-002, FR-MOB-003, FR-MOB-004, FR-MOB-005, FR-MOB-006, FR-MOB-007, FR-MOB-008, FR-MOB-009, FR-MOB-010, FR-MOB-011, FR-MOB-012 | `mobile`; Fidero Field on iOS and Android | `mob_device`, `mob_submission*`, `mob_checkin`, `mob_fraud_flag` | `/v1/mobile/*`, `/v1/mobile/devices/challenge`, `/v1/mobile/check-ins`, `/v1/mobile/check-outs` | 5.4, 5.8, 7.7, 8, 8.8, ADR-19, ADR-22 |
-| APP | FR-APP-001, FR-APP-002, FR-APP-003, FR-APP-004, FR-APP-005, FR-APP-006 | No Django app of its own; Fidero client app (all six), Fidero Field (FR-APP-004, FR-APP-006); server parts in NTF, DPR, ADM and PAY | `ntf_push_device`, `dpr_request`, `adm_setting` (`min_app_version`, `app_fee_payment_mode`), `pay_fee_payment` | `/v1/auth/token`, `/v1/me/push-devices`, `/v1/me/deletion-requests`, `/v1/app-config`, `/v1/admin/app-versions`, and the portal's client endpoints | 8.9, 8.10, 10.2, 10.3, ADR-22 |
+| MOB | FR-MOB-001, FR-MOB-002, FR-MOB-003, FR-MOB-004, FR-MOB-005, FR-MOB-006, FR-MOB-007, FR-MOB-008, FR-MOB-009, FR-MOB-010, FR-MOB-011, FR-MOB-012 | `mobile`; Tenmina Field on iOS and Android | `mob_device`, `mob_submission*`, `mob_checkin`, `mob_fraud_flag` | `/v1/mobile/*`, `/v1/mobile/devices/challenge`, `/v1/mobile/check-ins`, `/v1/mobile/check-outs` | 5.4, 5.8, 7.7, 8, 8.8, ADR-19, ADR-22 |
+| APP | FR-APP-001, FR-APP-002, FR-APP-003, FR-APP-004, FR-APP-005, FR-APP-006 | No Django app of its own; Tenmina client app (all six), Tenmina Field (FR-APP-004, FR-APP-006); server parts in NTF, DPR, ADM and PAY | `ntf_push_device`, `dpr_request`, `adm_setting` (`min_app_version`, `app_fee_payment_mode`), `pay_fee_payment` | `/v1/auth/token`, `/v1/me/push-devices`, `/v1/me/deletion-requests`, `/v1/app-config`, `/v1/admin/app-versions`, and the portal's client endpoints | 8.9, 8.10, 10.2, 10.3, ADR-22 |
 | BLD | FR-BLD-001, FR-BLD-002, FR-BLD-003, FR-BLD-004, FR-BLD-005, FR-BLD-006, FR-BLD-007, FR-BLD-008, FR-BLD-009, FR-BLD-010, FR-BLD-011, FR-BLD-012, FR-BLD-013 | `construction`; portal, backoffice, app | `bld_project`, `bld_milestone`, `bld_inspection`, `bld_defect`, `bld_conflict_link`, `bld_variation`, `bld_reprice` | `/v1/projects/*`, `/v1/milestones/*`, `/v1/panel-members`, `/v1/defects/*` | 5.4, 6.6 |
 | PRJ | FR-PRJ-001, FR-PRJ-002, FR-PRJ-003, FR-PRJ-004, FR-PRJ-005 | `projectfunds`; portal, backoffice | `prj_supplier`, `prj_invoice`, `prj_background_check`, `prj_aml_review`, shared `bld_project` and `bld_milestone` | `/v1/projects`, `/v1/projects/{id}/background-checks`, `/v1/projects/{id}/invoices` | 4.2, 6.8 |
 | LST | FR-LST-001, FR-LST-002, FR-LST-003, FR-LST-004, FR-LST-005, FR-LST-006, FR-LST-007, FR-LST-008, FR-LST-009, FR-LST-010 | `listings`; portal (SSR) | `lst_listing`, `lst_reservation`, `lst_enquiry` | `/v1/listings*` | 5.5, 6.6 |
@@ -4099,10 +4099,10 @@ Every FR ID in document 01 version 0.8 appears below, one row per module, so a t
 | FEE | FR-FEE-001, FR-FEE-002, FR-FEE-003, FR-FEE-004, FR-FEE-005, FR-FEE-006, FR-FEE-007 | `fees`; portal, backoffice | `fee_institution`, `fee_institution_contact`, `fee_invoice`, `fee_payment`, `fee_schedule`, `fee_runner_task`, shared `esc_payee`, `esc_escrow` (held_funds), `case_case` (institution_verification) | `/v1/institutions*`, `/v1/invoices*`, `/v1/fee-payments/{id}/receipts`, `/v1/fee-schedules`, `/v1/family-members/{id}/statement` | 5.7, 6.11, 6.12, 7.9, 7.12, IF-10 |
 | CARE | FR-CARE-001, FR-CARE-002, FR-CARE-003, FR-CARE-004, FR-CARE-005, FR-CARE-006 | `care`; portal, backoffice, field app | `care_plan`, `care_plan_item`, `care_carer`, `care_visit`, `care_visit_item`, `care_confirmation`, `care_concern`, shared `acc_vetting`, `mob_checkin` | `/v1/care-plans*`, `/v1/carers*`, `/v1/care-visits*`, `/v1/concerns`, `/v1/mobile/check-ins`, `/v1/mobile/visits/*` | 5.8, 6.12, 7.10, 7.12, 8.8, ADR-19, ADR-20 |
 | PMG | FR-PMG-001, FR-PMG-002, FR-PMG-003, FR-PMG-004, FR-PMG-005, FR-PMG-006 | `propertymgmt`; portal, backoffice, field app | `pmg_managed_property`, `pmg_tenancy`, `pmg_rent_period`, `pmg_statement_mandate`, `pmg_repair`, `pmg_repair_quote`, `pmg_inspection`, shared `acc_bank_account`, `esc_statement_line`, `esc_escrow` (repair) | `/v1/managed-properties*`, `/v1/tenancies/{id}`, `/v1/repairs*` | 5.9, 6.13, 7.11, 7.12, 9.3 |
-| TSK | FR-TSK-001, FR-TSK-002, FR-TSK-003, FR-TSK-004, FR-TSK-005 | `errands`; portal, backoffice, field app | `tsk_errand`, `tsk_errand_document`, `tsk_errand_step`, `tsk_agent`, `tsk_handover`, `adm_config_version` (errand_catalogue), shared `acc_vetting`, `esc_escrow` (held_funds), `pay_fee_payment` (Fidero's charge, FR-TSK-002), `pro_payable` (the agent's pay, FR-TSK-003) | `/v1/errand-catalogue`, `/v1/errands*`, `/v1/mobile/errands/*` | 5.10, 5.11, 6.13, 6.14, 7.12, 8.8 |
+| TSK | FR-TSK-001, FR-TSK-002, FR-TSK-003, FR-TSK-004, FR-TSK-005 | `errands`; portal, backoffice, field app | `tsk_errand`, `tsk_errand_document`, `tsk_errand_step`, `tsk_agent`, `tsk_handover`, `adm_config_version` (errand_catalogue), shared `acc_vetting`, `esc_escrow` (held_funds), `pay_fee_payment` (Tenmina's charge, FR-TSK-002), `pro_payable` (the agent's pay, FR-TSK-003) | `/v1/errand-catalogue`, `/v1/errands*`, `/v1/mobile/errands/*` | 5.10, 5.11, 6.13, 6.14, 7.12, 8.8 |
 | INS | FR-INS-001, FR-INS-002, FR-INS-003, FR-INS-004 | `insurance`; portal, backoffice | `ins_product`, `ins_application`, `ins_policy`, `ins_premium`, `ins_claim`, shared `esc_payee` (insurer) | `/v1/insurance/*` | 6.12, 7.12, IF-11 |
 | EVT | FR-EVT-001, FR-EVT-002, FR-EVT-003 | `events`; portal, backoffice | `evt_event`, `evt_vendor`, `evt_vendor_payment`, shared `esc_payee`, `esc_escrow` (event), `case_case` (vendor_verification), `care_confirmation` | `/v1/events*`, `/v1/vendor-payments/*` | 6.13, ADR-20 |
-| PRO | FR-PRO-001, FR-PRO-002, FR-PRO-003, FR-PRO-004, FR-PRO-005, FR-PRO-006, FR-PRO-007, FR-PRO-008, FR-PRO-009, FR-PRO-010 | `profpay`; backoffice (professionals' My pay and staff screens), Fidero Field from R2 | `pro_agreement`, `pro_scope`, `pro_rate_card`, `pro_payable`, `pro_expense_claim`, `pro_payment_run`, `pro_payment_line`, `pro_document`, shared `esc_payee` (kind `contracted_professional`), `core_approval_request`, `case_cost_item`, `adm_partner` (operating account) | `/v1/me/pro/*`, `/v1/admin/pro/*`, `/v1/pro/*` | ADR-23, 5.11, 6.14, 7.4, 7.12, 8.8, 10.2, 10.4, 10.5 |
+| PRO | FR-PRO-001, FR-PRO-002, FR-PRO-003, FR-PRO-004, FR-PRO-005, FR-PRO-006, FR-PRO-007, FR-PRO-008, FR-PRO-009, FR-PRO-010 | `profpay`; backoffice (professionals' My pay and staff screens), Tenmina Field from R2 | `pro_agreement`, `pro_scope`, `pro_rate_card`, `pro_payable`, `pro_expense_claim`, `pro_payment_run`, `pro_payment_line`, `pro_document`, shared `esc_payee` (kind `contracted_professional`), `core_approval_request`, `case_cost_item`, `adm_partner` (operating account) | `/v1/me/pro/*`, `/v1/admin/pro/*`, `/v1/pro/*` | ADR-23, 5.11, 6.14, 7.4, 7.12, 8.8, 10.2, 10.4, 10.5 |
 
 Business rules: RUL-01 (ADR-03, 6.4), RUL-02 (6.5), RUL-03 (ADR-12, 5.2), RUL-04 (6.5, ADR-11), RUL-05 (6.3, 6.5), RUL-06 and RUL-07 (6.5), RUL-08 (8.1, 8.8), RUL-09 (6.5, 6.6), RUL-10 (6.6), RUL-11 (6.5, 6.11 `esc_standing_approval`, 10.4), RUL-12 and RUL-13 (6.6, 7.12), RUL-14 (5.5), RUL-15 (6.5), RUL-16 (5.6, 6.7), RUL-17 (6.5, 6.7, 10.9), RUL-18 (5.4, 7.12), RUL-19 (6.8), RUL-20 (6.5), RUL-21 (6.8, 6.11 payee kind supplier only), RUL-22 (ADR-17, 6.5 trigger, 6.11 `esc_payee`, 9.2), RUL-23 (6.5 trigger, 6.12 `care_visit` and `care_confirmation`, 6.13 `tsk_errand_step`, ADR-20), RUL-24 (6.4 `acc_bank_account`, 6.13 `pmg_managed_property` trigger, 9.3), RUL-25 (6.12 `ins_policy`, `ins_premium`, `ins_claim`; no `premium` purpose in `pay_fee_payment`), RUL-26 (ADR-23, 6.14 `pro_scope`, `pro_rate_card`, `pro_payable`, the `work.accepted` schema), RUL-27 (ADR-23, 6.11 payee kind `contracted_professional`, 6.14 separation table, 10.2, 10.5).
 
@@ -4135,7 +4135,7 @@ Interfaces: IF-01 to IF-09 (section 9), IF-10 and IF-11 (section 9, 9.2, 9.3), I
 | TR-18 | Attestation gaps: phones without Google Play, old Play services, devices failing integrity, or attestation outages | Some field users cannot register; registration delays | Publish the supported device list; lend a supported phone to panel members who need one `[TO VERIFY]`; retry with back-off; never accept a side-loaded build | FR-MOB-004, C-08, NFR-STORE-02 |
 | TR-19 | Store rejection or slow review: payment rules (Q-23), financial app rules (Q-24), privacy disclosures, or a review queue that delays a fix | R2 go-live or an urgent fix slips | Rehearse a first submission early; fees on the web until Q-23 is answered; review notes and demo account ready; review lead time in the release calendar; expedited review request for urgent fixes (document 06) | C-14, NFR-STORE-01, AS-14 |
 | TR-15 | A client with activity in two cells gets a split experience | Confusion, support load | Linked accounts through the directory; one cell at a time in the home dashboard; defer until a second cell exists | ADR-16, TQ-13 |
-| TR-20 | Fidero's operating bank or mobile money provider does not accept a bulk payment file, or changes its format without notice (Q-26) | Each professional is paid by a transfer keyed by hand; pay is late | Spike before build (document 04); fallback is manual entry from the approved run, each entry checked by a second person against the run's lines and hash; format version on `pro_payment_run.file_format` | Q-26, FR-PRO-005, TQ-27 |
+| TR-20 | Tenmina's operating bank or mobile money provider does not accept a bulk payment file, or changes its format without notice (Q-26) | Each professional is paid by a transfer keyed by hand; pay is late | Spike before build (document 04); fallback is manual entry from the approved run, each entry checked by a second person against the run's lines and hash; format version on `pro_payment_run.file_format` | Q-26, FR-PRO-005, TQ-27 |
 | TR-21 | Withholding tax and reporting rules per country are unknown or change (Q-25) | Wrong deductions, penalties, professionals' trust lost | Rules as versioned country configuration; an accountant signs each country's rules before its first run; deductions shown on every remittance advice; corrections are new lines, never edits | Q-25, FR-PRO-007, TQ-28 |
 
 ### 14.2 Open technical questions
@@ -4158,8 +4158,8 @@ Interfaces: IF-01 to IF-09 (section 9), IF-10 and IF-11 (section 9, 9.2, 9.3), I
 | TQ-14 | Does the partner bank offer an account name enquiry for accounts at any bank, and on what terms? | Founder with bank | R1 escrow go-live | RUL-22, FR-ESC-015, 9.2 |
 | TQ-15 | How does the bank hold held funds: a named sub-account per client, or one trust account with client references? What deposit reference format? | Founder with bank | R1 | FR-ESC-014, ADR-18 |
 | TQ-16 | How is a visit confirmed when the family member has no phone of their own? Is a staff call plus sampling acceptable to the lawyer and insurer? | Operations, lawyer | R2 | FR-CARE-004, ADR-20 |
-| TQ-17 | Will the bank share a customer's account statement with Fidero under the owner's mandate, by file or API? | Founder with bank | R2 | FR-PMG-003, RUL-24, 9.3 |
-| TQ-18 | Are carers paid as individuals or through an agency, and which is the payee of record? Errand agents are paid by Fidero under PRO from 01 v0.8 (FR-TSK-003); their payee is the party named in their agreement (TQ-29). | Operations, lawyer | R2 | RUL-22, RUL-23, FR-CARE-004, Q-19 |
+| TQ-17 | Will the bank share a customer's account statement with Tenmina under the owner's mandate, by file or API? | Founder with bank | R2 | FR-PMG-003, RUL-24, 9.3 |
+| TQ-18 | Are carers paid as individuals or through an agency, and which is the payee of record? Errand agents are paid by Tenmina under PRO from 01 v0.8 (FR-TSK-003); their payee is the party named in their agreement (TQ-29). | Operations, lawyer | R2 | RUL-22, RUL-23, FR-CARE-004, Q-19 |
 | TQ-19 | Which of the two premium routes in FR-INS-002 does each insurer accept, and what intermediary licence does each route need? | Founder, lawyer | R2 | FR-INS-002, RUL-25, C-11, Q-17 |
 | TQ-20 | Which institutions can send invoices and receipts by portal or file, and in what format? | Operations | R2 | IF-10, Q-16 |
 | TQ-21 | Source and update cadence of official fees in the errand catalogue per country | Operations | R2 | FR-TSK-001 |
@@ -4167,8 +4167,8 @@ Interfaces: IF-01 to IF-09 (section 9), IF-10 and IF-11 (section 9, 9.2, 9.3), I
 | TQ-24 | Will the stores accept fee payment through the payment provider inside the app, and on which platforms and countries? Sets `app_fee_payment_mode` | Product lead | Before R2 app submission | Q-23, AS-14, FR-APP-005 |
 | TQ-25 | Which Play Integrity device verdict level to require, and how to serve field users on phones without Google Play | Operations, engineering | R2 | FR-MOB-004, TR-18 |
 | TQ-26 | Local queue library on both platforms: op-sqlite with SQLCipher, or WatermelonDB over SQLite | Mobile developer | First R2 spike | FR-MOB-005, FR-MOB-009 |
-| TQ-22 | Pricing per line confirms the provisional Fidero fee purposes in `pay_fee_payment` (institution service, care service, property management, errand and event service fees) | Founder | R1, R2 | Q-20, FR-PAY-005 |
-| TQ-27 | Which bulk payment file formats do Fidero's operating bank and mobile money provider accept, through which channel and cut-off times? Do they offer dual authorisation and a confirmation file? | Founder with the bank | R1, before the first payment run | Q-26, FR-PRO-005, FR-PRO-009 |
+| TQ-22 | Pricing per line confirms the provisional Tenmina fee purposes in `pay_fee_payment` (institution service, care service, property management, errand and event service fees) | Founder | R1, R2 | Q-20, FR-PAY-005 |
+| TQ-27 | Which bulk payment file formats do Tenmina's operating bank and mobile money provider accept, through which channel and cut-off times? Do they offer dual authorisation and a confirmation file? | Founder with the bank | R1, before the first payment run | Q-26, FR-PRO-005, FR-PRO-009 |
 | TQ-28 | Withholding rates, registration, filing and remittance deadlines for payments to contracted professionals in each country, and whether reimbursed expenses carry withholding | Accountant, lawyer | R1 start for Ghana; each country's manual phase | Q-25, FR-PRO-007 |
 | TQ-29 | When a law or survey firm signs the agreement, may the firm be the payee instead of the professional? | Lawyer, founder | R1 | FR-PRO-006, I-35 |
 | TQ-30 | Is a runner's part month paid pro rata by calendar days, and who closes the month? | Operations | R1 | FR-PRO-002, I-37 |
@@ -4189,26 +4189,26 @@ Resolved by document 01 version 0.2 and 0.3 and removed from this list: I-01 (th
 | I-13 | FR-ACC-003 requires MFA for "any user who approves a release", which includes clients under RUL-11. This affects NFR-USE-01 for diaspora clients, and now applies to every invoice approval and repair quote approval. | C4.1 | Clients enrol MFA at their first approval, not at sign-up. Family confirmation of a visit is not a release approval (I-25). |
 | I-15 | FR-PTR-001 now says a partner submits a plot reference or coordinates (fixed in 0.2), but what happens when a point matches several plots is still not stated. | C4.15 | Return `ambiguous` with no details (TQ-07). |
 | I-16 | FR-MOB-010 (Should) lets runners, surveyors, carers and errand agents use the app for case tasks, visits and errands, but RUL-08 applies the camera-only rule to milestones only. Whether browser uploads remain valid evidence for tasks, visits and errand steps is not stated. | C4.9, B7 | **Partly resolved by 01 v0.4.** RUL-08 now covers milestone, inspection, care visit and errand evidence from R2, and FR-MOB-001 adds carers and errand agents. Runner and surveyor case tasks are still not named: browser uploads stay accepted there, and `provenance` records which. |
-| I-17 | FR-ESC-014 and FR-FEE-007 say "held balance" and "balance held". ADR-03 and C-01 forbid any balance Fidero keeps, and this document's CI test fails on a column named like `%balance%`. | C4.7, C4.21 | **Resolved by 01 v0.4.** FR-ESC-014 and FR-FEE-007 now say "amount held at the bank", built only from bank-confirmed events. `esc_held_statement.held_at_bank` is derived from bank events (ADR-18). |
+| I-17 | FR-ESC-014 and FR-FEE-007 say "held balance" and "balance held". ADR-03 and C-01 forbid any balance Tenmina keeps, and this document's CI test fails on a column named like `%balance%`. | C4.7, C4.21 | **Resolved by 01 v0.4.** FR-ESC-014 and FR-FEE-007 now say "amount held at the bank", built only from bank-confirmed events. `esc_held_statement.held_at_bank` is derived from bank events (ADR-18). |
 | I-18 | RUL-22 lists institution, supplier, vendor or professional as the only payees, but the payee on the launch product (a land purchase) is the seller, and on off-plan and listings the developer. | B7 | **Resolved by 01 v0.4.** RUL-22 now names the seller or developer in a purchase escrow as a payee. `esc_payee.kind` includes `seller` and `developer`, verified through the report's identity and authority checks. |
-| I-19 | FR-FEE-006 lets a runner draw cash against a voucher and pay an institution in person. RUL-22 says Fidero never releases cash to a relative or representative, and RUL-01 says Fidero never holds client money. Cash in a Fidero runner's hands for up to 2 working days sits between the two. | C4.21, B7 | **Resolved by 01 v0.4.** FR-FEE-006 removes the cash route. An institution that cannot receive a bank transfer is marked not eligible for direct payment (`fee_institution.eligible_for_direct_payment`); a runner may only collect the invoice and deliver the receipt (`fee_runner_task`). The voucher table, instruction type, endpoints, job and controls are removed. |
+| I-19 | FR-FEE-006 lets a runner draw cash against a voucher and pay an institution in person. RUL-22 says Tenmina never releases cash to a relative or representative, and RUL-01 says Tenmina never holds client money. Cash in a Tenmina runner's hands for up to 2 working days sits between the two. | C4.21, B7 | **Resolved by 01 v0.4.** FR-FEE-006 removes the cash route. An institution that cannot receive a bank transfer is marked not eligible for direct payment (`fee_institution.eligible_for_direct_payment`); a runner may only collect the invoice and deliver the receipt (`fee_runner_task`). The voucher table, instruction type, endpoints, job and controls are removed. |
 | I-20 | Must requirements depend on Should requirements: FR-CARE-002 to 006 are Must but FR-CARE-001 (create a care plan) is Should; FR-PMG-002, 003 and 005 are Must but FR-PMG-001 is Should; FR-TSK-002 to 004 are Must but FR-TSK-001 is Should. | C4.22 to C4.24 | **Resolved by 01 v0.4.** A Must inside a Should or Could feature is required only if that feature ships in the release, and then blocks the feature, not the release (01 Priority). |
-| I-21 | FR-PMG-003 reads rent from "the bank's statement or confirmation" of the owner's own account. No requirement, consent or interface covers the owner's mandate to the bank to share that statement with Fidero. | C4.23, C6 | **Resolved by 01 v0.4.** FR-PMG-003 now requires the owner's written mandate and limits matching to that account's statement lines. `pmg_statement_mandate` and 9.3 follow it. Whether the bank will share lines stays open (TQ-17). |
-| I-22 | FR-INS-002 says premiums go "to the insurer's account, never to Fidero" but not whether the client pays the insurer directly or the bank pays from held funds; neither route appears in the Escrow state model, and C-11 says the intermediary licence is `[TO VERIFY]`. | C4.25, C8, A7 | **Resolved by 01 v0.4 for the route.** FR-INS-002 names both routes (the client pays the insurer directly, or the bank pays the insurer from money held for that purpose), as `ins_premium.route` already does. The state model (I-23) and the intermediary licence (C-11, TQ-19) stay open. |
+| I-21 | FR-PMG-003 reads rent from "the bank's statement or confirmation" of the owner's own account. No requirement, consent or interface covers the owner's mandate to the bank to share that statement with Tenmina. | C4.23, C6 | **Resolved by 01 v0.4.** FR-PMG-003 now requires the owner's written mandate and limits matching to that account's statement lines. `pmg_statement_mandate` and 9.3 follow it. Whether the bank will share lines stays open (TQ-17). |
+| I-22 | FR-INS-002 says premiums go "to the insurer's account, never to Tenmina" but not whether the client pays the insurer directly or the bank pays from held funds; neither route appears in the Escrow state model, and C-11 says the intermediary licence is `[TO VERIFY]`. | C4.25, C8, A7 | **Resolved by 01 v0.4 for the route.** FR-INS-002 names both routes (the client pays the insurer directly, or the bank pays the insurer from money held for that purpose), as `ins_premium.route` already does. The state model (I-23) and the intermediary licence (C-11, TQ-19) stay open. |
 | I-23 | C8 has no state models for institution payment, care visit, repair, errand or policy, although RUL-22 to RUL-25 attach rules to them. | C8 | States proposed in 6.12 and 6.13 (for example visit: scheduled, checked in, checked out, confirmed, unconfirmed, missed, disputed, instructed, paid). Suggest 01 adopts them. |
 | I-24 | The Tenant role in C2 can "see their agreement and rent record" and "report a repair", but no FR in C4.1 gives a tenant an account or a sign-in. | C2, C4.1, C4.23 | Tenant signs in with a phone one-time code, with a grant scoped to one tenancy. |
 | I-25 | RUL-11 says the client approves every release. FR-CARE-004 pays the carer on the family's confirmation, and FR-TSK-003 pays official fees per step; neither states a client approval per payment. | B7, C4.22, C4.24 | **Resolved by 01 v0.4.** RUL-11 allows a standing approval for care visits and errand steps up to a stated amount per month; each payment still needs its evidence and two staff approvals. Designed as `esc_standing_approval` (6.11). |
 | I-26 | FR-ESC-015 blocks a release when the account name does not match, but 01 does not say where the bank account name comes from or who checks it. | C4.7 | **Resolved by 01 v0.4.** FR-ESC-015 names the bank's name check where offered, otherwise a bank letter checked by a second staff member, with no override. `esc_payee.account_name_source` is `bank_name_check` or `bank_letter` (9.2). |
 | I-27 | FR-FEE-001 (R1) needs an institution with a named contact who confirms invoices (C2 role "Institution contact"), but organisation accounts for institutions (FR-ACC-011) are R2. | C2, C4.1, C4.21 | In R1 the contact is a person account with role `institution_contact` scoped to the institution; organisation accounts follow in R2. |
 | I-28 | Requirement IDs added in version 0.3 sit out of numeric order in their tables (FR-ACC-012 before FR-ACC-009, FR-ESC-014 and 015 before 011, FR-MOB-012 before 011, FR-CTY-004 before 002). Cosmetic, but it makes range notation such as "001 to 012" misleading. | C4 | This document lists every FR ID in full in section 13. |
-| I-29 | FR-APP-004 lets a user delete their account from inside the app, but 01 does not say what happens to open escrows, held funds, active projects or standing approvals when the client deletes the account. RUL-11 needs the client's approval for each release, which nobody can give after deletion. | C4.9a, B7 | The request is recorded at once and the account closes to new orders. Fidero completes or cancels each open money matter under its terms; deletion completes when they close. The app says so plainly (8.9). Suggest 01 states this. |
+| I-29 | FR-APP-004 lets a user delete their account from inside the app, but 01 does not say what happens to open escrows, held funds, active projects or standing approvals when the client deletes the account. RUL-11 needs the client's approval for each release, which nobody can give after deletion. | C4.9a, B7 | The request is recorded at once and the account closes to new orders. Tenmina completes or cancels each open money matter under its terms; deletion completes when they close. The app says so plainly (8.9). Suggest 01 states this. |
 | I-30 | FR-APP-002 sends push "following the user's channel preferences and FR-NTF-004's limits", but FR-NTF-001 lists only email, SMS and WhatsApp, and FR-NTF-004 limits only SMS and WhatsApp. | C4.9a, C4.16 | Push is a fourth channel in `ntf_preference`, and FR-NTF-004's limits apply to push (8.9). Suggest FR-NTF-001 and FR-NTF-004 name push. |
 | I-31 | FR-APP-003 says approving a release still needs the second factor, but FR-ACC-003 does not say whether a passkey on the same phone counts as that factor. | C4.1, C4.9a | TOTP or a passkey enrolled as an MFA device counts. Biometric app unlock alone never does (8.9, 10.3). |
 | I-32 | NFR-PERF-05 says "its download size" for both apps, and does not say whether the 30 MB limit is per app and per platform. | C7 | Each app on each platform stays under 30 MB to download (8.1). |
 | I-33 | FR-PRO-005 needs an approver "with payment rights", but C2 defines only release rights. Who holds payment rights, who grants them and whether they may sit with release rights is not stated. | C2, C4.20a | `payment_rights` on a reviewer or administrator grant, given by two administrators, never to anyone with a contracted role, separate from release rights (6.4, 10.4). Suggest C2 defines it. |
-| I-34 | C2 lets lawyers and surveyors see their own payables, expenses and statements and lets runners claim expenses, but gives runners no payables or statements and gives inspectors, quantity surveyors and errand agents nothing, although BR-23 says Fidero pays all six. | C2, BR-23 | All six contracted roles see their own pay and claim expenses (10.4). Suggest the C2 rows for Runner, Inspector, Quantity surveyor and Carer or errand agent say so. |
+| I-34 | C2 lets lawyers and surveyors see their own payables, expenses and statements and lets runners claim expenses, but gives runners no payables or statements and gives inspectors, quantity surveyors and errand agents nothing, although BR-23 says Tenmina pays all six. | C2, BR-23 | All six contracted roles see their own pay and claim expenses (10.4). Suggest the C2 rows for Runner, Inspector, Quantity surveyor and Carer or errand agent say so. |
 | I-35 | FR-PRO-006 pays "to an account verified in the professional's own name". Lawyers and surveyors often contract and invoice through a firm. | C4.20a | The payee is the party that signed the agreement: the person, or the firm when the firm signs (`pro_agreement.contracting_party`). The name match still applies (TQ-29). |
 | I-36 | C8 has no state model for a payable, an expense claim or a payment run, although FR-PRO-004, FR-PRO-005, FR-PRO-008 and FR-PRO-009 depend on their states. | C8 | States proposed in 6.14. Suggest 01 adopts them. |
 | I-37 | FR-PRO-002 creates a payable when "a runner's month closed", but does not say who closes it or what a part month pays. | C4.20a | A case manager closes the month; a part month under an active agreement is paid pro rata by calendar days (assumption, TQ-30). The monthly fee does not depend on how many tasks were done. |
 | I-38 | RUL-26 says pay never depends on the verdict or outcome, but 01 does not say whether pay may be held while the work itself is under a fraud or misconduct review (for example evidence flagged under FR-MOB-011). | B7, C4.20a | A reviewer may hold a payable only for a recorded fraud or misconduct review, with a reason, and never for a result (6.14 `hold_reason`). Suggest RUL-26 says so. |
-| I-39 | FR-PRO-007 does not say whether withholding applies to reimbursed expenses. C6 has no interface ID for Fidero's operating bank or mobile money provider, which receives the bulk file (Q-26). | C4.20a, C6 | No withholding on receipted reimbursements until Q-25 is answered. The operating account is an `adm_partner` of kind `operating_bank` or `operating_mobile_money`. Suggest 01 adds an IF row. |
+| I-39 | FR-PRO-007 does not say whether withholding applies to reimbursed expenses. C6 has no interface ID for Tenmina's operating bank or mobile money provider, which receives the bulk file (Q-26). | C4.20a, C6 | No withholding on receipted reimbursements until Q-25 is answered. The operating account is an `adm_partner` of kind `operating_bank` or `operating_mobile_money`. Suggest 01 adds an IF row. |

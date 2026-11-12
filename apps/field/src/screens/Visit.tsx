@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { checkoutNeedsReason, distanceMeters, distanceWarning, type FieldJob } from '@fidero/shared';
-import { brand, radius, space } from '@fidero/tokens';
-import { Button, Choice, ErrorView, Input, Label, Loading, Panel, Pulse, Rise, Screen, T, Tick, haptic } from '@fidero/ui';
+import { checkoutNeedsReason, distanceMeters, distanceWarning, type FieldJob } from '@tenmina/shared';
+import { brand, radius, space } from '@tenmina/tokens';
+import { Button, Choice, ErrorView, Input, Label, Loading, Panel, Pulse, Rise, Screen, T, Tick, haptic } from '@tenmina/ui';
 import { currentPosition, timeOfDay, type Position } from '../capture';
 import { useField, useFieldLoad } from '../store';
 import { CaptureButton, OfflineBanner, Submitted } from './common';
@@ -50,7 +50,7 @@ export function VisitScreen({ job }: { job: FieldJob }) {
     <Panel style={{ gap: space[2], borderWidth: 2, borderColor: '#3A3A3A', backgroundColor: 'transparent' }}>
       <Label color={brand.orange}>Raise a concern</Label>
       {concernSent ? (
-        <T v="callout">Sent to the family and a Fidero reviewer. They will contact you today.</T>
+        <T v="callout">Sent to the family and a Tenmina reviewer. They will contact you today.</T>
       ) : (
         <>
           <View style={{ flexDirection: 'row', gap: space[2] }}>

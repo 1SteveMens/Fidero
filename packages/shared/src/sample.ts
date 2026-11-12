@@ -1,7 +1,7 @@
 // Sample data for building and demonstrating the apps before the API exists.
 // Every name, amount, reference and date here is invented sample data.
 
-import type { FideroApi } from './api';
+import type { TenminaApi } from './api';
 import { isWellFormedCode, releaseBlockers, invoiceBlockers } from './rules';
 import type {
   Case,
@@ -40,7 +40,7 @@ const hospitalPayee: Payee = {
 const cases: Case[] = [
   {
     id: 'case-0142',
-    ref: 'FID-GH-2027-0142',
+    ref: 'TMN-GH-2027-0142',
     country: 'GH',
     line: 'land',
     title: 'Plot 14, Kasoa Millennium City',
@@ -65,7 +65,7 @@ const cases: Case[] = [
   },
   {
     id: 'case-0150',
-    ref: 'FID-GH-2027-0150',
+    ref: 'TMN-GH-2027-0150',
     country: 'GH',
     line: 'building',
     title: 'House, East Legon',
@@ -106,7 +106,7 @@ const reports: Report[] = [
       { number: 9, title: 'Chain of ownership', verdict: 'green' },
       { number: 10, title: 'Who is on the land', verdict: 'green' },
     ],
-    signedBy: 'Signed by Efua Mensah, lawyer, and Kwame Asante, licensed surveyor. Reviewed by Esi Boateng, Fidero.',
+    signedBy: 'Signed by Efua Mensah, lawyer, and Kwame Asante, licensed surveyor. Reviewed by Esi Boateng, Tenmina.',
     fingerprint: '9f2c 41d8 … 07be a41e',
   },
 ];
@@ -192,7 +192,7 @@ function find<T extends { id: string }>(list: T[], id: string, what: string): T 
 }
 
 /** An in-memory API over the sample data. Approvals change state for the session only. */
-export function createSampleApi(delayMs = 150): FideroApi {
+export function createSampleApi(delayMs = 150): TenminaApi {
   const state = {
     escrows: clone(escrows),
     invoices: clone(invoices),
@@ -224,7 +224,7 @@ export function createSampleApi(delayMs = 150): FideroApi {
         ],
         needsYou,
         property: [
-          { id: 'p1', title: 'Plot 14, Kasoa Millennium City', detail: escrow.status === 'ready_to_release' ? 'Escrow ready to release' : 'Release approved by you. Fidero staff approving.', href: '/case/case-0142', badge: { label: 'Amber report', verdict: 'amber' } },
+          { id: 'p1', title: 'Plot 14, Kasoa Millennium City', detail: escrow.status === 'ready_to_release' ? 'Escrow ready to release' : 'Release approved by you. Tenmina staff approving.', href: '/case/case-0142', badge: { label: 'Amber report', verdict: 'amber' } },
           { id: 'p2', title: 'House, East Legon', detail: 'Structural inspection on 8 April', href: '/case/case-0150' },
         ],
         family: [
@@ -245,7 +245,7 @@ export function createSampleApi(delayMs = 150): FideroApi {
       if (blockers.length > 0) return wait({ ok: false, message: blockers[0] });
       if (!isWellFormedCode(code)) return wait({ ok: false, message: 'Enter the 6-digit code from your authenticator app.' });
       escrow.status = 'client_approved';
-      return wait({ ok: true, message: 'You approved. Two Fidero staff approve next, then the bank pays.' });
+      return wait({ ok: true, message: 'You approved. Two Tenmina staff approve next, then the bank pays.' });
     },
     getInvoice: async (id) => wait(find(state.invoices, id, 'Invoice')),
     async approveInvoice(invoiceId, code) {
@@ -255,7 +255,7 @@ export function createSampleApi(delayMs = 150): FideroApi {
       if (blockers.length > 0) return wait({ ok: false, message: blockers[0] });
       if (!isWellFormedCode(code)) return wait({ ok: false, message: 'Enter the 6-digit code from your authenticator app.' });
       invoice.status = 'awaiting_staff';
-      return wait({ ok: true, message: 'You approved. Two Fidero staff approve next, then the bank pays the hospital.' });
+      return wait({ ok: true, message: 'You approved. Two Tenmina staff approve next, then the bank pays the hospital.' });
     },
     listFamily: () => wait(clone(family)),
     listErrands: () => wait(clone(errands)),

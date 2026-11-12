@@ -1,10 +1,10 @@
 import { Pressable, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { brand, radius, space } from '@fidero/tokens';
-import { ArrowBox, Chip, ErrorView, IconButton, Label, Loading, Panel, Rise, Screen, SegBar, T, VerdictChip, haptic, type IconName } from '@fidero/ui';
+import { brand, radius, space } from '@tenmina/tokens';
+import { ArrowBox, Chip, ErrorView, IconButton, Label, Loading, Panel, Rise, Screen, SegBar, T, VerdictChip, haptic, type IconName } from '@tenmina/ui';
 import { useLoad } from '../../data';
-import { usePalette } from '@fidero/ui';
+import { usePalette } from '@tenmina/ui';
 
 function Start({ icon, title, detail, tone, delay }: { icon: IconName; title: string; detail: string; tone: 'lime' | 'ink' | 'surface'; delay: number }) {
   const p = usePalette();

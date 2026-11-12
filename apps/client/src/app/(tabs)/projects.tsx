@@ -1,9 +1,9 @@
 import { Pressable, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { brand, radius, space } from '@fidero/tokens';
-import { Chip, DotStepper, ErrorView, IconButton, IconTile, Loading, Panel, Pulse, Rise, Screen, T, haptic, type IconName } from '@fidero/ui';
+import { brand, radius, space } from '@tenmina/tokens';
+import { Chip, DotStepper, ErrorView, IconButton, IconTile, Loading, Panel, Pulse, Rise, Screen, T, haptic, type IconName } from '@tenmina/ui';
 import { useLoad } from '../../data';
-import { usePalette } from '@fidero/ui';
+import { usePalette } from '@tenmina/ui';
 
 function Start({ icon, title, detail, tone, delay }: { icon: IconName; title: string; detail: string; tone: 'lime' | 'ink' | 'surface'; delay: number }) {
   const p = usePalette();

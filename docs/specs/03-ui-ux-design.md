@@ -1,6 +1,6 @@
 # 03 — UI/UX Design Specification
 
-Information architecture, user flows, wireframes, interaction and content rules, design system and accessibility for the four Fidero front ends: the `portal` web app, the `backoffice` web app, and from R2 two apps published on the Apple App Store and Google Play: **Fidero**, the client app for clients, family members and tenants, and **Fidero Field**, the field app (iOS and Android) for contractors, inspectors, runners, surveyors, carers and errand agents. Both apps come from one React Native codebase (02 ADR-22).
+Information architecture, user flows, wireframes, interaction and content rules, design system and accessibility for the four Tenmina front ends: the `portal` web app, the `backoffice` web app, and from R2 two apps published on the Apple App Store and Google Play: **Tenmina**, the client app for clients, family members and tenants, and **Tenmina Field**, the field app (iOS and Android) for contractors, inspectors, runners, surveyors, carers and errand agents. Both apps come from one React Native codebase (02 ADR-22).
 
 | Item | Value |
 |---|---|
@@ -20,17 +20,17 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 31 October 2026 | First draft against 01 v0.1. |
-| 0.2 | 1 November 2026 | Redesign for 01 v0.3 and the decision record `docs/decisions/2026-11-01-diaspora-platform.md`: Fidero is the diaspora's trusted agent at home. Adds the principles "Pay the institution, not the relative" and "Country is configuration"; the unified home dashboard (F-35) as the portal home with sections for Property, Family, and Projects and errands; a country selector at onboarding; screens SCR-PTL-36 to SCR-PTL-54, SCR-BO-27 to SCR-BO-32 and SCR-MOB-14 to SCR-MOB-18; flows for J-09 to J-12 with error states; wireframes W-25 to W-36; content rules for who gets paid (RUL-22), rent (RUL-24) and insurer products (RUL-25); components CMP-25 to CMP-32; prototype flows G and H. Client approval added to the escrow flow and tracker (01 v0.2 Escrow state model). Section 11.2 refreshed against 01 v0.3: I-01, I-02, I-03, I-04, I-06, I-07, I-08, I-09, I-10, I-12, I-13 and I-14 closed; I-17 to I-24 added. Design assumptions DA-07 to DA-10 added; DA-06 retired. |
+| 0.2 | 1 November 2026 | Redesign for 01 v0.3 and the decision record `docs/decisions/2026-11-01-diaspora-platform.md`: Tenmina is the diaspora's trusted agent at home. Adds the principles "Pay the institution, not the relative" and "Country is configuration"; the unified home dashboard (F-35) as the portal home with sections for Property, Family, and Projects and errands; a country selector at onboarding; screens SCR-PTL-36 to SCR-PTL-54, SCR-BO-27 to SCR-BO-32 and SCR-MOB-14 to SCR-MOB-18; flows for J-09 to J-12 with error states; wireframes W-25 to W-36; content rules for who gets paid (RUL-22), rent (RUL-24) and insurer products (RUL-25); components CMP-25 to CMP-32; prototype flows G and H. Client approval added to the escrow flow and tracker (01 v0.2 Escrow state model). Section 11.2 refreshed against 01 v0.3: I-01, I-02, I-03, I-04, I-06, I-07, I-08, I-09, I-10, I-12, I-13 and I-14 closed; I-17 to I-24 added. Design assumptions DA-07 to DA-10 added; DA-06 retired. |
 | 0.3 | 1 November 2026 | Aligned to 01 v0.4: runner cash route removed (DA-10, SCR-BO-30, J-09 flow, W-26, W-28, CMP-25, CMP-30 and content rules now show "not eligible for direct payment"; runners only collect invoices and deliver receipts); standing approvals for care visits and errand steps (W-29, W-34, J-10, J-12); 72-hour reviewer decision, second-person check of call confirmations and code lockout (J-10, W-31, SCR-BO-28); owner's written mandate for rent statement lines (J-11, SCR-PTL-46); premium route stated; "amount held at the bank" wording; issues I-02, I-15, I-18, I-20, I-21 and I-23 closed, I-11 partly closed. Prototype updated to match. |
-| 0.4 | 7 November 2026 | Aligned to 01 v0.6: both app stores, React Native, client app. The field app becomes Fidero Field (iOS and Android); the client app Fidero is added (F-36, FR-APP-001 to FR-APP-006). Adds the client app map with the portal's tabs (2.3a), platform conventions for iOS and Android (2.4a), screens SCR-APP-01 to SCR-APP-06 (push permission explained first, biometric set-up and unlock, account deletion that says what is kept and why, update required, paying Fidero's fee in the app), wireframes W-37 to W-39, a React Native column in the component library, iOS targets and Dynamic Type in the accessibility rules, DA-11 and DA-12, DQ-18 to DQ-20, and issues I-25 to I-27. Prototype flow F relabelled "Fidero Field (iOS and Android)". |
+| 0.4 | 7 November 2026 | Aligned to 01 v0.6: both app stores, React Native, client app. The field app becomes Tenmina Field (iOS and Android); the client app Tenmina is added (F-36, FR-APP-001 to FR-APP-006). Adds the client app map with the portal's tabs (2.3a), platform conventions for iOS and Android (2.4a), screens SCR-APP-01 to SCR-APP-06 (push permission explained first, biometric set-up and unlock, account deletion that says what is kept and why, update required, paying Tenmina's fee in the app), wireframes W-37 to W-39, a React Native column in the component library, iOS targets and Dynamic Type in the accessibility rules, DA-11 and DA-12, DQ-18 to DQ-20, and issues I-25 to I-27. Prototype flow F relabelled "Tenmina Field (iOS and Android)". |
 | 0.8 | 12 November 2026 | Founder decision: the back office uses Bloc too, so all four front ends share one look (DQ-21 closed). Adds section 6.1d (laptop layout, side bar, dense tables, orange only for what is late or waiting on this person, approvals that move money on black with press and hold) and four back office mockups (my work, case detail, two-person release approval, payment run approval). Sections 6.1 and 6.2 are kept only as the record of the earlier direction. |
-| 0.7 | 12 November 2026 | Founder decision: the portal and Fidero Field use Bloc too (DQ-21 answered for both; still open for the back office). Section 6.1a now covers all three front ends, with web tokens for the portal (6.1b) and field rules for Fidero Field (6.1c). Six Fidero Field screens added to the mockups (inspector's jobs and checklist, a sealed capture, a contractor's offline milestone, a carer's check-in, My pay). Platform conventions (2.4a) and typography updated. The prototype is restyled to Bloc. |
-| 0.6 | 12 November 2026 | Founder decision: the client app Fidero uses the **Bloc** visual direction (section 6.1a), chosen from four directions on the design canvas. Black or white grounds, lime for proof and the main action, orange only for what needs the client, yellow only for the Amber verdict; Bricolage Grotesque and IBM Plex Mono bundled in the app (DQ-01 answered for the apps). Adds the account cards shown side by side, press and hold to approve (5.4), the Bloc tab bar in place of the platform tab bar (2.4a), motion rules, contrast ratios, and DQ-21 to DQ-23. The portal, back office and Fidero Field keep sections 6.1 and 6.2 until DQ-21 is decided. The prototype is unchanged. |
-| 0.5 | 11 November 2026 | Aligned to 01 v0.8: professional payments (F-37, FR-PRO-001 to FR-PRO-010, RUL-26, RUL-27). Adds "My pay" for contracted professionals in the back office from R1 (SCR-BO-33 to SCR-BO-36: jobs and earnings, payable detail, expense claim with receipt photo, statements) and in Fidero Field from R2 (SCR-MOB-19 to SCR-MOB-22); staff screens for agreements and rate cards, payables and expense claims, payment run preparation, payment run approval and reconciliation (SCR-BO-37 to SCR-BO-41); wireframes W-40 (Fidero Field earnings) and W-41 (payment run approval); content rules in 5.6b, including that pay screens never show the verdict next to an amount; the two-person pattern extended to payment runs, rate card versions and expense exceptions; DA-13 (professionals use the back office web app for My pay in R1, not the client portal). Errand payment wording follows FR-TSK-002 and FR-TSK-003: Fidero's charge is paid through the payment provider, official fees into the partner bank, and Fidero pays the agent itself (J-12 flow, W-34, SCR-BO-32, the errands fixed line in 5.6a). Issues I-28 to I-30. The prototype is unchanged. |
+| 0.7 | 12 November 2026 | Founder decision: the portal and Tenmina Field use Bloc too (DQ-21 answered for both; still open for the back office). Section 6.1a now covers all three front ends, with web tokens for the portal (6.1b) and field rules for Tenmina Field (6.1c). Six Tenmina Field screens added to the mockups (inspector's jobs and checklist, a sealed capture, a contractor's offline milestone, a carer's check-in, My pay). Platform conventions (2.4a) and typography updated. The prototype is restyled to Bloc. |
+| 0.6 | 12 November 2026 | Founder decision: the client app Tenmina uses the **Bloc** visual direction (section 6.1a), chosen from four directions on the design canvas. Black or white grounds, lime for proof and the main action, orange only for what needs the client, yellow only for the Amber verdict; Bricolage Grotesque and IBM Plex Mono bundled in the app (DQ-01 answered for the apps). Adds the account cards shown side by side, press and hold to approve (5.4), the Bloc tab bar in place of the platform tab bar (2.4a), motion rules, contrast ratios, and DQ-21 to DQ-23. The portal, back office and Tenmina Field keep sections 6.1 and 6.2 until DQ-21 is decided. The prototype is unchanged. |
+| 0.5 | 11 November 2026 | Aligned to 01 v0.8: professional payments (F-37, FR-PRO-001 to FR-PRO-010, RUL-26, RUL-27). Adds "My pay" for contracted professionals in the back office from R1 (SCR-BO-33 to SCR-BO-36: jobs and earnings, payable detail, expense claim with receipt photo, statements) and in Tenmina Field from R2 (SCR-MOB-19 to SCR-MOB-22); staff screens for agreements and rate cards, payables and expense claims, payment run preparation, payment run approval and reconciliation (SCR-BO-37 to SCR-BO-41); wireframes W-40 (Tenmina Field earnings) and W-41 (payment run approval); content rules in 5.6b, including that pay screens never show the verdict next to an amount; the two-person pattern extended to payment runs, rate card versions and expense exceptions; DA-13 (professionals use the back office web app for My pay in R1, not the client portal). Errand payment wording follows FR-TSK-002 and FR-TSK-003: Tenmina's charge is paid through the payment provider, official fees into the partner bank, and Tenmina pays the agent itself (J-12 flow, W-34, SCR-BO-32, the errands fixed line in 5.6a). Issues I-28 to I-30. The prototype is unchanged. |
 
 ## 0. How this document traces to 01
 
-- Every screen has a stable ID: `SCR-PTL-nn` (portal), `SCR-BO-nn` (back office), `SCR-MOB-nn` (Fidero Field, the field app on iOS and Android), `SCR-APP-nn` (screens that exist only in the apps, mostly in the client app Fidero). A portal screen that the client app shows natively keeps its `SCR-PTL` ID (DA-11). IDs are never reused.
+- Every screen has a stable ID: `SCR-PTL-nn` (portal), `SCR-BO-nn` (back office), `SCR-MOB-nn` (Tenmina Field, the field app on iOS and Android), `SCR-APP-nn` (screens that exist only in the apps, mostly in the client app Tenmina). A portal screen that the client app shows natively keeps its `SCR-PTL` ID (DA-11). IDs are never reused.
 - Every reusable component has an ID: `CMP-nn`.
 - Every screen lists the 01 IDs it satisfies: functional requirements (`FR-`), features (`F-`), journeys (`J-`) and rules (`RUL-`). This document creates no new requirement IDs.
 - Section 10 holds the full screen-to-requirement table. Document 05 can test each screen against it.
@@ -46,13 +46,13 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | DA-04 | The hash check computes the PDF hash in the browser. The PDF never leaves the user's device. | Privacy. FR-RPT-008 says "anyone" can check. |
 | DA-05 | The back office is used on laptops by office staff, and on phones by runners, surveyors and lawyers for their own tasks. | FR-CASE-006. |
 | DA-06 | Retired. 01 v0.3 NFR-A11Y-01 now holds the field app to WCAG 2.2 AA from R2. | Issue I-06 closed. The ID is not reused. |
-| DA-07 | A family member who confirms a care visit does not need an account. At check-out they get a one-time link and a 6-digit code by SMS or WhatsApp, sent only to them and never shown in the carer's app (02 ADR-20). The link opens a page with one button; they can also reply with the code. A call to Fidero is the fallback. | FR-CARE-004 allows "a one-tap code, a call or the app". Many elderly relatives will not install an app. See issue I-19. |
-| DA-08 | The amount held at the bank for institution payments, care visits and errands (FR-ESC-014) is shown as "held at Partner Bank for you", with a running statement. It is never called a wallet or a Fidero balance. | RUL-01 and B2.2. The money is at the bank. |
+| DA-07 | A family member who confirms a care visit does not need an account. At check-out they get a one-time link and a 6-digit code by SMS or WhatsApp, sent only to them and never shown in the carer's app (02 ADR-20). The link opens a page with one button; they can also reply with the code. A call to Tenmina is the fallback. | FR-CARE-004 allows "a one-tap code, a call or the app". Many elderly relatives will not install an app. See issue I-19. |
+| DA-08 | The amount held at the bank for institution payments, care visits and errands (FR-ESC-014) is shown as "held at Partner Bank for you", with a running statement. It is never called a wallet or a Tenmina balance. | RUL-01 and B2.2. The money is at the bank. |
 | DA-09 | The country chosen at onboarding is the country where the things are (the plot, the hospital, the parent), not where the client lives. A client can add a second country later and the dashboard groups by country. | FR-CTY-001: every case, payment and user belongs to one country. Clients abroad live elsewhere by definition. |
-| DA-10 | An institution that cannot receive a bank transfer is marked not eligible for direct payment (FR-FEE-006). The client's screen says so plainly: "[Institution] cannot receive a bank transfer, so Fidero cannot pay it for you. We never pay in cash." No other way to pay through Fidero is offered. A runner may collect an invoice or deliver a receipt in person; that row says "Receipt delivered by a Fidero runner". | 01 v0.4 removed the cash route. The client must know before approving anything. Issue I-20 closed. |
+| DA-10 | An institution that cannot receive a bank transfer is marked not eligible for direct payment (FR-FEE-006). The client's screen says so plainly: "[Institution] cannot receive a bank transfer, so Tenmina cannot pay it for you. We never pay in cash." No other way to pay through Tenmina is offered. A runner may collect an invoice or deliver a receipt in person; that row says "Receipt delivered by a Tenmina runner". | 01 v0.4 removed the cash route. The client must know before approving anything. Issue I-20 closed. |
 | DA-11 | The client app shows the portal's signed-in client screens natively and keeps their `SCR-PTL` IDs, content and rules. Only screens with no portal equivalent get `SCR-APP` IDs. Public pages (home and prices, listings, insurer product pages) and the family confirmation link (SCR-PTL-45) stay on the web; the app opens them in the system browser or an in-app browser tab. | FR-APP-001 asks for "the client features of the portal ... on the same API and rules". One design per screen keeps the two consistent and halves review. |
-| DA-12 | Until Q-23 is answered, the client app pays Fidero's fees on the web: "Pay on the Fidero website" opens the portal's payment page (SCR-PTL-10) in the system browser and returns to the app when done. If the stores accept the payment provider in the app, SCR-APP-06 shows the provider's checkout instead. The app never shows a store in-app purchase. | FR-APP-005, AS-14, Q-23. Fees pay for real-world services. Purchase, construction and project money is never paid in either app (RUL-01). |
-| DA-13 | In R1 contracted professionals see their pay in the back office web app, on their phones, under "My pay" (SCR-BO-33 to SCR-BO-36). They already sign in there and do their tasks there (SCR-BO-01, SCR-BO-04). The client portal does not serve professionals. From R2, Fidero Field shows the same screens natively (SCR-MOB-19 to SCR-MOB-22) for field roles. | 01 C1 puts professionals in the back office and the field app. FR-PRO does not name a front end. |
+| DA-12 | Until Q-23 is answered, the client app pays Tenmina's fees on the web: "Pay on the Tenmina website" opens the portal's payment page (SCR-PTL-10) in the system browser and returns to the app when done. If the stores accept the payment provider in the app, SCR-APP-06 shows the provider's checkout instead. The app never shows a store in-app purchase. | FR-APP-005, AS-14, Q-23. Fees pay for real-world services. Purchase, construction and project money is never paid in either app (RUL-01). |
+| DA-13 | In R1 contracted professionals see their pay in the back office web app, on their phones, under "My pay" (SCR-BO-33 to SCR-BO-36). They already sign in there and do their tasks there (SCR-BO-01, SCR-BO-04). The client portal does not serve professionals. From R2, Tenmina Field shows the same screens natively (SCR-MOB-19 to SCR-MOB-22) for field roles. | 01 C1 puts professionals in the back office and the field app. FR-PRO does not name a front end. |
 
 ---
 
@@ -63,11 +63,11 @@ The principles come from 01 section B2. Each one changes what a user sees.
 | Principle (01 B2) | What it means in the UI | Where it shows |
 |---|---|---|
 | **Evidence before money** (B2.1) | No money action without the evidence shown beside it. A release button is never live while a gate is open. Every gate says what is missing in words. | Escrow tracker (SCR-PTL-17), release approval (SCR-BO-12), milestone approval (SCR-PTL-23), condition checklist (CMP-08) |
-| **Fidero never holds the money** (B2.2) | Purchase, build and project money screens show only the partner bank's name and account. Fidero's own payment page is only for Fidero fees and says so. A fixed line on every money screen: "Your money is held by [bank], not by Fidero." | Bank instructions (SCR-PTL-18), payment (SCR-PTL-10), money display (CMP-17) |
+| **Tenmina never holds the money** (B2.2) | Purchase, build and project money screens show only the partner bank's name and account. Tenmina's own payment page is only for Tenmina fees and says so. A fixed line on every money screen: "Your money is held by [bank], not by Tenmina." | Bank instructions (SCR-PTL-18), payment (SCR-PTL-10), money display (CMP-17) |
 | **Plain status, always** (B2.3) | Every case, escrow, milestone, listing and dispute has one status sentence at the top: what happened, when, what comes next and by when. Reading age 12. | Status timeline (CMP-06), all trackers |
 | **Built for a slow phone** (B2.4) | Phone layout first. System fonts. Small pages. Static map first, live map on tap. Thumbnails before full images. Forms save as you go. The app works offline. | Performance budgets (section 7.2), offline banner (CMP-13) |
 | **One engine** (B2.5) | Land, building, construction, off-plan, project funds, institution payments, care visits, property management, errands and events share the same components: tracker, conditions, evidence, approvals, statement. A new line is new content, not a new screen design. | Shared components in section 6.4; home dashboard (SCR-PTL-36) |
-| **People stay in the loop** (B2.6) | Licensed people sign their sections with name and licence number shown. Two named Fidero approvers on every release, visible to the client. | Report viewer (SCR-PTL-14), approval card (CMP-10) |
+| **People stay in the loop** (B2.6) | Licensed people sign their sections with name and licence number shown. Two named Tenmina approvers on every release, visible to the client. | Report viewer (SCR-PTL-14), approval card (CMP-10) |
 | **Safety first** (B2.7) | A risk screen blocks assignment to a disputed plot until two people are named. Field staff can log an incident from any task in two taps. The app never shows the client's personal data to field staff. | Risk screen (SCR-BO-05), task detail (SCR-BO-04), app task (SCR-MOB-12) |
 | **Pay the institution, not the relative** (B2.8) | Every payment screen names the payee and its verified account: "Paid to Komfo Anokye Teaching Hospital, account ending 4471." There is no screen on which a relative can be chosen as a payee. Carers and errand agents are paid as vetted professionals, only for confirmed visits or completed steps, never as a free choice of payee. Verified institutions carry a visible verified status with the date. A payment to an unverified payee is blocked in words. | Institution card (CMP-26), payee line (CMP-30), pay an invoice (SCR-PTL-40), institution verification (SCR-BO-27) |
 | **Country is configuration** (B2.9) | The client picks a country at onboarding. Currency, holiday calendar, institution types, errand catalogue, partner bank and legal texts follow from it. No screen hard-codes "Ghana", "GHS" or "Lands Commission"; they come from the country record. The dashboard shows the country on every item. | Country selector (CMP-29, SCR-PTL-37), country configuration (SCR-BO-29), home dashboard (SCR-PTL-36) |
@@ -109,7 +109,7 @@ portal
     ├── Identity check ...................... SCR-PTL-04
     ├── PROPERTY
     │   ├── Order a report (4 steps) ........ SCR-PTL-06 to 09
-    │   ├── Pay Fidero's fee ................ SCR-PTL-10
+    │   ├── Pay Tenmina's fee ................ SCR-PTL-10
     │   ├── Payment result and receipt ...... SCR-PTL-11
     │   ├── Case tracker .................... SCR-PTL-12
     │   │   ├── Document request ............ SCR-PTL-13
@@ -211,10 +211,10 @@ backoffice
 
 The back office carries a country switcher in the top bar for staff who work in more than one country. Everything below it is filtered by the chosen country (FR-ACC-007, FR-CTY-003).
 
-### 2.3 Field app map, Fidero Field (iOS and Android, R2, offline first)
+### 2.3 Field app map, Tenmina Field (iOS and Android, R2, offline first)
 
 ```text
-Fidero Field (iOS and Android)
+Tenmina Field (iOS and Android)
 ├── Sign in and register this phone ......... SCR-MOB-01
 ├── My jobs ................................. SCR-MOB-02
 │   ├── Project and milestone overview ...... SCR-MOB-03
@@ -239,16 +239,16 @@ Fidero Field (iOS and Android)
 │   └── Statements .......................... SCR-MOB-22
 ├── Upload queue ............................ SCR-MOB-08
 ├── Account, storage, help .................. SCR-MOB-13
-│   └── Delete my account ................... SCR-APP-04 (shared with Fidero)
-└── Update required (at start, when too old)  SCR-APP-05 (shared with Fidero)
+│   └── Delete my account ................... SCR-APP-04 (shared with Tenmina)
+└── Update required (at start, when too old)  SCR-APP-05 (shared with Tenmina)
 ```
 
-### 2.3a Client app map, Fidero (iOS and Android, R2)
+### 2.3a Client app map, Tenmina (iOS and Android, R2)
 
 The tabs match the signed-in portal (2.4), so a client who uses both finds things in the same place. Screens keep their portal IDs (DA-11).
 
 ```text
-Fidero (iOS and Android)
+Tenmina (iOS and Android)
 ├── First run
 │   ├── Sign up, choose a country ........... SCR-PTL-02, SCR-PTL-37
 │   ├── Sign in ............................. SCR-PTL-03
@@ -261,7 +261,7 @@ Fidero (iOS and Android)
 │   └── Home dashboard (F-35) ............... SCR-PTL-36
 ├── Tab: Property
 │   ├── Order a report (4 steps) ............ SCR-PTL-06 to 09
-│   ├── Pay Fidero's fee .................... SCR-APP-06 (opens SCR-PTL-10 on the web, DA-12)
+│   ├── Pay Tenmina's fee .................... SCR-APP-06 (opens SCR-PTL-10 on the web, DA-12)
 │   ├── Case tracker, messages, documents ... SCR-PTL-12, 13, 19
 │   ├── Report viewer, check a report ....... SCR-PTL-14, SCR-PTL-15
 │   ├── Escrow terms, tracker, bank details . SCR-PTL-16, 17, 18
@@ -295,14 +295,14 @@ Push notifications and links in messages open the matching screen through deep l
 | Portal, public | Top bar: logo, "Listings", "Check a report", "Sign in". Menu button for the rest. | Same items in a horizontal top bar. | Public pages are server rendered and indexable (FR-LST-010). |
 | Portal, signed in | Bottom tab bar with up to 5 tabs: **Home** (the dashboard, SCR-PTL-36), **Property**, **Family**, **Projects** (projects and errands), **Account**. | Left side bar with the same items. | A family tab appears only when the client has something in it, or on first use as a prompt. A first-time user sees Home, Property, Family, Account. The old tabs Orders, Escrow and Build become sections inside Property. |
 | Back office | Field roles (lawyer, surveyor, runner) get a single "My tasks" list and a top bar. No side bar. | Left side bar grouped by work area. Items filtered by role (FR-ACC-007) and by the chosen country. Global search for case, escrow, listing, institution and person references. | Staff session times out after 30 minutes idle with a warning at 25 (NFR-SEC-02). |
-| Fidero client app (iOS and Android) | Bottom tab bar with the same 5 tabs as the signed-in portal: **Home**, **Property**, **Family**, **Projects**, **Account**. Same rule for hiding an empty Family tab. | n/a | Tablet layouts are not designed in R2; the phone layout scales. Platform conventions in 2.4a. |
-| Fidero Field (iOS and Android) | Bottom bar: **Jobs**, **Queue** (with a count badge), **Account**. Linear task flows with a back arrow. A carer sees only today's visits; an errand agent sees only assigned errands. | n/a | Upload state is visible on every screen through the offline banner (CMP-13). |
+| Tenmina client app (iOS and Android) | Bottom tab bar with the same 5 tabs as the signed-in portal: **Home**, **Property**, **Family**, **Projects**, **Account**. Same rule for hiding an empty Family tab. | n/a | Tablet layouts are not designed in R2; the phone layout scales. Platform conventions in 2.4a. |
+| Tenmina Field (iOS and Android) | Bottom bar: **Jobs**, **Queue** (with a count badge), **Account**. Linear task flows with a back arrow. A carer sees only today's visits; an errand agent sees only assigned errands. | n/a | Upload state is visible on every screen through the offline banner (CMP-13). |
 
 Wayfinding rules:
 
-- Every signed-in page has a heading that names the object and its reference, such as "Plot 14, Kasoa Millennium City · FID-2027-0142" or "Comfort Mensah · Komfo Anokye Teaching Hospital · FEE-2027-0412".
+- Every signed-in page has a heading that names the object and its reference, such as "Plot 14, Kasoa Millennium City · TMN-2027-0142" or "Comfort Mensah · Komfo Anokye Teaching Hospital · FEE-2027-0412".
 - Every object shows its country and currency in the reference line, from configuration. A client with one country sees it once, in the dashboard header.
-- Breadcrumbs on laptop only. On phone, a back link names the parent: "← Case FID-2027-0142".
+- Breadcrumbs on laptop only. On phone, a back link names the parent: "← Case TMN-2027-0142".
 - Help is in the same place on every page: a "Get help" link in the page footer and in the account menu (WCAG 2.2 SC 3.2.6).
 
 ### 2.4a Platform conventions for iOS and Android (both apps)
@@ -314,13 +314,13 @@ Both apps share screens, content and components (02 ADR-22). Each platform keeps
 | Navigation | Tab bar at the bottom; screens push from the right with a back chevron that names the parent; large title on top-level tabs only | Bottom navigation bar; top app bar with an up arrow that names the parent; no large titles |
 | Back | Back chevron and edge swipe. A screen with unsent input (a half-filled order step, a capture not yet saved) asks before leaving: "Leave this step? Your answers are kept as a draft." | System back gesture or button and the up arrow. Same rule for unsent input. Back on the first tab's root leaves the app; it never signs out |
 | Confirmations | Native alert for a short irreversible confirm; a sheet for a confirm with ticks and a code (section 5.3) | Native dialog for a short confirm; a full-screen or bottom sheet for a confirm with ticks and a code |
-| Choices and sharing | Action sheet for 2 to 5 choices; share sheet only to export a report PDF or a receipt from the client app | Bottom sheet for choices; share sheet only to export a report PDF or a receipt from the client app. Fidero Field accepts nothing shared in from other apps (RUL-08) |
+| Choices and sharing | Action sheet for 2 to 5 choices; share sheet only to export a report PDF or a receipt from the client app | Bottom sheet for choices; share sheet only to export a report PDF or a receipt from the client app. Tenmina Field accepts nothing shared in from other apps (RUL-08) |
 | Safe areas | Content stays inside the safe area: notch, Dynamic Island and the home indicator. Sticky buttons sit above the home indicator | Edge-to-edge with insets for the status bar, display cut-outs and gesture navigation. Sticky buttons sit above the gesture bar |
 | Text size | Dynamic Type up to the largest accessibility size. Layouts reflow; amounts, payee names and references wrap and are never cut | Font scale up to 200%. Same reflow rule |
 | Fonts | Both apps bundle Bricolage Grotesque and IBM Plex Mono (6.1a) | Same |
-| Tab bar | The Bloc tab bar in both apps (6.1a): a black bar above the home indicator, the current tab a lime block with its name. Replaces the system tab bar so both platforms look the same. Fidero Field tabs: Jobs, Queue (with a count), Pay, Account | Same bar, above the gesture bar |
+| Tab bar | The Bloc tab bar in both apps (6.1a): a black bar above the home indicator, the current tab a lime block with its name. Replaces the system tab bar so both platforms look the same. Tenmina Field tabs: Jobs, Queue (with a count), Pay, Account | Same bar, above the gesture bar |
 | Pickers and keyboards | Native date picker; numeric keypad for codes and amounts; one-time code autofill from messages | Native date picker; numeric keyboard; SMS one-time code autofill |
-| Permissions | Explain first, then the system prompt (SCR-APP-01, camera and location in Fidero Field). If refused, say what will not work and link to Settings | Same. Android 13 and later ask for notifications; older versions do not, and the explainer is skipped |
+| Permissions | Explain first, then the system prompt (SCR-APP-01, camera and location in Tenmina Field). If refused, say what will not work and link to Settings | Same. Android 13 and later ask for notifications; older versions do not, and the explainer is skipped |
 | Biometrics wording | "Face ID" or "Touch ID", whichever the phone has | "Fingerprint or face unlock" |
 | Haptics and sound | Optional confirmation haptic; never the only signal | Same |
 | Icons | Same outline set (6.3); platform share and back icons | Same outline set; platform share and back icons |
@@ -333,7 +333,7 @@ Release follows 01. "Roles" uses 01 C2 role names.
 
 | Screen | Name | Purpose | Roles | Rel. | Satisfies |
 |---|---|---|---|---|---|
-| SCR-PTL-01 | Home and prices | Explain Fidero, show tiers and sample report, start an order | Public | R1 | F-02, FR-ORD-002, FR-ORD-005 |
+| SCR-PTL-01 | Home and prices | Explain Tenmina, show tiers and sample report, start an order | Public | R1 | F-02, FR-ORD-002, FR-ORD-005 |
 | SCR-PTL-02 | Sign up | Create account with email and phone, both confirmed by code; privacy notice | Public | R1 | F-01, FR-ACC-001, FR-DPR-001, J-01 |
 | SCR-PTL-03 | Sign in | Password or one-time code; lockout message | All portal users | R1 | FR-ACC-002, FR-ACC-009 |
 | SCR-PTL-04 | Identity check | Ghana Card or passport check through the provider, or manual upload | Client | R1 | FR-ACC-004, J-01, J-02 |
@@ -342,16 +342,16 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-PTL-07 | Order step 2: the plot | Locality, plot number, site plan reference, Ghana Post GPS | Client | R1 | FR-ORD-001, FR-GEO-008, J-01 |
 | SCR-PTL-08 | Order step 3: documents and seller | Upload site plan and documents; seller name and contact | Client | R1 | FR-ORD-001, FR-EVD-001, FR-EVD-005, J-01 |
 | SCR-PTL-09 | Order step 4: check and agree | Summary, scope statement, terms, lead source, referral code | Client | R1 | FR-ORD-003, FR-ORD-005, FR-ORD-006, RUL-04 |
-| SCR-PTL-10 | Pay Fidero's fee | Card or mobile money for the fee only | Client | R1 | FR-PAY-001, FR-PAY-002, FR-PAY-005, RUL-01 |
+| SCR-PTL-10 | Pay Tenmina's fee | Card or mobile money for the fee only | Client | R1 | FR-PAY-001, FR-PAY-002, FR-PAY-005, RUL-01 |
 | SCR-PTL-11 | Payment result | Receipt, case reference, what happens next; failure recovery | Client | R1 | FR-PAY-003, FR-ORD-004, J-01 |
 | SCR-PTL-12 | Case tracker | Status sentence, plain-language timeline, requests, messages | Client, representative | R1 | F-06, FR-CASE-007, FR-CASE-008, FR-NTF-001, FR-ACC-008, J-01, J-08 |
-| SCR-PTL-13 | Document request | Upload what Fidero asked for | Client | R1 | FR-CASE-008, FR-EVD-001 |
+| SCR-PTL-13 | Document request | Upload what Tenmina asked for | Client | R1 | FR-CASE-008, FR-EVD-001 |
 | SCR-PTL-14 | Report viewer | Verdict, reasons, conditions, section verdicts, signatures, PDF, hash, versions | Client | R1 | F-04, FR-RPT-005, FR-RPT-007, FR-RPT-008, FR-RPT-010, J-01 |
 | SCR-PTL-15 | Check a report | Anyone checks a PDF against the stored hash | Public | R1 | FR-RPT-008 |
 | SCR-PTL-16 | Escrow offer and terms | Offer escrow on green or amber; show conditions from section 11; accept terms | Client, seller | R1 | F-08, FR-ESC-001, FR-ESC-002, FR-RPT-009, J-02 |
 | SCR-PTL-17 | Escrow tracker | Deposit, conditions, fresh search, approvals, bank confirmation | Client, seller | R1 | F-08, FR-ESC-004 to FR-ESC-009, RUL-06, RUL-07, J-02 |
 | SCR-PTL-18 | Bank payment instructions | The partner bank's details for the purchase price | Client | R1 | FR-ESC-003, RUL-01 |
-| SCR-PTL-19 | Messages | Case thread with Fidero | Client | R1 | FR-CASE-015 |
+| SCR-PTL-19 | Messages | Case thread with Tenmina | Client | R1 | FR-CASE-015 |
 | SCR-PTL-20 | Profile and notifications | Channels, preferences, representative | All portal users | R1 | FR-ACC-008, FR-ACC-010, FR-NTF-001 |
 | SCR-PTL-21 | Sharing and consent | Grant and withdraw sharing with partners; case study consent | Client | R1 (case study), R2 (partners) | FR-PTR-002, FR-RPT-011, RUL-16, J-06 |
 | SCR-PTL-22 | Build dashboard | Budget against actual, milestones, photo timeline, inspector results, payments | Client, representative | R2 | F-16, FR-BLD-009, J-03 |
@@ -366,7 +366,7 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-PTL-31 | List a property | Submit asset and pay listing fee | Seller, developer | R2 | FR-LST-001, FR-ACC-011, FR-PAY-007 |
 | SCR-PTL-32 | My listings | Status, badge expiry, re-verify, sold | Seller, developer | R2 | FR-LST-006, FR-LST-007 |
 | SCR-PTL-33 | Rate this case | 1 to 5 rating and comment | Client | R2 | FR-RAT-002 |
-| SCR-PTL-34 | My data | See what Fidero holds; ask for a copy or a correction | All portal users | R1 | FR-DPR-003 |
+| SCR-PTL-34 | My data | See what Tenmina holds; ask for a copy or a correction | All portal users | R1 | FR-DPR-003 |
 | SCR-PTL-35 | Records confirmation | Authority representative views and confirms records | Authority representative | R3 | FR-REC-004, F-25 |
 | SCR-PTL-36 | Home dashboard | Everything the client has running at home in one view: sections for Property, Family, and Projects and errands; one status sentence per item; country shown | Client | R1 | F-35, FR-ACC-012, FR-CASE-007, FR-CTY-001 |
 | SCR-PTL-37 | Choose a country | At onboarding: pick the country where the things are; sets currency, calendar and partners | Public (during sign-up), client | R1 | F-28, FR-CTY-001, FR-ACC-001 |
@@ -381,9 +381,9 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-PTL-46 | Register a property | Address, type, documents; book the condition inspection; see its photos; sign the written mandate letting the bank share the rent account's statement lines | Client (owner) | R2 | F-31, FR-PMG-001, FR-PMG-003, J-11 |
 | SCR-PTL-47 | Property dashboard | Tenancy and rent record, rent due and received into the owner's own account, repairs, inspections, photo timeline | Client (owner), representative | R2 | FR-PMG-002, FR-PMG-003, FR-PMG-006, RUL-24, J-11 |
 | SCR-PTL-48 | Repair quotes and approval | Two or more quotes from vetted contractors; approve one; money held; inspection; payment to contractor | Client (owner) | R2 | FR-PMG-004, FR-PMG-005, RUL-11, RUL-22, J-11 |
-| SCR-PTL-49 | Errand catalogue | Errands for the country, each with checklist, official fees, Fidero's charge and target time | Client | R2 | F-32, FR-TSK-001, FR-CTY-001, J-12 |
+| SCR-PTL-49 | Errand catalogue | Errands for the country, each with checklist, official fees, Tenmina's charge and target time | Client | R2 | F-32, FR-TSK-001, FR-CTY-001, J-12 |
 | SCR-PTL-50 | Errand checklist and progress | Upload checklist documents; pay fees into the partner bank; approve each step fee or give a standing approval up to a monthly amount; steps with receipts; completion by the resulting document; handover | Client, representative | R2 | FR-TSK-002 to FR-TSK-005, RUL-11, RUL-22, RUL-23, J-12 |
-| SCR-PTL-51 | Insurer product page | Health or funeral cover from a named licensed insurer; terms; "A policy from [insurer]. Fidero does not hold the risk."; apply | Public, client | R2 | F-33, FR-INS-001, FR-INS-002, RUL-25 |
+| SCR-PTL-51 | Insurer product page | Health or funeral cover from a named licensed insurer; terms; "A policy from [insurer]. Tenmina does not hold the risk."; apply | Public, client | R2 | F-33, FR-INS-001, FR-INS-002, RUL-25 |
 | SCR-PTL-52 | Policy wallet | Policy documents, renewal dates, insurer's claim contact; start a claim and track the insurer's response | Client | R2 | FR-INS-003, FR-INS-004, RUL-25 |
 | SCR-PTL-53 | Event budget | Event, date, budget, verified vendors, payments against invoices and delivery evidence, receipts | Client | R3 | F-34, FR-EVT-001 to FR-EVT-003, RUL-22 |
 | SCR-PTL-54 | Tenant view | The tenant's agreement and rent record; report a repair | Tenant | R2 | FR-PMG-002, FR-PMG-004 |
@@ -423,22 +423,22 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-BO-29 | Country configuration | One record per country: currency, holiday calendar, templates, scope statement, overlay layers, partners, licence bodies, legal texts, errand catalogue, data location; copy a country to open a new one | Administrator | R1 (edit), R2 (copy) | F-28, FR-CTY-001, FR-CTY-002, FR-CTY-004, FR-ADM-005 |
 | SCR-BO-30 | Invoice check and payment queue | Invoices waiting for checks; institution and family member match; amount; approve for release; mark an institution not eligible for direct payment; runner tasks to collect an invoice or deliver a receipt (no money) | Case manager, reviewer | R1 | FR-FEE-002, FR-FEE-003, FR-FEE-006, FR-ESC-014, FR-ESC-015, RUL-22, J-09 |
 | SCR-BO-31 | Property management desk | Managed properties; rent due and late; repair requests and quotes; inspection schedule | Case manager | R2 | FR-PMG-003, FR-PMG-004, FR-PMG-006, RUL-24, J-11 |
-| SCR-BO-32 | Errands desk | Errands by step; agency fees paid; receipts; completion check of the resulting document, which creates the agent's payable (paid by Fidero, SCR-BO-38); handover record | Case manager | R2 | FR-TSK-003, FR-TSK-004, FR-TSK-005, FR-PRO-002, J-12 |
+| SCR-BO-32 | Errands desk | Errands by step; agency fees paid; receipts; completion check of the resulting document, which creates the agent's payable (paid by Tenmina, SCR-BO-38); handover record | Case manager | R2 | FR-TSK-003, FR-TSK-004, FR-TSK-005, FR-PRO-002, J-12 |
 | SCR-BO-33 | My jobs and earnings | For a contracted professional: accepted and pending work, the rate for each item, amount and status (accepted, in a payment run, paid, held, failed), totals for the month and the year. Never the verdict or outcome next to an amount (5.6b) | Lawyer, surveyor, runner (R1); inspector, quantity surveyor, errand agent (R2) | R1 | F-37, FR-PRO-002, FR-PRO-003, FR-PRO-008, RUL-26 |
 | SCR-BO-34 | Payable detail | One payable: the work, accepted date, rate card version, gross, tax withheld, net, due date, payment run, paid date and bank reference, remittance advice; if held, the reason in plain words | Same | R1 | FR-PRO-002, FR-PRO-007, FR-PRO-008 |
 | SCR-BO-35 | Claim an expense | Kind, amount, date, case; receipt photo from the phone camera or a file; the limit for the role and kind; what happens over the limit or without a receipt; claim status | Same | R1 | FR-PRO-004 |
-| SCR-BO-36 | My statements | Remittance advice for each payment, yearly statement for each tax year, the agreement and current rate card, the account Fidero pays (last four digits) | Same | R1 | FR-PRO-001, FR-PRO-006, FR-PRO-007 |
+| SCR-BO-36 | My statements | Remittance advice for each payment, yearly statement for each tax year, the agreement and current rate card, the account Tenmina pays (last four digits) | Same | R1 | FR-PRO-001, FR-PRO-006, FR-PRO-007 |
 | SCR-BO-37 | Agreements and rate cards | Agreements with the signed document and the verified payee; rate card versions by country, role, unit and scope with start dates; draft a version; a second administrator approves | Administrator; case manager for agreements | R1 | FR-PRO-001, FR-PRO-003, FR-PRO-006, RUL-26 |
 | SCR-BO-38 | Payables and expense claims | Payables queue, overdue first; close a runner's month; hold or release a payable for a fraud or misconduct review; expense claims to approve, with a second approval for exceptions | Case manager, reviewer | R1 | FR-PRO-002, FR-PRO-004, FR-PRO-008, RUL-26 |
 | SCR-BO-39 | Payment run preparation | Pick a cut-off; one line per professional with payables, expenses, tax and net; items left out and why (payee not verified, held, exception not yet approved); totals; send for approval | Case manager, reviewer (preparer) | R1 | FR-PRO-005, FR-PRO-006, RUL-27 |
 | SCR-BO-40 | Payment run approval | A different person with payment rights checks totals, lines and payees and approves with the second factor; then downloads the bulk file, with its hash shown for the upload to the bank's portal | Reviewer or administrator with payment rights | R1 | FR-PRO-005, FR-PRO-006, FR-PRO-007, RUL-26, RUL-27 |
 | SCR-BO-41 | Payment run reconciliation | Import the bank's or provider's confirmation; lines confirmed, failed or unconfirmed; resolve each (next run, cancel, or a bank letter checked by a second person); remittance advices sent | Case manager, reviewer | R1 | FR-PRO-009, FR-PRO-007 |
 
-#### Field app, Fidero Field (iOS and Android)
+#### Field app, Tenmina Field (iOS and Android)
 
 | Screen | Name | Purpose | Roles | Rel. | Satisfies |
 |---|---|---|---|---|---|
-| SCR-MOB-01 | Sign in | Sign in; register the phone's signing key (Android Keystore or the iOS Secure Enclave, checked by Play Integrity or App Attest). A phone or build that fails the check is told plainly: "This copy of Fidero Field cannot be used. Install it from Google Play or the App Store." | Contractor, inspector, runner, surveyor, carer, errand agent | R2 | FR-MOB-001, FR-MOB-004 |
+| SCR-MOB-01 | Sign in | Sign in; register the phone's signing key (Android Keystore or the iOS Secure Enclave, checked by Play Integrity or App Attest). A phone or build that fails the check is told plainly: "This copy of Tenmina Field cannot be used. Install it from Google Play or the App Store." | Contractor, inspector, runner, surveyor, carer, errand agent | R2 | FR-MOB-001, FR-MOB-004 |
 | SCR-MOB-02 | My jobs | Assigned projects, inspections and tasks | Same | R2 | FR-MOB-001 |
 | SCR-MOB-03 | Milestone overview | Milestone, status, what is needed | Contractor | R2 | FR-BLD-005, J-03 |
 | SCR-MOB-04 | Evidence checklist | Required items from the schedule; progress | Contractor | R2 | FR-MOB-006 |
@@ -453,7 +453,7 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-MOB-13 | Account and storage | Storage used, encrypted items, help; link to delete the account (SCR-APP-04) | All app roles | R2 | FR-MOB-008, FR-MOB-009, FR-APP-004 |
 | SCR-MOB-14 | Care visit: check in | Today's visit; check in at the registered address with GPS; distance warning | Carer | R2 | FR-MOB-012, FR-CARE-003, RUL-23, J-10 |
 | SCR-MOB-15 | Care visit: plan items | Tick each plan item; agreed photos and readings captured in app | Carer | R2 | FR-CARE-003, FR-MOB-002, FR-MOB-010, J-10 |
-| SCR-MOB-16 | Care visit: check out | Check out (Fidero then sends the family their own confirmation link and code; the carer never sees the code); raise a concern | Carer | R2 | FR-MOB-012, FR-CARE-004, FR-CARE-006, J-10 |
+| SCR-MOB-16 | Care visit: check out | Check out (Tenmina then sends the family their own confirmation link and code; the carer never sees the code); raise a concern | Carer | R2 | FR-MOB-012, FR-CARE-004, FR-CARE-006, J-10 |
 | SCR-MOB-17 | Errand steps | Assigned errand; steps; receipt or acknowledgement captured at each step; handover photo or signature | Errand agent | R2 | FR-TSK-003, FR-TSK-005, FR-MOB-010, J-12 |
 | SCR-MOB-18 | Property inspection | Condition inspection or repair inspection with check-in, checklist and photos | Inspector | R2 | FR-PMG-001, FR-PMG-005, FR-MOB-012, J-11 |
 | SCR-MOB-19 | Earnings | My jobs and pay, as SCR-BO-33, with this month's totals and the next payment run date; readable offline from the last sync, marked with its time | Runner, surveyor, inspector, quantity surveyor, errand agent; lawyers if they use the app | R2 | F-37, FR-PRO-002, FR-PRO-003, FR-PRO-008, RUL-26 |
@@ -461,18 +461,18 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-MOB-21 | Claim an expense | Receipt photo with the in-app camera only; kind, amount, case or errand; limit shown; queued offline like evidence | Same | R2 | FR-PRO-004, FR-MOB-002 |
 | SCR-MOB-22 | Statements | Remittance advices and the yearly statement, as SCR-BO-36 | Same | R2 | FR-PRO-007 |
 
-#### Client app, Fidero (iOS and Android)
+#### Client app, Tenmina (iOS and Android)
 
 The client app shows the portal's signed-in client screens natively under their `SCR-PTL` IDs (DA-11, 2.3a), meeting FR-APP-001. These screens exist only in the apps:
 
 | Screen | Name | Purpose | Roles | Rel. | Satisfies |
 |---|---|---|---|---|---|
-| SCR-APP-01 | Turn on notifications? | Explains before the system dialog what Fidero will notify about (requests, approvals, status changes, never amounts or report findings on the lock screen) and that channels can be changed in Account. Buttons "Turn on" (then the system dialog) and "Not now". If refused, the app never asks again by itself; Account shows how to turn them on in Settings | Client, family member, tenant | R2 | FR-APP-002, FR-NTF-001, FR-NTF-004 |
+| SCR-APP-01 | Turn on notifications? | Explains before the system dialog what Tenmina will notify about (requests, approvals, status changes, never amounts or report findings on the lock screen) and that channels can be changed in Account. Buttons "Turn on" (then the system dialog) and "Not now". If refused, the app never asks again by itself; Account shows how to turn them on in Settings | Client, family member, tenant | R2 | FR-APP-002, FR-NTF-001, FR-NTF-004 |
 | SCR-APP-02 | Unlock with Face ID or fingerprint? | Offered once after the first sign-in on this phone. Says that unlocking opens the app only, and that approving a payment still needs the user's code | Client, family member, tenant | R2 | FR-APP-003, FR-ACC-003 |
 | SCR-APP-03 | Unlock | Biometric prompt on return. Fallback: "Sign in another way" (SCR-PTL-03). After a new face or fingerprint is added to the phone, the user signs in again | Client, family member, tenant | R2 | FR-APP-003 |
-| SCR-APP-04 | Delete my account | Lists what will be deleted, what Fidero must keep, why and for how long (for example "Reports and escrow records: kept as the law requires", with the period from the retention rules, `[TO VERIFY]` per Q-08), and anything still open that delays deletion ("Your escrow FID-ESC-0091 is still open. We will close your account when it ends."). Confirm with ticks and the user's code where they have one; receipt with a reference. Same screen in both apps | All app users | R2 | FR-APP-004, FR-DPR-004, C-14 |
-| SCR-APP-05 | Update required | Shown at start when the app is older than the minimum version. One sentence why, a button to the store page, nothing else usable. In Fidero Field it adds: "Your 7 saved items are safe on this phone and will upload after you update." Same screen in both apps | All app users | R2 | FR-APP-006, FR-MOB-005 |
-| SCR-APP-06 | Pay Fidero's fee in the app | Fidero's fee only. Web mode (DA-12): the fee, what it pays for, and "Pay on the Fidero website", which opens SCR-PTL-10 in the system browser and returns to the payment result. Provider mode, if Q-23 allows: the payment provider's checkout for card or mobile money. Never purchase, construction or project money | Client | R2 | FR-APP-005, FR-PAY-001, FR-PAY-005, RUL-01 |
+| SCR-APP-04 | Delete my account | Lists what will be deleted, what Tenmina must keep, why and for how long (for example "Reports and escrow records: kept as the law requires", with the period from the retention rules, `[TO VERIFY]` per Q-08), and anything still open that delays deletion ("Your escrow TMN-ESC-0091 is still open. We will close your account when it ends."). Confirm with ticks and the user's code where they have one; receipt with a reference. Same screen in both apps | All app users | R2 | FR-APP-004, FR-DPR-004, C-14 |
+| SCR-APP-05 | Update required | Shown at start when the app is older than the minimum version. One sentence why, a button to the store page, nothing else usable. In Tenmina Field it adds: "Your 7 saved items are safe on this phone and will upload after you update." Same screen in both apps | All app users | R2 | FR-APP-006, FR-MOB-005 |
+| SCR-APP-06 | Pay Tenmina's fee in the app | Tenmina's fee only. Web mode (DA-12): the fee, what it pays for, and "Pay on the Tenmina website", which opens SCR-PTL-10 in the system browser and returns to the payment result. Provider mode, if Q-23 allows: the payment provider's checkout for card or mobile money. Never purchase, construction or project money | Client | R2 | FR-APP-005, FR-PAY-001, FR-PAY-005, RUL-01 |
 
 ---
 
@@ -509,7 +509,7 @@ flowchart TD
     A6c -->|"Yes"| A7["Receipt and case reference · SCR-PTL-11. Case state: Paid"]
     A7 --> A8["Operations accepts. Tasks created · SCR-BO-03. State: In progress"]
     A8 --> A9["Tracker shows each step with dates · SCR-PTL-12"]
-    A9 --> A9d{"Fidero needs a document?"}
+    A9 --> A9d{"Tenmina needs a document?"}
     A9d -->|"Yes"| A9r["Document request on tracker. State: On hold · SCR-PTL-13"]
     A9r --> A9
     A9d -->|"No"| A10{"Identity check passed?"}
@@ -533,7 +533,7 @@ flowchart TD
     B1 --> B2{"All parties accept terms?"}
     B2 -->|"Seller does not accept in 10 days · [TO VERIFY]"| B2x["Escrow stays Proposed. Case manager chases. Client can withdraw"]
     B2 -->|"Yes"| B3["State: Agreed. Bank opens escrow"]
-    B3 --> B4["Bank payment instructions · SCR-PTL-18. Never Fidero's account"]
+    B3 --> B4["Bank payment instructions · SCR-PTL-18. Never Tenmina's account"]
     B4 --> B5{"Bank confirms deposit?"}
     B5 -->|"Amount short or reference missing"| B5x["Failed: deposit not matched. Case manager checks with bank. Client told what to fix"]
     B5x --> B5
@@ -565,7 +565,7 @@ flowchart TD
     BF -.->|"Dispute resolved"| B6
 ```
 
-The client approval step follows the Escrow state model in 01 v0.2 and later (Ready to release → Client approved). It is the client's step, not a release: two Fidero staff still approve and the bank pays.
+The client approval step follows the Escrow state model in 01 v0.2 and later (Ready to release → Client approved). It is the client's step, not a release: two Tenmina staff still approve and the bank pays.
 
 ### 3.3 J-03 Build with milestone payments (R2)
 
@@ -573,7 +573,7 @@ The client approval step follows the Escrow state model in 01 v0.2 and later (Re
 flowchart TD
     C0(["Verified plot · SCR-PTL-25"]) --> C1["Bill of quantities and milestone split"]
     C1 --> C2["Pick vetted contractor with track record. Approve budget"]
-    C2 --> C3["Inspector assigned by Fidero with no link to contractor · RUL-10"]
+    C2 --> C3["Inspector assigned by Tenmina with no link to contractor · RUL-10"]
     C3 --> C3c{"Conflict found?"}
     C3c -->|"Yes"| C3x["Blocked: assignment refused. Pick another inspector · FR-BLD-004"]
     C3x --> C3
@@ -602,7 +602,7 @@ flowchart TD
     C9c -->|"Yes"| C9a["Client sees old and new amount before approving · SCR-PTL-23"]
     C9c -->|"No"| C10
     C9a --> C10["Client approves · SCR-PTL-23"]
-    C10 --> C11["Two Fidero approvals · SCR-BO-12"]
+    C10 --> C11["Two Tenmina approvals · SCR-BO-12"]
     C11 --> C12(["Bank pays contractor. Dashboard updated · SCR-PTL-22"])
 ```
 
@@ -610,10 +610,10 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    D0(["Developer submits plot and pays listing fee · SCR-PTL-31"]) --> D1["Fidero verifies. Listing: In verification"]
+    D0(["Developer submits plot and pays listing fee · SCR-PTL-31"]) --> D1["Tenmina verifies. Listing: In verification"]
     D1 --> D1v{"Report green and in date?"}
     D1v -->|"Amber or red"| D1x["Rejected. Not published · RUL-12"]
-    D1v -->|"Yes"| D2["Live with Fidero Verified badge and check date"]
+    D1v -->|"Yes"| D2["Live with Tenmina Verified badge and check date"]
     D2 --> D3["Ama searches listings · SCR-PTL-26"]
     D3 --> D3e{"Results?"}
     D3e -->|"None"| D3n["Empty state: widen area or price. Save search"]
@@ -634,7 +634,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    E0(["Owner sets up project: budget, stages, person running it, suppliers · SCR-PTL-30"]) --> E1["Fidero checks person and suppliers · FR-PRJ-002"]
+    E0(["Owner sets up project: budget, stages, person running it, suppliers · SCR-PTL-30"]) --> E1["Tenmina checks person and suppliers · FR-PRJ-002"]
     E1 --> E1c{"All checks passed?"}
     E1c -->|"Supplier fails check"| E1x["Supplier cannot be paid. Owner picks another"]
     E1x --> E1
@@ -643,7 +643,7 @@ flowchart TD
     E3 --> E3c{"Stage confirmed?"}
     E3c -->|"Receipts missing"| E3r["Stage stays open. Owner sees what is missing"]
     E3r --> E3
-    E3c -->|"Yes"| E4["Two Fidero approvals"]
+    E3c -->|"Yes"| E4["Two Tenmina approvals"]
     E4 --> E5(["Bank pays the supplier directly. Never cash to a person · RUL-21"])
 ```
 
@@ -704,16 +704,16 @@ flowchart TD
 flowchart TD
     I0(["Kwabena opens Family on the dashboard · SCR-PTL-36"]) --> I1["Add his mother as a family member · SCR-PTL-38"]
     I1 --> I2["Add Komfo Anokye Teaching Hospital as an institution · SCR-PTL-39"]
-    I2 --> I2k{"Already verified by Fidero?"}
+    I2 --> I2k{"Already verified by Tenmina?"}
     I2k -->|"Yes"| I3
-    I2k -->|"No"| I2v["Fidero verifies: registration, bank account in the hospital's name, named contact · SCR-BO-27 · FR-FEE-001"]
+    I2k -->|"No"| I2v["Tenmina verifies: registration, bank account in the hospital's name, named contact · SCR-BO-27 · FR-FEE-001"]
     I2v --> I2r{"Verification result"}
-    I2r -->|"Fails: account not in the institution's name, or registration not found"| I2x["Blocked: institution card shows 'Not verified' with the reason. No invoice can be paid to it · RUL-22. Fidero asks the institution for the right account"]
+    I2r -->|"Fails: account not in the institution's name, or registration not found"| I2x["Blocked: institution card shows 'Not verified' with the reason. No invoice can be paid to it · RUL-22. Tenmina asks the institution for the right account"]
     I2x --> I2v
-    I2r -->|"No: institution takes cash only"| I2n(["Not eligible for direct payment; client told plainly: 'This hospital cannot receive a bank transfer, so Fidero cannot pay it. We never pay in cash.' · FR-FEE-006, DA-10"])
+    I2r -->|"No: institution takes cash only"| I2n(["Not eligible for direct payment; client told plainly: 'This hospital cannot receive a bank transfer, so Tenmina cannot pay it. We never pay in cash.' · FR-FEE-006, DA-10"])
     I2r -->|"Passes"| I3["Institution card: Verified on [date], account ending 4471 · CMP-26"]
-    I3 --> I4["Invoice arrives: Kwabena uploads it, or the hospital sends it to Fidero's reference · SCR-PTL-40 · FR-FEE-002"]
-    I4 --> I5["Fidero checks: institution matches, patient matches the family member, amount and reference readable · SCR-BO-30"]
+    I3 --> I4["Invoice arrives: Kwabena uploads it, or the hospital sends it to Tenmina's reference · SCR-PTL-40 · FR-FEE-002"]
+    I4 --> I5["Tenmina checks: institution matches, patient matches the family member, amount and reference readable · SCR-BO-30"]
     I5 --> I5c{"Checks pass?"}
     I5c -->|"Mismatch: patient name or institution differs"| I5x["Blocked: 'The invoice names a different patient. Check with the hospital.' Kwabena can upload a corrected invoice. Nothing is paid"]
     I5x --> I4
@@ -723,7 +723,7 @@ flowchart TD
     I6 --> I6d{"Bank confirms the money?"}
     I6d -->|"Not yet"| I6w["Waiting: 'Partner Bank has not confirmed your payment yet. We check every hour.'"]
     I6w --> I6d
-    I6d -->|"Yes"| I7["Two Fidero staff approve. Instruction to pay the hospital's account only · FR-ESC-015, RUL-05"]
+    I6d -->|"Yes"| I7["Two Tenmina staff approve. Instruction to pay the hospital's account only · FR-ESC-015, RUL-05"]
     I7 --> I7p{"Payee account matches the verified institution?"}
     I7p -->|"No"| I7x["Blocked by the system. Reviewer told. Nothing moves · FR-ESC-015"]
     I7p -->|"Yes"| I8["Bank pays. Status: 'Paid to Komfo Anokye Teaching Hospital, account ending 4471, on 15 Aug'"]
@@ -735,13 +735,13 @@ flowchart TD
     I12 -.-> I6
 ```
 
-Edge states: an institution's verification lapses (bank account changed): the card turns to "Re-verifying" and payments pause until a second staff member confirms the new account (FR-ADM-003). A recurring payment is never taken without Kwabena's approval for that term (FR-FEE-005, RUL-11). An institution that can only take cash is never paid through Fidero, and nothing about it suggests a cash option (FR-FEE-006).
+Edge states: an institution's verification lapses (bank account changed): the card turns to "Re-verifying" and payments pause until a second staff member confirms the new account (FR-ADM-003). A recurring payment is never taken without Kwabena's approval for that term (FR-FEE-005, RUL-11). An institution that can only take cash is never paid through Tenmina, and nothing about it suggests a cash option (FR-FEE-006).
 
 ### 3.10 J-10 Arrange care visits (R2)
 
 ```mermaid
 flowchart TD
-    K0(["Kwabena sets up a care plan for his mother, with an optional standing approval up to a monthly amount · SCR-PTL-43 · FR-CARE-001, RUL-11"]) --> K1["Fidero assigns a vetted carer from the panel · SCR-BO-28 · FR-CARE-002"]
+    K0(["Kwabena sets up a care plan for his mother, with an optional standing approval up to a monthly amount · SCR-PTL-43 · FR-CARE-001, RUL-11"]) --> K1["Tenmina assigns a vetted carer from the panel · SCR-BO-28 · FR-CARE-002"]
     K1 --> K1c{"Vetted carer available in Kumasi?"}
     K1c -->|"No"| K1x["Plan saved as 'Waiting for a carer'. Expected date shown. Nothing is charged"]
     K1x --> K1
@@ -754,52 +754,52 @@ flowchart TD
     K4 --> K5["Check out. Server sends the family a one-time link and 6-digit code; the carer never sees it · SCR-MOB-16 · 02 ADR-20"]
     K5 --> K6["Family member gets a one-time link: 'Did Grace visit today?' · SCR-PTL-45 · FR-CARE-004, DA-07"]
     K6 --> K6c{"Confirmed within 24 hours?"}
-    K6c -->|"Yes, with code"| K7["Visit: Confirmed. Carer paid for this visit from money held at Partner Bank, under Kwabena's approval or standing approval and two Fidero approvals · RUL-11, RUL-23"]
+    K6c -->|"Yes, with code"| K7["Visit: Confirmed. Carer paid for this visit from money held at Partner Bank, under Kwabena's approval or standing approval and two Tenmina approvals · RUL-11, RUL-23"]
     K6c -->|"Family says it did not happen"| K6n["Visit: Disputed. Carer not paid. Reviewer compares check-in, photos and the family's account the same day"]
-    K6c -->|"No answer after 24 hours"| K6u["Alert to Kwabena and Fidero: 'Visit on 15 Aug is not yet confirmed' · FR-CARE-005. Fidero calls the family. Carer not paid until confirmed"]
-    K6c -->|"5 wrong codes"| K6l["Code locked. The family can confirm in the app or by a call to Fidero · FR-CARE-004"]
+    K6c -->|"No answer after 24 hours"| K6u["Alert to Kwabena and Tenmina: 'Visit on 15 Aug is not yet confirmed' · FR-CARE-005. Tenmina calls the family. Carer not paid until confirmed"]
+    K6c -->|"5 wrong codes"| K6l["Code locked. The family can confirm in the app or by a call to Tenmina · FR-CARE-004"]
     K6l --> K6r
     K6u --> K6r{"Confirmed within 72 hours?"}
     K6r -->|"Yes: app, or a call recorded by one staff member and checked by a second"| K7
     K6r -->|"No"| K6v["A reviewer decides from the check-in evidence and a call to the family. Confirmed: paid. Not confirmed: not paid · FR-CARE-004"]
     K6v -.->|"Confirmed"| K7
     K7 --> K8(["Visit card on Kwabena's dashboard: check-in 09:02, check-out 10:15, 3 photos, confirmed by Comfort · SCR-PTL-44 · CMP-27"])
-    K3 -.->|"Carer does not check in by the planned time plus 60 minutes [TO VERIFY]"| K9["Missed-visit alert to Kwabena and Fidero · FR-CARE-005. Fidero reassigns or reschedules"]
+    K3 -.->|"Carer does not check in by the planned time plus 60 minutes [TO VERIFY]"| K9["Missed-visit alert to Kwabena and Tenmina · FR-CARE-005. Tenmina reassigns or reschedules"]
     K4 -.->|"Carer raises a concern"| K10["Concern to Kwabena and a reviewer the same day · FR-CARE-006"]
 ```
 
-Edge state: the family member cannot use a phone. DA-07's fallback is a call from Fidero to a second named family member; the confirmation records "confirmed by call with [name]", and a second staff member checks the record before the visit counts (FR-CARE-004).
+Edge state: the family member cannot use a phone. DA-07's fallback is a call from Tenmina to a second named family member; the confirmation records "confirmed by call with [name]", and a second staff member checks the record before the visit counts (FR-CARE-004).
 
 ### 3.11 J-11 Manage a property (R2)
 
 ```mermaid
 flowchart TD
-    L0(["Akosua registers her house in Tema · SCR-PTL-46 · FR-PMG-001"]) --> L1["Fidero inspects and records the condition with photos · SCR-MOB-18"]
+    L0(["Akosua registers her house in Tema · SCR-PTL-46 · FR-PMG-001"]) --> L1["Tenmina inspects and records the condition with photos · SCR-MOB-18"]
     L1 --> L2["Tenant found or existing tenant verified; agreement checked · FR-PMG-002"]
     L2 --> L2c{"Agreement and tenant pass checks?"}
     L2c -->|"No"| L2x["Blocked: 'The agreement names a different landlord.' Management does not start until fixed"]
     L2x --> L2
-    L2c -->|"Yes"| L3["Rent set to be paid by the tenant to Akosua's own account at Partner Bank. Fidero never receives rent · RUL-24"]
-    L3 --> L3m["Akosua signs a written mandate letting Partner Bank share that account's statement lines with Fidero · SCR-PTL-46 · FR-PMG-003"]
+    L2c -->|"Yes"| L3["Rent set to be paid by the tenant to Akosua's own account at Partner Bank. Tenmina never receives rent · RUL-24"]
+    L3 --> L3m["Akosua signs a written mandate letting Partner Bank share that account's statement lines with Tenmina · SCR-PTL-46 · FR-PMG-003"]
     L3m --> L4["Each month: rent due date on the dashboard · SCR-PTL-47"]
     L4 --> L4c{"Rent received by the due date?"}
     L4c -->|"Yes"| L4y["'Paid by tenant to your account at Partner Bank, 1 Sept, GHS 4,500.00'"]
-    L4c -->|"No, 5 days late [TO VERIFY]"| L4x["Alert to Akosua and Fidero: 'Rent for September is late.' Fidero contacts the tenant. Record shows 'Late since 6 Sept'"]
+    L4c -->|"No, 5 days late [TO VERIFY]"| L4x["Alert to Akosua and Tenmina: 'Rent for September is late.' Tenmina contacts the tenant. Record shows 'Late since 6 Sept'"]
     L4x --> L4c
     L4y --> L5
     L4c -.->|"Bank statement not yet matched"| L4m["Shown as 'Not yet confirmed by the bank', never as missing"]
     L4m --> L4c
-    L5["Tenant or inspector reports a repair · SCR-PTL-54 · FR-PMG-004"] --> L6["Fidero collects at least two quotes from vetted contractors"]
+    L5["Tenant or inspector reports a repair · SCR-PTL-54 · FR-PMG-004"] --> L6["Tenmina collects at least two quotes from vetted contractors"]
     L6 --> L7["Akosua compares and approves one quote with a one-time code · SCR-PTL-48 · RUL-11"]
     L7 --> L7c{"Decision"}
-    L7c -->|"Rejects both"| L7x["Quotes rejected with a reason. Fidero seeks new quotes. Repair stays 'Open: new quotes expected by [date]'"]
+    L7c -->|"Rejects both"| L7x["Quotes rejected with a reason. Tenmina seeks new quotes. Repair stays 'Open: new quotes expected by [date]'"]
     L7x --> L6
     L7c -->|"Approves one"| L8["Repair money held at Partner Bank against the quote · FR-PMG-005"]
     L8 --> L9["Contractor does the work; inspector checks with photos · SCR-MOB-18"]
     L9 --> L9c{"Inspection result"}
     L9c -->|"Fail"| L9x["Not paid. Contractor fixes. Akosua sees the inspector's photos and reason"]
     L9x --> L9
-    L9c -->|"Pass"| L10["Two Fidero approvals. Bank pays the contractor, account ending [nnnn] · RUL-22"]
+    L9c -->|"Pass"| L10["Two Tenmina approvals. Bank pays the contractor, account ending [nnnn] · RUL-22"]
     L10 --> L11(["Dashboard timeline: rent, repairs, inspections, photos · FR-PMG-006"])
 ```
 
@@ -807,22 +807,22 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    M0(["Ama opens the errand catalogue for Ghana · SCR-PTL-49 · FR-TSK-001"]) --> M1["Picks 'Ghana Card renewal' and 'Land title application'. Sees checklist, official fees, Fidero's charge, target time"]
+    M0(["Ama opens the errand catalogue for Ghana · SCR-PTL-49 · FR-TSK-001"]) --> M1["Picks 'Ghana Card renewal' and 'Land title application'. Sees checklist, official fees, Tenmina's charge, target time"]
     M1 --> M2["Uploads checklist documents · SCR-PTL-50 · FR-TSK-002"]
     M2 --> M2c{"Checklist complete and readable?"}
     M2c -->|"No"| M2x["Errand stays 'Waiting for your documents: 2 missing'. Nothing is paid"]
     M2x --> M2
-    M2c -->|"Yes"| M3["Pays official fees into Partner Bank and Fidero's charge by card or mobile money · FR-TSK-002. Approves each step fee, or gives a standing approval up to a monthly amount · RUL-11"]
+    M2c -->|"Yes"| M3["Pays official fees into Partner Bank and Tenmina's charge by card or mobile money · FR-TSK-002. Approves each step fee, or gives a standing approval up to a monthly amount · RUL-11"]
     M3 --> M4["Vetted agent assigned · SCR-BO-28, SCR-BO-32 · FR-TSK-003"]
     M4 --> M5["Agent lodges the application · SCR-MOB-17. Official fee paid to the agency's account only; receipt uploaded · RUL-22"]
     M5 --> M5c{"Agency accepts the application?"}
-    M5c -->|"Rejected: document missing or out of date"| M5x["Step shows 'Rejected by the agency: passport photo out of date.' Document request to Ama. Agent retries when it arrives. Fidero's charge not taken twice"]
+    M5c -->|"Rejected: document missing or out of date"| M5x["Step shows 'Rejected by the agency: passport photo out of date.' Document request to Ama. Agent retries when it arrives. Tenmina's charge not taken twice"]
     M5x --> M2
     M5c -->|"Accepted"| M6["Each step shown in plain language with its receipt or acknowledgement"]
     M6 --> M7{"Resulting document ready?"}
     M7 -->|"Delayed past target time"| M7x["Status: 'The agency is late. New expected date [date]. We are chasing.' Target times are assumptions"]
     M7x --> M7
-    M7 -->|"Yes"| M8["Agent collects it. Fidero checks the document · FR-TSK-004. The agent's pay from Fidero is now due · FR-PRO-002"]
+    M7 -->|"Yes"| M8["Agent collects it. Tenmina checks the document · FR-TSK-004. The agent's pay from Tenmina is now due · FR-PRO-002"]
     M8 --> M8c{"Document correct?"}
     M8c -->|"Wrong name or details"| M8x["Completion refused. Agent returns to the agency. Ama told plainly"]
     M8x --> M5
@@ -830,7 +830,7 @@ flowchart TD
     M9 --> M10(["Errand: Complete. Fees, receipts and the document on the dashboard · RUL-23"])
 ```
 
-Who pays whom. Official fees go from Partner Bank to the agency only (RUL-22). Fidero's charge is paid to Fidero through the payment provider when the errand is ordered, never into Partner Bank (FR-TSK-002). The agent is paid by Fidero from its own account, under FR-PRO, once Fidero has checked the resulting document (FR-TSK-003, FR-PRO-002, RUL-23). The client's money never pays the agent (RUL-27).
+Who pays whom. Official fees go from Partner Bank to the agency only (RUL-22). Tenmina's charge is paid to Tenmina through the payment provider when the errand is ordered, never into Partner Bank (FR-TSK-002). The agent is paid by Tenmina from its own account, under FR-PRO, once Tenmina has checked the resulting document (FR-TSK-003, FR-PRO-002, RUL-23). The client's money never pays the agent (RUL-27).
 
 ---
 
@@ -844,7 +844,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 
 ```text
 +----------------------------------------+
-| FIDERO                     Sign in     |
+| TENMINA                     Sign in     |
 +----------------------------------------+
 | Create your account                    |
 | Step 1 of 2                            |
@@ -900,7 +900,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 |                                        |
 | [      Start identity check      ]     |
 |                                        |
-| Who sees this: Fidero staff and our    |
+| Who sees this: Tenmina staff and our    |
 | identity check provider. Why? >        |
 +----------------------------------------+
 | STATUS CARD (after submit)             |
@@ -1023,12 +1023,12 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 - **Rules.** Acceptance recorded with time and version (FR-ORD-003). Scope text cannot be edited (RUL-04).
 - **Satisfies.** FR-ORD-003, FR-ORD-005, FR-ORD-006, RUL-04.
 
-### W-06 Pay Fidero's fee · SCR-PTL-10
+### W-06 Pay Tenmina's fee · SCR-PTL-10
 
 ```text
 +----------------------------------------+
 | <- Back             Pay                |
-| You are paying Fidero's fee for        |
+| You are paying Tenmina's fee for        |
 | a land check.                          |
 |                                        |
 | Fee                    USD 450.00      |
@@ -1045,7 +1045,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 |                                        |
 | [       Pay USD 450.00           ]     |
 |                                        |
-| (i) This page is only for Fidero's     |
+| (i) This page is only for Tenmina's     |
 | fee. We never take money for the land. |
 | Land money goes to a licensed bank.    |
 +----------------------------------------+
@@ -1063,7 +1063,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 +----------------------------------------+
 | <- Home                                |
 | Plot 14, Kasoa Millennium City         |
-| Land check  FID-2027-0142              |
+| Land check  TMN-2027-0142              |
 | +------------------------------------+ |
 | | NOW: Searches lodged at the Lands  | |
 | | Commission on 12 March. Results    | |
@@ -1083,12 +1083,12 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | ( ) Legal review .... expected 7 Apr   |
 | ( ) Report ready .... expected 10 Apr  |
 |                                        |
-| [ Message Fidero ]  Receipt >          |
+| [ Message Tenmina ]  Receipt >          |
 +----------------------------------------+
 ```
 
 - **Content.** One "Now" sentence (CMP-06 pattern), open requests first, then the timeline. Done steps show actual dates; future steps show expected dates.
-- **Actions.** Upload requested document; message Fidero; view receipt; share read-only access with a representative.
+- **Actions.** Upload requested document; message Tenmina; view receipt; share read-only access with a representative.
 - **States.** On hold: "Paused. We are waiting for the seller's ID copy. We will restart as soon as it arrives." Late: "Search results are late. We expected them by 2 April. We are chasing and will update you by 9 April." Cancelled with refund status.
 - **Rules.** Messages come from templates (FR-CASE-007). No third-party personal data shown beyond what the client supplied.
 - **Satisfies.** FR-CASE-007, FR-CASE-008, FR-CASE-015, FR-ACC-008, FR-NTF-001, F-06, J-01.
@@ -1097,7 +1097,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 
 ```text
 +----------------------------------------+
-| <- Case FID-2027-0142                  |
+| <- Case TMN-2027-0142                  |
 | Your report                            |
 | +------------------------------------+ |
 | | [(!) AMBER]  Fix before you pay    | |
@@ -1142,13 +1142,13 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | +------------------------------------+ |
 | | NOW: All 4 conditions closed.      | |
 | | Fresh search done 2 May. Release   | |
-| | is waiting for a second Fidero     | |
+| | is waiting for a second Tenmina     | |
 | | approval.                          | |
 | +------------------------------------+ |
 | Money at the bank                      |
 | USD 18,000.00  deposit confirmed 22 Apr|
 | Your money is held by Partner Bank,    |
-| not by Fidero.                         |
+| not by Tenmina.                         |
 |                                        |
 | Conditions (4 of 4 closed)             |
 | [v] Pillars re-set ...... closed 25 Apr|
@@ -1167,9 +1167,9 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 +----------------------------------------+
 ```
 
-- **Content.** Status sentence, bank and amount, conditions with closing dates, fresh search, the client's own approval, Fidero's two approvals, next step. An open condition shows its owner and due date instead of a closing date: "Seller's tax clearance. Owner: seller's lawyer. Due 6 May."
+- **Content.** Status sentence, bank and amount, conditions with closing dates, fresh search, the client's own approval, Tenmina's two approvals, next step. An open condition shows its owner and due date instead of a closing date: "Seller's tax clearance. Owner: seller's lawyer. Due 6 May."
 - **Actions.** Approve the release once every condition is closed (one-time code, DA-01, RUL-11); view evidence for a closed condition; open a dispute (R2); view bank instructions.
-- **States.** Proposed (waiting for parties), Agreed (waiting for deposit), Funded (conditions closing; approvals show "Start when every condition is closed"), Ready to release ("Your approval is needed. Fidero staff approve after you."), Client approved, Release approved, Released, Frozen ("A dispute was opened on 4 May. No money can move until it is resolved."), Cancelled. No response from the client: reminders; silence is never approval.
+- **States.** Proposed (waiting for parties), Agreed (waiting for deposit), Funded (conditions closing; approvals show "Start when every condition is closed"), Ready to release ("Your approval is needed. Tenmina staff approve after you."), Client approved, Release approved, Released, Frozen ("A dispute was opened on 4 May. No money can move until it is resolved."), Cancelled. No response from the client: reminders; silence is never approval.
 - **Rules.** No approval or release while any condition is open (RUL-06); fresh search must be in date (RUL-07); client approves first and cannot release alone (RUL-11); approver names shown (RUL-05).
 - **Satisfies.** FR-ESC-004 to FR-ESC-009, RUL-05, RUL-06, RUL-07, RUL-11, RUL-15, J-02.
 
@@ -1181,9 +1181,9 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | Pay the purchase price to the bank     |
 | +------------------------------------+ |
 | | (shield) These are the bank's      | |
-| | details, not Fidero's. Fidero      | |
+| | details, not Tenmina's. Tenmina      | |
 | | never asks you to pay land money   | |
-| | to Fidero.                         | |
+| | to Tenmina.                         | |
 | +------------------------------------+ |
 | Bank ............ Partner Bank [SAMPLE]|
 | Account name .... Escrow account       |
@@ -1202,22 +1202,22 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 - **Content.** Bank details from the escrow record only. Warning about changed details.
 - **Actions.** Copy each field; download as PDF; "Report suspicious details".
 - **States.** Escrow not yet Agreed: details hidden with "The bank will open the escrow once everyone has accepted the terms."
-- **Rules.** Never Fidero's account (FR-ESC-003, RUL-01). Details change only through a two-person admin change, logged.
+- **Rules.** Never Tenmina's account (FR-ESC-003, RUL-01). Details change only through a two-person admin change, logged.
 - **Satisfies.** FR-ESC-003, RUL-01, J-02.
 
 ### W-11 Back office: my work queue · SCR-BO-02
 
 ```text
 +------------------------------------------------------------------------------------+
-| FIDERO back office   My work | Cases | Escrow | Reports | Admin     Esi M. (v)     |
+| TENMINA back office   My work | Cases | Escrow | Reports | Admin     Esi M. (v)     |
 +------------------------------------------------------------------------------------+
 | My work (32 open)  Filter: [All types v] [All owners v] [Overdue first v]  Search  |
 | OVERDUE (3)                                                                        |
-| (!) FID-2027-0129  Search results  Runner: Yaw O.   Due 28 Mar  2 days late [Chase]|
-| (!) FID-2027-0133 Consent meeting  Lawyer: A. Darko Due 29 Mar  1 day late  [Chase]|
+| (!) TMN-2027-0129  Search results  Runner: Yaw O.   Due 28 Mar  2 days late [Chase]|
+| (!) TMN-2027-0133 Consent meeting  Lawyer: A. Darko Due 29 Mar  1 day late  [Chase]|
 | DUE THIS WEEK (7)                                                                  |
-|     FID-2027-0142  Site visit      Surveyor: E.T.   Due 18 Mar  (risk: clear)      |
-|     FID-2027-0150  Intake           Me              Due 31 Mar  New, unassigned    |
+|     TMN-2027-0142  Site visit      Surveyor: E.T.   Due 18 Mar  (risk: clear)      |
+|     TMN-2027-0150  Intake           Me              Due 31 Mar  New, unassigned    |
 | WAITING ON OTHERS (22) ................................................ show >     |
 +------------------------------------------------------------------------------------+
 ```
@@ -1232,7 +1232,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 
 ```text
 +------------------------------------------------------------------------------------+
-| <- My work   FID-2027-0142  Plot 14, Kasoa   Land v1.3   In progress   Risk: clear |
+| <- My work   TMN-2027-0142  Plot 14, Kasoa   Land v1.3   In progress   Risk: clear |
 +--------------------------------------------+---------------------------------------+
 | Tasks                                      | Client sees now                       |
 | Step            Owner      Due     Status  | "Searches lodged at the Lands         |
@@ -1261,7 +1261,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 
 ```text
 +--------------------------------------------------+
-| Site visit: risk screen   FID-2027-0129          |
+| Site visit: risk screen   TMN-2027-0129          |
 | 1. Any report of threats on this plot?  (Yes) No |
 | 2. Occupied by someone claiming it?      Yes (No)|
 | 3. Known dispute area (overlay)?        (Yes) No |
@@ -1283,7 +1283,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 
 ```text
 +------------------------------------------------------------------------------------+
-| Report builder  FID-2027-0142  Template land v1.3   Draft   Autosaved 10:41 GMT    |
+| Report builder  TMN-2027-0142  Template land v1.3   Draft   Autosaved 10:41 GMT    |
 +----------------------+-------------------------------------------------------------+
 | Sections             | 8. Seller authority and consent        Owner: A. Darko      |
 | 1 Cover        auto  | Findings  [ Family head confirmed seller's allocation ...  ]|
@@ -1368,7 +1368,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 - **Rules.** RUL-04, FR-ADM-004. Values marked `[TO VERIFY]` show a warning chip until confirmed by the owner in 01 B9.
 - **Satisfies.** FR-ADM-001, FR-ADM-004, FR-ADM-005, FR-CTY-001.
 
-### W-17 Fidero Field: contractor milestone submission with offline queue · SCR-MOB-07
+### W-17 Tenmina Field: contractor milestone submission with offline queue · SCR-MOB-07
 
 ```text
 +--------------------------------+
@@ -1401,11 +1401,11 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 
 - **Content.** Offline banner with item count, checklist from the milestone schedule, capture summary.
 - **Actions.** Open an item to capture or retake; submit (queues when offline).
-- **States.** Item missing: Submit disabled with "2 items still needed." Capture off plot: item marked "(!) Taken 340 m from the plot" and the contractor must explain or retake. Sending: progress per item. Sent: "Received by Fidero 14:22 GMT." Upload failed: retried automatically with backoff; never lost.
-- **Rules.** Camera only, no gallery, on iOS and Android (RUL-08). Queue survives the app being closed, ended by the phone's system, or a restart (FR-MOB-005). On iPhone, if the user swipes the app away, uploads pause until it is opened again; the queue screen says "Open Fidero Field to finish sending". Originals kept until server confirms (FR-MOB-008).
+- **States.** Item missing: Submit disabled with "2 items still needed." Capture off plot: item marked "(!) Taken 340 m from the plot" and the contractor must explain or retake. Sending: progress per item. Sent: "Received by Tenmina 14:22 GMT." Upload failed: retried automatically with backoff; never lost.
+- **Rules.** Camera only, no gallery, on iOS and Android (RUL-08). Queue survives the app being closed, ended by the phone's system, or a restart (FR-MOB-005). On iPhone, if the user swipes the app away, uploads pause until it is opened again; the queue screen says "Open Tenmina Field to finish sending". Originals kept until server confirms (FR-MOB-008).
 - **Satisfies.** FR-MOB-002 to FR-MOB-006, FR-MOB-008, FR-MOB-009, J-03.
 
-### W-18 Fidero Field: inspector checklist · SCR-MOB-09 and SCR-MOB-11
+### W-18 Tenmina Field: inspector checklist · SCR-MOB-09 and SCR-MOB-11
 
 ```text
 +--------------------------------+
@@ -1485,7 +1485,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | Code sent to your phone [______]       |
 | [ Approve this milestone ]             |
 | [ Question it ]  [ Open a dispute ]    |
-| After you approve, two Fidero staff    |
+| After you approve, two Tenmina staff    |
 | approve and the bank pays.             |
 +----------------------------------------+
 ```
@@ -1508,12 +1508,12 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | | [plot img] Plot, 100 x 70 ft       | |
 | | Community 25, Tema                 | |
 | | USD 24,000                         | |
-| | (v) Fidero Verified, checked 3 Jun | |
+| | (v) Tenmina Verified, checked 3 Jun | |
 | +------------------------------------+ |
 | | [plot img] 3-bed, off-plan unit    | |
 | | Oyarifa Gardens [SAMPLE ESTATE]    | |
 | | USD 61,500                         | |
-| | (v) Fidero Verified, checked 20 May| |
+| | (v) Tenmina Verified, checked 20 May| |
 | +------------------------------------+ |
 | Showing 2 of 2. Prices set by sellers. |
 +----------------------------------------+
@@ -1534,22 +1534,22 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | Plot, 100 x 70 ft, Community 25, Tema  |
 | USD 24,000                             |
 | +------------------------------------+ |
-| | (v) FIDERO VERIFIED                | |
+| | (v) TENMINA VERIFIED                | |
 | | Checks done 3 June 2027            | |
 | | Badge valid until 1 Sept 2027      | |
 | | [ Read the full report ]           | |
 | +------------------------------------+ |
 | Seller: Sample Estates Ltd             |
 | Track record: 12 sales, 0 disputes >   |
-| Before you pay, Fidero runs a fresh    |
+| Before you pay, Tenmina runs a fresh    |
 | search and site check. Your money is   |
 | held by a licensed bank.               |
-| [ Reserve this plot ]  [ Ask Fidero ]  |
+| [ Reserve this plot ]  [ Ask Tenmina ]  |
 +----------------------------------------+
 ```
 
 - **Content.** Badge (CMP-23) with check date and expiry, full report link, seller track record, what happens on reserve.
-- **Actions.** Read report (always available, RUL-14), reserve (sign in needed), enquire through Fidero.
+- **Actions.** Read report (always available, RUL-14), reserve (sign in needed), enquire through Tenmina.
 - **States.** Expired: badge shows "(x) Badge expired 1 Sept 2027. Checks are out of date." and reserve is removed. Suspended: "Under review. This listing cannot be reserved now." Reserved by someone else: "Reserved. Check back after 30 Sept."
 - **Rules.** RUL-12, RUL-13, RUL-14.
 - **Satisfies.** FR-LST-003, FR-LST-005, FR-LST-006, FR-RAT-003, J-04.
@@ -1597,7 +1597,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | You can change this at any time. We    |
 | keep a record of each choice.          |
 | Case studies                           |
-| [ ] Fidero may use an anonymised       |
+| [ ] Tenmina may use an anonymised       |
 |     version of my report               |
 +----------------------------------------+
 ```
@@ -1612,7 +1612,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 
 ```text
 +----------------------------------------+
-| FIDERO            Ghana · GHS   Ama (v)|
+| TENMINA            Ghana · GHS   Ama (v)|
 +----------------------------------------+
 | At home                                |
 | 2 things need you. 5 running.          |
@@ -1672,10 +1672,10 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 +----------------------------------------+
 | <- Family                              |
 | Add a school, hospital or agency       |
-| Search Fidero's verified list          |
+| Search Tenmina's verified list          |
 | [ Komfo Anokye_________________ ] Find |
 | +------------------------------------+ |
-| | (v) VERIFIED by Fidero 12 Jan 2027 | |
+| | (v) VERIFIED by Tenmina 12 Jan 2027 | |
 | | Komfo Anokye Teaching Hospital     | |
 | | Kumasi · Hospital                  | |
 | | Registration checked               | |
@@ -1706,14 +1706,14 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | NOT ELIGIBLE (status card)             |
 | (x) Sample Clinic, Tamale              |
 |     This clinic cannot receive a bank  |
-|     transfer, so Fidero cannot pay it  |
+|     transfer, so Tenmina cannot pay it  |
 |     for you. We never pay in cash.     |
 +----------------------------------------+
 ```
 
 - **Content.** Institution card (CMP-26) with verified status and date, type, what was checked, the account's last four digits, named contact role (not a person's name, NFR-PRIV-02).
 - **Actions.** Search the verified list; use an institution; propose a new one (name, type, town, contact, any invoice).
-- **States.** Verified, Checking (with expected date), Not verified (with the reason in words and what Fidero is doing), Not eligible for direct payment (cannot receive a bank transfer; DA-10), Re-verifying (account changed; payments paused).
+- **States.** Verified, Checking (with expected date), Not verified (with the reason in words and what Tenmina is doing), Not eligible for direct payment (cannot receive a bank transfer; DA-10), Re-verifying (account changed; payments paused).
 - **Rules.** No payment to an institution that is not Verified (RUL-22, FR-ESC-015). No cash route for an institution that is not eligible (FR-FEE-006). Account changes need a second staff member (FR-ADM-003).
 - **Satisfies.** FR-FEE-001, FR-FEE-006, RUL-22, J-09.
 
@@ -1728,7 +1728,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | For: Comfort Mensah (your mother)      |
 |                                        |
 | Invoice                                |
-| (*) Sent by the hospital to Fidero     |
+| (*) Sent by the hospital to Tenmina     |
 |     KATH-2027-08812 · 14 Aug           |
 | ( ) Upload an invoice [ Choose file ]  |
 | +------------------------------------+ |
@@ -1748,7 +1748,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 |     Partner Bank (GHS 5,000.00)        |
 | ( ) Pay GHS 3,850.00 into Partner Bank |
 |     now (card or mobile money)         |
-| Fidero's charge   GHS 40.00 (sample)   |
+| Tenmina's charge   GHS 40.00 (sample)   |
 |                                        |
 | Who gets paid                          |
 | GHS 3,850.00 to Komfo Anokye Teaching  |
@@ -1759,15 +1759,15 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | Code sent to your phone [______]       |
 | [ Approve: pay GHS 3,850.00 to Komfo   |
 |   Anokye Teaching Hospital ]           |
-| After you approve, two Fidero staff    |
+| After you approve, two Tenmina staff    |
 | approve and Partner Bank pays. The     |
 | receipt comes back to your statement.  |
 +----------------------------------------+
 ```
 
-- **Content.** Institution and family member on top with verified status. Invoice source (institution-sent or uploaded). Invoice details. The three checks in words. Payment source: the amount held at the bank or a new payment into the bank. The payee line (CMP-30) before the button. Fidero's charge shown separately.
+- **Content.** Institution and family member on top with verified status. Invoice source (institution-sent or uploaded). Invoice details. The three checks in words. Payment source: the amount held at the bank or a new payment into the bank. The payee line (CMP-30) before the button. Tenmina's charge shown separately.
 - **Actions.** Choose invoice source; upload; approve with one-time code (DA-01); question the invoice.
-- **States.** Check fails: that line turns to "(x) The patient on this invoice is Kwame Mensah, not Comfort Mensah. Check with the hospital." and the approve button is replaced by "Upload a corrected invoice" and "Ask Fidero". Unreadable: document request. Amount held at the bank too low: "GHS 1,150.00 more is needed. Pay the difference into Partner Bank." Approved: receipt state "You approved GHS 3,850.00 on 15 Aug 09:40 GMT. Next: Fidero approvals, then Partner Bank pays the hospital."
+- **States.** Check fails: that line turns to "(x) The patient on this invoice is Kwame Mensah, not Comfort Mensah. Check with the hospital." and the approve button is replaced by "Upload a corrected invoice" and "Ask Tenmina". Unreadable: document request. Amount held at the bank too low: "GHS 1,150.00 more is needed. Pay the difference into Partner Bank." Approved: receipt state "You approved GHS 3,850.00 on 15 Aug 09:40 GMT. Next: Tenmina approvals, then Partner Bank pays the hospital."
 - **Rules.** Payee is fixed to the verified institution's account (RUL-22, FR-ESC-015). Client approval alone releases nothing (RUL-11). Money is at the bank (RUL-01).
 - **Satisfies.** FR-FEE-002, FR-FEE-003, FR-ESC-014, FR-ESC-015, RUL-11, RUL-22, J-09.
 
@@ -1792,13 +1792,13 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 |         Invoice KATH-2027-08812        |
 |         -GHS 3,850.00   Receipt (pdf) >|
 |         Discharge note (hospital) >    |
-| 15 Aug  Fidero's charge                |
+| 15 Aug  Tenmina's charge                |
 |         -GHS 40.00      Receipt >      |
 | 2 Aug   You paid into Partner Bank     |
 |         +GHS 5,000.00   Bank ref >     |
 | 14 Jul  Paid to Sample Pharmacy, acct  |
 |         ending 0932                    |
-|         Receipt delivered by a Fidero  |
+|         Receipt delivered by a Tenmina  |
 |         runner                         |
 |         -GHS 210.00     Receipt >      |
 | Held at bank 1 Jul .... GHS 1,360.00   |
@@ -1810,7 +1810,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 
 - **Content.** Status sentence. Amount held at the bank. Statement rows (CMP-25): date, payee with account ending, invoice reference, amount with sign, links to receipt and any confirmation the institution agreed to share. A receipt a runner delivered in person says so on its row (FR-FEE-006, DA-10). No row ever shows a cash payment.
 - **Actions.** Add money (bank instructions, SCR-PTL-18 pattern); open receipts; download PDF; filter by institution.
-- **States.** Payment pending: row shows "Approved by you 15 Aug. Waiting for Fidero approvals." in place of the receipt link. Receipt not yet returned: "Receipt expected from the hospital by 18 Aug." Empty: "No payments yet. Add an institution to start."
+- **States.** Payment pending: row shows "Approved by you 15 Aug. Waiting for Tenmina approvals." in place of the receipt link. Receipt not yet returned: "Receipt expected from the hospital by 18 Aug." Empty: "No payments yet. Add an institution to start."
 - **Rules.** Every row names the payee (RUL-22). The amount is described as held by the bank (RUL-01, DA-08). Health details appear only where the institution agreed and the client asked (FR-FEE-004, NFR-PRIV-02).
 - **Satisfies.** FR-FEE-004, FR-FEE-006, FR-FEE-007, FR-ESC-014, RUL-22, J-09.
 
@@ -1840,7 +1840,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | [x] Comfort Mensah (by call or code)   |
 | [x] Akua Mensah, sister, +233 24...    |
 | Price per visit  GHS 120.00 (sample)   |
-| Fidero's charge  included              |
+| Tenmina's charge  included              |
 | Standing approval (optional)           |
 | [x] Pay confirmed visits up to         |
 |     GHS 1,200.00 a month (sample)      |
@@ -1853,11 +1853,11 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 
 - **Content.** Address, frequency, plan items, agreed photos (consent is explicit), confirmers, price, an optional standing approval up to a monthly amount, the payment rule in words.
 - **Actions.** Save; edit later; pause visits (holiday).
-- **States.** No carer yet: "We are finding a vetted carer in Kumasi. Expected by 20 Aug. Nothing is charged until the first confirmed visit." Carer assigned: card with name, photo and Fidero ID, sent to the family too.
-- **Rules.** RUL-23: payment only on confirmed visits. RUL-11: a standing approval covers visit payments up to the stated monthly amount; each payment still needs its evidence and two Fidero approvals; above the amount the client approves each one; the client can withdraw it at any time. Photos of a person need their consent (FR-DPR-002 practice).
+- **States.** No carer yet: "We are finding a vetted carer in Kumasi. Expected by 20 Aug. Nothing is charged until the first confirmed visit." Carer assigned: card with name, photo and Tenmina ID, sent to the family too.
+- **Rules.** RUL-23: payment only on confirmed visits. RUL-11: a standing approval covers visit payments up to the stated monthly amount; each payment still needs its evidence and two Tenmina approvals; above the amount the client approves each one; the client can withdraw it at any time. Photos of a person need their consent (FR-DPR-002 practice).
 - **Satisfies.** FR-CARE-001, FR-CARE-002, RUL-11, RUL-23, J-10.
 
-### W-30 Carer visit on Fidero Field · SCR-MOB-14 to 16
+### W-30 Carer visit on Tenmina Field · SCR-MOB-14 to 16
 
 ```text
 +--------------------------------+   +--------------------------------+
@@ -1886,7 +1886,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 +--------------------------------+
 ```
 
-- **Content.** One visit at a time. Distance to the address before check-in. Plan items with in-app photos where agreed. No code on the carer's phone: Fidero sends it straight to the family (02 ADR-20). The payment rule in one line.
+- **Content.** One visit at a time. Distance to the address before check-in. Plan items with in-app photos where agreed. No code on the carer's phone: Tenmina sends it straight to the family (02 ADR-20). The payment rule in one line.
 - **Actions.** Check in; tick items; capture (camera only); raise a concern (health, safety, welfare); check out; finish.
 - **States.** Too far from the address: check-in allowed but marked "410 m from the address. Say why." with a required note; the visit is flagged for review. Items left at check-out: allowed with a reason ("Mother was asleep"); shown to the client. Offline: queue as W-17.
 - **Rules.** Check-in and out with GPS (FR-MOB-012). Camera only (RUL-08 covers care visits from R2; FR-MOB-001 adds carers). The carer never sees the client's payment details.
@@ -1896,7 +1896,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 
 ```text
 +----------------------------------------+
-| FIDERO                                 |
+| TENMINA                                 |
 | Did Grace visit Comfort today?         |
 | Tuesday 12 August, about 09:00-10:15   |
 |                                        |
@@ -1909,22 +1909,22 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 |                                        |
 | This link works for 24 hours. Kwabena  |
 | in New Jersey sees your answer. You    |
-| can also call Fidero: 030 000 0000     |
+| can also call Tenmina: 030 000 0000     |
 | (sample).                              |
 +----------------------------------------+
 | AFTER "YES"                            |
 | (v) Thank you. Visit confirmed 10:20.  |
 +----------------------------------------+
 | AFTER "NO"                             |
-| We are sorry. Fidero will call you     |
+| We are sorry. Tenmina will call you     |
 | today. The carer is not paid for this  |
 | visit.                                 |
 +----------------------------------------+
 ```
 
 - **Content.** One question, the carer's first name, the time, a 6-digit code field (CMP-28), two buttons, a plain line on who sees the answer.
-- **Actions.** Confirm with code; say the visit did not happen; call Fidero.
-- **States.** Wrong code: "That code does not match. Check the message we sent you, or tap 'No, nobody came'." Fifth wrong code: "This code is now locked. Fidero will call you to confirm." (FR-CARE-004). Link expired: "This link has expired. Fidero will call you." Already answered: shows the answer and time.
+- **Actions.** Confirm with code; say the visit did not happen; call Tenmina.
+- **States.** Wrong code: "That code does not match. Check the message we sent you, or tap 'No, nobody came'." Fifth wrong code: "This code is now locked. Tenmina will call you to confirm." (FR-CARE-004). Link expired: "This link has expired. Tenmina will call you." Already answered: shows the answer and time.
 - **Rules.** No account needed (DA-07). Codes lock after 5 wrong attempts. A confirmation by call is recorded by one staff member and checked by a second. A visit still unconfirmed after 72 hours goes to a reviewer (FR-CARE-004). Large text (20 px body), 56 px buttons, works on a basic phone browser. No amounts shown.
 - **Satisfies.** FR-CARE-004, RUL-23, J-10.
 
@@ -1949,7 +1949,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | Rent ......... GHS 4,500.00 a month    |
 | Paid to ...... your account at Partner |
 |                Bank, ending 8820       |
-| Fidero never receives your rent.       |
+| Tenmina never receives your rent.       |
 |                                        |
 | Rent record                            |
 | Aug  (v) Paid 1 Aug  GHS 4,500.00      |
@@ -1970,8 +1970,8 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 
 - **Content.** Status sentence. Tenancy summary with where rent goes (RUL-24). Rent record by month with the state in words. Repairs with payee named. Inspections and photo timeline.
 - **Actions.** Review quotes; see the agreement; report a repair; order an extra inspection; see photos.
-- **States.** Rent late: "(!) Late since 6 Sept. Fidero contacted the tenant on 7 Sept." Not yet confirmed by the bank: "(o) Not yet confirmed by the bank" (never shown as missing). Vacant: "No tenant. Fidero is finding one."
-- **Rules.** Rent to the owner's own account, never Fidero (RUL-24). Repair contractors paid only after inspection (FR-PMG-005, RUL-22).
+- **States.** Rent late: "(!) Late since 6 Sept. Tenmina contacted the tenant on 7 Sept." Not yet confirmed by the bank: "(o) Not yet confirmed by the bank" (never shown as missing). Vacant: "No tenant. Tenmina is finding one."
+- **Rules.** Rent to the owner's own account, never Tenmina (RUL-24). Repair contractors paid only after inspection (FR-PMG-005, RUL-22).
 - **Satisfies.** FR-PMG-002, FR-PMG-003, FR-PMG-005, FR-PMG-006, RUL-22, RUL-24, J-11.
 
 ### W-33 Repair quote approval · SCR-PTL-48
@@ -2004,7 +2004,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | until an inspector passes the work.    |
 | Then Partner Bank pays Sample Roofing  |
 | Ltd, account ending 3301.              |
-| Fidero's charge  GHS 150.00 (sample)   |
+| Tenmina's charge  GHS 150.00 (sample)   |
 | Code sent to your phone [______]       |
 | [ Approve Sample Roofing, GHS 6,200 ]  |
 +----------------------------------------+
@@ -2022,7 +2022,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 +----------------------------------------+
 | <- Projects and errands                |
 | Ghana Card renewal      TSK-2027-0088  |
-| Ghana · GHS · agent: Fidero-vetted     |
+| Ghana · GHS · agent: Tenmina-vetted     |
 | +------------------------------------+ |
 | | NOW: Lodged at the NIA office on   | |
 | | 11 Aug. Receipt attached. Card     | |
@@ -2040,24 +2040,24 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 |   Receipt >                            |
 |   Paid under your standing approval    |
 |   (up to GHS 300.00 a month, sample)   |
-| Fidero's charge  GHS 180.00 (sample)   |
-|   Paid to Fidero by card, 8 Aug.       |
+| Tenmina's charge  GHS 180.00 (sample)   |
+|   Paid to Tenmina by card, 8 Aug.       |
 |   Receipt >                            |
 | Steps                                  |
 | (v) Documents checked ....... 8 Aug    |
 | (v) Official fee paid into bank 9 Aug  |
 | (v) Lodged, receipt uploaded . 11 Aug  |
 | ( ) Card ready ....... expected 9 Sept |
-| ( ) Fidero checks the card             |
+| ( ) Tenmina checks the card             |
 | ( ) Handed to Kofi A. (your rep)       |
 | Messages >   Receipts (2) >            |
 +----------------------------------------+
 ```
 
-- **Content.** Status sentence, checklist, fees with payees, steps with evidence. The agency is named as payee; the agent is never paid from the client's money, because Fidero pays the agent itself.
-- **Actions.** Upload a missing document; see receipts; message Fidero; change the representative.
+- **Content.** Status sentence, checklist, fees with payees, steps with evidence. The agency is named as payee; the agent is never paid from the client's money, because Tenmina pays the agent itself.
+- **Actions.** Upload a missing document; see receipts; message Tenmina; change the representative.
 - **States.** Rejected by the agency: "(x) Rejected by the NIA on 12 Aug: passport photo out of date. We need a new photo from you by 19 Aug." Late: "The agency is late. New expected date 23 Sept. We are chasing." Complete: "Handed to Kofi A. on 10 Sept, signed for. Photo of the card >". Document wrong at check: "The card shows the wrong date of birth. Our agent has returned it to the agency."
-- **Rules.** Official fees to the agency's account only (RUL-22, FR-TSK-003). Each fee needs the client's approval for that step or a standing approval up to a monthly amount, plus its receipt and two Fidero approvals (RUL-11). Completion only on the checked document (FR-TSK-004). Fidero's charge is paid through the payment provider, not into the partner bank (FR-TSK-002). The agent is paid by Fidero once the document is checked, never from the client's money (FR-TSK-003, RUL-23, RUL-27).
+- **Rules.** Official fees to the agency's account only (RUL-22, FR-TSK-003). Each fee needs the client's approval for that step or a standing approval up to a monthly amount, plus its receipt and two Tenmina approvals (RUL-11). Completion only on the checked document (FR-TSK-004). Tenmina's charge is paid through the payment provider, not into the partner bank (FR-TSK-002). The agent is paid by Tenmina once the document is checked, never from the client's money (FR-TSK-003, RUL-23, RUL-27).
 - **Satisfies.** FR-TSK-002 to FR-TSK-005, RUL-11, RUL-22, RUL-23, J-12.
 
 ### W-35 Insurer product page · SCR-PTL-51
@@ -2071,7 +2071,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | |  Licensed insurer, NIC licence     | |
 | |  no. [TO VERIFY]                   | |
 | |  A policy from Sample Insurer.     | |
-| |  Fidero does not hold the risk.    | |
+| |  Tenmina does not hold the risk.    | |
 | +------------------------------------+ |
 | Family Health Plan (sample)            |
 | Covers: in-patient care, consultations,|
@@ -2081,24 +2081,24 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | wording (Sample Insurer) >             |
 | Premium   GHS 95.00 a month (sample)   |
 |   Paid to Sample Insurer Ghana Ltd,    |
-|   account ending 6610. Never to Fidero.|
+|   account ending 6610. Never to Tenmina.|
 | Claims     Decided and paid by Sample  |
-|   Insurer. Fidero helps you start one  |
+|   Insurer. Tenmina helps you start one  |
 |   and tracks the insurer's answer.     |
-| Fidero's role  We check the insurer is |
+| Tenmina's role  We check the insurer is |
 |   licensed, pass on your application   |
 |   and keep your policy documents.      |
-|   Fidero is not the insurer.           |
+|   Tenmina is not the insurer.           |
 | [ Apply with Sample Insurer ]          |
 | Insurance is regulated by the National |
 | Insurance Commission [TO VERIFY].      |
 +----------------------------------------+
 ```
 
-- **Content.** The insurer's name and licence first and largest (CMP-31). The fixed line "A policy from [insurer]. Fidero does not hold the risk." What is covered, what is not, the premium with its payee, how claims work, Fidero's role in three sentences.
+- **Content.** The insurer's name and licence first and largest (CMP-31). The fixed line "A policy from [insurer]. Tenmina does not hold the risk." What is covered, what is not, the premium with its payee, how claims work, Tenmina's role in three sentences.
 - **Actions.** Read the insurer's policy wording; apply (application is passed to the insurer); compare plans from other insurers if more than one partner.
 - **States.** No partner insurer in this country: page not shown; dashboard shows no insurance section. Application sent: "Sent to Sample Insurer on 3 Sept. The insurer decides within 5 working days (sample)." Declined by the insurer: shown with the insurer's reason and contact.
-- **Rules.** The insurer's name appears before Fidero's on the page (RUL-25). Premiums go to the insurer's account, never to Fidero: the client pays the insurer directly, or Partner Bank pays the insurer from money held for that purpose (FR-INS-002). No Fidero brand colour on the product name; the product is the insurer's.
+- **Rules.** The insurer's name appears before Tenmina's on the page (RUL-25). Premiums go to the insurer's account, never to Tenmina: the client pays the insurer directly, or Partner Bank pays the insurer from money held for that purpose (FR-INS-002). No Tenmina brand colour on the product name; the product is the insurer's.
 - **Satisfies.** FR-INS-001, FR-INS-002, RUL-25.
 
 ### W-36 Admin: country configuration · SCR-BO-29
@@ -2184,7 +2184,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | - The audit log of approvals   |
 |                                |
 | Still open:                    |
-| (!) Escrow FID-ESC-0091, held  |
+| (!) Escrow TMN-ESC-0091, held  |
 |     at Partner Bank. Your      |
 |     account closes when it     |
 |     ends. We will call you.    |
@@ -2197,7 +2197,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 
 - **Content.** Three plain lists: deleted, kept with reason and period, still open. Periods come from the retention rules (01 C5.2, `[TO VERIFY]` per Q-08).
 - **Actions.** Tick, enter the code where the user has a second factor, delete. "Cancel" goes back.
-- **States.** Nothing open: deletion starts at once; receipt "Request DEL-2027-0031 received. You are signed out." Something open: request recorded; the account closes to new orders; deletion completes when the open items end. Legal hold: "Some records are kept for a legal matter. We cannot say more here." In Fidero Field: "Photos you took for jobs stay with each job's record."
+- **States.** Nothing open: deletion starts at once; receipt "Request DEL-2027-0031 received. You are signed out." Something open: request recorded; the account closes to new orders; deletion completes when the open items end. Legal hold: "Some records are kept for a legal matter. We cannot say more here." In Tenmina Field: "Photos you took for jobs stay with each job's record."
 - **Rules.** Reachable in two taps from Account in both apps (store rules, C-14). No phone call required to delete. Silence is never approval: an open escrow is not cancelled by deleting an account.
 - **Satisfies.** FR-APP-004, FR-DPR-004, C-14.
 
@@ -2206,7 +2206,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 ```text
 +--------------------------------+
 |                                |
-|  Please update Fidero Field    |
+|  Please update Tenmina Field    |
 |                                |
 |  This version can no longer    |
 |  connect safely. Updating      |
@@ -2227,7 +2227,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 - **Rules.** The queue is never deleted by the update (FR-APP-006, FR-MOB-005).
 - **Satisfies.** FR-APP-006, FR-MOB-005.
 
-### W-40 Fidero Field: earnings · SCR-MOB-19
+### W-40 Tenmina Field: earnings · SCR-MOB-19
 
 ```text
 +----------------------------------------+
@@ -2238,17 +2238,17 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 |   Paid this month         GHS 2,100.00 |
 | +------------------------------------+ |
 | | Next payment run: Thu 27 May       | |
-| | Paid by Fidero, from its own       | |
+| | Paid by Tenmina, from its own       | |
 | | account, to your account ..4471    | |
 | +------------------------------------+ |
 | Jobs                                   |
-| Site visit, FDR-GH-2027-00042          |
+| Site visit, TMR-GH-2027-00042          |
 |   Accepted 14 May        GHS 450.00    |
 |   In payment run PAYRUN-GH-2027-014    |
-| Surveyor's section, FDR-GH-2027-00042  |
+| Surveyor's section, TMR-GH-2027-00042  |
 |   Accepted 17 May        GHS 600.00    |
 |   Due by 31 May                        |
-| Site visit, FDR-GH-2027-00051          |
+| Site visit, TMR-GH-2027-00051          |
 |   Accepted 20 May        GHS 300.00    |
 |   Held: we are checking the evidence   |
 |   on this job. Not about the result.   |
@@ -2257,10 +2257,10 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 +----------------------------------------+
 ```
 
-- **Content.** Month totals, the next payment run date, the account Fidero pays and "from its own account". Jobs by work type and reference, with amount and status. No verdict, result or risk colour anywhere (5.6b). The same content is SCR-BO-33 in the back office web app in R1 (DA-13).
+- **Content.** Month totals, the next payment run date, the account Tenmina pays and "from its own account". Jobs by work type and reference, with amount and status. No verdict, result or risk colour anywhere (5.6b). The same content is SCR-BO-33 in the back office web app in R1 (DA-13).
 - **Actions.** Open a job (SCR-MOB-20); claim an expense with a receipt photo (SCR-MOB-21); statements (SCR-MOB-22); see the rate card that applies.
 - **States.** Offline: "Shown from your last sync at 07:40." Held: the reason in plain words, never the result. Failed: "Your bank returned the payment on 27 May. We will pay it in the next run. Check your account details >". Empty: "No accepted jobs yet this month."
-- **Rules.** RUL-26: the amount is the same whatever the verdict. RUL-27: always "from Fidero's own account", never client money. A professional sees only their own pay.
+- **Rules.** RUL-26: the amount is the same whatever the verdict. RUL-27: always "from Tenmina's own account", never client money. A professional sees only their own pay.
 - **Satisfies.** FR-PRO-002, FR-PRO-003, FR-PRO-008, RUL-26, RUL-27.
 
 ### W-41 Back office: payment run approval · SCR-BO-40
@@ -2269,7 +2269,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 +------------------------------------------------------------------------------------+
 | Payment run PAYRUN-GH-2027-014   Ghana   Cut-off 27 May 2027 12:00 GMT  To approve |
 +------------------------------------------------------------------------------------+
-| Pay GHS 18,240.00 to 14 professionals from Fidero's operating account at Sample    |
+| Pay GHS 18,240.00 to 14 professionals from Tenmina's operating account at Sample    |
 | Bank, ending 0912. Not client money. Amounts are samples; tax [TO VERIFY] (Q-25)   |
 +------------------------------------------------------------------------------------+
 | Checks (all must pass)                                                             |
@@ -2301,7 +2301,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 - **Content.** One sentence: how much, to how many professionals, from which account, and "Not client money." The checks. One line per professional with gross, tax, expenses and net. Items left out, with reasons. Two slots: Prepared by and Approval. No verdict column (5.6b).
 - **Actions.** Approve with the second factor; return to the preparer with a comment; open any line; after approval, download the file (logged) and see its hash.
 - **States.** Viewer is the preparer: the approval area reads "You prepared this run. A different person with payment rights must approve it (FR-PRO-005)." Viewer has no payment rights: "You cannot approve payment runs." A payee changed after preparation: "Run returned to draft: K. Asare's bank details changed on 27 May. The account must be checked again." Confirmation imported: line outcomes (Confirmed, Failed with the bank's reason, Unconfirmed) and a link to SCR-BO-41.
-- **Rules.** RUL-27: the debit account is Fidero's operating account only, and every payee is a verified contracted professional (FR-PRO-006). RUL-26: no verdict or outcome is shown or used. The preparer can never approve.
+- **Rules.** RUL-27: the debit account is Tenmina's operating account only, and every payee is a verified contracted professional (FR-PRO-006). RUL-26: no verdict or outcome is shown or used. The preparer can never approve.
 - **Satisfies.** FR-PRO-005, FR-PRO-006, FR-PRO-007, RUL-26, RUL-27.
 
 ---
@@ -2329,11 +2329,11 @@ Every case, escrow, milestone, listing and dispute shows one status sentence at 
 | Recurring fee due | "Term 2 fees for Kofi and Yaw are due to Sample School by 5 January. Approve the payment by 29 December." |
 | Visit confirmed (J-10) | "Grace visited your mother on Tuesday from 09:02 to 10:15. Comfort confirmed the visit at 10:20." |
 | Visit unconfirmed | "Tuesday's visit is not yet confirmed. We have asked the family. The carer is not paid until it is." |
-| Visit under review | "Tuesday's visit is still not confirmed after 72 hours. A Fidero reviewer is checking the visit record and calling the family. The carer is paid only if the reviewer confirms it." |
-| Institution not eligible | "Sample Pharmacy cannot receive a bank transfer, so Fidero cannot pay it for you. We never pay in cash." |
+| Visit under review | "Tuesday's visit is still not confirmed after 72 hours. A Tenmina reviewer is checking the visit record and calling the family. The carer is paid only if the reviewer confirms it." |
+| Institution not eligible | "Sample Pharmacy cannot receive a bank transfer, so Tenmina cannot pay it for you. We never pay in cash." |
 | Visit missed | "The carer did not check in for Friday's visit. We called the family at 10:30 and are arranging another visit." |
 | Rent paid (J-11) | "August rent was paid by the tenant to your account at Partner Bank on 1 August." |
-| Rent late | "September rent is late. It was due on 1 September. Fidero contacted the tenant on 7 September." |
+| Rent late | "September rent is late. It was due on 1 September. Tenmina contacted the tenant on 7 September." |
 | Quote rejected | "You rejected both quotes on 8 August. New quotes expected by 15 August." |
 | Errand rejected (J-12) | "The agency rejected the application on 12 August: the passport photo is out of date. We need a new photo from you by 19 August." |
 | Errand complete | "Your Ghana Card was handed to Kofi A. on 10 September and signed for. The errand is complete." |
@@ -2343,8 +2343,8 @@ Rules:
 - One sentence for what happened, one for what next. Never more than 30 words in total.
 - Always a date. Use "expected" for estimates and "by" for deadlines.
 - Name the institution, not the person, for third parties (data minimisation, NFR-PRIV-02).
-- Never blame the client. Never guess at reasons Fidero does not know.
-- SMS and WhatsApp versions carry no report contents, no amounts above the threshold and no third-party personal data (FR-NTF-004). They say "There is an update on your case FID-2027-0142. Open the Fidero app or website to see it."
+- Never blame the client. Never guess at reasons Tenmina does not know.
+- SMS and WhatsApp versions carry no report contents, no amounts above the threshold and no third-party personal data (FR-NTF-004). They say "There is an update on your case TMN-2027-0142. Open the Tenmina app or website to see it."
 
 ### 5.2 Empty, loading, error and offline states
 
@@ -2397,7 +2397,7 @@ Verdicts are never colour alone (WCAG 1.4.1). Each uses a distinct **shape**, a 
 |---|---|---|---|
 | Green | Circle with a tick | GREEN | "No material issue found within scope. You may proceed, subject to the conditions listed." |
 | Amber | Triangle with "!" | AMBER | "Issues found that can be fixed before purchase. Do not pay the seller until they are fixed." |
-| Red | Octagon with a cross | RED | "A serious issue. Fidero advises you not to buy." |
+| Red | Octagon with a cross | RED | "A serious issue. Tenmina advises you not to buy." |
 
 - The verdict word is always written, including in tables and on small screens.
 - Icon shapes differ, so the verdict reads in greyscale and for colour-blind users.
@@ -2408,17 +2408,17 @@ Verdicts are never colour alone (WCAG 1.4.1). Each uses a distinct **shape**, a 
 ### 5.6 Money display
 
 - Always show the currency code before the amount: `USD 18,000.00`, `GHS 101,500.00` (DA-03). Two decimals for money. Thousands separated with commas.
-- Say who holds it: "held by Partner Bank", "paid to the contractor by Partner Bank". Never "your Fidero balance".
+- Say who holds it: "held by Partner Bank", "paid to the contractor by Partner Bank". Never "your Tenmina balance".
 - Guide conversions are marked "(guide only)" in smaller text and are never used in a button label.
 - Cedi re-pricing (RUL-18, FR-BLD-007) shows the agreed amount, the new amount, the change as amount and percentage, the reason, the source of the guide and its date, then the amount to pay now. The client ticks "I have seen the new price" before approving.
 - Amounts are not animated and do not count up.
 - SMS and WhatsApp never include amounts above the threshold (FR-NTF-004).
 - **Say who gets paid (RUL-22).** Every paid or planned payment on any line carries the payee line (CMP-30): `Paid to <payee>, account ending <nnnn>`, where the payee is the verified institution, supplier, vendor, professional, or the seller or developer named in a purchase escrow. Planned: `Will be paid to Komfo Anokye Teaching Hospital, account ending 4471`. Paid: `Paid to Komfo Anokye Teaching Hospital, account ending 4471, 15 Aug`. The payee is the verified organisation's registered name, never a person's name, never a relative, never "the carer" or "the agent". The exceptions are a licensed professional paid in their own name (lawyer, surveyor, inspector), shown with their licence number, and a seller paid in their own name in a purchase escrow.
-- **Not eligible for direct payment (FR-FEE-006, DA-10).** `Sample Pharmacy cannot receive a bank transfer, so Fidero cannot pay it for you. We never pay in cash.` Never offer another way to pay that institution through Fidero. A receipt a runner delivered says `Receipt delivered by a Fidero runner`.
-- **Rent (RUL-24).** `Paid by tenant to your account at Partner Bank, ending 8820`. The word "Fidero" never appears next to a rent amount except in the fixed line "Fidero never receives your rent."
-- **Amount held at the bank (FR-ESC-014, DA-08).** `Held at Partner Bank for you: GHS 1,150.00`. Never "balance", "wallet", "credit" or "your Fidero account".
-- **Insurance (RUL-25, FR-INS-002).** Premiums: `Paid to Sample Insurer Ghana Ltd, account ending 6610. Never to Fidero.` The route is stated: `You pay Sample Insurer directly` or `Partner Bank pays Sample Insurer from money held for this policy`. Claims: `Decided and paid by Sample Insurer.`
-- **Fidero's own charge.** Always a separate line labelled "Fidero's charge", with its own receipt, so a client can see what Fidero earned on any item (FR-PAY-003).
+- **Not eligible for direct payment (FR-FEE-006, DA-10).** `Sample Pharmacy cannot receive a bank transfer, so Tenmina cannot pay it for you. We never pay in cash.` Never offer another way to pay that institution through Tenmina. A receipt a runner delivered says `Receipt delivered by a Tenmina runner`.
+- **Rent (RUL-24).** `Paid by tenant to your account at Partner Bank, ending 8820`. The word "Tenmina" never appears next to a rent amount except in the fixed line "Tenmina never receives your rent."
+- **Amount held at the bank (FR-ESC-014, DA-08).** `Held at Partner Bank for you: GHS 1,150.00`. Never "balance", "wallet", "credit" or "your Tenmina account".
+- **Insurance (RUL-25, FR-INS-002).** Premiums: `Paid to Sample Insurer Ghana Ltd, account ending 6610. Never to Tenmina.` The route is stated: `You pay Sample Insurer directly` or `Partner Bank pays Sample Insurer from money held for this policy`. Claims: `Decided and paid by Sample Insurer.`
+- **Tenmina's own charge.** Always a separate line labelled "Tenmina's charge", with its own receipt, so a client can see what Tenmina earned on any item (FR-PAY-003).
 
 ### 5.6a Fixed lines for partner products and other lines
 
@@ -2426,13 +2426,13 @@ These sentences are locked text, held in translation files and changed only with
 
 | Line | Fixed text | Where |
 |---|---|---|
-| Insurer products (RUL-25) | "A policy from [insurer]. Fidero does not hold the risk." | Insurer product page (SCR-PTL-51), policy wallet (SCR-PTL-52), dashboard insurance cards, every email about a policy |
-| Insurer claims (RUL-25) | "[Insurer] decides and pays claims. Fidero helps you start a claim and tracks the insurer's answer." | SCR-PTL-52 |
-| Rent (RUL-24) | "Rent is paid by your tenant to your own account at [bank]. Fidero never receives your rent." | SCR-PTL-46, SCR-PTL-47, tenant view (SCR-PTL-54) |
-| Institution payments (RUL-22) | "Fidero pays the school, hospital or agency directly. Money never goes to a relative or a go-between." | SCR-PTL-39, SCR-PTL-40, Family section empty state |
+| Insurer products (RUL-25) | "A policy from [insurer]. Tenmina does not hold the risk." | Insurer product page (SCR-PTL-51), policy wallet (SCR-PTL-52), dashboard insurance cards, every email about a policy |
+| Insurer claims (RUL-25) | "[Insurer] decides and pays claims. Tenmina helps you start a claim and tracks the insurer's answer." | SCR-PTL-52 |
+| Rent (RUL-24) | "Rent is paid by your tenant to your own account at [bank]. Tenmina never receives your rent." | SCR-PTL-46, SCR-PTL-47, tenant view (SCR-PTL-54) |
+| Institution payments (RUL-22) | "Tenmina pays the school, hospital or agency directly. Money never goes to a relative or a go-between." | SCR-PTL-39, SCR-PTL-40, Family section empty state |
 | Care visits (RUL-23) | "The carer is paid only for visits the family confirms." | SCR-PTL-43, SCR-PTL-44, SCR-MOB-16 |
-| Errands (RUL-23, RUL-27) | "Official fees go to the agency. Fidero's charge is paid to Fidero when you order. Fidero pays its agent itself, never from your money." | SCR-PTL-49, SCR-PTL-50 |
-| Project funds and events (RUL-21, RUL-22) | "Suppliers and vendors are paid directly against invoices. Fidero confirms the money was spent as agreed. It does not judge whether the plan will succeed." | SCR-PTL-30, SCR-PTL-53 |
+| Errands (RUL-23, RUL-27) | "Official fees go to the agency. Tenmina's charge is paid to Tenmina when you order. Tenmina pays its agent itself, never from your money." | SCR-PTL-49, SCR-PTL-50 |
+| Project funds and events (RUL-21, RUL-22) | "Suppliers and vendors are paid directly against invoices. Tenmina confirms the money was spent as agreed. It does not judge whether the plan will succeed." | SCR-PTL-30, SCR-PTL-53 |
 | Country (B2.9) | "Showing your things in [country]. Prices in [currency]." | Dashboard header when the client has more than one country |
 
 The errands line changed in v0.5 to follow FR-TSK-002 and FR-TSK-003 in 01 v0.8. It needs the lawyer's agreement before it ships.
@@ -2441,23 +2441,23 @@ The errands line changed in v0.5 to follow FR-TSK-002 and FR-TSK-003 in 01 v0.8.
 
 These rules apply to My pay (SCR-BO-33 to SCR-BO-36, SCR-MOB-19 to SCR-MOB-22) and to the staff screens SCR-BO-37 to SCR-BO-41.
 
-- **No verdict next to pay (RUL-26).** A job is named by its work type and reference: "Surveyor's section, FDR-GH-2027-00042", "Inspection, milestone 3, BLD-2027-0012". Never its verdict, inspection result, risk colour or a report finding, and never a verdict icon (5.5). A red report and a green report look the same on an earnings screen. Staff pay screens have no verdict column either.
-- **Say whose money (RUL-27).** "Paid by Fidero from its own account to your account ending 4471." Never "paid by the client", "from escrow" or "from money held at Partner Bank".
+- **No verdict next to pay (RUL-26).** A job is named by its work type and reference: "Surveyor's section, TMR-GH-2027-00042", "Inspection, milestone 3, BLD-2027-0012". Never its verdict, inspection result, risk colour or a report finding, and never a verdict icon (5.5). A red report and a green report look the same on an earnings screen. Staff pay screens have no verdict column either.
+- **Say whose money (RUL-27).** "Paid by Tenmina from its own account to your account ending 4471." Never "paid by the client", "from escrow" or "from money held at Partner Bank".
 - **Status words.** Accepted, In a payment run, Paid, Held, Failed. Failed always says what happens next: "Your bank returned this payment. We will pay it in the next run." Due dates say "Due by 30 May" with the rule in small text: "10 working days after acceptance (assumption)".
 - **Held.** The reason in plain words, never a result: "Held while we check the evidence on this job. This is not about the report's result." or "Held until your bank account is checked again."
 - **Tax.** Gross, tax withheld and net on every payable, remittance advice and statement, with the rule named from the country configuration: "Withholding tax [rate] `[TO VERIFY]`" (Q-25).
-- **Expenses.** The limit shows before the claim is sent: "Up to GHS 300.00 without a second approval (sample)." Without a receipt: "No receipt: a second Fidero staff member must approve this claim."
+- **Expenses.** The limit shows before the claim is sent: "Up to GHS 300.00 without a second approval (sample)." Without a receipt: "No receipt: a second Tenmina staff member must approve this claim."
 - **Nothing about other people's pay.** A professional sees only their own pay (01 C2). Staff screens list pay only for the country they work in.
 
 ### 5.7 Voice and tone
 
-Fidero sounds like a calm, careful professional who is on the client's side.
+Tenmina sounds like a calm, careful professional who is on the client's side.
 
 | Do | Don't |
 |---|---|
 | "We found two missing pillars." | "Unfortunately, it appears that some discrepancies may have been identified." |
 | "Do not pay the seller yet." | "We would recommend that you consider delaying payment." |
-| "The bank holds your money." | "Your funds are safely secured in our escrow." (Fidero holds nothing) |
+| "The bank holds your money." | "Your funds are safely secured in our escrow." (Tenmina holds nothing) |
 | "Fresh search" with a one-line explanation on first use | Legal shorthand without explanation |
 | "Seller", "family head", "Lands Commission" | Internal names: "Task 5", "Overlay layer v3" |
 
@@ -2469,7 +2469,7 @@ Reading age 12 (NFR-USE-02): sentences under 20 words, everyday words, active vo
 
 ### 6.1 Brand direction
 
-Name: **Fidero**. Values: trust and evidence.
+Name: **Tenmina**. Values: trust and evidence.
 
 The verdict colours are red, amber and green. So are the colours of the Ghana flag and of kente cloth. The brand therefore avoids them entirely, which also avoids the obvious cliché. The palette draws on two materials tied to the work:
 
@@ -2477,11 +2477,11 @@ The verdict colours are red, amber and green. So are the colours of the Ghana fl
 - **Laterite**, the red-brown earth of Ghana's plots and roads. Used sparingly for the brand mark and illustrations only, never on controls or status, so it is never confused with a red verdict.
 - **Sand** neutrals. Warm off-white backgrounds instead of cold grey, easier on low-quality screens in bright light.
 
-The wordmark is "Fidero" set in the system sans at semi-bold. A simple mark: a square plot outline with a tick through one corner, standing for "checked land". No shields with locks, no handshakes, no padlocks on houses.
+The wordmark is "Tenmina" set in the system sans at semi-bold. A simple mark: a square plot outline with a tick through one corner, standing for "checked land". No shields with locks, no handshakes, no padlocks on houses.
 
 ### 6.1a Bloc: all four front ends (from v0.6)
 
-The founder chose Bloc for the client app Fidero on 12 November 2026, from four directions on the design canvas (Pulse, Lime, Clarity, Bloc), the same day for the portal and Fidero Field (v0.7) and for the back office (v0.8). Sections 6.1 and 6.2 below 6.1d are the earlier direction, kept as a record; where they differ, 6.1a to 6.1d win. The mockups are at `docs/specs/03-mockups/bloc/`. Code: `packages/tokens` (version 3), shared by both apps, and `apps/client`. The prototype (`03-prototype/index.html`) shows the portal in Bloc.
+The founder chose Bloc for the client app Tenmina on 12 November 2026, from four directions on the design canvas (Pulse, Lime, Clarity, Bloc), the same day for the portal and Tenmina Field (v0.7) and for the back office (v0.8). Sections 6.1 and 6.2 below 6.1d are the earlier direction, kept as a record; where they differ, 6.1a to 6.1d win. The mockups are at `docs/specs/03-mockups/bloc/`. Code: `packages/tokens` (version 3), shared by both apps, and `apps/client`. The prototype (`03-prototype/index.html`) shows the portal in Bloc.
 
 **Grounds.** Every screen is black (`ink #0B0B0B`) or white (`paper #FFFFFF`). Tabs that list things (Home, Property, Family, Projects) are white. Screens where money moves or evidence is read (approvals, the report, Account) are black. In system dark mode every screen is black.
 
@@ -2507,7 +2507,7 @@ The earlier rule that the brand avoids red, amber and green (6.1) still holds in
 
 **Motion.** Content rises into place in a short stagger (about 0.5 s). The first account card tilts up into place and the second slides in. The seal turns once every 24 seconds. The current step and "Needs you" items pulse softly in orange. The hold button fills. Nothing needs motion to be understood, and every animation stops when the phone asks for reduced motion.
 
-**The welcome screen.** The mockup uses a photograph of a client. The app shows a lime block with the seal until Fidero holds a licence for a photograph for the app and the store pages (DQ-22).
+**The welcome screen.** The mockup uses a photograph of a client. The app shows a lime block with the seal until Tenmina holds a licence for a photograph for the app and the store pages (DQ-22).
 
 ### 6.1b Bloc in the portal (web)
 
@@ -2528,7 +2528,7 @@ The portal uses the same colours, type and components as the client app, as CSS 
 - **Laptop layout.** The same blocks in a two-column grid from `lg` (900 px): account cards and "Needs you" on the left, cases and family on the right. The top bar is black with the current section as a lime block.
 - **Unchanged.** Information architecture, flows, wireframes, content rules and accessibility rules in sections 2 to 5 and 7.
 
-### 6.1c Bloc in Fidero Field
+### 6.1c Bloc in Tenmina Field
 
 The same rules, tuned for people working outside on a cheap phone in strong sun.
 
@@ -2649,38 +2649,38 @@ Each component lists its states, usage rules, accessibility notes, its React Nat
 
 | ID | Component | States and variants | Usage rules | Accessibility | App component (React Native, iOS and Android) | Compose reference |
 |---|---|---|---|---|---|---|
-| CMP-01 | Button | Primary, secondary, quiet, danger. Default, hover, focus, pressed, disabled, loading | One primary per screen. Label is a verb plus object ("Pay USD 450.00"). Disabled buttons show the reason next to them. | Native `<button>`. Focus ring 3 px `--color-focus` with 2 px offset. Loading keeps the label for screen readers ("Paying"). | `FideroButton` on `Pressable`; ripple on Android, highlight on iOS | `Button`, `OutlinedButton`, `TextButton` with `FideroTheme` colours |
-| CMP-02 | Text input | Default, focus, filled, error, disabled, read only. With hint, prefix (country code) | Label above, always visible. Hint below label. Error below field. | `<label for>`; `aria-describedby` for hint and error; `autocomplete` set; errors announced via error summary. | `FideroTextField` on `TextInput`; label above on both platforms | `OutlinedTextField` with `supportingText`, `isError` |
-| CMP-03 | Radio card and select | Default, selected, focus, disabled | Use radio cards for 2 to 5 options with prices or explanations. Select for long lists. | Native radio group with `<fieldset>` and `<legend>`. | `FideroRadioCard` with `accessibilityRole="radio"` | `Row` with `RadioButton` and `Modifier.selectable` |
-| CMP-04 | File upload | Empty, uploading with progress, scanned OK, rejected, retry | Show size limit and allowed types. Show a thumbnail and file name. Resumable on poor connections. | Native file input with visible label. Progress in `role="progressbar"` with value text. | `FideroFilePicker` with the system document picker or camera; client app only, never in Fidero Field evidence flows (RUL-08) | Not used for evidence (RUL-08); `ActivityResultContracts` for portal-like uploads only |
-| CMP-05 | Stepper | Step done, current, to do; with error | 3 to 5 steps. Labels short ("Plot"). Back never loses data. | `<ol>` with `aria-current="step"`; "Step 2 of 4" in text. | `FideroStepper` | Custom `Row` of steps with `semantics { stateDescription }` |
-| CMP-06 | Status timeline | Done (date), current (expected date), to do, late, paused, blocked | Status sentence on top, then the timeline. Done steps show actual dates. | `<ol>`; each item says its state in words ("Done", "Expected"). | `FideroTimeline` in a `FlatList` | `LazyColumn` items with icon and text |
-| CMP-07 | Verdict badge | Green, amber, red. Sizes: small (tables), medium (cards), large (report cover) | Always icon plus word. Large size adds the meaning line. | Text is real text. Icon `aria-hidden`. | `FideroVerdictBadge` | `FideroVerdictBadge(verdict, size)` |
-| CMP-08 | Condition checklist | Open, closed with evidence, overdue, not applicable (with reason) | Each item shows owner, due date, closing evidence link and closed date. | `<ul>` with state words; not interactive checkboxes for clients. | `FideroConditionList` | `Column` of `ListItem` with leading icon |
-| CMP-09 | Evidence thumbnail | Photo, video, document. Captured in app, uploaded, flagged, pending upload | Shows capture time, server time, position check, "Captured in app" or "Uploaded", hash (short). Tap opens full view with metadata. | Alt text built from metadata ("Photo, foundation trench, 14 Aug 10:02 GMT, on plot"). | `FideroEvidenceThumb`; `accessibilityLabel` from metadata | `AsyncImage` with overlay `Text`; `contentDescription` from metadata |
-| CMP-10 | Approval card | 0 of 2, 1 of 2, 2 of 2, blocked, reset, read only (client view) | See section 5.4. | Each slot is a list item with name and time; button only for eligible user. | `FideroApprovalCard` | `Card` with two `ListItem` slots |
+| CMP-01 | Button | Primary, secondary, quiet, danger. Default, hover, focus, pressed, disabled, loading | One primary per screen. Label is a verb plus object ("Pay USD 450.00"). Disabled buttons show the reason next to them. | Native `<button>`. Focus ring 3 px `--color-focus` with 2 px offset. Loading keeps the label for screen readers ("Paying"). | `TenminaButton` on `Pressable`; ripple on Android, highlight on iOS | `Button`, `OutlinedButton`, `TextButton` with `TenminaTheme` colours |
+| CMP-02 | Text input | Default, focus, filled, error, disabled, read only. With hint, prefix (country code) | Label above, always visible. Hint below label. Error below field. | `<label for>`; `aria-describedby` for hint and error; `autocomplete` set; errors announced via error summary. | `TenminaTextField` on `TextInput`; label above on both platforms | `OutlinedTextField` with `supportingText`, `isError` |
+| CMP-03 | Radio card and select | Default, selected, focus, disabled | Use radio cards for 2 to 5 options with prices or explanations. Select for long lists. | Native radio group with `<fieldset>` and `<legend>`. | `TenminaRadioCard` with `accessibilityRole="radio"` | `Row` with `RadioButton` and `Modifier.selectable` |
+| CMP-04 | File upload | Empty, uploading with progress, scanned OK, rejected, retry | Show size limit and allowed types. Show a thumbnail and file name. Resumable on poor connections. | Native file input with visible label. Progress in `role="progressbar"` with value text. | `TenminaFilePicker` with the system document picker or camera; client app only, never in Tenmina Field evidence flows (RUL-08) | Not used for evidence (RUL-08); `ActivityResultContracts` for portal-like uploads only |
+| CMP-05 | Stepper | Step done, current, to do; with error | 3 to 5 steps. Labels short ("Plot"). Back never loses data. | `<ol>` with `aria-current="step"`; "Step 2 of 4" in text. | `TenminaStepper` | Custom `Row` of steps with `semantics { stateDescription }` |
+| CMP-06 | Status timeline | Done (date), current (expected date), to do, late, paused, blocked | Status sentence on top, then the timeline. Done steps show actual dates. | `<ol>`; each item says its state in words ("Done", "Expected"). | `TenminaTimeline` in a `FlatList` | `LazyColumn` items with icon and text |
+| CMP-07 | Verdict badge | Green, amber, red. Sizes: small (tables), medium (cards), large (report cover) | Always icon plus word. Large size adds the meaning line. | Text is real text. Icon `aria-hidden`. | `TenminaVerdictBadge` | `TenminaVerdictBadge(verdict, size)` |
+| CMP-08 | Condition checklist | Open, closed with evidence, overdue, not applicable (with reason) | Each item shows owner, due date, closing evidence link and closed date. | `<ul>` with state words; not interactive checkboxes for clients. | `TenminaConditionList` | `Column` of `ListItem` with leading icon |
+| CMP-09 | Evidence thumbnail | Photo, video, document. Captured in app, uploaded, flagged, pending upload | Shows capture time, server time, position check, "Captured in app" or "Uploaded", hash (short). Tap opens full view with metadata. | Alt text built from metadata ("Photo, foundation trench, 14 Aug 10:02 GMT, on plot"). | `TenminaEvidenceThumb`; `accessibilityLabel` from metadata | `AsyncImage` with overlay `Text`; `contentDescription` from metadata |
+| CMP-10 | Approval card | 0 of 2, 1 of 2, 2 of 2, blocked, reset, read only (client view) | See section 5.4. | Each slot is a list item with name and time; button only for eligible user. | `TenminaApprovalCard` | `Card` with two `ListItem` slots |
 | CMP-11 | Data table | Default, sortable, selectable rows, loading, empty | Back office only. Phone: becomes stacked cards. Sticky header. | `<table>` with `<th scope>`; sort state in `aria-sort`. | Not used; stacked cards in a `FlatList` | `LazyColumn` (no tables in app) |
 | CMP-12 | Map panel | Static image, interactive, layer legend, error | Static map image first; interactive map on tap. Legend uses pattern and label, not colour alone. | Text summary always next to the map ("Plot is 120 m from the road reserve"). Zoom and pan buttons, no drag needed (WCAG 2.5.7). | Static map image; no interactive map in R2 | Static image in app; no interactive map in R2 |
-| CMP-13 | Offline banner | Offline, back online (auto-hides after 4 s), sending (n of m), failed item | Top of screen, does not cover content. Shows queue count in the app. | `role="status"`, polite. Not focus-stealing. | `FideroOfflineBanner` driven by network state and the shared upload queue | `Surface` banner driven by `ConnectivityManager` and the WorkManager queue |
-| CMP-14 | Toast | Success, info, with undo | Only for results of the user's own action. Not for errors that need action. Lasts 8 s; pauses on hover or focus. | `role="status"`. Undo is a real button reachable by keyboard. | `FideroToast` above the tab bar on both platforms | `SnackbarHost` |
-| CMP-15 | Modal dialog | Confirm, form, blocking error | Only for irreversible confirmation (section 5.3). Never for marketing. | Focus moves in and is trapped; Escape closes when safe; returns focus. Not obscured by sticky bars (WCAG 2.4.11). | Native alert for short confirms; `FideroSheet` for confirms with ticks and a code (iOS sheet, Android bottom or full-screen sheet) | `AlertDialog` |
-| CMP-16 | Empty state | First use, filtered, done | Short sentence, one action. No large images (page weight). | Heading plus text plus button. | `FideroEmptyState` | `Column` with `Text` and `Button` |
-| CMP-17 | Money | Amount, guide, held-by line, change (old to new) | Section 5.6. | Code read as words via `aria-label` ("18,000 US dollars"). | `FideroMoney` | `FideroMoney(amount, currency, holder)` |
-| CMP-18 | Date and time | Date, date and time, expected, deadline | "12 March 2027"; times "14:05 GMT" plus local time for users abroad. | `<time datetime>`. | `FideroDate` using `Intl.DateTimeFormat` | `Text` with `java.time` formatter |
-| CMP-19 | Hash display | Full, short, copied, match, no match | Monospace, groups of 4, copy button, check button. | Copy result announced. | `FideroHash` with copy to the system clipboard | `SelectionContainer` with mono `Text` |
-| CMP-20 | Inline alert | Info, warning, error, success, locked | Inside content near its cause. | `role="alert"` only for new errors after submit. | `FideroInlineAlert` | `Surface` with icon and `Text` |
-| CMP-21 | Skeleton | Text lines, card, table row | Only after 1 s. Matches final layout to avoid shift. | `aria-busy="true"` on the region. | `FideroSkeleton`; no shimmer under Reduce Motion or Remove animations | Placeholder `Box` with shimmer off under reduced motion |
-| CMP-22 | Tabs and segmented control | List or map; sections of a case | 2 to 5 options. | ARIA tabs pattern with arrow keys. | `FideroSegmented`: segmented control styling on iOS, tabs styling on Android | `TabRow` |
-| CMP-23 | Fidero Verified badge | Valid, expiring in 14 days, expired, suspended | Always with check date; expiry on detail page; links to the report. Never shown on a listing that is not Live. | Text label, not an image. | `FideroVerifiedBadge` | `FideroVerifiedBadge(state, checkedOn, validUntil)` |
-| CMP-24 | One-time code input | Empty, typing, error, expired, resend timer | One field, not 6 boxes; numeric keyboard; paste allowed. | `autocomplete="one-time-code"`; timer not announced every second. | `FideroCodeInput` with one-time code autofill on iOS and SMS code autofill on Android | `OutlinedTextField` with `KeyboardType.NumberPassword` |
-| CMP-25 | Statement row | Payment out, payment in, Fidero's charge, pending, receipt delivered by runner, receipt missing | Date, payee line (CMP-30), reference, signed amount, receipt link. Newest first. Line for the amount held at the bank after each month. Used for family-member statements, amounts held at the bank, project funds and events. | `<table>` on laptop, stacked list on phone; amount has `aria-label` with the full currency name; sign read as "paid" or "received". | `FideroStatementRow` in a `FlatList` | `LazyColumn` of `ListItem` with trailing `FideroMoney` |
-| CMP-26 | Institution card | Verified (with date), Checking (with expected date), Not verified (with reason), Re-verifying, Suspended | Name, type, town, what was checked, account ending, contact role. Verified status is word plus tick icon, never a colour alone. A card that is not Verified has no "pay" action. | Status is the first text in the card; `aria-describedby` links the reason. | `FideroInstitutionCard` | `Card` with `FideroStatusChip` |
-| CMP-27 | Visit card | Planned, Checked in, Checked out awaiting confirmation, Confirmed, Disputed, Missed, Late | Carer first name, planned window, check-in and check-out times with "at address" or distance, plan items done of total, photo thumbnails (CMP-09), confirmation line ("Confirmed by Comfort, 10:20"). | List item with a summary sentence for screen readers ("Visit Tuesday, confirmed, 09:02 to 10:15"). | `FideroVisitCard` | `Card` with `Row` of times and `FlowRow` of thumbnails |
+| CMP-13 | Offline banner | Offline, back online (auto-hides after 4 s), sending (n of m), failed item | Top of screen, does not cover content. Shows queue count in the app. | `role="status"`, polite. Not focus-stealing. | `TenminaOfflineBanner` driven by network state and the shared upload queue | `Surface` banner driven by `ConnectivityManager` and the WorkManager queue |
+| CMP-14 | Toast | Success, info, with undo | Only for results of the user's own action. Not for errors that need action. Lasts 8 s; pauses on hover or focus. | `role="status"`. Undo is a real button reachable by keyboard. | `TenminaToast` above the tab bar on both platforms | `SnackbarHost` |
+| CMP-15 | Modal dialog | Confirm, form, blocking error | Only for irreversible confirmation (section 5.3). Never for marketing. | Focus moves in and is trapped; Escape closes when safe; returns focus. Not obscured by sticky bars (WCAG 2.4.11). | Native alert for short confirms; `TenminaSheet` for confirms with ticks and a code (iOS sheet, Android bottom or full-screen sheet) | `AlertDialog` |
+| CMP-16 | Empty state | First use, filtered, done | Short sentence, one action. No large images (page weight). | Heading plus text plus button. | `TenminaEmptyState` | `Column` with `Text` and `Button` |
+| CMP-17 | Money | Amount, guide, held-by line, change (old to new) | Section 5.6. | Code read as words via `aria-label` ("18,000 US dollars"). | `TenminaMoney` | `TenminaMoney(amount, currency, holder)` |
+| CMP-18 | Date and time | Date, date and time, expected, deadline | "12 March 2027"; times "14:05 GMT" plus local time for users abroad. | `<time datetime>`. | `TenminaDate` using `Intl.DateTimeFormat` | `Text` with `java.time` formatter |
+| CMP-19 | Hash display | Full, short, copied, match, no match | Monospace, groups of 4, copy button, check button. | Copy result announced. | `TenminaHash` with copy to the system clipboard | `SelectionContainer` with mono `Text` |
+| CMP-20 | Inline alert | Info, warning, error, success, locked | Inside content near its cause. | `role="alert"` only for new errors after submit. | `TenminaInlineAlert` | `Surface` with icon and `Text` |
+| CMP-21 | Skeleton | Text lines, card, table row | Only after 1 s. Matches final layout to avoid shift. | `aria-busy="true"` on the region. | `TenminaSkeleton`; no shimmer under Reduce Motion or Remove animations | Placeholder `Box` with shimmer off under reduced motion |
+| CMP-22 | Tabs and segmented control | List or map; sections of a case | 2 to 5 options. | ARIA tabs pattern with arrow keys. | `TenminaSegmented`: segmented control styling on iOS, tabs styling on Android | `TabRow` |
+| CMP-23 | Tenmina Verified badge | Valid, expiring in 14 days, expired, suspended | Always with check date; expiry on detail page; links to the report. Never shown on a listing that is not Live. | Text label, not an image. | `TenminaVerifiedBadge` | `TenminaVerifiedBadge(state, checkedOn, validUntil)` |
+| CMP-24 | One-time code input | Empty, typing, error, expired, resend timer | One field, not 6 boxes; numeric keyboard; paste allowed. | `autocomplete="one-time-code"`; timer not announced every second. | `TenminaCodeInput` with one-time code autofill on iOS and SMS code autofill on Android | `OutlinedTextField` with `KeyboardType.NumberPassword` |
+| CMP-25 | Statement row | Payment out, payment in, Tenmina's charge, pending, receipt delivered by runner, receipt missing | Date, payee line (CMP-30), reference, signed amount, receipt link. Newest first. Line for the amount held at the bank after each month. Used for family-member statements, amounts held at the bank, project funds and events. | `<table>` on laptop, stacked list on phone; amount has `aria-label` with the full currency name; sign read as "paid" or "received". | `TenminaStatementRow` in a `FlatList` | `LazyColumn` of `ListItem` with trailing `TenminaMoney` |
+| CMP-26 | Institution card | Verified (with date), Checking (with expected date), Not verified (with reason), Re-verifying, Suspended | Name, type, town, what was checked, account ending, contact role. Verified status is word plus tick icon, never a colour alone. A card that is not Verified has no "pay" action. | Status is the first text in the card; `aria-describedby` links the reason. | `TenminaInstitutionCard` | `Card` with `TenminaStatusChip` |
+| CMP-27 | Visit card | Planned, Checked in, Checked out awaiting confirmation, Confirmed, Disputed, Missed, Late | Carer first name, planned window, check-in and check-out times with "at address" or distance, plan items done of total, photo thumbnails (CMP-09), confirmation line ("Confirmed by Comfort, 10:20"). | List item with a summary sentence for screen readers ("Visit Tuesday, confirmed, 09:02 to 10:15"). | `TenminaVisitCard` | `Card` with `Row` of times and `FlowRow` of thumbnails |
 | CMP-28 | Confirmation code entry | Empty, typing, match, no match, expired, answered | Six large digit cells on the family's page (SCR-PTL-45). Never shown on the carer's phone. 20 px text, 56 px targets. Two buttons: confirm, deny. | Single input with `inputmode="numeric"`, `autocomplete="off"`; result in `role="status"`. | Not in either app; the family side is web (SCR-PTL-45) and the carer never sees the code | `OutlinedTextField` on the carer side only; the family side is web |
-| CMP-29 | Country selector | Default from phone number country, chosen, single country (read only), adding a second country | List of open countries with flag-free text labels ("Ghana · GHS"), a short line on what changes (currency, calendar, partners). Shown at onboarding and in Account. Never a free-text field. | Native `<select>` or radio group; the consequence line is `aria-describedby`. | `FideroCountryPicker` in Account: list sheet on iOS, dropdown on Android | `ExposedDropdownMenuBox` in the app's account screen |
-| CMP-30 | Payee line | Planned, paid, blocked, not eligible | "Paid to [name], account ending [nnnn]" per section 5.6. Sits directly above any approve button and on every statement row. Blocked variant: "Cannot be paid: account not in the institution's name." Not eligible variant: "Cannot be paid: this institution cannot receive a bank transfer." | Plain text; the account digits are read as digits. | `FideroPayee` | `Text` composed by `FideroPayee(name, last4, state)` |
-| CMP-31 | Partner notice | Insurer, bank, agency | Fixed-text panel from section 5.6a with the partner's name first and larger than Fidero's. No Fidero brand colour on the partner's product name. | `<aside aria-label="About this partner">`. | `FideroPartnerNotice` | `Surface` with partner `Text` at `--text-xl` |
-| CMP-32 | Dashboard section | Property, Family, Projects and errands; collapsed, expanded, empty (hidden), with items needing action | Heading with count and "See" link; items needing the client first, each with "!" and a word; status sentence per item (CMP-06 pattern); at most 3 items shown, then "See all". | `<section>` with `<h2>`; counts in text. | `FideroDashboardSection` in a `SectionList` with sticky headers | `LazyColumn` section with sticky header |
+| CMP-29 | Country selector | Default from phone number country, chosen, single country (read only), adding a second country | List of open countries with flag-free text labels ("Ghana · GHS"), a short line on what changes (currency, calendar, partners). Shown at onboarding and in Account. Never a free-text field. | Native `<select>` or radio group; the consequence line is `aria-describedby`. | `TenminaCountryPicker` in Account: list sheet on iOS, dropdown on Android | `ExposedDropdownMenuBox` in the app's account screen |
+| CMP-30 | Payee line | Planned, paid, blocked, not eligible | "Paid to [name], account ending [nnnn]" per section 5.6. Sits directly above any approve button and on every statement row. Blocked variant: "Cannot be paid: account not in the institution's name." Not eligible variant: "Cannot be paid: this institution cannot receive a bank transfer." | Plain text; the account digits are read as digits. | `TenminaPayee` | `Text` composed by `TenminaPayee(name, last4, state)` |
+| CMP-31 | Partner notice | Insurer, bank, agency | Fixed-text panel from section 5.6a with the partner's name first and larger than Tenmina's. No Tenmina brand colour on the partner's product name. | `<aside aria-label="About this partner">`. | `TenminaPartnerNotice` | `Surface` with partner `Text` at `--text-xl` |
+| CMP-32 | Dashboard section | Property, Family, Projects and errands; collapsed, expanded, empty (hidden), with items needing action | Heading with count and "See" link; items needing the client first, each with "!" and a word; status sentence per item (CMP-06 pattern); at most 3 items shown, then "See all". | `<section>` with `<h2>`; counts in text. | `TenminaDashboardSection` in a `SectionList` with sticky headers | `LazyColumn` section with sticky header |
 
 ---
 
@@ -2688,9 +2688,9 @@ Each component lists its states, usage rules, accessibility notes, its React Nat
 
 ### 7.1 WCAG 2.2 AA checklist mapped to components
 
-NFR-A11Y-01 (01 v0.6) requires WCAG 2.2 AA on the portal and back office from R1 and on both mobile apps, Fidero and Fidero Field, from R2, using Android's and Apple's accessibility guidance. The family confirmation page (SCR-PTL-45) is held to the same bar with larger text and targets, because its users are often elderly. Each item is tested in document 05.
+NFR-A11Y-01 (01 v0.6) requires WCAG 2.2 AA on the portal and back office from R1 and on both mobile apps, Tenmina and Tenmina Field, from R2, using Android's and Apple's accessibility guidance. The family confirmation page (SCR-PTL-45) is held to the same bar with larger text and targets, because its users are often elderly. Each item is tested in document 05.
 
-| SC | Requirement | How Fidero meets it | Components and screens |
+| SC | Requirement | How Tenmina meets it | Components and screens |
 |---|---|---|---|
 | 1.1.1 Non-text content | Text alternatives | Evidence alt text built from metadata; decorative icons hidden | CMP-09, CMP-07, CMP-12 |
 | 1.3.1 Info and relationships | Structure in code | Real headings, lists, tables, fieldsets | CMP-03, CMP-05, CMP-06, CMP-11 |
@@ -2799,11 +2799,11 @@ File: `docs/specs/03-prototype/index.html`. One self-contained HTML file. No bui
 |---|---|---|
 | H. Home dashboard (F-35) | One screen with the country (Ghana), sections for Property, Family, and Projects and errands, sample items with status sentences, the amount held at the bank, and links into the other flows. First in the switcher and the screen the prototype opens on | SCR-PTL-36 |
 | A. Order a report (J-01) | What to check → the plot → documents → check and agree → pay → payment confirmed → case tracker → released report with verdict and hash check | SCR-PTL-06 to 12, SCR-PTL-14 |
-| B. Escrow (J-02) | Escrow tracker with conditions closing, fresh search, the client's own approval with a code, and Fidero approvals 1 of 2; bank instructions panel | SCR-PTL-17, SCR-PTL-18 |
+| B. Escrow (J-02) | Escrow tracker with conditions closing, fresh search, the client's own approval with a code, and Tenmina approvals 1 of 2; bank instructions panel | SCR-PTL-17, SCR-PTL-18 |
 | C. Back office release | Two-person release approval with gates (including "client approved"), second-factor field, and a switch to see the screen as approver 1 | SCR-BO-12 |
-| D. Listings (J-04) | Search with list and map views → listing detail with Fidero Verified badge, check date, expiry and report link; one expired example | SCR-PTL-26, SCR-PTL-27 |
+| D. Listings (J-04) | Search with list and map views → listing detail with Tenmina Verified badge, check date, expiry and report link; one expired example | SCR-PTL-26, SCR-PTL-27 |
 | E. Build dashboard (J-03) | Budget against actual, milestone list, photo timeline placeholders, re-pricing note | SCR-PTL-22, SCR-PTL-23 (summary) |
-| F. Fidero Field (iOS and Android) | Phone frame with evidence checklist, offline banner and upload queue; a switch to go online and watch the queue send | SCR-MOB-04, SCR-MOB-07, SCR-MOB-08 |
+| F. Tenmina Field (iOS and Android) | Phone frame with evidence checklist, offline banner and upload queue; a switch to go online and watch the queue send | SCR-MOB-04, SCR-MOB-07, SCR-MOB-08 |
 | G. Family: pay a hospital bill (J-09) | Kwabena's view: verified institution card → invoice sent by the hospital, with the three checks and a mismatch state to try → approve with a code, payee named → paid to the institution → receipt and family-member statement | SCR-PTL-39, SCR-PTL-40, SCR-PTL-42 |
 
 How to use it:
@@ -2839,9 +2839,9 @@ Tasks:
 | T2 Read status | "Your case has moved on. What is happening and when will you hear next?" | States the step and the next date correctly |
 | T3 Understand the verdict | "Your report is ready. Should you pay the seller now? Why?" | For amber: says not yet, names at least one condition |
 | T4 Check the report file | "Check that the PDF you downloaded is the real one." | Finds and completes the hash check |
-| T5 Where does the money go | "You are ready to pay for the plot. Who do you pay?" | Names the partner bank, not Fidero (critical, RUL-01) |
+| T5 Where does the money go | "You are ready to pay for the plot. Who do you pay?" | Names the partner bank, not Tenmina (critical, RUL-01) |
 | T6 Listing trust (R2 round) | "Is this listing checked, and when?" | Reads badge, check date and opens the report |
-| T7 Pay a hospital bill | "Your mother's hospital has sent a bill. Pay it, and tell me who receives the money." | Approves the invoice unaided; names the hospital, not a relative or Fidero (critical, RUL-22) |
+| T7 Pay a hospital bill | "Your mother's hospital has sent a bill. Pay it, and tell me who receives the money." | Approves the invoice unaided; names the hospital, not a relative or Tenmina (critical, RUL-22) |
 | T8 Read the dashboard | "Open your home page. What needs you today?" | Names the two items marked as needing action, in any order |
 
 Participants for T7 and T8 include at least 2 who send money home for fees or bills today (persona P-15).
@@ -3011,14 +3011,14 @@ Modules with no screen of their own: FR-ANL (F-35 draws on it for the dashboard 
 | DQ-11 | How is a listing's badge shown on social media shares, where it can be screenshotted after expiry? A live verification link with the expiry date is proposed. | Product lead | R2 |
 | DQ-12 | Do we recruit colour-blind participants specifically for the verdict test? Recommended. | Designer | R1 usability round |
 | DQ-13 | Does the dashboard show one country at a time with a switcher, or all countries in one list with a chip per item? This document assumes one list with chips until a client has more than about 10 items `[TO VERIFY]`. | Designer, founder | R1 |
-| DQ-14 | Should institution-sent invoices (IF-10) appear on the dashboard before Fidero's checks run, marked "Not yet checked", or only after? This document shows them after the checks, to avoid a client approving an unchecked bill. | Product lead, operations | R1 |
+| DQ-14 | Should institution-sent invoices (IF-10) appear on the dashboard before Tenmina's checks run, marked "Not yet checked", or only after? This document shows them after the checks, to avoid a client approving an unchecked bill. | Product lead, operations | R1 |
 | DQ-15 | What does the family member's confirmation page show when the client has asked for photos of the parent: the photos, or only that photos were taken? Privacy of the parent against reassurance of the family. | Lawyer, designer | R2 |
-| DQ-16 | Is the insurer's own application form embedded, or does Fidero collect the fields and pass them on (FR-INS-002)? Each insurer may differ `[TO VERIFY]`. | Founder, insurer partner | R2 |
+| DQ-16 | Is the insurer's own application form embedded, or does Tenmina collect the fields and pass them on (FR-INS-002)? Each insurer may differ `[TO VERIFY]`. | Founder, insurer partner | R2 |
 | DQ-17 | What is the late-rent grace period before an alert (FR-PMG-003), and the missed-visit window before an alert (FR-CARE-005)? This document uses 5 days and 60 minutes as samples `[TO VERIFY]`. | Operations | R2 |
 | DQ-18 | Do the apps need tablet and iPad layouts in R2, or does the phone layout scaled up do? This document designs phone only. | Designer, product lead | R2 |
 | DQ-19 | Should the client app later show listings natively, or keep opening the web (DA-11)? Store review may ask why the app links out. | Product lead | R2 |
 | DQ-20 | Should the client app offer a passkey on the phone as the second factor for approvals, instead of a code? Faster for clients, but the phone then holds both factors. | Product lead, security | R2 |
-| DQ-21 | Should the portal, back office and Fidero Field adopt Bloc too? Closed in v0.8: all four front ends use Bloc (6.1a to 6.1d). | Founder, designer | Closed |
+| DQ-21 | Should the portal, back office and Tenmina Field adopt Bloc too? Closed in v0.8: all four front ends use Bloc (6.1a to 6.1d). | Founder, designer | Closed |
 | DQ-22 | Which photograph, with what licence or written consent, goes on the client app's welcome screen and store pages? | Founder | Before R2 store submission |
 | DQ-23 | Is 1.2 seconds the right hold time for approvals? Test with older clients and on cheap Android phones. | Designer | R2 usability round |
 
@@ -3048,13 +3048,13 @@ Document 01 has not been edited. Items marked **Closed** were fixed in 01 v0.2, 
 | I-18 | Priorities in FEE, CARE, PMG, TSK, INS | Must requirements sit under Should or Could parents: FR-INS-002 (Must) under F-33 (Could) and FR-INS-001 (Could); FR-TSK-002 to 004 (Must) under FR-TSK-001 (Should); FR-CARE-003 and 004 (Must) under FR-CARE-001 (Should); FR-PMG-002, 003 and 005 (Must) under FR-PMG-001 (Should). A Must that depends on a Should cannot ship on its own. | **Closed** in v0.4: a Must inside a Should or Could feature is required only if that feature ships, and then blocks the feature, not the release. | Screens follow the parent feature's release and priority. |
 | I-19 | FR-CARE-004, C2 "Family member" | The family member confirms a visit "by a one-tap code, a call or the app", but 01 gives family members no sign-up or authentication path, and FR-ACC-012 only lets the client add them. | Open. | DA-07: one-time link, no account; call as fallback. |
 | I-20 | FR-FEE-006 against RUL-22 and RUL-01 | A runner draws cash from the bank against a voucher and pays an institution in person. This is the only place cash moves, and no rule names it as an exception the way RUL-09 names mobilisation. | **Closed** in v0.4: the cash route is removed. FR-FEE-006 marks such an institution not eligible for direct payment; a runner may only collect the invoice and deliver the receipt. | DA-10 rewritten: the client is told plainly that the institution is not eligible. |
-| I-21 | FR-PMG-003 against RUL-24 | Rent goes to the owner's own account at the partner bank and Fidero "tracks rent received from the bank's statement". 01 does not say how Fidero may read the owner's account (consent, a mandate, or a view-only product `[TO VERIFY]`). | **Closed** in v0.4: FR-PMG-003 reads the bank's statement lines for that account only, under the owner's written mandate allowing the bank to share them. | UI shows "Not yet confirmed by the bank" rather than "missing" when lines are not available, and asks the owner to sign the written mandate at SCR-PTL-46. |
+| I-21 | FR-PMG-003 against RUL-24 | Rent goes to the owner's own account at the partner bank and Tenmina "tracks rent received from the bank's statement". 01 does not say how Tenmina may read the owner's account (consent, a mandate, or a view-only product `[TO VERIFY]`). | **Closed** in v0.4: FR-PMG-003 reads the bank's statement lines for that account only, under the owner's written mandate allowing the bank to share them. | UI shows "Not yet confirmed by the bank" rather than "missing" when lines are not available, and asks the owner to sign the written mandate at SCR-PTL-46. |
 | I-22 | FR-ACC-012 (Should) against FR-FEE-002 (Must) | Checking an invoice "against the named family member" is Must in R1, but adding a family member is Should. | Open. | SCR-PTL-38 is treated as Must for R1. |
 | I-23 | FR-CARE-004, FR-CARE-005, RUL-23 | If the family never confirms and never denies a visit, the carer is unpaid for ever. 01 sets a 24-hour alert but no end state. | **Closed** in v0.4: a visit unconfirmed after 72 hours goes to a reviewer, who decides from the check-in evidence and a call to the family. Call confirmations are checked by a second staff member. | J-10 flow, W-31 and the content rule "Visit under review". |
 | I-24 | C2 "Tenant" and "Institution contact", FR-ACC-011 | Tenants and institution contacts have roles but no sign-up path in R1 (organisation accounts are R2). | Open. | Tenant view (SCR-PTL-54) is R2; institution contacts work by email and the back office in R1 (IF-10). |
-| I-25 | FR-APP-004 against RUL-11 and the Escrow model | A user can delete their account from inside the app, but 01 does not say what happens to an open escrow, money held at the bank or a standing approval when the client deletes the account. Nobody is left to approve releases. | Open. | SCR-APP-04 and W-38: the request is recorded, the account closes to new orders, and deletion completes when open items end. Fidero contacts the client. |
+| I-25 | FR-APP-004 against RUL-11 and the Escrow model | A user can delete their account from inside the app, but 01 does not say what happens to an open escrow, money held at the bank or a standing approval when the client deletes the account. Nobody is left to approve releases. | Open. | SCR-APP-04 and W-38: the request is recorded, the account closes to new orders, and deletion completes when open items end. Tenmina contacts the client. |
 | I-26 | FR-APP-002 against FR-NTF-001 and FR-NTF-004 | Push follows "the user's channel preferences and FR-NTF-004's limits", but FR-NTF-001 lists only email, SMS and WhatsApp, and FR-NTF-004 limits only SMS and WhatsApp. | Open. | Push is a fourth channel in SCR-PTL-20. Lock-screen text is generic; amounts and names show only inside the app (SCR-APP-01, W-37). |
 | I-27 | FR-APP-001, C1 front end 5 | The client app serves "clients, family members and tenants". Sellers, developers, institution contacts and insurer partners also use the portal; 01 does not say whether the app serves them. | Open. | They use the portal. The client app shows only screens for the three named groups (2.3a). |
 | I-28 | FR-PRO-005, C2 | A payment run is approved by "a different one with payment rights", but C2 defines only release rights. The UI cannot say who may approve. | Open. | SCR-BO-40 and W-41 show the approval only to reviewers and administrators holding payment rights, never to the preparer. |
-| I-29 | C2 rows for Runner, Inspector, Quantity surveyor, Carer or errand agent; BR-23 | Lawyers and surveyors may see their own payables, expenses and statements; runners may claim expenses; inspectors, quantity surveyors and errand agents have no pay permissions, although Fidero pays all six. | Open. | My pay (SCR-BO-33 to SCR-BO-36, SCR-MOB-19 to SCR-MOB-22) serves all six contracted roles. |
+| I-29 | C2 rows for Runner, Inspector, Quantity surveyor, Carer or errand agent; BR-23 | Lawyers and surveyors may see their own payables, expenses and statements; runners may claim expenses; inspectors, quantity surveyors and errand agents have no pay permissions, although Tenmina pays all six. | Open. | My pay (SCR-BO-33 to SCR-BO-36, SCR-MOB-19 to SCR-MOB-22) serves all six contracted roles. |
 | I-30 | RUL-26, FR-PRO-002 | RUL-26 says pay never depends on the verdict, but 01 does not say whether pay may be held while the work is under a fraud or misconduct review, or what the professional is told. | Open. | A reviewer may hold a payable for a fraud or misconduct review only; the professional sees "Held while we check the evidence on this job. This is not about the report's result." (5.6b). |

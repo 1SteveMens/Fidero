@@ -5,7 +5,7 @@ This is the early architecture proposal. The detailed design is in `docs/specs/0
 Principles:
 
 - Build the smallest thing the next phase needs.
-- Fidero never holds client money. The escrow partner does.
+- Tenmina never holds client money. The escrow partner does.
 - Every piece of evidence is tamper-evident: signed, time-stamped, hashed.
 - Personal data is minimised and kept in Ghana or in a jurisdiction with adequate protection `[TO VERIFY]`.
 
@@ -33,14 +33,14 @@ Users: clients abroad and local, on phone and laptop.
 
 Features by phase:
 
-- Phase 2: sign up, identity check, order a report, pay, see report status with dates, download the finished report, message Fidero, see escrow status and the open conditions, approve release conditions.
+- Phase 2: sign up, identity check, order a report, pay, see report status with dates, download the finished report, message Tenmina, see escrow status and the open conditions, approve release conditions.
 - Phase 3: see the build dashboard, budget against actual, photo timeline by milestone, inspector results, request an extra inspection, approve variations.
 
 Design notes:
 
 - Works on a slow phone connection. Pages are small. Photos are served resized.
 - Status language is plain: "Searches lodged at Lands Commission on 12 March. Results expected by 2 April."
-- Payment through a card and mobile money provider `[TO VERIFY]`. Fidero stores no card numbers.
+- Payment through a card and mobile money provider `[TO VERIFY]`. Tenmina stores no card numbers.
 
 ## 3. Report workflow
 
@@ -48,15 +48,15 @@ Each report is a case that moves through fixed steps. Each step has an owner, re
 
 | Step | Owner | Required evidence | Target days (assumption) |
 |---|---|---|---|
-| Intake | Fidero | Client documents, site plan, seller contact | 1 |
+| Intake | Tenmina | Client documents, site plan, seller contact | 1 |
 | Searches lodged | Runner | Receipts | 2 |
 | Site visit | Surveyor and runner | Coordinates, photos, video | 5 |
-| Overlay checks | Fidero | Maps | 3 |
+| Overlay checks | Tenmina | Maps | 3 |
 | Consent meeting | Lawyer and runner | Signed forms, video | 7 |
 | Search results | Runner | Official results | 10 |
 | Legal review | Lawyer | Signed legal section | 3 |
-| Second review | Fidero reviewer | Checklist | 1 |
-| Release | Fidero | Final PDF, hash | 1 |
+| Second review | Tenmina reviewer | Checklist | 1 |
+| Release | Tenmina | Final PDF, hash | 1 |
 
 The workflow tool generates the report from the template in `docs/operations/verification-report-template.md`. Section verdicts are chosen from red, amber and green. The overall verdict cannot be green if any section is red. The scope statement is inserted from a locked text block.
 
@@ -64,7 +64,7 @@ Every change to a case is logged with who, when and what. The final PDF is hashe
 
 ## 4. Escrow status tracking
 
-Fidero does not move money. The partner bank or licensed escrow agent holds it under an escrow agreement between client, seller and the bank.
+Tenmina does not move money. The partner bank or licensed escrow agent holds it under an escrow agreement between client, seller and the bank.
 
 The tracker holds, for each escrow:
 
@@ -77,14 +77,14 @@ The tracker holds, for each escrow:
 Integration options, in order of preference:
 
 1. Bank API for deposit and release status `[TO VERIFY]` whether the partner offers one.
-2. Daily statement file from the bank, reconciled by Fidero.
-3. Manual entry by Fidero from the bank's confirmation, with the confirmation attached.
+2. Daily statement file from the bank, reconciled by Tenmina.
+3. Manual entry by Tenmina from the bank's confirmation, with the confirmation attached.
 
-Release is a two-person action at Fidero and is recorded with both names. The client sees every condition and its status.
+Release is a two-person action at Tenmina and is recorded with both names. The client sees every condition and its status.
 
 ## 5. Field app (milestone photo app)
 
-Users: contractors, inspectors, Fidero field staff, and from phase 3 carers and errand agents, who use the same check-in, evidence and task features. Android first `[TO VERIFY]` the share of iPhone users among contractors.
+Users: contractors, inspectors, Tenmina field staff, and from phase 3 carers and errand agents, who use the same check-in, evidence and task features. Android first `[TO VERIFY]` the share of iPhone users among contractors.
 
 Requirements:
 
@@ -105,7 +105,7 @@ Fraud checks on the server:
 - Duplicate hash seen on another project.
 - Image metadata inconsistent with the device.
 
-Flagged evidence goes to a Fidero reviewer before the inspector visit.
+Flagged evidence goes to a Tenmina reviewer before the inspector visit.
 
 ## 6. Evidence store
 
@@ -122,7 +122,7 @@ Main entities: country, client, family member, seller, listing, asset (a plot, a
 
 - One backend, one database. Keep it boring: a relational database and a web framework the team knows.
 - All actions go through the API and are written to an audit log that cannot be edited by application users.
-- Roles: client, family member, Fidero staff, Fidero reviewer, lawyer, surveyor, runner, contractor, inspector, carer, errand agent, institution contact, tenant, insurer, partner. Each sees only the cases or projects assigned to them.
+- Roles: client, family member, Tenmina staff, Tenmina reviewer, lawyer, surveyor, runner, contractor, inspector, carer, errand agent, institution contact, tenant, insurer, partner. Each sees only the cases or projects assigned to them.
 - Every release goes to a verified payee: an institution, supplier, vendor or professional with a bank account in that name. There is no path to pay a relative.
 
 ## 8. Partner API
@@ -131,11 +131,11 @@ Phase 3. Banks and developers submit a plot reference and receive a status: no r
 
 ## 9. Data protection
 
-Fidero handles data about clients, sellers, family heads, chiefs, witnesses, contractors and neighbours. The Data Protection Act 2012 (Act 843) applies.
+Tenmina handles data about clients, sellers, family heads, chiefs, witnesses, contractors and neighbours. The Data Protection Act 2012 (Act 843) applies.
 
 Measures:
 
-- **Register** with the Data Protection Commission `[TO VERIFY]` the requirement for Fidero's size and activity.
+- **Register** with the Data Protection Commission `[TO VERIFY]` the requirement for Tenmina's size and activity.
 - **Minimise.** Collect only what the report needs. Do not record neighbours' personal details beyond what a dispute check requires.
 - **Consent and notice.** Everyone recorded on video is told why and signs. Clients agree to a plain-language privacy notice.
 - **Purpose.** Report data is used for the report, the escrow and the build, and for anonymised case studies only with written consent.
@@ -143,7 +143,7 @@ Measures:
 - **Encryption.** In transit everywhere. At rest in the database and the evidence store. Device storage in the app is encrypted and cleared after upload.
 - **Location.** Data hosted in Ghana or in a jurisdiction the Commission accepts `[TO VERIFY]`. Record where each service stores data.
 - **Retention.** Report cases kept for the period the insurer and lawyer advise `[TO VERIFY]`, then deleted or anonymised. Consent videos kept for the same period. Client accounts deleted on request subject to legal holds.
-- **Rights.** Clients and sellers can ask what Fidero holds about them and have it corrected. One contact handles requests within a set time `[TO VERIFY]`.
+- **Rights.** Clients and sellers can ask what Tenmina holds about them and have it corrected. One contact handles requests within a set time `[TO VERIFY]`.
 - **Breach plan.** A written plan: contain, assess, notify the Commission and affected people within the required time `[TO VERIFY]`, record.
 - **Staff.** Every professional and staff member signs a data agreement and does a short training before access.
 - **Safety data.** Threat and incident logs about disputed plots are held separately with tighter access, because they identify people who may be dangerous or at risk.

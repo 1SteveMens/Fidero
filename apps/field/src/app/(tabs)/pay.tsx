@@ -1,8 +1,8 @@
 import { View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { formatMoney } from '@fidero/shared';
-import { brand, space } from '@fidero/tokens';
-import { ErrorView, IconTile, Label, Loading, Panel, Rise, Screen, T } from '@fidero/ui';
+import { formatMoney } from '@tenmina/shared';
+import { brand, space } from '@tenmina/tokens';
+import { ErrorView, IconTile, Label, Loading, Panel, Rise, Screen, T } from '@tenmina/ui';
 import { useField, useFieldLoad } from '../../store';
 
 /**
@@ -49,7 +49,7 @@ export default function Pay() {
               <IconTile name="calendar-outline" tone="lime" size={44} />
               <View style={{ flex: 1 }}>
                 <T v="headline" color="#F7F6F2">{`Next payment run: ${data.nextRunOn}`}</T>
-                <T v="footnote" color="#A9A69E">{`Paid by Fidero, from its own account, to your account ••${data.payToLast4}`}</T>
+                <T v="footnote" color="#A9A69E">{`Paid by Tenmina, from its own account, to your account ••${data.payToLast4}`}</T>
               </View>
             </Panel>
           </Rise>

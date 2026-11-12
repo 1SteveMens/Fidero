@@ -15,7 +15,7 @@ import type {
  * in-memory data; the HTTP implementation will call the /v1 API in
  * docs/specs/02 section 7 with the same shapes.
  */
-export interface FideroApi {
+export interface TenminaApi {
   getDashboard(): Promise<Dashboard>;
   listCases(): Promise<Case[]>;
   getCase(id: string): Promise<Case>;

@@ -1,6 +1,6 @@
 # 01 — Requirements and Product Specification
 
-Business requirements (BRD), product requirements (PRD) and software requirements (SRS) for the Fidero platform.
+Business requirements (BRD), product requirements (PRD) and software requirements (SRS) for the Tenmina platform.
 
 | Item | Value |
 |---|---|
@@ -20,18 +20,18 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | 0.1 | 31 October 2026 | First draft |
 | 0.11 | 12 November 2026 | Q-27 added: compete or partner with Tulix-style spending apps in Kenya. Founder decision `docs/decisions/2026-11-12-build-with-claude.md`: until revenue allows hiring, Claude writes the code and the founder tests on real phones. C-07 updated; the hired team it described is deferred. Requirements, rules and gates are unchanged. |
 | 0.10 | 11 November 2026 | Founder decisions recorded in C-07: contract developer kept to S14 for professional payments, and Option R2-A for the R2 team. |
-| 0.9 | 11 November 2026 | Clarifies professional payments: payment rights defined; every contracted role sees its own pay; who closes a runner's month and what a part month pays; pay may be held only during a recorded fraud or misconduct review; withholding does not apply to reimbursed expenses unless the law says so; IF-13 for Fidero's operating bank. No new requirement IDs. |
-| 0.8 | 11 November 2026 | Adds module PRO, professional payments (FR-PRO-001 to FR-PRO-010): rate cards, payables only for accepted work, expenses, two-person payment runs from Fidero's operating account, tax per country, reconciliation and statements. Adds BR-23, F-37, RUL-26, RUL-27, Q-25, Q-26 and a payables data class. FR-TSK-002 now takes Fidero's errand charge through the payment provider; FR-TSK-003 says errand agents are paid by Fidero. |
+| 0.9 | 11 November 2026 | Clarifies professional payments: payment rights defined; every contracted role sees its own pay; who closes a runner's month and what a part month pays; pay may be held only during a recorded fraud or misconduct review; withholding does not apply to reimbursed expenses unless the law says so; IF-13 for Tenmina's operating bank. No new requirement IDs. |
+| 0.8 | 11 November 2026 | Adds module PRO, professional payments (FR-PRO-001 to FR-PRO-010): rate cards, payables only for accepted work, expenses, two-person payment runs from Tenmina's operating account, tax per country, reconciliation and statements. Adds BR-23, F-37, RUL-26, RUL-27, Q-25, Q-26 and a payables data class. FR-TSK-002 now takes Tenmina's errand charge through the payment provider; FR-TSK-003 says errand agents are paid by Tenmina. |
 | 0.7 | 7 November 2026 | Push is a notification channel (FR-NTF-001); store approval of both apps added to the R2 finish gate (B4). |
-| 0.6 | 7 November 2026 | Founder decision: the mobile apps are published on the Apple App Store and Google Play. Two apps from R2: Fidero (clients and families) and Fidero Field (field roles), both on iOS and Android. Adds module APP (FR-APP-001 to FR-APP-006), feature F-36, NFR-STORE-01 and NFR-STORE-02, C-14, AS-14, IF-12, Q-23 and Q-24; FR-MOB-001 and FR-MOB-004 cover iOS; AS-08 retired; Q-09 answered. |
+| 0.6 | 7 November 2026 | Founder decision: the mobile apps are published on the Apple App Store and Google Play. Two apps from R2: Tenmina (clients and families) and Tenmina Field (field roles), both on iOS and Android. Adds module APP (FR-APP-001 to FR-APP-006), feature F-36, NFR-STORE-01 and NFR-STORE-02, C-14, AS-14, IF-12, Q-23 and Q-24; FR-MOB-001 and FR-MOB-004 cover iOS; AS-08 retired; Q-09 answered. |
 | 0.5 | 1 November 2026 | Founder decisions: country 2 is Nigeria and country 3 is Kenya (Q-15 answered); the R1 team includes one contract developer from S3 to S13 (C-07). |
 | 0.4 | 1 November 2026 | Review fixes raised while updating documents 02 to 06 to v0.3. No new requirement IDs. Removes the runner cash route (FR-FEE-006 now marks such institutions not eligible); adds sellers and developers to RUL-22 payees; defines held amounts as amounts held at the bank; names the account-name source for FR-ESC-015; adds the owner's mandate for rent statements; states the premium route; ends unconfirmed visits with a reviewer decision; scopes the fresh search to purchases; adds standing approvals for visits and errand steps; extends RUL-08 and FR-MOB-001 to carers and agents; adds a Withdrawn dispute state; adds sensitive data classes; states how Must works inside Should features; Q-21 and Q-22. |
-| 0.3 | 1 November 2026 | Redefinition per `docs/decisions/2026-11-01-diaspora-platform.md`: Fidero is the diaspora's trusted agent at home. Adds product families and lines (fees to institutions, care visits, property management, paperwork and errands, insurer partner lines, events), personas P-15 to P-17, features F-29 to F-35, journeys J-09 to J-12, rules RUL-22 to RUL-25, modules FEE, CARE, PMG, TSK, INS and EVT, moves country configuration to R1, and opens a second country from month 6. |
+| 0.3 | 1 November 2026 | Redefinition per `docs/decisions/2026-11-01-diaspora-platform.md`: Tenmina is the diaspora's trusted agent at home. Adds product families and lines (fees to institutions, care visits, property management, paperwork and errands, insurer partner lines, events), personas P-15 to P-17, features F-29 to F-35, journeys J-09 to J-12, rules RUL-22 to RUL-25, modules FEE, CARE, PMG, TSK, INS and EVT, moves country configuration to R1, and opens a second country from month 6. |
 | 0.2 | 31 October 2026 | Review fixes raised while writing documents 02, 05 and 06: release rights and missing roles defined; client approval added to escrow; partial release, freeze and cancel paths added to the state models; mobilisation exception to RUL-09; second-person checks on manual bank entries, bank details and release-affecting settings; thresholds made configurable; NFR targets made measurable; questions Q-11 to Q-14 added. Each later document's "Issues found in document 01" section lists what it raised. Items not yet resolved stay open there. |
 
 ## How to read this document
 
-- **Part A, the BRD**, says why Fidero builds software and what the business needs from it.
+- **Part A, the BRD**, says why Tenmina builds software and what the business needs from it.
 - **Part B, the PRD**, says what the product does, for whom, and in which release.
 - **Part C, the SRS**, says exactly what the system shall do. Developers build from it and testers test against it.
 
@@ -83,7 +83,7 @@ Releases follow the roadmap phases in `docs/proposal.md`. Each release opens onl
 
 ## A1. Purpose
 
-Fidero is the trusted agent at home for people abroad. Anyone in the diaspora who needs something done in their home country, from buying land to paying a parent's hospital bill, can have it checked, paid against proof and shown to them. Ghana is the launch market. Land verification is the launch product. The redefinition from a land platform to a diaspora platform is recorded in `docs/decisions/2026-11-01-diaspora-platform.md`.
+Tenmina is the trusted agent at home for people abroad. Anyone in the diaspora who needs something done in their home country, from buying land to paying a parent's hospital bill, can have it checked, paid against proof and shown to them. Ghana is the launch market. Land verification is the launch product. The redefinition from a land platform to a diaspora platform is recorded in `docs/decisions/2026-11-01-diaspora-platform.md`.
 
 The 90-day manual service (R0) proves demand and the report process with no software. This BRD covers the software that lets the service grow past what a small team can run with spreadsheets, and that turns one-off reports into an escrow, construction and listings business.
 
@@ -106,7 +106,7 @@ The full problem statement is in `docs/proposal.md` section 2.
 | BO-04 | Launch construction management with zero diverted money | Active builds; payments released without an inspector's pass | 40 active builds by month 18; zero |
 | BO-05 | Earn revenue from sellers as well as buyers | Verified listings live; seller fees as share of revenue | `[TO VERIFY]` |
 | BO-06 | Sell checks to banks and developers | Signed partner contracts | One bank contract by month 18 |
-| BO-07 | Keep client data and money safe | Data breaches; money held by Fidero | Zero reportable breaches; zero client money held by Fidero |
+| BO-07 | Keep client data and money safe | Data breaches; money held by Tenmina | Zero reportable breaches; zero client money held by Tenmina |
 | BO-08 | Run in more than one country | Country 2 manual phase from month 6; country 2 live on the platform by month 18; country 3 by month 36 | `[TO VERIFY]` |
 | BO-09 | Create monthly contact with clients through recurring family lines | Share of clients with a recurring payment; payments to institutions per month | 40% of clients by month 18 `[TO VERIFY]` |
 | BO-10 | Put money into institutions and suppliers, never into relatives' hands | Share of released money paid to a verified institution, supplier or professional | 100% |
@@ -117,9 +117,9 @@ The full problem statement is in `docs/proposal.md` section 2.
 |---|---|---|---|
 | BR-01 | Clients abroad and in Ghana must be able to order and pay for a verification report online, without visiting an office. | BO-01 | R1 |
 | BR-02 | Every report must follow the standard template, pass two-person review and carry the locked scope statement. | BO-01, BO-07 | R1 |
-| BR-03 | Fidero staff and contracted professionals must run each case through a tracked workflow with owners, due dates and required evidence. | BO-02 | R1 |
+| BR-03 | Tenmina staff and contracted professionals must run each case through a tracked workflow with owners, due dates and required evidence. | BO-02 | R1 |
 | BR-04 | Overlay checks against acquisitions, road reserves, wetlands and flood zones must run automatically from plot coordinates. | BO-02 | R1 |
-| BR-05 | Fidero must show clients the state of each escrow and its release conditions, while the money stays with a licensed bank or escrow agent. | BO-03, BO-07 | R1 |
+| BR-05 | Tenmina must show clients the state of each escrow and its release conditions, while the money stays with a licensed bank or escrow agent. | BO-03, BO-07 | R1 |
 | BR-06 | Every piece of evidence must be tamper-evident and kept in a store where nothing is overwritten. | BO-01, BO-04 | R1 |
 | BR-07 | Existing buildings must be verifiable with the land checks plus building-specific checks. | BO-01 | R1 |
 | BR-08 | Construction payments must be released only against app-captured evidence and an independent inspector's pass. | BO-04 | R2 |
@@ -133,9 +133,9 @@ The full problem statement is in `docs/proposal.md` section 2.
 | BR-18 | Clients must be able to arrange and pay for care visits to a relative, with each visit proven by check-in, photos and the family's confirmation. | BO-09 | R2 |
 | BR-19 | Clients who own property at home must be able to have it managed, with rent collected into their own account and repairs paid against quotes and inspection. | BO-09, BO-10 | R2 |
 | BR-20 | Clients must be able to have paperwork and errands done at home by a vetted agent, with fees paid to the agency and completion proven by the resulting document. | BO-09 | R2 |
-| BR-21 | Clients must be able to buy health and funeral cover for relatives from licensed insurer partners through Fidero, with Fidero holding no risk. | BO-09 | R2 |
+| BR-21 | Clients must be able to buy health and funeral cover for relatives from licensed insurer partners through Tenmina, with Tenmina holding no risk. | BO-09 | R2 |
 | BR-22 | Clients must be able to fund events and ceremonies at home with vendors paid against invoices and delivery evidence. | BO-10 | R3 |
-| BR-23 | Fidero must pay the professionals it contracts (lawyers, surveyors, runners, inspectors, quantity surveyors, errand agents) accurately and on time, from its own funds, with tax handled as each country requires. | BO-01, BO-02, BO-07 | R1 |
+| BR-23 | Tenmina must pay the professionals it contracts (lawyers, surveyors, runners, inspectors, quantity surveyors, errand agents) accurately and on time, from its own funds, with tax handled as each country requires. | BO-01, BO-02, BO-07 | R1 |
 | BR-15 | The platform must meet the Data Protection Act 2012 (Act 843) and keep a full audit trail of every action. | BO-07 | R1 |
 | BR-16 | Management must see the operating metrics from the validation plan without building spreadsheets by hand. | BO-01, BO-02 | R1 |
 
@@ -146,8 +146,8 @@ The full problem statement is in `docs/proposal.md` section 2.
 | Founder and product owner | Product direction, priorities, gates | Approves this document and every release |
 | Diaspora buyers | Safe purchase and build from abroad | Primary users; usability tests |
 | Local buyers | Affordable checks before paying | Users |
-| Fidero operations staff | Running cases on time | Daily users of the back office |
-| Fidero reviewers | Report quality | Approve reports and releases |
+| Tenmina operations staff | Running cases on time | Daily users of the back office |
+| Tenmina reviewers | Report quality | Approve reports and releases |
 | Contracted lawyers | Clear scope, fair fees, low admin | Sign the legal section |
 | Licensed surveyors | Clear scope, safe visits | Sign the surveyor's section |
 | Field runners | Simple task lists on a phone | Lodge searches, attend visits |
@@ -167,8 +167,8 @@ The full problem statement is in `docs/proposal.md` section 2.
 
 - Client portal (web, phone first) for ordering, paying, tracking and reading reports, escrows, builds and projects.
 - Back office for case management, reviews, escrow conditions, inspections, listings, disputes and configuration.
-- Two mobile apps published on the Apple App Store and Google Play from R2: **Fidero**, the client app for clients, family members and tenants, and **Fidero Field**, the field app for contractors, inspectors, surveyors, runners, carers and errand agents. Both run on iOS and Android. The phone-first web portal serves clients in R1 and stays for laptops and public listings.
-- Evidence store, audit log, notifications, payments for Fidero's own fees.
+- Two mobile apps published on the Apple App Store and Google Play from R2: **Tenmina**, the client app for clients, family members and tenants, and **Tenmina Field**, the field app for contractors, inspectors, surveyors, runners, carers and errand agents. Both run on iOS and Android. The phone-first web portal serves clients in R1 and stays for laptops and public listings.
+- Evidence store, audit log, notifications, payments for Tenmina's own fees.
 - Integrations with the escrow bank, a payment provider, an identity check provider, map and satellite data, and messaging channels.
 - Verified listings marketplace and partner API.
 - Family lines: payments to institutions, care visits, insurer partner lines.
@@ -181,15 +181,15 @@ The full problem statement is in `docs/proposal.md` section 2.
 - Holding, pooling or moving client purchase money. A licensed bank or escrow agent does this. See C-01.
 - Giving investment advice or guaranteeing returns.
 - Replacing the Lands Commission register or issuing title.
-- Mortgage lending, insurance underwriting or money transfer. Fidero partners with licensed providers for these.
-- Paying cash to a relative. Fidero pays institutions, suppliers, vendors and professionals only.
+- Mortgage lending, insurance underwriting or money transfer. Tenmina partners with licensed providers for these.
+- Paying cash to a relative. Tenmina pays institutions, suppliers, vendors and professionals only.
 - Vehicles, relocation and shipping, equipment, buying a business and investing (R3 or later candidates, not specified here).
 
 ## A7. Constraints
 
 | ID | Constraint |
 |---|---|
-| C-01 | Fidero never holds client money. A licensed bank or escrow agent holds it under Bank of Ghana guidance. Fidero only records conditions and sends release instructions. |
+| C-01 | Tenmina never holds client money. A licensed bank or escrow agent holds it under Bank of Ghana guidance. Tenmina only records conditions and sends release instructions. |
 | C-02 | The Data Protection Act 2012 (Act 843) applies to all personal data in Ghana, including video of sellers, family heads and witnesses. Each further country's data protection law applies to its data (Q-21). |
 | C-03 | The Land Act 2020 (Act 1036) sets the land framework and allows electronic conveyancing. |
 | C-04 | Listing or brokering property may need a licence under the Real Estate Agency Act 2020 (Act 1047) `[TO VERIFY]`. Listings do not go live until this is resolved. |
@@ -198,9 +198,9 @@ The full problem statement is in `docs/proposal.md` section 2.
 | C-07 | Budget: $400,000 pre-seed for 18 months `[TO VERIFY]`, shared with operations and marketing. **From 12 November 2026, until revenue allows hiring, Claude writes the code and the founder tests on real phones** (`docs/decisions/2026-11-12-build-with-claude.md`). The hired team that follows is deferred, not cancelled. R1 team: one product and engineering lead, two developers, a part-time designer, and one contract developer from sprint S3 to S14. R2 team: the R1 team plus one mobile developer for both apps on iOS and Android and a QA engineer `[TO VERIFY]`, with the contract developer kept from S14 to S31 (Option R2-A). Decided 1 and 11 November 2026. Engineering is about 55.6% of the pre-seed (assumption, `docs/specs/04` section 11). |
 | C-08 | Many users in Ghana are on slow mobile connections and low-end Android phones. Many people abroad use iPhones. |
 | C-09 | Data hosting must be where each country's data protection authority accepts. For Ghana, in Ghana or a jurisdiction the Data Protection Commission accepts `[TO VERIFY]`. |
-| C-10 | The word "guard" must not appear in any product, feature or brand name. Land guards are the threat Fidero protects against. |
-| C-11 | Insurance is sold only as the licensed insurer's product. Fidero holds no insurance risk and needs an intermediary licence `[TO VERIFY]` per country. |
-| C-12 | Fidero does not transfer money across borders. Clients pay the partner bank or a licensed payment provider. |
+| C-10 | The word "guard" must not appear in any product, feature or brand name. Land guards are the threat Tenmina protects against. |
+| C-11 | Insurance is sold only as the licensed insurer's product. Tenmina holds no insurance risk and needs an intermediary licence `[TO VERIFY]` per country. |
+| C-12 | Tenmina does not transfer money across borders. Clients pay the partner bank or a licensed payment provider. |
 | C-13 | Each country opens only after its own manual phase and 90-day validation. |
 | C-14 | Both mobile apps must pass Apple App Store review and Google Play review at every release, and meet their rules on payments, account deletion, privacy disclosures and financial apps. A release date depends on store review time `[TO VERIFY]`. |
 
@@ -217,10 +217,10 @@ The full problem statement is in `docs/proposal.md` section 2.
 | AS-07 | Lands Commission searches stay manual, done by a runner, unless online search becomes available `[TO VERIFY]`. | No change; the workflow already assumes manual searches. |
 | AS-08 | Retired in v0.6: both apps ship on iOS and Android, so the share of contractors on Android no longer decides the platform. | |
 | AS-09 | Professional indemnity cover extends to building inspections and project funds `[TO VERIFY]`. | Those lines do not open. |
-| AS-10 | Schools, hospitals and government agencies accept direct payment with an invoice or student reference `[TO VERIFY]`. | That institution is not eligible for direct payment. Fidero does not pay cash on the client's behalf. |
-| AS-11 | At least one licensed insurer per country will sell health and funeral cover through Fidero `[TO VERIFY]`. | The insurer lines do not open in that country. |
+| AS-10 | Schools, hospitals and government agencies accept direct payment with an invoice or student reference `[TO VERIFY]`. | That institution is not eligible for direct payment. Tenmina does not pay cash on the client's behalf. |
+| AS-11 | At least one licensed insurer per country will sell health and funeral cover through Tenmina `[TO VERIFY]`. | The insurer lines do not open in that country. |
 | AS-12 | Vetted carers and errand agents can be recruited and retained at a fee clients will pay `[TO VERIFY]`. | Care visits and errands stay small or close. |
-| AS-14 | Apple and Google accept that Fidero's fees pay for real-world services, so they can be paid through the payment provider rather than in-app purchase `[TO VERIFY]`. | Fees are paid on the web portal and the apps show status and approvals only. |
+| AS-14 | Apple and Google accept that Tenmina's fees pay for real-world services, so they can be paid through the payment provider rather than in-app purchase `[TO VERIFY]`. | Fees are paid on the web portal and the apps show status and approvals only. |
 | AS-13 | Nigeria (country 2) passes its day-90 gate by month 9 `[TO VERIFY]`. | Country 2 software waits; Ghana continues. |
 
 ## A9. Success metrics
@@ -257,18 +257,18 @@ The platform must report these metrics from its own data (see FR-ANL).
 
 Anyone abroad can get anything done at home, from buying land to paying a parent's hospital bill, and know with evidence that it was done and the money went where it should.
 
-**Positioning.** For people abroad who need things done at home, Fidero is the trusted agent that checks the asset or the people, has the money held by a licensed partner, pays institutions and suppliers directly against proof, and shows the client every step. Unlike relatives, agents or a single lawyer, Fidero gives one standard of evidence across every need. Unlike single-purpose services for health cover, funeral cover or school fees, Fidero covers all of them with one field team and one account.
+**Positioning.** For people abroad who need things done at home, Tenmina is the trusted agent that checks the asset or the people, has the money held by a licensed partner, pays institutions and suppliers directly against proof, and shows the client every step. Unlike relatives, agents or a single lawyer, Tenmina gives one standard of evidence across every need. Unlike single-purpose services for health cover, funeral cover or school fees, Tenmina covers all of them with one field team and one account.
 
 ## B2. Product principles
 
 1. **Evidence before money.** No release without recorded evidence that closes every condition.
-2. **Fidero never holds the money.** The product shows and instructs. The bank holds and pays.
+2. **Tenmina never holds the money.** The product shows and instructs. The bank holds and pays.
 3. **Plain status, always.** Every screen says what happened, when, and what comes next, in one sentence.
 4. **Built for a slow phone.** Small pages, resized images, offline capture.
 5. **One engine.** A new product line is a new template, condition set and milestone schedule, not new software.
 6. **People stay in the loop.** Software automates checks and paperwork. Licensed people sign, and two people approve every release.
 7. **Safety first.** No product feature may push field staff into a disputed site without a risk screen.
-8. **Pay the institution, not the relative.** Money goes to a verified school, hospital, supplier, vendor or professional. Fidero confirms it was spent as agreed; it does not judge whether the plan will succeed.
+8. **Pay the institution, not the relative.** Money goes to a verified school, hospital, supplier, vendor or professional. Tenmina confirms it was spent as agreed; it does not judge whether the plan will succeed.
 9. **Country is configuration.** Nothing about Ghana is hard-coded.
 
 ## B3. Personas
@@ -277,8 +277,8 @@ Anyone abroad can get anything done at home, from buying land to paying a parent
 |---|---|---|---|---|
 | P-01 | Ama, diaspora buyer | Nurse in London, 38. Buying a plot near Kasoa to build a family house. Uses her phone for everything. | Know the plot is real and the seller can sell. Pay safely. Watch the build. | A cousin took her last building money. Cannot leave work to fly home. |
 | P-02 | Kwame, local buyer | Accountant in Accra, 31. Buying his first plot. Pays in cedis by mobile money. | An affordable check before he pays the family. | Does not know which lawyer or surveyor to trust. |
-| P-03 | Esi, Fidero case manager | Runs 30 cases at once from the Accra office. | See what is late and who owns it. Chase without spreadsheets. | Status is spread across WhatsApp, email and paper. |
-| P-04 | Fidero reviewer | Senior staff member who signs off reports and releases. | Catch errors before a report or a payment goes out. | Missing evidence found at the last minute. |
+| P-03 | Esi, Tenmina case manager | Runs 30 cases at once from the Accra office. | See what is late and who owns it. Chase without spreadsheets. | Status is spread across WhatsApp, email and paper. |
+| P-04 | Tenmina reviewer | Senior staff member who signs off reports and releases. | Catch errors before a report or a payment goes out. | Missing evidence found at the last minute. |
 | P-05 | Lawyer | Partner lawyer handling searches, consent meetings and the legal section. | Clear scope, documents in one place, quick sign-off. | Chasing clients for documents. |
 | P-06 | Surveyor | Licensed surveyor doing site visits. | A clear job sheet, safe visits, simple upload of coordinates and photos. | Unsafe sites; unpaid travel. |
 | P-07 | Runner | Field runner lodging searches and attending visits. | A task list on a basic phone. | Lost receipts; unclear priorities. |
@@ -288,7 +288,7 @@ Anyone abroad can get anything done at home, from buying land to paying a parent
 | P-11 | Family head or stool secretary | Represents the land-owning family or stool. | Sell legitimately, keep records straight, earn from the records programme. | Rogue family members selling family land. |
 | P-12 | Bank credit officer | Checks land offered as loan collateral. | A fast status check on a plot. | Slow manual collateral checks. |
 | P-13 | Project fund owner | Teacher in Toronto funding her brother's poultry farm. | Pay suppliers directly and see each stage done. | Money sent for projects disappears. |
-| P-14 | Fidero administrator | Configures templates, prices, users, partners and countries. | Change settings without a developer. | Hard-coded rules. |
+| P-14 | Tenmina administrator | Configures templates, prices, users, partners and countries. | Change settings without a developer. | Hard-coded rules. |
 | P-15 | Kwabena, family supporter | Bus driver in New Jersey, 45. Pays his mother's hospital bills and two nephews' school fees in Kumasi. | Pay the hospital and the school directly. Know his mother was visited this week. | A 2am WhatsApp asking for money with no bill. Fees that never reached the school. |
 | P-16 | Akosua, property owner abroad | Pharmacist in Toronto, 52. Owns a four-bedroom house in Tema rented out through an uncle. | Rent paid into her account. Repairs done and shown. | Uncle's family lives in it rent-free. No repair ever finished. |
 | P-17 | Carer or errand agent | Vetted local worker who visits an elderly parent or queues at an agency for a passport. | Clear task, fair pay, proof of work accepted. | Being accused of not showing up. |
@@ -320,7 +320,7 @@ Anyone abroad can get anything done at home, from buying land to paying a parent
 | F-12 | Audit log | P-04, P-14 | R1 | Must | AUD |
 | F-13 | Operating dashboard and exports | P-03, P-14 | R1 | Should | ANL |
 | F-14 | Data subject requests and retention | P-14 | R1 | Must | DPR |
-| F-15 | Field app (Fidero Field, iOS and Android) with offline, tamper-evident capture for contractors, inspectors, carers and errand agents | P-08, P-09, P-17 | R2 | Must | MOB |
+| F-15 | Field app (Tenmina Field, iOS and Android) with offline, tamper-evident capture for contractors, inspectors, carers and errand agents | P-08, P-09, P-17 | R2 | Must | MOB |
 | F-16 | Construction projects: bill of quantities, milestones, inspections, build dashboard | P-01, P-08, P-09 | R2 | Must | BLD |
 | F-17 | Off-plan purchase escrow with stage releases | P-01, P-10 | R2 | Should | BLD, ESC |
 | F-18 | Project funds: budgets, suppliers, direct payment against invoices | P-13 | R2 | Should | PRJ |
@@ -348,7 +348,7 @@ Anyone abroad can get anything done at home, from buying land to paying a parent
 
 ### J-01 Order a land verification report (R1)
 
-1. Ama finds Fidero through a diaspora association webinar and opens the portal on her phone.
+1. Ama finds Tenmina through a diaspora association webinar and opens the portal on her phone.
 2. She signs up with email and phone, and passes an identity check.
 3. She enters the plot details, uploads the site plan and the seller's contact, and picks a tier.
 4. She pays by card. She gets a receipt and a case reference.
@@ -360,11 +360,11 @@ Anyone abroad can get anything done at home, from buying land to paying a parent
 ### J-02 Buy through escrow (R1)
 
 1. Ama chooses escrow on a green or amber report.
-2. The release conditions are copied from the report's section 11. Ama, the seller and Fidero accept the escrow terms. The bank opens the escrow.
-3. Ama pays the purchase price to the bank, not to Fidero. The tracker shows the deposit when the bank confirms it.
+2. The release conditions are copied from the report's section 11. Ama, the seller and Tenmina accept the escrow terms. The bank opens the escrow.
+3. Ama pays the purchase price to the bank, not to Tenmina. The tracker shows the deposit when the bank confirms it.
 4. A fresh search and site check run before release.
 5. Each condition is closed with evidence, such as the signed indenture and recorded family consent.
-6. Ama approves the release. Then two Fidero staff approve. Fidero sends the release instruction. The bank pays the seller and confirms. Ama sees each step.
+6. Ama approves the release. Then two Tenmina staff approve. Tenmina sends the release instruction. The bank pays the seller and confirms. Ama sees each step.
 
 ### J-03 Build with milestone payments (R2)
 
@@ -372,20 +372,20 @@ Anyone abroad can get anything done at home, from buying land to paying a parent
 2. A quantity surveyor uploads the bill of quantities. The milestone split is set. Ama picks a vetted contractor and approves the budget.
 3. Construction money is held at the bank against the milestone schedule.
 4. The contractor captures evidence in the app on site and submits each milestone.
-5. Fidero checks the evidence. Fraud flags go to a reviewer.
+5. Tenmina checks the evidence. Fraud flags go to a reviewer.
 6. An independent inspector visits and records pass, pass with defects, or fail.
-7. On a pass, two Fidero staff approve and the bank pays the contractor. Ama sees photos, the inspector's result and budget against actual.
+7. On a pass, two Tenmina staff approve and the bank pays the contractor. Ama sees photos, the inspector's result and budget against actual.
 
 ### J-04 Buy a verified listing (R2)
 
-1. A developer lists an estate. Fidero verifies each plot. Only plots that pass are published with a "Fidero Verified" badge and the date of the checks.
+1. A developer lists an estate. Tenmina verifies each plot. Only plots that pass are published with a "Tenmina Verified" badge and the date of the checks.
 2. Ama browses listings, opens the full report, and reserves a plot.
 3. A fresh search and site check run. The purchase follows J-02. The developer pays a success fee when the escrow releases.
 
 ### J-05 Fund a project at home (R2)
 
 1. A project fund owner sets up a project with a budget, the person running it and the suppliers.
-2. Fidero checks the person and the suppliers.
+2. Tenmina checks the person and the suppliers.
 3. Money is held at the bank. Suppliers are paid directly against invoices once each stage is confirmed by receipts, photos and visits.
 
 ### J-06 Bank collateral check (R2)
@@ -395,9 +395,9 @@ Anyone abroad can get anything done at home, from buying land to paying a parent
 
 ### J-07 Raise and resolve a dispute (R2)
 
-1. A buyer, seller, contractor or Fidero opens a dispute against a pending release.
+1. A buyer, seller, contractor or Tenmina opens a dispute against a pending release.
 2. The release is frozen. Each party submits a statement and evidence by a set deadline.
-3. A Fidero reviewer decides, or refers to mediation. The outcome and reasons are recorded.
+3. A Tenmina reviewer decides, or refers to mediation. The outcome and reasons are recorded.
 
 ### J-08 Verify an existing building (R1)
 
@@ -405,30 +405,30 @@ As J-01, with extra checks: building permit, structural inspection, occupants an
 
 ### J-09 Pay a school or hospital directly (R1)
 
-1. Kwabena adds his mother as a family member and Komfo Anokye Teaching Hospital as an institution. Fidero verifies the institution: registration, bank account in the institution's name, a named contact.
-2. The hospital sends a bill. Kwabena uploads it, or the hospital sends it to Fidero's reference.
-3. Fidero checks the bill against the institution and the patient. Kwabena approves and pays into the partner bank.
+1. Kwabena adds his mother as a family member and Komfo Anokye Teaching Hospital as an institution. Tenmina verifies the institution: registration, bank account in the institution's name, a named contact.
+2. The hospital sends a bill. Kwabena uploads it, or the hospital sends it to Tenmina's reference.
+3. Tenmina checks the bill against the institution and the patient. Kwabena approves and pays into the partner bank.
 4. The bank pays the hospital. The receipt and, where allowed, the discharge note are returned to Kwabena's dashboard.
 5. For school fees, the same flow runs each term with a reminder and the school's confirmation of enrolment.
 
 ### J-10 Arrange care visits (R2)
 
 1. Kwabena sets up a care plan for his mother: two visits a week, medicine pick-up, a blood pressure reading.
-2. Fidero assigns a vetted carer. The family is told who to expect.
+2. Tenmina assigns a vetted carer. The family is told who to expect.
 3. The carer checks in at the house in the app, completes the plan items, takes photos agreed with the family, and checks out.
 4. The mother or a family member confirms the visit with a one-tap code or a call. The carer is paid for confirmed visits only.
 
 ### J-11 Manage a property (R2)
 
-1. Akosua registers her house in Tema. Fidero inspects it and records its condition with photos.
-2. Fidero finds or verifies a tenant, checks the agreement, and sets rent to be paid into Akosua's own account at the partner bank. Fidero never receives the rent.
-3. A repair is requested. Fidero gets two quotes, Akosua approves one, the money is held, the work is inspected and the contractor is paid.
+1. Akosua registers her house in Tema. Tenmina inspects it and records its condition with photos.
+2. Tenmina finds or verifies a tenant, checks the agreement, and sets rent to be paid into Akosua's own account at the partner bank. Tenmina never receives the rent.
+3. A repair is requested. Tenmina gets two quotes, Akosua approves one, the money is held, the work is inspected and the contractor is paid.
 4. Akosua sees rent received, repairs, inspections and the photo timeline on her dashboard.
 
 ### J-12 Get paperwork done (R2)
 
 1. Ama needs her Ghana Card renewed and a land title application lodged. She orders both as errands.
-2. Fidero shows the document checklist and the official fees. Ama uploads her documents and pays the fees and Fidero's charge into the partner bank.
+2. Tenmina shows the document checklist and the official fees. Ama uploads her documents and pays the fees and Tenmina's charge into the partner bank.
 3. A vetted agent lodges the applications. Official fees are paid to the agency and the receipts uploaded. Each step shows in plain language.
 4. The finished document is handed to Ama's representative or couriered. Completion is confirmed by the uploaded document.
 
@@ -438,17 +438,17 @@ The system must enforce these rules. Each is tested in document 05.
 
 | ID | Rule |
 |---|---|
-| RUL-01 | Fidero never receives or holds purchase, construction or project money. The system has no function to receive such money into a Fidero account. |
+| RUL-01 | Tenmina never receives or holds purchase, construction or project money. The system has no function to receive such money into a Tenmina account. |
 | RUL-02 | A report's overall verdict cannot be green if any section from 4 to 10 is red. |
-| RUL-03 | A report is released only after review by two different people: the lawyer who signed the legal section and one Fidero reviewer. |
+| RUL-03 | A report is released only after review by two different people: the lawyer who signed the legal section and one Tenmina reviewer. |
 | RUL-04 | The scope and limitation statement is inserted from a locked text block. Users cannot edit it in a report. |
-| RUL-05 | Every release instruction needs approval by two different Fidero staff with release rights. Their names are recorded. |
+| RUL-05 | Every release instruction needs approval by two different Tenmina staff with release rights. Their names are recorded. |
 | RUL-06 | A release instruction cannot be sent while any release condition is open. |
 | RUL-07 | Before any release on a land, building, off-plan or listing purchase, a fresh search and site check must be recorded within `[TO VERIFY]` days of the release. |
-| RUL-08 | Milestone, inspection, care visit and errand evidence must be captured in the Fidero app from R2. Gallery and file uploads are not accepted as evidence. |
-| RUL-09 | A milestone payment cannot be released without an inspector's pass or pass with defects. A pass with defects holds back the defect value. The only exception is milestone 0, mobilisation, which is released when the contract is signed and a Fidero staff member confirms site handover. |
+| RUL-08 | Milestone, inspection, care visit and errand evidence must be captured in the Tenmina app from R2. Gallery and file uploads are not accepted as evidence. |
+| RUL-09 | A milestone payment cannot be released without an inspector's pass or pass with defects. A pass with defects holds back the defect value. The only exception is milestone 0, mobilisation, which is released when the contract is signed and a Tenmina staff member confirms site handover. |
 | RUL-10 | The inspector on a project cannot be chosen, paid or employed by the contractor on that project. |
-| RUL-11 | A client cannot release a payment alone. The client approves; two Fidero staff approve; the bank pays. A client's silence is never treated as approval. For care visits and errand steps the client may give a standing approval up to a stated amount per month; each payment still needs its evidence and two staff approvals. |
+| RUL-11 | A client cannot release a payment alone. The client approves; two Tenmina staff approve; the bank pays. A client's silence is never treated as approval. For care visits and errand steps the client may give a standing approval up to a stated amount per month; each payment still needs its evidence and two staff approvals. |
 | RUL-12 | A listing is published only if its verification report is green and less than `[TO VERIFY]` days old. A failed check means no listing. |
 | RUL-13 | A listing badge expires after `[TO VERIFY]` days or when monitoring raises an unresolved alert. |
 | RUL-14 | Buyers always see the full report behind a listing. |
@@ -459,16 +459,16 @@ The system must enforce these rules. Each is tested in document 05.
 | RUL-19 | Every scope variation on a build is agreed in writing in the app before work starts. |
 | RUL-20 | Only licensed professionals with a verified licence on file can sign their report section. |
 | RUL-21 | Project fund money goes only to named, checked suppliers against invoices, never as cash to a person running the project. |
-| RUL-22 | On every line, money is released only to a verified payee with a bank account in that payee's name: an institution, supplier, vendor, professional, or the seller or developer named in a purchase escrow. Fidero never releases cash to a relative or to the client's representative. |
+| RUL-22 | On every line, money is released only to a verified payee with a bank account in that payee's name: an institution, supplier, vendor, professional, or the seller or developer named in a purchase escrow. Tenmina never releases cash to a relative or to the client's representative. |
 | RUL-23 | A carer or errand agent is paid only for visits or tasks confirmed by check-in evidence and by the family or the resulting document. |
-| RUL-24 | Rent on a managed property is paid by the tenant to the owner's own account at the partner bank, never to Fidero. |
-| RUL-25 | Insurance is sold as the named licensed insurer's policy. Fidero collects no premium into its own account and pays no claim. |
+| RUL-24 | Rent on a managed property is paid by the tenant to the owner's own account at the partner bank, never to Tenmina. |
+| RUL-25 | Insurance is sold as the named licensed insurer's policy. Tenmina collects no premium into its own account and pays no claim. |
 | RUL-26 | A professional's pay never depends on the verdict or outcome of their work. A red report pays the same as a green one; a failed inspection pays the same as a pass. |
-| RUL-27 | Fidero pays the professionals it contracts from its own operating account, out of its fee income. Client money held at the bank pays only the client's own payees: sellers, institutions, contractors, carers, suppliers, vendors and agencies. No path moves money between the two. |
+| RUL-27 | Tenmina pays the professionals it contracts from its own operating account, out of its fee income. Client money held at the bank pays only the client's own payees: sellers, institutions, contractors, carers, suppliers, vendors and agencies. No path moves money between the two. |
 
 ## B8. Out of scope for this specification
 
-- In-app chat between buyers and sellers in listings. Enquiries go through Fidero.
+- In-app chat between buyers and sellers in listings. Enquiries go through Tenmina.
 - Automated legal advice or valuation.
 - Lending or credit scoring.
 - Phase 4 lines: vehicles, equipment, buying a business.
@@ -493,17 +493,17 @@ The system must enforce these rules. Each is tested in document 05.
 | Q-14 | What content goes in the field risk screen, and who may flag a plot as disputed? | Operations, lawyer | R1 |
 | Q-15 | Which second and third countries, and when? **Answered 1 November 2026:** Nigeria from month 6, then Kenya from month 15 | Founder | Closed |
 | Q-16 | Which institutions accept direct payment with an invoice or student reference? | Operations | R0 |
-| Q-17 | Which insurer partners for health and funeral cover in each country, and what intermediary licence Fidero needs? | Founder, lawyer | R2 |
+| Q-17 | Which insurer partners for health and funeral cover in each country, and what intermediary licence Tenmina needs? | Founder, lawyer | R2 |
 | Q-18 | Does property management or errand work need a licence in each country? | Lawyer | R2 |
 | Q-19 | How is a carer vetted and what does a care plan contain? | Operations | R2 |
 | Q-20 | Pricing for each new line | Founder | R1, R2 |
 | Q-21 | What data protection law and regulator apply in each new country, and what notification duties follow? | Lawyer per country | Each country's manual phase |
-| Q-22 | What duty of care does Fidero owe during care visits, how is a carer's own safety protected, and what insurance covers both? | Founder, lawyer, insurer | R2 |
-| Q-23 | Do Apple and Google accept payment of Fidero's fees through the payment provider inside the apps, as payment for real-world services? | Product lead | Before R2 app submission |
-| Q-24 | Does Google Play's financial features declaration, or Apple's rules for financial apps, require any licence or proof from Fidero or its bank in each country? | Lawyer | Before R2 app submission |
-| Q-25 | What withholding tax, registration and reporting apply when Fidero pays contracted professionals in Ghana, Nigeria and Kenya? | Accountant, lawyer | R1 start; each country's manual phase |
-| Q-26 | Which bank account and mobile money provider does Fidero use to pay professionals, and do they accept a bulk payment file? | Founder | R1 start |
-| Q-27 | In Kenya, does Fidero compete with everyday diaspora spending apps such as Tulix (wallet and merchant vouchers, Nairobi) for family payments, or partner with one for day-to-day spending and keep to verified, high-value payments with proof? | Founder | Kenya manual phase |
+| Q-22 | What duty of care does Tenmina owe during care visits, how is a carer's own safety protected, and what insurance covers both? | Founder, lawyer, insurer | R2 |
+| Q-23 | Do Apple and Google accept payment of Tenmina's fees through the payment provider inside the apps, as payment for real-world services? | Product lead | Before R2 app submission |
+| Q-24 | Does Google Play's financial features declaration, or Apple's rules for financial apps, require any licence or proof from Tenmina or its bank in each country? | Lawyer | Before R2 app submission |
+| Q-25 | What withholding tax, registration and reporting apply when Tenmina pays contracted professionals in Ghana, Nigeria and Kenya? | Accountant, lawyer | R1 start; each country's manual phase |
+| Q-26 | Which bank account and mobile money provider does Tenmina use to pay professionals, and do they accept a bulk payment file? | Founder | R1 start |
+| Q-27 | In Kenya, does Tenmina compete with everyday diaspora spending apps such as Tulix (wallet and merchant vouchers, Nairobi) for family payments, or partner with one for day-to-day spending and keep to verified, high-value payments with proof? | Founder | Kenya manual phase |
 
 ---
 
@@ -511,12 +511,12 @@ The system must enforce these rules. Each is tested in document 05.
 
 ## C1. System overview
 
-Fidero is one platform with four front ends over one core API:
+Tenmina is one platform with four front ends over one core API:
 
 1. **Client portal** (web, phone first) for clients abroad and at home: buyers, owners, family supporters, sellers, developers and project fund owners.
 2. **Back office** (web) for operations, reviewers, professionals and administrators.
-3. **Field app, Fidero Field** (iOS and Android, from R2) for contractors, inspectors, runners, surveyors, carers and errand agents.
-5. **Client app, Fidero** (iOS and Android, from R2) for clients, family members and tenants, on the same API as the portal.
+3. **Field app, Tenmina Field** (iOS and Android, from R2) for contractors, inspectors, runners, surveyors, carers and errand agents.
+5. **Client app, Tenmina** (iOS and Android, from R2) for clients, family members and tenants, on the same API as the portal.
 4. **Partner API** for banks and developers.
 
 It integrates with an escrow bank, a payment provider, an identity check provider, map and satellite data sources, insurer partners, and messaging channels. Country is configuration throughout. Architecture is in document 02.
@@ -525,11 +525,11 @@ It integrates with an escrow bank, a payment provider, an identity check provide
 
 | Role | Can do | Cannot do |
 |---|---|---|
-| Client | Order, pay Fidero fees, track own cases, escrows, projects; approve conditions and milestones; open disputes | See other clients' data; release money |
+| Client | Order, pay Tenmina fees, track own cases, escrows, projects; approve conditions and milestones; open disputes | See other clients' data; release money |
 | Seller | Accept escrow terms; supply documents; list verified assets (R2); respond to disputes | See the buyer's personal data beyond what the deal needs |
 | Developer | As seller, for many units; manage estates and off-plan stages | Choose the inspector |
-| Case manager (Fidero operations) | Run cases, assign tasks, chase, enter bank confirmations, prepare release instructions | Approve a release; confirm their own manual bank entry; edit locked text |
-| Reviewer (Fidero) | Review and approve reports, releases, fraud flags, disputes. Holds release rights | Approve a release they prepared, or be both approvers |
+| Case manager (Tenmina operations) | Run cases, assign tasks, chase, enter bank confirmations, prepare release instructions | Approve a release; confirm their own manual bank entry; edit locked text |
+| Reviewer (Tenmina) | Review and approve reports, releases, fraud flags, disputes. Holds release rights | Approve a release they prepared, or be both approvers |
 | Lawyer | Work assigned cases; sign the legal section; see their own payables, expenses and statements | See unassigned cases or other professionals' pay |
 | Surveyor | Work assigned site visits; sign the surveyor's section; see their own payables, expenses and statements | See unassigned cases or other professionals' pay |
 | Runner | Work assigned tasks; capture evidence; claim expenses with receipts | Sign sections; carry client money |
@@ -550,7 +550,7 @@ It integrates with an escrow bank, a payment provider, an identity check provide
 
 Release rights are a permission, not a role. Reviewers and senior staff named by the founder hold it. The two approvers of a release must be different people, and neither may be the person who prepared the instruction.
 
-Payment rights are a separate permission for Fidero's own payment runs to contracted professionals (FR-PRO-005). Senior staff named by the founder hold it. The approver of a run must be a different person from its preparer. Nobody who holds a contracted professional role may hold payment rights, and payment rights never allow a release of client money.
+Payment rights are a separate permission for Tenmina's own payment runs to contracted professionals (FR-PRO-005). Senior staff named by the founder hold it. The approver of a run must be a different person from its preparer. Nobody who holds a contracted professional role may hold payment rights, and payment rights never allow a release of client money.
 
 Every contracted professional, including quantity surveyors, sees only their own agreement, payables, expenses and statements. A case manager closes a runner's month on the last working day; a part month pays by working days at the agreed monthly fee. Pay for accepted work may be held only while a fraud or misconduct review is recorded against that work, with the reason shown to the professional, and is released or cancelled when the review closes. Withholding tax applies to fees, not to reimbursed expenses, unless a country's law says otherwise (Q-25).
 
@@ -573,7 +573,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 |---|---|---|---|---|
 | FR-ACC-001 | The system shall let a person sign up with an email address and a mobile number, both verified by one-time code. | Must | R1 | BR-01 |
 | FR-ACC-002 | The system shall let users sign in with email or phone and a password, or with a one-time code. | Must | R1 | BR-01 |
-| FR-ACC-003 | The system shall require multi-factor authentication for all Fidero staff, professionals, administrators and any user who approves a release. | Must | R1 | BR-15 |
+| FR-ACC-003 | The system shall require multi-factor authentication for all Tenmina staff, professionals, administrators and any user who approves a release. | Must | R1 | BR-15 |
 | FR-ACC-004 | The system shall run an identity check on a client before a report is released or an escrow is opened, using the identity check provider or a manual document check. | Must | R1 | BR-05 |
 | FR-ACC-005 | The system shall store each professional's licence number, licence body and expiry date, and block signing when the licence is expired or unverified. | Must | R1 | RUL-20 |
 | FR-ACC-006 | The system shall let an administrator invite staff, professionals, contractors and inspectors and assign roles, and let a case manager invite a seller to accept escrow terms and supply documents for a named case. | Must | R1 | BR-03 |
@@ -596,11 +596,11 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-ORD-006 | The system shall apply referral codes and record the referral reward owed. | Could | R1 | BR-16 |
 | FR-ORD-007 | The system shall let a client order an extra inspection on a project at the configured price. | Should | R2 | BR-08 |
 
-### C4.3 Payments for Fidero fees (PAY)
+### C4.3 Payments for Tenmina fees (PAY)
 
 | ID | Requirement | Priority | Release | Source |
 |---|---|---|---|---|
-| FR-PAY-001 | The system shall take payment of Fidero's own fees by international card and Ghana mobile money through the payment provider. | Must | R1 | BR-01 |
+| FR-PAY-001 | The system shall take payment of Tenmina's own fees by international card and Ghana mobile money through the payment provider. | Must | R1 | BR-01 |
 | FR-PAY-002 | The system shall never store full card numbers. | Must | R1 | BR-15 |
 | FR-PAY-003 | The system shall issue a receipt for every fee payment, by email and in the portal. | Must | R1 | BR-01 |
 | FR-PAY-004 | The system shall record refunds with a reason and an approver. | Should | R1 | BR-01 |
@@ -626,7 +626,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-CASE-012 | The system shall support case pause, cancellation and refund with reasons. | Should | R1 | BR-03 |
 | FR-CASE-013 | The system shall support a building case template with extra steps: building permit check, structural inspection, occupancy and tenancy check, property rates and utility bills check. | Should | R1 | BR-07 |
 | FR-CASE-014 | The system shall support a fresh-search case type that repeats the Lands Commission search and a site check on a previously verified asset. | Must | R1 | RUL-07 |
-| FR-CASE-015 | The system shall let a client message Fidero inside a case and keep the thread with the case. | Should | R1 | BR-01 |
+| FR-CASE-015 | The system shall let a client message Tenmina inside a case and keep the thread with the case. | Should | R1 | BR-01 |
 
 ### C4.5 Report builder (RPT)
 
@@ -637,7 +637,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-RPT-003 | The system shall compute the allowed overall verdict and block green if any section from 4 to 10 is red. | Must | R1 | RUL-02 |
 | FR-RPT-004 | The system shall insert the scope and limitation statement from a locked, versioned text block. | Must | R1 | RUL-04 |
 | FR-RPT-005 | The system shall let the lawyer sign the legal section and the surveyor sign the surveyor's section, each with name, licence number and time. | Must | R1 | RUL-20 |
-| FR-RPT-006 | The system shall require approval by the signing lawyer and by a second Fidero reviewer who is a different person before release. | Must | R1 | RUL-03 |
+| FR-RPT-006 | The system shall require approval by the signing lawyer and by a second Tenmina reviewer who is a different person before release. | Must | R1 | RUL-03 |
 | FR-RPT-007 | The system shall generate a PDF of the released report, compute its SHA-256 hash and store both. | Must | R1 | BR-06 |
 | FR-RPT-008 | The system shall let anyone with a report reference and PDF check that the PDF matches the stored hash. | Should | R1 | BR-06 |
 | FR-RPT-009 | The system shall record release conditions in section 11 as structured items that can be copied into an escrow. | Must | R1 | BR-05 |
@@ -663,7 +663,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 |---|---|---|---|---|
 | FR-ESC-001 | The system shall create an escrow record with parties, asset, agreed price, currency, bank reference and the release conditions copied from the report. | Must | R1 | BR-05 |
 | FR-ESC-002 | The system shall record each party's acceptance of the escrow terms with time and terms version. | Must | R1 | BR-05 |
-| FR-ESC-003 | The system shall show the client the bank's payment instructions and never Fidero's own account details. | Must | R1 | RUL-01 |
+| FR-ESC-003 | The system shall show the client the bank's payment instructions and never Tenmina's own account details. | Must | R1 | RUL-01 |
 | FR-ESC-004 | The system shall record deposit and release confirmation from the bank's API, statement file or a manual entry. A manual entry needs the bank's confirmation attached and a check by a second staff member. | Must | R1 | BR-05 |
 | FR-ESC-005 | The system shall let a case manager close each condition by attaching the evidence that satisfies it. | Must | R1 | BR-05 |
 | FR-ESC-006 | The system shall block a release instruction while any condition is open, the client has not approved, the fresh search is missing or out of date (purchases only, RUL-07), or (from R2) a dispute is open. | Must | R1 | RUL-06, RUL-07, RUL-15 |
@@ -713,7 +713,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-APP-002 | The client app shall send push notifications for status changes, requests and approvals, following the user's channel preferences and FR-NTF-004's limits on content. | Should | R2 | BR-01, FR-NTF-004 |
 | FR-APP-003 | The client app shall allow biometric unlock. Approving a release still needs the user's second factor. | Should | R2 | FR-ACC-003 |
 | FR-APP-004 | Both apps shall let a user delete their account from inside the app, subject to legal holds and the retention rules in C5.2, and say plainly what is kept and why. | Must | R2 | C-14, FR-DPR-004 |
-| FR-APP-005 | The client app shall take Fidero's fees through the payment provider where store rules allow it for real-world services, and otherwise send the user to the web portal to pay. It shall never take purchase, construction or project money. | Must | R2 | AS-14, RUL-01 |
+| FR-APP-005 | The client app shall take Tenmina's fees through the payment provider where store rules allow it for real-world services, and otherwise send the user to the web portal to pay. It shall never take purchase, construction or project money. | Must | R2 | AS-14, RUL-01 |
 | FR-APP-006 | Both apps shall check for a minimum supported version at start and ask the user to update when theirs is too old, without losing queued evidence. | Must | R2 | C-14, FR-MOB-005 |
 
 ### C4.10 Construction, off-plan and buildings (BLD)
@@ -732,7 +732,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-BLD-010 | The system shall remove a contractor from the panel and freeze their releases when they submit evidence for work not done, after a reviewer confirms. | Must | R2 | BR-12 |
 | FR-BLD-011 | The system shall support off-plan purchases: verify the developer's title, permits and company; hold stage payments; release each stage against app evidence and an inspector. | Should | R2 | BR-09 |
 | FR-BLD-012 | The system shall hold the retention for the defects period and release it when the inspector confirms all defects closed. | Must | R2 | BR-08 |
-| FR-BLD-013 | The system shall let Fidero order bulk materials for a build, pay suppliers from the held funds through the bank, and show deliveries on the dashboard. | Could | R3 | BR-08 |
+| FR-BLD-013 | The system shall let Tenmina order bulk materials for a build, pay suppliers from the held funds through the bank, and show deliveries on the dashboard. | Could | R3 | BR-08 |
 
 ### C4.11 Project funds (PRJ)
 
@@ -742,7 +742,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-PRJ-002 | The system shall run identity and background checks on the person running the project and on each supplier before money is accepted at the bank. | Should | R2 | BR-09 |
 | FR-PRJ-003 | The system shall release money only to checked suppliers against an invoice, with the stage confirmed by receipts, photos and, where configured, a visit. | Should | R2 | RUL-21 |
 | FR-PRJ-004 | The system shall apply enhanced anti-money-laundering checks to project funds above a configurable amount. | Should | R2 | BR-09 |
-| FR-PRJ-005 | The system shall show in every project agreement that Fidero gives no investment advice and guarantees no returns. | Must | R2 | BR-09 |
+| FR-PRJ-005 | The system shall show in every project agreement that Tenmina gives no investment advice and guarantees no returns. | Must | R2 | BR-09 |
 
 ### C4.12 Verified listings (LST)
 
@@ -750,7 +750,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 |---|---|---|---|---|
 | FR-LST-001 | The system shall let a seller or developer submit a plot, building, estate or off-plan unit for listing and pay the listing fee. | Should | R2 | BR-10 |
 | FR-LST-002 | The system shall publish a listing only when its verification report is green and within the validity period. | Must | R2 | RUL-12 |
-| FR-LST-003 | The system shall show on each listing the "Fidero Verified" badge, the date of the checks and a link to the full report. | Must | R2 | RUL-14 |
+| FR-LST-003 | The system shall show on each listing the "Tenmina Verified" badge, the date of the checks and a link to the full report. | Must | R2 | RUL-14 |
 | FR-LST-004 | The system shall let buyers search and filter listings by region, locality, price, size, type and verification date, and view them on a map. | Should | R2 | BR-10 |
 | FR-LST-005 | The system shall let a buyer enquire about or reserve a listing, which starts a fresh search and an escrow. | Should | R2 | BR-10 |
 | FR-LST-006 | The system shall expire the badge after the validity period and suspend the listing on an unresolved monitoring alert. | Must | R2 | RUL-13 |
@@ -836,7 +836,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 
 ### C4.20a Professional payments (PRO)
 
-Fidero's own contracted professionals are paid by Fidero, from its fee income, through this module. It never touches client money held at the bank (RUL-27).
+Tenmina's own contracted professionals are paid by Tenmina, from its fee income, through this module. It never touches client money held at the bank (RUL-27).
 
 | ID | Requirement | Priority | Release | Source |
 |---|---|---|---|---|
@@ -844,8 +844,8 @@ Fidero's own contracted professionals are paid by Fidero, from its fee income, t
 | FR-PRO-002 | The system shall create a payable only when the work is accepted: a legal or surveyor's section signed and passed second review, an inspection checklist submitted, a bill of quantities accepted, an errand document checked, or a runner's month closed. | Must | R1 | BR-23, RUL-26 |
 | FR-PRO-003 | The system shall not allow a rate that varies by verdict, inspection outcome or any other result of the professional's work. | Must | R1 | RUL-26 |
 | FR-PRO-004 | The system shall let professionals claim expenses (official search fees, travel, approved costs) with a receipt photo, within limits set per country and role. A claim above the limit or without a receipt needs a second staff approval. | Should | R1 | BR-23 |
-| FR-PRO-005 | The system shall group approved payables and expenses into a payment run, prepared by one staff member and approved by a different one with payment rights, and produce a bulk payment file for Fidero's bank or mobile money provider. | Must | R1 | BR-23, RUL-27 |
-| FR-PRO-006 | The system shall pay professionals only from Fidero's operating account, to an account verified in the professional's own name. Professional payables and client escrow are kept in separate records with no transfer between them. | Must | R1 | RUL-27, RUL-22 |
+| FR-PRO-005 | The system shall group approved payables and expenses into a payment run, prepared by one staff member and approved by a different one with payment rights, and produce a bulk payment file for Tenmina's bank or mobile money provider. | Must | R1 | BR-23, RUL-27 |
+| FR-PRO-006 | The system shall pay professionals only from Tenmina's operating account, to an account verified in the professional's own name. Professional payables and client escrow are kept in separate records with no transfer between them. | Must | R1 | RUL-27, RUL-22 |
 | FR-PRO-007 | The system shall apply withholding tax and other deductions set in each country's configuration, and produce a remittance advice per payment and a yearly statement per professional. | Must | R1 | BR-23, Q-25 |
 | FR-PRO-008 | The system shall pay accepted work within a configurable period (10 working days, assumption) and alert operations when a payable is overdue. | Should | R1 | BR-23 |
 | FR-PRO-009 | The system shall reconcile each payment run against the bank's or provider's confirmation and list failed or unconfirmed lines for a staff member to resolve. | Should | R1 | BR-23 |
@@ -871,8 +871,8 @@ Fidero's own contracted professionals are paid by Fidero, from its fee income, t
 | FR-CARE-002 | The system shall keep a panel of vetted carers with identity, references, background check, training and track record, and shall assign only vetted carers. | Must | R2 | BR-18 |
 | FR-CARE-003 | The carer shall check in at the registered address, complete the plan items, attach the agreed photos or readings, and check out, all in the field app. | Must | R2 | RUL-23 |
 | FR-CARE-004 | The system shall ask the family member to confirm each visit by a one-tap code, a call or the app, and shall pay the carer only for confirmed visits. A visit unconfirmed after 72 hours goes to a reviewer, who decides from the check-in evidence and a call to the family. Confirmation by call is recorded by the staff member and checked by a second. Codes lock after 5 wrong attempts. | Must | R2 | RUL-23 |
-| FR-CARE-005 | The system shall alert the client and Fidero when a visit is missed, late or unconfirmed within 24 hours. | Must | R2 | BR-18 |
-| FR-CARE-006 | The system shall let the carer raise a concern (health, safety, welfare) that goes to the client and a Fidero reviewer the same day. | Must | R2 | BR-18 |
+| FR-CARE-005 | The system shall alert the client and Tenmina when a visit is missed, late or unconfirmed within 24 hours. | Must | R2 | BR-18 |
+| FR-CARE-006 | The system shall let the carer raise a concern (health, safety, welfare) that goes to the client and a Tenmina reviewer the same day. | Must | R2 | BR-18 |
 
 ### C4.23 Property management (PMG)
 
@@ -880,7 +880,7 @@ Fidero's own contracted professionals are paid by Fidero, from its fee income, t
 |---|---|---|---|---|
 | FR-PMG-001 | The system shall let an owner register a property and shall record an inspection of its condition with photos before management starts. | Should | R2 | BR-19 |
 | FR-PMG-002 | The system shall record the tenant, the tenancy agreement, the rent and the owner's own account at the partner bank to which rent is paid. | Must | R2 | RUL-24 |
-| FR-PMG-003 | The system shall track rent due and received from the bank's statement lines for that account only, under the owner's written mandate allowing the bank to share them, and shall alert the owner and Fidero when rent is late. | Must | R2 | BR-19 |
+| FR-PMG-003 | The system shall track rent due and received from the bank's statement lines for that account only, under the owner's written mandate allowing the bank to share them, and shall alert the owner and Tenmina when rent is late. | Must | R2 | BR-19 |
 | FR-PMG-004 | The system shall let a tenant or inspector report a repair, shall collect at least two quotes from vetted contractors, and shall let the owner approve one. | Should | R2 | BR-19 |
 | FR-PMG-005 | The system shall hold the repair money at the bank and release it to the contractor only after inspection with photos. | Must | R2 | RUL-22 |
 | FR-PMG-006 | The system shall schedule periodic inspections and show the owner a timeline of rent, repairs and inspections. | Should | R2 | BR-19 |
@@ -889,10 +889,10 @@ Fidero's own contracted professionals are paid by Fidero, from its fee income, t
 
 | ID | Requirement | Priority | Release | Source |
 |---|---|---|---|---|
-| FR-TSK-001 | The system shall offer a catalogue of errands per country (identity documents, passports, land title steps, probate, company registration, tax filings, utility connections), each with a document checklist, official fees, Fidero's charge and a target time. | Should | R2 | BR-20 |
-| FR-TSK-002 | The system shall let the client upload the checklist documents and pay the official fees into the partner bank and Fidero's charge through the payment provider. | Must | R2 | BR-20 |
-| FR-TSK-003 | The system shall assign a vetted agent, paid by Fidero under FR-PRO for completed errands, shall pay official fees to the agency's account only, and shall record each step with the receipt or acknowledgement uploaded. | Must | R2 | RUL-22, RUL-23 |
-| FR-TSK-004 | The system shall confirm completion only when the resulting document or official confirmation is uploaded and checked by Fidero. | Must | R2 | RUL-23 |
+| FR-TSK-001 | The system shall offer a catalogue of errands per country (identity documents, passports, land title steps, probate, company registration, tax filings, utility connections), each with a document checklist, official fees, Tenmina's charge and a target time. | Should | R2 | BR-20 |
+| FR-TSK-002 | The system shall let the client upload the checklist documents and pay the official fees into the partner bank and Tenmina's charge through the payment provider. | Must | R2 | BR-20 |
+| FR-TSK-003 | The system shall assign a vetted agent, paid by Tenmina under FR-PRO for completed errands, shall pay official fees to the agency's account only, and shall record each step with the receipt or acknowledgement uploaded. | Must | R2 | RUL-22, RUL-23 |
+| FR-TSK-004 | The system shall confirm completion only when the resulting document or official confirmation is uploaded and checked by Tenmina. | Must | R2 | RUL-23 |
 | FR-TSK-005 | The system shall record handover of the document to the client's representative or courier, with a signature or photo. | Should | R2 | BR-20 |
 
 ### C4.25 Insurer partner lines (INS)
@@ -900,9 +900,9 @@ Fidero's own contracted professionals are paid by Fidero, from its fee income, t
 | ID | Requirement | Priority | Release | Source |
 |---|---|---|---|---|
 | FR-INS-001 | The system shall present health and funeral cover products from licensed insurer partners, showing the insurer's name, the policy terms and that the policy is the insurer's. | Could | R2 | BR-21, RUL-25 |
-| FR-INS-002 | The system shall collect the application and pass it to the insurer, and shall direct premium payment to the insurer's account, never to Fidero: either the client pays the insurer directly, or the bank pays the insurer from money held for that purpose. | Must | R2 | RUL-25 |
+| FR-INS-002 | The system shall collect the application and pass it to the insurer, and shall direct premium payment to the insurer's account, never to Tenmina: either the client pays the insurer directly, or the bank pays the insurer from money held for that purpose. | Must | R2 | RUL-25 |
 | FR-INS-003 | The system shall store the policy document, renewal dates and the insurer's claim contact, and shall remind the client before renewal. | Should | R2 | BR-21 |
-| FR-INS-004 | The system shall let a client start a claim and shall track the insurer's response, without Fidero deciding the claim. | Could | R2 | RUL-25 |
+| FR-INS-004 | The system shall let a client start a claim and shall track the insurer's response, without Tenmina deciding the claim. | Could | R2 | RUL-25 |
 
 ### C4.26 Events and ceremonies (EVT)
 
@@ -986,7 +986,7 @@ Fidero's own contracted professionals are paid by Fidero, from its fee income, t
 | Safety | Incident and threat logs | `[TO VERIFY]`; restricted access |
 | Health and care | Hospital invoices, care plans, visit records, readings, carer concerns | `[TO VERIFY]`; restricted access, own encryption key |
 | Tenancy | Tenant identity, agreements, rent records | Tenancy plus `[TO VERIFY]` |
-| Identity documents | Passports, ID cards and certificates handled in errands | Deleted from Fidero storage `[TO VERIFY]` days after handover |
+| Identity documents | Passports, ID cards and certificates handled in errands | Deleted from Tenmina storage `[TO VERIFY]` days after handover |
 | Insurance | Applications and policy documents | Policy life plus `[TO VERIFY]` |
 | Audit | Audit log | At least as long as the longest class it covers |
 | Marketing | Leads | 24 months from last contact (assumption) |
@@ -996,7 +996,7 @@ Fidero's own contracted professionals are paid by Fidero, from its fee income, t
 | ID | Interface | Purpose | Release | Notes |
 |---|---|---|---|---|
 | IF-01 | Escrow bank or agent | Deposit confirmation, release instructions and confirmation | R1 manual; R2 file or API | Format agreed with the bank `[TO VERIFY]` |
-| IF-02 | Payment provider | Card and mobile money for Fidero fees | R1 | Provider `[TO VERIFY]` |
+| IF-02 | Payment provider | Card and mobile money for Tenmina fees | R1 | Provider `[TO VERIFY]` |
 | IF-03 | Identity check provider | Ghana Card and passport checks | R1 | Provider `[TO VERIFY]` |
 | IF-04 | Map layers | Acquisitions, road reserves, wetlands, flood zones, zoning | R1 | Sources `[TO VERIFY]` |
 | IF-05 | Satellite imagery | Images for reports; change detection | R1 images; R2 monitoring | Provider `[TO VERIFY]` |
@@ -1006,8 +1006,8 @@ Fidero's own contracted professionals are paid by Fidero, from its fee income, t
 | IF-09 | Lands Commission | Searches | Manual in all releases unless online access is offered `[TO VERIFY]` | |
 | IF-10 | Institutions: schools, hospitals, agencies | Invoice references and receipts | R1 manual upload; R2 portal or file | Per institution `[TO VERIFY]` |
 | IF-11 | Insurer partners | Applications, premiums, policies, claims | R2 | Per insurer `[TO VERIFY]` |
-| IF-13 | Fidero's operating bank or mobile money provider | Bulk payment files for professional pay and their confirmations | R1 | Fidero's own account, separate from the escrow bank relationship (Q-26) |
-| IF-12 | Apple App Store and Google Play | App distribution and review, push notification services, device attestation | R2 | Store accounts held by Fidero |
+| IF-13 | Tenmina's operating bank or mobile money provider | Bulk payment files for professional pay and their confirmations | R1 | Tenmina's own account, separate from the escrow bank relationship (Q-26) |
+| IF-12 | Apple App Store and Google Play | App distribution and review, push notification services, device attestation | R2 | Store accounts held by Tenmina |
 
 ## C7. Non-functional requirements
 
@@ -1080,7 +1080,7 @@ A case starts once its order is paid (FR-ORD-004). Before that, only the order e
 | Not started | Submitted | Contractor submits evidence |
 | Submitted | Returned | Evidence incomplete, or flagged and rejected by a reviewer |
 | Returned | Submitted | Contractor resubmits |
-| Submitted | Evidence checked | Fidero accepts evidence (flags cleared by a reviewer) |
+| Submitted | Evidence checked | Tenmina accepts evidence (flags cleared by a reviewer) |
 | Evidence checked | Inspection scheduled | Inspector assigned with a visit date |
 | Inspection scheduled | Inspected | Inspector records outcome |
 | Inspected (fail) | Returned | Contractor must fix and resubmit |
@@ -1138,8 +1138,8 @@ Each functional requirement and business rule has acceptance criteria and test c
 | Fresh search | A repeat search and site check just before money is released |
 | Bill of quantities | The quantity surveyor's list of materials, labour and costs for a build |
 | Retention | Part of the build value held back until the defects period ends |
-| Release instruction | Fidero's signed instruction to the bank to pay out escrowed money |
-| Badge | The "Fidero Verified" mark on a listing, valid for a set period |
-| Institution | A school, hospital, clinic, pharmacy, agency or utility that Fidero has verified and pays directly |
+| Release instruction | Tenmina's signed instruction to the bank to pay out escrowed money |
+| Badge | The "Tenmina Verified" mark on a listing, valid for a set period |
+| Institution | A school, hospital, clinic, pharmacy, agency or utility that Tenmina has verified and pays directly |
 | Care plan | The agreed schedule and tasks for visits to a family member |
 | Errand | A paperwork or in-person task done at home by a vetted agent |

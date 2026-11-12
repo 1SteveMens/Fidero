@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { Switch, View } from 'react-native';
-import { brand, space } from '@fidero/tokens';
-import { Button, Chip, Label, ListRow, Panel, Rise, Screen, T } from '@fidero/ui';
+import { brand, space } from '@tenmina/tokens';
+import { Button, Chip, Label, ListRow, Panel, Rise, Screen, T } from '@tenmina/ui';
 import { useField, useFieldLoad } from '../../store';
 
 export default function Account() {
@@ -23,7 +23,7 @@ export default function Account() {
         <Label style={{ marginBottom: space[2] }}>This phone</Label>
         <Panel style={{ gap: 0, paddingVertical: space[1] }}>
           <ListRow icon="camera-outline" title="Evidence taken in this app" detail="Camera only. No gallery or files (RUL-08)" trailing={<Chip tone="lime" label={String(captures.length)} />} />
-          <ListRow icon="cloud-upload-outline" title="Waiting to upload" detail="Kept until Fidero confirms receipt" trailing={<Chip tone="paper" label={String(waiting)} />} />
+          <ListRow icon="cloud-upload-outline" title="Waiting to upload" detail="Kept until Tenmina confirms receipt" trailing={<Chip tone="paper" label={String(waiting)} />} />
           <ListRow icon="lock-closed" title="Sealing photos" detail="Fingerprinted now. Hardware signing comes with the test build (FR-MOB-004)" />
           <ListRow
             icon="cloud-offline-outline"
@@ -37,7 +37,7 @@ export default function Account() {
       <Rise delay={160}>
         <Label style={{ marginBottom: space[2] }}>Help</Label>
         <Panel style={{ gap: 0, paddingVertical: space[1] }}>
-          <ListRow icon="help-circle-outline" title="Talk to Fidero" onPress={() => undefined} />
+          <ListRow icon="help-circle-outline" title="Talk to Tenmina" onPress={() => undefined} />
           <ListRow icon="trash-outline" iconTone="orange" title="Delete my account" detail="See what is deleted and what we must keep (FR-APP-004)" onPress={() => undefined} last />
         </Panel>
       </Rise>
@@ -49,7 +49,7 @@ export default function Account() {
           router.replace('/welcome');
         }}
       />
-      <Label style={{ textAlign: 'center' }}>Fidero Field 0.1 · demo build with sample data</Label>
+      <Label style={{ textAlign: 'center' }}>Tenmina Field 0.1 · demo build with sample data</Label>
     </Screen>
   );
 }

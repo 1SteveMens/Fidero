@@ -1,4 +1,4 @@
-// Domain types shared by the Fidero apps. Names follow docs/specs/01 and 02.
+// Domain types shared by the Tenmina apps. Names follow docs/specs/01 and 02.
 
 export type CountryCode = 'GH' | 'NG' | 'KE';
 
@@ -154,7 +154,7 @@ export interface HomeRow {
   badge?: { label: string; verdict?: Verdict };
 }
 
-/** One account the bank holds for the client. Fidero never holds it (RUL-01). */
+/** One account the bank holds for the client. Tenmina never holds it (RUL-01). */
 export interface HeldAccount {
   id: string;
   /** What the money is for, for example "Plot 14, Kasoa". */

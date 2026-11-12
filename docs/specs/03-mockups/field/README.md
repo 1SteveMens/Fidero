@@ -1,6 +1,6 @@
-# Fidero Field mockups in Bloc
+# Tenmina Field mockups in Bloc
 
-Six Fidero Field screens in the Bloc direction (document 03, sections 6.1a and 6.1c), drawn from wireframes W-17, W-18, W-30 and W-40. They are the source files of row 5 on the design canvas at https://claude.ai/artifact/5EPmPiRm2cBuJKmy3AJb3K. Each file is one 390 × 844 artboard in the canvas's `.dc.html` format.
+Six Tenmina Field screens in the Bloc direction (document 03, sections 6.1a and 6.1c), drawn from wireframes W-17, W-18, W-30 and W-40. They are the source files of row 5 on the design canvas at https://claude.ai/artifact/5EPmPiRm2cBuJKmy3AJb3K. Each file is one 390 × 844 artboard in the canvas's `.dc.html` format.
 
 | File | Screen | Role | Wireframe |
 |---|---|---|---|

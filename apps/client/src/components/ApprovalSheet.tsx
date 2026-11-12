@@ -2,13 +2,13 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Animated, Platform, View } from 'react-native';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { formatMoney, type Money, type Payee } from '@fidero/shared';
-import { brand, holdToApproveMs, radius, space } from '@fidero/tokens';
-import { usePalette, useReducedMotion, useScreenReader } from '@fidero/ui';
-import { Button, CodeField, HoldButton, Label, Panel, Pulse, Rise, Screen, T, Tick, haptic } from '@fidero/ui';
-import { Ticket } from '@fidero/ui';
+import { formatMoney, type Money, type Payee } from '@tenmina/shared';
+import { brand, holdToApproveMs, radius, space } from '@tenmina/tokens';
+import { usePalette, useReducedMotion, useScreenReader } from '@tenmina/ui';
+import { Button, CodeField, HoldButton, Label, Panel, Pulse, Rise, Screen, T, Tick, haptic } from '@tenmina/ui';
+import { Ticket } from '@tenmina/ui';
 
-/** Who approves, in order. Two different Fidero staff, then the bank pays (RUL-05, RUL-11). */
+/** Who approves, in order. Two different Tenmina staff, then the bank pays (RUL-05, RUL-11). */
 const CHAIN = ['You', 'Staff 1', 'Staff 2', 'Bank pays'] as const;
 
 function initials(name: string) {
@@ -126,7 +126,7 @@ export function ApprovalSheet({
       {children}
 
       <Rise delay={280}>
-        <View style={{ flexDirection: 'row', gap: 6 }} accessibilityLabel="You approve first. Then two Fidero staff. Then the bank pays.">
+        <View style={{ flexDirection: 'row', gap: 6 }} accessibilityLabel="You approve first. Then two Tenmina staff. Then the bank pays.">
           {CHAIN.map((c, i) => (
             <View key={c} style={{ flex: 1, gap: 6 }}>
               <View style={{ height: 8, borderRadius: 4, backgroundColor: i === 0 ? brand.orange : '#2C2C2C' }} />
@@ -163,8 +163,8 @@ function Approved({ amount, payee, message }: { amount: Money; payee: Payee; mes
   const p = usePalette('ink');
   const rows: { state: 'done' | 'now' | 'next'; title: string; detail: string }[] = [
     { state: 'done', title: 'You approved', detail: 'Just now, with your authenticator code' },
-    { state: 'now', title: 'Fidero staff, first check', detail: 'Checking the conditions again' },
-    { state: 'next', title: 'Fidero staff, second check', detail: 'A different person checks again' },
+    { state: 'now', title: 'Tenmina staff, first check', detail: 'Checking the conditions again' },
+    { state: 'next', title: 'Tenmina staff, second check', detail: 'A different person checks again' },
     { state: 'next', title: 'The bank pays', detail: `${payee.name} ••${payee.accountLast4}. The receipt comes here.` },
   ];
   return (

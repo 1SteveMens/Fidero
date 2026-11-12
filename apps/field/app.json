@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "Fidero Field",
-    "slug": "fidero-field",
+    "name": "Tenmina Field",
+    "slug": "tenmina-field",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.fidero.field"
+      "bundleIdentifier": "com.tenmina.field"
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +18,7 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.fidero.field"
+      "package": "com.tenmina.field"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -31,19 +31,19 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Fidero Field uses the camera to take evidence photos for your jobs. Photos come only from this camera, never from your gallery.",
-          "microphonePermission": "Fidero Field records sound with evidence videos.",
+          "cameraPermission": "Tenmina Field uses the camera to take evidence photos for your jobs. Photos come only from this camera, never from your gallery.",
+          "microphonePermission": "Tenmina Field records sound with evidence videos.",
           "recordAudioAndroid": true
         }
       ],
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Fidero Field records where each photo is taken and where you check in, so the client knows the work was done on site."
+          "locationWhenInUsePermission": "Tenmina Field records where each photo is taken and where you check in, so the client knows the work was done on site."
         }
       ]
     ],
-    "scheme": "fiderofield",
+    "scheme": "tenminafield",
     "experiments": {
       "typedRoutes": true
     }

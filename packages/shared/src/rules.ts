@@ -68,4 +68,4 @@ export function isWellFormedCode(code: string): boolean {
 }
 
 /** The three steps every release goes through (RUL-05, RUL-11). */
-export const RELEASE_STEPS = ['You approve', 'Two Fidero staff approve', 'The bank pays'] as const;
+export const RELEASE_STEPS = ['You approve', 'Two Tenmina staff approve', 'The bank pays'] as const;

@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 import * as Location from 'expo-location';
 import * as Crypto from 'expo-crypto';
 import { Directory, File, Paths } from 'expo-file-system';
-import { distanceMeters, type Capture, type GeoPoint, type Site } from '@fidero/shared';
+import { distanceMeters, type Capture, type GeoPoint, type Site } from '@tenmina/shared';
 import { newId } from './store';
 
 export type Position = GeoPoint & { accuracyM?: number };
@@ -42,7 +42,7 @@ async function fingerprint(uri: string): Promise<string> {
 function keepOnPhone(uri: string, id: string, ext: string): string {
   if (Platform.OS === 'web') return uri;
   try {
-    const dir = new Directory(Paths.document, 'fidero-field', 'evidence');
+    const dir = new Directory(Paths.document, 'tenmina-field', 'evidence');
     if (!dir.exists) dir.create({ intermediates: true, idempotent: true });
     const dest = new File(dir, `${id}.${ext}`);
     new File(uri).copySync(dest);

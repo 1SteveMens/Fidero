@@ -1,6 +1,6 @@
-# Fidero
+# Tenmina
 
-Fidero (from *fides*, trust) is the trusted agent at home for people abroad. Anyone in the diaspora who needs something done in their home country, from buying a plot to paying a parent's hospital bill, can have it checked, paid against proof, and shown to them. Ghana is the launch market. Land verification is the launch product. Nigeria follows from month 6 and Kenya from month 15.
+Tenmina (from the Parable of the Minas in Luke 19: "your mina has made ten minas") is the trusted agent at home for people abroad. Anyone in the diaspora who needs something done in their home country, from buying a plot to paying a parent's hospital bill, can have it checked, paid against proof, and shown to them. Ghana is the launch market. Land verification is the launch product. Nigeria follows from month 6 and Kenya from month 15.
 
 All figures in this repository are working assumptions, not verified data. Unknown numbers are marked `[TO VERIFY]`.
 
@@ -16,18 +16,18 @@ Ghanaians abroad sent home about $7.8B in 2025 and Nigerians about $21.8B (press
 
 ## The solution: one engine
 
-Every Fidero line works the same way.
+Every Tenmina line works the same way.
 
 1. **Verify** the asset or the people: the plot, the seller, the school, the hospital, the carer, the contractor, the tenant.
-2. **Hold** the money with a licensed partner bank or escrow agent. Fidero never holds client money.
+2. **Hold** the money with a licensed partner bank or escrow agent. Tenmina never holds client money.
 3. **Release** it only against evidence, and only to a verified institution, supplier, vendor or professional. Never as cash to a relative.
 4. **Show** the client every step in plain language.
 
-Clients use the Fidero app and field staff use the Fidero Field app. Both are on the Apple App Store and Google Play from R2. Before then, and on laptops, clients use the web portal.
+Clients use the Tenmina app and field staff use the Tenmina Field app. Both are on the Apple App Store and Google Play from R2. Before then, and on laptops, clients use the web portal.
 
 ## Product families
 
-| Family | Line | What Fidero verifies | What releases the money | Release |
+| Family | Line | What Tenmina verifies | What releases the money | Release |
 |---|---|---|---|---|
 | **Property** | Land verification | Searches, survey, overlays, seller authority and consent | Report conditions met and indenture signed | R1 |
 | | Building verification | Land checks plus permit, structural inspection, occupancy, rates and utilities | Conditions met, transfer signed, keys handed over | R1 |
@@ -47,7 +47,7 @@ Land is the launch product because it is the highest-value, least-served problem
 
 ## Verified listings
 
-From month 9, sellers can pay to have a plot or property verified once and listed with a "Fidero Verified" badge. Buyers browse the listings and buy through escrow, so one verification serves many buyers. The model borrows from Alibaba: verified sellers, payment held until delivery, public track records and a dispute process. A fresh search still runs before any money moves, licensed third parties do the checks, and buyers see the full report. Developers list first, then families and stools through the records programme. Details are in `docs/proposal.md`.
+From month 9, sellers can pay to have a plot or property verified once and listed with a "Tenmina Verified" badge. Buyers browse the listings and buy through escrow, so one verification serves many buyers. The model borrows from Alibaba: verified sellers, payment held until delivery, public track records and a dispute process. A fresh search still runs before any money moves, licensed third parties do the checks, and buyers see the full report. Developers list first, then families and stools through the records programme. Details are in `docs/proposal.md`.
 
 ## Customers
 
@@ -90,8 +90,8 @@ Pre-seed: $400k for 18 months `[TO VERIFY]` against the wider scope. It funds th
 | Path | What it holds |
 |---|---|
 | `README.md` | This summary |
-| `CLAUDE.md` | Context and writing rules for Claude sessions working on Fidero |
-| `docs/decisions/` | Decision records. Start with `2026-11-01-diaspora-platform.md`, then `2026-11-12-build-with-claude.md` (who builds the software) |
+| `CLAUDE.md` | Context and writing rules for Claude sessions working on Tenmina |
+| `docs/decisions/` | Decision records. Start with `2026-11-01-diaspora-platform.md`, then `2026-11-12-build-with-claude.md` (who builds the software) and `2026-11-12-name-tenmina.md` (the name) |
 | `docs/proposal.md` | Full business proposal |
 | `docs/validation-plan.md` | 90-day plan to launch the manual verification service |
 | `docs/partners.md` | Partner types and the first ask to each |
@@ -100,8 +100,8 @@ Pre-seed: $400k for 18 months `[TO VERIFY]` against the wider scope. It funds th
 | `docs/operations/testing-the-apps.md` | How the founder runs the apps on a phone from a laptop |
 | `docs/operations/r0-tracker.xlsx` | R0 tracker: leads, cases, costs, searches, payments to institutions, incidents, and the fortnightly and day-90 review (EN-01, EN-05, EN-51) |
 | `docs/product/architecture.md` | Early architecture proposal. Superseded in detail by `docs/specs/02` |
-| `apps/client/` | The Fidero client app (Expo, React Native), first build on sample data |
-| `apps/field/` | Fidero Field, the app for inspectors, contractors and carers, on sample data |
+| `apps/client/` | The Tenmina client app (Expo, React Native), first build on sample data |
+| `apps/field/` | Tenmina Field, the app for inspectors, contractors and carers, on sample data |
 | `packages/ui/` | Bloc components shared by both apps |
 | `apps/landing/` | R0 landing page with the order form (EN-03), one static HTML file |
 | `packages/shared/`, `packages/tokens/` | Shared types, rules, sample API and design tokens for the apps |
@@ -109,4 +109,4 @@ Pre-seed: $400k for 18 months `[TO VERIFY]` against the wider scope. It funds th
 
 ## Naming note
 
-Never use "guard" in Fidero branding or product names. Land guards are the threat the service protects against.
+Never use "guard" in Tenmina branding or product names. Land guards are the threat the service protects against.

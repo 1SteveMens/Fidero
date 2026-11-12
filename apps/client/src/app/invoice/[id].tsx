@@ -1,10 +1,10 @@
 import { View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { formatDay, invoiceBlockers } from '@fidero/shared';
-import { brand, space } from '@fidero/tokens';
+import { formatDay, invoiceBlockers } from '@tenmina/shared';
+import { brand, space } from '@tenmina/tokens';
 import { ApprovalSheet } from '../../components/ApprovalSheet';
-import { ErrorView, Loading, Screen, T } from '@fidero/ui';
+import { ErrorView, Loading, Screen, T } from '@tenmina/ui';
 import { useApi, useLoad } from '../../data';
 
 export default function InvoiceSheet() {
@@ -23,8 +23,8 @@ export default function InvoiceSheet() {
       description={inv.description}
       payee={inv.payee}
       payeePlace={inv.institutionPlace}
-      checks={[{ label: 'Institution verified by Fidero', ok: inv.institutionVerified }, ...inv.checks]}
-      blockers={inv.status === 'awaiting_client' ? invoiceBlockers(inv) : ['You have already approved this bill. Fidero staff are approving it now.']}
+      checks={[{ label: 'Institution verified by Tenmina', ok: inv.institutionVerified }, ...inv.checks]}
+      blockers={inv.status === 'awaiting_client' ? invoiceBlockers(inv) : ['You have already approved this bill. Tenmina staff are approving it now.']}
       onApprove={(code) => api.approveInvoice(inv.id, code)}
     >
       <View style={{ flexDirection: 'row', gap: space[3], alignItems: 'flex-start' }}>

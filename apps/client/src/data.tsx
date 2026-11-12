@@ -1,8 +1,8 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 import { useFocusEffect } from 'expo-router';
-import { createSampleApi, type FideroApi } from '@fidero/shared';
+import { createSampleApi, type TenminaApi } from '@tenmina/shared';
 
-const ApiContext = createContext<FideroApi | null>(null);
+const ApiContext = createContext<TenminaApi | null>(null);
 
 interface Session {
   signedIn: boolean;
@@ -30,7 +30,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
   return <ApiContext.Provider value={api}>{children}</ApiContext.Provider>;
 }
 
-export function useApi(): FideroApi {
+export function useApi(): TenminaApi {
   const api = useContext(ApiContext);
   if (!api) throw new Error('useApi must be used inside ApiProvider');
   return api;
@@ -43,7 +43,7 @@ export interface Loaded<T> {
 }
 
 /** Loads data each time the screen comes into focus, so approvals made elsewhere show at once. */
-export function useLoad<T>(load: (api: FideroApi) => Promise<T>, key: string): Loaded<T> {
+export function useLoad<T>(load: (api: TenminaApi) => Promise<T>, key: string): Loaded<T> {
   const api = useApi();
   const [data, setData] = useState<T>();
   const [error, setError] = useState<string>();

@@ -1,16 +1,16 @@
 import { View, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { brand, font, radius, space } from '@fidero/tokens';
-import { Mark } from '@fidero/ui';
-import { Seal } from '@fidero/ui';
-import { Button, Label, Pulse, Rise, T } from '@fidero/ui';
+import { brand, font, radius, space } from '@tenmina/tokens';
+import { Mark } from '@tenmina/ui';
+import { Seal } from '@tenmina/ui';
+import { Button, Label, Pulse, Rise, T } from '@tenmina/ui';
 import { useSession } from '../data';
-import { GroundContext } from '@fidero/ui';
+import { GroundContext } from '@tenmina/ui';
 
 /**
  * First screen. The lime block with the seal stands in for the photograph in the
- * mockup until Fidero has a licensed image for the app and the store pages.
+ * mockup until Tenmina has a licensed image for the app and the store pages.
  */
 export default function Welcome() {
   const { signIn } = useSession();
@@ -26,7 +26,7 @@ export default function Welcome() {
         <Rise style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[2] }}>
             <Mark />
-            <T v="title" color="#F7F6F2" style={{ fontFamily: font.heavy, letterSpacing: -1 }}>fidero</T>
+            <T v="title" color="#F7F6F2" style={{ fontFamily: font.heavy, letterSpacing: -1 }}>tenmina</T>
           </View>
         </Rise>
 

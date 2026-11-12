@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "Fidero",
-    "slug": "fidero",
+    "name": "Tenmina",
+    "slug": "tenmina",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.fidero.client"
+      "bundleIdentifier": "com.tenmina.client"
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +18,7 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.fidero.client"
+      "package": "com.tenmina.client"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -29,7 +29,7 @@
       "expo-router",
       "expo-font"
     ],
-    "scheme": "fidero",
+    "scheme": "tenmina",
     "experiments": {
       "typedRoutes": true
     }

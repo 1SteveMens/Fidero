@@ -1,14 +1,14 @@
-# Decision: Fidero becomes the diaspora's trusted agent at home
+# Decision: Tenmina becomes the diaspora's trusted agent at home
 
 Date: 1 November 2026. Status: agreed by the founder. Supersedes the land-first framing in earlier documents. Every figure is a working assumption. Unknowns are `[TO VERIFY]`.
 
 ## What changed
 
-Fidero was defined as a land verification, escrow and construction platform for Ghana. It is now defined as a platform for anyone in the diaspora who needs something done at home and wants proof that it was done. Land and property remain the launch product. The engine does not change.
+Tenmina was defined as a land verification, escrow and construction platform for Ghana. It is now defined as a platform for anyone in the diaspora who needs something done at home and wants proof that it was done. Land and property remain the launch product. The engine does not change.
 
-**The engine.** Verify the asset or the people. A licensed partner holds the money. Release it only against evidence. Fidero never holds client money.
+**The engine.** Verify the asset or the people. A licensed partner holds the money. Release it only against evidence. Tenmina never holds client money.
 
-**The one-line positioning.** Fidero is the trusted agent at home for people abroad. It checks, it pays against proof, and it shows you.
+**The one-line positioning.** Tenmina is the trusted agent at home for people abroad. It checks, it pays against proof, and it shows you.
 
 ## Why
 
@@ -19,7 +19,7 @@ Fidero was defined as a land verification, escrow and construction platform for 
 
 ## Product families and lines
 
-| Family | Line | What Fidero verifies | What releases the money | Release |
+| Family | Line | What Tenmina verifies | What releases the money | Release |
 |---|---|---|---|---|
 | **Property** | Land verification | Searches, survey, overlays, seller authority and consent | Report conditions met, indenture signed | R1 |
 | | Building verification | Land checks plus permit, structural inspection, occupancy, rates and utilities | Conditions met, transfer signed, keys handed over | R1 |
@@ -38,15 +38,15 @@ Fidero was defined as a land verification, escrow and construction platform for 
 Rules that apply to every line:
 
 - Money goes to a verified institution, supplier, vendor or professional. It never goes as cash to a relative.
-- Fidero confirms the money was spent as agreed. It does not judge whether a project, property or investment will succeed, and gives no investment advice.
-- Lines that need a licence Fidero does not hold (insurance, remittance, real estate agency where Act 1047 applies) run through licensed partners.
+- Tenmina confirms the money was spent as agreed. It does not judge whether a project, property or investment will succeed, and gives no investment advice.
+- Lines that need a licence Tenmina does not hold (insurance, remittance, real estate agency where Act 1047 applies) run through licensed partners.
 
 ## Countries
 
 - Ghana launches first and remains the lead market.
 - A country is a configuration from the first software release: templates, scope statement, overlay layers, currency, partners, licence bodies, legal texts, holiday calendar and data location.
 - A second country starts its manual phase from about month 6, once Ghana has passed its day-90 gate, instead of waiting until month 18. Each country repeats the manual phase and a 90-day validation before any software is localised.
-- Order: Ghana, then Nigeria, then Kenya (decided 1 November 2026, see below). Entry criteria are unchanged: a large diaspora in the countries Fidero already serves, a legal route to escrow through a licensed bank or agent, licensed professionals to contract, a partner bank and an insurer, and safe field conditions.
+- Order: Ghana, then Nigeria, then Kenya (decided 1 November 2026, see below). Entry criteria are unchanged: a large diaspora in the countries Tenmina already serves, a legal route to escrow through a licensed bank or agent, licensed professionals to contract, a partner bank and an insurer, and safe field conditions.
 - Diaspora source markets: UK, US, Canada, Germany, Netherlands first; others follow the destination country's diaspora.
 
 ## Launch sequence
@@ -60,11 +60,11 @@ Rules that apply to every line:
 
 ## What does not change
 
-- Fidero never holds client money. A licensed bank or escrow agent does.
-- Two Fidero staff approve every release. Clients approve first. Silence is never approval.
+- Tenmina never holds client money. A licensed bank or escrow agent does.
+- Two Tenmina staff approve every release. Clients approve first. Silence is never approval.
 - Every piece of evidence is tamper-evident.
 - Never use "guard" in any name.
-- The name Fidero stays. It means trust, which now describes the whole platform.
+- The name Tenmina stays. It means trust, which now describes the whole platform.
 
 ## Customer to lead with
 
@@ -95,11 +95,11 @@ The Nigeria launch plan is a Claude doc: https://claude.ai/artifact/X1r2egGWXyAH
 
 | Decision | Detail |
 |---|---|
-| Stores | Fidero's mobile apps are published on the Apple App Store and Google Play. |
-| Two apps | **Fidero** for clients, family members and tenants. **Fidero Field** for contractors, inspectors, surveyors, runners, carers and errand agents. Separate apps keep each store listing, permission set and review simple. |
+| Stores | Tenmina's mobile apps are published on the Apple App Store and Google Play. |
+| Two apps | **Tenmina** for clients, family members and tenants. **Tenmina Field** for contractors, inspectors, surveyors, runners, carers and errand agents. Separate apps keep each store listing, permission set and review simple. |
 | Timing | Both apps ship in R2 (months 9 to 18). In R1 clients use the phone-first web portal, which stays for laptops and public listings. |
 | Technology | One cross-platform codebase in React Native with TypeScript for both apps and both platforms, replacing the Android-only Kotlin plan. It shares types and the API client with the web apps. Camera capture, hardware-backed signing (Android Keystore, iOS Secure Enclave) and attestation (Play Integrity, App Attest) are native modules. |
-| Store rules | Account deletion inside the apps; privacy labels and the Play Data safety form match the data catalogue; Fidero's fees are for real-world services and paid through the payment provider if the stores accept that (Q-23), otherwise on the web. Recorded in `docs/specs/01` v0.6 (FR-APP, NFR-STORE, C-14, AS-14, Q-23, Q-24). |
+| Store rules | Account deletion inside the apps; privacy labels and the Play Data safety form match the data catalogue; Tenmina's fees are for real-world services and paid through the payment provider if the stores accept that (Q-23), otherwise on the web. Recorded in `docs/specs/01` v0.6 (FR-APP, NFR-STORE, C-14, AS-14, Q-23, Q-24). |
 
 ## Follow-up decisions, 11 November 2026: team for R1 and R2
 

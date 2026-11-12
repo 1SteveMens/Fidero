@@ -1,4 +1,4 @@
-// Fidero Field: types, rules and sample data for the field app (docs/specs/01 module MOB,
+// Tenmina Field: types, rules and sample data for the field app (docs/specs/01 module MOB,
 // RUL-08 to RUL-10, RUL-23, RUL-26; docs/specs/03 sections 2.3 and 6.1c).
 // Every name, place, coordinate, amount and date in the sample is invented.
 
@@ -226,7 +226,7 @@ const USERS: Record<FieldRole, FieldUser> = {
 const JOBS: Record<FieldRole, FieldJob[]> = {
   inspector: [
     { id: 'job-insp-blocks', kind: 'inspection', ref: 'BLD-2027-0012', title: 'Inspection: Blocks', detail: 'Milestone 3 of 6 · 6 checks', site: KASOA, startsAt: '09:30', state: 'todo' },
-    { id: 'job-insp-legon', kind: 'inspection', ref: 'FID-GH-2027-0150', title: 'Structural inspection', detail: 'Structure, roof and services · 5 checks', site: LEGON, startsAt: '13:00', state: 'todo' },
+    { id: 'job-insp-legon', kind: 'inspection', ref: 'TMN-GH-2027-0150', title: 'Structural inspection', detail: 'Structure, roof and services · 5 checks', site: LEGON, startsAt: '13:00', state: 'todo' },
   ],
   contractor: [
     { id: 'job-ms-foundation', kind: 'milestone', ref: 'BLD-2027-0012', title: 'Foundation', detail: 'Milestone 1 of 6 · 6 evidence items', site: KASOA, startsAt: '08:00', state: 'in_progress' },
@@ -294,8 +294,8 @@ const EARNINGS: Earnings = {
   payToLast4: '4471',
   payables: [
     { id: 'pay-1', workType: 'Inspection, milestone 2', ref: 'BLD-2027-0012', acceptedOn: '14 May', amount: { amountMinor: 45_000, currency: 'GHS' }, state: 'in_run', note: 'In payment run PAYRUN-GH-2027-014' },
-    { id: 'pay-2', workType: 'Structural inspection', ref: 'FID-GH-2027-0141', acceptedOn: '17 May', amount: { amountMinor: 60_000, currency: 'GHS' }, state: 'due', note: 'Due by 31 May' },
-    { id: 'pay-3', workType: 'Site visit', ref: 'FID-GH-2027-0051', acceptedOn: '20 May', amount: { amountMinor: 30_000, currency: 'GHS' }, state: 'held', note: 'Held: we are checking the evidence on this job. Not about the result.' },
+    { id: 'pay-2', workType: 'Structural inspection', ref: 'TMN-GH-2027-0141', acceptedOn: '17 May', amount: { amountMinor: 60_000, currency: 'GHS' }, state: 'due', note: 'Due by 31 May' },
+    { id: 'pay-3', workType: 'Site visit', ref: 'TMN-GH-2027-0051', acceptedOn: '20 May', amount: { amountMinor: 30_000, currency: 'GHS' }, state: 'held', note: 'Held: we are checking the evidence on this job. Not about the result.' },
   ],
 };
 

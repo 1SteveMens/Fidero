@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Switch, View } from 'react-native';
 import { router } from 'expo-router';
-import { brand, space } from '@fidero/tokens';
-import { Button, Chip, Label, ListRow, Panel, Rise, Screen, T } from '@fidero/ui';
+import { brand, space } from '@tenmina/tokens';
+import { Button, Chip, Label, ListRow, Panel, Rise, Screen, T } from '@tenmina/ui';
 import { useSession } from '../../data';
 
 export default function Account() {
@@ -38,7 +38,7 @@ export default function Account() {
       <Rise delay={180}>
         <Label style={{ marginBottom: space[2] }}>Money and settings</Label>
         <Panel style={{ paddingVertical: space[1], gap: 0 }}>
-          <ListRow icon="business-outline" title="Where your money is held" detail="Partner Bank. Fidero never holds it." />
+          <ListRow icon="business-outline" title="Where your money is held" detail="Partner Bank. Tenmina never holds it." />
           <ListRow icon="receipt-outline" title="Receipts and statements" onPress={() => undefined} />
           <ListRow icon="flag-outline" title="Country" detail="Ghana · prices in GHS and USD" />
           <ListRow icon="notifications-outline" title="Notifications" detail="App, email and WhatsApp" last />
@@ -61,7 +61,7 @@ export default function Account() {
           router.replace('/welcome');
         }}
       />
-      <Label style={{ textAlign: 'center' }}>Fidero 0.2 · demo build with sample data</Label>
+      <Label style={{ textAlign: 'center' }}>Tenmina 0.2 · demo build with sample data</Label>
     </Screen>
   );
 }

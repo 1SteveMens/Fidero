@@ -1,11 +1,11 @@
 import { View } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FIELD_ROLES } from '@fidero/shared';
-import { brand, font, space } from '@fidero/tokens';
-import { Button, GroundContext, Label, Mark, Panel, Rise, T } from '@fidero/ui';
+import { FIELD_ROLES } from '@tenmina/shared';
+import { brand, font, space } from '@tenmina/tokens';
+import { Button, GroundContext, Label, Mark, Panel, Rise, T } from '@tenmina/ui';
 import { useState } from 'react';
-import { Choice } from '@fidero/ui';
+import { Choice } from '@tenmina/ui';
 import { useField } from '../store';
 
 /**
@@ -21,7 +21,7 @@ export default function Welcome() {
       <View style={{ flex: 1, backgroundColor: brand.ink, paddingTop: insets.top + space[4], paddingBottom: insets.bottom + space[4], paddingHorizontal: space[6], gap: space[5] }}>
         <Rise style={{ flexDirection: 'row', alignItems: 'baseline', gap: space[2] }}>
           <Mark />
-          <T v="title" color="#F7F6F2" style={{ fontFamily: font.heavy, letterSpacing: -1 }}>fidero</T>
+          <T v="title" color="#F7F6F2" style={{ fontFamily: font.heavy, letterSpacing: -1 }}>tenmina</T>
           <Label color={brand.lime}>Field</Label>
         </Rise>
         <View style={{ flex: 1, justifyContent: 'center', gap: space[3] }}>

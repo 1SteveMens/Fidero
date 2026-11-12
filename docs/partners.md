@@ -1,16 +1,16 @@
 # Partners and first asks
 
-Fidero depends on partners for money handling, legal work, surveying, building, institutions that receive payments, care, insurance and distribution. This page lists each partner type, why Fidero needs them, what they get, and the first ask.
+Tenmina depends on partners for money handling, legal work, surveying, building, institutions that receive payments, care, insurance and distribution. This page lists each partner type, why Tenmina needs them, what they get, and the first ask.
 
 All figures are assumptions. Unknown numbers are `[TO VERIFY]`.
 
 ## 1. Escrow partner bank or licensed escrow agent
 
-**Why.** Bank of Ghana guidance means escrow must run through a licensed bank or a licensed escrow agent. Fidero never holds client money itself.
+**Why.** Bank of Ghana guidance means escrow must run through a licensed bank or a licensed escrow agent. Tenmina never holds client money itself.
 
 **What they get.** Hard-currency inflows from diaspora clients, new accounts, a share of the escrow fee (1-2% of price, split `[TO VERIFY]`), and a pipeline of verified land for mortgage lending.
 
-**First ask.** A meeting with the head of diaspora banking or retail products. Bring the report numbers from the 90-day validation. Ask for a pilot of 10 escrows under a simple agreement: client deposits, Fidero confirms conditions met, bank releases to seller.
+**First ask.** A meeting with the head of diaspora banking or retail products. Bring the report numbers from the 90-day validation. Ask for a pilot of 10 escrows under a simple agreement: client deposits, Tenmina confirms conditions met, bank releases to seller.
 
 **Open questions.** Fee split. Who signs the release instruction. Whether the bank can take deposits from abroad without the client opening a Ghana account `[TO VERIFY]`. Timeline for a status API or a daily statement.
 
@@ -64,13 +64,13 @@ All figures are assumptions. Unknown numbers are `[TO VERIFY]`.
 
 **What they get.** A product to offer customers who send money for land or construction, and a share of verification or escrow fees `[TO VERIFY]`. Later, escrow deposits routed through their rails.
 
-**First ask.** A co-marketing pilot: they tell customers sending money to Ghana for land about Fidero, Fidero tracks referrals, both sides review after 90 days. No integration needed at first.
+**First ask.** A co-marketing pilot: they tell customers sending money to Ghana for land about Tenmina, Tenmina tracks referrals, both sides review after 90 days. No integration needed at first.
 
 **Targets.** Two companies `[TO VERIFY]`.
 
 ## 7. Professional indemnity insurer
 
-**Why.** A wrong verification is the biggest risk to the business. Cover protects the client, the professionals and Fidero.
+**Why.** A wrong verification is the biggest risk to the business. Cover protects the client, the professionals and Tenmina.
 
 **What they get.** A new line of business with a clear scope definition and a documented process.
 
@@ -81,10 +81,10 @@ All figures are assumptions. Unknown numbers are `[TO VERIFY]`.
 ## 8. Partners for the product lines beyond land
 
 - **Schools, hospitals, clinics and pharmacies.** Receive payments direct from the partner bank against an invoice or student reference and return a receipt. First ask: a named finance contact, the institution's bank account details in its own name, and agreement to confirm enrolment or treatment to the paying client. Start with the institutions existing clients already pay. Phase 2.
-- **Government agencies.** Passport office, National Identification Authority, Lands Commission client service, Registrar General, Ghana Revenue Authority. Fidero's agents pay official fees and lodge applications. First ask: confirmation of the fee schedule, accepted payment methods and a receipt format. Phase 3.
+- **Government agencies.** Passport office, National Identification Authority, Lands Commission client service, Registrar General, Ghana Revenue Authority. Tenmina's agents pay official fees and lodge applications. First ask: confirmation of the fee schedule, accepted payment methods and a receipt format. Phase 3.
 - **Carers and home-care agencies.** Visit elderly or unwell relatives under a care plan. First ask: a vetting standard (identity, references, background check, basic training), a per-visit fee `[TO VERIFY]`, and acceptance of check-in and family confirmation as the basis for payment. Phase 3.
-- **Insurers.** Health and funeral cover for relatives at home, sold as the insurer's own policy. First ask: a referral or intermediary agreement, premium paid straight to the insurer, policy documents and claim status returned to Fidero. Candidates in Ghana: Enterprise Life (AkwantuPa), others `[TO VERIFY]`. Phase 3.
-- **Property managers and letting agents.** Where Fidero does not manage a property itself. First ask: rent paid to the owner's own bank account, periodic inspection with photos, repairs through Fidero's quote and inspection process. Phase 3.
+- **Insurers.** Health and funeral cover for relatives at home, sold as the insurer's own policy. First ask: a referral or intermediary agreement, premium paid straight to the insurer, policy documents and claim status returned to Tenmina. Candidates in Ghana: Enterprise Life (AkwantuPa), others `[TO VERIFY]`. Phase 3.
+- **Property managers and letting agents.** Where Tenmina does not manage a property itself. First ask: rent paid to the owner's own bank account, periodic inspection with photos, repairs through Tenmina's quote and inspection process. Phase 3.
 
 - **Structural engineers and building inspectors.** Inspect existing buildings before purchase. First ask: a per-inspection fee [TO VERIFY] and a standard inspection report. Phase 2.
 - **Developers.** Sell off-plan homes with stage payments held in escrow, and list verified units. First ask: a pilot estate with escrowed stage payments. Phase 3.
@@ -92,7 +92,7 @@ All figures are assumptions. Unknown numbers are `[TO VERIFY]`.
 
 ## 9. Later partners
 
-- **Traditional authorities.** Stools, skins and families whose allocation records Fidero digitises under a revenue share, and who later list verified plots. Approach after the verification service has a track record in their area.
+- **Traditional authorities.** Stools, skins and families whose allocation records Tenmina digitises under a revenue share, and who later list verified plots. Approach after the verification service has a track record in their area.
 - **Lands Commission.** Formal access to searches or data `[TO VERIFY]`. Approach once volumes justify it.
 - **Materials suppliers.** Bulk supply at a margin of 3-7% (assumption). Approach in phase 3.
 - **Mortgage lenders and developers.** Collateral checks and clean-title land. Approach with the first bank contract in phase 3.

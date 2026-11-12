@@ -4,9 +4,9 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { distanceWarning, type Capture as CaptureT, type FieldJob } from '@fidero/shared';
-import { brand, radius, space } from '@fidero/tokens';
-import { Button, GroundContext, Input, Label, Panel, Screen, Seal, T, Tick, haptic } from '@fidero/ui';
+import { distanceWarning, type Capture as CaptureT, type FieldJob } from '@tenmina/shared';
+import { brand, radius, space } from '@tenmina/tokens';
+import { Button, GroundContext, Input, Label, Panel, Screen, Seal, T, Tick, haptic } from '@tenmina/ui';
 import { makeCapture, shortHash, timeOfDay } from '../capture';
 import { useField, useFieldLoad } from '../store';
 
@@ -80,7 +80,7 @@ export default function Capture() {
           <CameraView ref={cam} style={{ flex: 1 }} facing="back" mode={kind === 'video' ? 'video' : 'picture'} />
         ) : (
           <View style={{ flex: 1, justifyContent: 'center', padding: space[6], gap: space[4] }}>
-            <T v="title" header>Fidero Field needs the camera</T>
+            <T v="title" header>Tenmina Field needs the camera</T>
             <T v="callout" muted>Evidence comes only from this app's camera, never from your gallery, so the client can trust where and when it was taken.</T>
             <Button title="Allow the camera" icon="camera" onPress={() => void requestPerm()} />
           </View>

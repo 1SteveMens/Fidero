@@ -1,5 +1,5 @@
 import { Redirect, Tabs } from 'expo-router';
-import { TabBar } from '@fidero/ui';
+import { TabBar } from '@tenmina/ui';
 import { useSession } from '../../data';
 
 const ICONS = { index: 'home', property: 'business', family: 'people', projects: 'checkbox', account: 'person-circle' } as const;

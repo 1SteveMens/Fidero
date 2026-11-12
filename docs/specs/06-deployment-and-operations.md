@@ -1,6 +1,6 @@
 # 06 — Deployment and Operations
 
-How Fidero builds, ships, runs, watches, recovers and secures the platform. This is the operations specification for site reliability, DevOps, support and data operations.
+How Tenmina builds, ships, runs, watches, recovers and secures the platform. This is the operations specification for site reliability, DevOps, support and data operations.
 
 ## 0. Document control
 
@@ -23,7 +23,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 
 | Version | Date | Author | Change |
 |---|---|---|---|
-| 0.5 | 11 November 2026 | Product and engineering lead (draft) | Aligned to 01 v0.8: professional payments (BR-23, F-37, FR-PRO-001 to FR-PRO-010, RUL-26, RUL-27). Payment run operations (6.7): weekly schedule and cut-off, preparer and a different approver with payment rights, upload in the operating bank's portal, reconciliation, holidays and a manual fallback. Roles for payment run preparer and approver (6.1). Kill switch `pro.payment_runs_paused` (2.6). SLO-24 (professional pay on time). Alerts AL-48 to AL-52: overdue payables, failed payment lines, rate card change in production, unusual expense volume, payment run integrity. Invariant check 7 (no path between client money and professional pay). Runbooks RB-40 (failed or wrong payment run) and RB-41 (a professional disputes pay). Bank notification for a wrong bulk file. Access rules: operating account credentials and keys kept apart from release instruction keys (12.1, 12.4, 12.5). Data operations for the professional payables and tax class (13.1, 13.6). Fidero's operating bank in the vendor table (15). R1 readiness items (16.1). Errand line: agents paid by Fidero; Fidero's charge through the payment provider (0.3). Issues 32 to 36. |
+| 0.5 | 11 November 2026 | Product and engineering lead (draft) | Aligned to 01 v0.8: professional payments (BR-23, F-37, FR-PRO-001 to FR-PRO-010, RUL-26, RUL-27). Payment run operations (6.7): weekly schedule and cut-off, preparer and a different approver with payment rights, upload in the operating bank's portal, reconciliation, holidays and a manual fallback. Roles for payment run preparer and approver (6.1). Kill switch `pro.payment_runs_paused` (2.6). SLO-24 (professional pay on time). Alerts AL-48 to AL-52: overdue payables, failed payment lines, rate card change in production, unusual expense volume, payment run integrity. Invariant check 7 (no path between client money and professional pay). Runbooks RB-40 (failed or wrong payment run) and RB-41 (a professional disputes pay). Bank notification for a wrong bulk file. Access rules: operating account credentials and keys kept apart from release instruction keys (12.1, 12.4, 12.5). Data operations for the professional payables and tax class (13.1, 13.6). Tenmina's operating bank in the vendor table (15). R1 readiness items (16.1). Errand line: agents paid by Tenmina; Tenmina's charge through the payment provider (0.3). Issues 32 to 36. |
 | 0.4 | 7 November 2026 | Product and engineering lead (draft) | Aligned to 01 v0.6: both app stores, React Native, client app. Mobile release pipeline for both apps on both stores (4.8): CI builds for iOS and Android, signing key and certificate custody for Apple and Google, TestFlight to App Store phased release, Play internal to closed to staged rollout, store review lead time, expedited review and halt procedures. Over-the-air JavaScript update policy (4.10). App version support for both apps and platforms with minimum-version enforcement (3.5, FR-APP-006). Push credentials (APNs, FCM) in custody and rotation. SLO-15 widened and SLO-23 added; AL-31 widened and AL-43 to AL-47 added (crash and ANR rates per platform, store ratings, attestation failures, push credentials, store notices). RB-19 updated; RB-35 to RB-39 added (store rejection, emergency halt on each store, rotate push credentials, revoke a signing certificate, raise the minimum app version). Data location register, vendors (IF-12), security operations, cost and R2 readiness (both stores' approval) updated. Issues 7 and 13 resolved by 01 v0.6; issues 28 to 31 added. |
 | 0.3 | 1 November 2026 | Product and engineering lead (draft) | Aligned to 01 v0.4: runner cash route removed (the runner cash flag and the runner-pays step in RB-27 removed; IF-10 row updated; RB-27 marks institutions not eligible for direct payment); account-name sources for FR-ESC-015 with no override (RB-27, RB-28, DR-E fallback in 10.5, checklists); 72-hour reviewer decision, second-person check of call confirmations and code lockout (AL-35, RB-30); owner's written mandate for rent statement lines (`lines.pmg`, RB-31); both premium routes (`lines.ins`, DR-E fallback in 10.5, checklist); fresh search scoped to purchases (invariant check 1); retention classes aligned to 01 C5.2 (13.1); data protection authority per country and Q-21; field app naming; issues 16, 17, 19, 21 and 27 resolved, 22 and 26 partly. |
 | 0.2 | 1 November 2026 | Product and engineering lead (draft) | Updated for document 01 v0.3 and `docs/decisions/2026-11-01-diaspora-platform.md`: multi-country operations (2.7); flags per product line and per country; SLO-17 to SLO-22; AL-33 to AL-42; RB-26 to RB-34; SEV examples for the new lines and a people-first welfare process (9.8); sensitive data classes and a per-country data location register (13); A9 metrics by country (8.6); IF-10 and IF-11 vendor operations (15); readiness checklists R1 to R3 updated and an "open a country" checklist added (16.4); second-country cost assumption (14.4); issues list for document 01 refreshed (17). Also reflects document 01 v0.2 fixes: maintenance cap, two data centres within allowed locations, KMS-signed instruction, second administrator, device key revocation |
@@ -47,7 +47,7 @@ This document creates no new functional requirement IDs. Where operations needs 
 
 | Document 01 item | What it asks | Where this document meets it |
 |---|---|---|
-| C-01, RUL-01, RUL-05, RUL-06 | Fidero never holds money; two-person release; no release with open conditions | 4.6, 5.5, 8.3 (AL-08 to AL-11), 9.1, RB-08, RB-24 |
+| C-01, RUL-01, RUL-05, RUL-06 | Tenmina never holds money; two-person release; no release with open conditions | 4.6, 5.5, 8.3 (AL-08 to AL-11), 9.1, RB-08, RB-24 |
 | C-04, AS-02 | Listings off until Act 1047 is resolved; escrow off until a bank signs | 2.6 feature flags |
 | C-07 | Small team and tight budget | 6.1, 14 |
 | C-08 | Slow connections, low-end Android phones; many clients on iPhones | 4.3 stage 15 (performance smoke), 4.8 step 1 size and start checks, SLO-04, SLO-07, SLO-15 |
@@ -60,7 +60,7 @@ This document creates no new functional requirement IDs. Where operations needs 
 | FR-PAY-006 | Daily payment reconciliation | AL-12, RB-10 |
 | FR-ESC-011 | Bank statement import and matching | AL-10, RB-09 |
 | FR-MOB-004, FR-MOB-005, FR-MOB-011 | Device-signed evidence on Android and iOS, offline queue, server verification | 3.5, 4.8, AL-17, AL-45, RB-07, RB-19, RB-36 |
-| C-14, IF-12, NFR-STORE-01, NFR-STORE-02 | Both apps pass App Store and Google Play review at every release; store accounts held by Fidero; privacy disclosures match the data catalogue; supported OS versions reviewed | 3.5, 4.8, 4.10, 5.1, 12.1, 12.4, 15, AL-43 to AL-47, RB-35 to RB-39, 16.2 |
+| C-14, IF-12, NFR-STORE-01, NFR-STORE-02 | Both apps pass App Store and Google Play review at every release; store accounts held by Tenmina; privacy disclosures match the data catalogue; supported OS versions reviewed | 3.5, 4.8, 4.10, 5.1, 12.1, 12.4, 15, AL-43 to AL-47, RB-35 to RB-39, 16.2 |
 | FR-APP-001 to FR-APP-006 | Client app on the same API; push; biometric unlock; in-app account deletion; fees by store rules; minimum version | 2.5, 2.6, 3.5, 4.8, 13.5, SLO-23, AL-46, RB-37, RB-39 |
 | FR-GEO-002, FR-GEO-004, NFR-PERF-04 | Overlay checks within 30 seconds; versioned layers | SLO-05, AL-14, RB-11 |
 | FR-NTF-005 | Notification delivery logged | SLO-06, AL-15 |
@@ -75,15 +75,15 @@ This document creates no new functional requirement IDs. Where operations needs 
 | C5.2 | Data classes and retention | 8.5, 10.3, 13.1 |
 | IF-01 to IF-12 | External interfaces | 15 |
 | C9 | Release acceptance | 5.2, 16 |
-| C-11, AS-11, RUL-25, FR-INS-002 | Insurance is the insurer's product; no premium to Fidero; licence first | 2.6 (`lines.ins`), 8.6 invariant check 4, 9.1, RB-32, RB-34 |
-| C-12 | Fidero moves no money across borders; clients pay the partner bank or a licensed provider | 2.7, 15 |
+| C-11, AS-11, RUL-25, FR-INS-002 | Insurance is the insurer's product; no premium to Tenmina; licence first | 2.6 (`lines.ins`), 8.6 invariant check 4, 9.1, RB-32, RB-34 |
+| C-12 | Tenmina moves no money across borders; clients pay the partner bank or a licensed provider | 2.7, 15 |
 | C-13, AS-13, BR-14, FR-CTY-001 to FR-CTY-004 | Country as configuration; manual phase and 90-day gate before a country opens; data in the location its law requires | 2.6 (`country.<code>`), 2.7, 13.4, RB-26, RB-33, 16.4 |
 | BR-17, FR-FEE-001 to FR-FEE-007, FR-ESC-014, IF-10 | Payments to verified institutions against invoices; receipts returned; amount held at the bank with a running statement; no cash route (FR-FEE-006) | 2.6 (`lines.fee`), SLO-17, AL-34, RB-27, 15 |
 | RUL-22, FR-ESC-015 | Release only to a payee whose account name matches the verified payee | SLO-20, AL-33, RB-28, 8.6 invariant check 3 |
 | BR-18, RUL-23, FR-CARE-001 to FR-CARE-006 | Care visits confirmed by check-in and the family; missed visits and concerns raised the same day | 2.6 (`lines.care`), SLO-18, AL-35, AL-36, 9.1, 9.8, RB-29, RB-30 |
-| BR-19, RUL-24, FR-PMG-002, FR-PMG-003 | Rent to the owner's own account, never Fidero; late rent alerts | 2.6 (`lines.pmg`), SLO-19, AL-37, RB-31, 8.6 invariant check 4 |
-| BR-20, FR-TSK-001 to FR-TSK-005 | Errands by vetted agents; fees to the agency; completion proven by the document; Fidero's charge through the payment provider (FR-TSK-002); agents paid by Fidero under PRO, never from client money (FR-TSK-003) | 2.6 (`lines.tsk`), AL-38, 6.7, 13.1 |
-| BR-23, RUL-26, RUL-27, FR-PRO-001 to FR-PRO-010 | Fidero pays the professionals it contracts from its own operating account, for accepted work, in two-person payment runs, with tax per country; never from client money; pay never depends on the verdict | 2.6 (`pro.payment_runs_paused`), 6.1, 6.7, SLO-24, AL-48 to AL-52, 8.6 invariant check 7, 9.7, RB-40, RB-41, 12.1, 12.4, 12.5, 13.1, 13.6, 15, 16.1 |
+| BR-19, RUL-24, FR-PMG-002, FR-PMG-003 | Rent to the owner's own account, never Tenmina; late rent alerts | 2.6 (`lines.pmg`), SLO-19, AL-37, RB-31, 8.6 invariant check 4 |
+| BR-20, FR-TSK-001 to FR-TSK-005 | Errands by vetted agents; fees to the agency; completion proven by the document; Tenmina's charge through the payment provider (FR-TSK-002); agents paid by Tenmina under PRO, never from client money (FR-TSK-003) | 2.6 (`lines.tsk`), AL-38, 6.7, 13.1 |
+| BR-23, RUL-26, RUL-27, FR-PRO-001 to FR-PRO-010 | Tenmina pays the professionals it contracts from its own operating account, for accepted work, in two-person payment runs, with tax per country; never from client money; pay never depends on the verdict | 2.6 (`pro.payment_runs_paused`), 6.1, 6.7, SLO-24, AL-48 to AL-52, 8.6 invariant check 7, 9.7, RB-40, RB-41, 12.1, 12.4, 12.5, 13.1, 13.6, 15, 16.1 |
 | BR-21, IF-11, FR-INS-001 to FR-INS-004 | Insurer partner lines | 2.6 (`lines.ins`), SLO-22, AL-39, RB-32, RB-34, 15 |
 | BR-22, FR-EVT-001 to FR-EVT-003 | Events and ceremonies (R3) | 2.6 (`lines.evt`), 16.3 |
 | FR-ADM-003, FR-ADM-005 | Second administrator for bank details and release-affecting settings | 2.5, AL-23, AL-34, RB-27 |
@@ -99,7 +99,7 @@ This document creates no new functional requirement IDs. Where operations needs 
 
 - Environments, configuration and feature flags.
 - Source control, versioning, database migrations and API versions.
-- The CI/CD pipeline for the backend, the two web apps and the two mobile apps, Fidero and Fidero Field, built for iOS and Android from one React Native codebase and released through the Apple App Store and Google Play (C-14, IF-12).
+- The CI/CD pipeline for the backend, the two web apps and the two mobile apps, Tenmina and Tenmina Field, built for iOS and Android from one React Native codebase and released through the Apple App Store and Google Play (C-14, IF-12).
 - Release and change procedures.
 - The operations model, on call and support.
 - Service level objectives, monitoring, alerting and incident management.
@@ -110,7 +110,7 @@ This document creates no new functional requirement IDs. Where operations needs 
 
 ### 1.2 Out of scope
 
-- R0 (months 0 to 3). R0 has no platform. It runs on spreadsheets, templates, a landing page and a payment link. Fees paid to institutions by hand for existing clients in R0 follow the same rule as everything else: the client pays the institution or the bank directly, never Fidero, and the receipt is filed. The only R0 operations duties are: keep the spreadsheets backed up, protect the shared drive with multi-factor sign-in, and record where personal data sits. These carry into the data location register in 13.4. The same duties apply to the manual phase of every later country (2.7): no platform in that country until its gate passes, and its spreadsheets are in the register from the first client.
+- R0 (months 0 to 3). R0 has no platform. It runs on spreadsheets, templates, a landing page and a payment link. Fees paid to institutions by hand for existing clients in R0 follow the same rule as everything else: the client pays the institution or the bank directly, never Tenmina, and the receipt is filed. The only R0 operations duties are: keep the spreadsheets backed up, protect the shared drive with multi-factor sign-in, and record where personal data sits. These carry into the data location register in 13.4. The same duties apply to the manual phase of every later country (2.7): no platform in that country until its gate passes, and its spreadsheets are in the register from the first client.
 - Application design. That is document 02.
 - Test design. That is document 05. This document uses document 05 results as release gates.
 
@@ -135,21 +135,21 @@ This document creates no new functional requirement IDs. Where operations needs 
 | Environment | Purpose | Hosting | Data | Who has access | Deploys |
 |---|---|---|---|---|---|
 | Local | Developer work and unit tests | Developer laptop with Docker Compose (PostgreSQL 16 + PostGIS 3, Redis 7, MinIO or LocalStack for S3) | Synthetic only | The developer | Any time |
-| dev | Shared integration of trunk; demo of work in progress | AWS account `fidero-dev`, primary region af-south-1 `[TO VERIFY]` | Synthetic only | Engineering; product owner read access | Automatically on every merge to `main` |
-| staging | Release candidate testing, E2E, DAST, performance smoke, UAT, restore drills | AWS account `fidero-staging`, same region as production | Synthetic only; anonymised overlay layers and public map data allowed | Engineering; operations staff and testers for UAT; partner bank sandbox | Automatically for each release candidate |
-| production | Live service | AWS account `fidero-prod`, af-south-1 as a working assumption pending Q-07 `[TO VERIFY]` | Real personal and financial data | Pipeline role only for changes; engineers read-only through SSO; break-glass for emergencies | Through the pipeline with two-person approval |
-| DR (recovery) | Restore target if the primary region is lost | Second region `[TO VERIFY]`, in AWS account `fidero-prod` or a separate `fidero-dr` account `[TO VERIFY]` | Encrypted backup copies and replicated evidence only. No running application in R1 | Break-glass and pipeline only | Only during a DR test or a real recovery |
+| dev | Shared integration of trunk; demo of work in progress | AWS account `tenmina-dev`, primary region af-south-1 `[TO VERIFY]` | Synthetic only | Engineering; product owner read access | Automatically on every merge to `main` |
+| staging | Release candidate testing, E2E, DAST, performance smoke, UAT, restore drills | AWS account `tenmina-staging`, same region as production | Synthetic only; anonymised overlay layers and public map data allowed | Engineering; operations staff and testers for UAT; partner bank sandbox | Automatically for each release candidate |
+| production | Live service | AWS account `tenmina-prod`, af-south-1 as a working assumption pending Q-07 `[TO VERIFY]` | Real personal and financial data | Pipeline role only for changes; engineers read-only through SSO; break-glass for emergencies | Through the pipeline with two-person approval |
+| DR (recovery) | Restore target if the primary region is lost | Second region `[TO VERIFY]`, in AWS account `tenmina-prod` or a separate `tenmina-dr` account `[TO VERIFY]` | Encrypted backup copies and replicated evidence only. No running application in R1 | Break-glass and pipeline only | Only during a DR test or a real recovery |
 
 Supporting AWS accounts under one AWS Organization:
 
 | Account | Holds |
 |---|---|
-| `fidero-management` | AWS Organization, consolidated billing, IAM Identity Center (SSO). No workloads |
-| `fidero-security` | CloudTrail organisation trail, AWS Config aggregator, security findings, log archive bucket with Object Lock |
-| `fidero-shared` | Amazon ECR image registry, Terraform state bucket and lock table, CI role trust |
-| `fidero-dev`, `fidero-staging`, `fidero-prod` | Workloads, one per environment |
-| `fidero-backup` | AWS Backup vault copies for production, with vault lock. Second region `[TO VERIFY]` |
-| `fidero-prod-<code>`, `fidero-backup-<code>` (R2, only if needed) | A separate production and backup pair for a country whose law requires its data to stay in its own location (2.7, hosting pattern B) `[TO VERIFY]` per country |
+| `tenmina-management` | AWS Organization, consolidated billing, IAM Identity Center (SSO). No workloads |
+| `tenmina-security` | CloudTrail organisation trail, AWS Config aggregator, security findings, log archive bucket with Object Lock |
+| `tenmina-shared` | Amazon ECR image registry, Terraform state bucket and lock table, CI role trust |
+| `tenmina-dev`, `tenmina-staging`, `tenmina-prod` | Workloads, one per environment |
+| `tenmina-backup` | AWS Backup vault copies for production, with vault lock. Second region `[TO VERIFY]` |
+| `tenmina-prod-<code>`, `tenmina-backup-<code>` (R2, only if needed) | A separate production and backup pair for a country whose law requires its data to stay in its own location (2.7, hosting pattern B) `[TO VERIFY]` per country |
 
 Separate accounts stop a mistake in dev from touching production and give a clean boundary for access reviews.
 
@@ -220,7 +220,7 @@ Rules:
 
 | Type | Where it lives | How it changes |
 |---|---|---|
-| Infrastructure | Terraform in the `infra/` directory of the monorepo; remote state in S3 with a DynamoDB lock in `fidero-shared` | Pull request, plan output attached, review, apply by the pipeline |
+| Infrastructure | Terraform in the `infra/` directory of the monorepo; remote state in S3 with a DynamoDB lock in `tenmina-shared` | Pull request, plan output attached, review, apply by the pipeline |
 | Application settings (non-secret) | Environment variables defined in Terraform per environment, loaded by Django settings and Next.js runtime config | Pull request |
 | Secrets | AWS Secrets Manager, one secret per credential, named `/<env>/<service>/<name>` | Created by Terraform with a placeholder; value set by a named person through SSO; rotation per 12.4 |
 | Business configuration | Database, through the back office (FR-ADM-001 to FR-ADM-005): templates, prices, condition sets, buffers, deadlines, fresh-search window | Back office with audit log. Bank account details (FR-ADM-003) and any value that affects a release (FR-ADM-005) need a second administrator. Other high-risk items per 5.5 |
@@ -249,14 +249,14 @@ Flags let code ship before a business dependency is met. A flag is a switch, not
 | `geo.ghana_post_gps` | Off | Service access confirmed (IF-06) | Administrator | FR-GEO-008 |
 | `partner_api.enabled` | Off | R2, first partner contract and consent flow tested | Founder plus one other administrator | FR-PTR-001 to FR-PTR-004 |
 | `mobile.capture` | Off | R2 field app goes live on both stores | Two administrators | FR-MOB-001 to FR-MOB-012 |
-| `app.fee_payment_mode` (a per-country, per-platform setting) | `web` | The store's position on paying Fidero's fees through the payment provider in the app is known for that platform and country (Q-23, AS-14, EN-76) | Founder plus one other administrator | FR-APP-005 |
+| `app.fee_payment_mode` (a per-country, per-platform setting) | `web` | The store's position on paying Tenmina's fees through the payment provider in the app is known for that platform and country (Q-23, AS-14, EN-76) | Founder plus one other administrator | FR-APP-005 |
 | `projects.funds` | Off | R2 and insurer confirms cover (AS-09) | Founder plus one other administrator | FR-PRJ-001 to FR-PRJ-005 |
 | `building.construction` | Off | R2 gate and insurer confirms cover (AS-09) | Founder plus one other administrator | FR-BLD-001 to FR-BLD-012 |
 | `lines.fee` | Off | The first institutions are verified (FR-FEE-001, RB-27), the payee account-name check works with the bank (FR-ESC-015), and the amount held at the bank and the running statement pass UAT (FR-ESC-014). An institution that cannot receive a bank transfer is marked not eligible for direct payment; there is no cash route (FR-FEE-006) | Founder plus one other administrator | BR-17, RUL-22, FR-FEE-001 to FR-FEE-007 |
 | `lines.care` | Off | R2; carer vetting and care plan content defined (Q-19); welfare escalation drilled (9.8, RB-29); missed-visit alerts proven to reach a person out of hours (AL-35); the 72-hour reviewer queue and the second-person check of call confirmations working (FR-CARE-004); duty of care and carer cover answered (Q-22) | Founder plus one other administrator | BR-18, RUL-23, FR-CARE-001 to FR-CARE-006 |
 | `lines.pmg` | Off | R2; licence position known for the country (Q-18); the owner's written mandate process agreed with the bank; rent matching tested against the bank's statement lines for the owner's rent account only, including a misrouted test line (FR-PMG-003, RB-31) | Founder plus one other administrator | BR-19, RUL-24, FR-PMG-001 to FR-PMG-006 |
 | `lines.tsk` | Off | R2; errand catalogue loaded for the country (FR-TSK-001); first agencies verified (RB-27); licence position known (Q-18); errand document deletion tested (13.1) | Founder plus one other administrator | BR-20, FR-TSK-001 to FR-TSK-005 |
-| `lines.ins` | Off | A licensed insurer is contracted for the country (AS-11, Q-17) and Fidero holds any intermediary licence the country requires (C-11); premium routing to the insurer's account tested end to end, for each route the insurer uses (the client pays the insurer directly, or the bank pays from money held for that purpose; FR-INS-002), with a test premium that appeared in no Fidero or escrow account (RUL-25, RB-32) | Founder plus one other administrator | BR-21, C-11, RUL-25, FR-INS-001 to FR-INS-004 |
+| `lines.ins` | Off | A licensed insurer is contracted for the country (AS-11, Q-17) and Tenmina holds any intermediary licence the country requires (C-11); premium routing to the insurer's account tested end to end, for each route the insurer uses (the client pays the insurer directly, or the bank pays from money held for that purpose; FR-INS-002), with a test premium that appeared in no Tenmina or escrow account (RUL-25, RB-32) | Founder plus one other administrator | BR-21, C-11, RUL-25, FR-INS-001 to FR-INS-004 |
 | `lines.evt` | Off | R3 gate; first vendors verified (RB-27); event escrows use partial releases (FR-ESC-010) | Founder plus one other administrator | BR-22, FR-EVT-001 to FR-EVT-003 |
 | `country.<code>` (`country.ng` first, then `country.ke` `[TO VERIFY]` order, Q-15) | Off | The country has passed its manual phase and 90-day validation (C-13, AS-13); its data location ruling is recorded and met (FR-CTY-002); its partners are contracted; RB-26 and the 16.4 checklist are complete. Assumed from month 12 for country 2 | Founder plus one other administrator | BR-14, FR-CTY-001 to FR-CTY-004, 2.7 |
 | `maintenance.read_only` | Off | Planned maintenance or an incident needs writes stopped | Any on-call engineer (a kill switch) | 5.8, 9 |
@@ -267,9 +267,9 @@ Flag rules:
 
 - **Safety flags** are those that enable money flows, listings, partner access, a new product line or a new country. Switching one on needs two people, both named in the audit log. Switching one off (a kill switch) needs one person, because stopping is always safe.
 - **Country scope.** Every `lines.*` flag has a value per country as well as a platform value. A line is on in a country only when the platform value is on, `country.<code>` is on, and the country's own value for that line is on. So `lines.fee` can be on for Ghana and off for country 2 until country 2 has verified institutions and a bank. Each country value is a safety flag in its own right and needs two people to switch on.
-- **Insurer lines stay off** in every country until that country's insurer contract and any licence exist (C-11). No exception is made for a pilot, because a premium collected by Fidero is a SEV1 (9.1).
+- **Insurer lines stay off** in every country until that country's insurer contract and any licence exist (C-11). No exception is made for a pilot, because a premium collected by Tenmina is a SEV1 (9.1).
 - **One stop button.** `escrow.instructions_paused` and `maintenance.read_only` cover every line and every country. There is no per-line pause, so nobody has to remember which switch to pull.
-- **Professional pay has its own stop.** `pro.payment_runs_paused` stops preparing, approving and issuing payment runs. It is separate on purpose: payment runs are Fidero's own money, kept apart from client money (RUL-27). `escrow.instructions_paused` does not stop payment runs, and `pro.payment_runs_paused` does not stop releases. In a security incident that may touch both, pull both.
+- **Professional pay has its own stop.** `pro.payment_runs_paused` stops preparing, approving and issuing payment runs. It is separate on purpose: payment runs are Tenmina's own money, kept apart from client money (RUL-27). `escrow.instructions_paused` does not stop payment runs, and `pro.payment_runs_paused` does not stop releases. In a security incident that may touch both, pull both.
 - Flags are tested both on and off in CI. Document 05 holds the test cases.
 - A flag that has been on in production for 90 days is removed from the code in the next release, unless it is a kill switch.
 - The flag state is shown on the "Platform health" dashboard (8.4), with the per-country values on the "Country" dashboard.
@@ -283,7 +283,7 @@ Country is configuration from R1 (BR-14, FR-CTY-001). One codebase, one pipeline
 | Pattern | When | What it means | Cost and effort |
 |---|---|---|---|
 | A. Shared | The country's law accepts the primary hosting location `[TO VERIFY]` | One production account and region. Every row carries a country code (FR-CTY-001). Access is scoped by country (FR-ACC-007). The country has its own KMS keys (`kms/<class>-<code>`, 12.5), its own evidence bucket prefix or bucket, and its own backup plan tags so its retention and deletion can run on their own | Low. Adds keys, synthetics, dashboards and vendor contracts (14.4) |
-| B. Separate | The country's law requires local hosting, or a transfer basis Fidero cannot meet `[TO VERIFY]` | A separate `fidero-prod-<code>` account in an allowed region, with its own RDS, evidence bucket, KMS, backups and DR region. The application stack is deployed there from the same images. Portal and API are reached on a country hostname `[TO VERIFY]`. SSO, CI, ECR and the security account stay shared. No personal data crosses accounts | High. Roughly a second production estate and a second DR plan (14.4) |
+| B. Separate | The country's law requires local hosting, or a transfer basis Tenmina cannot meet `[TO VERIFY]` | A separate `tenmina-prod-<code>` account in an allowed region, with its own RDS, evidence bucket, KMS, backups and DR region. The application stack is deployed there from the same images. Portal and API are reached on a country hostname `[TO VERIFY]`. SSO, CI, ECR and the security account stay shared. No personal data crosses accounts | High. Roughly a second production estate and a second DR plan (14.4) |
 
 The cautious planning assumption for Nigeria is pattern B until its lawyer says otherwise `[TO VERIFY]`. Nothing in the code may depend on the pattern: the country configuration holds the data location, and the application reads storage endpoints and keys from configuration per country.
 
@@ -311,7 +311,7 @@ Rules: the import shows a field-by-field diff before it applies; a bundle is imp
 
 **On call.** Engineering on call stays one rotation for one platform. When a country east of Ghana goes live, the P2 paging window (6.2) is widened to start at 07:00 local time in the easternmost live country: 06:00 GMT for Nigeria, 04:00 GMT for Kenya `[TO VERIFY]` whether the team accepts that or the window is held at 06:00 GMT with P2 alerts queued until then. SEV1 pages at any hour in any country, as now. The load limit in 6.2 still applies: more than 2 out-of-hours pages in a week means work to remove the cause, and if a second country keeps breaking the limit, the founder decides on a fourth engineer or a follow-the-sun support contract `[TO VERIFY]`. The daily check adds one line per country: reconciliation, pending instructions, receipts outstanding, unconfirmed visits, calendar coverage.
 
-**Vendor contacts per country.** Every live country has its own set for IF-01 (bank), IF-02 (payment provider), IF-03 (identity), IF-07 (SMS and WhatsApp), IF-10 (institutions) and IF-11 (insurer), plus its data protection regulator, emergency services numbers and licence bodies. They are kept in the contact list (6.6) with a country column and in `ops/vendors/<code>.md`. A country's vendor outage follows RB-22 with that country's fallbacks. Fidero itself moves no money across borders (C-12): the client pays the partner bank or a licensed provider in the country concerned.
+**Vendor contacts per country.** Every live country has its own set for IF-01 (bank), IF-02 (payment provider), IF-03 (identity), IF-07 (SMS and WhatsApp), IF-10 (institutions) and IF-11 (insurer), plus its data protection regulator, emergency services numbers and licence bodies. They are kept in the contact list (6.6) with a country column and in `ops/vendors/<code>.md`. A country's vendor outage follows RB-22 with that country's fallbacks. Tenmina itself moves no money across borders (C-12): the client pays the partner bank or a licensed provider in the country concerned.
 
 **Holiday calendars.** One per country, maintained a year ahead by an administrator (FR-CTY-001, C3). They drive working-day deadlines, bank hours, reminders, the no-deploy days in 5.1 (the union of every live country's holidays) and the maintenance window check. AL-42 fires when a live country's calendar covers less than 90 days ahead.
 
@@ -341,12 +341,12 @@ Rules: the import shows a field-by-field diff before it applies; a bundle is imp
 | Partner API | URL major version, `/partner/v1/` | Breaking change only |
 | Client API (used by the web apps and both mobile apps) | URL major version, `/v1/` (document 02); additive changes within a major version | Breaking change only |
 | Release instruction format | `RI-<bank>-vN`, held in `contracts/` | Any change to fields, order, encoding or signature (5.7) |
-| Mobile apps (Fidero, Fidero Field) | `MAJOR.MINOR.PATCH` per app, the same on iOS and Android; build number (iOS `CFBundleVersion`, Android `versionCode`) an increasing integer | Every store upload |
+| Mobile apps (Tenmina, Tenmina Field) | `MAJOR.MINOR.PATCH` per app, the same on iOS and Android; build number (iOS `CFBundleVersion`, Android `versionCode`) an increasing integer | Every store upload |
 | Over-the-air JavaScript bundle | `<app version>+ota.N`, valid for one native build only | Every over-the-air update (4.10) |
 | Report template, scope statement, case templates | Versioned in the database (FR-ADM-001, FR-ADM-004) | Business change, through the back office, not through a deploy |
 | Country configuration bundle | `CFG-<country>-vN`, exported from the database with a hash (2.7) | Any promoted change to a country's configuration (RB-33). Old versions are kept for rollback |
 
-The platform version is shown in the back office footer and in every API response header (`X-Fidero-Version`).
+The platform version is shown in the back office footer and in every API response header (`X-Tenmina-Version`).
 
 ### 3.3 Database migrations
 
@@ -377,12 +377,12 @@ Rules:
 
 ### 3.5 Mobile app version support window (R2)
 
-Applies to both apps, Fidero and Fidero Field, on iOS and Android (02 ADR-22, 8.10).
+Applies to both apps, Tenmina and Tenmina Field, on iOS and Android (02 ADR-22, 8.10).
 
 | Topic | Policy |
 |---|---|
 | Supported versions | The latest version and the one before it, per app and platform. Older versions are supported for 60 days after a new release `[TO VERIFY]` |
-| Minimum version | The API serves `min_app_version` per app and platform (`/v1/app-config`) and checks the `Fidero-App` header on every call. An older app shows a plain-language "Please update" screen with the store link (FR-APP-006). Fidero Field stops new capture but keeps and uploads any queued evidence first |
+| Minimum version | The API serves `min_app_version` per app and platform (`/v1/app-config`) and checks the `Tenmina-App` header on every call. An older app shows a plain-language "Please update" screen with the store link (FR-APP-006). Tenmina Field stops new capture but keeps and uploads any queued evidence first |
 | Raising the minimum | Two administrators (RB-39). Only after the new version is fully rolled out on that store and approved, and never on a Friday or before a holiday (5.1) |
 | Forced update | Used for security fixes, signature format changes, attestation changes and device key changes. Queued evidence is never deleted by a forced update |
 | Queue compatibility | The server accepts uploads of items captured before the minimum was raised for 30 days after the raise `[TO VERIFY]`, so a contractor offline for days does not lose work. Items captured more than 7 days before upload carry the time-gap flag (02 section 8.7) |
@@ -524,19 +524,19 @@ Celery workers and beat use a **rolling deployment**:
 |---|---|
 | 1 | The pipeline checks the migration plan (`manage.py migrate --plan`) matches what ran in staging |
 | 2 | If the linter marks a migration as risky, the pipeline takes a manual RDS snapshot named `pre-<version>` and waits for it to finish |
-| 3 | A one-off ECS task with the new image runs `manage.py migrate` as the `fidero_migrate` database role (the only role with DDL rights, document 02), with the lock and statement timeouts in 3.3 |
+| 3 | A one-off ECS task with the new image runs `manage.py migrate` as the `tenmina_migrate` database role (the only role with DDL rights, document 02), with the lock and statement timeouts in 3.3 |
 | 4 | The task writes its result and run time to the release record and the audit log |
 | 5 | If it fails, the pipeline stops. The on-call engineer follows RB-23 |
 
 ### 4.8 Mobile release pipeline, both apps on both stores (R2)
 
-Both apps, Fidero and Fidero Field, are built for iOS and Android from one tagged commit (02 ADR-22). Each app is released on each store separately, so a store problem never blocks the other store. Store review time is part of the release calendar (5.1, C-14).
+Both apps, Tenmina and Tenmina Field, are built for iOS and Android from one tagged commit (02 ADR-22). Each app is released on each store separately, so a store problem never blocks the other store. Store review time is part of the release calendar (5.1, C-14).
 
 | Step | iOS (App Store) | Android (Google Play) | Gate |
 |---|---|---|---|
 | 1. Build | CI builds the `.ipa` for each app on a macOS runner (EAS Build or fastlane `[TO VERIFY]`) | CI builds the `.aab` for each app; R8 shrinking on | Unit, native module and end-to-end tests pass; download size under 30 MB and cold start under 3 s on the reference devices (NFR-PERF-05); privacy disclosures regenerated and unchanged, or the change reviewed (NFR-STORE-01) |
 | 2. Sign | Apple distribution certificate and provisioning profile, read only by the release workflow role | Play upload key, read only by the release workflow role; Google re-signs with the app signing key | Key custody below |
-| 3. Internal test | Upload to **TestFlight**, internal testers (Fidero staff devices) | Upload to the **internal testing** track | Smoke test against staging: sign-in, capture, offline queue, signature, upload, push, deletion, minimum-version screen (document 05 TC-STORE-01, TC-STORE-02) |
+| 3. Internal test | Upload to **TestFlight**, internal testers (Tenmina staff devices) | Upload to the **internal testing** track | Smoke test against staging: sign-in, capture, offline queue, signature, upload, push, deletion, minimum-version screen (document 05 TC-STORE-01, TC-STORE-02) |
 | 4. Wider test | TestFlight external testers: pilot contractors, inspectors, carers and clients `[TO VERIFY]` group sizes. External testing needs Apple's beta review | **Closed testing** track with the same pilot groups | At least 3 working days; crash-free sessions at least 99% `[TO VERIFY]`; no evidence upload regression on the dashboard |
 | 5. Submit for review | Submit to **App Store review** with review notes, the demo account (02 section 8.10) and any changed privacy label | Submit the production release for **Play review**, with the Data safety form and the financial features declaration current | Two-person approval of the submission; store review checklist done (document 05 TC-STORE-03) |
 | 6. Release | **Phased release** over 7 days on Apple's standard schedule (about 1%, 2%, 5%, 10%, 20%, 50%, 100% of automatic updates) | **Staged rollout**: 5% → 20% → 50% → 100%, at least 24 hours per step | Two-person approval to release once approved. Start Monday to Wednesday (5.1) |
@@ -554,17 +554,17 @@ Both apps, Fidero and Fidero Field, are built for iOS and Android from one tagge
 | Key or credential | Where it is held | Who can use it | Backup and break-glass |
 |---|---|---|---|
 | Google Play app signing key | Google Play App Signing (held by Google) | Google Play only | Managed by Google |
-| Play upload key | Encrypted keystore in AWS Secrets Manager in `fidero-shared`, read only by the mobile release workflow role | The pipeline. No person uses it day to day | Two encrypted offline copies on hardware-encrypted USB drives in two separate locked places, one held by the founder and one by the lead `[TO VERIFY]` locations |
-| Apple distribution certificate and private key, provisioning profiles | Secrets Manager in `fidero-shared` (or the build service's credential store `[TO VERIFY]`), read only by the release workflow role. The certificate expires yearly | The pipeline | Re-issued from the Apple Developer account by the account holder or an admin; two offline encrypted copies of the private key as for the upload key |
+| Play upload key | Encrypted keystore in AWS Secrets Manager in `tenmina-shared`, read only by the mobile release workflow role | The pipeline. No person uses it day to day | Two encrypted offline copies on hardware-encrypted USB drives in two separate locked places, one held by the founder and one by the lead `[TO VERIFY]` locations |
+| Apple distribution certificate and private key, provisioning profiles | Secrets Manager in `tenmina-shared` (or the build service's credential store `[TO VERIFY]`), read only by the release workflow role. The certificate expires yearly | The pipeline | Re-issued from the Apple Developer account by the account holder or an admin; two offline encrypted copies of the private key as for the upload key |
 | App Store Connect API key (for uploads and phased release control) | Secrets Manager, release workflow role only; role limited to app management | The pipeline | Revoked and re-issued in App Store Connect (RB-38) |
 | APNs authentication key (`.p8`) | Secrets Manager, read only by `worker-integrations` (02 section 10.5) | Push sending only | Revoked and re-created in the Apple Developer account (RB-37) |
 | FCM service account key | Secrets Manager, read only by `worker-integrations` | Push sending only | Rotated in the Firebase project (RB-37) |
-| Apple Developer and App Store Connect accounts | Organisation account in Fidero's name. Account holder: the founder. Admin: the lead. App manager: the release manager. Hardware-key two-step sign-in for everyone | As listed | Founder holds the account holder role and the recovery details; reviewed quarterly (12.1) |
-| Google Play Console account | Organisation account in Fidero's name. Owner: the founder. Admin: the lead. Release manager role for one developer. Hardware-key two-step sign-in | As listed | Founder holds a sealed break-glass account |
+| Apple Developer and App Store Connect accounts | Organisation account in Tenmina's name. Account holder: the founder. Admin: the lead. App manager: the release manager. Hardware-key two-step sign-in for everyone | As listed | Founder holds the account holder role and the recovery details; reviewed quarterly (12.1) |
+| Google Play Console account | Organisation account in Tenmina's name. Owner: the founder. Admin: the lead. Release manager role for one developer. Hardware-key two-step sign-in | As listed | Founder holds a sealed break-glass account |
 
 Two people are needed for every production submission and release on either store (4.5). No person signs a build on a laptop. If the Play upload key is lost or exposed, the lead asks Google Play to reset it (RB-38); users are not affected because the app signing key does not change. If the Apple distribution certificate is exposed, it is revoked and re-issued (RB-38); apps already installed from the App Store keep working `[TO VERIFY]`.
 
-**Store-only distribution.** Fidero Field accepts registrations only from store builds (02 section 8.2). There is no side-loaded or direct APK route for field users. Internal staff test only through TestFlight and the Play testing tracks.
+**Store-only distribution.** Tenmina Field accepts registrations only from store builds (02 section 8.2). There is no side-loaded or direct APK route for field users. Internal staff test only through TestFlight and the Play testing tracks.
 
 ### 4.9 Infrastructure pipeline
 
@@ -575,7 +575,7 @@ Two people are needed for every production submission and release on either stor
 
 ### 4.10 Over-the-air JavaScript updates (R2)
 
-React Native allows the JavaScript bundle to be updated without a store release. Fidero uses this narrowly, within both stores' rules `[TO VERIFY]` against the current App Store Review Guidelines and Google Play policies before first use (02 TQ-23).
+React Native allows the JavaScript bundle to be updated without a store release. Tenmina uses this narrowly, within both stores' rules `[TO VERIFY]` against the current App Store Review Guidelines and Google Play policies before first use (02 TQ-23).
 
 | Rule | Policy |
 |---|---|
@@ -603,7 +603,7 @@ React Native allows the JavaScript bundle to be updated without a store release.
 | Release instruction format changes | On a date agreed in writing with the bank (5.7) |
 | Mobile apps (both stores) | Every 2 to 4 weeks once R2 is live. Submission at least 5 working days `[TO VERIFY]` before the planned release date (4.8). Phased release and staged rollout start Monday to Wednesday so the steps land on working days. The calendar shows each submission, expected approval, release start and the date the minimum version may be raised |
 | Store review buffer before R2 go-live | One month before each app's first production release (document 04 section 3.1, M-38, M-39) |
-| Planned maintenance needing downtime | Saturday 22:00 to 02:00 GMT `[TO VERIFY]`, announced at least 5 working days ahead (5.8). NFR-AVL-01 allows at most 4 hours a month announced 48 hours ahead; Fidero holds itself to the longer notice. The cap is counted per country once a second country is live (SLO-21), and the window must fall outside every live country's bank hours |
+| Planned maintenance needing downtime | Saturday 22:00 to 02:00 GMT `[TO VERIFY]`, announced at least 5 working days ahead (5.8). NFR-AVL-01 allows at most 4 hours a month announced 48 hours ahead; Tenmina holds itself to the longer notice. The cap is counted per country once a second country is live (SLO-21), and the window must fall outside every live country's bank hours |
 | Release calendar | A shared calendar owned by the lead shows planned releases, freezes, bank dates and pen test windows |
 
 ### 5.2 Release checklist
@@ -737,9 +737,9 @@ The release instruction is the most sensitive output of the platform. Its format
 | 6 | The first live instruction in the new format is checked by phone with the bank before the bank acts on it |
 | 7 | The bank's written confirmation of the change is stored in the escrow partner file |
 
-The same steps apply when Fidero moves from manual entry (R1) to statement files or an API (R2).
+The same steps apply when Tenmina moves from manual entry (R1) to statement files or an API (R2).
 
-In R1, the sending channel is manual `[TO VERIFY]` with the bank: for example, a signed PDF instruction sent by a named Fidero approver to a named bank mailbox, with a phone call-back to confirm. The platform generates the instruction, records both approvals, records who sent it and when, and records the bank's confirmation (FR-ESC-009).
+In R1, the sending channel is manual `[TO VERIFY]` with the bank: for example, a signed PDF instruction sent by a named Tenmina approver to a named bank mailbox, with a phone call-back to confirm. The platform generates the instruction, records both approvals, records who sent it and when, and records the bank's confirmation (FR-ESC-009).
 
 ### 5.8 Client communications for downtime
 
@@ -753,9 +753,9 @@ A public status page `[TO VERIFY]` tool is hosted outside AWS so it stays up dur
 
 **T-01 Planned maintenance notice**
 
-> Subject: Fidero planned maintenance on [day, date]
+> Subject: Tenmina planned maintenance on [day, date]
 >
-> We will update the Fidero platform on [day, date] from [start] to [end] Ghana time (GMT). That is [start] to [end] in [client time zone].
+> We will update the Tenmina platform on [day, date] from [start] to [end] Ghana time (GMT). That is [start] to [end] in [client time zone].
 >
 > During this time you may not be able to sign in or upload documents. Your case, your documents and any money held by the bank are not affected. No payments will be released during the update.
 >
@@ -767,7 +767,7 @@ A public status page `[TO VERIFY]` tool is hosted outside AWS so it stays up dur
 
 ### 6.1 Roles
 
-The team in R1 is assumed to be one product and engineering lead and two developers `[TO VERIFY]` (C-07), with Fidero operations staff (case managers, reviewers) and the founder.
+The team in R1 is assumed to be one product and engineering lead and two developers `[TO VERIFY]` (C-07), with Tenmina operations staff (case managers, reviewers) and the founder.
 
 | Role | Held by | Duties |
 |---|---|---|
@@ -812,7 +812,7 @@ Alerts that page must be few, real and actionable. Each paging alert is reviewed
 | Tier | Who | Handles | Hands on to |
 |---|---|---|---|
 | Tier 0 | Self-service | Portal help pages, status page, plain status messages, FAQ | Tier 1 through in-case messages, email or WhatsApp |
-| Tier 1 | Fidero operations staff (case managers, operations lead; from country 2, each live country's own team, 2.7) | Client questions, sign-in help (not resets that bypass MFA), document requests, case status, manual bank confirmation entry, reconciliation lists, institution and invoice questions, missed-visit follow-up (RB-30), rent and errand questions, first look at errors seen by clients | Tier 2 by ticket; by phone to the on-call engineer for anything affecting money, evidence, data protection or many users; to the welfare escalation owner for any carer concern (9.8) |
+| Tier 1 | Tenmina operations staff (case managers, operations lead; from country 2, each live country's own team, 2.7) | Client questions, sign-in help (not resets that bypass MFA), document requests, case status, manual bank confirmation entry, reconciliation lists, institution and invoice questions, missed-visit follow-up (RB-30), rent and errand questions, first look at errors seen by clients | Tier 2 by ticket; by phone to the on-call engineer for anything affecting money, evidence, data protection or many users; to the welfare escalation owner for any carer concern (9.8) |
 | Tier 2 | Engineering on-call | Platform faults, data fixes through approved scripts, integration faults, security events, runbook execution | Tier 3 by vendor support channel |
 | Tier 3 | Vendors and partners | AWS support, payment provider, identity provider, SMS and WhatsApp providers, satellite provider, partner bank operations desk, institution contacts, insurer partner desks, each country's equivalents | Back to Tier 2 |
 
@@ -854,7 +854,7 @@ The portal shows clients the next support reply time in their own time zone.
 | Vendor outage | On-call engineer | Per vendor | Vendor support; account manager if the outage exceeds the vendor SLA |
 | Safety incident at a site | Not an engineering escalation | | Operations lead under the field safety process. The platform only records it (FR-CASE-010) |
 | Carer raises an urgent health or safety concern (AL-36, R2) | Operations lead (welfare escalation owner) | Immediately | Founder; emergency services and the family per 9.8 and RB-29. Not an engineering escalation unless the alert itself failed |
-| Premium, rent or purchase money found in a Fidero account | Founder and operations lead at once | Immediately | Bank, insurer (RB-32, RB-31) |
+| Premium, rent or purchase money found in a Tenmina account | Founder and operations lead at once | Immediately | Bank, insurer (RB-32, RB-31) |
 | Payee account-name mismatch override attempted | Lead and operations lead at once | Immediately | Founder (RB-28) |
 | Country-2 vendor outage (R2) | Country lead and on-call engineer | Per vendor | That country's vendor contacts (6.6, 15) |
 
@@ -892,13 +892,13 @@ The live contact list is kept in the on-call tool and in a printed copy in the o
 | Country 2 payment, SMS, WhatsApp and identity providers | | | | | | |
 | Country 2 data protection regulator (breach contact) | | | | | | |
 | Country 2 emergency services numbers `[TO VERIFY]` | | | | | | |
-| Fidero's operating bank: business banking desk and bulk payments support (Q-26) | | | | | | |
+| Tenmina's operating bank: business banking desk and bulk payments support (Q-26) | | | | | | |
 | Mobile money provider for professional pay, if used `[TO VERIFY]` | | | | | | |
 | Accountant (withholding tax rules and remittance, Q-25) | | | | | | |
 
 ### 6.7 Professional payment runs (FR-PRO-005 to FR-PRO-009, RUL-27)
 
-Fidero pays the lawyers, surveyors and runners it contracts (and from R2 inspectors, quantity surveyors and errand agents) from its own operating account. This is Fidero's money, not client money. Nothing here touches an escrow or held funds.
+Tenmina pays the lawyers, surveyors and runners it contracts (and from R2 inspectors, quantity surveyors and errand agents) from its own operating account. This is Tenmina's money, not client money. Nothing here touches an escrow or held funds.
 
 | Item | Rule (assumptions until the first quarter of runs) |
 |---|---|
@@ -941,7 +941,7 @@ SLOs are internal targets. They are not contractual promises to clients. Each SL
 | SLO-15 | App stability, both apps on both platforms | Crash-free user sessions on supported versions, per app and platform; Android user-perceived ANR rate | 99% crash-free `[TO VERIFY]`; ANR under 0.47% (Google Play's bad-behaviour threshold `[TO VERIFY]`) | Play Console vitals, App Store Connect metrics and Sentry | NFR-PERF-05, NFR-STORE-01 | R2 |
 | SLO-16 | Partner API availability and latency | Share of partner API requests that succeed (non-5xx) and return within 1 second | 99.5% success; 95% under 1 second | API gateway metrics per partner | FR-PTR-001, IF-08 | R2 |
 | SLO-17 | Institution payment receipt return | Share of institution payments where the institution's receipt is in the client's dashboard within 2 bank working days of the bank's payment confirmation (FR-FEE-004) | 95% `[TO VERIFY]` against institution agreements | Institution payment event timestamps | BR-17, FR-FEE-004, IF-10 | R1 |
-| SLO-18 | Care visit confirmation latency | Share of visits either confirmed by the family within 24 hours of check-out, or flagged to the client and Fidero as unconfirmed within 15 minutes of the 24-hour mark (FR-CARE-005); and share of missed check-ins alerted within 60 minutes of the scheduled time | 99% | Care visit event timestamps; alert log | FR-CARE-004, FR-CARE-005, RUL-23 | R2 |
+| SLO-18 | Care visit confirmation latency | Share of visits either confirmed by the family within 24 hours of check-out, or flagged to the client and Tenmina as unconfirmed within 15 minutes of the 24-hour mark (FR-CARE-005); and share of missed check-ins alerted within 60 minutes of the scheduled time | 99% | Care visit event timestamps; alert log | FR-CARE-004, FR-CARE-005, RUL-23 | R2 |
 | SLO-19 | Rent-matching job success | Share of bank working days on which the rent-matching job completes by 10:00 local time and every rent line is matched or listed as unmatched (FR-PMG-003) | 99% of days | Job result; unmatched list | FR-PMG-003, RUL-24 | R2 |
 | SLO-20 | Payee verification | Share of payee account-name checks (FR-ESC-015) completed within 1 bank working day of a payee being added or changed; and the number of releases sent to a payee without a matched account name | 99% within 1 day; 0 unmatched releases. Any unmatched release is a SEV1 | Payee check job timestamps; release instruction records | FR-ESC-015, RUL-22 | R1 |
 | SLO-21 | Per-country availability | SLO-01 measured separately for each live country's hostnames or stack, excluding that country's announced maintenance within the 4-hour monthly cap (NFR-AVL-01) | 99.5% per country per calendar month | External synthetic checks per country | NFR-AVL-01, FR-CTY-002 | R2 (when country 2 is live) |
@@ -988,7 +988,7 @@ SLOs are internal targets. They are not contractual promises to clients. Each SL
 | Signal | Tool | Notes |
 |---|---|---|
 | Traces | OpenTelemetry SDK in Django, Celery and Next.js; exported through the AWS Distro for OpenTelemetry collector as a sidecar | Every request and job carries a trace ID (NFR-OBS-01). The trace ID is returned to users in error pages so support can find it |
-| Metrics | CloudWatch metrics (AWS services and custom application metrics via embedded metric format) | Custom metrics namespace `Fidero/<env>` |
+| Metrics | CloudWatch metrics (AWS services and custom application metrics via embedded metric format) | Custom metrics namespace `Tenmina/<env>` |
 | Logs | CloudWatch Logs, structured JSON | 8.5 |
 | Dashboards | Grafana (managed or Grafana Cloud `[TO VERIFY]` data location) reading CloudWatch | 8.4 |
 | Errors | Sentry for backend, web apps and both mobile apps on iOS and Android; Play Console vitals and App Store Connect metrics for crashes, ANRs and hangs | Personal data scrubbing on; data location of the Sentry project `[TO VERIFY]` (13.4) |
@@ -1027,7 +1027,7 @@ SLOs are internal targets. They are not contractual promises to clients. Each SL
 | Payees | Account-name checks pending, matched, mismatched (FR-ESC-015); mismatch blocks and any override attempt; payee detail changes and who made them |
 | Family lines (R1 FEE; R2 CARE) | Institution verifications pending and failed; invoices awaiting check; receipts outstanding by age; amounts held at the bank by client against the bank's own figure (FR-ESC-014); institutions marked not eligible for direct payment (FR-FEE-006); visits scheduled today, checked in, missed, unconfirmed; concerns open by age |
 | Property and errands (R2) | Rent due, received, late; rent-matching job result; repairs by state; errands by state and overdue; errand documents past their deletion date |
-| Insurer lines (R2) | Applications passed, pending, failed; premium confirmations by state; policy documents outstanding; premium lines seen in any Fidero or escrow account (must be 0) |
+| Insurer lines (R2) | Applications passed, pending, failed; premium confirmations by state; policy documents outstanding; premium lines seen in any Tenmina or escrow account (must be 0) |
 | Country | Per-country availability; flag states per country; configuration bundle version; holiday calendar coverage; cross-country access denials |
 
 ### 8.3 Alert catalogue
@@ -1078,16 +1078,16 @@ The incident severity (SEV1 to SEV4) is set by the person who responds, using 9.
 | AL-34 | Institution verification failures spike | More than 5 institution, agency or vendor verifications failing in 24 hours; a verified payee's bank details changed without a second administrator (FR-ADM-003); or any payment instruction raised against an unverified or suspended institution (P1) | P2; P1 | Operations lead and on call; founder for P1 | RB-27 |
 | AL-35 | Missed or unconfirmed care visit (R2) | A visit with no check-in 60 minutes after its scheduled time; a visit unconfirmed 24 hours after check-out (FR-CARE-005); a visit still unconfirmed 72 hours after check-out, now in the reviewer's queue (FR-CARE-004); a confirmation code locked after 5 wrong attempts; two consecutive missed visits for the same family member (P1) | P2 in the country's local hours; P1 | Operations lead and the client's case manager. Engineering only if the alert itself failed | RB-30 |
 | AL-36 | Carer concern raised (R2) | Any concern raised by a carer (FR-CARE-006) routes to a reviewer and the operations lead the same day. A concern marked urgent (health or safety) pages the welfare escalation owner at any hour | P2 same day; P1 if urgent | Operations lead (welfare escalation owner) and the reviewer on duty; founder for P1 | RB-29 |
-| AL-37 | Rent late batch (R2) | Rent-matching job did not run or failed (P2); late rent on more than 20% of properties with rent due that day (P2); any rent line that landed in a Fidero or escrow account instead of the owner's account (P1) | P2; P1 | Operations lead and on call; founder for P1 | RB-31 |
+| AL-37 | Rent late batch (R2) | Rent-matching job did not run or failed (P2); late rent on more than 20% of properties with rent due that day (P2); any rent line that landed in a Tenmina or escrow account instead of the owner's account (P1) | P2; P1 | Operations lead and on call; founder for P1 | RB-31 |
 | AL-38 | Errand overdue (R2) | An errand past its target time by 2 working days with no step recorded; or an errand document (passport, ID copy) held more than 7 days `[TO VERIFY]` after handover without deletion (13.1) | P3 | Operations lead; the case manager follows up the errand; RB-25 for the deletion case | RB-25 |
-| AL-39 | Insurer file or API failure (R2) | Application or premium hand-off to the insurer failing for 1 hour, or a policy document not returned within the agreed time (P2); any premium payment line that landed in a Fidero or escrow account (P1) | P2; P1 | On call and founder (insurer relationship owner) | RB-32, RB-22 |
+| AL-39 | Insurer file or API failure (R2) | Application or premium hand-off to the insurer failing for 1 hour, or a policy document not returned within the agreed time (P2); any premium payment line that landed in a Tenmina or escrow account (P1) | P2; P1 | On call and founder (insurer relationship owner) | RB-32, RB-22 |
 | AL-40 | Country configuration change in production | Any import or edit of a country configuration bundle in production (P2, acknowledged against the release record). P1 if it was not through RB-33, was done by one person, or changed the data location field | P2; P1 | Lead and founder | RB-33; RB-21 if unexplained |
 | AL-41 | Cross-country access denied spike | More than 20 cross-country access denials in 1 hour, or more than 5 for one user (P2); any cross-country read that succeeded for a role not allowed it, found by invariant check 6 (P1) | P2; P1 | Lead; data protection lead for P1 | RB-21, RB-18 |
 | AL-42 | Holiday calendar or country configuration gap | A live country's holiday calendar covers less than 90 days ahead, or a required bundle item (currency, bank, legal text, data location) is empty in production | P3 | Country lead and an administrator | RB-33 |
 | AL-43 | Crash or ANR rate high (R2) | Per app and platform over 24 hours: crash rate above 1% of sessions, Android user-perceived ANR rate above 0.47%, or iOS hang rate above baseline (assumptions near the stores' thresholds `[TO VERIFY]`) | P2 | On call and release manager | RB-36 |
 | AL-44 | Store rating drop (R2) | Average rating over the last 7 days drops by 0.5 or more on either store, or 5 one-star reviews mention the same fault in a day (assumptions) | P3 | Release manager and operations lead | RB-35 |
-| AL-45 | Attestation failures (R2) | Fidero Field registration or integrity check failures above twice the 7-day baseline, per platform; or any Play Integrity or App Attest service error for 15 minutes | P2 | On call and reviewer | RB-07, RB-36 |
-| AL-46 | Push credentials (R2) | APNs or FCM rejects Fidero's credentials, push acceptance below SLO-23 for 30 minutes, or a push credential or the Apple distribution certificate expires within 30 days | P2 (P3 for expiry notice) | On call | RB-37 |
+| AL-45 | Attestation failures (R2) | Tenmina Field registration or integrity check failures above twice the 7-day baseline, per platform; or any Play Integrity or App Attest service error for 15 minutes | P2 | On call and reviewer | RB-07, RB-36 |
+| AL-46 | Push credentials (R2) | APNs or FCM rejects Tenmina's credentials, push acceptance below SLO-23 for 30 minutes, or a push credential or the Apple distribution certificate expires within 30 days | P2 (P3 for expiry notice) | On call | RB-37 |
 | AL-47 | Store notice (R2) | A store rejects a submission, sends a policy warning or removal notice, or flags the Data safety form or privacy label | P2 | Release manager, lead and founder | RB-35 |
 | AL-48 | Payables overdue | Any payable or approved expense past its due date (10 working days after acceptance, assumption); daily count by country, and SLO-24 below target for the week | P3 | Operations lead | 6.7; RB-41 when a professional chases |
 | AL-49 | Failed payment lines | A confirmation import marks any line failed, or an issued run has no confirmation by 12:00 the next working day | P2 | Operations lead and the run's preparer | RB-40 |
@@ -1137,7 +1137,7 @@ Alert hygiene rules:
 | Log type | Store | Retention (assumption) | Reason |
 |---|---|---|---|
 | Application and access logs, production | CloudWatch Logs | 30 days hot, then exported to the log archive bucket | Troubleshooting |
-| Application logs, archive | S3 log archive in `fidero-security`, encrypted, Object Lock governance mode | 12 months `[TO VERIFY]`, then deleted | Incident investigation. Kept short because logs may still hold personal data such as IP addresses |
+| Application logs, archive | S3 log archive in `tenmina-security`, encrypted, Object Lock governance mode | 12 months `[TO VERIFY]`, then deleted | Incident investigation. Kept short because logs may still hold personal data such as IP addresses |
 | Load balancer, CloudFront and WAF logs | S3 log archive | 12 months `[TO VERIFY]` | Security investigation |
 | CloudTrail (all accounts) | S3 log archive with Object Lock compliance mode | 7 years `[TO VERIFY]` to match the escrow and payment class in C5.2 | Who changed what in AWS, including key use for release instructions |
 | VPC flow logs | S3 log archive | 90 days | Security investigation |
@@ -1169,7 +1169,7 @@ The operating dashboard (FR-ANL-001) is a product feature. Operations also watch
 | Care visits scheduled, completed, confirmed by family, by country | Completion or confirmation rate falling for one carer or one family (a no-show pattern, or a family that cannot confirm) | AL-35; weekly reviewer meeting; RB-30 |
 | Properties under management, rent collected, repairs completed, by country | Rent collected below rent due for two months; a repair released without inspection evidence | AL-37; monthly; invariant check 5 |
 | Errands completed, median days to completion, by country | Median rising; documents held past handover | AL-38; monthly |
-| Policies sold through insurer partners, claims paid, by country | Any premium amount in Fidero's own reconciliation (must be 0); renewals missed | AL-39; invariant check 4; monthly with the insurer |
+| Policies sold through insurer partners, claims paid, by country | Any premium amount in Tenmina's own reconciliation (must be 0); renewals missed | AL-39; invariant check 4; monthly with the insurer |
 | Metrics by country (FR-CTY-003) | Activity in a country whose `country.<code>` flag is off; a live country with no activity for 5 working days | Daily automated check (P2 if found); weekly review |
 | Client satisfaction | Drop after a release | Monthly |
 | Professional pay: payables accepted, paid within target, overdue, held; expense claims; cost per report from payables, by country and role | Overdue rising; failed lines; a claims spike; a hold with no fraud or misconduct reason | SLO-24; AL-48, AL-49, AL-51; weekly operations review |
@@ -1181,7 +1181,7 @@ The operating dashboard (FR-ANL-001) is a product feature. Operations also watch
 2. No release instruction has fewer than two distinct approvers with release rights at the time of approval, and no approver approved their own request (RUL-05).
 
 3. No release instruction names a payee whose account name was not matched to a verified payee (an institution, supplier, vendor, professional, or the seller or developer in a purchase escrow), no payee record is "verified" without a second administrator on its bank details, no account name has a source other than the bank's name check or a second-checked bank letter, and no instruction names a runner or staff member or is of a cash type (FR-ESC-015, RUL-22, FR-ADM-003, FR-FEE-006). (R1)
-4. No payee on any instruction, and no collection account shown to a client, is a Fidero-owned account; every premium instruction names the insurer's account and every rent record names the owner's own account (RUL-01, RUL-24, RUL-25). (R1; extended to rent and premiums in R2)
+4. No payee on any instruction, and no collection account shown to a client, is a Tenmina-owned account; every premium instruction names the insurer's account and every rent record names the owner's own account (RUL-01, RUL-24, RUL-25). (R1; extended to rent and premiums in R2)
 5. No carer or agent payment release references a visit or task without a confirmation record from the family or the resulting document, and no repair release lacks an inspection record (RUL-23, FR-PMG-005). (R2)
 6. No record was read across countries in the last hour by a role without cross-country rights (FR-ACC-007). (R2, when country 2 is live)
 7. No release instruction names a `contracted_professional` payee; no payment line names any other payee kind, or a payee that is not verified with a matched name; no payment run debits an account that is not an operating account; no run was approved by its preparer (RUL-27, FR-PRO-005, FR-PRO-006). (R1)
@@ -1196,7 +1196,7 @@ Checks 1, 2 and 4 raise AL-11. Check 3 raises AL-33. Check 5 raises AL-35 at P1.
 
 | Severity | Definition | Examples | Response | Updates | Review |
 |---|---|---|---|---|---|
-| SEV1 | Money, evidence, personal data or a person's welfare is at risk or harmed, or production is down | A wrong release instruction sent (wrong payee, amount, currency or escrow); a release sent while a condition or dispute was open; a release sent to a payee whose account name was not matched to a verified payee (FR-ESC-015); a premium, rent or purchase payment collected into a Fidero account or an escrow it should not be in (RUL-01, RUL-24, RUL-25); a carer welfare incident: a family member found hurt, unwell, unsafe or missing during or after a care visit, or a carer harmed, run under the people-first process in 9.8; care, health, tenant or errand documents about an identified person exposed; evidence store compromised, evidence deleted or altered; audit chain broken by tampering; confirmed or likely personal data breach; production down for all users over 15 minutes in any country; region loss | Page now. Incident commander named within 15 minutes. Founder told within 30 minutes | Internal every 30 minutes; clients and bank as in 9.4 | Written review within 5 working days |
+| SEV1 | Money, evidence, personal data or a person's welfare is at risk or harmed, or production is down | A wrong release instruction sent (wrong payee, amount, currency or escrow); a release sent while a condition or dispute was open; a release sent to a payee whose account name was not matched to a verified payee (FR-ESC-015); a premium, rent or purchase payment collected into a Tenmina account or an escrow it should not be in (RUL-01, RUL-24, RUL-25); a carer welfare incident: a family member found hurt, unwell, unsafe or missing during or after a care visit, or a carer harmed, run under the people-first process in 9.8; care, health, tenant or errand documents about an identified person exposed; evidence store compromised, evidence deleted or altered; audit chain broken by tampering; confirmed or likely personal data breach; production down for all users over 15 minutes in any country; region loss | Page now. Incident commander named within 15 minutes. Founder told within 30 minutes | Internal every 30 minutes; clients and bank as in 9.4 | Written review within 5 working days |
 | SEV2 | A key function is broken or degraded for many users, or a safety control is weakened, with no harm yet | Release instructions cannot be sent; bank confirmations cannot be recorded; uploads failing for many users; overlay checks failing; payment provider down; MFA failing for staff; replication to the second copy stopped; backups failing for more than 24 hours; care visit alerts not firing (FR-CARE-005), so missed visits go unseen; the payee name-check unavailable with releases due; institution receipts not returning for more than 2 bank working days across many payments; rent-matching job failing for more than one bank working day; insurer hand-off down with renewals due; a country configuration import that failed half way; a whole country's stack down (pattern B) | Page in hours (P2 rules). Incident commander named within 30 minutes | Internal every 60 minutes; status page if users see it | Written review within 10 working days |
 | SEV3 | A function is degraded for some users, with a workaround | One notification channel down with others working; slow back office search; one vendor degraded; a statement import with unmatched lines; a single Celery queue backed up but draining; one institution's invoice channel down; a batch of overdue errands; an insurer's policy documents late; a holiday calendar gap (AL-42) | Next working hours | At start and end | Short note in the incident log; review if it repeats |
 | SEV4 | Minor fault, no client effect | A dashboard broken; a non-critical scheduled job retried; a cosmetic error | Normal backlog | None | None |
@@ -1242,7 +1242,7 @@ Steps:
 
 1. **Detect.** From an alert, a client, staff or a vendor.
 2. **Acknowledge and open.** The on-call engineer opens an incident record (ticket plus a dedicated chat channel named `inc-<date>-<short-name>`) and sets the severity.
-3. **Contain first for money, data and people.** For any SEV1 touching escrow or a payee, switch on `escrow.instructions_paused` before investigating. For a premium or rent found in a Fidero account, switch the line off for that country and start the return the same day (RB-32, RB-31). For a suspected breach, preserve evidence (do not delete logs or instances), then revoke access. For a welfare incident, 9.8 runs first and this process follows.
+3. **Contain first for money, data and people.** For any SEV1 touching escrow or a payee, switch on `escrow.instructions_paused` before investigating. For a premium or rent found in a Tenmina account, switch the line off for that country and start the return the same day (RB-32, RB-31). For a suspected breach, preserve evidence (do not delete logs or instances), then revoke access. For a welfare incident, 9.8 runs first and this process follows.
 4. **Diagnose and mitigate.** Use the runbook. Prefer the fastest safe mitigation (rollback, flag off) over a root-cause fix.
 5. **Communicate.** On the cadence in 9.1 using 9.4.
 6. **Resolve.** Confirm with dashboards and, for escrow, with the bank.
@@ -1265,7 +1265,7 @@ The operational incident log is separate from the restricted field safety incide
 
 **Status page and portal banner, outage**
 
-> We are having a problem with the Fidero platform. You may not be able to sign in or upload documents. We are working on it. Your documents are safe and no payments are released while we fix this. Next update by [time GMT] ([time in UK], [time in US East]).
+> We are having a problem with the Tenmina platform. You may not be able to sign in or upload documents. We are working on it. Your documents are safe and no payments are released while we fix this. Next update by [time GMT] ([time in UK], [time in US East]).
 
 **Client email, delayed release**
 
@@ -1281,13 +1281,13 @@ The operational incident log is separate from the restricted field safety incide
 
 > URGENT — please hold payment
 >
-> Fidero release instruction [instruction ID], escrow [bank reference], sent [date and time GMT], may be wrong. Please do not act on it. If it has already been processed, please start your payment recall procedure.
+> Tenmina release instruction [instruction ID], escrow [bank reference], sent [date and time GMT], may be wrong. Please do not act on it. If it has already been processed, please start your payment recall procedure.
 >
-> Fidero contact: [name, phone]. We will call your escrow operations desk now to confirm by voice.
+> Tenmina contact: [name, phone]. We will call your escrow operations desk now to confirm by voice.
 
-**Bank notification, Fidero security incident**
+**Bank notification, Tenmina security incident**
 
-> Fidero is dealing with a security incident that started on [date]. As a precaution we have paused all release instructions from [time GMT]. Please do not act on any Fidero instruction dated after [time GMT] until we call you to confirm it by voice. We will confirm when instructions resume.
+> Tenmina is dealing with a security incident that started on [date]. As a precaution we have paused all release instructions from [time GMT]. Please do not act on any Tenmina instruction dated after [time GMT] until we call you to confirm it by voice. We will confirm when instructions resume.
 
 **Client notification, personal data breach** (wording to be reviewed by the lawyer `[TO VERIFY]`)
 
@@ -1295,7 +1295,7 @@ The operational incident log is separate from the restricted field safety incide
 >
 > On [date] we found that [plain description of what happened]. This may have affected the following information about you: [list].
 >
-> What we have done: [actions]. What you can do: [steps, for example watch for messages claiming to be from Fidero asking for money or codes; Fidero will never ask you to pay purchase money to a Fidero account].
+> What we have done: [actions]. What you can do: [steps, for example watch for messages claiming to be from Tenmina asking for money or codes; Tenmina will never ask you to pay purchase money to a Tenmina account].
 >
 > We have told the Data Protection Commission. If you have questions, contact [data protection lead, email, phone].
 
@@ -1309,9 +1309,9 @@ The operational incident log is separate from the restricted field safety incide
 
 **Insurer notification, misrouted premium** (R2)
 
-> A premium of [amount] for policy [reference] was paid into [Fidero account or escrow reference] on [date] instead of your account. Fidero does not hold premiums. We are returning the amount to [payer or insurer, as the agreement says] today and will send proof. Please confirm whether the policy is affected.
+> A premium of [amount] for policy [reference] was paid into [Tenmina account or escrow reference] on [date] instead of your account. Tenmina does not hold premiums. We are returning the amount to [payer or insurer, as the agreement says] today and will send proof. Please confirm whether the policy is affected.
 >
-> Fidero contact: [founder name, phone].
+> Tenmina contact: [founder name, phone].
 
 ### 9.5 Post-incident review (blameless)
 
@@ -1324,7 +1324,7 @@ The operational incident log is separate from the restricted field safety incide
 
 ### 9.6 Act 843 personal data breach notification
 
-The Data Protection Act 2012 (Act 843) requires a responsible party to notify the Data Protection Commission and the affected data subjects when personal data has been accessed or acquired by an unauthorised person. The exact deadline, form and content are `[TO VERIFY]` with the lawyer. Until confirmed, Fidero works to these internal targets (assumptions):
+The Data Protection Act 2012 (Act 843) requires a responsible party to notify the Data Protection Commission and the affected data subjects when personal data has been accessed or acquired by an unauthorised person. The exact deadline, form and content are `[TO VERIFY]` with the lawyer. Until confirmed, Tenmina works to these internal targets (assumptions):
 
 | Step | Time from discovery | Owner | Action |
 |---|---|---|---|
@@ -1349,13 +1349,13 @@ Special cases:
 | Event | Notify the bank | How | Within |
 |---|---|---|---|
 | Suspected wrong, duplicate or unauthorised release instruction | Yes | Phone to the escrow operations desk, then written notice (9.4) | Immediately |
-| Fidero security incident that may affect instruction integrity (staff credential compromise, key compromise, AWS account compromise) | Yes | Phone, then written notice; agree a voice call-back for every instruction until cleared | Within 1 hour of declaring SEV1 |
+| Tenmina security incident that may affect instruction integrity (staff credential compromise, key compromise, AWS account compromise) | Yes | Phone, then written notice; agree a voice call-back for every instruction until cleared | Within 1 hour of declaring SEV1 |
 | Platform outage delaying instructions beyond the agreed time | Yes, if any instruction is due | Email to the operations desk | Same bank working day |
 | Change to the instruction format or channel | Yes | Per 5.7 | 30 days `[TO VERIFY]` ahead |
 | Personal data breach involving escrow parties | Yes, as agreed in the bank agreement `[TO VERIFY]` | Founder to relationship manager | Within 72 hours `[TO VERIFY]` |
-| Premium, rent or other money that landed in a Fidero account or in an escrow it should not be in | Yes | Phone to the operations desk; return instruction with two-person approval; written record | Same bank working day (RB-31, RB-32) |
+| Premium, rent or other money that landed in a Tenmina account or in an escrow it should not be in | Yes | Phone to the operations desk; return instruction with two-person approval; written record | Same bank working day (RB-31, RB-32) |
 | Payee account-name mismatch where the bank's name record may be wrong | Yes | Phone to the operations desk; the bank confirms the account holder to a named approver | Before any release to that payee (RB-28) |
-| Wrong, duplicate or unauthorised bulk payment file for professionals | Fidero's operating bank (not the escrow bank, unless invariant check 7 also failed) | Phone to the business banking desk to cancel or recall, then written request (RB-40) | Immediately |
+| Wrong, duplicate or unauthorised bulk payment file for professionals | Tenmina's operating bank (not the escrow bank, unless invariant check 7 also failed) | Phone to the business banking desk to cancel or recall, then written request (RB-40) | Immediately |
 
 The same steps apply to each further country's bank, through that country's contacts (6.6).
 
@@ -1366,7 +1366,7 @@ A welfare incident is a person in danger, not a platform fault. The process is p
 | Step | Who | Action |
 |---|---|---|
 | 1 | The carer on site | If anyone is hurt, unwell or unsafe: call the local emergency number first (Ghana ambulance and police numbers `[TO VERIFY]`; each country's numbers are in 6.6), then the family contact named in the care plan. Stay with the person if it is safe to do so. Then raise the concern in the app marked urgent (FR-CARE-006), or phone the operations lead if the app cannot be used |
-| 2 | Operations lead (welfare escalation owner), within 15 minutes | Call the carer back. Confirm emergency services and the family have been called; call them if not. Decide whether a second Fidero person goes to the address. Call the client abroad, whatever the hour there, and say plainly what is known and what is being done |
+| 2 | Operations lead (welfare escalation owner), within 15 minutes | Call the carer back. Confirm emergency services and the family have been called; call them if not. Decide whether a second Tenmina person goes to the address. Call the client abroad, whatever the hour there, and say plainly what is known and what is being done |
 | 3 | Operations lead | Open a SEV1 incident (9.3) named by the case reference, not the person. The welfare lead runs it. Update the client at least every 2 hours until the situation is stable |
 | 4 | Data protection lead | Limit who sees the record. Health details go only to the family, the client and the people treating the person. Nothing goes in SMS or WhatsApp beyond "please call us" (FR-NTF-004) |
 | 5 | Founder | Decide whether the police, a regulator or the insurer must be told `[TO VERIFY]` with the lawyer. Check on the carer's own welfare |
@@ -1393,15 +1393,15 @@ Rules: no payment decision is made during the incident. The visit is marked "inc
 |---|---|---|---|---|---|
 | RDS PostgreSQL (all business data, audit log, escrow state) | RDS automated backups with point-in-time recovery (transaction logs every 5 minutes) | Continuous; daily snapshot | 35 days (RDS maximum) | Primary region, Multi-AZ | KMS customer-managed key |
 | RDS cross-region | RDS cross-region automated backup replication | Continuous | 7 days `[TO VERIFY]` | Second region | KMS key in the second region |
-| RDS long-term snapshots | AWS Backup plan, copied to `fidero-backup` vault with vault lock | Daily, kept 35 days; monthly, kept 12 months; yearly, kept 7 years `[TO VERIFY]` against C5.2 | As stated | `fidero-backup` account, second region | Backup vault KMS key |
+| RDS long-term snapshots | AWS Backup plan, copied to `tenmina-backup` vault with vault lock | Daily, kept 35 days; monthly, kept 12 months; yearly, kept 7 years `[TO VERIFY]` against C5.2 | As stated | `tenmina-backup` account, second region | Backup vault KMS key |
 | Pre-change snapshots | Manual snapshot by the pipeline before risky migrations (3.3) | Per release | 30 days | Primary region | KMS |
-| Evidence objects (S3 `evidence`) | Versioning + Object Lock in compliance mode (document 02, ADR-04) + cross-region replication with replication time control | On every write | Retain-until date from the data class (C5.2); set to the minimum agreed period and extended, never shortened, until Q-08 is answered `[TO VERIFY]` | Second region bucket, owned by `fidero-backup`, also with Object Lock | KMS keys in each region |
+| Evidence objects (S3 `evidence`) | Versioning + Object Lock in compliance mode (document 02, ADR-04) + cross-region replication with replication time control | On every write | Retain-until date from the data class (C5.2); set to the minimum agreed period and extended, never shortened, until Q-08 is answered `[TO VERIFY]` | Second region bucket, owned by `tenmina-backup`, also with Object Lock | KMS keys in each region |
 | Report PDFs and hashes | Same as evidence (stored in the evidence bucket under `reports/`) | On every write | As evidence | As evidence | KMS |
 | Overlay layers | S3 versioning; source files kept | On upload | Life of the platform; old versions kept because results cite the layer version (FR-GEO-002) | Cross-region replication | KMS |
 | Exports bucket | Not backed up. Exports expire after 7 days | — | 7 days | — | KMS |
 | Redis | Not backed up. Holds no data of record. Celery tasks are re-created from database state if lost | — | — | — | In transit and at rest |
 | Terraform state | S3 versioning; cross-region replication | On every apply | 90 days of versions | Second region | KMS |
-| Infrastructure and application code, configuration | Git on GitHub; a weekly mirror to an S3 bucket in `fidero-backup` | Weekly | 12 months | `fidero-backup` | KMS |
+| Infrastructure and application code, configuration | Git on GitHub; a weekly mirror to an S3 bucket in `tenmina-backup` | Weekly | 12 months | `tenmina-backup` | KMS |
 | Secrets | Secrets Manager with replicas in the second region | On change | Current and previous versions | Second region | KMS |
 | Business and country configuration (templates, condition sets, prices, flags, country bundles `CFG-<country>-vN`) | In the database, so covered by RDS backups; also a nightly JSON export to S3 for quick comparison and rollback (RB-33) | Nightly | 90 days; every promoted bundle version kept for the life of the platform | Second region, within the country's allowed locations | KMS |
 | KMS keys | Not exportable. Multi-region keys for evidence and backups `[TO VERIFY]` design choice in document 02; deletion protected by a 30-day waiting period and an alert | — | — | — | — |
@@ -1415,7 +1415,7 @@ Rules: no payment decision is made during the incident. The visit is marked "inc
 - **Legal holds.** Object Lock legal holds are placed on the objects of any case under legal hold (RB-17), in both regions.
 - **Deletion at end of retention.** After the retention period ends and no legal hold applies, the retention job (13.1) deletes the object versions and records the deletion in the audit log (FR-EVD-002). Replication of delete markers is off, so the second copy is deleted by the same job, separately and logged.
 - **Backups and erasure requests.** Personal data erased in production remains in backups until those backups expire. The privacy notice says so `[TO VERIFY]` wording with the lawyer. After any restore, the erasure log is replayed so erased data does not come back (RB-04).
-- **Vault lock.** The AWS Backup vault in `fidero-backup` uses vault lock so backups cannot be deleted before their retention ends, even by an administrator.
+- **Vault lock.** The AWS Backup vault in `tenmina-backup` uses vault lock so backups cannot be deleted before their retention ends, even by an administrator.
 
 ### 10.4 Recovery objectives
 
@@ -1489,7 +1489,7 @@ Each scenario starts with: declare an incident (9), pause release instructions (
 | Bank channel (IF-01) | Instructions cannot be sent or confirmations cannot be received | Hold instructions; agree an alternate channel in the bank agreement (for example, signed PDF by email plus voice call-back) `[TO VERIFY]`; never improvise a new channel during an incident without the bank's written agreement |
 | Satellite or map data (IF-04, IF-05) | New images or layers unavailable | Overlay checks still run on current layer versions; satellite image attached later; report waits if the image is required |
 | Institutions (IF-10) | Invoice references or receipts not received from an institution's portal or file (R2) | The client or the institution contact uploads the invoice or receipt in the portal or by email; a case manager attaches it with a second person's check. No payment goes out without a checked invoice (FR-FEE-002) |
-| Insurer partners (IF-11) | Applications or premium confirmations cannot be passed; policy documents not returned | Hold applications and tell clients the start date may move. Premiums go to the insurer's account in every case, from the client directly or from the bank out of money held for that purpose (FR-INS-002), so no money is stuck with Fidero. The insurer's own channels are the fallback. Renewals due within 7 days are chased by phone |
+| Insurer partners (IF-11) | Applications or premium confirmations cannot be passed; policy documents not returned | Hold applications and tell clients the start date may move. Premiums go to the insurer's account in every case, from the client directly or from the bank out of money held for that purpose (FR-INS-002), so no money is stuck with Tenmina. The insurer's own channels are the fallback. Renewals due within 7 days are chased by phone |
 | Bank account-name check (part of IF-01) | Payee names cannot be checked | Releases to new or changed payees wait. The only alternative is a bank letter stating the account name, entered by one staff member and checked by a second (FR-ESC-015, RB-28). A phone call is never a name source. Existing matched payees are unaffected |
 | Bank in a second country (IF-01 for that country) | As the Ghana bank row, for that country only | Same rules, with that country's fallback channel from its bank agreement `[TO VERIFY]` |
 
@@ -1501,7 +1501,7 @@ Each scenario starts with: declare an incident (9), pause release instructions (
 | Cross-region database restore | Twice a year, as part of the DR test | Within the 4-hour RTO; restored point within 1 hour of the test start |
 | Evidence object version restore | Monthly, on a random sample of 10 objects | Hashes match the evidence records |
 | Evidence replica check | Daily, automated (S3 inventory comparison) | Every object older than 24 hours has a replica with the same checksum |
-| Backup vault copy restore | Quarterly | Snapshot from `fidero-backup` restores in the second region |
+| Backup vault copy restore | Quarterly | Snapshot from `tenmina-backup` restores in the second region |
 | Terraform state recovery | Yearly | Previous state version restores and `terraform plan` shows no unexpected changes |
 | Secrets replica | Twice a year | Application starts in the second region with replica secrets |
 | Mobile signing key recovery (Play upload key, Apple distribution certificate) | Yearly | An offline copy opens with the split passphrase; a test build of each app signs on each platform |
@@ -1614,7 +1614,7 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
 - **Steps:**
   1. Find the target time (last good state). Record it.
   2. If writes may make it worse, switch on `maintenance.read_only` and `escrow.instructions_paused`.
-  3. Restore to a **new** RDS instance (`fidero-prod-restore-<date>`) at the target time, in the same subnet group and with the same parameter group and KMS key. Never restore over the live instance.
+  3. Restore to a **new** RDS instance (`tenmina-prod-restore-<date>`) at the target time, in the same subnet group and with the same parameter group and KMS key. Never restore over the live instance.
   4. Run the audit chain verification and row count checks on the restored instance.
   5. Choose the recovery path (DR-B step 4). For a copy-back, use a reviewed script; every row change goes through the application's audit path or is logged as a data fix.
   6. If switching instances: update the database endpoint secret, redeploy services, run smoke tests and invariant checks.
@@ -1680,7 +1680,7 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
   2. Parsing failure: keep the file (stored as evidence); fix the parser through a normal or hotfix release; re-import. Imports are idempotent by file hash and line reference.
   3. Unmatched line: check the reference against escrows; look for typos in the client's payment reference; ask the bank for payer details.
   4. Match manually only with a bank confirmation attached and a second person's approval. Record the reason.
-  5. A line that suggests money moved without a Fidero instruction is escalated to the founder and the bank the same day.
+  5. A line that suggests money moved without a Tenmina instruction is escalated to the founder and the bank the same day.
 - **Done when:** every line is matched or has a recorded explanation agreed with the bank.
 
 ### RB-10 Reconcile a payment provider mismatch
@@ -1692,7 +1692,7 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
   3. Settlement, no order: check for a missed webhook; replay the webhook from the provider dashboard. The handler is idempotent.
   4. Amount difference: check fees and currency conversion; record the difference.
   5. Refunds: confirm each refund has a reason and approver (FR-PAY-004).
-  6. Any payment that looks like purchase money sent to Fidero by mistake is refunded at once and the client is told how to pay the bank (RUL-01).
+  6. Any payment that looks like purchase money sent to Tenmina by mistake is refunded at once and the client is told how to pay the bank (RUL-01).
 - **Done when:** all items are matched or explained.
 
 ### RB-11 Update an overlay layer
@@ -1882,7 +1882,7 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
 - **Trigger:** the country has passed its manual phase and 90-day validation (C-13, AS-13). Assumed month 12 for country 2.
 - **Steps:**
   1. Record the gate decision and the data location ruling for the country `[TO VERIFY]` with its lawyer. Choose hosting pattern A or B (2.7). Record both in `docs/decisions/` and in the data location register (13.4).
-  2. Pattern B only: create `fidero-prod-<code>` and `fidero-backup-<code>` through the Organization; apply the same Terraform modules with the country's variable file; set up KMS keys, buckets with Object Lock, backups, the DR region, synthetics and WAF; run the region failover test for that stack before go-live.
+  2. Pattern B only: create `tenmina-prod-<code>` and `tenmina-backup-<code>` through the Organization; apply the same Terraform modules with the country's variable file; set up KMS keys, buckets with Object Lock, backups, the DR region, synthetics and WAF; run the region failover test for that stack before go-live.
   3. Pattern A only: create the country's KMS keys, evidence prefix or bucket, backup plan tags and synthetics in the shared account; run the document 05 cross-country access tests.
   4. Contract the country's partners: bank or escrow agent (IF-01), payment provider (IF-02), identity provider (IF-03), SMS and WhatsApp (IF-07), map sources (IF-04), the first institutions (IF-10, Q-16), an insurer if the line is to open (IF-11, Q-17). Sign data processing agreements. Add every vendor to 15, `ops/vendors/<code>.md`, the contact list (6.6) and the register (13.4).
   5. Agree the release instruction format and channel with the country's bank per 5.7, with its own `RI-<bank>-vN`, test instructions, recall procedure and account-name check.
@@ -1932,7 +1932,7 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
   1. A concern arrives (FR-CARE-006, AL-36). Read it and call the carer within 15 minutes for an urgent concern, within 2 hours otherwise, during the hours in 6.4.
   2. **Call emergency services** at once if the person is injured, unconscious, in severe pain, not breathing normally, missing, or in danger from someone, or if the carer says they are unsafe. The carer calls first from the site; the operations lead confirms the call was made and calls again if in doubt. Record the time and the service called. When in doubt, call.
   3. **Call the family** contact named in the care plan next, then the client abroad, whatever the time where they are. Say what is known, what has been done and when the next update will come. Do not speculate about causes.
-  4. Decide whether a second Fidero person should go to the address, and whether the carer should stay or leave for their own safety.
+  4. Decide whether a second Tenmina person should go to the address, and whether the carer should stay or leave for their own safety.
   5. Open a SEV1 incident for any welfare incident. A non-urgent concern (a damp room, missed medicine, a family dispute) is a case task for the case manager and the client, not an incident.
   6. Follow 9.8 for the record, access limits and review. Payment decisions wait for the review (9.8 rules).
   7. If the concern is about the carer (misconduct, intoxication, theft), suspend the carer from the panel at once, reassign the plan, and tell the client. Involve the police if the family or client wishes `[TO VERIFY]` any legal duty to report.
@@ -1958,19 +1958,19 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
   1. The rent-matching job (FR-PMG-003) reads the bank's statement lines for the owner's rent account only, under the owner's written mandate allowing the bank to share them, and matches rent lines to tenancies. No mandate on file: the job does not run for that property. Lines for any other account are refused at import. AL-37 fires on a failed job, a late-rent batch or a misrouted line.
   2. Job failed or did not run: check the scheduler and the bank file (RB-12, RB-09). Re-run; the job is idempotent.
   3. Rent not received: confirm with the tenant and the owner before any chasing message; a tenant may have paid with a wrong reference. Match manually only with the bank line in view and a second person's check.
-  4. Rent received in the wrong place: a rent line in a Fidero account or an escrow account breaks RUL-24. Return it to the owner's account the same bank working day with two-person approval; tell the owner and the tenant how to pay correctly; record a SEV1 (9.1) and find how the tenant got the wrong details (a changed statement, a staff error, a fake message to the tenant).
+  4. Rent received in the wrong place: a rent line in a Tenmina account or an escrow account breaks RUL-24. Return it to the owner's account the same bank working day with two-person approval; tell the owner and the tenant how to pay correctly; record a SEV1 (9.1) and find how the tenant got the wrong details (a changed statement, a staff error, a fake message to the tenant).
   5. Amount differences: check for bank charges or a partial payment; record the explanation; the owner sees the true figure on the timeline (FR-PMG-006).
-  6. Late rent: the owner is told on the day and the configured chasing steps start. Fidero never collects rent itself.
+  6. Late rent: the owner is told on the day and the configured chasing steps start. Tenmina never collects rent itself.
 - **Done when:** every rent line is matched or explained, misrouted money is back with the owner, and the owner's timeline is correct.
 
 ### RB-32 Insurer premium misrouting (R2)
 
 - **Who:** founder (insurer relationship owner), operations lead, lead. Always SEV1 (RUL-25, C-11).
 - **Steps:**
-  1. A premium has landed in a Fidero account, an escrow account, or any account other than the insurer's (AL-39, invariant check 4, a bank line, or a report from the bank or insurer). Open a SEV1 at once.
+  1. A premium has landed in a Tenmina account, an escrow account, or any account other than the insurer's (AL-39, invariant check 4, a bank line, or a report from the bank or insurer). Open a SEV1 at once.
   2. Switch `lines.ins` off for the country until the cause is known. Existing policies are not affected: they are the insurer's.
   3. Find how the money arrived: wrong account shown to the client (an FR-INS-002 fault), a stale template, a staff error, a client paying to an old reference, a fraudulent message. Check every premium instruction and every account detail shown to clients since the last known-good change.
-  4. Return the money the same bank working day: to the insurer's account if the insurer agrees the policy stands, otherwise to the payer, as the insurer agreement says `[TO VERIFY]`. Two-person approval, bank confirmation attached, audit entry with the reason. Fidero keeps nothing from a premium, not even a fee.
+  4. Return the money the same bank working day: to the insurer's account if the insurer agrees the policy stands, otherwise to the payer, as the insurer agreement says `[TO VERIFY]`. Two-person approval, bank confirmation attached, audit entry with the reason. Tenmina keeps nothing from a premium, not even a fee.
   5. Tell the insurer by phone and in writing (9.4 template) and the client plainly, including whether their cover is in force.
   6. Tell the lawyer: holding a premium, even briefly, may be a licensing matter (C-11) `[TO VERIFY]`. The founder records the advice.
   7. Fix the cause (RB-03, or a configuration change through RB-33), re-run the end-to-end premium routing test with a test premium, then turn `lines.ins` back on with two people.
@@ -2022,11 +2022,11 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
   2. App Store: pause the phased release in App Store Connect. Users who already updated keep the version; automatic updates stop.
   3. Google Play: halt the staged rollout (RB-19 step 1).
   4. If the fault is in JavaScript only and an earlier over-the-air bundle is safe, re-publish it (4.10).
-  5. Limit harm on the server: switch the affected feature flag off; for Fidero Field, tell the faulty version to stop capture and only upload its queue; for an attestation fault, hold new registrations (AL-45).
+  5. Limit harm on the server: switch the affected feature flag off; for Tenmina Field, tell the faulty version to stop capture and only upload its queue; for an attestation fault, hold new registrations (AL-45).
   6. Emergency removal, only if users would be harmed by new installs: remove the version or the app from sale on the App Store, and unpublish or roll out a fixed build on Google Play. The founder approves with the lead.
   7. Build the fix with a higher build number; run 4.8 steps 1 to 6; request expedited review on the App Store with a factual reason; submit to Google Play at once.
   8. When the fixed version is out, raise `min_app_version` if the old version must not be used (RB-39).
-  9. Tell field users and clients what to do through operations and the status page (5.8). Never ask a user to uninstall Fidero Field while it holds queued evidence.
+  9. Tell field users and clients what to do through operations and the status page (5.8). Never ask a user to uninstall Tenmina Field while it holds queued evidence.
 - **Done when:** a fixed version is released on both stores, any removal is reversed, no evidence was lost, and the post-incident review is booked.
 
 ### RB-37 Rotate APNs and FCM credentials (R2)
@@ -2037,7 +2037,7 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
   2. FCM: create a new service account key in the Firebase project; store it as a new secret version (`/<env>/notifications/fcm-key`); restart `worker-integrations`; send a test push to staff devices on Android; delete the old key.
   3. Watch SLO-23 and AL-46 for 1 hour. No push should be lost: messages that fail during the switch are retried by the notification job.
   4. Update the secrets register (12.4) with the date and next due date.
-  5. On a suspected exposure, rotate at once and review push send logs for messages Fidero did not send `[TO VERIFY]` whether the providers expose this.
+  5. On a suspected exposure, rotate at once and review push send logs for messages Tenmina did not send `[TO VERIFY]` whether the providers expose this.
 - **Done when:** pushes flow on both platforms with the new credentials, the old ones are revoked, and the register is current.
 
 ### RB-38 Revoke a compromised signing certificate or key (R2)
@@ -2049,7 +2049,7 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
   3. App Store Connect API key: revoke it in App Store Connect; issue a new key with the same limited role; update the pipeline secret.
   4. Play upload key: request an upload key reset from Google Play; store the new key per 4.8; destroy the old copies. Users are not affected because the app signing key does not change.
   5. If Google's app signing key itself is suspected `[TO VERIFY]` the store's key upgrade path, contact Google Play support at once and follow their procedure with the founder.
-  6. Check the store consoles for any build or release Fidero did not make. If one exists, use RB-36 step 6 and tell users.
+  6. Check the store consoles for any build or release Tenmina did not make. If one exists, use RB-36 step 6 and tell users.
   7. On the server, check that attestation still accepts only the expected package name, signing digest, team ID and bundle ID (02 section 8.2); update the expected values if a store-side key change requires it, with a second person.
   8. Record the rotation in the secrets register and the incident record.
 - **Done when:** the old certificate or key is revoked, new builds sign with the new one, no unexpected build exists, and the server's expected values are correct.
@@ -2060,7 +2060,7 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
 - **Steps:**
   1. Confirm the new version is approved and released to 100% on the store for that platform, and that the support window has passed or a security reason applies.
   2. Check version adoption on the mobile dashboard: how many users and devices are on older versions, by app and platform.
-  3. For Fidero Field, list devices with queued items on older versions and ask operations to tell those users to update on Wi-Fi; queued items are kept (3.5).
+  3. For Tenmina Field, list devices with queued items on older versions and ask operations to tell those users to update on Wi-Fi; queued items are kept (3.5).
   4. In staging, set the new minimum and run document 05 TC-STORE-06 on both platforms.
   5. In production, set `min_app_version` for the app and platform through `/v1/admin/app-versions`, with the second administrator's approval. Not on a Friday or before a holiday (5.1).
   6. Watch AL-31 and support contacts for 24 hours. Uploads of items captured before the raise keep being accepted for 30 days `[TO VERIFY]`.
@@ -2110,12 +2110,12 @@ Runbooks are kept in Git under `ops/runbooks/RB-nn.md` with the full commands. T
 | Application staff | Roles per document 01 C2; MFA for all staff (FR-ACC-003); 30-minute idle timeout (NFR-SEC-02); access scoped to the user's country (FR-ACC-007). Cross-country rights only for the founder, named administrators and the lead's read-only access; each grant raises AL-23 and is listed in the quarterly review |
 | Sensitive classes | Care visit records, health invoices, insurance applications, errand documents and tenant data (13.1) are readable only by the assigned case manager, the reviewer on the case, the data protection lead and the person concerned. They are excluded from CSV exports (FR-ANL-002) and appear on dashboards only as counts. Every read is logged and the weekly sample review (12.7) includes 5 of them |
 | Separation of duties | Engineers do not hold release rights or payment rights. Release approvers do not hold AWS access. Administrators cannot edit the audit log (FR-AUD-002). A payment run preparer never approves the same run; a contracted professional never holds payment rights |
-| Operating account (PRO) | Fidero's operating bank and mobile money portal users are named staff with payment rights, each with the bank's own two-step sign-in, and dual authorisation where the bank offers it. They are kept apart from release instructions: operating account credentials and the escrow bank channel are separate secrets, read by separate task roles (PRO's integration job; ESC's dispatch job), and `kms/release-signing` cannot be used by the PRO job. A person may hold both release rights and payment rights, but no shared login, token or key serves both. Payment rights and bank portal users are in the quarterly access review |
-| Break-glass | Two break-glass identities in `fidero-management` with hardware MFA. Credentials sealed, split between the founder and the lead, stored in the office safe and a second location `[TO VERIFY]`. Use raises AL-23 (P1). Every use is reviewed within 2 working days |
+| Operating account (PRO) | Tenmina's operating bank and mobile money portal users are named staff with payment rights, each with the bank's own two-step sign-in, and dual authorisation where the bank offers it. They are kept apart from release instructions: operating account credentials and the escrow bank channel are separate secrets, read by separate task roles (PRO's integration job; ESC's dispatch job), and `kms/release-signing` cannot be used by the PRO job. A person may hold both release rights and payment rights, but no shared login, token or key serves both. Payment rights and bank portal users are in the quarterly access review |
+| Break-glass | Two break-glass identities in `tenmina-management` with hardware MFA. Credentials sealed, split between the founder and the lead, stored in the office safe and a second location `[TO VERIFY]`. Use raises AL-23 (P1). Every use is reviewed within 2 working days |
 | Root accounts | Root MFA on every account; root credentials unused; use raises AL-23 |
 | Quarterly access review | The lead and founder review every AWS, GitHub, vendor console and application staff account and role. Removals are done the same day. The review is recorded |
 | Vendor and partner access | Bank and partner API keys scoped per partner and environment; rotated per 12.4 |
-| App store accounts (R2) | Apple Developer and Google Play Console organisation accounts in Fidero's name (IF-12). The founder is account holder or owner; the lead is admin; one release manager. Hardware-key two-step sign-in. Included in the quarterly access review. No shared logins (4.8) |
+| App store accounts (R2) | Apple Developer and Google Play Console organisation accounts in Tenmina's name (IF-12). The founder is account holder or owner; the lead is admin; one release manager. Hardware-key two-step sign-in. Included in the quarterly access review. No shared logins (4.8) |
 
 ### 12.2 Patching cadence
 
@@ -2148,7 +2148,7 @@ All targets are assumptions. Sources: CI scanners, ECR scans of running images, 
 | Django `SECRET_KEY` and signing keys for sessions and links | Yearly, or on suspected exposure | RB-06, with key fallback lists so sessions do not all end |
 | Vendor API keys (payment, identity, SMS, WhatsApp, satellite, Sentry) | Yearly, on staff exit with access, or on suspected exposure | RB-06 |
 | Payment provider webhook secret | Yearly | RB-06 |
-| Partner API credentials issued by Fidero (R2) | Yearly, partner-led, with overlap | Partner portal |
+| Partner API credentials issued by Tenmina (R2) | Yearly, partner-led, with overlap | Partner portal |
 | KMS customer-managed keys | Automatic yearly rotation | KMS |
 | Release instruction signing keys | Yearly, or on any approver or system change agreed with the bank | RB-06 and 5.7 |
 | Play upload key | Only on compromise | RB-38 |
@@ -2170,8 +2170,8 @@ The secrets register lists every secret, owner, last rotation and next due date.
 |---|---|---|
 | `kms/rds` | Database encryption | Symmetric, customer-managed |
 | `kms/evidence` | Evidence and report objects | Symmetric, multi-region `[TO VERIFY]` |
-| `kms/backup` | Backup vault | Symmetric, in `fidero-backup` |
-| `kms/logs` | Log archive | Symmetric, in `fidero-security` |
+| `kms/backup` | Backup vault | Symmetric, in `tenmina-backup` |
+| `kms/logs` | Log archive | Symmetric, in `tenmina-security` |
 | `kms/secrets` | Secrets Manager | Symmetric |
 | `kms/release-signing` | Signing release instructions (FR-ESC-008), if the bank accepts digital signatures `[TO VERIFY]` | Asymmetric, sign-only. Only the `integrations` worker role can call `Sign`, and only for an instruction with two recorded approvals |
 | `kms/report-signing` | Optional signature over report hashes `[TO VERIFY]` design choice in document 02 | Asymmetric |
@@ -2218,7 +2218,7 @@ The tester is independent and accredited `[TO VERIFY]` standard. No release goes
 
 ### 12.9 Security monitoring
 
-AWS threat detection service, Security Hub (with the AWS Foundational Security Best Practices standard), AWS Config rules and IAM Access Analyzer are on in every account and aggregated to `fidero-security`. High and critical findings raise AL-26.
+AWS threat detection service, Security Hub (with the AWS Foundational Security Best Practices standard), AWS Config rules and IAM Access Analyzer are on in every account and aggregated to `tenmina-security`. High and critical findings raise AL-26.
 
 ---
 
@@ -2236,7 +2236,7 @@ AWS threat detection service, Security Hub (with the AWS Foundational Security B
 | Health and care (C5.2): care visit records (R2): care plans, check-ins, readings, photos, carer concerns. Sensitive: health and welfare data about people who are often vulnerable; own encryption key | `[TO VERIFY]` by the lawyer; assumption: life of the care plan plus 12 months, then delete | Delete photos, readings and concern text; keep counts and dates for metrics | Nightly |
 | Health and care (C5.2): hospital invoices and treatment or enrolment confirmations (FR-FEE-004). Sensitive where they show a diagnosis or treatment; own encryption key | `[TO VERIFY]`; the escrow and payment class applies to the payment record, but the invoice image and treatment detail are deleted earlier, assumption 24 months | Delete the document; keep amount, date, institution and receipt reference | Nightly |
 | Tenancy (C5.2, R2): tenant identity, agreement, rent records | `[TO VERIFY]`; assumption: tenancy plus the limitation period for the agreement; identity document deleted at tenancy end | Anonymise the tenant; keep rent amounts and dates for the owner's record | Nightly |
-| Identity documents (C5.2, R2): passports, ID cards and certificates handled in errands, with application forms and result documents. Sensitive | Short by design: deleted from Fidero storage 7 days `[TO VERIFY]` after handover is recorded (FR-TSK-005), unless the client asks to keep a copy, then the account class | Delete the files; keep the step record and receipts | Nightly; AL-38 if held longer |
+| Identity documents (C5.2, R2): passports, ID cards and certificates handled in errands, with application forms and result documents. Sensitive | Short by design: deleted from Tenmina storage 7 days `[TO VERIFY]` after handover is recorded (FR-TSK-005), unless the client asks to keep a copy, then the account class | Delete the files; keep the step record and receipts | Nightly; AL-38 if held longer |
 | Insurance (C5.2, R2): applications (health declarations, beneficiary details) and policy documents. Sensitive | Policy life plus `[TO VERIFY]` (01 C5.2). Assumption: the application itself is kept only until the insurer confirms receipt plus 30 days `[TO VERIFY]`; the policy document is kept for the policy life plus the period | Delete the application; keep policy reference, renewal date and claim contact | Nightly |
 | Audit | At least as long as the longest class it covers (NFR-AUD-01) | Nothing to anonymise in the entry itself: audit rows hold IDs and keyed hashes, not personal values (document 02). Erasure of the person's data elsewhere (crypto-shredding of their data key) leaves the chain valid | Not applicable |
 | Professional payables and tax (C5.2): agreements, rate cards, payables, expense claims and receipt photos, payment runs and bulk files, tax deductions, remittance advices and yearly statements | As tax law requires in each country `[TO VERIFY]` (Q-25), counted from the end of the tax year of the payment | Keep amounts, dates, tax, run and bank references; delete receipt photos and anonymise the professional's contact details after the period; bank details follow the payee record (RB-27) | Nightly |
@@ -2294,14 +2294,14 @@ The full register follows. Each row is repeated per country where the location d
 | Insurer partners (IF-11, R2) | Applications, health declarations, premiums, policies, claims | The insurer's systems; the insurer is controller for the policy `[TO VERIFY]` | Yes, sensitive | Pending contract; data processing or sharing terms needed |
 | Carer and agent devices (R2) | Queued check-ins, photos, readings, encrypted | User devices | Yes, sensitive | Cleared after upload (FR-MOB-009) |
 | Country 2 manual phase (from month 6) | Spreadsheets and documents of country-2 clients | An allowed location `[TO VERIFY]` by its lawyer | Yes | Register entry before the first client; migrate or delete at RB-26 step 9 |
-| Country 2 production (R2) | That country's business data, evidence, backups | Pattern A: the shared account with country keys. Pattern B: `fidero-prod-<code>` and `fidero-backup-<code>` in allowed regions `[TO VERIFY]` | Yes | Pending its ruling |
+| Country 2 production (R2) | That country's business data, evidence, backups | Pattern A: the shared account with country keys. Pattern B: `tenmina-prod-<code>` and `tenmina-backup-<code>` in allowed regions `[TO VERIFY]` | Yes | Pending its ruling |
 
 ### 13.5 Data subject request handling
 
 | Item | Rule |
 |---|---|
 | Channels | Portal form, email to the data protection contact, written letter; from R2 account deletion inside either app (FR-APP-004), which shows what is kept and why and creates a deletion request |
-| Who may ask | The client, and any person whose data Fidero holds: family members, tenants, carers, agents, institution contacts, people named in an insurance application. Requests about a second country's data follow that country's law `[TO VERIFY]` |
+| Who may ask | The client, and any person whose data Tenmina holds: family members, tenants, carers, agents, institution contacts, people named in an insurance application. Requests about a second country's data follow that country's law `[TO VERIFY]` |
 | Handling time | `[TO VERIFY]` by the lawyer under Act 843; working target 21 days from a verified request (assumption) |
 | Procedure | RB-16 |
 | Tracking | Data protection dashboard shows open requests and age; P3 alert at 14 days |
@@ -2391,11 +2391,11 @@ A third country adds the same again. Pattern B's cost is the reason the lawyer's
 | IF-05 | Satellite imagery provider `[TO VERIFY]` | Vendor status page | Vendor support | `[TO VERIFY]` | Attach image later; R2 monitoring pauses; listings badge rules unchanged | AL-30 |
 | IF-06 | Ghana Post GPS `[TO VERIFY]` | None known | `[TO VERIFY]` | None | Manual coordinates from the surveyor; flag `geo.ghana_post_gps` off | AL-30 |
 | IF-07 | Amazon SES; Hubtel or Twilio SMS; WhatsApp Business Platform `[TO VERIFY]` | AWS Health; vendor status pages | AWS support; vendor support | Vendor standard `[TO VERIFY]` | Channel fallback per user preference: WhatsApp → SMS → email; second SMS provider `[TO VERIFY]` | AL-15, AL-30 |
-| IF-08 | Partner API consumers (banks, developers) (R2) | Fidero publishes its own status page | Named technical contact per partner | Fidero to partner: SLO-16 as a target; contractual SLA `[TO VERIFY]` | Partners told through the status page; rate limits protect the platform | SLO-16 |
+| IF-08 | Partner API consumers (banks, developers) (R2) | Tenmina publishes its own status page | Named technical contact per partner | Tenmina to partner: SLO-16 as a target; contractual SLA `[TO VERIFY]` | Partners told through the status page; rate limits protect the platform | SLO-16 |
 | IF-09 | Lands Commission | None | Runners in person | None | Manual in all releases (AS-07). No platform dependency | Not monitored |
 | IF-10 | Institutions: schools, hospitals, clinics, pharmacies, agencies, utilities `[TO VERIFY]` per institution (Q-16) | None | Named contact in the institution record (FR-FEE-001) | Receipt return time agreed per institution `[TO VERIFY]` (SLO-17) | R1: invoices and receipts by manual upload. R2 portal or file: fall back to upload with a second-person check. If an institution cannot receive a bank transfer, it is marked not eligible for direct payment and there is no cash route; a runner may only collect invoices and deliver receipts (FR-FEE-006) | SLO-17, AL-34 |
-| IF-11 | Insurer partners, one or more per country `[TO VERIFY]` (Q-17) (R2) | The insurer's own, if any | Insurer operations desk and claims contact (6.6) | Application and policy document turnaround `[TO VERIFY]` in the agreement (SLO-22) | Hold applications. Premiums always go from the client to the insurer's account, so nothing is stuck with Fidero. Renewals chased by phone. `lines.ins` off if the insurer cannot process | SLO-22, AL-39 |
-| — (no IF ID in 01; issue 33) | Fidero's operating bank, and a mobile money provider if runners are paid that way `[TO VERIFY]` (Q-26) | None expected; business banking desk | Named desk and relationship manager (6.6) | Bulk file processing and confirmation times `[TO VERIFY]` | Staff key each line from the approved run, checked by a second person (6.7) | AL-49, AL-52 |
+| IF-11 | Insurer partners, one or more per country `[TO VERIFY]` (Q-17) (R2) | The insurer's own, if any | Insurer operations desk and claims contact (6.6) | Application and policy document turnaround `[TO VERIFY]` in the agreement (SLO-22) | Hold applications. Premiums always go from the client to the insurer's account, so nothing is stuck with Tenmina. Renewals chased by phone. `lines.ins` off if the insurer cannot process | SLO-22, AL-39 |
+| — (no IF ID in 01; issue 33) | Tenmina's operating bank, and a mobile money provider if runners are paid that way `[TO VERIFY]` (Q-26) | None expected; business banking desk | Named desk and relationship manager (6.6) | Bulk file processing and confirmation times `[TO VERIFY]` | Staff key each line from the approved run, checked by a second person (6.7) | AL-49, AL-52 |
 | — | AWS | AWS Health Dashboard | AWS support plan | AWS service terms | DR plan (10.5) | AWS Health events to the engineering channel |
 | — | GitHub | GitHub status page | GitHub support | GitHub terms | Deploys wait; emergency deploy of an existing signed image through a documented break-glass AWS path `[TO VERIFY]` | Manual |
 | IF-12 | Apple App Store and Google Play (R2) | Apple Developer System Status; Google Play status | App Store Connect and Play Console support; Apple expedited review requests (4.8) | Apple and Google developer terms | Clients use the phone-first portal; field users keep the installed version, whose queue works offline. No side-loaded builds (4.8) | AL-31, AL-43 to AL-47 |
@@ -2405,7 +2405,7 @@ A third country adds the same again. Pattern B's cost is the reason the lawyer's
 Vendor rules:
 
 - Every vendor that processes personal data has a signed data processing agreement and an entry in the data location register before go-live.
-- Each vendor has a named Fidero owner who reviews its performance quarterly: outages, support quality, cost.
+- Each vendor has a named Tenmina owner who reviews its performance quarterly: outages, support quality, cost.
 - Vendor sandbox credentials are kept separate from production and never used in production.
 - Every live country has its own rows for IF-01, IF-02, IF-03, IF-07, IF-10 and IF-11, kept in `ops/vendors/<code>.md` with the same columns (2.7).
 - Institutions, agencies, vendors and insurers are payees as well as partners. Their bank details follow RB-27 and FR-ADM-003, and no money is released to them without the account-name check (FR-ESC-015).
@@ -2436,7 +2436,7 @@ A release cannot go live until its operational readiness checklist is complete a
 - [ ] Region failover test (10.7) done once, with RTO and RPO measured.
 - [ ] Release instruction format, channel and call-back agreed with the bank in writing; test instructions exchanged; recall procedure and contacts known.
 - [ ] Invariant checks 1 to 4 and 7 (8.6) running hourly.
-- [ ] Professional pay ready (6.7): Fidero's operating account registered as an operating account, distinct from every escrow and held-funds account; bulk file accepted by the bank (document 05 PAT-24 to PAT-28) or the manual fallback agreed in writing; payment rights granted by two administrators; Ghana's tax rules signed by the accountant and loaded as configuration; `pro.payment_runs_paused` tested; first run rehearsed on staging (document 05 OAT-17).
+- [ ] Professional pay ready (6.7): Tenmina's operating account registered as an operating account, distinct from every escrow and held-funds account; bulk file accepted by the bank (document 05 PAT-24 to PAT-28) or the manual fallback agreed in writing; payment rights granted by two administrators; Ghana's tax rules signed by the accountant and loaded as configuration; `pro.payment_runs_paused` tested; first run rehearsed on staging (document 05 OAT-17).
 - [ ] Retention job dry run reviewed; legal hold procedure tested.
 - [ ] Breach response tabletop done with the lawyer; Act 843 timings confirmed or recorded as `[TO VERIFY]`.
 - [ ] Independent pen test passed with no open high or critical findings (NFR-SEC-03).
@@ -2451,7 +2451,7 @@ A release cannot go live until its operational readiness checklist is complete a
 
 - [ ] Everything in 16.1 still true; R1 SLO report shows targets met for the last 3 months, or gaps have accepted plans.
 - [ ] Mobile release pipeline live for both apps on both stores; signing keys, certificates and push credentials in custody (4.8); TestFlight and the Play internal and closed tracks used for at least one full cycle.
-- [ ] Apple Developer and Google Play Console organisation accounts in Fidero's name, with the roles in 12.1; store listings, privacy labels and Data safety forms complete and matching the data catalogue; financial features declaration filed (Q-24).
+- [ ] Apple Developer and Google Play Console organisation accounts in Tenmina's name, with the roles in 12.1; store listings, privacy labels and Data safety forms complete and matching the data catalogue; financial features declaration filed (Q-24).
 - [ ] **Both apps approved by both stores** (C-14) for the builds that passed document 05; store review time measured in the rehearsal (document 04 EN-75) and in the release calendar.
 - [ ] Over-the-air update policy (4.10) agreed and checked against both stores' rules `[TO VERIFY]`.
 - [ ] Minimum-version enforcement (3.5, RB-39) and in-app account deletion tested on both platforms.
@@ -2549,7 +2549,7 @@ Items raised in version 0.1 of this document and fixed in document 01 v0.2 or v0
 | 6 | FR-DPR-004 | Legal holds are mentioned but no requirement says who places or lifts them, or how they reach evidence objects. | Add an FR for legal hold management (RB-17). |
 | 7 | C4.9 (MOB) | No requirement for a minimum supported app version, forced update, or keeping queued evidence through an update. | **Resolved by 01 v0.6.** FR-APP-006 requires both apps to check a minimum version and keep queued evidence through the update. 3.5 and RB-39 follow it. How long older-version evidence is accepted is still open (issue 30). |
 | 8 | FR-AUD-004 and NFR-AUD-01 vs FR-DPR-004 | Hash chaining is only "Should", although tamper evidence is central to BR-06 and BR-15, and document 02 builds it as core design. Document 01 does not say that audit entries must avoid personal values, which is what lets audit retention and erasure coexist. | Make FR-AUD-004 a Must; add a rule that audit entries hold IDs and keyed hashes, not personal values (as document 02 designs). |
-| 9 | FR-EVD-002, C5.2, Q-08 | The evidence store must never delete silently, but retention periods are unknown. Document 02 uses Object Lock compliance mode, whose dates cannot be shortened, so an early guess that is too long could stop Fidero meeting erasure duties. | Answer Q-08 before R1 go-live; until then set lock dates to the minimum agreed period and extend them (10.3). |
+| 9 | FR-EVD-002, C5.2, Q-08 | The evidence store must never delete silently, but retention periods are unknown. Document 02 uses Object Lock compliance mode, whose dates cannot be shortened, so an early guess that is too long could stop Tenmina meeting erasure duties. | Answer Q-08 before R1 go-live; until then set lock dates to the minimum agreed period and extend them (10.3). |
 | 10 | NFR-SEC-03 | "Before each release goes live" could mean each roadmap release (R1 to R3) or each weekly deploy. | Clarify as each roadmap release plus major changes to escrow, authentication, evidence or payee handling, and each country opening (12.8). |
 | 11 | C-07 vs the fixed team assumption | C-07 says "one or two developers"; operations planning assumes two. With one developer, a three-person on-call rotation and two-person deploy approvals become hard. The v0.3 plan adds a second country's manual phase from month 6 and its software from month 12 with the same team and budget. | Confirm the team size; if one developer, name the founder as a regular second approver and reduce paging hours. State what country 2 adds to the C-07 budget (14.4). |
 | 12 | A9 "Safety incidents / Incident log" and FR-CASE-010 | "Incident log" means the field safety log, which can be confused with the operational incident log in this document and now with welfare incidents (9.8). | Rename to "safety incident log" in 01. |
@@ -2559,21 +2559,21 @@ Items raised in version 0.1 of this document and fixed in document 01 v0.2 or v0
 | 16 | FR-ESC-015, IF-01 | The payee account-name check is a Must, but nothing says where the name comes from (a bank name-enquiry service, a statement, a manual call), what happens when the source is unavailable, or that the block cannot be overridden. | **Resolved by 01 v0.4.** FR-ESC-015 names the source (the bank's name check where offered, otherwise a bank letter checked by a second staff member) and forbids any override. RB-28 and the DR-E fallback in 10.5 now use only these two sources; the phone match is withdrawn. |
 | 17 | FR-FEE-006 vs RUL-22 and FR-ESC-015 | A runner drawing cash from the bank against a voucher is a payee who is not a verified institution, which conflicts with RUL-22 and FR-ESC-015 as written. Cash in a staff member's hands is a new risk with no limit. | **Resolved by 01 v0.4.** The cash route is removed. FR-FEE-006 marks an institution that cannot receive a bank transfer as not eligible for direct payment; a runner may only collect the invoice and deliver the receipt. The runner cash flag in 2.6 and the runner-pays step in RB-27 are removed. |
 | 18 | FR-CARE-005, FR-CARE-006 | "Within 24 hours" and "the same day" are fixed values, and the concern path has no out-of-hours requirement or emergency guidance. A concern raised at night must reach a person at once. | Make the thresholds configurable (FR-ADM-005); add an urgent flag that pages a named person at any hour; add emergency-services guidance in the carer's app (9.8). |
-| 19 | FR-PMG-003, FR-ESC-011, IF-01 | Rent is tracked "from the bank's statement or confirmation" of the owner's own account, which is not an escrow account. No interface or consent requirement covers Fidero reading an owner's account statement, and FR-ESC-011 (Should, R2) covers escrow statements only. | **Resolved by 01 v0.4.** FR-PMG-003 reads the bank's statement lines for that account only, under the owner's written mandate allowing the bank to share them. RB-31 and `lines.pmg` follow it. The bank's agreement stays `[TO VERIFY]`. |
-| 20 | FR-INS-002, RUL-25, IF-11 | RUL-25 says Fidero collects no premium, but no requirement detects and returns a premium that lands in a Fidero or escrow account, or reconciles with the insurer. | Add a detection, return and reconciliation requirement (8.6 invariant check 4, RB-32), and say who the money goes back to `[TO VERIFY]`. |
+| 19 | FR-PMG-003, FR-ESC-011, IF-01 | Rent is tracked "from the bank's statement or confirmation" of the owner's own account, which is not an escrow account. No interface or consent requirement covers Tenmina reading an owner's account statement, and FR-ESC-011 (Should, R2) covers escrow statements only. | **Resolved by 01 v0.4.** FR-PMG-003 reads the bank's statement lines for that account only, under the owner's written mandate allowing the bank to share them. RB-31 and `lines.pmg` follow it. The bank's agreement stays `[TO VERIFY]`. |
+| 20 | FR-INS-002, RUL-25, IF-11 | RUL-25 says Tenmina collects no premium, but no requirement detects and returns a premium that lands in a Tenmina or escrow account, or reconciles with the insurer. | Add a detection, return and reconciliation requirement (8.6 invariant check 4, RB-32), and say who the money goes back to `[TO VERIFY]`. |
 | 21 | C5.2 | No data classes for care visit records, health invoices and treatment confirmations, tenant data, errand documents (passport and ID copies) or insurance applications. Several are health data with higher duties under Act 843 `[TO VERIFY]`. | **Resolved by 01 v0.4.** C5.2 adds Health and care (own encryption key), Tenancy, Identity documents and Insurance classes. 13.1 now uses those names; periods stay `[TO VERIFY]`. |
 | 22 | C-02, NFR-PRIV-01, A5, B9 | They refer only to Act 843 and the Ghana Data Protection Commission. From month 6 a second country's law and regulator apply to its data. No open question asks for that country's deadlines and forms. | **Partly resolved by 01 v0.4.** NFR-PRIV-01 now names each country's data protection authority, and Q-21 asks for each new country's law, regulator and notification duties. C-02, C-09 and A5 still name only Act 843 and the Ghana Commission. |
 | 23 | NFR-AVL-01 | One target for the platform. It does not say whether the 4-hour maintenance cap is per country or shared, nor that a country's maintenance must avoid that country's business and bank hours. | State per-country measurement (SLO-21) and the hours rule. |
 | 24 | FR-ACC-007 | Country-scoped access is required, but no requirement logs denied cross-country access or names who may hold cross-country rights. | Add a logging requirement and name the roles (founder, named administrators, the lead's read-only access). |
 | 25 | FR-ANL-001 vs FR-CTY-003 | FR-ANL-001 (operating dashboard) is Should while FR-CTY-003 (all metrics by country) is Must in R1. A9 adds per-line metrics but FR-ANL-001 does not list the new lines. | Align the priorities and name the new lines' metrics in FR-ANL-001. |
 | 26 | C1 vs C4.9, F-15, NFR-PERF-05 | C1 renames the app "field app", but C4.9, F-15 and NFR-PERF-05 still say "milestone app". FR-MOB-001 lists its users without carers and agents, although FR-MOB-010 and FR-MOB-012 add them. | **Partly resolved by 01 v0.4.** C4.9 is now "Field app (MOB)" and FR-MOB-001 lists carers and errand agents. F-15, C3, NFR-PERF-05 and NFR-A11Y-01 still say "milestone app". |
-| 27 | B9 | No open question covers Fidero's welfare duty during care visits (when it must call emergency services or report to an authority) or the carer's own safety. | **Resolved by 01 v0.4.** Q-22 asks what duty of care Fidero owes during visits, how a carer's own safety is protected and what insurance covers both, needed by R2. |
+| 27 | B9 | No open question covers Tenmina's welfare duty during care visits (when it must call emergency services or report to an authority) or the carer's own safety. | **Resolved by 01 v0.4.** Q-22 asks what duty of care Tenmina owes during visits, how a carer's own safety is protected and what insurance covers both, needed by R2. |
 | 28 | C-14 | A release date depends on store review time, but 01 has no requirement for how an urgent fix reaches users when review is slow, and does not say whether over-the-air JavaScript updates are allowed. | State the over-the-air policy (4.10) in 01 and add a requirement that server-side controls (flags, minimum version, capture stop) can contain a faulty app version without a store release. |
-| 29 | IF-12 | "Store accounts held by Fidero" does not say who holds the account holder role, how access is shared, or that two people approve a store release. Losing the account holder loses the apps. | Add an operational requirement on store account ownership, two-person release and recovery (4.8, 12.1). |
+| 29 | IF-12 | "Store accounts held by Tenmina" does not say who holds the account holder role, how access is shared, or that two people approve a store release. Losing the account holder loses the apps. | Add an operational requirement on store account ownership, two-person release and recovery (4.8, 12.1). |
 | 30 | FR-APP-006, FR-MOB-005 | "Without losing queued evidence" does not say how long evidence captured on an older version is accepted after the minimum is raised. | State the window in 01; this document uses 30 days `[TO VERIFY]` (3.5). |
 | 31 | FR-APP-004, RUL-11 | In-app account deletion does not say what happens to open escrows, money held at the bank or standing approvals, and FR-APP-002 adds push without FR-NTF-001 naming push as a channel. | State the deletion rule for open money matters and add push to FR-NTF-001 and FR-NTF-004 (13.5, SLO-23). |
 | 32 | C2, FR-PRO-005 | A payment run is approved by "a different one with payment rights", but C2 defines only release rights. Operations cannot say who may approve or upload a run. | Define payment rights in C2: who holds them, granted by two administrators, never with a contracted role. This document assumes reviewers and the founder (6.1). |
-| 33 | C6, Q-26 | No interface ID covers Fidero's operating bank or mobile money provider, which receives the bulk payment file. IF-01 is the escrow bank and IF-02 the fee payment provider. | Add an IF row for the operating account (bulk file and confirmation), so its owner, contacts, format and fallback are managed like IF-01 (15). |
+| 33 | C6, Q-26 | No interface ID covers Tenmina's operating bank or mobile money provider, which receives the bulk payment file. IF-01 is the escrow bank and IF-02 the fee payment provider. | Add an IF row for the operating account (bulk file and confirmation), so its owner, contacts, format and fallback are managed like IF-01 (15). |
 | 34 | FR-PRO-008, C7 | The 10-working-day payment target has no matching operational objective, and nothing says how fast a failed line must be paid again. | Adopt SLO-24 and state a target for failed lines (this document: paid in the next weekly run). |
 | 35 | C5.2 | "Professional payables and tax" is kept "as tax law requires in each country", with no period or anchor date. Receipt photos can show third parties' details. | Set the period and anchor with the accountant (Q-25); delete receipt photos earlier than the amounts (13.1). |
 | 36 | RUL-26 | Pay must never depend on the verdict, but 01 does not say whether pay may be held during a fraud or misconduct review of the same work. RB-41 needs a rule. | State that a reviewer may hold pay only for a recorded fraud or misconduct review, never for a result. This document assumes so. |

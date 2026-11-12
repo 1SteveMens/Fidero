@@ -1,7 +1,7 @@
 import { Pressable, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import type { BottomTabBarProps } from 'expo-router/tabs';
-import { brand, minTouch, space } from '@fidero/tokens';
+import { brand, minTouch, space } from '@tenmina/tokens';
 import { T, haptic, type IconName } from './ui';
 
 

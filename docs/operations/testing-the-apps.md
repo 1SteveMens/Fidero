@@ -1,6 +1,6 @@
 # Testing the apps on your phone
 
-How the founder runs the Fidero apps on an iPhone from a laptop, while the apps are being built. No developer account is needed for this. Commands work the same on a Mac (Terminal) and on Windows (PowerShell).
+How the founder runs the Tenmina apps on an iPhone from a laptop, while the apps are being built. No developer account is needed for this. Commands work the same on a Mac (Terminal) and on Windows (PowerShell).
 
 ## Once: set up the laptop
 
@@ -27,7 +27,7 @@ How the founder runs the Fidero apps on an iPhone from a laptop, while the apps 
 
    Check it with `pnpm -v`, which should print `10.28.0`. (Older guides use `corepack enable` instead; newer Node versions no longer include corepack.)
 
-4. Get the code. Either install GitHub Desktop and clone the `Fidero` repository, or run:
+4. Get the code. Either install GitHub Desktop and clone the `Tenmina` repository, or run:
 
    ```bash
    git clone https://github.com/1SteveMens/Fidero.git
@@ -101,7 +101,7 @@ All data is sample data. Nothing moves money.
 
 Take a screenshot and write down what you tapped just before. Paste both into the session. Say which phone and which iOS or Android version.
 
-## Fidero Field
+## Tenmina Field
 
 Start it the same way, from its own folder:
 
@@ -113,7 +113,7 @@ cd apps/field
 npx expo start
 ```
 
-Stop the client app first with Ctrl+C, or run Fidero Field in a second Terminal window. On the sign-in screen, choose the role to try:
+Stop the client app first with Ctrl+C, or run Tenmina Field in a second Terminal window. On the sign-in screen, choose the role to try:
 
 - **Inspector**: open "Inspection: Blocks", answer each check, take a photo where asked, mark one "No" as a defect with a value, then choose a result. Then open the Pay tab.
 - **Contractor**: open "Foundation", take the evidence photos (and the video), then submit. Try it with "Pretend there is no signal" switched on in Account, and watch the Queue tab.

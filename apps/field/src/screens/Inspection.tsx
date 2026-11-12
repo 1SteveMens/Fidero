@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { defectHoldback, formatMoney, inspectionBlockers, type Answer, type Defect, type FieldJob, type InspectionResult } from '@fidero/shared';
-import { brand, space } from '@fidero/tokens';
-import { Button, Choice, ErrorView, Input, Label, Loading, Panel, Rise, Screen, T, YesNo } from '@fidero/ui';
+import { defectHoldback, formatMoney, inspectionBlockers, type Answer, type Defect, type FieldJob, type InspectionResult } from '@tenmina/shared';
+import { brand, space } from '@tenmina/tokens';
+import { Button, Choice, ErrorView, Input, Label, Loading, Panel, Rise, Screen, T, YesNo } from '@tenmina/ui';
 import { newId, useField, useFieldLoad } from '../store';
 import { CaptureButton, OfflineBanner, Submitted } from './common';
 
@@ -19,7 +19,7 @@ export function InspectionScreen({ job }: { job: FieldJob }) {
   const [failReason, setFailReason] = useState('');
 
   if (submitted[job.id]) {
-    return <Submitted title="Result saved." detail="It is sent to Fidero when you have signal. The client and the bank see it only after Fidero checks it." />;
+    return <Submitted title="Result saved." detail="It is sent to Tenmina when you have signal. The client and the bank see it only after Tenmina checks it." />;
   }
   if (error) return <Screen back><ErrorView message={error} onRetry={reload} /></Screen>;
   if (!insp) return <Screen back><Loading /></Screen>;

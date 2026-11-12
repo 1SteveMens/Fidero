@@ -1,10 +1,10 @@
-# Fidero business proposal
+# Tenmina business proposal
 
 Status: working draft. Every figure in this document is an assumption unless marked otherwise. Unknown numbers are marked `[TO VERIFY]`.
 
 ## 1. Executive summary
 
-Fidero is the trusted agent at home for people abroad. Anyone in the diaspora who needs something done in their home country, from buying a plot to paying a parent's hospital bill, can have it checked, paid against proof and shown to them. Ghana is the launch market. Land verification is the launch product. The redefinition from a land platform to a diaspora platform is recorded in `docs/decisions/2026-11-01-diaspora-platform.md`.
+Tenmina is the trusted agent at home for people abroad. Anyone in the diaspora who needs something done in their home country, from buying a plot to paying a parent's hospital bill, can have it checked, paid against proof and shown to them. Ghana is the launch market. Land verification is the launch product. The redefinition from a land platform to a diaspora platform is recorded in `docs/decisions/2026-11-01-diaspora-platform.md`.
 
 Every line runs on one engine. Verify the asset or the people. A licensed bank or escrow agent holds the money. Release it only against evidence, and only to a verified institution, supplier, vendor or professional, never as cash to a relative. Show the client every step.
 
@@ -43,7 +43,7 @@ The same problem applies to the rest of what the diaspora pays for. In rough ord
 | Healthcare for parents | Emergencies arrive by WhatsApp with no bill | Susu (Francophone), Fleri (Accra) |
 | School fees | Paid through a relative, not to the school | Flutterwave pay-to-school |
 | Funerals | Largest sudden cost | Enterprise Life AkwantuPa, Diaspora Insurance |
-| Land, houses, building | Fraud, double sales, diverted money | Fidero. No scaled player |
+| Land, houses, building | Fraud, double sales, diverted money | Tenmina. No scaled player |
 | Business and projects | Cash to a relative with no accountability | Almost nobody |
 | Paperwork at home | Needs a trusted person physically present | Informal fixers |
 | Property management | Relatives living rent-free, repairs never done | Small agents, informal |
@@ -59,7 +59,7 @@ Lawyers and surveyors exist, but a buyer abroad has no way to find trustworthy o
 
 ## 3. Solution
 
-Fidero sells trust wherever money sent home is at risk. The engine is the same for every line: verify, hold, release against evidence, show. Land is described first because it is the launch product.
+Tenmina sells trust wherever money sent home is at risk. The engine is the same for every line: verify, hold, release against evidence, show. Land is described first because it is the launch product.
 
 ### Verify
 
@@ -75,21 +75,21 @@ The output is a red, amber or green report. The report structure is in `docs/ope
 
 ### Buy
 
-Purchase money is held in escrow with a partner bank or a licensed escrow agent. It is released only when the conditions in the escrow agreement are met, such as a green report, a signed indenture and stool or family consent on file. Fidero can also manage conveyancing and track title registration.
+Purchase money is held in escrow with a partner bank or a licensed escrow agent. It is released only when the conditions in the escrow agreement are met, such as a green report, a signed indenture and stool or family consent on file. Tenmina can also manage conveyancing and track title registration.
 
 ### Build
 
-Fidero vets contractors. A quantity surveyor produces a bill of quantities. Payments are released only at milestones: foundation, blocks, lintel, roof, finishing. Each milestone is confirmed by geotagged, time-stamped photos and video plus an independent inspector. Bulk materials are bought by Fidero and delivered to site. The owner sees budget against actual and a photo timeline on a dashboard. The schedule is in `docs/operations/milestone-schedule.md`.
+Tenmina vets contractors. A quantity surveyor produces a bill of quantities. Payments are released only at milestones: foundation, blocks, lintel, roof, finishing. Each milestone is confirmed by geotagged, time-stamped photos and video plus an independent inspector. Bulk materials are bought by Tenmina and delivered to site. The owner sees budget against actual and a photo timeline on a dashboard. The schedule is in `docs/operations/milestone-schedule.md`.
 
 ### Later: records
 
-Over time Fidero digitises allocation records with traditional authorities under a revenue share. This makes future verifications faster and gives the authorities a clean register.
+Over time Tenmina digitises allocation records with traditional authorities under a revenue share. This makes future verifications faster and gives the authorities a clean register.
 
 ### Product families
 
-Fidero is not limited to land. Every line uses the same engine: verify, hold, release. Each line reuses the same field team, escrow partner and evidence app. A new line is a new case template, condition set and schedule, not new software.
+Tenmina is not limited to land. Every line uses the same engine: verify, hold, release. Each line reuses the same field team, escrow partner and evidence app. A new line is a new case template, condition set and schedule, not new software.
 
-| Line | What Fidero verifies | What releases the money | Phase |
+| Line | What Tenmina verifies | What releases the money | Phase |
 |---|---|---|---|
 | **Property.** Land | Searches, survey, overlays, seller authority and consent | Report conditions met and indenture signed | 1 |
 | Existing buildings: houses, apartments, commercial property | The land checks, plus building permit, structural inspection, occupants and tenancies, unpaid property rates and utility bills | Report conditions met, transfer documents signed, keys and vacant possession handed over | 2 |
@@ -99,19 +99,19 @@ Fidero is not limited to land. Every line uses the same engine: verify, hold, re
 | Property management | Tenant, agreement, condition of the property | Rent paid by the tenant to the owner's own account; repairs paid against quotes, photos and inspection | 3 |
 | **Family.** Fees to institutions: schools, hospitals, clinics, pharmacies, agencies | The institution, its bank account in its own name, the invoice | Paid direct to the institution against the invoice, receipt returned to the client | 2 |
 | Care visits to a parent or relative | The carer and the care plan | Visit confirmed by geotagged check-in, photos and the family's confirmation | 3 |
-| Health and funeral cover | The licensed insurer and the policy | Premiums paid to the insurer, claims paid by the insurer. Fidero holds no risk | 3 |
+| Health and funeral cover | The licensed insurer and the policy | Premiums paid to the insurer, claims paid by the insurer. Tenmina holds no risk | 3 |
 | **Projects and errands.** Project funds: businesses, renovations, farms, family and community projects | The budget, the person running the project, and the suppliers | Suppliers paid directly against invoices, each stage confirmed by receipts, photos and visits | 3 |
 | Paperwork and errands: identity documents, passports, title steps, probate, company registration, tax, utilities | The agency, the vetted agent, the document checklist | Official fees paid to the agency; completion confirmed by the resulting document | 3 |
 | Events and ceremonies: funerals, weddings, outdoorings | Vendors and the budget | Vendors paid against invoices and delivery evidence | 4 |
 | **Later.** Relocation and shipping, vehicles, equipment, buying a business, investing | Demand `[TO VERIFY]` | To be designed | 4 or later |
 
-Rules for every line. Money goes only to a verified institution, supplier, vendor or professional with a bank account in that name, never as cash to a relative. Fidero confirms the money was spent as agreed. It does not advise on whether a project, property or investment is a good idea and does not guarantee returns. Lines that need a licence Fidero does not hold run through licensed partners: insurance through insurers, cross-border transfer through payment providers, listings through a licensed agent if Act 1047 requires it.
+Rules for every line. Money goes only to a verified institution, supplier, vendor or professional with a bank account in that name, never as cash to a relative. Tenmina confirms the money was spent as agreed. It does not advise on whether a project, property or investment is a good idea and does not guarantee returns. Lines that need a licence Tenmina does not hold run through licensed partners: insurance through insurers, cross-border transfer through payment providers, listings through a licensed agent if Act 1047 requires it.
 
 Fees to institutions open early because they are simple, recurring and low-risk, and they create monthly contact with clients who would otherwise return once every few years for a plot. The other lines open after the field team and the bank partnership exist. Each line opens only after the previous phase passes its gate. Pricing for the new lines is `[TO VERIFY]`.
 
 Regulation to check for the wider lines:
 
-- Verified listings of plots and buildings, or brokering their sale, may bring Fidero under the Real Estate Agency Act 2020 (Act 1047). Whether a licence is needed is `[TO VERIFY]`.
+- Verified listings of plots and buildings, or brokering their sale, may bring Tenmina under the Real Estate Agency Act 2020 (Act 1047). Whether a licence is needed is `[TO VERIFY]`.
 - Project funds stay with the licensed partner bank. Anti-money laundering checks are stricter, because the money is not tied to one asset.
 - Professional indemnity cover must be extended to building inspections and project funds `[TO VERIFY]`.
 - Selling insurer partners' policies may need an intermediary licence `[TO VERIFY]`.
@@ -120,12 +120,12 @@ Regulation to check for the wider lines:
 
 ### Verified listings
 
-From month 9, sellers can pay to have a plot or property verified once and listed on Fidero with a "Fidero Verified" badge. Buyers browse the listings and buy through escrow. One verification then serves many buyers, which is how Fidero grows beyond one report per buyer. The model borrows four parts of how Alibaba makes trade between strangers safe.
+From month 9, sellers can pay to have a plot or property verified once and listed on Tenmina with a "Tenmina Verified" badge. Buyers browse the listings and buy through escrow. One verification then serves many buyers, which is how Tenmina grows beyond one report per buyer. The model borrows four parts of how Alibaba makes trade between strangers safe.
 
-| Alibaba | Fidero |
+| Alibaba | Tenmina |
 |---|---|
 | Verified sellers | Verified listings. Licensed third parties check the plot or property once. The badge shows the date of the checks and links to the full report. |
-| Trade Assurance: payment held until delivery | Escrow. The buyer pays into the partner bank's escrow account. Money is released when every condition is recorded as met, with two Fidero staff approving each release. Fidero never holds the money. |
+| Trade Assurance: payment held until delivery | Escrow. The buyer pays into the partner bank's escrow account. Money is released when every condition is recorded as met, with two Tenmina staff approving each release. Tenmina never holds the money. |
 | Seller ratings | Public track records for sellers, developers, contractors and surveyors. Bad actors are removed. |
 | Dispute process | Fixed steps and timelines when a buyer or seller contests a release. |
 
@@ -133,7 +133,7 @@ Rules that protect the badge:
 
 - **Fresh search before payment.** Land is not a product. A listed plot can be resold or encroached on after it is verified. A fresh search and site check run just before any money moves. The check is cheap and is never skipped.
 - **The badge cannot be bought.** The seller pays, but licensed independent surveyors and lawyers do the checks. A failed check means no listing. Buyers see the full report. Buyer-ordered reports stay available for plots that are not listed.
-- **Badges expire.** A badge lapses after a set period `[TO VERIFY]`. Satellite monitoring alerts Fidero if new structures appear on a listed plot.
+- **Badges expire.** A badge lapses after a set period `[TO VERIFY]`. Satellite monitoring alerts Tenmina if new structures appear on a listed plot.
 
 What can be automated. The ground truth cannot be fully automated. Someone still stands on the plot, and the family still consents in person. The target is an automated platform with a small field team behind it.
 
@@ -142,7 +142,7 @@ What can be automated. The ground truth cannot be fully automated. Someone still
 | Overlay checks | Fully | Acquisition, road reserve, wetland and flood zone layers are checked as soon as coordinates are entered |
 | Satellite monitoring | Fully | Alerts fire if new structures appear on a listed plot |
 | Payments and receipts | Fully | Card and mobile money |
-| Escrow release | Fully, once the bank offers an API `[TO VERIFY]` | Conditions met prepares the release instruction; two Fidero staff approve it |
+| Escrow release | Fully, once the bank offers an API `[TO VERIFY]` | Conditions met prepares the release instruction; two Tenmina staff approve it |
 | Construction milestones | Mostly | Evidence comes through the app with automatic fraud checks. An inspector still visits. |
 | Lands Commission searches | Partly | Online where the Commission allows it `[TO VERIFY]`, otherwise a runner does them |
 | Surveyor check | Partly | Drones or GPS speed it up, but a licensed surveyor still signs |
@@ -176,15 +176,15 @@ A verification report costs a small fraction of a plot. Losing the plot costs ev
 
 ### Expansion beyond Ghana
 
-Fidero starts in Ghana and extends to other countries where the same problems exist: a large diaspora sending money home, poorly recorded land ownership, and no neutral party tying payment to proof. Nigeria starts its manual phase from month 6, once Ghana has passed its day-90 gate, and its software opens from about month 12 if its own gate passes. Kenya starts its manual phase in months 15-18. The order is Ghana, then Nigeria, then Kenya (decided 1 November 2026). Country is configuration in the software from the first release, so opening a country is a field and partner exercise, not a software project.
+Tenmina starts in Ghana and extends to other countries where the same problems exist: a large diaspora sending money home, poorly recorded land ownership, and no neutral party tying payment to proof. Nigeria starts its manual phase from month 6, once Ghana has passed its day-90 gate, and its software opens from about month 12 if its own gate passes. Kenya starts its manual phase in months 15-18. The order is Ghana, then Nigeria, then Kenya (decided 1 November 2026). Country is configuration in the software from the first release, so opening a country is a field and partner exercise, not a software project.
 
 A country qualifies for entry when it meets all of these criteria:
 
-1. A large diaspora in the countries Fidero already serves, so existing channels reach the new market.
+1. A large diaspora in the countries Tenmina already serves, so existing channels reach the new market.
 2. A legal framework that allows escrow through a licensed bank or agent.
 3. Licensed surveyors and land lawyers available to contract.
 4. A partner bank willing to run escrow and a professional indemnity insurer willing to cover reports.
-5. Field safety conditions that allow site visits under Fidero's safety rules.
+5. Field safety conditions that allow site visits under Tenmina's safety rules.
 
 Each new country repeats phase 1: a manual verification service with local professionals, a country-specific report template and scope statement, and a 90-day validation before any software is localised. Ghana must have passed its day-90 gate before the second country's manual phase starts.
 
@@ -207,7 +207,7 @@ All prices are assumptions to be tested in the first 90 days. See `docs/validati
 | Care visits | Per visit or a monthly plan `[TO VERIFY]` | Carer paid from it for confirmed visits |
 | Property management | Share of rent `[TO VERIFY]` plus a repair management fee | Rent itself goes to the owner's account |
 | Paperwork and errands | Per errand `[TO VERIFY]` | Official fees passed through at cost |
-| Insurer partner lines | Commission from the insurer `[TO VERIFY]` | Fidero holds no risk |
+| Insurer partner lines | Commission from the insurer `[TO VERIFY]` | Tenmina holds no risk |
 | Events | Share of budget `[TO VERIFY]` | Vendors paid against evidence |
 | Verified listing, paid by the seller | `[TO VERIFY]` per plot, unit or estate | From month 9, developers first |
 | Success fee on a listed sale, paid by the seller | `[TO VERIFY]` | Charged when escrow releases |
@@ -251,21 +251,21 @@ All targets are assumptions.
 
 ## 7. Competition
 
-| Alternative | What it does | Gap Fidero fills |
+| Alternative | What it does | Gap Tenmina fills |
 |---|---|---|
 | Individual lawyers and surveyors | Searches and site checks on request | No single report, no standard, hard to find from abroad, no liability framework |
 | Relatives on the ground | Visit the site, talk to the seller | No records access, conflict of interest, no proof |
 | Lands Commission search alone | Confirms registered interests | Misses customary ownership, ground truth and seller authority |
 | Real estate agents and developers | Sell plots and houses | They are the counterparty, not an independent check |
-| Remittance companies | Move money | Do not hold it against conditions. Fidero sits on top of them as the "spend it right" layer, and they are a channel |
-| Diaspora health cover: Susu, Fleri | Health insurance for relatives, paid from abroad | One vertical. Fidero partners with insurers rather than competing |
+| Remittance companies | Move money | Do not hold it against conditions. Tenmina sits on top of them as the "spend it right" layer, and they are a channel |
+| Diaspora health cover: Susu, Fleri | Health insurance for relatives, paid from abroad | One vertical. Tenmina partners with insurers rather than competing |
 | Diaspora funeral cover: Enterprise Life AkwantuPa, Diaspora Insurance | Funeral policies for relatives | One vertical. Partner, not compete |
 | Pay-to-school tools: Flutterwave | Fees paid to institutions | Payment only. No verification of the institution, no receipt back, no other lines |
-| Diaspora spending apps: Tulix (Kenya) | A wallet and SMS vouchers the relative spends at 500+ mobile-money merchants: supermarkets, fuel, hospitals, building suppliers | Everyday spending, chosen by the relative. No verification of land, builders or institutions, no approval before release, no evidence. Overlaps with Fidero's family payments in Kenya (Q-27) |
+| Diaspora spending apps: Tulix (Kenya) | A wallet and SMS vouchers the relative spends at 500+ mobile-money merchants: supermarkets, fuel, hospitals, building suppliers | Everyday spending, chosen by the relative. No verification of land, builders or institutions, no approval before release, no evidence. Overlaps with Tenmina's family payments in Kenya (Q-27) |
 | Concierge and errand services | Paperwork and purchases on request | Informal, no escrow, no evidence standard |
 | Other land verification or proptech startups in Ghana | `[TO VERIFY]` | Map them in the first 90 days |
 
-Fidero's edge is one trusted operator across every need. The report feeds the escrow, the escrow feeds the build, and the client who bought a plot pays school fees and arranges care visits through the same account. Each line makes the next one cheaper to sell and harder to leave.
+Tenmina's edge is one trusted operator across every need. The report feeds the escrow, the escrow feeds the build, and the client who bought a plot pays school fees and arranges care visits through the same account. Each line makes the next one cheaper to sell and harder to leave.
 
 ## 8. Financials and use of funds
 
@@ -317,10 +317,10 @@ Escrow partner bank or licensed escrow agent, law firms, licensed surveyors, con
 ## 10. Regulation
 
 - **Land Act 2020 (Act 1036)** sets the framework for land ownership and allows electronic conveyancing.
-- **Bank of Ghana guidance** means escrow must run through a licensed bank or a licensed escrow agent. Fidero does not hold client money itself.
-- **Data Protection Act 2012 (Act 843)** governs client data, seller data and recordings. Fidero registers with the Data Protection Commission `[TO VERIFY]`.
-- Licensing for surveyors and lawyers is handled by their professional bodies. Fidero contracts only licensed professionals.
-- **Insurance Act 2021 (Act 1061)** `[TO VERIFY]`: selling insurer partners' policies may need an intermediary licence. Fidero holds no insurance risk.
+- **Bank of Ghana guidance** means escrow must run through a licensed bank or a licensed escrow agent. Tenmina does not hold client money itself.
+- **Data Protection Act 2012 (Act 843)** governs client data, seller data and recordings. Tenmina registers with the Data Protection Commission `[TO VERIFY]`.
+- Licensing for surveyors and lawyers is handled by their professional bodies. Tenmina contracts only licensed professionals.
+- **Insurance Act 2021 (Act 1061)** `[TO VERIFY]`: selling insurer partners' policies may need an intermediary licence. Tenmina holds no insurance risk.
 - Each new country has its own equivalents. They are checked in that country's manual phase before any money moves.
 
 ## 11. Risks
@@ -330,7 +330,7 @@ Escrow partner bank or licensed escrow agent, law firms, licensed surveyors, con
 | A wrong verification damages the brand | High | Professional indemnity insurance, precise report scope, two-person review, clear limits on what the report certifies |
 | Lands Commission searches are slow | Medium | Runner relationships, parallel checks, honest turnaround promises, status updates to the client |
 | Staff safety on disputed land | High | No solo visits, risk screening before each visit, withdraw if threatened, never confront land guards |
-| Contractor fraud | High | Vetting, milestone payments only, independent inspector, materials bought by Fidero |
+| Contractor fraud | High | Vetting, milestone payments only, independent inspector, materials bought by Tenmina |
 | Cedi swings on construction budgets | Medium | Quote in cedis with a dollar guide, re-price at each milestone, hold a reserve |
 | Escrow partner delays or withdraws | Medium | Talk to two banks and one licensed agent in parallel |
 | Seller or family disputes consent after the sale | Medium | Signed and video-recorded consent, witnesses, lawyer present |
