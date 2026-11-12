@@ -9,18 +9,19 @@ Every figure in this document is a working assumption, not verified data. That i
 | Item | Value |
 |---|---|
 | Document | 04 of 6 in `docs/specs/` |
-| Version | 0.7 |
+| Version | 0.8 |
 | Date | 12 November 2026 |
 | Status | Draft. For review by the founder as product owner |
 | Owner | Product and engineering lead (once hired). Until then, the founder |
 | Approver | Founder, acting as product owner |
-| Source of truth | [01 Requirements and Product Specification](01-requirements-and-product-specification.md), version 0.8, and the decision record [`docs/decisions/2026-11-01-diaspora-platform.md`](../decisions/2026-11-01-diaspora-platform.md) |
+| Source of truth | [01 Requirements and Product Specification](01-requirements-and-product-specification.md), version 0.12, and the decision record [`docs/decisions/2026-11-01-diaspora-platform.md`](../decisions/2026-11-01-diaspora-platform.md) |
 | Related | [02 Architecture](02-architecture-and-technical-design.md), [03 UI/UX](03-ui-ux-design.md), [05 Testing and Acceptance](05-testing-and-acceptance.md), [06 Deployment and Operations](06-deployment-and-operations.md), [`docs/proposal.md`](../proposal.md), [`docs/validation-plan.md`](../validation-plan.md), [`docs/partners.md`](../partners.md), [`docs/product/architecture.md`](../product/architecture.md) |
 
 ### Change log
 
 | Version | Date | Change | By |
 |---|---|---|---|
+| 0.8 | 12 November 2026 | Aligned to 01 v0.12: fund and evidence protection (RUL-28 to RUL-32, Q-28). Six new stories in existing epics: US-ACC-013 (national identity checks of parties, 5), US-PAY-008 (fee refunds to the original payment method, 2), US-CASE-016 (official search record from Tenmina's own account, 3), US-ESC-016 (payee change flow with a cooling-off period, 5) and US-ESC-017 (refunds only to the source account, 3), all Must R1 (18 points); and US-RPT-012 (monthly random re-checks, 5), Should R1. Enablers EN-80 (legal basis for escrow, Q-28) and EN-81 (access to the national identity system), both Must R1 and not pointed. Each Must sits in the sprint of the feature it protects (S8 to S11; US-PAY-008 in S13). R1 Must plan grows from 438 to 456 points against 450 to the end of S14; about 9 points spill into S15, so the four R1 Shoulds planned in R2-A move to R2-B with US-RPT-012 (proposed, for the founder to confirm). R2 demand 703 against 795 under Option R2-A. R0 note on searches and Ghana Card checks by hand, milestones M-07, M-09, M-10 and M-12, risks DR-43 to DR-45 (DR-04, DR-09 and DR-26 updated), RACI, budget, go/no-go, traceability and issues I-36 to I-41 updated. | Delivery lead |
 | 0.7 | 12 November 2026 | Founder decision `docs/decisions/2026-11-12-build-with-claude.md`: until revenue allows hiring, Claude writes the code and the founder tests on real phones. The sprint capacity plans in sections 2, 5 and 11 no longer plan the work; the order of work by dependency and priority still does. Gates and scope are unchanged. |
 | 0.6 | 11 November 2026 | Founder decisions: the S14 plan (contract developer kept one more sprint for professional payments, payment runs start as the bulk file only, PRO Shoulds move to R2) and Option R2-A (contract developer kept S14 to S31 alongside one mobile developer). Budget, team, I-04 and I-29 updated. |
 | 0.5 | 11 November 2026 | Aligned to 01 v0.8: professional payments. New epic EP-PRO with US-PRO-001 to US-PRO-010 (42 points: 6 Must stories, 28 points; 4 Should stories, 14 points), all R1. Enablers EN-78 (spike on the operating bank's bulk payment file, 2 points) and EN-79 (tax set-up per country with an accountant, not pointed). US-TSK-002 now pays Tenmina's errand charge through the payment provider and official fees into the partner bank; US-TSK-003 has the agent paid by Tenmina under EP-PRO. R1 Must plan grows from 408 to 438 points against 417 to the end of S13 under Option A+: 21 points short. Recommendation in 5.1: keep the six PRO Musts in R1, start payment runs as the bulk file only, build them in a new S14 with the contract developer kept one more sprint, and move the four PRO Shoulds to R2 (US-PRO-004 in R2-A; US-PRO-009 in R2-C; US-PRO-008 and US-PRO-010 in R2-D). R1 Shoulds displaced from R2-A move to R2-D. R2 demand 682 against 795 under Option R2-A. WSJF, dependencies, risks DR-41 and DR-42, budget, traceability (BR-23 to F-37 to EP-PRO) and issues I-04, I-29 and I-32 to I-35 updated. | Delivery lead |
@@ -54,7 +55,7 @@ Each release runs three steps. Software is built only for a phase that has passe
 | Step | What happens | R1 example |
 |---|---|---|
 | Discover | Learn from real work before building. Map the service, test designs with users, run spikes on partners and data | R0 spreadsheets show time per step and where cases stall. The R0 institution payment register (EN-51) shows which schools and hospitals take direct payment. Five diaspora clients try the clickable prototype in document 03. Spikes on the bank, payment, identity and institution formats |
-| Build | Two-week Scrum sprints against the backlog in section 7 | Sprints S0 to S14 in section 5.1 |
+| Build | Two-week Scrum sprints against the backlog in section 7 | Sprints S0 to S14 in section 5.1, with the R1 tail in S15 |
 | Validate | Put the increment in front of real users, measure, then decide | Staff run live cases in the back office alongside the spreadsheet (internal alpha). R0 clients move to the portal (client beta). Gate G1 at month 9. Country 2 runs its manual phase from month 6 and its own day-90 review at month 9 (G-C2) |
 
 ### 2.2 Scrum
@@ -190,12 +191,12 @@ Months follow the approved plan in section 5.1 (contract developer S3 to S14, th
 | M-04 | Month 3 | Gate G0 | Day-90 criteria met. Founder records the decision | Founder |
 | M-05 | Month 3 | Sprint 0 done | Monorepo, CI, hosting decision (EN-16) recorded | Engineering lead |
 | M-06 | Month 5 | Walking skeleton in staging | Sign-up, sign-in, audit log and country configuration run on infrastructure built from code | Engineering lead |
-| M-07 | Month 6 | Escrow partner signed | Agreement with a bank or licensed agent (AS-02). Release instruction format and channel agreed (EN-17); held-balance structure agreed (EN-53) | Founder |
+| M-07 | Month 6 | Escrow partner signed | Agreement with a bank or licensed agent (AS-02), on the legal basis the lawyer confirms in writing (Q-28, EN-80). Release instruction format and channel agreed (EN-17); held-balance structure agreed (EN-53) | Founder |
 | M-08 | Month 7 | Internal alpha | Staff run new cases in the back office alongside the spreadsheet. Access limited to staff. Backup restore drill passed (EN-15) | Engineering lead, with operations |
-| M-09 | Month 8 | Client beta | Penetration test 1 passed (EN-28), accessibility audit (EN-25) and usability test (EN-24) done. New clients order and track in the portal | Product owner |
-| M-10 | Month 8 | Escrow tracker live | First escrow tracked on the platform with client approval, two-person release and payee name check (US-ESC-006, US-ESC-007, US-ESC-015) | Product owner |
+| M-09 | Month 8 | Client beta | Penetration test 1 passed (EN-28), accessibility audit (EN-25) and usability test (EN-24) done. Official searches recorded as received from Tenmina's own registry account (US-CASE-016). New clients order and track in the portal | Product owner |
+| M-10 | Month 8 | Escrow tracker live | First escrow tracked on the platform with client approval, two-person release, payee name check and payee lock (US-ESC-006, US-ESC-007, US-ESC-015, US-ESC-016). Seller identity checked against the national identity system (US-ACC-013). Legal basis for escrow on file (EN-80) | Product owner |
 | M-11 | Month 9 | Gate G1 review | Business targets reviewed. Insurer approval recorded (EN-31) | Founder |
-| M-12 | Month 10 | R1 complete | All R1 Must stories accepted per document 05. Penetration retest passed (EN-29). Overlay checks automatic. Metrics by country live. Professional payment runs live on the platform (S14) | Engineering lead |
+| M-12 | Month 10 | R1 complete | All R1 Must stories accepted per document 05. Penetration retest passed (EN-29). Overlay checks automatic. Metrics by country live. Professional payment runs live on the platform (S14). The version 0.8 tail done in S15 | Engineering lead |
 | M-13 | Month 11 | Field app beta | Tenmina Field on TestFlight and Play internal testing, on 2 GB Android test devices and the oldest supported iPhone. First contractors and inspectors vetted on the panel. Check-in and check-out working (US-MOB-012) | Engineering lead |
 | M-14 | Month 12 | Listings and licence positions known | Act 1047 view in writing (EN-39). Insurer view on inspections and project funds (EN-40). Lawyer's view on property management and errand licences (EN-56) | Founder |
 | M-15 | Month 13 | Construction pilot | Tenmina Field approved on both stores (M-38). First milestone paid: app evidence, inspector pass, client approval, two-person release, bank confirmation | Product owner |

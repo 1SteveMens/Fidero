@@ -5,11 +5,11 @@ Information architecture, user flows, wireframes, interaction and content rules,
 | Item | Value |
 |---|---|
 | Document | 03 of 6 in `docs/specs/` |
-| Version | 0.8 |
+| Version | 0.9 |
 | Date | 12 November 2026 |
 | Status | Draft. For review. Not yet baselined |
 | Owner | Product designer, for the founder as product owner |
-| Source of truth | `01-requirements-and-product-specification.md` v0.8 (personas, features, journeys, rules, FR and NFR IDs, state models) |
+| Source of truth | `01-requirements-and-product-specification.md` v0.12 (personas, features, journeys, rules, FR and NFR IDs, state models) |
 | Other sources | `README.md`, `docs/decisions/2026-11-01-diaspora-platform.md`, `docs/operations/verification-report-template.md`, `docs/operations/milestone-schedule.md`, `docs/product/architecture.md` |
 | Companion | `03-prototype/index.html`, a clickable prototype with sample data |
 
@@ -53,6 +53,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | DA-11 | The client app shows the portal's signed-in client screens natively and keeps their `SCR-PTL` IDs, content and rules. Only screens with no portal equivalent get `SCR-APP` IDs. Public pages (home and prices, listings, insurer product pages) and the family confirmation link (SCR-PTL-45) stay on the web; the app opens them in the system browser or an in-app browser tab. | FR-APP-001 asks for "the client features of the portal ... on the same API and rules". One design per screen keeps the two consistent and halves review. |
 | DA-12 | Until Q-23 is answered, the client app pays Tenmina's fees on the web: "Pay on the Tenmina website" opens the portal's payment page (SCR-PTL-10) in the system browser and returns to the app when done. If the stores accept the payment provider in the app, SCR-APP-06 shows the provider's checkout instead. The app never shows a store in-app purchase. | FR-APP-005, AS-14, Q-23. Fees pay for real-world services. Purchase, construction and project money is never paid in either app (RUL-01). |
 | DA-13 | In R1 contracted professionals see their pay in the back office web app, on their phones, under "My pay" (SCR-BO-33 to SCR-BO-36). They already sign in there and do their tasks there (SCR-BO-01, SCR-BO-04). The client portal does not serve professionals. From R2, Tenmina Field shows the same screens natively (SCR-MOB-19 to SCR-MOB-22) for field roles. | 01 C1 puts professionals in the back office and the field app. FR-PRO does not name a front end. |
+| DA-14 | The client app's payee change approval has its own ID, SCR-MOB-23, as well as the portal's SCR-PTL-55. This is an exception to DA-11 and to the prefix rule in section 0 (`SCR-MOB` is otherwise Tenmina Field). The ID was reserved so that documents 04 to 06 can trace the app's press-and-hold version separately. Content and rules are those of SCR-PTL-55. | Other documents reference SCR-MOB-23. A later version may move it to an `SCR-APP` ID; the ID is never reused. |
 
 ---
 
@@ -82,6 +83,8 @@ The principles come from 01 section B2. Each one changes what a user sees.
 6. Irreversible actions need a clear summary and a deliberate confirm (section 5.3). Reversible actions use undo.
 7. Name who gets paid. Every released or planned payment shows the payee's name and the last four digits of its verified account (RUL-22). Rent says it goes to the owner's own account (RUL-24). Insurance says whose policy it is (RUL-25).
 8. Country on every object. Each case, payment, property and visit shows its country and currency, taken from configuration.
+9. Who gets paid is locked. Once terms are agreed, the payee and account change only through the payee change approval (SCR-PTL-55, SCR-BO-42), never because of a message, email or call (RUL-28). Refunds go back to the account the money came from (RUL-29).
+10. Proof shows its source. A search result or identity check shows where it came from: the registry's official channel or the national identity system, with its reference and time. A copy handed over by anyone is never shown as proof (RUL-30, RUL-31).
 
 ---
 
@@ -118,6 +121,7 @@ portal
     │   │   └── Rate this case (R2) ......... SCR-PTL-33
     │   ├── Escrow offer and terms .......... SCR-PTL-16
     │   ├── Escrow tracker .................. SCR-PTL-17
+    │   │   └── Approve a payee change ...... SCR-PTL-55
     │   ├── Bank payment instructions ....... SCR-PTL-18
     │   ├── Start a build (R2) .............. SCR-PTL-25
     │   ├── Build dashboard (R2) ............ SCR-PTL-22
@@ -153,6 +157,8 @@ portal
         └── My data ......................... SCR-PTL-34
 ```
 
+A payee change on a held amount in Family or Projects and errands opens the same SCR-PTL-55, from the item's "Needs you" card on the dashboard.
+
 The three capitalised groups are the product families in the decision record. The dashboard shows one section per family; a section appears only when the client has something in it. Family lines are offered to every client from R1 (the decision record, "Customer to lead with").
 
 ### 2.2 Back office sitemap (web, laptop first, phone for field roles)
@@ -166,6 +172,8 @@ backoffice
 │   ├── Task detail (phone friendly) ........ SCR-BO-04
 │   ├── Risk screen and assignment .......... SCR-BO-05
 │   ├── Map and overlay results ............. SCR-BO-07
+│   ├── Official search record .............. SCR-BO-43
+│   ├── Party identity checks ............... SCR-BO-44
 │   ├── Report builder ...................... SCR-BO-08
 │   └── Report review and release ........... SCR-BO-09
 ├── Safety: incident log (restricted) ....... SCR-BO-06
@@ -173,7 +181,9 @@ backoffice
 │   ├── Escrow list ......................... SCR-BO-10
 │   ├── Escrow detail and conditions ........ SCR-BO-11
 │   ├── Release approval .................... SCR-BO-12
+│   ├── Payee change approvals .............. SCR-BO-42
 │   └── Bank and fee reconciliation ......... SCR-BO-13
+├── Re-check queue (random re-checks) ....... SCR-BO-45
 ├── Builds (R2)
 │   ├── Milestone review and fraud flags .... SCR-BO-14
 │   └── Panel: contractors and inspectors ... SCR-BO-15
@@ -265,6 +275,7 @@ Tenmina (iOS and Android)
 │   ├── Case tracker, messages, documents ... SCR-PTL-12, 13, 19
 │   ├── Report viewer, check a report ....... SCR-PTL-14, SCR-PTL-15
 │   ├── Escrow terms, tracker, bank details . SCR-PTL-16, 17, 18
+│   ├── Approve a payee change .............. SCR-MOB-23 (as SCR-PTL-55, DA-14)
 │   ├── Build dashboard, milestone, variation SCR-PTL-22, 23, 24
 │   ├── Property dashboard, repairs ......... SCR-PTL-46, 47, 48
 │   ├── Tenant view (tenant role) ........... SCR-PTL-54
@@ -349,7 +360,7 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-PTL-14 | Report viewer | Verdict, reasons, conditions, section verdicts, signatures, PDF, hash, versions | Client | R1 | F-04, FR-RPT-005, FR-RPT-007, FR-RPT-008, FR-RPT-010, J-01 |
 | SCR-PTL-15 | Check a report | Anyone checks a PDF against the stored hash | Public | R1 | FR-RPT-008 |
 | SCR-PTL-16 | Escrow offer and terms | Offer escrow on green or amber; show conditions from section 11; accept terms | Client, seller | R1 | F-08, FR-ESC-001, FR-ESC-002, FR-RPT-009, J-02 |
-| SCR-PTL-17 | Escrow tracker | Deposit, conditions, fresh search, approvals, bank confirmation | Client, seller | R1 | F-08, FR-ESC-004 to FR-ESC-009, RUL-06, RUL-07, J-02 |
+| SCR-PTL-17 | Escrow tracker | Deposit, conditions, fresh search, approvals, bank confirmation; the locked payee and any payee change in its cooling-off period; on cancellation, the refund to the source account | Client, seller | R1 | F-08, FR-ESC-004 to FR-ESC-009, FR-ESC-016, FR-ESC-017, RUL-06, RUL-07, RUL-28, RUL-29, J-02 |
 | SCR-PTL-18 | Bank payment instructions | The partner bank's details for the purchase price | Client | R1 | FR-ESC-003, RUL-01 |
 | SCR-PTL-19 | Messages | Case thread with Tenmina | Client | R1 | FR-CASE-015 |
 | SCR-PTL-20 | Profile and notifications | Channels, preferences, representative | All portal users | R1 | FR-ACC-008, FR-ACC-010, FR-NTF-001 |
@@ -387,6 +398,7 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-PTL-52 | Policy wallet | Policy documents, renewal dates, insurer's claim contact; start a claim and track the insurer's response | Client | R2 | FR-INS-003, FR-INS-004, RUL-25 |
 | SCR-PTL-53 | Event budget | Event, date, budget, verified vendors, payments against invoices and delivery evidence, receipts | Client | R3 | F-34, FR-EVT-001 to FR-EVT-003, RUL-22 |
 | SCR-PTL-54 | Tenant view | The tenant's agreement and rent record; report a repair | Tenant | R2 | FR-PMG-002, FR-PMG-004 |
+| SCR-PTL-55 | Approve a payee change | Who asked for the change and when; the old and new payee and account (masked to the last four digits); the checks done on the new payee (identity against the national identity system, account name from the bank) with dates; the cooling-off end time; approve or reject. Approval is press and hold with the code, like other money approvals (5.4). Rejecting keeps the old payee. Opens from "Needs you" on the dashboard, the escrow tracker or a held-amount statement | Client | R1 | FR-ESC-016, FR-ACC-013, RUL-11, RUL-28, J-02, J-09 |
 
 #### Back office
 
@@ -395,15 +407,15 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-BO-01 | Sign in | Password plus second factor; idle timeout | All staff and professionals | R1 | FR-ACC-003, FR-ACC-009, NFR-SEC-02 |
 | SCR-BO-02 | My work | Queue of cases and tasks by due date; overdue first | Case manager, reviewer, professionals | R1 | FR-CASE-005, FR-NTF-003, J-01 |
 | SCR-BO-03 | Case detail | Steps as tasks, owners, due dates, evidence, client status, costs (professional pay and expenses fill in from accepted work), pause or cancel | Case manager, reviewer | R1 | F-03, FR-CASE-001 to FR-CASE-004, FR-CASE-007, FR-CASE-008, FR-CASE-011, FR-CASE-012, FR-CASE-013, FR-PRO-010 |
-| SCR-BO-04 | Task detail | Do one task on a phone: evidence, notes, done; log incident | Lawyer, surveyor, runner | R1 | FR-CASE-004, FR-CASE-006, FR-CASE-010, FR-EVD-001 |
+| SCR-BO-04 | Task detail | Do one task on a phone: evidence, notes, done; log incident. A runner's search task has no upload for a search result: "Search results come from Tenmina's office through the [registry]'s own channel, not from you." (FR-CASE-016) | Lawyer, surveyor, runner | R1 | FR-CASE-004, FR-CASE-006, FR-CASE-010, FR-CASE-016, FR-EVD-001, RUL-30 |
 | SCR-BO-05 | Risk screen and assignment | Risk questions; two-person rule on disputed plots | Case manager | R1 | FR-CASE-009, RUL-17 |
 | SCR-BO-06 | Incident log | Restricted safety log | Reviewer, administrator | R1 | FR-CASE-010 |
 | SCR-BO-07 | Map and overlays | Plot polygon, layer results, overlaps with verified plots, satellite image | Case manager, surveyor | R1 | F-05, FR-GEO-001 to FR-GEO-006 |
 | SCR-BO-08 | Report builder | Sections 1 to 14, section verdicts, evidence, signatures, locked scope, conditions | Case manager, lawyer, surveyor | R1 | F-04, FR-RPT-001 to FR-RPT-005, FR-RPT-009, RUL-02, RUL-04, RUL-20 |
-| SCR-BO-09 | Report review and release | Two-person review, return with comments, release, new version | Lawyer, reviewer | R1 | FR-RPT-006, FR-RPT-007, FR-RPT-010, RUL-03 |
+| SCR-BO-09 | Report review and release | Two-person review, return with comments, release, new version. Release blocked while a party identity check is missing or failed (SCR-BO-44) or a search has no official channel record (SCR-BO-43) | Lawyer, reviewer | R1 | FR-RPT-006, FR-RPT-007, FR-RPT-010, FR-ACC-013, FR-CASE-016, RUL-03, RUL-30, RUL-31 |
 | SCR-BO-10 | Escrow list | All escrows by state; blocked first | Case manager, reviewer | R1 | F-08, FR-ESC-001, FR-ESC-006 |
-| SCR-BO-11 | Escrow detail | Parties, terms, deposit, conditions, fresh search, freeze | Case manager, reviewer | R1 | FR-ESC-001, FR-ESC-002, FR-ESC-004, FR-ESC-005, FR-ESC-006, RUL-06, RUL-07, RUL-15 |
-| SCR-BO-12 | Release approval | Two-person approval with gates and second factor; send; bank confirmation | Reviewer with release rights | R1 | FR-ESC-006 to FR-ESC-009, FR-ESC-013, RUL-05, RUL-06, RUL-07 |
+| SCR-BO-11 | Escrow detail | Parties, terms, deposit and its source account, the locked payee and any payee change, conditions, fresh search, freeze (dispute or failed re-check) | Case manager, reviewer | R1 | FR-ESC-001, FR-ESC-002, FR-ESC-004, FR-ESC-005, FR-ESC-006, FR-ESC-016, FR-ESC-017, FR-RPT-012, RUL-06, RUL-07, RUL-15, RUL-28, RUL-29 |
+| SCR-BO-12 | Release approval | Two-person approval with gates and second factor; send; bank confirmation. Gates include the payee lock (no payee change in its cooling-off period) and, for a refund, the source account | Reviewer with release rights | R1 | FR-ESC-006 to FR-ESC-009, FR-ESC-013, FR-ESC-016, FR-ESC-017, RUL-05, RUL-06, RUL-07, RUL-28, RUL-29 |
 | SCR-BO-13 | Reconciliation | Fee settlements against orders; bank statement lines against escrows | Case manager | R1 (fees), R2 (bank file) | FR-PAY-004, FR-PAY-006, FR-ESC-011, F-23 |
 | SCR-BO-14 | Milestone review | Submissions, server flags, evidence check, inspector result, approve | Case manager, reviewer | R2 | FR-BLD-005, FR-BLD-010, FR-MOB-011, FR-EVD-006, J-03 |
 | SCR-BO-15 | Panel | Contractors and inspectors, documents, conflicts, track record | Case manager, administrator | R2 | FR-BLD-003, FR-BLD-004, FR-RAT-001, RUL-10 |
@@ -433,6 +445,10 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-BO-39 | Payment run preparation | Pick a cut-off; one line per professional with payables, expenses, tax and net; items left out and why (payee not verified, held, exception not yet approved); totals; send for approval | Case manager, reviewer (preparer) | R1 | FR-PRO-005, FR-PRO-006, RUL-27 |
 | SCR-BO-40 | Payment run approval | A different person with payment rights checks totals, lines and payees and approves with the second factor; then downloads the bulk file, with its hash shown for the upload to the bank's portal | Reviewer or administrator with payment rights | R1 | FR-PRO-005, FR-PRO-006, FR-PRO-007, RUL-26, RUL-27 |
 | SCR-BO-41 | Payment run reconciliation | Import the bank's or provider's confirmation; lines confirmed, failed or unconfirmed; resolve each (next run, cancel, or a bank letter checked by a second person); remittance advices sent | Case manager, reviewer | R1 | FR-PRO-009, FR-PRO-007 |
+| SCR-BO-42 | Payee change approvals | Payee changes on escrows and held amounts, oldest first: who asked, by which channel, old and new payee and account; the fresh identity check and account-name check of the new payee as evidence; the client's approval (always first); two staff approval slots with second factor; the cooling-off countdown to its end time; a "Release blocked" banner on every affected escrow until it ends. A change that arrived only by message, email or call cannot be entered here; staff start the payee verification flow and the client is told on a second channel | Case manager (starts); reviewers with release rights (approve) | R1 | FR-ESC-016, FR-ACC-013, FR-ESC-015, RUL-05, RUL-22, RUL-28 |
+| SCR-BO-43 | Official search record | One record per official search: the registry and channel (in Ghana, the Lands Commission online portal or its client service unit), the Tenmina account used, the staff member who submitted it, date, the registry's reference, and the result as received from that channel. Where the registry has no remote channel, the staff member who confirmed the result with the registry. No upload option for runners, sellers, agents or clients; a result someone hands over can be noted, but it never closes the search task | Case manager, reviewer (submit and record); lawyer (read) | R1 | FR-CASE-016, FR-CASE-014, IF-09, RUL-30 |
+| SCR-BO-44 | Party identity checks | One line per seller, grantor, consenting party and individual payee: status from the national identity system through IF-03 (Not started, Checking, Passed, Failed, Service unavailable), the check reference and time, who ran it. Never a photo or scan of the card, and no biometric data. Blocked states say what waits: "Report cannot be released: the grantor's identity check failed." "Payee cannot be verified until this check passes." | Case manager, reviewer | R1 | FR-ACC-013, IF-03, RUL-31 |
+| SCR-BO-45 | Re-check queue | This month's random sample of released reports and closed release conditions (share from RUL-32 `[5%, TO VERIFY]`); assign each to a licensed professional with no link to the case (the system lists only eligible people); due date; result (Confirmed, Failed); a failed re-check opens an incident, starts the client notice of any correction, and freezes releases on affected open escrows | Reviewer, administrator | R1 | FR-RPT-012, FR-RPT-010, RUL-32 |
 
 #### Field app, Tenmina Field (iOS and Android)
 
@@ -449,7 +465,7 @@ Release follows 01. "Roles" uses 01 C2 role names.
 | SCR-MOB-09 | Inspection checklist | Milestone checklist items | Inspector | R2 | FR-MOB-007, RUL-09, RUL-10 |
 | SCR-MOB-10 | Add a defect | Photos, description, value | Inspector | R2 | FR-MOB-007, FR-BLD-006 |
 | SCR-MOB-11 | Inspection result | Pass, pass with defects, fail; submit | Inspector | R2 | FR-MOB-007, RUL-09 |
-| SCR-MOB-12 | Case task | Runner or surveyor task with in-app capture | Runner, surveyor | R2 | FR-MOB-010, FR-CASE-010 |
+| SCR-MOB-12 | Case task | Runner or surveyor task with in-app capture. A search task has no capture for the search result: "Search results come from Tenmina's office through the [registry]'s own channel, not from you. Do not collect or photograph one for us." | Runner, surveyor | R2 | FR-MOB-010, FR-CASE-010, FR-CASE-016, RUL-30 |
 | SCR-MOB-13 | Account and storage | Storage used, encrypted items, help; link to delete the account (SCR-APP-04) | All app roles | R2 | FR-MOB-008, FR-MOB-009, FR-APP-004 |
 | SCR-MOB-14 | Care visit: check in | Today's visit; check in at the registered address with GPS; distance warning | Carer | R2 | FR-MOB-012, FR-CARE-003, RUL-23, J-10 |
 | SCR-MOB-15 | Care visit: plan items | Tick each plan item; agreed photos and readings captured in app | Carer | R2 | FR-CARE-003, FR-MOB-002, FR-MOB-010, J-10 |
@@ -463,7 +479,7 @@ Release follows 01. "Roles" uses 01 C2 role names.
 
 #### Client app, Tenmina (iOS and Android)
 
-The client app shows the portal's signed-in client screens natively under their `SCR-PTL` IDs (DA-11, 2.3a), meeting FR-APP-001. These screens exist only in the apps:
+The client app shows the portal's signed-in client screens natively under their `SCR-PTL` IDs (DA-11, 2.3a), meeting FR-APP-001. These screens exist only in the apps, with one exception: SCR-MOB-23 is the app's own ID for SCR-PTL-55 (DA-14).
 
 | Screen | Name | Purpose | Roles | Rel. | Satisfies |
 |---|---|---|---|---|---|
@@ -473,6 +489,7 @@ The client app shows the portal's signed-in client screens natively under their 
 | SCR-APP-04 | Delete my account | Lists what will be deleted, what Tenmina must keep, why and for how long (for example "Reports and escrow records: kept as the law requires", with the period from the retention rules, `[TO VERIFY]` per Q-08), and anything still open that delays deletion ("Your escrow TMN-ESC-0091 is still open. We will close your account when it ends."). Confirm with ticks and the user's code where they have one; receipt with a reference. Same screen in both apps | All app users | R2 | FR-APP-004, FR-DPR-004, C-14 |
 | SCR-APP-05 | Update required | Shown at start when the app is older than the minimum version. One sentence why, a button to the store page, nothing else usable. In Tenmina Field it adds: "Your 7 saved items are safe on this phone and will upload after you update." Same screen in both apps | All app users | R2 | FR-APP-006, FR-MOB-005 |
 | SCR-APP-06 | Pay Tenmina's fee in the app | Tenmina's fee only. Web mode (DA-12): the fee, what it pays for, and "Pay on the Tenmina website", which opens SCR-PTL-10 in the system browser and returns to the payment result. Provider mode, if Q-23 allows: the payment provider's checkout for card or mobile money. Never purchase, construction or project money | Client | R2 | FR-APP-005, FR-PAY-001, FR-PAY-005, RUL-01 |
+| SCR-MOB-23 | Approve a payee change (client app) | SCR-PTL-55 shown natively, with its own ID (DA-14): who asked, old and new payee and account (masked), the checks done, the cooling-off end time; approve with the code and press and hold, or reject. On black, with the client's step in orange (6.1a). A push notification opens it but never approves it (2.3a) | Client | R2 | FR-APP-001, FR-ESC-016, RUL-11, RUL-28 |
 
 ---
 
@@ -523,7 +540,9 @@ flowchart TD
     A13 -->|"Red"| A15(["Explain why not to buy. Offer a check on another plot"])
 ```
 
-Edge states: a reviewer returns the report (state goes back to In progress; the client sees "Our reviewer asked for one more check. New expected date: 9 April."); a case is cancelled with a refund decision (FR-CASE-012).
+Edge states: a reviewer returns the report (state goes back to In progress; the client sees "Our reviewer asked for one more check. New expected date: 9 April."); a case is cancelled with a refund decision (FR-CASE-012), and the fee goes back through the payment provider to the card or mobile money account the client paid with (FR-PAY-008).
+
+Two more gates sit before A11, both shown to staff on SCR-BO-09 and to the client as a late step, never as blame: every seller, grantor and consenting party has passed the national identity check (FR-ACC-013, SCR-BO-44), and every search has an official channel record (FR-CASE-016, SCR-BO-43). A search result that a runner, the seller or an agent hands over does not count until Tenmina has the same result from the registry's own channel (RUL-30).
 
 ### 3.2 J-02 Buy through escrow (R1)
 
@@ -532,7 +551,7 @@ flowchart TD
     B0(["Green or amber report · SCR-PTL-14"]) --> B1["Escrow offer: conditions copied from section 11 · SCR-PTL-16"]
     B1 --> B2{"All parties accept terms?"}
     B2 -->|"Seller does not accept in 10 days · [TO VERIFY]"| B2x["Escrow stays Proposed. Case manager chases. Client can withdraw"]
-    B2 -->|"Yes"| B3["State: Agreed. Bank opens escrow"]
+    B2 -->|"Yes"| B3["Seller's identity and account name checked; seller's account fixed as the payee · RUL-28, RUL-31. State: Agreed. Bank opens escrow"]
     B3 --> B4["Bank payment instructions · SCR-PTL-18. Never Tenmina's account"]
     B4 --> B5{"Bank confirms deposit?"}
     B5 -->|"Amount short or reference missing"| B5x["Failed: deposit not matched. Case manager checks with bank. Client told what to fix"]
@@ -566,6 +585,27 @@ flowchart TD
 ```
 
 The client approval step follows the Escrow state model in 01 v0.2 and later (Ready to release → Client approved). It is the client's step, not a release: two Tenmina staff still approve and the bank pays.
+
+**Payee change (RUL-28, FR-ESC-016).** A change of payee or account does not change the escrow's state. It blocks any release to the new account until the change is approved and the cooling-off period has ended.
+
+```mermaid
+flowchart TD
+    P0(["Someone asks to change the payee or account"]) --> P1{"How did it arrive?"}
+    P1 -->|"Message, email or call only"| P1x["Never acted on. Staff start the payee verification flow and warn the client on a second channel · RB-42 in 06"]
+    P1x --> P2
+    P1 -->|"Payee verification flow"| P2["Fresh identity check and account-name check of the new payee · SCR-BO-44, FR-ESC-015"]
+    P2 --> P2c{"Both checks pass?"}
+    P2c -->|"No"| P2x["Failed: change refused. Old payee stays. Client told plainly"]
+    P2c -->|"Yes"| P3["Client approves or rejects, press and hold with code · SCR-PTL-55 or SCR-MOB-23"]
+    P3 --> P3c{"Client approved?"}
+    P3c -->|"Rejected, or no response"| P3x["Old payee stays. Silence is never approval"]
+    P3c -->|"Yes"| P4["Approval 1 and 2 by staff with release rights · SCR-BO-42"]
+    P4 --> P5["Cooling-off period runs to its end time · [72 hours, TO VERIFY]"]
+    P5 --> P5b["Blocked: no release to the new account until it ends"]
+    P5b --> P6(["New payee in force. Releases follow the usual gates · SCR-BO-12"])
+```
+
+**Cancellation and refund (RUL-29, FR-ESC-017).** A cancelled escrow is refunded only to the account the deposit came from, as recorded from the bank's confirmation. If that account can no longer receive money, the refund to another account in the client's own name needs a fresh identity check of the client, the client's approval, two staff approvals and the cooling-off period. Both paths use the release approval screen with "Refund" wording (W-15).
 
 ### 3.3 J-03 Build with milestone payments (R2)
 
@@ -1070,7 +1110,7 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | | expected by 2 April.               | |
 | +------------------------------------+ |
 | ! We need one thing from you           |
-|   Seller's ID copy [Upload] by 20 Mar  |
+|   Seller's Ghana Card no. [Add] 20 Mar |
 |                                        |
 | Timeline                               |
 | (v) Order paid ............. 3 Mar     |
@@ -1089,9 +1129,9 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 
 - **Content.** One "Now" sentence (CMP-06 pattern), open requests first, then the timeline. Done steps show actual dates; future steps show expected dates.
 - **Actions.** Upload requested document; message Tenmina; view receipt; share read-only access with a representative.
-- **States.** On hold: "Paused. We are waiting for the seller's ID copy. We will restart as soon as it arrives." Late: "Search results are late. We expected them by 2 April. We are chasing and will update you by 9 April." Cancelled with refund status.
-- **Rules.** Messages come from templates (FR-CASE-007). No third-party personal data shown beyond what the client supplied.
-- **Satisfies.** FR-CASE-007, FR-CASE-008, FR-CASE-015, FR-ACC-008, FR-NTF-001, F-06, J-01.
+- **States.** On hold: "Paused. We are waiting for the seller's Ghana Card number. We will restart as soon as it arrives." Late: "Search results are late. We expected them by 2 April. We are chasing and will update you by 9 April." Cancelled with refund status: "Your fee of USD 450.00 is being refunded to the card ending 1234 that you paid with." (FR-PAY-008).
+- **Rules.** Messages come from templates (FR-CASE-007). No third-party personal data shown beyond what the client supplied. Tenmina asks for the seller's ID number, not a copy of the card: a photo or copy is never proof (RUL-31). Tenmina checks the number with the national identity system itself.
+- **Satisfies.** FR-CASE-007, FR-CASE-008, FR-CASE-015, FR-ACC-008, FR-NTF-001, FR-PAY-008, F-06, J-01.
 
 ### W-08 Report viewer · SCR-PTL-14
 
@@ -1169,9 +1209,9 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 
 - **Content.** Status sentence, bank and amount, conditions with closing dates, fresh search, the client's own approval, Tenmina's two approvals, next step. An open condition shows its owner and due date instead of a closing date: "Seller's tax clearance. Owner: seller's lawyer. Due 6 May."
 - **Actions.** Approve the release once every condition is closed (one-time code, DA-01, RUL-11); view evidence for a closed condition; open a dispute (R2); view bank instructions.
-- **States.** Proposed (waiting for parties), Agreed (waiting for deposit), Funded (conditions closing; approvals show "Start when every condition is closed"), Ready to release ("Your approval is needed. Tenmina staff approve after you."), Client approved, Release approved, Released, Frozen ("A dispute was opened on 4 May. No money can move until it is resolved."), Cancelled. No response from the client: reminders; silence is never approval.
-- **Rules.** No approval or release while any condition is open (RUL-06); fresh search must be in date (RUL-07); client approves first and cannot release alone (RUL-11); approver names shown (RUL-05).
-- **Satisfies.** FR-ESC-004 to FR-ESC-009, RUL-05, RUL-06, RUL-07, RUL-11, RUL-15, J-02.
+- **States.** Proposed (waiting for parties), Agreed (waiting for deposit), Funded (conditions closing; approvals show "Start when every condition is closed"), Ready to release ("Your approval is needed. Tenmina staff approve after you."), Client approved, Release approved, Released, Frozen ("A dispute was opened on 4 May. No money can move until it is resolved."), Cancelled ("Refund of USD 18,000.00 to the account it came from, ending 2290."). No response from the client: reminders; silence is never approval. Payee change in progress: a black panel above the conditions, "Payee change: Kofi Asante's new account ending 7710. Waiting for your decision." with an orange "Needs you" block opening SCR-PTL-55; after approval, "No money can go to the new account until 9 May, 14:00 GMT." Frozen after a failed re-check: "A routine re-check found a problem with this case on 4 May. No money can move until we have checked it. We will update you by 8 May."
+- **Rules.** No approval or release while any condition is open (RUL-06); fresh search must be in date (RUL-07); client approves first and cannot release alone (RUL-11); approver names shown (RUL-05). The payee is locked from Agreed; the fixed line "We never change who gets paid because of a message, email or call." sits under the payee (RUL-28). Refunds name the source account only (RUL-29).
+- **Satisfies.** FR-ESC-004 to FR-ESC-009, FR-ESC-016, FR-ESC-017, FR-RPT-012, RUL-05, RUL-06, RUL-07, RUL-11, RUL-15, RUL-28, RUL-29, J-02.
 
 ### W-10 Bank payment instructions · SCR-PTL-18
 
@@ -1237,11 +1277,11 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | Tasks                                      | Client sees now                       |
 | Step            Owner      Due     Status  | "Searches lodged at the Lands         |
 | Intake          Esi M.     4 Mar   Done    |  Commission on 12 March. Results      |
-| Searches lodged Yaw O.     6 Mar   Done    |  expected by 2 April."  [Change msg v]|
+| Searches lodged Esi M.     6 Mar   Done    |  expected by 2 April."  [Change msg v]|
 | Site visit      E.Tetteh+1 18 Mar  Open    |---------------------------------------|
 | Overlay checks  System     20 Mar  Ready   | Requests to client                    |
-| Consent meeting A. Darko   27 Mar  Open    | Seller's ID copy  due 20 Mar  Open    |
-| Search results  Yaw O.     2 Apr   Waiting | [ + Request a document ]              |
+| Consent meeting A. Darko   27 Mar  Open    | Seller's ID number due 20 Mar Open    |
+| Search results  Esi M.     2 Apr   Waiting | [ + Request a document ]              |
 | Legal review    A. Darko   7 Apr   -       |---------------------------------------|
 | Second review   (reviewer) 9 Apr   -       | Costs   Lawyer GHS 1,500  Runner 300  |
 | Release         Esi M.     10 Apr  -       | [ Pause ] [ Cancel case ]             |
@@ -1253,9 +1293,9 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 
 - **Content.** Template version, state, risk flag, tasks, the current client message, requests, costs.
 - **Actions.** Assign, change due date with reason, request document, pick next client message from templates, pause, cancel with refund decision.
-- **States.** Mark done disabled with a reason until evidence is attached (FR-CASE-004). On hold banner with reason.
-- **Rules.** Building cases show four extra steps (FR-CASE-013).
-- **Satisfies.** FR-CASE-001 to FR-CASE-004, FR-CASE-007, FR-CASE-008, FR-CASE-011, FR-CASE-012, FR-CASE-013.
+- **States.** Mark done disabled with a reason until evidence is attached (FR-CASE-004). On hold banner with reason. "Search results" can be marked done only from an official search record (SCR-BO-43); its owner is the staff member who submitted the search from Tenmina's registry account, never a runner (FR-CASE-016).
+- **Rules.** Building cases show four extra steps (FR-CASE-013). Cancel with refund decision: the fee goes back through the payment provider to the original payment method (FR-PAY-008).
+- **Satisfies.** FR-CASE-001 to FR-CASE-004, FR-CASE-007, FR-CASE-008, FR-CASE-011, FR-CASE-012, FR-CASE-013, FR-CASE-016, FR-PAY-008.
 
 ### W-13 Risk screen and assignment · SCR-BO-05
 
@@ -1324,7 +1364,8 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 | (v) Fresh search 2 May, inside 14-day window [TO VERIFY] ......... view            |
 | (v) No open dispute                                                                |
 | (v) Deposit confirmed by bank 22 Apr, USD 18,000.00                                |
-| (v) Payee matches escrow terms v1.0                                                |
+| (v) Payee matches escrow terms v1.0; no payee change in cooling-off ...... view    |
+| (v) Seller's identity checked with the national identity system, 14 Apr            |
 +------------------------------------------------------------------------------------+
 | Approval 1 of 2                         | Approval 2 of 2                          |
 | (v) Kofi Boateng, reviewer              | You: Abena Owusu, reviewer               |
@@ -1340,9 +1381,9 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 
 - **Content.** One sentence saying who gets how much from where. Gates. Two approval slots with names and times.
 - **Actions.** Approve with second factor; return with comment; view each piece of evidence.
-- **States.** Any gate failing: approve area replaced by "Release blocked: 1 condition open (seller's tax clearance)." Same person as approver 1: "You gave approval 1. A different person must give approval 2 (RUL-05)." Frozen by dispute: whole screen read-only with the dispute link. Bank rejects: banner with bank's reason.
-- **Rules.** RUL-05, RUL-06, RUL-07, RUL-15. Refund and cancellation use the same screen with "Refund" wording (FR-ESC-013).
-- **Satisfies.** FR-ESC-006 to FR-ESC-009, FR-ESC-013.
+- **States.** Any gate failing: approve area replaced by "Release blocked: 1 condition open (seller's tax clearance)." Payee change in cooling-off: "Release blocked: the payee's account changed on 6 May. No release to the new account until 9 May, 14:00 GMT (RUL-28)." Frozen after a failed re-check: "Release blocked: re-check RCK-2027-05-03 failed. See the incident." Same person as approver 1: "You gave approval 1. A different person must give approval 2 (RUL-05)." Frozen by dispute: whole screen read-only with the dispute link. Bank rejects: banner with bank's reason.
+- **Rules.** RUL-05, RUL-06, RUL-07, RUL-15, RUL-28. Refund and cancellation use the same screen with "Refund" wording (FR-ESC-013). The refund sentence names the source account from the bank's deposit confirmation, "Refund USD 18,000.00 from escrow at Partner Bank to Ama Mensah, account ending 2290, where the deposit came from", and has a gate "Refund goes to the source account" (FR-ESC-017). Any other account shows "Refund blocked: this is not the account the money came from" unless the RUL-29 exception path is complete (client identity check, client approval, two staff approvals, cooling-off), shown as its own gate.
+- **Satisfies.** FR-ESC-006 to FR-ESC-009, FR-ESC-013, FR-ESC-016, FR-ESC-017.
 
 ### W-16 Admin: templates and configuration · SCR-BO-18
 
@@ -2303,6 +2344,78 @@ Annotation keys: **Content**, **Actions**, **States**, **Rules**, **Satisfies**.
 - **States.** Viewer is the preparer: the approval area reads "You prepared this run. A different person with payment rights must approve it (FR-PRO-005)." Viewer has no payment rights: "You cannot approve payment runs." A payee changed after preparation: "Run returned to draft: K. Asare's bank details changed on 27 May. The account must be checked again." Confirmation imported: line outcomes (Confirmed, Failed with the bank's reason, Unconfirmed) and a link to SCR-BO-41.
 - **Rules.** RUL-27: the debit account is Tenmina's operating account only, and every payee is a verified contracted professional (FR-PRO-006). RUL-26: no verdict or outcome is shown or used. The preparer can never approve.
 - **Satisfies.** FR-PRO-005, FR-PRO-006, FR-PRO-007, RUL-26, RUL-27.
+
+### W-42 Approve a payee change · SCR-PTL-55 and SCR-MOB-23
+
+```text
++----------------------------------------+
+| <- Escrow ESC-2027-0031                |
+| Approve a payee change                 |
+| +------------------------------------+ |
+| | We never change who gets paid      | |
+| | because of a message, email or     | |
+| | call.                              | |
+| +------------------------------------+ |
+| Asked by  Kofi Asante (seller)         |
+|           through his lawyer, 6 May    |
+| Reason    "Old account closed"         |
+|                                        |
+| From  Kofi Asante, Sample Bank ..4471  |
+| To    Kofi Asante, Other Bank  ..7710  |
+|                                        |
+| Checks on the new account              |
+| [v] Identity: national identity        |
+|     system, 6 May 11:02, ref NIA-..93  |
+| [v] Account name from the bank:        |
+|     "KOFI ASANTE", matched 6 May       |
+|                                        |
+| If you approve: two Tenmina staff      |
+| approve after you. Then no money can   |
+| go to the new account until            |
+| 9 May, 14:00 GMT (cooling-off).        |
+|                                        |
+| Code [_][_][_][_][_][_]                |
+| [ Hold to approve the change ]         |
+| [ Reject: keep the old account ]       |
++----------------------------------------+
+```
+
+- **Content.** Who asked, through whom and when; the reason as given; old and new payee and account, masked to the last four digits; the checks done on the new payee with source, time and reference; what happens after approval and the cooling-off end time in Ghana time and the client's own time. The fixed payee lock line (5.6a) on top. No full account number on screen or in any message.
+- **Actions.** Approve with the code and press and hold (5.4); reject; "This was not expected" (reject and call Tenmina, which opens an incident under 06 RB-42); view the escrow.
+- **States.** Checks not yet done: approve area replaced by "We are still checking the new account. You can approve once both checks pass." A check failed: "The new account's name does not match Kofi Asante. We have refused this change. The old account stays." Approved, waiting for staff: the chain (you, first staff check, second staff check, cooling-off ends). Rejected: "You rejected this change on 6 May. Money can only go to the account ending 4471." No response: reminders on the configured period; the old payee stays; silence is never approval. Held amounts (institution, care, errand) use the same screen with the institution's name.
+- **Rules.** RUL-28: client first, then two staff with release rights, fresh identity and account-name checks, cooling-off before any release to the new account. RUL-11: the client approves; Tenmina staff still approve after. The client app (SCR-MOB-23, DA-14) is the same screen on black with the orange hold fill (6.1a).
+- **Satisfies.** FR-ESC-016, FR-ACC-013, RUL-11, RUL-28, J-02, J-09.
+
+### W-43 Back office: payee change approvals · SCR-BO-42
+
+```text
++------------------------------------------------------------------------------------+
+| Payee change PCH-2027-0007   ESC-2027-0031  Plot 14, Kasoa        Cooling-off      |
++------------------------------------------------------------------------------------+
+| RELEASE BLOCKED to the new account until 9 May 2027 14:00 GMT  (2 d 21 h left)     |
++------------------------------------------------------------------------------------+
+| Change Kofi Asante (seller): Sample Bank ..4471  ->  Other Bank ..7710             |
+| Asked 6 May 09:40 by the seller's lawyer, through the payee verification flow      |
++------------------------------------------------------------------------------------+
+| Evidence (all must pass)                                                           |
+| (v) Identity of the new payee: national identity system, ref NIA-..93, 6 May 11:02 |
+| (v) Account name from the bank's name check: KOFI ASANTE, 6 May 11:20 ..... view   |
+| (v) Client told on a second channel (email and SMS), 6 May 11:25                   |
+| (v) Client approved, code verified, 6 May 13:05 GMT                                |
++------------------------------------------------------------------------------------+
+| Approval 1 of 2                         | Approval 2 of 2                          |
+| (v) Abena Owusu, reviewer               | (v) Kofi Boateng, reviewer               |
+|     6 May 2027 13:40 GMT, code verified |     6 May 2027 14:00 GMT, code verified  |
++------------------------------------------------------------------------------------+
+| Then: cooling-off ends 9 May 14:00 GMT. Releases to ..7710 follow the usual gates. |
++------------------------------------------------------------------------------------+
+```
+
+- **Content.** One sentence of who changes from which account to which. The evidence list: fresh identity check (SCR-BO-44), account-name check (FR-ESC-015), the second-channel notice to the client, the client's approval. Two approval slots. The cooling-off countdown with its end time, and the "Release blocked" banner, repeated on every affected escrow (SCR-BO-11, SCR-BO-12).
+- **Actions.** Start a change (case manager) from the payee verification flow only; approve with the second factor; reject with a reason; open the incident if the request looks like fraud.
+- **States.** Waiting for checks; waiting for the client ("Waiting for the client. Staff approvals open after the client approves."); same person as approver 1: "A different person must give approval 2 (RUL-05)."; check failed: change closed as refused; client rejected: change closed, old payee kept; cooling-off running; in force. A request that arrived only by message, email or call has no form here: the screen says "Do not act on it. Start the payee verification flow and warn the client on a second channel (06 RB-42)."
+- **Rules.** RUL-28 and FR-ESC-016. No override of the cooling-off. The person who started the change cannot approve it. Bloc (6.1d): the banner is a black block with a lock icon and white text; orange marks only the approval slot that is this person's; lime ticks the evidence.
+- **Satisfies.** FR-ESC-016, FR-ESC-015, FR-ACC-013, RUL-05, RUL-28.
 
 ---
 
