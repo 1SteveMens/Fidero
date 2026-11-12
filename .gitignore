@@ -7,3 +7,8 @@ android/
 *.log
 .DS_Store
 coverage/
+__pycache__/
+*.pyc
+api/var/
+api/staticfiles/
+.next/
