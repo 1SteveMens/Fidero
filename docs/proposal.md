@@ -261,6 +261,7 @@ All targets are assumptions.
 | Diaspora health cover: Susu, Fleri | Health insurance for relatives, paid from abroad | One vertical. Fidero partners with insurers rather than competing |
 | Diaspora funeral cover: Enterprise Life AkwantuPa, Diaspora Insurance | Funeral policies for relatives | One vertical. Partner, not compete |
 | Pay-to-school tools: Flutterwave | Fees paid to institutions | Payment only. No verification of the institution, no receipt back, no other lines |
+| Diaspora spending apps: Tulix (Kenya) | A wallet and SMS vouchers the relative spends at 500+ mobile-money merchants: supermarkets, fuel, hospitals, building suppliers | Everyday spending, chosen by the relative. No verification of land, builders or institutions, no approval before release, no evidence. Overlaps with Fidero's family payments in Kenya (Q-27) |
 | Concierge and errand services | Paperwork and purchases on request | Informal, no escrow, no evidence standard |
 | Other land verification or proptech startups in Ghana | `[TO VERIFY]` | Map them in the first 90 days |
 

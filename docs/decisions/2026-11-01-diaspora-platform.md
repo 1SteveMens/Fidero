@@ -80,6 +80,7 @@ Ama, the diaspora property buyer, stays the lead persona for the launch, because
 | Q-18 | Does property management or errand work need any licence in each country? | Lawyer |
 | Q-19 | How is a carer vetted and what does a care plan contain? | Operations |
 | Q-20 | Pricing for each new line | Founder |
+| Q-27 | In Kenya, compete with everyday diaspora spending apps such as Tulix, or partner with one and keep to verified, high-value payments with proof? | Founder |
 
 ## Follow-up decisions, 1 November 2026
 

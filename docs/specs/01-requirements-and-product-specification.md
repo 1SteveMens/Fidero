@@ -18,7 +18,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 31 October 2026 | First draft |
-| 0.11 | 12 November 2026 | Founder decision `docs/decisions/2026-11-12-build-with-claude.md`: until revenue allows hiring, Claude writes the code and the founder tests on real phones. C-07 updated; the hired team it described is deferred. Requirements, rules and gates are unchanged. |
+| 0.11 | 12 November 2026 | Q-27 added: compete or partner with Tulix-style spending apps in Kenya. Founder decision `docs/decisions/2026-11-12-build-with-claude.md`: until revenue allows hiring, Claude writes the code and the founder tests on real phones. C-07 updated; the hired team it described is deferred. Requirements, rules and gates are unchanged. |
 | 0.10 | 11 November 2026 | Founder decisions recorded in C-07: contract developer kept to S14 for professional payments, and Option R2-A for the R2 team. |
 | 0.9 | 11 November 2026 | Clarifies professional payments: payment rights defined; every contracted role sees its own pay; who closes a runner's month and what a part month pays; pay may be held only during a recorded fraud or misconduct review; withholding does not apply to reimbursed expenses unless the law says so; IF-13 for Fidero's operating bank. No new requirement IDs. |
 | 0.8 | 11 November 2026 | Adds module PRO, professional payments (FR-PRO-001 to FR-PRO-010): rate cards, payables only for accepted work, expenses, two-person payment runs from Fidero's operating account, tax per country, reconciliation and statements. Adds BR-23, F-37, RUL-26, RUL-27, Q-25, Q-26 and a payables data class. FR-TSK-002 now takes Fidero's errand charge through the payment provider; FR-TSK-003 says errand agents are paid by Fidero. |
@@ -503,6 +503,7 @@ The system must enforce these rules. Each is tested in document 05.
 | Q-24 | Does Google Play's financial features declaration, or Apple's rules for financial apps, require any licence or proof from Fidero or its bank in each country? | Lawyer | Before R2 app submission |
 | Q-25 | What withholding tax, registration and reporting apply when Fidero pays contracted professionals in Ghana, Nigeria and Kenya? | Accountant, lawyer | R1 start; each country's manual phase |
 | Q-26 | Which bank account and mobile money provider does Fidero use to pay professionals, and do they accept a bulk payment file? | Founder | R1 start |
+| Q-27 | In Kenya, does Fidero compete with everyday diaspora spending apps such as Tulix (wallet and merchant vouchers, Nairobi) for family payments, or partner with one for day-to-day spending and keep to verified, high-value payments with proof? | Founder | Kenya manual phase |
 
 ---
 
