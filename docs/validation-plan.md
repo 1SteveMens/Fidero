@@ -56,6 +56,8 @@ Target: 50 paid reports in 90 days (assumption), of which the first 20 come from
 5. **From the first delivered report.** Publish an anonymised case study with the client's written consent. One per month.
 6. **Throughout.** Personal network of the founder and the professionals. Ask every contact for one introduction.
 
+Materials: the webinar deck is a Slides artifact at https://claude.ai/artifact/Q6e9sMd1RNRTTqVSXMyEyX (13 slides with speaker notes, ending with the offer and the survey poll); the messages to leaders, the members' announcement, the after-webinar message and the referral note are in the outreach pack at https://claude.ai/artifact/6RnTrFE85b6gyuvG4mtEc6.
+
 Every lead goes into a simple spreadsheet: source, date, price offered, outcome, reason.
 
 ## 4a. Test: checked plots from established sellers
