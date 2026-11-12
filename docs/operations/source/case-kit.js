@@ -547,18 +547,26 @@ function clientTerms() {
   k.push(clause('8.1', 'The report is for you. You may share it with your lawyer, your bank, your family or a buyer\'s agent acting for you. Nobody else may rely on it without our written agreement.'));
   k.push(clause('8.2', 'We never change a released report. A correction is a new version with a new fingerprint and the reason, and we send it to you.'));
 
-  k.push(H2('9. Limits'));
-  k.push(clause('9.1', 'Our liability for the report is limited to the fee you paid, except where the law does not allow that limit. We hold professional indemnity insurance for our reports [[policy reference, TO VERIFY]].'));
-  k.push(clause('9.2', 'We are not responsible for what third parties\' records leave out, or for events after the dates of our searches and site visit.'));
+  k.push(H2('9. Paying the seller safely'));
+  k.push(clause('9.1', 'We will never ask you to pay money to a new or different account by WhatsApp, email or phone. If anyone does, even if the message seems to come from us, the seller or the lawyer, do not pay. Call us on the number in your order.'));
+  k.push(clause('9.2', 'If you use escrow through our partner bank, the purchase money goes to the bank, never to Tenmina. The seller and the seller\'s account are fixed when you agree the escrow terms, and the bank pays only an account whose name matches the verified seller.'));
+  k.push(clause('9.3', 'If the seller\'s account must change, it changes only when you approve, two Tenmina staff approve, the seller\'s identity and the new account are checked again, and [[72 hours, TO VERIFY]] have passed. We tell you on two channels, such as email and WhatsApp.'));
+  k.push(clause('9.4', 'Money is released only when every condition is met, a fresh search is clean, you approve, and two Tenmina staff approve. Your silence is never approval. We aim for the bank to pay within [[2 working days, TO VERIFY]] of the last approval.'));
+  k.push(clause('9.5', 'If the purchase does not go ahead, the bank refunds the money only to the account it came from. If that account is closed, we check your identity again, you approve, and the same waiting period as 9.3 applies.'));
+  k.push(clause('9.6', 'Escrow has its own agreement between you, the bank and Tenmina, with the bank\'s fee [[TO VERIFY]]. These terms do not open an escrow.'));
 
-  k.push(H2('10. Your personal data'));
-  k.push(clause('10.1', 'We collect what we need for your case: your name, contact details, documents and messages, and the names, documents, photos and video of the seller, the family or traditional authority and witnesses.'));
-  k.push(clause('10.2', 'Only the people working on your case see it: our lawyer, surveyor, runner and reviewer. It is kept in a restricted folder, with a second copy kept securely, for [[retention period, TO VERIFY with the lawyer]], and then deleted.'));
-  k.push(clause('10.3', 'Our storage may be outside Ghana [[location and legal basis, TO VERIFY with the lawyer]]. We follow the Data Protection Act 2012 (Act 843). You may ask what we hold about you, and ask us to correct it, at [[email]].'));
+  k.push(H2('10. Limits'));
+  k.push(clause('10.1', 'Our liability for the report is limited to the fee you paid, except where the law does not allow that limit. We hold professional indemnity insurance for our reports [[policy reference, TO VERIFY]].'));
+  k.push(clause('10.2', 'We are not responsible for what third parties\' records leave out, or for events after the dates of our searches and site visit.'));
 
-  k.push(H2('11. Complaints and disputes'));
-  k.push(clause('11.1', 'Tell us at [[email]]. The founder replies within 5 working days (working assumption).'));
-  k.push(clause('11.2', 'If we cannot agree, we will try mediation in Accra before either of us goes to court [[lawyer to confirm, including the Alternative Dispute Resolution Act, 2010 (Act 798), TO VERIFY]]. These terms are governed by the law of Ghana.'));
+  k.push(H2('11. Your personal data'));
+  k.push(clause('11.1', 'We collect what we need for your case: your name, contact details, documents and messages, and the names, documents, photos and video of the seller, the family or traditional authority and witnesses.'));
+  k.push(clause('11.2', 'Only the people working on your case see it: our lawyer, surveyor, runner and reviewer. It is kept in a restricted folder, with a second copy kept securely, for [[retention period, TO VERIFY with the lawyer]], and then deleted.'));
+  k.push(clause('11.3', 'Our storage may be outside Ghana [[location and legal basis, TO VERIFY with the lawyer]]. We follow the Data Protection Act 2012 (Act 843). You may ask what we hold about you, and ask us to correct it, at [[email]].'));
+
+  k.push(H2('12. Complaints and disputes'));
+  k.push(clause('12.1', 'Tell us at [[email]]. The founder replies within 5 working days (working assumption).'));
+  k.push(clause('12.2', 'If we cannot agree, we will try mediation in Accra before either of us goes to court [[lawyer to confirm, including the Alternative Dispute Resolution Act, 2010 (Act 798), TO VERIFY]]. These terms are governed by the law of Ghana.'));
   return doc({ title: 'Client terms', headerText: 'Tenmina · Land verification: order and terms · Version CT-1', children: k, draft: true });
 }
 

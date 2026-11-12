@@ -42,6 +42,7 @@ The consent form, script, witness sheet, client terms and professional agreement
 8. Is the scope and limitation statement (template section 12) right? It needs the insurer's agreement too, and the insurance policy reference once cover is in place.
 9. Client terms: are the refund rules in section 7 fair and enforceable, and does limiting liability to the fee hold for a client who lives abroad? Do consumer laws in the client's country (UK, US, Canada, EU) change anything?
 10. Client terms: is accepting by a WhatsApp or email reply enough, or must the client sign?
+    Also section 9, paying the seller safely: do the payee lock, the cooling-off period and refunds only to the source account need to sit in the escrow agreement with the bank as well?
 11. Professional agreement: does it keep lawyers, surveyors and runners as independent contractors, not employees, under Ghana's labour and tax law? What withholding tax applies to each, and is the payment period (10 working days) right?
 12. Professional agreement: is paying a visit in full when the professional leaves for safety (clause 5.3) and holding pay only during a recorded misconduct review (clause 2.6) workable?
 13. Both: is mediation in Accra under the Alternative Dispute Resolution Act, 2010 (Act 798) the right route for disputes, and is Tenmina's company name ready to go in the documents?
