@@ -317,7 +317,7 @@ Escrow partner bank or licensed escrow agent, law firms, licensed surveyors, con
 ## 10. Regulation
 
 - **Land Act 2020 (Act 1036)** sets the framework for land ownership and allows electronic conveyancing.
-- **Bank of Ghana guidance** means escrow must run through a licensed bank or a licensed escrow agent. Tenmina does not hold client money itself.
+- **Escrow** runs through a licensed bank acting as escrow agent under a three-party agreement. No Bank of Ghana directive licensing escrow agents was found (12 November 2026); the lawyer and bank confirm the structure (Q-28). Tenmina does not hold client money itself.
 - **Data Protection Act 2012 (Act 843)** governs client data, seller data and recordings. Tenmina registers with the Data Protection Commission `[TO VERIFY]`.
 - Licensing for surveyors and lawyers is handled by their professional bodies. Tenmina contracts only licensed professionals.
 - **Insurance Act 2021 (Act 1061)** `[TO VERIFY]`: selling insurer partners' policies may need an intermediary licence. Tenmina holds no insurance risk.

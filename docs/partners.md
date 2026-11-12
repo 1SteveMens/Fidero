@@ -6,11 +6,11 @@ All figures are assumptions. Unknown numbers are `[TO VERIFY]`.
 
 ## 1. Escrow partner bank or licensed escrow agent
 
-**Why.** Bank of Ghana guidance means escrow must run through a licensed bank or a licensed escrow agent. Tenmina never holds client money itself.
+**Why.** Tenmina never holds client money itself, so a licensed bank must hold it. No Bank of Ghana directive licensing escrow agents was found (12 November 2026); the working structure is the bank as escrow agent under a three-party agreement with the client and Tenmina. The lawyer and the bank confirm this (Q-28 in `docs/specs/01`).
 
 **What they get.** Hard-currency inflows from diaspora clients, new accounts, a share of the escrow fee (1-2% of price, split `[TO VERIFY]`), and a pipeline of verified land for mortgage lending.
 
-**First ask.** A meeting with the head of diaspora banking or retail products. Bring the report numbers from the 90-day validation. Ask for a pilot of 10 escrows under a simple agreement: client deposits, Tenmina confirms conditions met, bank releases to seller.
+**First ask.** A meeting with the head of diaspora banking or retail products. Bring the report numbers from the 90-day validation. Ask for a pilot of 10 escrows under a simple agreement: client deposits, Tenmina confirms conditions met, bank releases to seller. The proposal to send is the Claude doc at https://claude.ai/artifact/FZFBcp6pAToDwRyfH6vcB9.
 
 **Open questions.** Fee split. Who signs the release instruction. Whether the bank can take deposits from abroad without the client opening a Ghana account `[TO VERIFY]`. Timeline for a status API or a daily statement.
 
