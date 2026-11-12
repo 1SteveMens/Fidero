@@ -6,6 +6,8 @@ Product families: Property (land, buildings, construction, off-plan, listings, p
 
 Front ends: a phone-first web portal for clients (from R1), a back office for staff, and two mobile apps on the Apple App Store and Google Play from R2: **Fidero** for clients and families, and **Fidero Field** for field roles. Both apps are built from one React Native codebase for iOS and Android.
 
+Who builds: until revenue allows hiring, Claude writes all the code (API, portal, back office, both apps) and the founder tests on an iPhone; field users test on Android and iPhone. See `docs/decisions/2026-11-12-build-with-claude.md` and `docs/operations/testing-the-apps.md`. Hand over only what typechecks, passes its tests and has been checked in a phone-sized browser.
+
 The founder is in Ghana and runs three ventures. This repository is only for Fidero. FarmPrint (cocoa traceability) and Kestrels (illegal-mining monitoring) have their own repositories and sessions. Do not work on them here.
 
 ## Where things are

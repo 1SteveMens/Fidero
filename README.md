@@ -91,12 +91,13 @@ Pre-seed: $400k for 18 months `[TO VERIFY]` against the wider scope. It funds th
 |---|---|
 | `README.md` | This summary |
 | `CLAUDE.md` | Context and writing rules for Claude sessions working on Fidero |
-| `docs/decisions/` | Decision records. Start with `2026-11-01-diaspora-platform.md` |
+| `docs/decisions/` | Decision records. Start with `2026-11-01-diaspora-platform.md`, then `2026-11-12-build-with-claude.md` (who builds the software) |
 | `docs/proposal.md` | Full business proposal |
 | `docs/validation-plan.md` | 90-day plan to launch the manual verification service |
 | `docs/partners.md` | Partner types and the first ask to each |
 | `docs/operations/verification-report-template.md` | Structure of the red/amber/green land verification report |
 | `docs/operations/milestone-schedule.md` | Construction milestone schedule, release evidence and inspector checklists |
+| `docs/operations/testing-the-apps.md` | How the founder runs the apps on a phone from a laptop |
 | `docs/operations/r0-tracker.xlsx` | R0 tracker: leads, cases, costs, searches, payments to institutions, incidents, and the fortnightly and day-90 review (EN-01, EN-05, EN-51) |
 | `docs/product/architecture.md` | Early architecture proposal. Superseded in detail by `docs/specs/02` |
 | `apps/client/` | The Fidero client app (Expo, React Native), first build on sample data |

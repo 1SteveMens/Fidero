@@ -9,8 +9,8 @@ Every figure in this document is a working assumption, not verified data. That i
 | Item | Value |
 |---|---|
 | Document | 04 of 6 in `docs/specs/` |
-| Version | 0.6 |
-| Date | 11 November 2026 |
+| Version | 0.7 |
+| Date | 12 November 2026 |
 | Status | Draft. For review by the founder as product owner |
 | Owner | Product and engineering lead (once hired). Until then, the founder |
 | Approver | Founder, acting as product owner |
@@ -21,6 +21,7 @@ Every figure in this document is a working assumption, not verified data. That i
 
 | Version | Date | Change | By |
 |---|---|---|---|
+| 0.7 | 12 November 2026 | Founder decision `docs/decisions/2026-11-12-build-with-claude.md`: until revenue allows hiring, Claude writes the code and the founder tests on real phones. The sprint capacity plans in sections 2, 5 and 11 no longer plan the work; the order of work by dependency and priority still does. Gates and scope are unchanged. |
 | 0.6 | 11 November 2026 | Founder decisions: the S14 plan (contract developer kept one more sprint for professional payments, payment runs start as the bulk file only, PRO Shoulds move to R2) and Option R2-A (contract developer kept S14 to S31 alongside one mobile developer). Budget, team, I-04 and I-29 updated. |
 | 0.5 | 11 November 2026 | Aligned to 01 v0.8: professional payments. New epic EP-PRO with US-PRO-001 to US-PRO-010 (42 points: 6 Must stories, 28 points; 4 Should stories, 14 points), all R1. Enablers EN-78 (spike on the operating bank's bulk payment file, 2 points) and EN-79 (tax set-up per country with an accountant, not pointed). US-TSK-002 now pays Fidero's errand charge through the payment provider and official fees into the partner bank; US-TSK-003 has the agent paid by Fidero under EP-PRO. R1 Must plan grows from 408 to 438 points against 417 to the end of S13 under Option A+: 21 points short. Recommendation in 5.1: keep the six PRO Musts in R1, start payment runs as the bulk file only, build them in a new S14 with the contract developer kept one more sprint, and move the four PRO Shoulds to R2 (US-PRO-004 in R2-A; US-PRO-009 in R2-C; US-PRO-008 and US-PRO-010 in R2-D). R1 Shoulds displaced from R2-A move to R2-D. R2 demand 682 against 795 under Option R2-A. WSJF, dependencies, risks DR-41 and DR-42, budget, traceability (BR-23 to F-37 to EP-PRO) and issues I-04, I-29 and I-32 to I-35 updated. | Delivery lead |
 | 0.4 | 7 November 2026 | Aligned to 01 v0.6: both app stores, React Native, client app. New epic EP-APP with US-APP-001a to US-APP-001e and US-APP-002 to US-APP-006 (61 points). US-MOB-001 and US-MOB-002 cover iOS; US-MOB-004 split into US-MOB-004a (Android) and US-MOB-004b (iOS), and US-MOB-002 re-estimated at 8. EN-33 rewritten for React Native; EN-41 superseded (Q-09 answered); enablers EN-64 to EN-77 for store accounts, signing and push credentials, test tracks, listings, privacy disclosures, the financial declaration, native-module and performance spikes, a submission rehearsal, the store payment position and a client app usability test. R2 "Android developer" becomes "mobile developer (React Native)". R2 capacity recomputed: 638 points of demand against 651 with one mobile developer (2% spare); Option R2-A, keeping the contract developer through R2, is recommended. Store review buffers, milestones M-37 to M-39, risks DR-35 to DR-40 (DR-07 closed), RACI, budget, go/no-go and traceability (F-36, EP-APP) updated. Issues I-29 to I-31 added. | Delivery lead |
@@ -43,6 +44,8 @@ Every figure in this document is a working assumption, not verified data. That i
 Documents 05 and 06 reference the IDs in this document: `EP-…`, `US-…`, `EN-…` and `M-…`. These IDs are stable. They are never reused. An item that is no longer needed is marked superseded, not deleted.
 
 ## 2. Delivery approach
+
+> **12 November 2026.** Until revenue allows hiring, Claude writes the code and the founder tests on real phones (`docs/decisions/2026-11-12-build-with-claude.md`). The team, velocity and sprint capacity figures in this document describe the deferred hiring plan. Use the backlog order, dependencies and gates; ignore the capacity totals until a team is hired.
 
 ### 2.1 Discover, build, validate
 

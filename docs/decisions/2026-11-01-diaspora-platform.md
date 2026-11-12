@@ -106,3 +106,7 @@ The Nigeria launch plan is a Claude doc: https://claude.ai/artifact/X1r2egGWXyAH
 |---|---|
 | R1 finish | Keep the contract developer for one more sprint, S14, to build the professional payments Musts. Payment runs start as a bulk file uploaded in the bank's portal. Expense claims, automatic reconciliation, overdue alerts and the automatic cost record move to R2 and are done by hand by two people until then. R1 Musts finish in month 10. |
 | R2 team | Option R2-A: one mobile developer with native experience on iOS and Android, plus the contract developer kept from S14 to S31 on shared TypeScript code and client app screens. About $28,800 `[TO VERIFY]`, which brings engineering to about 55.6% of the pre-seed. Recorded in `docs/specs/01` C-07 and `docs/specs/04` sections 5.1, 5.2 and 11. |
+
+## Follow-up decision, 12 November 2026: who builds
+
+Until revenue allows hiring, Claude writes the code and the founder tests on real phones. This defers the team decisions of 1 and 11 November. See `docs/decisions/2026-11-12-build-with-claude.md`.
