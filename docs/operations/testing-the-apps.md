@@ -101,6 +101,24 @@ All data is sample data. Nothing moves money.
 
 Take a screenshot and write down what you tapped just before. Paste both into the session. Say which phone and which iOS or Android version.
 
-## Fidero Field and field users
+## Fidero Field
 
-Fidero Field runs in Expo Go the same way, from `apps/field`. Field users on Android install Expo Go from Google Play and scan the same QR code. Signing photos with the phone's secure chip needs a test build instead of Expo Go: an install file on Android, and on iPhone a build that needs the Apple Developer Program (`docs/decisions/2026-11-12-build-with-claude.md`).
+Start it the same way, from its own folder:
+
+```bash
+cd apps/field
+```
+
+```bash
+npx expo start
+```
+
+Stop the client app first with Ctrl+C, or run Fidero Field in a second Terminal window. On the sign-in screen, choose the role to try:
+
+- **Inspector**: open "Inspection: Blocks", answer each check, take a photo where asked, mark one "No" as a defect with a value, then choose a result. Then open the Pay tab.
+- **Contractor**: open "Foundation", take the evidence photos (and the video), then submit. Try it with "Pretend there is no signal" switched on in Account, and watch the Queue tab.
+- **Carer**: open the care visit, check in (if you are far from the sample address, it asks you to say why), tick the plan, then check out.
+
+The first time, the phone asks for the camera and for your location. Allow both: the app needs them to seal where and when evidence was taken.
+
+Field users on Android install Expo Go from Google Play and scan the same QR code. Signing photos with the phone's secure chip will need a test build instead of Expo Go: an install file on Android, and on iPhone a build that needs the Apple Developer Program (`docs/decisions/2026-11-12-build-with-claude.md`).

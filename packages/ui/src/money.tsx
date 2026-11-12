@@ -14,7 +14,7 @@ const CARD_H = 190;
 const GAP = 12;
 
 /** The round seal on every account card. Its words turn slowly; the check stays still. */
-export function Seal({ id, ring, text, check, size = 132 }: { id: string; ring: string; text: string; check: string; size?: number }) {
+export function Seal({ id, ring, text, check, size = 132, words = 'HELD AT THE BANK · RELEASED ON PROOF · ' }: { id: string; ring: string; text: string; check: string; size?: number; words?: string }) {
   const reduced = useReducedMotion();
   const spin = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -34,7 +34,7 @@ export function Seal({ id, ring, text, check, size = 132 }: { id: string; ring: 
           <Circle cx={60} cy={60} r={56} fill="none" stroke={ring} strokeWidth={1.5} />
           <Circle cx={60} cy={60} r={31} fill="none" stroke={ring} strokeWidth={1.5} />
           <SvgText fill={text} fontSize={8.5} letterSpacing={1.6} fontFamily={font.monoBold}>
-            <TextPath href={`#${id}`}>HELD AT THE BANK · RELEASED ON PROOF · </TextPath>
+            <TextPath href={`#${id}`}>{words}</TextPath>
           </SvgText>
         </Svg>
       </Animated.View>

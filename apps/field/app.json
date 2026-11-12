@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "Fidero Field",
+    "slug": "fidero-field",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.fidero.field"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0B0B0B",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.fidero.field"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "output": "single",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Fidero Field uses the camera to take evidence photos for your jobs. Photos come only from this camera, never from your gallery.",
+          "microphonePermission": "Fidero Field records sound with evidence videos.",
+          "recordAudioAndroid": true
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Fidero Field records where each photo is taken and where you check in, so the client knows the work was done on site."
+        }
+      ]
+    ],
+    "scheme": "fiderofield",
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

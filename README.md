@@ -101,6 +101,8 @@ Pre-seed: $400k for 18 months `[TO VERIFY]` against the wider scope. It funds th
 | `docs/operations/r0-tracker.xlsx` | R0 tracker: leads, cases, costs, searches, payments to institutions, incidents, and the fortnightly and day-90 review (EN-01, EN-05, EN-51) |
 | `docs/product/architecture.md` | Early architecture proposal. Superseded in detail by `docs/specs/02` |
 | `apps/client/` | The Fidero client app (Expo, React Native), first build on sample data |
+| `apps/field/` | Fidero Field, the app for inspectors, contractors and carers, on sample data |
+| `packages/ui/` | Bloc components shared by both apps |
 | `apps/landing/` | R0 landing page with the order form (EN-03), one static HTML file |
 | `packages/shared/`, `packages/tokens/` | Shared types, rules, sample API and design tokens for the apps |
 | `docs/specs/` | Product specification set: requirements (BRD, PRD, SRS), architecture, UI/UX, project plan and backlog, testing, deployment and operations |

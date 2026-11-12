@@ -657,6 +657,115 @@ export function CodeField({ value, onChange, label }: { value: string; onChange:
   );
 }
 
+/** A labelled text input in the Bloc style. */
+export function Input({
+  label,
+  value,
+  onChange,
+  placeholder,
+  multiline,
+  keyboardType,
+  hint,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  multiline?: boolean;
+  keyboardType?: 'default' | 'number-pad' | 'decimal-pad';
+  hint?: string;
+}) {
+  const p = usePalette();
+  return (
+    <View style={{ gap: 6 }}>
+      <T v="footnote" style={{ fontFamily: type.headline.fontFamily, fontSize: 14 }}>{label}</T>
+      <TextInput
+        value={value}
+        onChangeText={onChange}
+        placeholder={placeholder}
+        placeholderTextColor={p.textMuted}
+        multiline={multiline}
+        keyboardType={keyboardType}
+        accessibilityLabel={label}
+        style={[
+          type.body,
+          {
+            color: p.text,
+            backgroundColor: p.ground === brand.ink ? p.surface : brand.paper,
+            borderWidth: 2,
+            borderColor: p.ground === brand.ink ? '#77746D' : '#858178',
+            borderRadius: radius.md,
+            paddingHorizontal: space[3],
+            paddingVertical: space[3],
+            minHeight: multiline ? 88 : 50,
+            textAlignVertical: multiline ? 'top' : 'center',
+          },
+        ]}
+      />
+      {hint ? <T v="footnote" muted>{hint}</T> : null}
+    </View>
+  );
+}
+
+/** Two big answer blocks, sized for outdoor use (03 section 6.1c). */
+export function YesNo({ value, onChange, label }: { value?: 'yes' | 'no'; onChange: (v: 'yes' | 'no') => void; label: string }) {
+  const p = usePalette();
+  const opt = (v: 'yes' | 'no', text: string) => {
+    const on = value === v;
+    return (
+      <Pressable
+        key={v}
+        onPress={() => {
+          haptic('tap');
+          onChange(v);
+        }}
+        accessibilityRole="radio"
+        accessibilityState={{ selected: on }}
+        accessibilityLabel={`${label}: ${text}`}
+        style={({ pressed }) => ({
+          width: 58,
+          height: 44,
+          borderRadius: 12,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: on ? brand.ink : p.ground,
+          borderWidth: on ? 0 : 2,
+          borderColor: p.lineStrong,
+          opacity: pressed ? 0.8 : 1,
+        })}
+      >
+        <T v="headline" color={on ? (v === 'yes' ? brand.lime : '#F7F6F2') : p.text} style={{ fontSize: 15 }}>{text}</T>
+      </Pressable>
+    );
+  };
+  return <View accessibilityRole="radiogroup" style={{ flexDirection: 'row', gap: 6 }}>{[opt('yes', 'Yes'), opt('no', 'No')]}</View>;
+}
+
+/** One choice in a group of options, as a full-width row. */
+export function Choice({ selected, onPress, title, detail }: { selected: boolean; onPress: () => void; title: string; detail?: string }) {
+  const p = usePalette();
+  return (
+    <Pressable
+      onPress={() => {
+        haptic('tap');
+        onPress();
+      }}
+      accessibilityRole="radio"
+      accessibilityState={{ selected }}
+      accessibilityLabel={detail ? `${title}. ${detail}` : title}
+      style={({ pressed }) => ({ flexDirection: 'row', gap: space[3], alignItems: 'center', paddingVertical: space[2], opacity: pressed ? 0.8 : 1 })}
+    >
+      <View style={{ width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: p.text, alignItems: 'center', justifyContent: 'center' }}>
+        {selected ? <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: p.text }} /> : null}
+      </View>
+      <View style={{ flex: 1 }}>
+        <T v="headline" style={{ fontSize: 15, fontFamily: selected ? type.headline.fontFamily : type.callout.fontFamily }}>{title}</T>
+        {detail ? <T v="footnote" muted>{detail}</T> : null}
+      </View>
+    </Pressable>
+  );
+}
+
 /* ---------- States ---------- */
 
 export function Loading() {
