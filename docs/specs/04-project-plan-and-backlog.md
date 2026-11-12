@@ -9,18 +9,19 @@ Every figure in this document is a working assumption, not verified data. That i
 | Item | Value |
 |---|---|
 | Document | 04 of 6 in `docs/specs/` |
-| Version | 0.8 |
+| Version | 0.9 |
 | Date | 12 November 2026 |
 | Status | Draft. For review by the founder as product owner |
 | Owner | Product and engineering lead (once hired). Until then, the founder |
 | Approver | Founder, acting as product owner |
-| Source of truth | [01 Requirements and Product Specification](01-requirements-and-product-specification.md), version 0.12, and the decision record [`docs/decisions/2026-11-01-diaspora-platform.md`](../decisions/2026-11-01-diaspora-platform.md) |
+| Source of truth | [01 Requirements and Product Specification](01-requirements-and-product-specification.md), version 0.13, and the decision record [`docs/decisions/2026-11-01-diaspora-platform.md`](../decisions/2026-11-01-diaspora-platform.md) |
 | Related | [02 Architecture](02-architecture-and-technical-design.md), [03 UI/UX](03-ui-ux-design.md), [05 Testing and Acceptance](05-testing-and-acceptance.md), [06 Deployment and Operations](06-deployment-and-operations.md), [`docs/proposal.md`](../proposal.md), [`docs/validation-plan.md`](../validation-plan.md), [`docs/partners.md`](../partners.md), [`docs/product/architecture.md`](../product/architecture.md) |
 
 ### Change log
 
 | Version | Date | Change | By |
 |---|---|---|---|
+| 0.9 | 12 November 2026 | Aligned to 01 v0.13: release timing and escrow account structure (RUL-07 window, RUL-33, RUL-34, NFR-PERF-06, Q-29, Q-30). Three new stories in EP-ESC: US-ESC-018 (release clock and alerts, 3) and US-ESC-019 (each escrow's own bank-confirmed balance, and a block on any larger release or refund, 5), both Must R1 (8 points); and US-ESC-020 (held-back share released on its own later condition, 3), Could R1. No new enablers: EN-53 now covers the bank account structure (Q-29), EN-80 the held-back share (Q-30) and EN-26 the release instruction timing (NFR-PERF-06). US-ESC-019 goes in S10, before the first escrow (M-10); US-ESC-018 in S11, before the first release; US-ESC-020 in R2-D with the other R1 Coulds, after Q-30. R1 Must plan grows from 456 to 464 points against 450 to the end of S14; about 17 points spill into S15. R2 demand 714 against 795 under Option R2-A. US-ESC-006 and US-ADM-005 updated for the window (counted from the result and site check dates, checked at approval and at sending, per the 01 v0.13 review fixes) and the timing targets. Milestones M-07 and M-10, risks DR-46 to DR-48 (DR-02 and DR-09 updated), RACI, budget, go/no-go, traceability and issues I-43 and I-44 updated. | Delivery lead |
 | 0.8 | 12 November 2026 | Aligned to 01 v0.12: fund and evidence protection (RUL-28 to RUL-32, Q-28). Six new stories in existing epics: US-ACC-013 (national identity checks of parties, 5), US-PAY-008 (fee refunds to the original payment method, 2), US-CASE-016 (official search record from Tenmina's own account, 3), US-ESC-016 (payee change flow with a cooling-off period, 5) and US-ESC-017 (refunds only to the source account, 3), all Must R1 (18 points); and US-RPT-012 (monthly random re-checks, 5), Should R1. Enablers EN-80 (legal basis for escrow, Q-28) and EN-81 (access to the national identity system), both Must R1 and not pointed. Each Must sits in the sprint of the feature it protects (S8 to S11; US-PAY-008 in S13). R1 Must plan grows from 438 to 456 points against 450 to the end of S14; about 9 points spill into S15, so the four R1 Shoulds planned in R2-A move to R2-B with US-RPT-012 (proposed, for the founder to confirm). R2 demand 703 against 795 under Option R2-A. R0 note on searches and Ghana Card checks by hand, milestones M-07, M-09, M-10 and M-12, risks DR-43 to DR-45 (DR-04, DR-09 and DR-26 updated), RACI, budget, go/no-go, traceability and issues I-36 to I-42 updated. | Delivery lead |
 | 0.7 | 12 November 2026 | Founder decision `docs/decisions/2026-11-12-build-with-claude.md`: until revenue allows hiring, Claude writes the code and the founder tests on real phones. The sprint capacity plans in sections 2, 5 and 11 no longer plan the work; the order of work by dependency and priority still does. Gates and scope are unchanged. |
 | 0.6 | 11 November 2026 | Founder decisions: the S14 plan (contract developer kept one more sprint for professional payments, payment runs start as the bulk file only, PRO Shoulds move to R2) and Option R2-A (contract developer kept S14 to S31 alongside one mobile developer). Budget, team, I-04 and I-29 updated. |
@@ -191,10 +192,10 @@ Months follow the approved plan in section 5.1 (contract developer S3 to S14, th
 | M-04 | Month 3 | Gate G0 | Day-90 criteria met. Founder records the decision | Founder |
 | M-05 | Month 3 | Sprint 0 done | Monorepo, CI, hosting decision (EN-16) recorded | Engineering lead |
 | M-06 | Month 5 | Walking skeleton in staging | Sign-up, sign-in, audit log and country configuration run on infrastructure built from code | Engineering lead |
-| M-07 | Month 6 | Escrow partner signed | Agreement with a bank or licensed agent (AS-02), on the legal basis the lawyer confirms in writing (Q-28, EN-80). Release instruction format and channel agreed (EN-17); held-balance structure agreed (EN-53) | Founder |
+| M-07 | Month 6 | Escrow partner signed | Agreement with a bank or licensed agent (AS-02), on the legal basis the lawyer confirms in writing (Q-28, EN-80). Release instruction format and channel agreed (EN-17); account structure agreed: one escrow account per currency and country held by the bank as escrow agent, with a virtual account number or reference and a daily balance for each escrow and held amount, or one account per escrow in a pilot (EN-53, Q-29); payment time within NFR-PERF-06 written into the agreement | Founder |
 | M-08 | Month 7 | Internal alpha | Staff run new cases in the back office alongside the spreadsheet. Access limited to staff. Backup restore drill passed (EN-15) | Engineering lead, with operations |
 | M-09 | Month 8 | Client beta | Penetration test 1 passed (EN-28), accessibility audit (EN-25) and usability test (EN-24) done. Official searches recorded as received from Tenmina's own registry account (US-CASE-016). New clients order and track in the portal | Product owner |
-| M-10 | Month 8 | Escrow tracker live | First escrow tracked on the platform with client approval, two-person release, payee name check and payee lock (US-ESC-006, US-ESC-007, US-ESC-015, US-ESC-016). Seller identity checked against the national identity system (US-ACC-013). Legal basis for escrow on file (EN-80) | Product owner |
+| M-10 | Month 8 | Escrow tracker live | First escrow tracked on the platform with client approval, two-person release, payee name check and payee lock (US-ESC-006, US-ESC-007, US-ESC-015, US-ESC-016), on its own virtual account number or reference, with releases and refunds only from its bank-confirmed balance (US-ESC-019). Seller identity checked against the national identity system (US-ACC-013). Legal basis for escrow on file (EN-80) | Product owner |
 | M-11 | Month 9 | Gate G1 review | Business targets reviewed. Insurer approval recorded (EN-31) | Founder |
 | M-12 | Month 10 | R1 complete | All R1 Must stories accepted per document 05. Penetration retest passed (EN-29). Overlay checks automatic. Metrics by country live. Professional payment runs live on the platform (S14). The version 0.8 tail done in S15 | Engineering lead |
 | M-13 | Month 11 | Field app beta | Tenmina Field on TestFlight and Play internal testing, on 2 GB Android test devices and the oldest supported iPhone. First contractors and inspectors vetted on the panel. Check-in and check-out working (US-MOB-012) | Engineering lead |
@@ -266,18 +267,18 @@ R0 cases that are still open when the portal opens finish in the spreadsheet. Cl
 
 **Objectives served.** BO-01, BO-02, BO-03, BO-07, BO-08, BO-09, BO-10. Business requirements BR-01 to BR-07, BR-14, BR-15, BR-16, BR-17, BR-23.
 
-**Scope.** 126 stories in 16 epics (EP-ACC, EP-ORD, EP-PAY, EP-CASE, EP-RPT, EP-GEO, EP-ESC, EP-EVD, EP-NTF, EP-ADM, EP-AUD, EP-ANL, EP-DPR, EP-FEE, EP-CTY, EP-PRO), plus enablers EN-09 to EN-32, EN-44, EN-47 to EN-50, EN-52, EN-53, EN-57 and EN-78 to EN-81.
+**Scope.** 129 stories in 16 epics (EP-ACC, EP-ORD, EP-PAY, EP-CASE, EP-RPT, EP-GEO, EP-ESC, EP-EVD, EP-NTF, EP-ADM, EP-AUD, EP-ANL, EP-DPR, EP-FEE, EP-CTY, EP-PRO), plus enablers EN-09 to EN-32, EN-44, EN-47 to EN-50, EN-52, EN-53, EN-57 and EN-78 to EN-81.
 
 | R1 scope | Stories | Points |
 |---|---|---|
-| Must stories | 98 | 361 |
+| Must stories | 100 | 369 |
 | Should stories | 25 | 83 |
-| Could stories | 3 | 9 |
+| Could stories | 4 | 12 |
 | Must enablers (EN-31, EN-44, EN-47, EN-48, EN-49, EN-57, EN-79, EN-80 and EN-81 are not pointed) | 33 | 87 |
 | Should enablers (EN-21, EN-30; EN-50 is not pointed) | 3 | 5 |
-| **Total** | **162** | **545** |
+| **Total** | **165** | **556** |
 
-Version 0.1 had 97 stories and 421 points. The growth is EP-FEE (25 points), US-ESC-014 and US-ESC-015 (7), EP-CTY in R1 (14), US-ACC-012 (5), US-ESC-006 re-estimated for client approval (2), and spikes EN-52 and EN-53 (4). Version 0.5 adds EP-PRO (42: 28 Must, 14 Should) and EN-78 (2) for professional payments in 01 v0.8. Version 0.8 adds US-ACC-013, US-PAY-008, US-CASE-016, US-ESC-016 and US-ESC-017 (18 Must) and US-RPT-012 (5 Should) for fund and evidence protection in 01 v0.12, with two unpointed enablers, EN-80 and EN-81.
+Version 0.1 had 97 stories and 421 points. The growth is EP-FEE (25 points), US-ESC-014 and US-ESC-015 (7), EP-CTY in R1 (14), US-ACC-012 (5), US-ESC-006 re-estimated for client approval (2), and spikes EN-52 and EN-53 (4). Version 0.5 adds EP-PRO (42: 28 Must, 14 Should) and EN-78 (2) for professional payments in 01 v0.8. Version 0.8 adds US-ACC-013, US-PAY-008, US-CASE-016, US-ESC-016 and US-ESC-017 (18 Must) and US-RPT-012 (5 Should) for fund and evidence protection in 01 v0.12, with two unpointed enablers, EN-80 and EN-81. Version 0.9 adds US-ESC-018 and US-ESC-019 (8 Must) and US-ESC-020 (3 Could) for release timing and escrow accounts in 01 v0.13.
 
 #### Sprint plan for the recommended team
 
@@ -295,8 +296,8 @@ The plan covers Must items only, plus US-ANL-001, which US-CTY-003 (Must) needs.
 | S7 | 6 | Receipts, notifications, case queue, field tasks on phone, client tracker, safety (internal alpha, M-08) | US-ACC-009, US-PAY-003, US-NTF-002, US-NTF-004, US-CASE-005, US-CASE-006, US-CASE-007, US-NTF-003, US-CASE-008, US-CASE-009, US-CASE-010 | 33 |
 | S8 | 7 | Client readiness: manual identity check, licences, previews, SMS and WhatsApp, threat model, usability, accessibility, pen test 1, fresh search, official search record, consent (client beta, M-09) | US-ACC-004b, US-ACC-005, US-EVD-004, US-NTF-001b, EN-27, EN-24, EN-25, EN-28, US-CASE-014, US-CASE-016, US-DPR-002 | 36 |
 | S9 | 7-8 | Report builder, two-person review, hashed PDF, national identity checks of sellers and other parties | US-RPT-001, US-RPT-002, US-RPT-003, US-RPT-005, US-RPT-006, US-RPT-007, US-RPT-009, US-RPT-010, US-ACC-013 | 37 |
-| S10 | 8 | Escrow tracker with client approval, two-person release, payee name check and payee lock (M-10) | US-ADM-005, US-ESC-001, US-ESC-002, US-ESC-003, US-ESC-004, US-ESC-005, US-ESC-006, US-ESC-007, US-ESC-015, US-ESC-016, US-ESC-008a, US-ESC-008b, US-ESC-009 | 38 |
-| S11 | 8-9 | Cancellation, refunds only to the source account, amount held at the bank, fees to institutions (M-26), overlay layer sourcing | US-ESC-013, US-ESC-017, US-ESC-014, US-FEE-001, US-FEE-002, US-FEE-003, US-FEE-004, US-FEE-007, EN-20 | 35 |
+| S10 | 8 | Escrow tracker with client approval, two-person release, payee name check, payee lock and each escrow's own confirmed balance (M-10) | US-ADM-005, US-ESC-001, US-ESC-002, US-ESC-003, US-ESC-004, US-ESC-019, US-ESC-005, US-ESC-006, US-ESC-007, US-ESC-015, US-ESC-016, US-ESC-008a, US-ESC-008b, US-ESC-009 | 43 |
+| S11 | 8-9 | Release clock and alerts, cancellation, refunds only to the source account, amount held at the bank, fees to institutions (M-26), overlay layer sourcing | US-ESC-018, US-ESC-013, US-ESC-017, US-ESC-014, US-FEE-001, US-FEE-002, US-FEE-003, US-FEE-004, US-FEE-007, EN-20 | 38 |
 | S12 | 9 | Overlay checks, load test, pen retest, identity provider | US-GEO-001, US-GEO-004, US-GEO-002, US-GEO-003, EN-26, EN-29, US-ACC-004a | 33 |
 | S13 | 9-10 | R1 completion: scope wording control, data rights, retention and legal hold, dashboard and metrics by country, fee refunds to the original payment method | US-ADM-004, US-DPR-003, US-DPR-005, US-DPR-004a, US-DPR-004b, US-ANL-003, US-ANL-001, US-CTY-003, EN-78, US-PAY-008 | 33 |
 | S14 | 10 | R1 completion 2: professional payments with the bulk file only (contract developer's extra sprint) (M-12) | US-PRO-001, US-PRO-003, US-PRO-006, US-PRO-002, US-PRO-007, US-PRO-005 | 28 |
@@ -307,9 +308,19 @@ S14 is new in version 0.5. Professional payments come last in R1 because they ne
 
 Version 0.8 puts each new protection from 01 v0.12 in the sprint of the feature it protects, so nothing reaches clients on the platform without it: US-CASE-016 in S8, before client beta; US-ACC-013 in S9, before the first report release; US-ESC-016 in S10, before the first escrow (M-10); US-ESC-017 in S11, with cancellations and refunds. US-PAY-008 goes in S13: until then a fee refund is made by hand in the payment provider's dashboard, which returns it to the original payment method. EN-81 (national identity access) must be done before S9 and EN-80 (legal basis for escrow, Q-28) before M-10. S8 to S11 now hold more than planning velocity (36, 37, 38 and 35 points). Under the deferred hiring plan the extra work pushes the later sprints back, and about 9 points of the R1 Musts end in S15 instead of S14, still month 10.
 
+Version 0.9 follows the same rule for 01 v0.13. US-ESC-019 (each escrow's own bank-confirmed balance, and the block on any larger release or refund) goes in S10, before the first escrow takes a deposit on the platform (M-10); its held-amount part is tested once US-ESC-014 lands in S11. US-ESC-018 (release clock and alerts) goes in S11, before the first release on the platform, which comes weeks after the first deposit; until it ships, the case manager checks the clock by hand from the escrow list. US-ESC-020 (held-back share, Could) waits for the lawyer's answer to Q-30 and is planned in R2-D with the other R1 Coulds. EN-53 must answer Q-29 before M-07. S10 and S11 now hold 43 and 38 points, and about 17 points of the R1 Musts end in S15, still month 10.
+
 #### Capacity against scope
 
-Version 0.8 figures, with the fund and evidence protections added, for the approved plan only:
+Version 0.9 figures, with release timing and escrow accounts added, for the approved plan only:
+
+| Measure | Option A+ and S14 (approved): contract developer S3 to S14 |
+|---|---|
+| Planning capacity | 450 points to the end of S14 |
+| R1 Must stories and Must enablers, plus US-ANL-001 | 464 points (369 + 87 + 8) |
+| Gap | 14 points short in total. With the 3 points S1, S2 and S6 leave unused, about 17 points spill into S15. Must scope ends in S15, month 10 |
+
+Version 0.8 figures, with the fund and evidence protections added, kept for comparison:
 
 | Measure | Option A+ and S14 (approved): contract developer S3 to S14 |
 |---|---|
@@ -361,11 +372,19 @@ Option C (moving other R1 Musts to R2) is not needed if point 3 is accepted. If 
 
 Under the decision of 12 November 2026 (Claude writes the code), these capacity figures do not plan the work. The order stands: each protection before the feature it protects.
 
+**What release timing and escrow accounts add (version 0.9).** 01 v0.13 adds two R1 Must requirements (FR-ESC-018 and FR-ESC-019) and one Could (FR-ESC-020). The Musts add 8 points to the R1 Must plan: 464 against 450 to the end of S14. Recommendation, for the founder to decide:
+
+1. **Keep both Musts in R1, in S10 and S11.** FR-ESC-019 stops one client's money paying for another client's purchase in the shared escrow account. FR-ESC-018 is how Tenmina shows the seller is paid on time with no waiting period, which is part of the promise to clients.
+2. **Let about 17 points spill into S15**, 8 more than version 0.8. S15 already has the contract developer under Option R2-A, so this costs nothing more. About 8 points of R2-A enabler work move into the first sprint of R2-B, which has room (section 5.2).
+3. **Keep US-ESC-020 as a Could in R2-D.** It is built only if the lawyer says a held-back share is allowed (Q-30, EN-80). If a seller agreement needs it sooner, it moves up by backlog order, not by change control.
+
+Under the decision of 12 November 2026, these figures do not plan the work either. The order stands.
+
 #### Cut line
 
 If R1 runs late, items drop in this order. Nothing below the line is cut without change control.
 
-1. Coulds: US-GEO-008, US-RPT-011, US-ORD-006.
+1. Coulds: US-ESC-020 (while Q-30 is open), US-GEO-008, US-RPT-011, US-ORD-006.
 2. Shoulds, lowest value first: US-AUD-004, US-AUD-003, US-PRO-010, US-PRO-008, US-NTF-005, US-ACC-010, US-CASE-015, US-RPT-008, US-GEO-005, US-PAY-006, US-ANL-002, US-GEO-006 with EN-21, US-PAY-004, US-PRO-009, US-CASE-012, US-CASE-011, US-FEE-006, US-ACC-008, US-ORD-005, EN-30, US-PRO-004, US-RPT-012, US-FEE-005, US-ACC-012, US-CASE-013.
 3. **Cut line.** Musts below this line are cut only with change control, in the Option C order above.
 
@@ -387,29 +406,29 @@ US-CASE-013 (building verification) drops last among Shoulds because it opens th
 
 | Phase | Sprints | Month | Goal | Items | Points |
 |---|---|---|---|---|---|
-| R2-A | S13-S15 | 9-10 | Mobile set-up (React Native, two app targets), store accounts and credentials, native-module and performance spikes; bank, legal, carer, insurer and country 2 data location spikes; R0 data migration. The web team finishes R1 Musts in S13 to S15 (professional payments in S14; the version 0.8 tail in S15, 5.1) | EN-33, EN-34, EN-64, EN-65, EN-66, EN-70, EN-71, EN-74, EN-69, EN-76, EN-35, EN-45, EN-39, EN-40, EN-54, EN-55, EN-56 | 32 |
+| R2-A | S13-S15 | 9-10 | Mobile set-up (React Native, two app targets), store accounts and credentials, native-module and performance spikes; bank, legal, carer, insurer and country 2 data location spikes; R0 data migration. The web team finishes R1 Musts in S13 to S15 (professional payments in S14; the version 0.8 and 0.9 tail in S15, 5.1) | EN-33, EN-34, EN-64, EN-65, EN-66, EN-70, EN-71, EN-74, EN-69, EN-76, EN-35, EN-45, EN-39, EN-40, EN-54, EN-55, EN-56 | 32 |
 | R2-B | S16-S21 | 10-13 | Construction core: Tenmina Field on iOS and Android with check-in, inspections, milestone releases, disputes; App Attest and iOS background upload spikes; store listings, privacy disclosures, submission rehearsal and store approval of Tenmina Field (M-37, M-38); in-app deletion and minimum version for both apps. Country 2 on the platform by month 12: data location, copy configuration, publish (M-28). Organisation accounts for institutions. First R1 Shoulds, moved from R2-A in version 0.8, and monthly random re-checks | EN-72, EN-73, EN-67, EN-68, EN-75, US-MOB-001, US-MOB-002, US-MOB-003, US-MOB-004a, US-MOB-004b, US-MOB-005a, US-MOB-005b, US-MOB-006, US-MOB-007, US-MOB-008, US-MOB-009, US-MOB-011a, US-MOB-011b, US-MOB-012, US-MOB-010, US-EVD-006, US-ESC-010, US-BLD-001, US-BLD-002, US-BLD-003, US-BLD-004, US-BLD-005a, US-BLD-005b, US-BLD-006, US-BLD-007, US-BLD-008, US-BLD-009, US-BLD-010, US-BLD-012, US-DSP-001, US-DSP-002, US-DSP-003, US-DSP-004, US-ORD-007, US-CTY-002a, US-CTY-002b, US-CTY-004, EN-59, US-ACC-011, EN-61, US-PAY-006, US-GEO-005, US-APP-004, US-APP-006, US-CASE-013, US-ACC-012, US-FEE-005, US-PRO-004, US-RPT-012 | 234 |
 | R2-C | S22-S27 | 13-16 | Tenmina client app on the shared codebase, then store review (M-39 at month 17). Family lines first: care visits and errands (reuse the field app and case workflow), then property management (reuses inspections and the contractor panel), off-plan, project funds, statement import, listings, partner API; remaining R1 Shoulds | US-CARE-002, US-CARE-003, US-CARE-004, US-CARE-005, US-CARE-006, US-CARE-001, US-TSK-002, US-TSK-003, US-TSK-004, US-TSK-001, US-TSK-005, US-PMG-002, US-PMG-003, US-PMG-005, US-PMG-001, US-PMG-004, US-PMG-006, EN-58, US-BLD-011a, US-BLD-011b, US-PRJ-005, US-PRJ-001, US-PRJ-002, US-PRJ-003, US-PRJ-004, US-ESC-011, US-DSP-005, US-LST-002, US-LST-003, US-LST-006, US-LST-008, US-LST-001, US-LST-004a, US-LST-004b, US-LST-005, US-LST-007, US-LST-010, US-PAY-007, US-PTR-002, US-PTR-001, US-PTR-004, EN-36, EN-43, EN-21, US-GEO-006, US-AUD-003, US-AUD-004, US-APP-001a, US-APP-001b, US-APP-001c, US-APP-001d, US-APP-001e, US-APP-002, US-APP-005, EN-77, US-PRO-009 | 255 |
-| R2-D | S28-S31 | 16-18 | Insurer partner lines (only if EN-55 allows), track records, hardening: scale test, pen test, accessibility; client app store review and biometric unlock; country 3 manual service runs; Coulds if capacity allows | US-INS-002, US-INS-003, US-INS-001, US-INS-004, US-RAT-001, US-RAT-002, US-RAT-003, US-RAT-004, EN-37, EN-38, EN-42, EN-60, US-GEO-007, US-ESC-012, US-PTR-003, US-ORD-006, US-RPT-011, US-GEO-008, US-APP-003; R1 Shoulds moved from R2-A in version 0.5: US-ORD-005, US-CASE-011, US-CASE-012, US-PAY-004, US-FEE-006, US-ANL-002, US-NTF-005, EN-30, US-ACC-008, US-ACC-010, US-CASE-015, US-RPT-008; US-PRO-008, US-PRO-010 | 107 |
+| R2-D | S28-S31 | 16-18 | Insurer partner lines (only if EN-55 allows), track records, hardening: scale test, pen test, accessibility; client app store review and biometric unlock; country 3 manual service runs; Coulds if capacity allows | US-INS-002, US-INS-003, US-INS-001, US-INS-004, US-RAT-001, US-RAT-002, US-RAT-003, US-RAT-004, EN-37, EN-38, EN-42, EN-60, US-GEO-007, US-ESC-012, US-PTR-003, US-ORD-006, US-RPT-011, US-GEO-008, US-ESC-020 (only if Q-30 allows), US-APP-003; R1 Shoulds moved from R2-A in version 0.5: US-ORD-005, US-CASE-011, US-CASE-012, US-PAY-004, US-FEE-006, US-ANL-002, US-NTF-005, EN-30, US-ACC-008, US-ACC-010, US-CASE-015, US-RPT-008; US-PRO-008, US-PRO-010 | 110 |
 
-R2 also carries the R1 completion in S13 to S15 and the R1 Shoulds in R2-B to R2-D. In version 0.5, S14 goes to professional payments, so 29 points of R1 Shoulds move from R2-A to R2-D, lowest on the cut line first. In version 0.8, R1 completion grows from 59 points (S13 and S14) to 75 (33 in S13, 33 in S14 and about 9 in S15), and the four R1 Shoulds left in R2-A (16 points) move to R2-B with US-RPT-012 (5).
+R2 also carries the R1 completion in S13 to S15 and the R1 Shoulds in R2-B to R2-D. In version 0.5, S14 goes to professional payments, so 29 points of R1 Shoulds move from R2-A to R2-D, lowest on the cut line first. In version 0.8, R1 completion grows from 59 points (S13 and S14) to 75 (33 in S13, 33 in S14 and about 9 in S15), and the four R1 Shoulds left in R2-A (16 points) move to R2-B with US-RPT-012 (5). In version 0.9, R1 completion grows to 83 (33 in S13, 33 in S14 and about 17 in S15), and US-ESC-020 (3, Could) joins R2-D.
 
 | R2 capacity check | Baseline: one mobile developer | Option R2-A (approved 11 November 2026): plus the contract developer S14 to S31 | Option R2-B: plus a second mobile developer S16 to S31 |
 |---|---|---|---|
 | Capacity S13 to S31 | 651: web 19 × 25, contract developer 8 in S13, mobile 8 in S13 to S15 then 16 × 10 | 795: baseline plus 18 × 8 | 811: baseline plus 16 × 10 |
-| Demand: R1 completion 75, R2 phases 628 | 703 | 703 | 703 |
-| Unplanned capacity | short by 52 (about 8%) | 92 (about 12%) | 108 (about 13%) |
-| R2-A (S13 to S15): capacity against demand 107 | 91, short by 16 | 107 | 91, short by 16 |
+| Demand: R1 completion 83, R2 phases 631 | 714 | 714 | 714 |
+| Unplanned capacity | short by 63 (about 10%) | 81 (about 10%) | 97 (about 12%) |
+| R2-A (S13 to S15): capacity against demand 115 | 91, short by 24 | 107, short by 8 (moves into R2-B) | 91, short by 24 |
 | R2-B (S16 to S21): capacity against demand 234 | 210, short by 24 | 258 | 270 |
 | R2-C (S22 to S27): capacity against demand 255 | 210, short by 45 | 258 | 270 |
-| R2-D (S28 to S31): capacity against demand 107 | 140 | 172 | 180 |
+| R2-D (S28 to S31): capacity against demand 110 | 140 | 172 | 180 |
 | Extra cost (assumption) | none | about $28,800: 18 sprints at about $1,600 `[TO VERIFY]` | a second salary for about 8 months, rate `[TO VERIFY]` |
 
-All figures are assumptions. Version 0.3 left 114 points (18%) unplanned under the earlier plan for a single Android field app. The decision to publish both apps on both stores adds 101 points: the client app (EP-APP, 61), iOS work in the field app (US-MOB-002 re-estimated and US-MOB-004b, 8) and store and native-module enablers (EN-33 rewritten, 3 more; EN-64 to EN-77, 29). Demand rises from 537 to 638. Version 0.5 adds 44 points for professional payments (30 of R1 Must completion in S13 and S14, 14 of PRO Shoulds), so demand is 682. Version 0.8 adds 21: 16 more of R1 Must completion and US-RPT-012 (5), so demand is 703.
+All figures are assumptions. Version 0.3 left 114 points (18%) unplanned under the earlier plan for a single Android field app. The decision to publish both apps on both stores adds 101 points: the client app (EP-APP, 61), iOS work in the field app (US-MOB-002 re-estimated and US-MOB-004b, 8) and store and native-module enablers (EN-33 rewritten, 3 more; EN-64 to EN-77, 29). Demand rises from 537 to 638. Version 0.5 adds 44 points for professional payments (30 of R1 Must completion in S13 and S14, 14 of PRO Shoulds), so demand is 682. Version 0.8 adds 21: 16 more of R1 Must completion and US-RPT-012 (5), so demand is 703. Version 0.9 adds 11: 8 more of R1 Must completion and US-ESC-020 (3), so demand is 714.
 
-**Is one mobile developer enough?** No. With one mobile developer, R2 is about 52 points short in total, and R2-A to R2-C are short by about 85 points, which would push the client app past its store review buffer and into gate G2. The work that needs native skills alone (native modules on two platforms, the field app's capture, signing and queue, store set-up) is about 100 points before the construction pilot at month 13, against about 50 points of mobile capacity by then. React Native helps here: the app screens, queue logic and API client are TypeScript, which the web developers already write.
+**Is one mobile developer enough?** No. With one mobile developer, R2 is about 63 points short in total, and R2-A to R2-C are short by about 93 points, which would push the client app past its store review buffer and into gate G2. The work that needs native skills alone (native modules on two platforms, the field app's capture, signing and queue, store set-up) is about 100 points before the construction pilot at month 13, against about 50 points of mobile capacity by then. React Native helps here: the app screens, queue logic and API client are TypeScript, which the web developers already write.
 
-**Decision, 11 November 2026: Option R2-A, approved by the founder.** Hire one mobile developer who has shipped native modules on both iOS and Android, to own capture, signing, attestation, background upload and store releases. Keep the contract developer from S14 to S31 on the shared TypeScript packages, client app screens and web work, so the web team does not slow. This restores about 12% spare (version 0.8), costs about $28,800 `[TO VERIFY]`, needs no new hire, and can stop at any sprint. Decide at the end of S15: if the native-module spikes (EN-70 to EN-74) show more native work than planned, add a second mobile developer or a native contractor for R2-B and R2-C (Option R2-B). Both options are for the founder to decide; neither is approved yet. The second lever is the cut line below. If dependencies do not bite, the team pulls R2 Coulds and R3 discovery forward.
+**Decision, 11 November 2026: Option R2-A, approved by the founder.** Hire one mobile developer who has shipped native modules on both iOS and Android, to own capture, signing, attestation, background upload and store releases. Keep the contract developer from S14 to S31 on the shared TypeScript packages, client app screens and web work, so the web team does not slow. This restores about 10% spare (version 0.9), costs about $28,800 `[TO VERIFY]`, needs no new hire, and can stop at any sprint. Decide at the end of S15: if the native-module spikes (EN-70 to EN-74) show more native work than planned, add a second mobile developer or a native contractor for R2-B and R2-C (Option R2-B). Both options are for the founder to decide; neither is approved yet. The second lever is the cut line below. If dependencies do not bite, the team pulls R2 Coulds and R3 discovery forward.
 
 R2 still has the most outside dependencies: the bank's file or API, the Act 1047 position, the insurer's extension, the carer vetting standard, the insurer partner and licence, store review and the store payment position (Q-23), contractor uptake and field defects on low-end phones.
 
@@ -459,7 +478,7 @@ Size: S up to 15 points, M 16 to 30, L 31 to 55, XL over 55.
 | EP-CASE | Verification case workflow | Run every case through owned, dated tasks with required evidence | F-03, F-06, F-09 | FR-CASE-001 to 016 | R1 | Must | 16 | 59 | XL |
 | EP-RPT | Report builder | Build, sign, review, hash and version reports from the template | F-04, F-09 | FR-RPT-001 to 012 | R1 | Must | 12 | 44 | L |
 | EP-GEO | Geospatial checks and monitoring | Automatic overlay checks, images and later change detection | F-05, F-24 | FR-GEO-001 to 008 | R1, R2 | Must | 8 | 40 | L |
-| EP-ESC | Escrow tracking | Mirror the bank's escrows and amounts held at the bank; control every release instruction, payee and refund | F-08, F-17, F-23, F-29 | FR-ESC-001 to 017 | R1, R2 | Must | 18 | 68 | XL |
+| EP-ESC | Escrow tracking | Mirror the bank's escrows and amounts held at the bank, each with its own balance; control every release instruction, payee and refund, and its timing | F-08, F-17, F-23, F-29 | FR-ESC-001 to 020 | R1, R2 | Must | 21 | 79 | XL |
 | EP-EVD | Evidence store | Tamper-evident, never-overwritten evidence served safely | F-07 | FR-EVD-001 to 006 | R1, R2 | Must | 6 | 21 | M |
 | EP-MOB | Field app, Tenmina Field (iOS and Android) | Offline, signed, in-app capture, check-in and check-out for all field roles | F-15, F-30 | FR-MOB-001 to 012 | R2 | Must | 15 | 78 | XL |
 | EP-APP | Client mobile app, Tenmina (iOS and Android) | The portal's client features on the App Store and Google Play, with push, biometric unlock, in-app account deletion, fees by store rules and a minimum version | F-36 | FR-APP-001 to 006 | R2 | Must | 10 | 61 | XL |
@@ -501,12 +520,12 @@ Size: S up to 15 points, M 16 to 30, L 31 to 55, XL over 55.
 | Release | Must | Should | Could | Story points | Enabler points | Total points |
 |---|---|---|---|---|---|---|
 | R0 | – | – | – | – | Not pointed (EN-01 to EN-08, EN-51) | – |
-| R1 | 98 stories, 361 points | 25 stories, 83 points | 3 stories, 9 points | 453 | 92 | 545 |
+| R1 | 100 stories, 369 points | 25 stories, 83 points | 4 stories, 12 points | 464 | 92 | 556 |
 | R2 | 61 stories, 292 points | 33 stories, 145 points | 5 stories, 27 points | 464 | 75 | 539 |
 | R3 | – | 4 stories, 26 points | 5 stories, 34 points | 60 | 6 | 66 |
-| **All** | **159 stories, 653 points** | **62 stories, 254 points** | **13 stories, 70 points** | **977** | **173** | **1,150** |
+| **All** | **161 stories, 661 points** | **62 stories, 254 points** | **14 stories, 73 points** | **988** | **173** | **1,161** |
 
-234 user stories cover all 217 FRs in 01 version 0.12: 203 FRs have one story each, and 14 large FRs are split into lettered sub-stories (US-ACC-004a/b, US-PAY-001a/b, US-ESC-008a/b, US-MOB-004a/b, US-MOB-005a/b, US-MOB-011a/b, US-BLD-005a/b, US-BLD-011a/b, US-LST-004a/b, US-DPR-004a/b, US-NTF-001a/b, US-CTY-001a/b, US-CTY-002a/b, and US-APP-001a to US-APP-001e). There are 81 enabler items, one of them superseded (EN-41). Versions 0.5 to 0.7 had 228 stories for 211 FRs and 79 enablers. Version 0.4 had 218 stories for 201 FRs and 77 enablers. Version 0.3 had 207 stories for 195 FRs and 63 enablers; version 0.1 had 170 stories for 159 FRs and 46 enablers.
+237 user stories cover all 220 FRs in 01 version 0.13: 206 FRs have one story each, and 14 large FRs are split into lettered sub-stories (US-ACC-004a/b, US-PAY-001a/b, US-ESC-008a/b, US-MOB-004a/b, US-MOB-005a/b, US-MOB-011a/b, US-BLD-005a/b, US-BLD-011a/b, US-LST-004a/b, US-DPR-004a/b, US-NTF-001a/b, US-CTY-001a/b, US-CTY-002a/b, and US-APP-001a to US-APP-001e). There are 81 enabler items, one of them superseded (EN-41). Version 0.8 had 234 stories for 217 FRs. Versions 0.5 to 0.7 had 228 stories for 211 FRs and 79 enablers. Version 0.4 had 218 stories for 201 FRs and 77 enablers. Version 0.3 had 207 stories for 195 FRs and 63 enablers; version 0.1 had 170 stories for 159 FRs and 46 enablers.
 
 ### EP-ACC: Accounts and identity
 
@@ -863,7 +882,7 @@ Acceptance criteria:
 
 ### EP-ESC: Escrow tracking
 
-18 stories, 68 points.
+21 stories, 79 points.
 
 | Story | As a … I want … so that … | Priority | Release | Points | Depends on |
 |---|---|---|---|---|---|
@@ -882,6 +901,9 @@ Acceptance criteria:
 | US-ESC-015 | As a reviewer (P-04), I want any release blocked when the payee's bank account name does not match the verified payee, so that money never goes to an account in someone else's name (RUL-22). | Must | R1 | 2 | US-ESC-007, US-ADM-003 |
 | US-ESC-016 | As a diaspora buyer (P-01), I want the payee and account fixed when the escrow terms are agreed, and any change to need my approval, two staff with release rights, fresh identity and account-name checks of the new payee, a notice to me on a second channel and a cooling-off period, so that no one can redirect my money by sending new bank details (RUL-28). | Must | R1 | 5 | US-ESC-002, US-ESC-007, US-ESC-015, US-ACC-013, US-NTF-001b, US-ADM-005 |
 | US-ESC-017 | As a diaspora buyer (P-01), I want money held at the bank refunded only to the account it came from, with any exception needing a fresh identity check of me, my approval, two staff approvals and the cooling-off period, so that a refund can never be sent to a fraudster (RUL-29). | Must | R1 | 3 | US-ESC-004, US-ESC-013, US-ESC-016, US-ACC-004b |
+| US-ESC-018 | As a case manager (P-03), I want a release clock that starts when the last condition of a release closes, the instruction sent on the working day the last approval is recorded, and an alert when it is not sent that day or the bank has not confirmed payment within the target, so that the seller is paid on time and no money waits after approval (RUL-33, NFR-PERF-06). | Must | R1 | 3 | US-ESC-005, US-ESC-008b, US-ESC-009, US-ADM-005, US-NTF-003 |
+| US-ESC-019 | As a diaspora buyer (P-01), I want my escrow's money kept under its own virtual account number or reference at the bank, with its own balance built only from the bank's confirmations, and no release or refund larger than that balance, so that my money can never pay for someone else's purchase in the shared escrow account (RUL-34). | Must | R1 | 5 | US-ESC-001, US-ESC-003, US-ESC-004, US-ESC-007, EN-53 |
+| US-ESC-020 | As a diaspora buyer (P-01), I want part of the price held back after the main release, where the escrow terms set it, and paid only when its own later condition closes (for example my registration lodged at the Lands Commission), so that the seller still has a reason to finish the paperwork (RUL-33, Q-30). | Could | R1 | 3 | US-ESC-007, US-ESC-009, US-ESC-018, US-ESC-019, EN-80 |
 | US-ESC-010 | As a contractor, carer, agent or supplier (P-08, P-17, roles in 01 C2), I want partial releases against milestones, stages, visits or tasks for construction, off-plan, project fund, care, errand, property repair and event escrows, so that every line pays for work as it is proven, not at the end. | Must | R2 | 8 | US-ESC-007, US-ESC-014, US-BLD-005a |
 | US-ESC-011 | As a case manager (P-03), I want to import the bank's daily statement file and match lines to escrows, so that deposits are confirmed without typing. | Should | R2 | 5 | US-ESC-004, EN-35 |
 | US-ESC-012 | As a case manager (P-03), I want deposit and release status from the bank's API where available, so that the tracker updates on its own. | Could | R2 | 8 | US-ESC-011, EN-35 |
@@ -907,7 +929,7 @@ Acceptance criteria:
 - **US-ESC-006** (implements FR-ESC-006)
   1. Given one open condition, when a release instruction is requested, then it is blocked and the open condition named.
   2. Given the client has not approved the release, when a release instruction is requested, then it is blocked, the client is reminded over the configured period, and silence is never treated as approval (RUL-11).
-  3. Given a land, building, off-plan or listing purchase whose fresh search is missing or older than the configured window, when release is requested, then it is blocked.
+  3. Given a land, building, off-plan or listing purchase whose fresh search or site check is missing or older than the configured window (`[14 days, TO VERIFY]`), counted from the date on the registry's result and the date of the site check, when the last approval is recorded or the instruction is sent, then it is blocked.
   4. Given a reviewer's hold on the escrow, or from R2 an open dispute (US-DSP-002), when release is requested, then it is blocked.
   5. Given a payment to an institution, a care visit or an errand step, when release is requested, then no fresh search is required (RUL-07 covers purchases only).
 - **US-ESC-007** (implements FR-ESC-007)
@@ -944,6 +966,21 @@ Acceptance criteria:
   1. Given a deposit, when the bank's confirmation is recorded, then the source account as the bank confirms it is stored with it; a deposit record without it is refused.
   2. Given a cancellation or refund, when the instruction is prepared, then each deposit is refunded to its own source account, and the address cannot be edited.
   3. Given a refund to any other account, when it is requested before the exception path is complete, then it is refused; the exception needs an account in the client's own name (account-name check), a fresh identity check of the client, the client's approval, two staff approvals and the cooling-off period.
+- **US-ESC-018** (implements FR-ESC-018)
+  1. Given the last open condition of a release closes, when it is saved, then the release clock starts at that time and shows on the escrow list and release screen, counted in working days on the country's holiday calendar.
+  2. Given the last approval is recorded on a working day, when the instruction is generated, then it is sent that same day; an approval recorded on a non-working day is sent on the next working day. If it is not sent that day, the case manager and a reviewer are alerted and the release shows as overdue.
+  3. Given an approved release, when anyone tries to schedule the instruction for a later day or set a waiting period, then it is refused; no such setting exists. Only a freeze (a failed re-check from R1, a dispute from R2) stops it, and the clock records the reason (RUL-33).
+  4. Given a sent instruction, when the bank has not confirmed payment within the configured target (`[2 working days, TO VERIFY]`), then the case manager is alerted and the client sees a plain status line; the median time from last condition closed to bank-confirmed payment is reported each month by country against `[5 working days, TO VERIFY]` (NFR-PERF-06).
+- **US-ESC-019** (implements FR-ESC-019)
+  1. Given an escrow or held amount is opened, when the bank issues its virtual account number or unique reference (or, in a pilot, its own bank account), then it is stored on the record and shown on the payment instructions (US-ESC-003); no two open escrows or held amounts share one, and a Tenmina account is refused.
+  2. Given deposits, releases and refunds, when the balance is shown, then it is built only from bank-confirmed events under that number or reference; an entry without the bank's confirmation changes nothing (US-ESC-004), and a duplicate confirmation counts once.
+  3. Abuse: given a release or refund instruction larger than the escrow's or held amount's confirmed balance, including one the shared escrow account's total would cover with another client's money, when it is prepared or approved, then it is blocked with the shortfall named; no user can override it.
+  4. Abuse: given a deposit the bank credited to another escrow's virtual account or reference, when it is recorded, then it counts only where the bank credited it, cannot be released from either escrow, and the escrow it was meant for stays unfunded; only the bank's correcting entry changes either balance, and Tenmina never instructs a move between escrows (issue I-43).
+- **US-ESC-020** (implements FR-ESC-020)
+  1. Given escrow terms that set a held-back share and its condition, when the main release is approved, then the share's open condition does not block it (RUL-06), the instruction is for the price less the share, the share stays in the escrow's balance, and the escrow moves to Partly released when the bank confirms.
+  2. Given the held-back share's condition is closed with evidence, when its release is requested, then it needs the client's approval and two staff approvals like any release, and the release clock starts again (US-ESC-018).
+  3. Abuse: given terms with no held-back share, when anyone tries to hold back part of an approved release, then it is refused (RUL-33).
+  4. Given no lawyer's answer to Q-30 is recorded for the country, when terms with a held-back share are created, then they are refused.
 - **US-ESC-010** (implements FR-ESC-010)
   1. Given a construction escrow, when a milestone is release approved, then a partial instruction for that milestone amount is generated.
   2. Given a care, errand or repair escrow, when a visit, task or inspection is confirmed, then a partial instruction for that item is generated through the same two-person path.
@@ -1402,7 +1439,7 @@ Acceptance criteria:
 | US-ADM-002 | As an administrator (P-14), I want to manage prices, tiers, currencies and exchange-rate guides, so that prices change without a release. | Must | R1 | 3 | US-ADM-001 |
 | US-ADM-003 | As an administrator (P-14), I want to manage banks, professionals, contractors, inspectors, suppliers and API partners, so that partner details live in one place. | Must | R1 | 3 | US-ACC-006 |
 | US-ADM-004 | As an administrator (P-14), I want the scope statement changeable only by two administrators with the lawyer's and insurer's approval recorded, so that our liability wording stays controlled (C-06). | Must | R1 | 3 | US-ADM-001 |
-| US-ADM-005 | As an administrator (P-14), I want to set the fresh-search window, badge validity, buffer distances and dispute deadlines, so that rules change with legal advice, not code. | Must | R1 | 2 | US-ADM-001 |
+| US-ADM-005 | As an administrator (P-14), I want to set the fresh-search window, badge validity, buffer distances, dispute deadlines and release timing targets, so that rules change with legal advice, not code. | Must | R1 | 2 | US-ADM-001 |
 
 Acceptance criteria:
 
@@ -1860,7 +1897,7 @@ Acceptance criteria:
 | EN-23 | Design system: phone-first components, translation files for all user text, page-weight budget in CI | R1 | Must | 5 | EN-09 | A page over 500 KB initial transfer fails CI | NFR-LOC-01, NFR-PERF-02, NFR-A11Y-01 |
 | EN-24 | Usability test with 5 diaspora users and a reading-age review of status templates | R1 | Must | 2 | US-ORD-004 | Each tester orders on a phone in under 10 minutes without help, or the fixes are logged | NFR-USE-01, NFR-USE-02 |
 | EN-25 | Accessibility audit of portal and back office against WCAG 2.2 AA | R1 | Must | 3 | EN-23 | No open level A or AA failures on R1 screens | NFR-A11Y-01 |
-| EN-26 | Performance and load test: 3G profile, 10 times expected R1 load `[TO VERIFY]`, overlay timing | R1 | Must | 5 | EN-13 | NFR-PERF-01 to NFR-PERF-04 met in staging, or gaps logged as defects | NFR-PERF-01, NFR-PERF-02, NFR-PERF-03, NFR-PERF-04 |
+| EN-26 | Performance and load test: 3G profile, 10 times expected R1 load `[TO VERIFY]`, overlay timing, release instruction timing | R1 | Must | 5 | EN-13 | NFR-PERF-01 to NFR-PERF-04 met in staging, and release instructions sent on the working day of the last approval (NFR-PERF-06), or gaps logged as defects. The bank's payment time and the median are measured live from the release clock (US-ESC-018) | NFR-PERF-01, NFR-PERF-02, NFR-PERF-03, NFR-PERF-04, NFR-PERF-06 |
 | EN-27 | Threat model and OWASP ASVS level 2 checklist | R1 | Must | 3 | EN-09 | Checklist complete with each gap linked to a story or defect | NFR-SEC-05 |
 | EN-28 | Independent penetration test before clients get portal access (accounts, orders, payments, case tracker), and fixes | R1 | Must | 3 | EN-27 | Report shows no open high or critical findings | NFR-SEC-03 |
 | EN-29 | Penetration retest of the report release, escrow and overlay scope before R1 completion, and fixes | R1 | Must | 2 | EN-28 | No open high or critical findings on the full R1 scope | NFR-SEC-03 |
@@ -1887,7 +1924,7 @@ Acceptance criteria:
 | EN-50 | Country 2 partner bank or licensed escrow agent talks, and an insurer partner shortlist | R1 | Should | not pointed | EN-47 | At least one bank or agent in written talks by month 9; insurer shortlist for Q-17 | AS-02, AS-11 |
 | EN-51 | R0 institution payment register: institution, invoice reference, bank payment proof, receipt returned, for fees paid by hand for existing clients | R0 | Should | not pointed | EN-01 | Every institution payment made in R0 is in the register with its receipt | BR-17, AS-10 |
 | EN-52 | Spike: institution invoice references and receipt formats with three institutions (a school, a hospital, an agency) | R1 | Must | 2 | - | Reference and receipt formats known for three institutions (Q-16), or the runner path (FR-FEE-006) confirmed as the R1 default | IF-10, AS-10, Q-16 |
-| EN-53 | Spike: held-balance structure with the bank for several small releases and a running statement | R1 | Must | 2 | EN-17 | Bank confirms in writing how a client's held balance and partial releases are reported | FR-ESC-014, IF-01 |
+| EN-53 | Spike: account structure with the bank (Q-29, version 0.9): one escrow account per currency and country held by the bank as escrow agent; a virtual account number or unique reference and a daily balance for each escrow and held amount, or one bank account per escrow in a pilot; holding dollars or pounds until release; who receives any interest; how deposit insurance applies to each client's money; held balances with several small releases and a running statement | R1 | Must | 2 | EN-17 | Bank confirms in writing how each escrow's and held amount's balance and releases are reported, and answers Q-29 before M-07 | FR-ESC-014, FR-ESC-019, RUL-34, Q-29, IF-01 |
 | EN-54 | Carer and errand agent vetting standard and care plan content (Q-19), with the lawyer's view on background checks | R2 | Must | not pointed | - | Standard approved by the founder and lawyer before the first carer is vetted | FR-CARE-002, Q-19, AS-12 |
 | EN-55 | Insurer partner selection and intermediary licence position per country (Q-17, C-11) | R2 | Must | not pointed | - | Insurer agreement signed and the lawyer's written view on the licence. The INS line stays off until both exist | C-11, AS-11, Q-17 |
 | EN-56 | Legal view on licences for property management and errand work (Q-18), including whether Act 1047 covers property management | R2 | Must | not pointed | - | Lawyer's written view before PMG and TSK go live | Q-18, C-04 |
@@ -1914,7 +1951,7 @@ Acceptance criteria:
 | EN-77 | Client app usability test with 5 diaspora users, at least 2 on iPhones and 2 on Android phones | R2 | Should | 2 | US-APP-001e, EN-24 | 4 of 5 testers find a report and approve an invoice in the app without help | NFR-USE-01, F-36 |
 | EN-78 | Spike: bulk payment file of Tenmina's operating bank and, if runners need it, one mobile money provider: format, channel, cut-off times, dual authorisation and confirmation file (Q-26) | R1 | Must | 2 | - | A sample file accepted on the bank's test or pilot channel, or a manual-entry fallback agreed in writing | Q-26, FR-PRO-005, FR-PRO-009 |
 | EN-79 | Tax set-up per country with an accountant: withholding rates by role and tax status, registration, filing and remittance deadlines, treatment of reimbursed expenses; loaded as country configuration (Q-25). Repeated in each country's manual phase | R1 | Must | not pointed | - | The accountant's written rules for Ghana before US-PRO-007 goes live; each new country's before its first payment run | Q-25, FR-PRO-007, BR-23 |
-| EN-80 | Legal basis for escrow in each country (Q-28): whether the partner bank acts as escrow agent under a three-party agreement with the client and Tenmina, and whether Tenmina's role as condition monitor needs a payments licence. Repeated in each country's manual phase | R1 | Must | not pointed | - | The lawyer's written view, and the bank's agreement to the structure, before the first escrow on the platform (M-07, M-10) | Q-28, C-01, AS-02 |
+| EN-80 | Legal basis for escrow in each country (Q-28): whether the partner bank acts as escrow agent under a three-party agreement with the client and Tenmina, and whether Tenmina's role as condition monitor needs a payments licence. From version 0.9 also Q-30: whether part of a land price may be held back after release until the buyer's registration is lodged, what share and for how long. Repeated in each country's manual phase | R1 | Must | not pointed | - | The lawyer's written view, and the bank's agreement to the structure, before the first escrow on the platform (M-07, M-10). Q-30 answered before US-ESC-020 is switched on | Q-28, Q-30, C-01, AS-02 |
 | EN-81 | Access to the national identity system for checks of sellers, grantors, consenting parties and payees: in Ghana, the National Identification Authority's verification platform, directly or through a licensed provider. Agreement, access terms, consent wording and cost per check `[TO VERIFY]`. Each new country names its channel in its manual phase | R1 | Must | not pointed | EN-19 | Written access terms and test credentials before US-ACC-013 is built (S9) | RUL-31, IF-03, FR-ACC-013 |
 
 ## 8. Prioritisation
@@ -1967,7 +2004,7 @@ Scores use the relative scale 1, 2, 3, 5, 8, 13, 20. They are the delivery lead'
 
 How the scores shape the plan:
 
-- EP-PLAT, EP-ACC, EP-CASE and now EP-ESC score low on WSJF only because they are large. Almost everything depends on them, so dependency order puts them early. EP-ESC grew to XL with the held balance and payee check, which the family lines reuse, and in version 0.8 with the payee lock and refunds to source.
+- EP-PLAT, EP-ACC, EP-CASE and now EP-ESC score low on WSJF only because they are large. Almost everything depends on them, so dependency order puts them early. EP-ESC grew to XL with the held balance and payee check, which the family lines reuse, in version 0.8 with the payee lock and refunds to source, and in version 0.9 with the release clock, each escrow's own balance and the held-back share.
 - EP-FEE ranks eighth in R1 but is built after escrow because it reuses the escrow release path. It is the first line that shows the redefinition to clients.
 - EP-PRO scores in the middle, with high risk reduction (money and tax). It is built last in R1, in S14, because it needs signed and reviewed sections (EP-RPT) and the payee registry (US-ESC-015). Professionals are paid by hand, two-person, until then.
 - EP-CTY scores in the middle. It is built in S4 anyway, because every later table carries a country and retrofitting would cost more than the epic.
@@ -2114,7 +2151,7 @@ R = responsible (does the work). A = accountable (one per row, signs off). C = c
 | Release go/no-go (section 12.4) | A | R | C | I | C | C | C | I | C | C |
 | Deployment and operations (document 06) | I | A | R | – | C | I | I | – | – | – |
 | Report template and scope statement wording (C-06) | A | I | I | – | – | C | C | R | C (approval required) | – |
-| Release instruction format, channel, held balance and statement file | A | R | C | – | I | C | C | C | – | C |
+| Release instruction format, channel, held balance, virtual accounts, payment time and statement file | A | R | C | – | I | C | C | C | – | C |
 | Data protection: registration, catalogue, hosting and data locations | A | R | C | – | – | I | C | R | C | – |
 | R0 manual service and its data | A | I | – | – | – | R | – | R | I | – |
 | Country 2 manual service: field team, partners, day-90 review (EN-44, EN-47 to EN-50) | A | I | – | – | – | C | R | C | C | C |
@@ -2137,14 +2174,14 @@ Likelihood and impact are H (high), M (medium) or L (low). They are assumptions,
 | ID | Risk | Likelihood | Impact | Mitigation | Owner |
 |---|---|---|---|---|---|
 | DR-01 | No bank or licensed escrow agent signs by month 6 (AS-02) | M | H | Talk to two banks and one agent in parallel (`docs/partners.md`). Build EP-ESC behind a switch. Manual tracking continues. Escrows at the bank do not need the platform to happen. Fees to institutions (EP-FEE) also depend on this: without a bank, R0's by-hand path continues | Founder |
-| DR-02 | The bank offers neither a status API nor a daily statement file (AS-03) | M | M | Manual entry with the bank's confirmation is the R1 design (US-ESC-004). EN-35 spike early in R2. US-ESC-011 and US-ESC-012 are Should and Could. Rent tracking (US-PMG-003) falls back to the same manual path | Engineering lead |
+| DR-02 | The bank offers neither a status API nor a daily statement file (AS-03) | M | M | Manual entry with the bank's confirmation is the R1 design (US-ESC-004). Each escrow's balance (US-ESC-019) is kept from the same confirmations. EN-35 spike early in R2. US-ESC-011 and US-ESC-012 are Should and Could. Rent tracking (US-PMG-003) falls back to the same manual path | Engineering lead |
 | DR-03 | No single payment provider handles international cards and Ghana mobile money (AS-04) | M | M | EN-18 in S1. Two providers if needed. R0 payment link stays as a fallback, with manual reconciliation | Engineering lead |
 | DR-04 | Identity provider cannot check the Ghana Card or foreign passports (AS-05) | M | L | Manual check (US-ACC-004b) is built first. Provider integration (US-ACC-004a) comes late in R1. The manual fallback is for clients only: sellers, grantors, consenting parties and payees are checked only against the national identity system (RUL-31), see DR-44 | Engineering lead |
 | DR-05 | Overlay map layers are not available in digital form (AS-06) | H | M | EN-20 digitisation pipeline. EP-GEO is scheduled late in R1 so data has time to arrive. Gaps are stated in report section 7 | Engineering lead, with operations |
 | DR-06 | Lands Commission search times stay long and manual (AS-07) | H | L | No platform change. The workflow already assumes manual searches. Status messages set honest dates | Operations |
 | DR-07 | Many contractors use iPhones (AS-08). **Closed in version 0.4:** 01 v0.6 puts both apps on iOS and Android, retires AS-08 and answers Q-09. Replaced by DR-35 to DR-40 | – | – | – | – |
 | DR-08 | Insurer will not extend cover to building inspections and project funds (AS-09) | M | H | EN-40 at the start of R2. Off-plan and project funds are planned in R2-C, after the answer. If no, those lines stay closed. Check whether R1 building verification is also affected (issue I-11) | Founder |
-| DR-09 | Team too small for R1 Must scope (C-07), now 456 points (version 0.8) against 450 with the contract developer to S14 | H | H | Capacity check in section 5.1. Option A+ adds a contract developer for S3 to S14; about 9 points spill into S15 under Option R2-A. Re-plan after S2. Cut line and the Option C list agreed in advance | Engineering lead |
+| DR-09 | Team too small for R1 Must scope (C-07), now 464 points (version 0.9) against 450 with the contract developer to S14 | H | H | Capacity check in section 5.1. Option A+ adds a contract developer for S3 to S14; about 17 points spill into S15 under Option R2-A. Re-plan after S2. Cut line and the Option C list agreed in advance | Engineering lead |
 | DR-10 | Hiring the engineering lead or developers takes longer than planned | M | H | Start the search in month 2 with offers conditional on G0. Keep a contract firm as fallback `[TO VERIFY]` | Founder |
 | DR-11 | Key-person dependency on the engineering lead (infrastructure, security, architecture) | M | H | Everything in code (EN-11), decision log (EN-09), runbooks (document 06), pairing, break-glass access held by the founder | Engineering lead |
 | DR-12 | Scope creep from R0 lessons, partner requests, sales promises and the wider positioning ("anything done at home") | H | M | Change control (section 12.3). New asks become proposed FRs in 01 first. The product owner trades scope rather than adding it. Lines without requirements (relocation, vehicles, investing) get discovery only (EN-63) | Founder |
@@ -2180,6 +2217,9 @@ Likelihood and impact are H (high), M (medium) or L (low). They are assumptions,
 | DR-43 | The legal basis for escrow is unclear: no Bank of Ghana directive licensing escrow agents was found (12 November 2026, Q-28), so the bank may decline to act as escrow agent, or Tenmina's role as condition monitor may need a payments licence | M | H | EN-80 with the lawyer and the bank before M-07. Build EP-ESC behind a switch (as DR-01). If a licence is needed, escrow stays off and money is paid direct to verified institutions only, or the bank holds funds under its own product `[TO VERIFY]`. Repeat in each country's manual phase | Founder, with the lawyer |
 | DR-44 | Access to the national identity system is slow, costly or refused (in Ghana, the NIA verification platform or a licensed provider), or the service is often down | M | H | EN-81 early, in parallel with EN-19. R0 uses NIA's verification app by hand. With no access, US-ACC-013 blocks report release and payee verification; there is no photocopy fallback (RUL-31). Cost per check in the budget `[TO VERIFY]` | Founder, engineering lead |
 | DR-45 | Too few licensed professionals with no link to a case are available for the monthly re-checks (RUL-32), above all in a new country with a small panel | M | M | Contract re-check professionals separately from the case panel `[TO VERIFY]`. US-RPT-012 refuses linked professionals. Until it ships, operations draws the sample by hand | Operations |
+| DR-46 | The bank cannot give each escrow and held amount its own virtual account number and daily balance, or reports only the total of the shared escrow account (Q-29) | M | H | EN-53 with the bank before M-07. RUL-34 allows one bank account per escrow in a pilot. US-ESC-019 keeps each escrow's balance from the bank's confirmations either way and blocks any release or refund above it. No escrow goes live on a pooled total | Founder, engineering lead |
+| DR-47 | The seller is not paid within the release timing target (NFR-PERF-06): staff approve late, the bank takes longer than `[2 working days, TO VERIFY]`, or cut-off times and holidays push payment out | M | M | US-ESC-018 alerts when an instruction is not sent on the day of the last approval and when the bank is late. Payment time written into the bank agreement (M-07) and tested in partner acceptance (document 05). The median is reviewed in the metrics review. Until US-ESC-018 ships in S11, the case manager checks the clock by hand | Operations, founder |
+| DR-48 | The lawyer advises that no part of a land price may be held back after release, or only on terms sellers will not accept (Q-30) | M | L | US-ESC-020 is a Could and stays off until Q-30 is answered (EN-80). Without it, every check still happens before release (RUL-33) | Founder, with the lawyer |
 | DR-40 | React Native misses the start time or size target on 2 GB Android phones (NFR-PERF-05) | M | M | EN-74 spike before feature work. Hermes, lazy screens, no heavy SDKs, size and start checks in CI. A slow screen can move to a native view | Mobile developer |
 
 ## 11. Budget view
@@ -2208,6 +2248,7 @@ What this means, under these assumptions:
 - The second country costs money from month 5, not month 18 as in version 0.1. It comes out of the operations share, which also carries the new recurring-line operations load (DR-34). The founder should cost the country 2 manual phase before M-24.
 - If the team costs more, the choices are: a smaller share for another line, part-time roles, a later mobile or QA start, or a smaller R2 (cut line in section 5.2).
 - Publishing both apps on both stores adds about $28,800 under Option R2-A, approved on 11 November 2026, plus small store and build fees (section 5.2).
+- A virtual account for each escrow and held amount may carry a bank fee, and interest on held money may belong to the client, the bank or no one (Q-29). Both are `[TO VERIFY]` with the bank (EN-53).
 - RUL-31 identity checks and RUL-32 re-checks add a cost to each case: a fee per national identity check and a professional's fee per re-check. Both are `[TO VERIFY]`; re-checks are operations spend.
 - R3 (months 18 to 36) falls outside the pre-seed. Its team and budget depend on a later round `[TO VERIFY]`.
 - The business plan doc and `docs/proposal.md` show the use of funds as `[TO VERIFY]`. If the founder accepts this split, both should be updated to match.
@@ -2254,17 +2295,17 @@ A release go-live is R1, R2 or R3, and also any increment that opens the platfor
 
 Go needs all of these:
 
-1. **Acceptance (document 05).** All Must stories in scope pass their acceptance tests. Every business rule in scope passes its test, including RUL-22 to RUL-25 for the new lines and RUL-28 to RUL-32 for money and evidence protection. No open critical or high defects. The product owner signs off, as 01 section C9 requires.
-2. **Non-functional evidence.** Penetration test with no open high or critical findings (NFR-SEC-03). Accessibility audit (NFR-A11Y-01). Performance results (NFR-PERF-01 to 05). Restore drill within RPO and RTO (NFR-AVL-02).
+1. **Acceptance (document 05).** All Must stories in scope pass their acceptance tests. Every business rule in scope passes its test, including RUL-22 to RUL-25 for the new lines, RUL-28 to RUL-32 for money and evidence protection, and RUL-33 and RUL-34 for release timing and escrow accounts. No open critical or high defects. The product owner signs off, as 01 section C9 requires.
+2. **Non-functional evidence.** Penetration test with no open high or critical findings (NFR-SEC-03). Accessibility audit (NFR-A11Y-01). Performance results (NFR-PERF-01 to 06; for NFR-PERF-06, the bank's payment time and the median come from the first live months). Restore drill within RPO and RTO (NFR-AVL-02).
 3. **Operations (document 06).** Deployment runbook rehearsed on staging. Rollback tested. Monitoring and alerts live (NFR-OBS-01). Support and on-call rota agreed. Data location register updated (NFR-PRIV-01), including the new country's location.
 4. **App stores (each app go-live from R2).** The build is approved by both Apple App Store review and Google Play review; privacy labels and the Data safety form match the data catalogue; in-app account deletion and the minimum-version check pass their tests; the financial declaration is filed (C-14, NFR-STORE-01, NFR-STORE-02). The R2 go-live needs both stores' approval of both apps.
-5. **Partners and legal.** Where in scope: the legal basis for escrow is confirmed in writing (Q-28, EN-80); access to the national identity system is in place (EN-81); bank agrees the release instruction format, channel and held-balance reporting; insurer approves the report process; Act 1047 position cleared for listings; licence views for property management, errands and insurer lines on file (EN-55, EN-56); the country's own 90-day gate passed (C-13); configurable values marked `[TO VERIFY]` in 01 are set (US-ADM-005); prices for the line set (EN-57).
+5. **Partners and legal.** Where in scope: the legal basis for escrow is confirmed in writing (Q-28, EN-80); access to the national identity system is in place (EN-81); bank agrees the release instruction format, channel and held-balance reporting, a virtual account and daily balance for each escrow and held amount or one account per escrow (Q-29), and the payment time in NFR-PERF-06; insurer approves the report process; Act 1047 position cleared for listings; licence views for property management, errands and insurer lines on file (EN-55, EN-56); the country's own 90-day gate passed (C-13); configurable values marked `[TO VERIFY]` in 01 are set (US-ADM-005); prices for the line set (EN-57).
 
 A no-go names what is missing, who fixes it and the new decision date.
 
 ## 13. Traceability summary
 
-How business requirements in 01 flow to features, epics and stories. F-37 (professional payments) serves BR-23 through EP-PRO, and FR-PRO-010 serves BR-16. Version 0.8 adds six stories to existing epics: US-ACC-013 (BR-05), US-CASE-016 (BR-06) and US-RPT-012 (BR-02) appear below; US-ESC-016, US-ESC-017 and US-PAY-008 trace to rules (RUL-28, RUL-29) in the second table. F-36 (client mobile app) serves BR-01 through EP-APP; its own FR sources are F-36, BR-01, FR-ACC-003, C-14 and AS-14, listed in the second table. Each story implements the FR with the same number, and the FR's source in 01 decides the row. Document 05 extends this table to test cases.
+How business requirements in 01 flow to features, epics and stories. F-37 (professional payments) serves BR-23 through EP-PRO, and FR-PRO-010 serves BR-16. Version 0.8 adds six stories to existing epics: US-ACC-013 (BR-05), US-CASE-016 (BR-06) and US-RPT-012 (BR-02) appear below; US-ESC-016, US-ESC-017 and US-PAY-008 trace to rules (RUL-28, RUL-29) in the second table. Version 0.9 adds US-ESC-018, US-ESC-019 and US-ESC-020, which trace to RUL-33, RUL-34, NFR-PERF-06 and Q-30 in the second table. F-36 (client mobile app) serves BR-01 through EP-APP; its own FR sources are F-36, BR-01, FR-ACC-003, C-14 and AS-14, listed in the second table. Each story implements the FR with the same number, and the FR's source in 01 decides the row. Document 05 extends this table to test cases.
 
 | BR | Features | Epics | User stories |
 |---|---|---|---|
@@ -2303,7 +2344,7 @@ Stories whose source in 01 is a business rule, constraint or assumption rather t
 | FR-ACC-003 (requirement as source) | US-APP-003 |
 | C-02 | US-DPR-001, US-DPR-002, US-DPR-003, US-DPR-004a, US-DPR-004b, US-DPR-005 |
 | C-08 | US-EVD-004, US-MOB-005a, US-MOB-005b, US-MOB-008 |
-| RUL-01 | US-ESC-003, US-PAY-005, US-APP-005 |
+| RUL-01 | US-ESC-003, US-ESC-019, US-PAY-005, US-APP-005 |
 | RUL-02 | US-RPT-003 |
 | RUL-03 | US-RPT-006 |
 | RUL-04 | US-ADM-004, US-ORD-003, US-RPT-004 |
@@ -2334,11 +2375,15 @@ Stories whose source in 01 is a business rule, constraint or assumption rather t
 | RUL-30 | US-CASE-016 |
 | RUL-31 | US-ACC-013 |
 | RUL-32 | US-RPT-012 |
+| RUL-33 | US-ESC-018, US-ESC-020 |
+| RUL-34 | US-ESC-019 |
+| NFR-PERF-06 (requirement as source) | US-ESC-018 |
 | Q-25 (question as source) | US-PRO-007 |
+| Q-30 (question as source) | US-ESC-020 |
 
 ## 14. Issues found in document 01
 
-These were found while building the backlog against 01 version 0.3 and refreshed against version 0.6 for the app store decision, version 0.8 for professional payments and version 0.12 for fund and evidence protection. Document 01 was not changed. Each open item needs a decision by the product owner and, where it applies, a new version of 01.
+These were found while building the backlog against 01 version 0.3 and refreshed against version 0.6 for the app store decision, version 0.8 for professional payments, version 0.12 for fund and evidence protection and version 0.13 for release timing and escrow accounts. Document 01 was not changed. Each open item needs a decision by the product owner and, where it applies, a new version of 01.
 
 ### 14.1 Closed by 01 version 0.3
 
@@ -2393,5 +2438,7 @@ Items resolved by 01 version 0.4 stay in this table, marked resolved, so their n
 | I-40 | RUL-31, FR-ACC-013, FR-PRO-006 | "Individual payee" is not defined. It is unclear whether it covers contracted professionals paid from Tenmina's operating account as well as carers, agents and sellers paid from client money | US-ACC-013 covers individual payees of client money only (assumption) | Define "individual payee" in RUL-31 **Closed** by 01 v0.12 review fixes: RUL-31 now defines individual payee, including carers, errand agents and contracted professionals. |
 | I-41 | FR-PAY-008 | No route is given when the provider cannot refund a fee to the original method (a closed card or wallet) | US-PAY-008 lists the failed refund for a case manager and offers no other route | State the fallback in FR-PAY-008, with the same checks as the RUL-29 exception **Closed** by 01 v0.12 review fixes: FR-PAY-008 now falls back to the RUL-29 exception path. |
 | I-42 | C-01, BR-05, Q-28 | C-01 still says a licensed bank or escrow agent holds client money "under Bank of Ghana guidance", while Q-28 records that no Bank of Ghana directive licensing escrow agents was found (12 November 2026) | None on the backlog. EN-80 and DR-43 carry the open question | Reword C-01 to name the working structure (the bank as escrow agent under a three-party agreement) and point to Q-28 until the lawyer answers **Closed** by 01 v0.12 review fixes: C-01 now points to Q-28. |
+| I-43 | FR-ESC-019, RUL-34, FR-ESC-004 | 01 does not say what happens to a deposit the bank credits to another escrow's virtual account or reference, or to money above an escrow's agreed price | US-ESC-019 criterion 4 assumes it counts only where the bank credited it, cannot be released from either escrow, and changes only with the bank's correcting entry; Tenmina never moves money between escrows | State the rule in FR-ESC-019 or FR-ESC-004 |
+| I-44 | NFR-PERF-06, RUL-33, RUL-11 | NFR-PERF-06 counts from the last approval, which is the second staff approval. No target covers the staff approvals after the client approves, so the client cannot be told when the seller will be paid from their own approval (document 03 shows "Paid within 2 working days of your approval" as a working assumption) | None on the backlog. US-ESC-018 reports the time from the client's approval to the last staff approval; document 03 puts such a release first in My work | Add a target for the staff approvals after the client's (for example the same working day, `[TO VERIFY]`) to NFR-PERF-06 |
 
-**Note on other documents.** `docs/proposal.md` (section 3) says escrow release keeps "one human approval". 01 (RUL-05) requires two Tenmina staff. This plan follows 01. The proposal and the business plan doc should be aligned. This document is aligned to 01 version 0.12. Documents 02, 03, 05 and 06 trace to the same IDs in their own versions.
+**Note on other documents.** `docs/proposal.md` (section 3) says escrow release keeps "one human approval". 01 (RUL-05) requires two Tenmina staff. This plan follows 01. The proposal and the business plan doc should be aligned. This document is aligned to 01 version 0.13. Documents 02, 03, 05 and 06 trace to the same IDs in their own versions.
