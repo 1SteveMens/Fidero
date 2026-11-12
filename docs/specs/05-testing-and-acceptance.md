@@ -449,7 +449,7 @@ From 01 v0.12. The threat is a fraudster who redirects money with new bank detai
 |---|---|---|---|---|---|---|---|
 | TC-RUL-28-01 | RUL-28 | Funded purchase escrow; seller's account fixed at Agreed; seller asks for a new account through the payee verification flow | Client approves; staff A and B with release rights approve with MFA; new payee's identity and account-name checks pass; clock moved past the cooling-off period | Change applied; client told on a second channel; release to the new account allowed only after the period, with every other release check still applied | A | Y | R1 |
 | TC-RUL-28-02 | RUL-28 | Abuse, bank details changed by WhatsApp: a message, email or call note from "the seller" gives a new account | Case manager types the new account into the escrow or payee record, or builds an instruction with it, through UI and API | Refused in every path: the payee and account on an agreed escrow cannot be edited; the only route is a change request; the attempt is audited and a reviewer alerted | A/S | Y | R1 |
-| TC-RUL-28-03 | RUL-28 | Abuse, release during the cooling-off period: change approved | Request a release to the new account one minute before the period ends, exactly at its end and one minute after | Blocked before the end with the end time shown; allowed from the end (inclusive, section 16 item 1 pattern); the escrow's state does not change during the period | U/A | Y | R1 |
+| TC-RUL-28-03 | RUL-28 | Abuse, release during the cooling-off period: change approved | Request a release to the new account one minute before the period ends, exactly at its end and one minute after | Blocked before the end with the end time shown; allowed at and after the end; the escrow's state does not change during the period | U/A | Y | R1 |
 | TC-RUL-28-04 | RUL-28 | Abuse, a payee change approved twice by the same person: staff A approves; staff C has no release rights; staff D is also the client | A approves again from a second session; C approves; D approves as client and as staff | Each refused; the change needs the client and two different persons with release rights (TC-RUL-05-04 pattern); it stays pending | A/S | Y | R1 |
 | TC-RUL-28-05 | RUL-28 | Change request where the new account is in another person's name, or the new payee's national identity check is missing or failed | Approve | Blocked with the failed check named; no user can override it | A | Y | R1 |
 | TC-RUL-28-06 | RUL-28 | Property test | Random sequences of change requests, approvals by random users, identity and name results, and clock moves | An instruction to a changed account is generated only when the client approved, two distinct persons with release rights approved, both checks passed and the cooling-off period has ended | U | Y | R1 |
@@ -517,6 +517,12 @@ Each test case also verifies the acceptance criteria of the user story with the 
 | TC-ACC-012-01 | FR-ACC-012 | Family members, properties and institutions on one dashboard | Client with one case, one institution payment and one family member | Add a property; open home dashboard | All items listed with plain status and next date; nothing from other clients | P2 | Y | R1 |
 | TC-ACC-012-02 | FR-ACC-012 | Family member data limited | Client adds a family member | Enter relationship, address, phone; try to add health details not asked for | Only catalogued fields accepted (NFR-PRIV-02); family member notified that they were added `[TO VERIFY]` consent route | P2 | Y | R1 |
 | TC-ACC-012-03 | FR-ACC-012 | Dashboard on 3G phone | Client with 10 running items | Load on 3G profile | Under NFR-PERF-01 target; items paged | P2 | Y | R1 |
+| TC-ACC-013-01 | FR-ACC-013 | Parties checked against the national identity system | Land case with a seller, two grantors and a consenting party; national identity sandbox | Run each check through IF-03 | Each passed; result, reference and time stored; a scan of the database and storage finds no fingerprint, face image or other biometric data | P1 | Y | R1 |
+| TC-ACC-013-02 | FR-ACC-013 | Report release and payee verification blocked without a passed check | One grantor pending; seller's check failed | Release the report; verify the seller as an escrow payee | Both blocked with the missing or failed check named | P1 | Y | R1 |
+| TC-ACC-013-03 | FR-ACC-013 | Abuse: identity "check" from a photocopy | Scan of the seller's synthetic card uploaded | Mark the check passed from the upload, through UI and API (set the status field) | Refused (TC-RUL-31-02); the upload is a document, not proof | P1 | Y | R1 |
+| TC-ACC-013-04 | FR-ACC-013 | Identity service down | Sandbox times out, then returns an error | Request the check; retry after the service returns | Pending while down; case manager alerted; release blocked with no override; passes on retry (TC-RUL-31-03) | P1 | Y | R1 |
+| TC-ACC-013-05 | FR-ACC-013 | No match or name differs | Sandbox returns no record; another returns a different name | Run the checks | Both failed; reviewer alerted; blocks stay until a new check passes | P1 | Y | R1 |
+| TC-ACC-013-06 | FR-ACC-013 | Country channel from configuration | Testland seller | Run the check | Testland's configured channel is used; no Ghana channel or value in code | P1 | Y | R1 |
 
 ### 4.2 Orders and leads (ORD)
 
@@ -554,6 +560,9 @@ Each test case also verifies the acceptance criteria of the user story with the 
 | TC-PAY-006-01 | FR-PAY-006 | Daily settlement reconciliation | Settlement fixture with 1 mismatch | Run job | One mismatch listed for case manager | P2 | Y | R1 |
 | TC-PAY-006-02 | FR-PAY-006 | Malformed or duplicate settlement | Bad file; same file twice | Run job | Bad file rejected with alert; second import ignored | P2 | Y | R1 |
 | TC-PAY-007-01 | FR-PAY-007 | Seller invoiced for listing and success fees | Listing paid; escrow released | Run invoicing | Listing and success invoices issued to seller | P2 | Y | R2 |
+| TC-PAY-008-01 | FR-PAY-008 | Fee refund to the original payment method | One order paid by card, one by mobile money | Approve a refund on each | Each refunded through the provider against the original payment; provider reference stored; credit note issued | P1 | Y | R1 |
+| TC-PAY-008-02 | FR-PAY-008 | Abuse: refund to a new card, wallet or account | Paid order | Send a refund with a card token, wallet number or bank account, through UI and API | Rejected as an unknown field; no payout; attempt audited (TC-RUL-29-04) | P1 | Y | R1 |
+| TC-PAY-008-03 | FR-PAY-008 | Provider cannot refund the original method | Sandbox refund fails (card closed) | Approve the refund | Refund stays open and listed for a case manager; no other payout route offered (section 16, item 46) | P1 | Y | R1 |
 
 ### 4.4 Verification case workflow (CASE)
 
@@ -587,6 +596,11 @@ Each test case also verifies the acceptance criteria of the user story with the 
 | TC-CASE-014-01 | FR-CASE-014 | Fresh-search case on verified asset | Released report on asset | Create fresh-search case | Search and site check tasks only; linked to asset and escrow | P1 | Y | R1 |
 | TC-CASE-014-02 | FR-CASE-014 | Fresh search on unverified asset | No released report | Create fresh-search case | Blocked | P1 | Y | R1 |
 | TC-CASE-015-01 | FR-CASE-015 | Client messages within case | Client and case manager | Exchange messages | Thread kept with case; notifications sent | P2 | Y | R1 |
+| TC-CASE-016-01 | FR-CASE-016 | Search lodged and received through the official channel | Search task; Tenmina's registry account in the country's configuration | Staff member records channel, Tenmina account and registry reference; later records the result received from the channel | Task closes; channel, account, staff member, reference, result and time stored | P1 | Y | R1 |
+| TC-CASE-016-02 | FR-CASE-016 | Abuse: search result PDF uploaded by a runner | Runner assigned to the search task; seller and client on the case | Runner uploads a result PDF and marks the task done; seller sends one through a message; client uploads one through a document request | Refused as evidence in every path; files kept marked "not evidence"; task open until the official result is recorded (TC-RUL-30-02) | P1 | Y | R1 |
+| TC-CASE-016-03 | FR-CASE-016 | Lodging details missing or a personal account | Search task | Record lodging with no registry reference; with a runner's personal portal account | Both rejected (TC-RUL-30-03) | P1 | Y | R1 |
+| TC-CASE-016-04 | FR-CASE-016 | Registry with no remote channel | Testland registry configured with no remote channel | Record the result without, then with, the confirming staff member and date | First rejected; second accepted (TC-RUL-30-04) | P1 | Y | R1 |
+| TC-CASE-016-05 | FR-CASE-016 | Fresh search follows the same rule | Fresh-search case (FR-CASE-014) | Runner uploads the result | Refused as in TC-CASE-016-02; the release check sees no fresh search until the official result is recorded | P1 | Y | R1 |
 
 ### 4.5 Report builder (RPT)
 
@@ -614,6 +628,11 @@ Each test case also verifies the acceptance criteria of the user story with the 
 | TC-RPT-010-02 | FR-RPT-010 | Released report cannot be edited | Released v1 | Edit any field via UI, API, admin | Rejected; database constraint also blocks update | P1 | Y | R1 |
 | TC-RPT-011-01 | FR-RPT-011 | Anonymised version with consent | Consent on file | Generate | Names, plot numbers, coordinates and faces removed | P3 | P | R1 |
 | TC-RPT-011-02 | FR-RPT-011 | No consent | Consent missing | Generate | Blocked | P3 | Y | R1 |
+| TC-RPT-012-01 | FR-RPT-012 | Monthly random sample | A month of released reports and closed conditions in the seed; share from configuration | Run the monthly job | The configured share drawn at random; method and selection recorded; re-checks created without notice to the original professionals (TC-RUL-32-01) | P2 | Y | R1 |
+| TC-RPT-012-02 | FR-RPT-012 | Abuse: re-check assigned to someone linked to the case | Signing lawyer; surveyor linked to the seller; professional with an expired licence | Assign each | Refused with the reason (TC-RUL-32-02) | P2 | Y | R1 |
+| TC-RPT-012-03 | FR-RPT-012 | Abuse: failed re-check does not freeze an open escrow | Re-checked report backs a funded escrow; a second affected escrow is Partly released | Record a failed re-check | Incident opened; releases frozen on both escrows until a reviewer clears them; correction issued through FR-RPT-010; client notified (TC-RUL-32-03) | P2 | Y | R1 |
+| TC-RPT-012-04 | FR-RPT-012 | Steered sample | Monthly selection made | Remove a case; re-run the draw for the same month | Refused; audited (TC-RUL-32-04) | P2 | Y | R1 |
+| TC-RPT-012-05 | FR-RPT-012 | Passed re-check recorded | Re-check assigned | Professional records a pass | Stored with the case and in the month's summary; no client message | P2 | Y | R1 |
 
 ### 4.6 Geospatial checks and monitoring (GEO)
 
@@ -677,6 +696,18 @@ Each test case also verifies the acceptance criteria of the user story with the 
 | TC-ESC-015-04 | FR-ESC-015 | Matching method boundary | Names differing by abbreviation, punctuation, order of words | Approve | Anything not an exact normalised match is blocked; no user, including a reviewer or administrator, can override it; only new evidence clears it (see section 16, item 20) | P1 | Y | R1 |
 | TC-ESC-015-05 | FR-ESC-015 | Source of the account name | Payee account name from (a) the bank's name check, (b) a bank letter entered by one staff member and checked by a second, (c) a bank letter entered and checked by the same person, (d) a statement line or the payee's own word | Verify the payee | (a) and (b) accepted; (c) and (d) rejected with the reason | P1 | Y | R1 |
 | TC-ESC-015-06 | FR-ESC-015 | No override of a mismatch | Payee mismatch; reviewer and administrator signed in | Look for and try any override through UI and API | None exists; the API rejects any override field; attempt audited | P1 | Y | R1 |
+| TC-ESC-016-01 | FR-ESC-016 | Payee change through the verification flow | Funded escrow; seller asks to change account | Raise a change request; client approves; staff A and B with release rights approve with MFA; new payee's identity and account-name checks pass | Change approved; client notified on a second channel; cooling-off period starts; escrow state unchanged (TC-RUL-28-01) | P1 | Y | R1 |
+| TC-ESC-016-02 | FR-ESC-016 | Abuse: bank details changed by WhatsApp | New account details arrive by WhatsApp, email and a call note | Case manager edits the payee account in the escrow, through UI and API | Refused; only a change request exists; audited; reviewer alerted (TC-RUL-28-02) | P1 | Y | R1 |
+| TC-ESC-016-03 | FR-ESC-016 | Abuse: release during the cooling-off period | Change approved | Request a release to the new account before, at and after the end of the period | Blocked before the end with the end time shown; allowed at and after it (TC-RUL-28-03) | P1 | Y | R1 |
+| TC-ESC-016-04 | FR-ESC-016 | Abuse: change approved twice by the same person | Change request; client approved | Staff A approves twice; staff C without release rights approves | Both refused; change stays pending (TC-RUL-28-04) | P1 | Y | R1 |
+| TC-ESC-016-05 | FR-ESC-016 | Client silent or declines | Change request | Leave it past the reminder period; then the client declines | Pending while silent; rejected on decline; payee unchanged; silence never approval | P1 | Y | R1 |
+| TC-ESC-016-06 | FR-ESC-016 | New payee fails a check | New account in another name; new payee's identity check failed | Approve | Blocked with the check named; no override (TC-RUL-28-05) | P1 | Y | R1 |
+| TC-ESC-016-07 | FR-ESC-016 | Payee change on a held amount | Held amount naming a verified school; the school reports a new account | Raise the change | Same flow for that held amount; the payee registry change also needs a second administrator (FR-ADM-003); both recorded (section 16, item 44) | P1 | Y | R1 |
+| TC-ESC-017-01 | FR-ESC-017 | Source account recorded from the bank's confirmation | Deposit confirmation fixture naming the source account; another with none | Record each deposit (manual entry checked by a second person) | First: source account stored with the deposit; second: rejected | P1 | Y | R1 |
+| TC-ESC-017-02 | FR-ESC-017 | Refund to each source | Funded escrow with two deposits from two accounts | Two staff approve cancellation | Each deposit refunded to its own source account; address not editable (TC-RUL-29-01) | P1 | Y | R1 |
+| TC-ESC-017-03 | FR-ESC-017 | Abuse: refund addressed to a new account | Funded escrow; client message asks for a refund to a relative | Case manager edits the refund address; crafted API request | Refused; audited (TC-RUL-29-02) | P1 | Y | R1 |
+| TC-ESC-017-04 | FR-ESC-017 | Exception path when the source account is closed | Bank reports the source account closed | Complete each step of the RUL-29 exception for an account in the client's own name | Instruction only after every step and the cooling-off period (TC-RUL-29-03) | P1 | Y | R1 |
+| TC-ESC-017-05 | FR-ESC-017 | Exception path short-cut | As TC-ESC-017-04 | Skip the fresh identity check; one staff member approves twice; request during the cooling-off period | Blocked in each case | P1 | Y | R1 |
 | TC-ESC-011-01 | FR-ESC-011 | Statement file import and match | Statement fixtures | Import | Matches linked; unmatched listed | P2 | Y | R2 |
 | TC-ESC-011-02 | FR-ESC-011 | Bad, duplicate and ambiguous lines | Fixture set in 2.7 | Import | Bad file rejected; duplicates ignored; ambiguous lines go to manual match, never auto-matched | P2 | Y | R2 |
 | TC-ESC-012-01 | FR-ESC-012 | Bank API status | Bank sandbox `[TO VERIFY]` | Poll or receive callback | Deposit and release status updated; signature on callback verified | P3 | Y | R2 |
@@ -1180,7 +1211,7 @@ Concurrency: every money-moving transition is also tested with two parallel requ
 | TC-STM-ESC-10 | Frozen | The state it came from | Yes | Dispute resolved in favour of continuing, from each origin | Returns to the recorded origin; conditions, fresh search and client approval re-checked before any release | Y | R2 |
 | TC-STM-ESC-11 | Frozen | Cancelled | Yes | Dispute resolved in favour of a refund; two-person approval; bank confirms refund | Cancelled only after bank refund confirmation | Y | R2 |
 | TC-STM-ESC-12 | Agreed | Cancelled | Yes | Two-person approved cancellation | Cancelled (no money held) | Y | R1 |
-| TC-STM-ESC-13 | Funded, Ready to release, Partly released | Cancelled | Yes | Two-person cancellation; bank confirms refund of the remaining balance | Cancelled only after bank refund confirmation; refund equals the remaining balance | Y | R1 |
+| TC-STM-ESC-13 | Funded, Ready to release, Partly released | Cancelled | Yes | Two-person cancellation; bank confirms refund of the remaining balance | Cancelled only after bank refund confirmation; refund equals the remaining balance and goes to the source account of each deposit (RUL-29) | Y | R1 |
 | TC-STM-ESC-14 | Proposed | Funded | No | Record deposit before agreement | Rejected; deposit held as unmatched for review | Y | R1 |
 | TC-STM-ESC-15 | Agreed | Ready to release | No | Close all conditions before funding | Stays Agreed | Y | R1 |
 | TC-STM-ESC-16 | Funded | Release approved | No | Approve with open condition | Rejected | Y | R1 |
@@ -1194,6 +1225,8 @@ Concurrency: every money-moving transition is also tested with two parallel requ
 | TC-STM-ESC-24 | Client approved | Release approved | Race | Two second-approvals in parallel | One instruction only | Y | R1 |
 | TC-STM-ESC-25 | Release approved | Released or Partly released | Race | Bank confirmation received twice | Recorded once; duplicate logged | Y | R1 |
 | TC-STM-ESC-26 | Release approved | Frozen then Released | Race | Dispute opened and bank confirmation arrive together | Exactly one outcome; if the bank paid first, state Released and the dispute is recorded against a released escrow with an alert | Y | R2 |
+| TC-STM-ESC-27 | Funded, Ready to release, Client approved, Partly released | Same state | Yes (no transition) | Payee change requested, approved, then the cooling-off period ends, from each state | State never changes; a release to the new account is blocked until the change is approved and the period has ended (01 C8 note, RUL-28) | Y | R1 |
+| TC-STM-ESC-28 | Funded, Partly released | Cancelled | No (destination) | Two-person cancellation with the refund addressed to an account that is not a source account and no completed exception | Rejected; state unchanged (RUL-29) | Y | R1 |
 
 ### 5.4 Milestone
 
@@ -1289,6 +1322,7 @@ Run in Playwright on staging against provider sandboxes. Mobile steps in J-03, J
 | TC-E2E-J01-06 | J-01 | Reviewer returns report | P-04 | Reviewer returns with comments | Case back in progress; lawyer's approval cleared; client status unchanged in tone | Y | R1 |
 | TC-E2E-J01-07 | J-01 | Slow, dropping connection | P-01 | Run J01-01 on 3G profile with a forced drop during site plan upload | Upload resumes or retries cleanly; no duplicate order; under NFR-PERF-01 targets | Y | R1 |
 | TC-E2E-J01-08 | J-01 | Disputed plot site visit | P-03, P-06, P-07 | Plot flagged disputed | Visit cannot be assigned until risk screen and two people | Y | R1 |
+| TC-E2E-J01-09 | J-01 | Runner hands in a search result | P-03, P-07, P-04 | Runner uploads a search result PDF; case manager tries to close the search task; later Tenmina records the official result from its own account | Task and report release blocked until the official result is recorded; the runner's file is marked "not evidence"; report then releases normally (RUL-30) | Y | R1 |
 | TC-E2E-J02-01 | J-02 | Purchase through escrow, released | P-01, P-03, P-04, seller | Choose escrow; conditions copied; all accept; bank deposit recorded; fresh search; close conditions; two approvals; instruction; bank confirms | Every step visible to client; client never sees Tenmina account details; release confirmed | Y | R1 |
 | TC-E2E-J02-02 | J-02 | Open condition blocks | P-03, P-04 | Leave consent condition open; try approval | Blocked with condition named | Y | R1 |
 | TC-E2E-J02-03 | J-02 | Fresh search stale | P-03 | Move clock past window | Blocked; new fresh-search case ordered; release after it | Y | R1 |
@@ -1296,6 +1330,8 @@ Run in Playwright on staging against provider sandboxes. Mobile steps in J-03, J
 | TC-E2E-J02-05 | J-02 | Bank confirmation mismatch | P-03 | Confirmation with different amount | Not marked Released; reviewer task | Y | R1 |
 | TC-E2E-J02-06 | J-02 | Cancel and refund | P-01, P-03, P-04 | Seller withdraws; two staff approve cancellation | Refund instruction; Cancelled after bank confirms | Y | R1 |
 | TC-E2E-J02-07 | J-02 | Seller declines terms | Seller | Seller rejects terms | Escrow stays Proposed; client told; no bank details shown | Y | R1 |
+| TC-E2E-J02-08 | J-02 | Seller's bank details "change" by WhatsApp | P-01, P-03, P-04, seller | After funding, a message gives new bank details; case manager raises a change request instead; client approves; two staff approve; checks pass; release requested during and after the cooling-off period | Details from the message never reach the escrow; client told on a second channel; release to the new account only after the period (RUL-28) | Y | R1 |
+| TC-E2E-J02-09 | J-02 | Seller's identity cannot be checked | P-03, seller | Seller offers a photocopy of a card; then the identity service is down; then the check passes | Escrow cannot fix the seller as payee until the national identity check passes; no photocopy accepted (RUL-31) | Y | R1 |
 | TC-E2E-J03-01 | J-03 | Build milestone paid on pass | P-01, P-08, P-09, P-04 | Create project; BoQ; contractor; app capture; submit; evidence checked; inspection pass; client approves; two approvals; bank pays | Dashboard shows photos, result and payment | P | R2 |
 | TC-E2E-J03-02 | J-03 | Inspection fail and resubmit | P-08, P-09 | Fail; contractor fixes; resubmit; pass | No payment on fail; payment after pass | P | R2 |
 | TC-E2E-J03-03 | J-03 | Pass with defects | P-09 | Two defects valued | Payment minus defect value; balance after defects closed | P | R2 |
@@ -1384,7 +1420,7 @@ Run in Playwright on staging against provider sandboxes. Mobile steps in J-03, J
 | TC-NFR-A11Y-01-03 | NFR-A11Y-01 | Both apps on Android, audited against WCAG 2.2 AA using Android's accessibility guidance | Accessibility Scanner; TalkBack; font scale 200%; Espresso accessibility checks | Same level as web, mapped to Android checks (section 10.1) | Device lab | No open failure on capture, checklist, check-in and submission screens or on the client app's P1 screens; contractors and carers with low vision complete a visit with TalkBack | R2 |
 | TC-NFR-A11Y-01-04 | NFR-A11Y-01 | Both apps on iOS, audited against WCAG 2.2 AA using Apple's accessibility guidance | Accessibility Inspector; VoiceOver; largest Dynamic Type size; Reduce Motion | Same level as web, mapped to iOS checks (section 10.1) | Device lab | No open failure on the P1 screens of either app; a client using VoiceOver approves an invoice with the second factor | R2 |
 | TC-NFR-OBS-01-01 | NFR-OBS-01 | Check trace IDs and alerts | Integration test; alert drills | Trace ID on every request; alerts on errors, latency, upload queue, job failures | staging | Trace ID in logs for API, worker and app upload; each alert fires in a drill within 5 minutes (assumption) | R1 |
-| TC-NFR-MNT-01-01 | NFR-MNT-01 | Coverage report; RUL coverage check | coverage.py; script mapping `rul` tags to RUL IDs | 80% lines of core API; every RUL-01 to RUL-25 tested | CI | Gate fails below 80% or if any RUL-nn has no passing test | R1 |
+| TC-NFR-MNT-01-01 | NFR-MNT-01 | Coverage report; RUL coverage check | coverage.py; script mapping `rul` tags to RUL IDs | 80% lines of core API; every RUL-01 to RUL-32 tested | CI | Gate fails below 80% or if any RUL-nn has no passing test | R1 |
 | TC-NFR-MNT-02-01 | NFR-MNT-02 | Add a test country through configuration only | Admin UI; diff of code repository | No code change outside integrations | staging | Testland case, payment and dashboard work end to end; code diff empty apart from new integration adapters (TC-CTY-001-01) | R1 |
 | TC-NFR-MNT-02-02 | NFR-MNT-02 | Add a test product line through configuration only | Admin UI: case template, condition set, schedule | No code change | staging | A new line (for example "borehole project") runs verify, hold, release end to end with no code change | R2 |
 | TC-NFR-SCL-01-01 | NFR-SCL-01 | Load test on `seed-scale` data | k6; PostgreSQL query plans | 2,000 open cases, 500 projects, 20,000 listings, plus 5,000 institution payments and 2,000 visits a month (assumption) | staging | NFR-PERF-03 targets still met; no table scans on hot paths | R2 |
@@ -1453,6 +1489,9 @@ Security testing is threat-driven. The main threats are people who want money re
 | TC-SEC-45 | Bulk payment file altered between approval and upload | FR-PRO-005, RUL-27 | Change an amount or account in the stored file; download it; upload a different file in the bank's test portal | Hash mismatch blocks the download; the confirmation import flags lines that do not match the approved run; alert raised | Y | R1 |
 | TC-SEC-46 | A professional reads another professional's pay | FR-PRO-002, FR-PRO-007, FR-ACC-007 | As lawyer A, call `/v1/me/pro/*` and `/v1/pro/*` with lawyer B's IDs; enumerate payable and statement IDs | 404 for every object not A's own; staff endpoints refused | Y | R1 |
 | TC-SEC-47 | Operating account credentials reachable from the escrow side | FR-PRO-006, RUL-27 | From the ESC dispatch task role, read the operating account's secrets; sign a payment file with `kms/release-signing` | Both denied by IAM and key policy; attempt logged | Y | R1 |
+| TC-SEC-48 | Payment redirection by a spoofed or compromised channel: an attacker poses as the seller or the client by email or WhatsApp to change the payee account or refund account, and uses a compromised client email to "approve" | RUL-28, RUL-29, FR-ESC-016, FR-ESC-017, FR-ACC-003 | Send the change by message; reply to the approval email from the attacker's address; approve through a link without the second factor | No change without a change request; client approval only in the portal or app with the second factor; notice on a second channel; cooling-off period applies; the attempt is flagged | Y | R1 |
+| TC-SEC-49 | Forged official search result: an edited PDF of a genuine search, or a result for another plot, injected as evidence | RUL-30, FR-CASE-016, FR-EVD-001 | Upload through the runner's task, the client's document request, a case message and the evidence API with the search-task tag | None accepted as evidence; only a result recorded as received from the registry's channel by a Tenmina account counts | Y | R1 |
+| TC-SEC-50 | Identity check result spoofing: a forged provider callback, a replayed response for another person, or a status field set by API | RUL-31, FR-ACC-013 | Send an unsigned or wrongly signed callback; replay a valid response against another party; set the check status directly | All rejected; the result must be signed, match the request and the party's card number; attempts audited | Y | R1 |
 
 ### 8.3 OWASP ASVS level 2 verification (NFR-SEC-05)
 
@@ -1712,6 +1751,9 @@ Supporting checks: TC-NFR-USE-02-01 and TC-NFR-USE-02-02 for status message plai
 | UAT-42 | See my pay and claim a travel expense as a surveyor | P-06 | F-37, FR-PRO-002, FR-PRO-004, FR-PRO-008 | Site visit and section payables visible; an expense claimed from the phone with a receipt photo; the limit understood; status followed to paid. The expense part runs when US-PRO-004 ships (document 04) | R1 |
 | UAT-43 | See my monthly pay as a runner | P-07 | F-37, FR-PRO-002, FR-PRO-006, FR-PRO-007 | The month's payable appears when the month is closed; paid to the runner's own account from Tenmina's account; remittance advice understood on a basic phone's browser | R1 |
 | UAT-44 | Prepare and approve a payment run as two staff | P-03, P-04 | FR-PRO-005, FR-PRO-006, RUL-27 | The preparer cannot approve; the approver sees totals, payees and items left out with reasons; the file uploads in the bank's portal with no manual correction | R1 |
+| UAT-45 | Change a seller's account during an escrow, as client and as two staff | P-01, P-03, P-04, seller | RUL-28, FR-ESC-016 | Client understands why details sent by message are ignored; approves the change on a phone with the second factor; sees the second-channel notice and the date the new account can be paid; staff cannot apply the change alone | R1 |
+| UAT-46 | Record an official search and check a seller's identity | P-03, P-07 | RUL-30, RUL-31, FR-CASE-016, FR-ACC-013 | Case manager records the search lodged from Tenmina's account and the result from the official channel; a runner's PDF is clearly "not evidence"; the seller's check runs against the national identity system with no photocopy option | R1 |
+| UAT-47 | Run the monthly random re-check | P-04, a licensed professional with no link to the case | RUL-32, FR-RPT-012 | Reviewer sees the month's sample and cannot change it; the professional records the result; a planted failure freezes the affected escrow and starts a correction | R1 |
 
 ### 11.4 UAT sign-off form
 
@@ -1761,6 +1803,7 @@ Runbooks and procedures are in document 06. OAT proves they work.
 | OAT-15 | Rotate push credentials (APNs key, FCM service account) | Rotated on staging by someone who did not write the runbook; no push lost during the switch; old credential revoked | R2 |
 | OAT-16 | Raise and lower the minimum app version | Runbook followed on staging with two administrators; old builds see the update screen; queued evidence kept; lowering restores access | R2 |
 | OAT-17 | Failed or wrong payment run drill | On staging, a run with one failed line and one planted wrong amount is handled with the runbook in document 06 by someone who did not write it; the failed line is paid once in the next run; the wrong amount is corrected by a new line, never an edit | R1 |
+| OAT-18 | Identity service down and monthly re-check drill | On staging, the identity service is stopped: staff follow the runbook, releases stay blocked and checks resume when it returns; then the monthly re-check sample is drawn, logged and assigned by someone who did not write the runbook (by hand until FR-RPT-012 ships) | R1 |
 
 ### 11.6 Partner acceptance with the escrow bank (PAT)
 
@@ -1781,6 +1824,8 @@ Run with the partner bank or licensed escrow agent once the agreement is signed 
 | PAT-11 | Amount held at the bank with several small releases | Client deposits money; Tenmina sends 5 small instructions over 5 test days to 3 institutions | Bank pays each to the named institution account; the amount the bank reports holding matches the running statement (FR-ESC-014) | R1 |
 | PAT-12 | Payee name check at the bank | Send a test instruction whose payee name does not match the account | Bank rejects or queries it; Tenmina records the rejection; confirms whether the bank offers an account-name check, the first account-name source under FR-ESC-015 `[TO VERIFY]` | R1 |
 | PAT-13 | Owner's rent account | Tenant test payment to an owner's account at the bank; statement line supplied | Line matched to the tenancy; Tenmina never receives the money; the bank confirms it will share that account's statement lines only, under the owner's written mandate (RUL-24, FR-PMG-003) | R2 |
+| PAT-29 | Source account in deposit confirmations | Bank sends 5 test deposit confirmations, including two deposits from different accounts for one escrow | Each confirmation names the source account in the agreed format `[TO VERIFY]`; each matched and stored with its deposit | R1 |
+| PAT-30 | Refund to the source account | Send a test cancellation for an escrow with two deposits; then one addressed to an account that is not a source | Bank refunds each deposit to its source account and confirms; the bank queries or rejects the second; Tenmina records both | R1 |
 
 ### 11.7 Partner acceptance with an institution (PAT, receipt return)
 
@@ -1890,23 +1935,25 @@ Also:
 
 | Criterion | Evidence |
 |---|---|
-| All R1 Must FRs pass (ACC, ORD, PAY, CASE, RPT, GEO, ESC R1 items including FR-ESC-014 and FR-ESC-015, EVD R1 items, NTF, ADM, AUD, ANL-003, DPR, FEE Musts, FR-CTY-001 and FR-CTY-003, PRO Musts FR-PRO-001, 002, 003, 005, 006 and 007) | Test report against section 4 |
-| All R1 business rules pass: RUL-01 to RUL-07, RUL-11, RUL-17, RUL-20, RUL-22, RUL-26, RUL-27 | `rul` suite report, zero skips |
+| All R1 Must FRs pass (ACC including FR-ACC-013, ORD, PAY including FR-PAY-008, CASE including FR-CASE-016, RPT, GEO, ESC R1 items including FR-ESC-014 to FR-ESC-017, EVD R1 items, NTF, ADM, AUD, ANL-003, DPR, FEE Musts, FR-CTY-001 and FR-CTY-003, PRO Musts FR-PRO-001, 002, 003, 005, 006 and 007) | Test report against section 4 |
+| All R1 business rules pass: RUL-01 to RUL-07, RUL-11, RUL-17, RUL-20, RUL-22, RUL-26 to RUL-32 (RUL-32 by the manual check in section 3.7 until FR-RPT-012 ships) | `rul` suite report, zero skips |
 | State-transition matrix for Case and Escrow passes, including Client approved, Partly released (amounts held at the bank) and cancellation paths | Section 5 report |
-| J-01, J-02, J-08 and J-09 E2E pass, including unhappy paths | Section 6 report |
+| J-01, J-02, J-08 and J-09 E2E pass, including unhappy paths (TC-E2E-J01-09, TC-E2E-J02-08 and -09 for the payee lock, official searches and party identity) | Section 6 report |
 | R1 NFRs pass: PERF-01 to 04, AVL-01 to 03, SEC-01 to 05, PRIV-01 and 02, USE-01 and 02, A11Y-01 (web), OBS-01, MNT-01, MNT-02 (country), LOC-01, AUD-01 | Section 7 report; NFR-AVL-01 confirmed after first live month |
 | Country isolation tests pass with Ghana and the test country (TC-CTY-001-03, TC-SEC-32); no hard-coded country values | Section 4.28 and 8.2 reports; CI check |
 | Penetration test retest letter: no open high or critical, scope including payee verification and institution flow | Tester's letter |
 | ASVS L2 checklist complete | Checklist |
 | Usability test passes NFR-USE-01 (4 of 5, median under 10 minutes) | Usability report |
-| UAT-01 to UAT-12, UAT-25 to UAT-28, UAT-34 and UAT-41 to UAT-44 accepted | Signed forms |
-| OAT-01 to OAT-08, OAT-12 and OAT-17 pass | OAT report |
-| PAT-01 to PAT-05, PAT-09 to PAT-12 pass with the escrow bank, or escrow and institution payment features ship switched off with manual tracking (AS-02) | Bank acceptance letter or product owner decision |
+| UAT-01 to UAT-12, UAT-25 to UAT-28, UAT-34 and UAT-41 to UAT-47 accepted | Signed forms |
+| OAT-01 to OAT-08, OAT-12, OAT-17 and OAT-18 pass | OAT report |
+| PAT-01 to PAT-05, PAT-09 to PAT-12, PAT-29 and PAT-30 pass with the escrow bank, or escrow and institution payment features ship switched off with manual tracking (AS-02) | Bank acceptance letter or product owner decision |
 | PAT-14 to PAT-16 and PAT-18 pass with at least one school and one hospital, or the FEE line opens only for institutions that accept direct payment; others are marked not eligible (FR-FEE-006, AS-10) | Institution letters or product owner decision |
 | Insurer approves the platform report process (01 B4) | Insurer letter |
 | Data location confirmed (Q-07) and registration with each live country's data protection authority in place (in Ghana, the Data Protection Commission; others per Q-21) `[TO VERIFY]` | Lawyer's note |
-| Configurable values set and approved: fresh-search window (Q-04), retention periods (Q-08), receipt return target, payee matching rule | Configuration export signed by lawyer |
+| Configurable values set and approved: fresh-search window (Q-04), retention periods (Q-08), receipt return target, payee matching rule, payee-change cooling-off period (RUL-28) and monthly re-check share (RUL-32) | Configuration export signed by lawyer |
 | Pricing for the FEE line set (Q-20) | Founder's decision |
+| Legal basis for escrow confirmed in writing (Q-28), or escrow features ship switched off | Lawyer's note; bank's agreement |
+| Access to the national identity system in place for party checks (IF-03, RUL-31); Tenmina's own registry account in place for official searches (IF-09, RUL-30) | Access terms; configuration export |
 | PAT-24 to PAT-26 and PAT-28 pass with Tenmina's operating bank, or payment runs stay manual and two-person, outside the platform, until they pass | Bank acceptance letter or product owner decision |
 | Tax rules for professionals signed by an accountant for each live country (Q-25) and loaded as configuration | Accountant's note; configuration export |
 | No open S1 or S2 | Defect report |
@@ -1954,7 +2001,7 @@ Used at the go/no-go meeting for every release. Chair: product owner. Attendees:
 | # | Check | Yes/No |
 |---|---|---|
 | 1 | All Must requirements for this release pass | |
-| 2 | All active `rul` tests pass with zero skips, including RUL-22 on every line that ships | |
+| 2 | All active `rul` tests pass with zero skips, including RUL-22 on every line that ships and RUL-28 to RUL-32 | |
 | 3 | No open S1 or S2 defects | |
 | 4 | Penetration test retest: no open high or critical findings | |
 | 5 | UAT scenarios for this release signed | |
@@ -1963,7 +2010,7 @@ Used at the go/no-go meeting for every release. Chair: product owner. Attendees:
 | 8 | Partner acceptance signed by each institution and insurer whose line ships, or that line switched off by decision | |
 | 9 | Release candidate on staging is the exact build going to production (same artefact hashes) | |
 | 10 | Rollback plan tested for this release | |
-| 11 | Required legal and insurer approvals on file (scope text, insurer, Act 843, Act 1047 where relevant, C-11 intermediary position, Q-18 licences) | |
+| 11 | Required legal and insurer approvals on file (scope text, insurer, Act 843, Act 1047 where relevant, C-11 intermediary position, Q-18 licences, Q-28 legal basis for escrow) | |
 | 12 | Any country opening in this release has its gate record on file (manual phase and 90-day validation, C-13); countries without it stay "not open" | |
 | 13 | Every app in this release is approved by both the App Store and Google Play for the exact build that passed testing; phased release and halt plan ready on each store (C-14) | |
 | 14 | Configurable values set to approved numbers, exported and signed | |
@@ -2003,6 +2050,7 @@ Read each row left to right: business requirement, feature, functional requireme
 | BR-01 | BR-01 | F-01 | FR-ACC-010 | Should | R1 | US-ACC-010 | TC-ACC-010-01 | — |
 | BR-10, BR-17 | BR-10, BR-17 | F-01, F-19, F-29 | FR-ACC-011 | Should | R2 | US-ACC-011 | TC-ACC-011-01, TC-ACC-011-02, TC-ACC-011-03 | TC-SEC-31 |
 | BR-17 | BR-17 | F-35 | FR-ACC-012 | Should | R1 | US-ACC-012 | TC-ACC-012-01, TC-ACC-012-02, TC-ACC-012-03 | — |
+| BR-05 | RUL-31, BR-05 | F-01 | FR-ACC-013 | Must | R1 | US-ACC-013 | TC-ACC-013-01, TC-ACC-013-02, TC-ACC-013-03, TC-ACC-013-04, TC-ACC-013-05, TC-ACC-013-06 | TC-RUL-31-01, TC-RUL-31-02, TC-RUL-31-03, TC-RUL-31-04, TC-RUL-31-05, TC-SEC-50, TC-E2E-J02-09 |
 
 **ORD — Orders and leads**
 
@@ -2027,6 +2075,7 @@ Read each row left to right: business requirement, feature, functional requireme
 | BR-05 | RUL-01 | F-02 | FR-PAY-005 | Must | R1 | US-PAY-005 | TC-PAY-005-01, TC-PAY-005-02 | TC-RUL-01-01, TC-RUL-01-02, TC-RUL-01-03, TC-RUL-01-04 |
 | BR-16 | BR-16 | F-02 | FR-PAY-006 | Should | R1 | US-PAY-006 | TC-PAY-006-01, TC-PAY-006-02 | — |
 | BR-10 | BR-10 | F-19 | FR-PAY-007 | Should | R2 | US-PAY-007 | TC-PAY-007-01 | — |
+| BR-01 | RUL-29 | F-02 | FR-PAY-008 | Must | R1 | US-PAY-008 | TC-PAY-008-01, TC-PAY-008-02, TC-PAY-008-03 | TC-RUL-29-04 |
 
 **CASE — Verification case workflow**
 
@@ -2047,6 +2096,7 @@ Read each row left to right: business requirement, feature, functional requireme
 | BR-07 | BR-07 | F-09 | FR-CASE-013 | Should | R1 | US-CASE-013 | TC-CASE-013-01 | — |
 | BR-05 | RUL-07 | F-03, F-08 | FR-CASE-014 | Must | R1 | US-CASE-014 | TC-CASE-014-01, TC-CASE-014-02 | TC-RUL-07-01, TC-RUL-07-02, TC-RUL-07-03, TC-RUL-07-04 |
 | BR-01 | BR-01 | F-06 | FR-CASE-015 | Should | R1 | US-CASE-015 | TC-CASE-015-01 | TC-SEC-23 |
+| BR-06 | RUL-30, BR-06 | F-03 | FR-CASE-016 | Must | R1 | US-CASE-016 | TC-CASE-016-01, TC-CASE-016-02, TC-CASE-016-03, TC-CASE-016-04, TC-CASE-016-05 | TC-RUL-30-01, TC-RUL-30-02, TC-RUL-30-03, TC-RUL-30-04, TC-SEC-49, TC-E2E-J01-09 |
 
 **RPT — Report builder**
 
@@ -2063,6 +2113,7 @@ Read each row left to right: business requirement, feature, functional requireme
 | BR-05 | BR-05 | F-04, F-08 | FR-RPT-009 | Must | R1 | US-RPT-009 | TC-RPT-009-01, TC-RPT-009-02 | — |
 | BR-02 | BR-02 | F-04 | FR-RPT-010 | Must | R1 | US-RPT-010 | TC-RPT-010-01, TC-RPT-010-02 | — |
 | BR-15 | BR-15 | F-04 | FR-RPT-011 | Could | R1 | US-RPT-011 | TC-RPT-011-01, TC-RPT-011-02 | — |
+| BR-02 | RUL-32, BR-02 | F-04 | FR-RPT-012 | Should | R1 | US-RPT-012 | TC-RPT-012-01, TC-RPT-012-02, TC-RPT-012-03, TC-RPT-012-04, TC-RPT-012-05 | TC-RUL-32-01, TC-RUL-32-02, TC-RUL-32-03, TC-RUL-32-04, TC-RUL-32-05 |
 
 **GEO — Geospatial checks**
 
@@ -2096,6 +2147,8 @@ Read each row left to right: business requirement, feature, functional requireme
 | BR-05 | RUL-05 | F-08 | FR-ESC-013 | Must | R1 | US-ESC-013 | TC-ESC-013-01, TC-ESC-013-02 | TC-RUL-05-01, TC-RUL-05-02, TC-RUL-05-03, TC-RUL-05-04, TC-RUL-05-05 |
 | BR-17 | BR-17 | F-08, F-29, F-30, F-32 | FR-ESC-014 | Must | R1 | US-ESC-014 | TC-ESC-014-01, TC-ESC-014-02, TC-ESC-014-03, TC-ESC-014-04 | PAT-11 |
 | BR-17, BR-10 | RUL-22 | F-08, F-29 | FR-ESC-015 | Must | R1 | US-ESC-015 | TC-ESC-015-01, TC-ESC-015-02, TC-ESC-015-03, TC-ESC-015-04, TC-ESC-015-05, TC-ESC-015-06 | TC-RUL-22-01, TC-RUL-22-02, TC-RUL-22-04, TC-RUL-22-06, TC-SEC-35, PAT-12, TC-RUL-22-08 |
+| BR-05 | RUL-28, RUL-22 | F-08 | FR-ESC-016 | Must | R1 | US-ESC-016 | TC-ESC-016-01, TC-ESC-016-02, TC-ESC-016-03, TC-ESC-016-04, TC-ESC-016-05, TC-ESC-016-06, TC-ESC-016-07 | TC-RUL-28-01, TC-RUL-28-02, TC-RUL-28-03, TC-RUL-28-04, TC-RUL-28-05, TC-RUL-28-06, TC-STM-ESC-27, TC-SEC-48, TC-E2E-J02-08 |
+| BR-05 | RUL-29 | F-08 | FR-ESC-017 | Must | R1 | US-ESC-017 | TC-ESC-017-01, TC-ESC-017-02, TC-ESC-017-03, TC-ESC-017-04, TC-ESC-017-05 | TC-RUL-29-01, TC-RUL-29-02, TC-RUL-29-03, TC-RUL-29-05, TC-STM-ESC-13, TC-STM-ESC-28, TC-SEC-48, PAT-29, PAT-30 |
 
 **EVD — Evidence store**
 
@@ -2373,12 +2426,17 @@ Read each row left to right: business requirement, feature, functional requireme
 | RUL-19 | BR-08 | F-16 | FR-BLD-008 | TC-RUL-19-01, TC-RUL-19-02, TC-RUL-19-03 | TC-BLD-008-02 |
 | RUL-20 | BR-02 | F-01, F-04 | FR-ACC-005, FR-RPT-005 | TC-RUL-20-01, TC-RUL-20-02, TC-RUL-20-03, TC-RUL-20-04 | TC-SEC-26 |
 | RUL-21 | BR-09 | F-18 | FR-PRJ-003 | TC-RUL-21-01, TC-RUL-21-02, TC-RUL-21-03, TC-RUL-21-04 | TC-E2E-J05-03 |
-| RUL-22 | BR-17, BR-19, BR-20, BR-22, BR-10 | F-29, F-31, F-32, F-34, F-08 | FR-FEE-001, FR-FEE-003, FR-ESC-015, FR-PMG-005, FR-TSK-003, FR-EVT-002, FR-FEE-006, FR-PRO-006 | TC-RUL-22-01, TC-RUL-22-02, TC-RUL-22-03, TC-RUL-22-04, TC-RUL-22-05, TC-RUL-22-06, TC-RUL-22-07, TC-RUL-22-08 | TC-SEC-33, TC-SEC-35, TC-E2E-J09-03, TC-E2E-J09-04, TC-E2E-J09-08, TC-E2E-J12-02, PAT-12, TC-FEE-006-02 |
+| RUL-22 | BR-17, BR-19, BR-20, BR-22, BR-10 | F-29, F-31, F-32, F-34, F-08 | FR-FEE-001, FR-FEE-003, FR-ESC-015, FR-ESC-016, FR-PMG-005, FR-TSK-003, FR-EVT-002, FR-FEE-006, FR-PRO-006 | TC-RUL-22-01, TC-RUL-22-02, TC-RUL-22-03, TC-RUL-22-04, TC-RUL-22-05, TC-RUL-22-06, TC-RUL-22-07, TC-RUL-22-08 | TC-SEC-33, TC-SEC-35, TC-E2E-J09-03, TC-E2E-J09-04, TC-E2E-J09-08, TC-E2E-J12-02, PAT-12, TC-FEE-006-02 |
 | RUL-23 | BR-18, BR-20 | F-30, F-32, F-15 | FR-CARE-003, FR-CARE-004, FR-MOB-012, FR-TSK-003, FR-TSK-004 | TC-RUL-23-01, TC-RUL-23-02, TC-RUL-23-03, TC-RUL-23-04, TC-RUL-23-05, TC-RUL-23-06 | TC-SEC-36, TC-SEC-37, TC-E2E-J10-02, TC-E2E-J10-05, TC-E2E-J12-03, TC-FLD-15, TC-CARE-004-05, TC-CARE-004-06 |
 | RUL-24 | BR-19 | F-31 | FR-PMG-002, FR-PMG-003 | TC-RUL-24-01, TC-RUL-24-02, TC-RUL-24-03, TC-RUL-24-04 | TC-SEC-39, TC-E2E-J11-02, TC-E2E-J11-03, PAT-13 |
 | RUL-25 | BR-21 | F-33 | FR-INS-001, FR-INS-002, FR-INS-004 | TC-RUL-25-01, TC-RUL-25-02, TC-RUL-25-03, TC-RUL-25-04 | TC-SEC-39, PAT-19, PAT-21 |
 | RUL-26 | BR-23 | F-37 | FR-PRO-002, FR-PRO-003 | TC-RUL-26-01, TC-RUL-26-02, TC-RUL-26-03, TC-RUL-26-04, TC-RUL-26-05, TC-RUL-26-06 | TC-PRO-002-03, TC-PRO-003-02, UAT-41 |
 | RUL-27 | BR-23 | F-37 | FR-PRO-005, FR-PRO-006 | TC-RUL-27-01, TC-RUL-27-02, TC-RUL-27-03, TC-RUL-27-04, TC-RUL-27-05, TC-RUL-27-06 | TC-SEC-45, TC-SEC-47, TC-TSK-003-06, TC-PRO-006-03, UAT-44, PAT-28 |
+| RUL-28 | BR-05 | F-08 | FR-ESC-016 | TC-RUL-28-01, TC-RUL-28-02, TC-RUL-28-03, TC-RUL-28-04, TC-RUL-28-05, TC-RUL-28-06 | TC-ESC-016-02, TC-ESC-016-03, TC-STM-ESC-27, TC-SEC-48, TC-E2E-J02-08, UAT-45 |
+| RUL-29 | BR-05, BR-01 | F-08, F-02 | FR-ESC-017, FR-PAY-008 | TC-RUL-29-01, TC-RUL-29-02, TC-RUL-29-03, TC-RUL-29-04, TC-RUL-29-05 | TC-ESC-017-03, TC-PAY-008-02, TC-STM-ESC-13, TC-STM-ESC-28, TC-SEC-48, PAT-29, PAT-30 |
+| RUL-30 | BR-06 | F-03 | FR-CASE-016 | TC-RUL-30-01, TC-RUL-30-02, TC-RUL-30-03, TC-RUL-30-04 | TC-CASE-016-02, TC-SEC-49, TC-E2E-J01-09, UAT-46 |
+| RUL-31 | BR-05 | F-01 | FR-ACC-013 | TC-RUL-31-01, TC-RUL-31-02, TC-RUL-31-03, TC-RUL-31-04, TC-RUL-31-05 | TC-ACC-013-03, TC-SEC-50, TC-E2E-J02-09, UAT-46, OAT-18 |
+| RUL-32 | BR-02 | F-04 | FR-RPT-012 | TC-RUL-32-01, TC-RUL-32-02, TC-RUL-32-03, TC-RUL-32-04, TC-RUL-32-05 | TC-RPT-012-03, UAT-47, OAT-18 |
 
 ### 14.3 Non-functional requirements
 
@@ -2415,8 +2473,8 @@ Read each row left to right: business requirement, feature, functional requireme
 
 | Journey | Features | E2E tests | UAT |
 |---|---|---|---|
-| J-01 Order a land report | F-01, F-02, F-03, F-04, F-05, F-06, F-07, F-10 | TC-E2E-J01-01 to TC-E2E-J01-08 | UAT-01 to UAT-06 |
-| J-02 Buy through escrow | F-08, F-03 (fresh search) | TC-E2E-J02-01 to TC-E2E-J02-07 | UAT-07, UAT-08 |
+| J-01 Order a land report | F-01, F-02, F-03, F-04, F-05, F-06, F-07, F-10 | TC-E2E-J01-01 to TC-E2E-J01-09 | UAT-01 to UAT-06, UAT-46 |
+| J-02 Buy through escrow | F-08, F-03 (fresh search), F-01 (party identity) | TC-E2E-J02-01 to TC-E2E-J02-09 | UAT-07, UAT-08, UAT-45 |
 | J-03 Build with milestone payments | F-15, F-16, F-08 | TC-E2E-J03-01 to TC-E2E-J03-07 | UAT-13 to UAT-16, UAT-37, UAT-40 |
 | J-04 Buy a verified listing | F-19, F-08 | TC-E2E-J04-01 to TC-E2E-J04-04 | UAT-17, UAT-18 |
 | J-05 Fund a project | F-18 | TC-E2E-J05-01 to TC-E2E-J05-04 | UAT-19 |
@@ -2432,43 +2490,43 @@ Read each row left to right: business requirement, feature, functional requireme
 
 Counts are of test cases written in this version of the document.
 
-| Item | In document 01 version 0.8 | Covered by at least one test | Notes |
+| Item | In document 01 version 0.12 | Covered by at least one test | Notes |
 |---|---|---|---|
-| Functional requirements | 211 (139 Must, 59 Should, 13 Could) | 211 | Every Must FR has at least one positive and one negative test |
-| Business rules | 27 | 27 | Every rule has 2 to 8 tests; 122 in total |
+| Functional requirements | 217 (144 Must, 60 Should, 13 Could) | 217 | Every Must FR has at least one positive and one negative test |
+| Business rules | 32 | 32 | Every rule has 2 to 8 tests; 147 in total |
 | Non-functional requirements | 26 | 26 | 36 tests |
-| State models | 5 | 5 | 104 named tests plus the generated matrix test per model |
-| Journeys | 12 | 12 | 69 E2E tests |
+| State models | 5 | 5 | 106 named tests plus the generated matrix test per model |
+| Journeys | 12 | 12 | 72 E2E tests |
 | Business requirements | 23 (BR-01 to BR-23) | 23 | Through FRs in section 14.1 |
 
 | Test type | Count |
 |---|---|
-| Functional (`TC-<MODULE>-nnn-xx`) | 490 |
-| Business rule (`TC-RUL-nn-xx`) | 122 |
-| State transition (`TC-STM-…`) | 104 |
-| End-to-end journey (`TC-E2E-J0n-xx`) | 69 |
+| Functional (`TC-<MODULE>-nnn-xx`) | 521 |
+| Business rule (`TC-RUL-nn-xx`) | 147 |
+| State transition (`TC-STM-…`) | 106 |
+| End-to-end journey (`TC-E2E-J0n-xx`) | 72 |
 | Non-functional (`TC-NFR-…`) | 36 |
-| Security threat (`TC-SEC-nn`) | 47 |
+| Security threat (`TC-SEC-nn`) | 50 |
 | Mobile and field (`TC-FLD-nn`) | 20 |
 | App store acceptance (`TC-STORE-nn`) | 7 |
-| User acceptance (`UAT-nn`) | 44 |
-| Operational acceptance (`OAT-nn`) | 17 |
-| Partner acceptance (`PAT-nn`) | 28 |
-| **Total** | **984** |
+| User acceptance (`UAT-nn`) | 47 |
+| Operational acceptance (`OAT-nn`) | 18 |
+| Partner acceptance (`PAT-nn`) | 30 |
+| **Total** | **1,054** |
 
-Functional test cases by release: R1 265, R2 213, R3 12.
+Functional test cases by release: R1 296, R2 213, R3 12.
 
 Functional coverage by module:
 
 | Module | FRs | Must FRs | FRs with a test | Functional test cases | Automated (Y) |
 |---|---|---|---|---|---|
-| ACC | 12 | 8 | 12 | 30 | 29 |
+| ACC | 13 | 9 | 13 | 36 | 35 |
 | ORD | 7 | 4 | 7 | 14 | 14 |
-| PAY | 7 | 4 | 7 | 13 | 13 |
-| CASE | 15 | 11 | 15 | 28 | 28 |
-| RPT | 11 | 9 | 11 | 22 | 21 |
+| PAY | 8 | 5 | 8 | 16 | 16 |
+| CASE | 16 | 12 | 16 | 33 | 33 |
+| RPT | 12 | 9 | 12 | 27 | 26 |
 | GEO | 8 | 4 | 8 | 12 | 11 |
-| ESC | 15 | 13 | 15 | 46 | 46 |
+| ESC | 17 | 15 | 17 | 58 | 58 |
 | EVD | 6 | 6 | 6 | 13 | 13 |
 | MOB | 12 | 11 | 12 | 37 | 30 |
 | APP | 6 | 4 | 6 | 22 | 16 |
@@ -2492,15 +2550,15 @@ Functional coverage by module:
 | EVT | 3 | 0 | 3 | 5 | 5 |
 | REC | 4 | 0 | 4 | 5 | 5 |
 | CTY | 4 | 4 | 4 | 12 | 10 |
-| **Total** | **211** | **139** | **211** | **490** | **471** |
+| **Total** | **217** | **144** | **217** | **521** | **502** |
 
-Verification of this version: a script compared every `FR-`, `RUL-` and `NFR-` ID in document 01 version 0.8 with this document. Every ID in 01 appears here, no ID here is absent from 01, and every test ID referenced in a table is defined in a table.
+Verification of this version: a script compared every `FR-`, `RUL-` and `NFR-` ID in document 01 version 0.12 with this document. Every ID in 01 appears here, no ID here is absent from 01, and every test ID referenced in a table is defined in a table.
 
 ### 14.6 Keeping traceability current
 
 - Each automated test carries markers for its TC ID and the FR, RUL or NFR it covers (for example `@pytest.mark.req("FR-ESC-006")`).
 - A CI script builds this matrix from the markers and from document 01. It fails when an FR or RUL in 01 has no test, or when a test points to an ID that does not exist.
-- When document 01 or document 04 changes, the QA lead updates this document in the same pull request. Version 0.3 of document 01 added 36 FRs and 4 rules; version 0.2 of document 05 was that update. Version 0.6 of document 01 added 6 FRs (FR-APP-001 to FR-APP-006) and 2 NFRs (NFR-STORE-01, NFR-STORE-02); version 0.4 of document 05 is that update. Version 0.8 of document 01 added 10 FRs (FR-PRO-001 to FR-PRO-010) and 2 rules (RUL-26, RUL-27); version 0.5 of document 05 is that update.
+- When document 01 or document 04 changes, the QA lead updates this document in the same pull request. Version 0.3 of document 01 added 36 FRs and 4 rules; version 0.2 of document 05 was that update. Version 0.6 of document 01 added 6 FRs (FR-APP-001 to FR-APP-006) and 2 NFRs (NFR-STORE-01, NFR-STORE-02); version 0.4 of document 05 is that update. Version 0.8 of document 01 added 10 FRs (FR-PRO-001 to FR-PRO-010) and 2 rules (RUL-26, RUL-27); version 0.5 of document 05 is that update. Version 0.12 of document 01 added 6 FRs (FR-ACC-013, FR-PAY-008, FR-CASE-016, FR-RPT-012, FR-ESC-016, FR-ESC-017) and 5 rules (RUL-28 to RUL-32); version 0.6 of document 05 is that update.
 
 ---
 
@@ -2580,7 +2638,7 @@ Version 0.1 of this document raised 36 issues. Each was checked against 01 versi
 
 ### 16.2 Open issues
 
-Items 1 to 14 were raised in version 0.1. Items 15 to 30 were added in version 0.2. Items 31 to 35 were added in version 0.4 for the app store decision. Items 36 to 41 were added in version 0.5 for professional payments. Items resolved by 01 version 0.4 stay in this table, marked resolved, so their numbers remain traceable.
+Items 1 to 14 were raised in version 0.1. Items 15 to 30 were added in version 0.2. Items 31 to 35 were added in version 0.4 for the app store decision. Items 36 to 41 were added in version 0.5 for professional payments. Items 42 to 48 were added in version 0.6 for fund and evidence protection. Items resolved by 01 version 0.4 stay in this table, marked resolved, so their numbers remain traceable.
 
 | # | Where in 01 | Issue | Effect on testing | Test assumption until resolved |
 |---|---|---|---|---|
@@ -2625,3 +2683,10 @@ Items 1 to 14 were raised in version 0.1. Items 15 to 30 were added in version 0
 | 39 | FR-PRO-002 | Who closes a runner's month and what a part month pays are not stated. | TC-PRO-002-04 boundary unclear | A case manager closes the month; a part month is paid pro rata by calendar days (assumption) |
 | 40 | FR-PRO-007, Q-25 | Withholding rates are unknown, and 01 does not say whether reimbursed expenses carry withholding. | No real rate can be asserted | Tests use synthetic Testland rates; real rates come from the accountant's rules (EN-79 in document 04); no withholding on reimbursed expenses until Q-25 is answered |
 | 41 | FR-PRO-004, RUL-08 | In R1 receipts are uploaded from a phone browser, so a gallery or edited photo is possible; RUL-08's camera-only rule covers the field app from R2. | Reused or edited receipts are harder to detect in R1 | R1 relies on receipt hash uniqueness and the second approval for exceptions; camera-only capture from R2 (SCR-MOB-21 in document 03) |
+| 42 | FR-ADM-005, RUL-28, RUL-32 | The payee-change cooling-off period (`[72 hours, TO VERIFY]`) and the monthly re-check share (`[5%, TO VERIFY]`) are not in FR-ADM-005's list of configurable values. It is not said whether changing them needs a second administrator. | Boundary tests need configured values; TC-ADM-005-03 does not cover them | Both read from configuration; both affect a release, so a change needs a second administrator **Closed** by 01 v0.12 review fixes: FR-ADM-005 now lists both values. |
+| 43 | RUL-32, FR-RPT-012 | RUL-32 is a rule the system must enforce, but FR-RPT-012 is Should and document 04 plans it after R1 go-live. A `rul` test cannot be skipped (section 2.9). | TC-RUL-32-01 to -05 cannot run automatically at R1 go-live | Run them as manual checks against operations' by-hand log until FR-RPT-012 ships (Auto P) **Closed** by 01 v0.12 review fixes: RUL-32 now says the sample is drawn and tracked by hand until FR-RPT-012 is built; FR-RPT-012 stays Should. |
+| 44 | RUL-28, FR-ESC-016, FR-ADM-003 | A payee's account change has two routes: FR-ADM-003 (second administrator, in the payee registry) and RUL-28 (client, two staff with release rights, fresh checks, cooling-off, per escrow or held amount). 01 does not say which applies when an institution or supplier paid for many clients changes its account. | TC-ESC-016-07 has no stated expected result | Both apply: the registry change needs a second administrator, and each escrow or held amount naming the payee goes through RUL-28 **Closed** by 01 v0.12 review fixes: FR-ADM-003 now says RUL-28 and FR-ESC-016 also apply to a payee on an escrow or held amount. |
+| 45 | RUL-31, FR-ACC-013 | "Individual payee" is not defined: it is unclear whether it covers carers and errand agents paid from client money, and contracted professionals paid from Tenmina's operating account. | TC-RUL-31-04 scope unclear | Covers every individual paid from client money (sellers, carers, agents); contracted professionals stay under FR-PRO-006 **Closed** by 01 v0.12 review fixes: RUL-31 now defines individual payee, including carers, errand agents and contracted professionals. |
+| 46 | FR-PAY-008 | No route is given when the provider cannot refund a fee to the original method (closed card, closed wallet). | TC-PAY-008-03 has no stated outcome beyond "not paid elsewhere" | Refund stays open for a case manager; no other payout route until 01 states one **Closed** by 01 v0.12 review fixes: FR-PAY-008 now falls back to the RUL-29 exception path. |
+| 47 | RUL-30, FR-CASE-016 | "Until Tenmina obtains the same result from the official channel" does not say how the handed-in copy and the official result are compared, or whether the copy may ever become evidence. | TC-CASE-016-02 and TC-RUL-30-02 need a rule | The official result is recorded on its own; a handed-in copy is never promoted to evidence **Closed** by 01 v0.12 review fixes: FR-CASE-016 now keeps a handed-in copy as unverified and compares it with the official result; a difference opens an incident. |
+| 48 | RUL-31, FR-ACC-013, AS-05 | No path is given for a grantor or consenting party who has no record in the national identity system (for example an elderly family head without a card). AS-05's fallback, a manual document check by staff, may be read as applying to parties, which RUL-31 forbids. | Such a case stays blocked with no expected way forward | Blocked; no manual pass for parties; AS-05's fallback applies to clients only (FR-ACC-004) **Closed** by 01 v0.12 review fixes: RUL-31 now reports such a party as unverified and pays them nothing until verified; AS-05 limits the manual check to the client. |
