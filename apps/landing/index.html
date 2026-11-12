@@ -171,6 +171,13 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .choice input{width:20px;height:20px;min-height:0;margin:2px 0 0;accent-color:#0B0B0B;flex:none}
 .choice b{display:block;font-size:15px}
 .choice span{font-size:13px;color:#6A675F}
+.payticks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:6px}
+@media (max-width:480px){.payticks{grid-template-columns:minmax(0,1fr)}}
+.paytick{display:flex;gap:8px;align-items:center;background:#F3F1EC;border-radius:10px;padding:10px 12px;font-size:14px;cursor:pointer;border:2px solid transparent;min-height:44px;box-sizing:border-box}
+.paytick:has(input:checked){border-color:#0B0B0B;background:#FFFFFF}
+.field .paytick{font-size:14px;font-weight:400;line-height:1.3}
+.paytick input[type=checkbox]{width:18px;height:18px;min-height:0;padding:0;margin:0;border-radius:4px;accent-color:#0B0B0B;flex:0 0 18px}
+.paytick span{flex:1;min-width:0}
 .consent{display:flex;gap:10px;align-items:flex-start;font-size:14px}
 .consent input{width:20px;height:20px;min-height:0;margin-top:2px;accent-color:#0B0B0B;flex:none}
 .err{font-size:14px;font-weight:700;color:#0B0B0B;background:#FF5A4E;border-radius:10px;padding:8px 12px}
@@ -380,6 +387,7 @@ footer .brand b{font-size:20px;color:var(--text)}
           <div class="choices">
             <label class="choice"><input type="radio" name="need" value="Land check before buying" checked><span><b>Check land before I buy</b><span>The seller has offered a plot and I have not paid yet.</span></span></label>
             <label class="choice"><input type="radio" name="need" value="Check land I already bought"><span><b>Check land I already bought</b><span>I paid, and I want to know where I stand.</span></span></label>
+            <label class="choice"><input type="radio" name="need" value="Looking for land"><span><b>Find me a checked plot</b><span>I want land but have no plot yet. Show me plots you have already checked.</span></span></label>
             <label class="choice"><input type="radio" name="need" value="Pay a school or hospital"><span><b>Pay a school or hospital</b><span>Pay an institution directly against its invoice.</span></span></label>
           </div>
         </fieldset>
@@ -395,6 +403,21 @@ footer .brand b{font-size:20px;color:var(--text)}
             <option>Association or church</option><option>Webinar or talk</option><option>Friend or family</option>
             <option>Remittance company</option><option>Social media</option><option>Other</option>
           </select></div>
+        <fieldset class="field">
+          <legend>What else do you pay for at home? <span style="font-weight:400;color:#6A675F">Optional. Tick all that apply.</span></legend>
+          <div class="payticks">
+            <label class="paytick"><input type="checkbox" name="pays" value="Household bills"><span>Light, water, rent or TV bills</span></label>
+            <label class="paytick"><input type="checkbox" name="pays" value="School fees"><span>School fees</span></label>
+            <label class="paytick"><input type="checkbox" name="pays" value="Hospital or medicines"><span>Hospital bills or medicines</span></label>
+            <label class="paytick"><input type="checkbox" name="pays" value="Shared family costs"><span>Costs I share with brothers and sisters</span></label>
+            <label class="paytick"><input type="checkbox" name="pays" value="Funerals"><span>Funerals</span></label>
+            <label class="paytick"><input type="checkbox" name="pays" value="Building bit by bit"><span>Building a house bit by bit</span></label>
+            <label class="paytick"><input type="checkbox" name="pays" value="Watching land or a house"><span>Someone to watch my land or house</span></label>
+            <label class="paytick"><input type="checkbox" name="pays" value="Paperwork"><span>Passports, Ghana Card and other papers</span></label>
+            <label class="paytick"><input type="checkbox" name="pays" value="Trip home"><span>Getting ready for a trip home</span></label>
+            <label class="paytick"><input type="checkbox" name="pays" value="Church or hometown dues"><span>Church, mosque or hometown dues</span></label>
+          </div>
+        </fieldset>
         <div class="field"><label for="f-msg">Anything else?</label><textarea id="f-msg" name="message" placeholder="The seller's name, the price you were offered, any worries."></textarea></div>
         <label class="consent"><input id="f-consent" type="checkbox" name="consent" required><span>Tenmina may use these details to reply to me about this request. They are not shared with anyone else.</span></label>
 
@@ -464,6 +487,7 @@ const CONTACT = { whatsapp: '', email: '' };
     }
     err.hidden = true;
 
+    const pays = Array.from(document.querySelectorAll('input[name="pays"]:checked')).map((i) => i.value);
     const lines = [
       'Hello Tenmina, I would like a quote.',
       '',
@@ -475,6 +499,7 @@ const CONTACT = { whatsapp: '', email: '' };
       val('whatsapp') ? 'WhatsApp: ' + val('whatsapp') : null,
       val('email') ? 'Email: ' + val('email') : null,
       val('source') ? 'Heard about Tenmina from: ' + val('source') : null,
+      pays.length ? 'Also pays at home: ' + pays.join(', ') : null,
       val('message') ? '' : null,
       val('message') ? val('message') : null,
     ].filter((l) => l !== null);

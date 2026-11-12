@@ -156,6 +156,10 @@ Rollout:
 
 Listings add a second source of revenue. Sellers pay a listing fee and a success fee on each sale, on top of what buyers pay. Both prices are `[TO VERIFY]`. A marketplace needs buyers and sellers at the same time. The plan builds buyer demand first, so sellers can see access to diaspora buyers before they pay to list.
 
+### Candidate lines from diaspora habits
+
+What people abroad already pay for regularly suggests four new candidate lines: **household bills paid directly** (instead of upkeep cash), a **family pot** (brothers and sisters paying into one amount held at the bank), **home watch** (monthly photos, building alerts and repeat searches on land or a house the client owns) and a **trip home bundle**. Two extend planned lines: a **funeral package** and **repeat prescriptions and NHIS renewal**. None is built until a survey of leads (`docs/validation-plan.md` section 4b) and its gate support it. The engine stays the same, and cash to relatives, investment products and airtime top-ups stay out.
+
 ## 4. Market and customers
 
 ### Segments

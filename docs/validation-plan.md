@@ -76,6 +76,17 @@ Rules: the buyer is always the client; no shortcuts for established sellers; sel
 
 Also record how many established sellers' plots were not green. A high share is a finding in itself: being established is not proof of a clean title.
 
+## 4b. Survey: what else people pay for at home
+
+Ask every lead and every webinar attendee one question: **"What else do you pay for at home?"** The answers decide which candidate line (business plan, candidate lines) to test after land. The script and options are in `docs/operations/home-payments-survey.md`.
+
+- The landing page order form asks it as optional tick boxes, and the answers arrive in the request message.
+- Webinars end with it as a poll; WhatsApp leads get it as one follow-up message.
+- Record each answer in the tracker's Leads tab (the "Also pays" columns). The Review tab counts each need and its share.
+- Read the results after the first 50 answers (assumption). Bring the top one or two needs to the day-90 review as the next line to test by hand.
+
+The survey only asks. It promises no service and takes no money for any line that has not passed its gate.
+
 ## 5. What to measure
 
 | Metric | Target (assumption) | How |
@@ -95,6 +106,7 @@ Also record how many established sellers' plots were not green. A high share is 
 | Lands Commission search time | Days per search | Log per search |
 | Checked plots bought | At least 20% of leads offered one (assumption) | Tracker Review: share of offered leads who bought |
 | Established sellers' plots not green | Record, no target | Tracker Checked plots tab |
+| What else leads pay for at home | 50 answers by day 90 (assumption) | Tracker Review: survey summary |
 
 Review the numbers every two weeks.
 

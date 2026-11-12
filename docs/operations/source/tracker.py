@@ -111,10 +111,13 @@ def usd(amount, currency):
     return f'IF(OR({amount}="",{currency}=""),"",IFERROR({amount}*INDEX({RATE},MATCH({currency},{CUR},0)),"Set rate in Lists"))'
 
 # ---------- Leads ----------
+# Survey (validation plan 4b): what else the lead pays for at home. One Yes/No column each.
+PAYS=['Household bills','School fees','Hospital or medicines','Shared family costs','Funerals','Building bit by bit','Watching land or a house','Paperwork','Trip home','Church or hometown dues']
+PAYCOLS=[L(17+i) for i in range(len(PAYS))]
 le=sheet('Leads','Leads','Every enquiry, whether or not it becomes a paid report (validation plan section 4).',
- ['Lead ID','Date','Name','Lives in','Diaspora client?','How they heard','What they need','Plot location','Price point offered (USD)','Outcome','Reason or objection','What they compared it to','Case ID if paid','Referred by','Checked plots offered (plot IDs)','Bought a checked plot (plot ID)'],
- [11,13,20,16,11,22,24,20,14,12,28,24,13,18,22,16])
-dates(le,'B'); dv(le,'E',refs['YesNo']); dv(le,'F',refs['Source']); dv(le,'G',refs['Need']); dv(le,'I',refs['PricePoint']); dv(le,'J',refs['Outcome'])
+ ['Lead ID','Date','Name','Lives in','Diaspora client?','How they heard','What they need','Plot location','Price point offered (USD)','Outcome','Reason or objection','What they compared it to','Case ID if paid','Referred by','Checked plots offered (plot IDs)','Bought a checked plot (plot ID)']+[f'Also pays: {x}' for x in PAYS],
+ [11,13,20,16,11,22,24,20,14,12,28,24,13,18,22,16]+[12]*len(PAYS))
+dates(le,'B'); [dv(le,c,refs['YesNo']) for c in PAYCOLS]; dv(le,'E',refs['YesNo']); dv(le,'F',refs['Source']); dv(le,'G',refs['Need']); dv(le,'I',refs['PricePoint']); dv(le,'J',refs['Outcome'])
 example(le,{'A':'EX-L001','B':date(2027,1,11),'C':'Example client','D':'United Kingdom','E':'Yes','F':'Webinar or talk','G':'Land check before buying','H':'Kasoa','I':'450','J':'Paid','K':'','L':'Asking a cousin to look','M':'EX-C001','N':''})
 
 # ---------- Cases ----------
@@ -320,6 +323,20 @@ for pp in ['300','450','600']:
     rv.cell(row=r,column=3,value=f'=COUNTIFS({L_},Leads!$I$5:$I$304,A{r},Leads!$J$5:$J$304,"Paid")').fill=CALC
     c=rv.cell(row=r,column=4,value=f'=IFERROR(C{r}/B{r},"")'); c.fill=CALC; c.number_format='0%'
     r+=1
+r+=1
+rv.cell(row=r,column=1,value='What else leads pay for at home (validation plan 4b)').font=Font(name=F,size=13,bold=True); r+=1
+hdr(r,['Need','Leads who ticked it','Share of those who answered','','Candidate line']); r+=1
+anyyes='+'.join([f'(Leads!${c}$5:${c}$304="Yes")' for c in PAYCOLS])
+ans=f'SUMPRODUCT(--(({anyyes})>0),--(Leads!$A$5:$A$304<>""),--(LEFT(Leads!$A$5:$A$304,3)<>"EX-"))'
+rv.cell(row=r,column=1,value='Leads who answered the question').font=BOLD
+c=rv.cell(row=r,column=2,value='='+ans); c.fill=CALC; ansrow=r; r+=1
+lines={'Household bills':'Household bills paid directly','School fees':'Payments to institutions (planned)','Hospital or medicines':'Payments to institutions, repeat prescriptions','Shared family costs':'Family pot (new)','Funerals':'Funeral package','Building bit by bit':'Construction (planned)','Watching land or a house':'Home watch (new)','Paperwork':'Paperwork and errands (planned)','Trip home':'Trip home bundle (new)','Church or hometown dues':'Payments to institutions, project funds'}
+for x,col in zip(PAYS,PAYCOLS):
+    rv.cell(row=r,column=1,value=x).font=BODY
+    c=rv.cell(row=r,column=2,value=f'=COUNTIFS({L_},Leads!${col}$5:${col}$304,"Yes")'); c.fill=CALC
+    c=rv.cell(row=r,column=3,value=f'=IFERROR(B{r}/$B${ansrow},"")'); c.fill=CALC; c.number_format='0%'
+    rv.cell(row=r,column=5,value=lines[x]).font=NOTE; r+=1
+rv.cell(row=r,column=1,value='Read after the first 50 answers. The top needs decide which candidate line to test next (business plan, candidate lines).').font=NOTE
 for row in rv.iter_rows():
     for c in row:
         if c.font is None or c.font.name!=F: c.font=Font(name=F,size=c.font.size if c.font else 10,bold=c.font.bold if c.font else False)
@@ -332,7 +349,7 @@ lines=[('Tenmina R0 tracker',TITLE),
 ('',BODY),
 ('What each tab is for',BOLD),
 ('Review: the fortnightly numbers and the day-90 decision (EN-05). Open it at every review.',BODY),
-('Leads: every enquiry, with where it came from, the price offered, and any checked plots offered or bought (EN-01).',BODY),
+('Leads: every enquiry, with where it came from, the price offered, any checked plots offered or bought, and what else they pay for at home (Also pays columns, validation plan 4b) (EN-01).',BODY),
 ('Cases: one row per paid report, with the date each step finished, the verdict and what the client asked for (EN-01).',BODY),
 ('Costs: every cost against a case. Totals flow into Cases and Review.',BODY),
 ('Searches: each Lands Commission search, to time them.',BODY),

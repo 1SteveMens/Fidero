@@ -94,6 +94,7 @@ Pre-seed: $400k for 18 months `[TO VERIFY]` against the wider scope. It funds th
 | `docs/decisions/` | Decision records. Start with `2026-11-01-diaspora-platform.md`, then `2026-11-12-build-with-claude.md` (who builds the software) , `2026-11-12-name-tenmina.md` (the name) and `2026-11-12-checked-plots-and-established-sellers.md` (checked plots test and the escrow pilot mix) |
 | `docs/proposal.md` | Full business proposal |
 | `docs/validation-plan.md` | 90-day plan to launch the manual verification service |
+| `docs/operations/home-payments-survey.md` | The "what else do you pay for at home?" survey for leads and webinars (validation plan 4b) |
 | `docs/partners.md` | Partner types and the first ask to each |
 | `docs/operations/verification-report-template.md` | Structure of the red/amber/green land verification report |
 | `docs/operations/milestone-schedule.md` | Construction milestone schedule, release evidence and inspector checklists |
