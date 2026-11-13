@@ -18,6 +18,8 @@ urlpatterns = [
     path("admin/confirmation-codes", views.ConfirmationList.as_view()),
     path("admin/confirmation-codes/<uuid:pk>/call-records", views.ConfirmationCallRecord.as_view()),
     path("admin/confirmation-codes/<uuid:pk>/call-checks", views.ConfirmationCallCheck.as_view()),
+    path("me/confirmations", views.MyConfirmations.as_view()),
+    path("me/confirmations/<uuid:pk>/disputes", views.MyConfirmationDispute.as_view()),
     path("family-confirmations/codes", views.ConfirmByCode.as_view()),
     path("family-confirmations/<str:token>", views.PublicConfirmation.as_view()),
     path("hooks/messaging", views.DeliveryHook.as_view()),

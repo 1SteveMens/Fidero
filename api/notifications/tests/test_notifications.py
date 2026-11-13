@@ -386,3 +386,21 @@ def test_staff_send_endpoint(seeded, api, people):
         "summary": "Visit"}, format="json")
     assert r.status_code == 201 and r.json()["status"] == "pending"
     assert api(people["carer"]).post("/v1/admin/confirmation-codes", {}, format="json").status_code == 403
+
+
+def test_confirmer_with_account_lists_own_confirmations_and_can_dispute(seeded, api, people, gh):
+    """SCR-PTL-45 in the portal: the named family member sees only their own confirmations, never the code;
+    saying it did not happen needs no code and closes the confirmation as disputed; confirming needs the code."""
+    fam = people["family"]
+    services.send_confirmation_code(subject_type="care_visit", subject_id="v-900", country=gh, channel="in_app",
+                                    recipient_person=fam, summary="Visit by Grace", created_by=people["cm"])
+    r = api(fam).get("/v1/me/confirmations")
+    assert r.status_code == 200
+    row = next(x for x in r.json() if x["subject_id"] == "v-900")
+    assert row["status"] == "pending" and row["attempts_left"] == 5 and "code" not in row and "code_hash" not in row
+    assert all(x["subject_id"] != "v-900" for x in api(people["client2"]).get("/v1/me/confirmations").json())
+    assert api(people["client2"]).post(f"/v1/me/confirmations/{row['id']}/disputes").status_code == 404
+    d = api(fam).post(f"/v1/me/confirmations/{row['id']}/disputes")
+    assert d.status_code == 200 and d.json()["status"] == "disputed" and d.json()["confirmed_via"] == "app"
+    assert OutboxEvent.objects.filter(topic="family_confirmation.disputed", payload__subject_id="v-900").exists()
+    assert api(fam).post(f"/v1/me/confirmations/{row['id']}/disputes").status_code == 409

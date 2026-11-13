@@ -17,6 +17,7 @@ from countries.models import Country
 from . import catalogue, services
 from .models import ConfirmationCode, DeliveryEvent, Message, PushDevice, Template
 from .serializers import (
+    MyConfirmationSerializer,
     ConfirmationAttemptResultSerializer, ConfirmationCallCheckSerializer, ConfirmationCallRecordSerializer, CatalogueEntrySerializer,
     CodeAttemptSerializer, ConfirmationSendSerializer, FamilyConfirmationSerializer, DeliveryHookSerializer,
     MessagingHookAckSerializer, InboxMessageSerializer, LinkDecisionSerializer, InboxMarkedSerializer, MessageLogSerializer,
@@ -302,6 +303,24 @@ class ConfirmByCode(APIView):
         return _attempt_response(request, services.attempt_code(subject_type=d["subject_type"],
                                                                 subject_id=d["subject_id"], code=d["code"],
                                                                 actor=request.user))
+
+
+class MyConfirmations(APIView):
+    """Visits and deliveries a family member with an account is asked to confirm (SCR-PTL-45, US-CARE-004).
+    They confirm with the code sent to their own phone (/v1/family-confirmations/codes)."""
+
+    @extend_schema(responses=MyConfirmationSerializer(many=True))
+    def get(self, request):
+        return Response(MyConfirmationSerializer(services.my_confirmations(request.user), many=True).data)
+
+
+class MyConfirmationDispute(APIView):
+    """The named confirmer says it did not happen. Tenmina calls them; nobody is paid for it."""
+
+    @extend_schema(request=None, responses=MyConfirmationSerializer)
+    @idempotent
+    def post(self, request, pk):
+        return Response(MyConfirmationSerializer(services.dispute_mine(pk, request.user)).data)
 
 
 class PublicConfirmation(APIView):
