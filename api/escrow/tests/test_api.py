@@ -124,7 +124,8 @@ def test_held_funds_over_the_api(b, api, mfa):
     mfa(c, person)
     assert c.post(f"/v1/release-instructions/{ins.pk}/client-approval", {}, format="json").status_code == 200
     r = c.get(f"/v1/escrows/{hf.pk}/statement")
-    assert any(line["subject_label"] == "Term 2 fees" for line in r.json()["lines"])
+    assert ins.subject_label.startswith("Term fees")  # FEE names the bill
+    assert any(line["subject_label"] == ins.subject_label for line in r.json()["lines"])
 
 
 def test_payee_bank_details_cannot_be_edited_over_the_api(b, api):

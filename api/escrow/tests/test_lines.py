@@ -114,7 +114,7 @@ def test_one_live_instruction_per_subject(b):
     """02 6.5: one live instruction per invoice, visit or milestone."""
     from core.errors import StateConflict
 
-    hf = b.held_funds(None)
+    hf = b.held_funds("2000.00")
     ins = b.fee_release(hf, "100.00")  # FEE prepares the one instruction for its bill
     with pytest.raises(StateConflict):
         services.request_release(Escrow.objects.get(pk=hf.pk), requested_by=b.cm, payee=b.payee("school"),

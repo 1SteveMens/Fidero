@@ -273,12 +273,18 @@ def test_shared_payee_change_needs_each_client(b, codes):
     services.decide_change(ch, b.rv2, decision="approve", mfa_at=timezone.now())
     Payee.objects.filter(pk=school.pk).update(cooling_off_until=timezone.now() - timedelta(seconds=1))
     assert ReleaseInstruction.objects.get(pk=first.pk).status == "withdrawn"  # the account changed (RUL-28)
-    bill = b.fee_invoice(hf.client, "100.00", approve=False)
-    with pytest.raises(RuleBlocked) as ei:
+    with pytest.raises(RuleBlocked) as ei:  # the bill of the withdrawn instruction, now on the new account
         services.request_release(Escrow.objects.get(pk=hf.pk), requested_by=b.cm, payee=Payee.objects.get(
-            pk=school.pk), amount="100.00", subject_type="fee_invoice", subject_id=bill.pk)
+            pk=school.pk), amount="100.00", subject_type="fee_invoice", subject_id=first.subject_id)
     assert "payee-not-locked" in codes(ei.value)
     services.client_approve_change(PayeeChange.objects.get(pk=ch.pk), hf.client, mfa_at=timezone.now())
+    # FEE pauses the school until a new verification case passes (US-FEE-001 AC3); then bills are paid again.
+    from fees.seed import complete_case
+
+    school_inst = b.school()
+    assert school_inst.status == "pending"
+    complete_case(school_inst.verification_case, b.cm, b.rv)
+    assert b.school().status == "verified"
     ins = b.fee_release(Escrow.objects.get(pk=hf.pk), "100.00")
     assert ins.payee_account_version == 2
 
