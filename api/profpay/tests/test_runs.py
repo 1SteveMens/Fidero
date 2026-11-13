@@ -128,6 +128,8 @@ def test_run_journey_api(pro, api, mfa):
     mfa(rv, pro.rv)
     r = rv.post(f"/v1/pro/payment-runs/{rid}/approvals", {"decision": "approve"}, format="json")
     assert r.status_code == 200 and r.json()["status"] == "file_issued", r.content
+    # W-41: the two slots name the preparer and the approver.
+    assert r.json()["prepared_by_name"] == pro.cm.full_name and r.json()["approved_by_name"] == pro.rv.full_name
     sha = r.json()["file_sha256"]
     f = rv.get(f"/v1/pro/payment-runs/{rid}/file")
     assert f.status_code == 200 and hashlib.sha256(f.content).hexdigest() == sha

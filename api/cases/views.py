@@ -62,7 +62,7 @@ class CaseViewSet(ETagMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, v
     """Case list and tracker: clients their own, staff their countries, professionals what they are assigned."""
 
     lookup_value_regex = UUID_RE
-    filterset_fields = ["status", "product_line"]
+    filterset_fields = ["status", "product_line", "client"]
 
     def get_queryset(self):
         return selectors.visible_cases(self.request.user).select_related(

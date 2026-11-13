@@ -134,6 +134,14 @@ class EscrowViewSet(viewsets.GenericViewSet):
             v = self.request.query_params.get(f)
             if v:
                 qs = qs.filter(**{f: v})
+        client = self.request.query_params.get("client")
+        if client:  # back office: one client's escrows, within what the caller may see anyway
+            import uuid
+
+            try:
+                qs = qs.filter(client_id=uuid.UUID(client))
+            except ValueError:
+                raise Invalid("client must be a person ID.") from None
         return qs
 
     @extend_schema(responses=EscrowListSerializer(many=True),
