@@ -1,84 +1,84 @@
-import { Pressable, View } from 'react-native';
-import { router, type Href } from 'expo-router';
+import { View } from 'react-native';
+import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import type { HomeRow } from '@tenmina/shared';
-import { brand, radius, space } from '@tenmina/tokens';
-import { ArrowBox, ErrorView, IconButton, IconTile, Loading, Panel, Rise, Screen, T, haptic, type IconName } from '@tenmina/ui';
-import { useLoad } from '../../data';
-import { usePalette } from '@tenmina/ui';
+import { brand, space } from '@tenmina/tokens';
+import { IconButton, Panel, Rise, Screen, T } from '@tenmina/ui';
+import { LoadState, Section, initials, words } from '@tenmina/mobile';
+import { ItemList, NeedsYouList, StartTile, useHome } from '../../components/rows';
+import type { HomeItem } from '../../lib';
 
-function rowIcon(title: string): IconName {
-  if (/hospital|bill/i.test(title)) return 'receipt-outline';
-  if (/care/i.test(title)) return 'heart-outline';
-  if (/fees|school|term/i.test(title)) return 'school-outline';
-  return 'document-text-outline';
-}
+const LINES = ['fee', 'care', 'errands', 'ins', 'evt', 'family'];
 
-function FamilyRow({ row }: { row: HomeRow }) {
-  const p = usePalette();
-  if (row.href) {
-    // Something waiting for the client: orange, and it opens.
-    return (
-      <Pressable
-        onPress={() => {
-          haptic('tap');
-          router.push(row.href as Href);
-        }}
-        accessibilityRole="button"
-        accessibilityLabel={`${row.title}. ${row.detail}`}
-        style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: space[3], backgroundColor: brand.orange, borderRadius: radius.lg - 4, padding: space[3], opacity: pressed ? 0.85 : 1 })}
-      >
-        <IconTile name={rowIcon(row.title)} tone="ink" size={38} />
-        <View style={{ flex: 1 }}>
-          <T v="headline" color={brand.ink} style={{ fontSize: 15 }}>{row.title}</T>
-          <T v="footnote" color="#3A1408">{row.detail}</T>
-        </View>
-        <ArrowBox arrow={brand.orange} />
-      </Pressable>
-    );
-  }
-  return (
-    <View accessible accessibilityLabel={`${row.title}. ${row.detail}`} style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], backgroundColor: p.ground, borderRadius: radius.lg - 4, padding: space[3] }}>
-      <IconTile name={rowIcon(row.title)} tone="ink" size={38} />
-      <View style={{ flex: 1 }}>
-        <T v="headline" style={{ fontSize: 15 }}>{row.title}</T>
-        <T v="footnote" muted>{row.detail}</T>
-      </View>
-    </View>
-  );
-}
-
+/**
+ * Family (03 2.3a): each family member with their bills, care and errands, then
+ * insurance and events. We pay institutions, carers and vendors directly. Never
+ * cash to a person (RUL-22).
+ */
 export default function Family() {
-  const { data, error, reload } = useLoad((api) => api.listFamily(), 'family');
+  const home = useHome();
+  const d = home.data;
+  const items = (d?.items ?? []).filter((i) => LINES.includes(i.line) || !!i.family_member_id);
+  const forMember = (id: string) => items.filter((i) => i.family_member_id === id);
+  const general = items.filter((i) => !i.family_member_id);
+  const group = (lines: string[]): HomeItem[] => general.filter((i) => lines.includes(i.line));
 
   return (
-    <Screen ground="paper" tabs title="Family" trailing={<IconButton icon="add" tone="lime" label="Add a family member" onPress={() => undefined} />}>
+    <Screen ground="paper" tabs title="Family" trailing={<IconButton icon="person-add-outline" tone="lime" label="Add a family member" onPress={() => router.push('/member/new')} />}>
       <Rise delay={40}>
         <Panel tone="raised" style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: space[3] }}>
           <Ionicons name="shield-checkmark-outline" size={22} color={brand.lime} />
-          <T v="callout" color="#F7F6F2" style={{ flex: 1 }}>We pay hospitals, schools and carers directly. Never cash to a person.</T>
+          <T v="callout" color="#F7F6F2" style={{ flex: 1 }}>We pay hospitals, schools, carers and vendors directly. Never cash to a person.</T>
         </Panel>
       </Rise>
-      {error ? <ErrorView message={error} onRetry={reload} /> : null}
-      {!data && !error ? <Loading /> : null}
-      {data?.map((m, i) => (
-        <Rise key={m.id} delay={120 + i * 120}>
-          <Panel>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[3] }}>
-              <View style={{ width: 48, height: 48, borderRadius: 16, backgroundColor: i % 2 === 0 ? brand.ink : brand.lime, alignItems: 'center', justifyContent: 'center' }}>
-                <T v="headline" color={i % 2 === 0 ? '#F7F6F2' : brand.ink}>{m.name.split(' ').map((w) => w[0]).join('')}</T>
-              </View>
-              <View style={{ flex: 1 }}>
-                <T v="title" style={{ fontSize: 19, lineHeight: 23 }}>{m.name}</T>
-                <T v="footnote" muted>{`${m.relationship} · ${m.place}`}</T>
-              </View>
-            </View>
-            {m.rows.map((r) => (
-              <FamilyRow key={r.id} row={r} />
-            ))}
-          </Panel>
-        </Rise>
-      ))}
+      <LoadState loading={home.loading} problem={home.problem} onRetry={home.reload} hasData={!!d} />
+      {d ? <NeedsYouList items={items.filter((i) => i.needs_action)} limit={0} /> : null}
+      {d?.family_members.map((m, i) => {
+        const rows = forMember(m.id);
+        return (
+          <Rise key={m.id} delay={100 + i * 80}>
+            <Panel>
+              <Panel tone="ground" onPress={() => router.push(`/member/${m.id}`)} accessibilityLabel={`${m.full_name}, ${m.relationship}. Open the statement.`} style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], padding: 0, backgroundColor: 'transparent' }}>
+                <View style={{ width: 48, height: 48, borderRadius: 16, backgroundColor: i % 2 === 0 ? brand.ink : brand.lime, alignItems: 'center', justifyContent: 'center' }}>
+                  <T v="headline" color={i % 2 === 0 ? '#F7F6F2' : brand.ink}>{initials(m.full_name)}</T>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <T v="title" style={{ fontSize: 19, lineHeight: 23 }}>{m.full_name}</T>
+                  <T v="footnote" muted>{`${words(m.relationship)} · ${m.address}`}</T>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color="#6A675F" />
+              </Panel>
+              {rows.length ? <ItemList items={[...rows.filter((r) => r.needs_action), ...rows.filter((r) => !r.needs_action).slice(0, 4)]} /> : null}
+              {!rows.length ? <T v="footnote" muted>Nothing open for them right now.</T> : null}
+            </Panel>
+          </Rise>
+        );
+      })}
+      {d ? (
+        <>
+          {group(['fee']).length ? (
+            <Section title="Bills, institutions and fee schedules">
+              <ItemList items={group(['fee'])} />
+            </Section>
+          ) : null}
+          <Section title="Care">
+            <ItemList items={group(['care'])} empty="No care plans yet." />
+          </Section>
+          <Section title="Paperwork and errands">
+            <ItemList items={group(['errands'])} empty="No errands yet." />
+          </Section>
+          <Section title="Insurance: your policy wallet">
+            <ItemList items={group(['ins'])} empty="No policies. Cover is sold only as a licensed insurer's product." />
+          </Section>
+          <Section title="Events">
+            <ItemList items={group(['evt'])} empty="No events." />
+          </Section>
+          <T v="headline" header style={{ fontSize: 18, marginTop: space[2] }}>Start something new</T>
+          <View style={{ flexDirection: 'row', gap: space[2] }}>
+            <StartTile icon="person-add-outline" title="Add family" detail="Who we pay for" tone="lime" href="/member/new" />
+            <StartTile icon="briefcase-outline" title="An errand" detail="Cards, certificates" tone="ink" href="/errand/new" />
+          </View>
+        </>
+      ) : null}
     </Screen>
   );
 }

@@ -1,12 +1,12 @@
 import { Pressable, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import type { HeldAccount } from '@tenmina/shared';
 import { brand, font, radius, space } from '@tenmina/tokens';
-import { AccountCards } from '@tenmina/ui';
-import { Mark } from '@tenmina/ui';
-import { ErrorView, IconButton, Label, ListRow, Loading, NeedsYou, Panel, Rise, Screen, T, VerdictChip, haptic, type IconName } from '@tenmina/ui';
-import { useLoad } from '../../data';
-import { usePalette } from '@tenmina/ui';
+import { AccountCards, IconButton, Label, Mark, Rise, Screen, T, haptic, usePalette, type IconName } from '@tenmina/ui';
+import { LoadState, Section, itemsOf, toMinor, useGet, useLoad, type ApiMoney } from '@tenmina/mobile';
+import { ItemList, NeedsYouList } from '../../components/rows';
+import type { Escrow, Home as HomeData } from '../../lib';
 
 function Quick({ icon, label, tone, href, delay }: { icon: IconName; label: string; tone: 'lime' | 'ink' | 'surface'; href: Href; delay: number }) {
   const p = usePalette();
@@ -23,83 +23,95 @@ function Quick({ icon, label, tone, href, delay }: { icon: IconName; label: stri
         accessibilityLabel={label}
         style={({ pressed }) => ({ alignItems: 'center', gap: 6, opacity: pressed ? 0.8 : 1, transform: [{ scale: pressed ? 0.96 : 1 }] })}
       >
-        <View style={{ width: 66, height: 66, borderRadius: radius.lg, backgroundColor: bg, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{ width: 64, height: 64, borderRadius: radius.lg, backgroundColor: bg, alignItems: 'center', justifyContent: 'center' }}>
           <Ionicons name={icon} size={26} color={fg} />
         </View>
-        <T v="footnote" style={{ fontFamily: font.semibold }}>{label}</T>
+        <T v="footnote" style={{ fontFamily: font.semibold, textAlign: 'center' }}>{label}</T>
       </Pressable>
     </Rise>
   );
 }
 
+const HELD = ['funded', 'ready_to_release', 'partly_released', 'client_approved', 'release_approved', 'frozen', 'disputed'];
+
+/** Every account the bank holds for the client, as cards with the seal (03 6.1a). Tenmina never holds it (RUL-01). */
+async function loadAccounts(api: Parameters<Parameters<typeof useLoad>[0]>[0]): Promise<{ accounts: HeldAccount[]; total: ApiMoney | null }> {
+  const [held, list] = await Promise.all([
+    api.get<Escrow[]>('/v1/held-funds'),
+    api.get<{ items: { id: string; status: string; kind: string }[] }>('/v1/escrows'),
+  ]);
+  const others = itemsOf(list).filter((e) => HELD.includes(e.status) && e.kind !== 'held_funds').slice(0, 5);
+  const details = await Promise.all(others.map((e) => api.get<Escrow>(`/v1/escrows/${e.id}`).catch(() => null)));
+  const all = [...held, ...details.filter((d): d is Escrow => !!d)];
+  const accounts: HeldAccount[] = [];
+  for (const e of all) {
+    const f = e.funds?.[0];
+    if (!f || Number(f.held_at_bank) <= 0) continue;
+    accounts.push({
+      id: e.id,
+      label: e.kind === 'held_funds' ? 'Family and bills' : e.title,
+      kind: e.kind === 'held_funds' ? 'family' : 'escrow',
+      bankRef: f.virtual_account_ref || e.reference,
+      heldAt: e.payment_instructions?.bank_name?.replace(/\s*\[TO VERIFY\]/, '') || 'Partner bank',
+      held: toMinor({ amount: f.held_at_bank, currency: f.currency }) as HeldAccount['held'],
+      href: `/escrow/${e.id}`,
+    });
+  }
+  const currency = accounts[0]?.held.currency;
+  const sum = accounts.filter((a) => a.held.currency === currency).reduce((n, a) => n + a.held.amountMinor, 0);
+  return { accounts, total: currency ? { amount: (sum / 100).toFixed(2), currency } : null };
+}
+
+/** Home dashboard (SCR-PTL-36, W-25): account cards with the seal, what needs you, then everything else. */
 export default function Home() {
   const p = usePalette('paper');
-  const { data, error, reload } = useLoad((api) => api.getDashboard(), 'dashboard');
-  const bill = data?.needsYou.find((n) => n.href.startsWith('/invoice'));
-  const latest = data ? [...data.property, ...data.family, ...data.projects] : [];
+  const home = useGet<HomeData>('/v1/home');
+  const money = useLoad(loadAccounts, 'accounts');
+  const unread = useGet<{ count: number }>('/v1/me/notifications/unread-count');
+  const d = home.data;
+  const needs = d?.items.filter((i) => i.needs_action) ?? [];
+  const rest = d?.items.filter((i) => !i.needs_action && i.kind !== 'rating_opportunity') ?? [];
+  const first = d?.person.full_name.split(' ')[0];
+  const bill = needs.find((i) => i.kind === 'fee_invoice');
 
   return (
     <Screen ground="paper" tabs>
       <Rise>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[3] }}>
           <Mark />
-          <T v="title" header style={{ flex: 1 }}>{data ? `Akwaaba, ${data.firstName}` : 'Akwaaba'}</T>
+          <T v="title" header style={{ flex: 1 }}>{first ? `Akwaaba, ${first}` : 'Akwaaba'}</T>
           <View>
-            <IconButton icon="notifications-outline" label={data?.needsYou.length ? `Notifications, ${data.needsYou.length} new` : 'Notifications'} onPress={() => undefined} />
-            {data?.needsYou.length ? <View style={{ position: 'absolute', top: 10, right: 11, width: 10, height: 10, borderRadius: 5, backgroundColor: brand.orange, borderWidth: 2, borderColor: p.surface }} /> : null}
+            <IconButton icon="notifications-outline" label={unread.data?.count ? `Messages, ${unread.data.count} new` : 'Messages'} onPress={() => router.push('/inbox')} />
+            {unread.data?.count ? <View style={{ position: 'absolute', top: 10, right: 11, width: 10, height: 10, borderRadius: 5, backgroundColor: brand.orange, borderWidth: 2, borderColor: p.surface }} /> : null}
           </View>
         </View>
       </Rise>
 
-      {error ? <ErrorView message={error} onRetry={reload} /> : null}
-      {!data && !error ? <Loading /> : null}
-      {data ? (
-        <>
-          <AccountCards accounts={data.accounts} holder={data.fullName} total={data.held} />
+      <LoadState loading={home.loading} problem={home.problem} onRetry={home.reload} hasData={!!d} />
 
+      {money.data && money.data.accounts.length && money.data.total ? (
+        <AccountCards accounts={money.data.accounts} holder={d?.person.full_name.toUpperCase() ?? ''} total={toMinor(money.data.total) as HeldAccount['held']} />
+      ) : null}
+
+      {d ? (
+        <>
           <View style={{ flexDirection: 'row', gap: space[2] }}>
-            <Quick icon="location-outline" label="Check land" tone="lime" href="/property" delay={300} />
-            <Quick icon="receipt-outline" label="Pay a bill" tone="ink" href={(bill?.href ?? '/family') as Href} delay={360} />
-            <Quick icon="construct-outline" label="Build" tone="surface" href="/projects" delay={420} />
-            <Quick icon="heart-outline" label="Care visit" tone="surface" href="/family" delay={480} />
+            <Quick icon="location-outline" label="Check land" tone="lime" href="/order" delay={200} />
+            <Quick icon="receipt-outline" label="Pay a bill" tone="ink" href={bill ? (`/invoice/${bill.id}` as Href) : '/family'} delay={260} />
+            <Quick icon="construct-outline" label="Build" tone="surface" href="/projects" delay={320} />
+            <Quick icon="heart-outline" label="Care visit" tone="surface" href="/family" delay={380} />
           </View>
 
-          {data.needsYou.length > 0 ? (
-            <Rise delay={540} style={{ gap: space[3] }}>
-              <NeedsYou title={data.needsYou[0].title} detail={data.needsYou[0].detail} count={data.needsYou.length} onPress={() => router.push(data.needsYou[0].href as Href)} />
-              {data.needsYou.length > 1 ? (
-                <Panel style={{ paddingVertical: space[1], gap: 0 }}>
-                  {data.needsYou.slice(1).map((n, i, all) => (
-                    <ListRow key={n.id} icon="hand-left-outline" iconTone="orange" title={n.title} detail={n.detail} onPress={() => router.push(n.href as Href)} last={i === all.length - 1} />
-                  ))}
-                </Panel>
-              ) : null}
-            </Rise>
-          ) : (
-            <Panel tone="lime" style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Ionicons name="checkmark-circle" size={22} color={brand.ink} />
-              <T v="headline" color={brand.ink}>Nothing needs you right now</T>
-            </Panel>
-          )}
-
-          <Rise delay={620} style={{ gap: space[2] }}>
-            <T v="headline" header style={{ fontSize: 18 }}>Your cases and family</T>
-            <View>
-              {latest.map((r, i) => (
-                <ListRow
-                  key={r.id}
-                  icon={r.id.startsWith('p') ? 'business-outline' : r.id.startsWith('f') ? 'heart-outline' : 'document-text-outline'}
-                  iconTone="surface"
-                  title={r.title}
-                  detail={r.detail}
-                  onPress={r.href ? () => router.push(r.href as Href) : undefined}
-                  trailing={r.badge?.verdict ? <VerdictChip verdict={r.badge.verdict} /> : undefined}
-                  last={i === latest.length - 1}
-                />
-              ))}
-            </View>
+          <Rise delay={420}>
+            <NeedsYouList items={needs} />
           </Rise>
-          <Label style={{ textAlign: 'center' }}>Sample data for the demo build</Label>
+
+          <Rise delay={500}>
+            <Section title={`Everything else · ${rest.length}`}>
+              <ItemList items={rest.slice(0, 8)} empty="Nothing yet. Start with a land check or a bill." />
+            </Section>
+          </Rise>
+          <Label style={{ textAlign: 'center' }}>{`${d.person.home_country} · money is held by the partner bank, never by Tenmina`}</Label>
         </>
       ) : null}
     </Screen>

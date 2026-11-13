@@ -49,18 +49,31 @@ pnpm -r test
 
 | Route | Screen |
 |---|---|
-| `/welcome` | Welcome and sign in (demo: any button signs in) |
-| `/` | Home: account cards, quick actions, what needs you, cases and family |
+| `/welcome`, `/sign-in`, `/sign-up` | Welcome; sign in with the authenticator code when MFA is on (SCR-PTL-03); sign up with email and phone codes (SCR-PTL-02, 37) |
+| `/turn-on-notifications` | Turn on notifications? (SCR-APP-01); registers the install with `/v1/me/push-devices` |
+| `/` | Home (SCR-PTL-36): account cards with the seal, quick actions, Needs you, everything else |
 | `/property`, `/family`, `/projects`, `/account` | The other tabs |
-| `/case/[id]` | Case progress as a step trail |
-| `/report/[id]` | Report verdict, conditions, section results, PDF fingerprint |
-| `/escrow/[id]` | Release approval: ticket, conditions, code, press and hold |
-| `/invoice/[id]` | Institution invoice approval sheet |
-| `/account/delete` | In-app account deletion: what is deleted, what is kept and why (FR-APP-004) |
+| `/order` | Order a report in four steps with the site plan (SCR-PTL-06 to 09) |
+| `/pay-fee/[id]` | Pay Tenmina's fee (SCR-APP-06): in `web` mode it opens the website checkout in the browser, never an in-app purchase |
+| `/case/[id]`, `/report/[id]` | Case tracker and report viewer (SCR-PTL-12, 14) |
+| `/escrow/[id]` | Escrow tracker, terms acceptance and the bank's own payment details (SCR-PTL-16 to 18) |
+| `/release/[id]` | Approve any release from a held account: purchase, milestone, carer, errand fee (ticket, conditions, code, press and hold) |
+| `/payee-change/[id]` | Approve a payee change (SCR-MOB-23) |
+| `/invoice/[id]`, `/fee-payment/[id]` | Pay an invoice by either route, then the payment and its receipt (SCR-PTL-40) |
+| `/member/[id]`, `/member/new` | Family-member statement, add a family member (SCR-PTL-42, 38) |
+| `/care-plan/[id]`, `/care-visit/[id]`, `/concern/[id]` | Care plan with start and code, visits, concerns (SCR-PTL-43, 44) |
+| `/errand/[id]`, `/errand/new` | Errand progress and catalogue (SCR-PTL-50, 49) |
+| `/event/[id]` | Event budget, vendors and vendor payment approval |
+| `/policy/[id]`, `/premium/[id]` | Policy wallet and premiums paid straight to the insurer (SCR-PTL-52) |
+| `/project/[id]` | Build dashboard and project fund (SCR-PTL-22, 30) |
+| `/managed/[id]`, `/repair/[id]` | Property dashboard and repair quote approval (SCR-PTL-47, 48) |
+| `/dispute/[id]` | Dispute with statements (SCR-PTL-29) |
+| `/inbox`, `/item` | Messages; anything without its own screen yet, with a link to the website |
+| `/account/security`, `/account/notifications`, `/account/representatives`, `/account/data`, `/account/delete` | Authenticator set-up, channels, representatives, my data, delete my account (FR-APP-004) |
 
 ## Next
 
-- Replace the sample API with the HTTP client for `/v1` once the R1 backend exists.
-- Real sign-in (FR-ACC-001 to FR-ACC-003), push notifications (FR-APP-002), biometric unlock (FR-APP-003), minimum-version check (FR-APP-006).
+- Unlock with Face ID or fingerprint (SCR-APP-02, SCR-APP-03, FR-APP-003) with `expo-local-authentication`.
+- Real push tokens with `expo-notifications` in a development build; this build registers a development token.
+- Uploading documents asked for on a case or an errand (today on the website).
 - A licensed photograph for the welcome screen (03 DQ-22).
-- Tenmina Field in `apps/field`, with the native capture, signing and attestation modules.

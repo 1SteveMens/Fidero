@@ -1,81 +1,88 @@
 import { Platform } from 'react-native';
 import * as Location from 'expo-location';
-import * as Crypto from 'expo-crypto';
-import { Directory, File, Paths } from 'expo-file-system';
-import { distanceMeters, type Capture, type GeoPoint, type Site } from '@tenmina/shared';
-import { newId } from './store';
+import { File } from 'expo-file-system';
+import { newUuid } from '@tenmina/mobile';
+import { sha256Hex } from './canonical';
+import { keepFile, webBlobs } from './persist';
+import type { Capture, Job } from './types';
 
-export type Position = GeoPoint & { accuracyM?: number };
+export interface Position {
+  lat: number;
+  lng: number;
+  accuracyM?: number;
+  mock?: boolean;
+}
 
 /** The phone's position now, or undefined if location is off or refused (FR-MOB-003, FR-MOB-012). */
 export async function currentPosition(): Promise<Position | undefined> {
   try {
     const perm = await Location.requestForegroundPermissionsAsync();
     if (!perm.granted) return undefined;
-    const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-    return { lat: loc.coords.latitude, lng: loc.coords.longitude, accuracyM: loc.coords.accuracy ?? undefined };
+    const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+    return { lat: loc.coords.latitude, lng: loc.coords.longitude, accuracyM: loc.coords.accuracy ?? undefined, mock: (loc as { mocked?: boolean }).mocked ?? false };
   } catch {
     return undefined;
   }
 }
 
-function hex(buf: ArrayBuffer): string {
-  return Array.from(new Uint8Array(buf))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
+/** Metres between two points (haversine), as the server measures it. */
+export function distanceM(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const R = 6371000;
+  const rad = (d: number) => (d * Math.PI) / 180;
+  const dLat = rad(b.lat - a.lat);
+  const dLng = rad(b.lng - a.lng);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
 }
 
-/** SHA-256 of the captured file, taken on the phone (FR-MOB-004, first half; hardware signing comes with the test build). */
-async function fingerprint(uri: string): Promise<string> {
-  if (Platform.OS !== 'web') {
-    try {
-      return await new File(uri).digest('SHA-256');
-    } catch {
-      // fall through
-    }
+/** "312 m from the address" or a warning when too far or the fix is poor (FR-MOB-003). */
+export function siteCheck(job: Job | undefined, pos: Position | undefined, maxAccuracy = 50): { far: boolean; text: string; distance?: number } {
+  if (!pos) return { far: true, text: 'Location is off. Turn it on, or say why.' };
+  if (!job?.point) return { far: false, text: `Position recorded (±${Math.round(pos.accuracyM ?? 0)} m)` };
+  const d = distanceM(pos, job.point);
+  const radius = job.radius_m ?? 100;
+  if (d > radius) return { far: true, distance: d, text: `${Math.round(d)} m from the site. That is further than ${radius} m.` };
+  if ((pos.accuracyM ?? 0) > maxAccuracy) return { far: true, distance: d, text: `Weak location fix (±${Math.round(pos.accuracyM ?? 0)} m).` };
+  return { far: false, distance: d, text: `On site, ${Math.round(d)} m from the address` };
+}
+
+/**
+ * Builds a capture from a file this app's camera just made: its SHA-256 and
+ * size, the time and the position. It is signed when the person keeps it.
+ */
+export async function makeCapture(opts: { uri: string; kind: 'photo' | 'video'; mediaType?: string; subjectType: string; subjectId: string; requirementKey: string; job?: Job; blob?: Blob }): Promise<Omit<Capture, 'signed' | 'state'>> {
+  const id = newUuid();
+  const takenAt = new Date().toISOString();
+  const position = await currentPosition();
+  let sha: string;
+  let size: number;
+  let uri = opts.uri;
+  if (Platform.OS === 'web') {
+    const blob = opts.blob ?? (await (await fetch(opts.uri)).blob());
+    const bytes = new Uint8Array(await blob.arrayBuffer());
+    sha = sha256Hex(bytes);
+    size = bytes.byteLength;
+    webBlobs.set(id, blob);
+  } else {
+    uri = keepFile(opts.uri, id, opts.kind === 'video' ? 'mp4' : 'jpg');
+    const f = new File(uri);
+    sha = (await f.digest('SHA-256')).toLowerCase();
+    size = f.size;
   }
-  const buf = await (await fetch(uri)).arrayBuffer();
-  return hex(await Crypto.digest(Crypto.CryptoDigestAlgorithm.SHA256, buf));
-}
-
-/** Moves the capture into the app's own evidence folder, so it is kept until the server confirms receipt (FR-MOB-008). */
-function keepOnPhone(uri: string, id: string, ext: string): string {
-  if (Platform.OS === 'web') return uri;
-  try {
-    const dir = new Directory(Paths.document, 'tenmina-field', 'evidence');
-    if (!dir.exists) dir.create({ intermediates: true, idempotent: true });
-    const dest = new File(dir, `${id}.${ext}`);
-    new File(uri).copySync(dest);
-    return dest.uri;
-  } catch {
-    return uri;
-  }
-}
-
-/** Builds a capture record from a file the app's camera just made. */
-export async function makeCapture(opts: { uri: string; kind: 'photo' | 'video'; jobId: string; itemId: string; site: Site }): Promise<Capture> {
-  const id = newId('cap');
-  const [position, sha256] = await Promise.all([currentPosition(), fingerprint(opts.uri)]);
-  const uri = keepOnPhone(opts.uri, id, opts.kind === 'video' ? 'mp4' : 'jpg');
   return {
     id,
-    jobId: opts.jobId,
-    itemId: opts.itemId,
+    subjectType: opts.subjectType,
+    subjectId: opts.subjectId,
+    requirementKey: opts.requirementKey,
     kind: opts.kind,
     uri,
-    takenAt: new Date().toISOString(),
-    position,
-    distanceM: position ? distanceMeters(position, opts.site.location) : undefined,
-    sha256,
+    mediaType: opts.mediaType ?? (opts.kind === 'video' ? 'video/mp4' : 'image/jpeg'),
+    size,
+    sha256: sha,
+    takenAt,
+    lat: position?.lat,
+    lng: position?.lng,
+    accuracyM: position?.accuracyM,
+    distanceM: position && opts.job?.point ? distanceM(position, opts.job.point) : undefined,
   };
-}
-
-/** "4be1 … 9c02": the first and last four characters, as the report shows fingerprints. */
-export function shortHash(h: string): string {
-  return h.length > 8 ? `${h.slice(0, 4)} … ${h.slice(-4)}` : h;
-}
-
-export function timeOfDay(iso: string): string {
-  const d = new Date(iso);
-  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }

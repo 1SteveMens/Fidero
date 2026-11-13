@@ -65,36 +65,50 @@ Install **Expo Go** from the App Store. It is free.
    pnpm install
    ```
 
-2. Start the app:
+2. Start the API on the laptop, reachable from the phone (in its own Terminal window; see `api/README.md` for the first-time database setup):
+
+   ```bash
+   cd api
+   ```
+
+   ```bash
+   python manage.py runserver 0.0.0.0:8000
+   ```
+
+   Find the laptop's address on the Wi-Fi (on a Mac: System Settings, Wi-Fi, Details, for example `192.168.1.20`). The phone cannot use "localhost".
+
+3. Start the app, pointing it at the API:
 
    ```bash
    cd apps/client
    ```
 
    ```bash
-   npx expo start
+   EXPO_PUBLIC_API_URL=http://192.168.1.20:8000 npx expo start
    ```
 
-3. A QR code appears in the window. Point the iPhone's Camera at it and tap the banner. The app opens in Expo Go.
-4. The laptop and the iPhone must be on the same Wi-Fi. If they are not, or the app does not load, stop it with Ctrl+C and start it with a tunnel instead:
+4. A QR code appears in the window. Point the iPhone's Camera at it and tap the banner. The app opens in Expo Go.
+5. The laptop and the iPhone must be on the same Wi-Fi. If they are not, or the app does not load, stop it with Ctrl+C and start it with a tunnel instead:
 
    ```bash
    npx expo start --tunnel
    ```
 
-5. Leave the window open while you test. Shake the iPhone for the menu, where "Reload" restarts the app.
+6. Leave the window open while you test. Shake the iPhone for the menu, where "Reload" restarts the app.
 
 If Expo Go says the project needs a different SDK version, tell Claude: Expo Go only runs the newest Expo version, and the project is then moved to it.
 
 ## What to try in the client app
 
-All data is sample data. Nothing moves money.
+The app now uses the development API and its seeded data. Nothing moves real money: the bank is a fake.
 
-- Welcome: tap "Get started".
+- Sign in as `ama@example.com`, password `tenmina-dev-123`.
+- Account, Authenticator app: set one up (Google Authenticator or 1Password). Every approval needs its code.
 - Home: swipe the account cards; open "Needs you".
-- Approve the release for Plot 14, Kasoa: type any six digits, then press and hold the button until it fills.
-- Family: open the hospital bill and approve it the same way.
-- Property, Projects and Account tabs.
+- Family: open the hospital bill, enter the code, then press and hold the button until it fills.
+- Projects: open "Boys' quarters at Kasoa" and approve the Foundation payment the same way.
+- Property, then "Check a plot": go through the four steps with a photo of any site plan; the fee opens the Tenmina website.
+- Account, Delete my account: read it, but do not confirm on your own account.
 - Turn on Dark Mode, Reduce Motion and VoiceOver in the iPhone's Settings and try again. With VoiceOver, a double tap approves instead of holding.
 
 ## Reporting a problem
@@ -113,12 +127,14 @@ cd apps/field
 npx expo start
 ```
 
-Stop the client app first with Ctrl+C, or run Tenmina Field in a second Terminal window. On the sign-in screen, choose the role to try:
+Start it with the same `EXPO_PUBLIC_API_URL=...` in front. Stop the client app first with Ctrl+C, or run Tenmina Field in a second Terminal window. Sign in as a seeded field user (password `tenmina-dev-123`); the phone then registers its own signing key:
 
-- **Inspector**: open "Inspection: Blocks", answer each check, take a photo where asked, mark one "No" as a defect with a value, then choose a result. Then open the Pay tab.
-- **Contractor**: open "Foundation", take the evidence photos (and the video), then submit. Try it with "Pretend there is no signal" switched on in Account, and watch the Queue tab.
-- **Carer**: open the care visit, check in (if you are far from the sample address, it asks you to say why), tick the plan, then check out.
+- **Inspector** `inspector@example.com`: open "Inspect foundation, East Legon", check in, answer each check, mark one "No" as a defect with a photo and a value, then choose a result.
+- **Contractor** `builder@example.com`: open a milestone, take the evidence photos (and the video), then submit. Try it with "Test: pretend there is no signal" switched on in Account, and watch the Queue tab.
+- **Carer** `carer@example.com`: open "Visit Akosua Mensah", check in (far from the address, it asks you to say why), record each plan item and the blood pressure, then check out. The family's code goes to their phone, not yours.
+- **Runner** `runner@example.com`: a case task with the search notice, a bill to collect, and the Pay tab.
+- **Errand agent** `kofi.agent@example.com`: the birth certificate errand and its steps.
 
 The first time, the phone asks for the camera and for your location. Allow both: the app needs them to seal where and when evidence was taken.
 
-Field users on Android install Expo Go from Google Play and scan the same QR code. Signing photos with the phone's secure chip will need a test build instead of Expo Go: an install file on Android, and on iPhone a build that needs the Apple Developer Program (`docs/decisions/2026-11-12-build-with-claude.md`).
+Field users on Android install Expo Go from Google Play and scan the same QR code. This build signs with a software key kept in the phone's keychain. Signing with the phone's secure chip (and real App Attest or Play Integrity) will need a test build instead of Expo Go: an install file on Android, and on iPhone a build that needs the Apple Developer Program (`docs/decisions/2026-11-12-build-with-claude.md`).
