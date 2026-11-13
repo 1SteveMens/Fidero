@@ -503,6 +503,55 @@ def _revoke_asset_access(case, person, actor):
 _UNSET = object()
 
 
+def task_candidates(task: Task) -> dict:
+    """W-13, SCR-BO-05: who may take this task, read only. The main person holds the step's role; a second
+    person on a site visit holds any field role. Licensed roles show whether the licence is valid (RUL-20).
+    The same checks run again in assign_task; this list only helps staff choose."""
+    from django.db.models import Q
+
+    from accounts.models import Person
+    from core.errors import DomainError
+
+    case = task.case
+    roles = set(FIELD_ROLES) | {task.owner_role}
+    people = (Person.objects.filter(status="active", role_grants__revoked_at__isnull=True,
+                                    role_grants__role__in=roles)
+              .filter(Q(role_grants__country__isnull=True) | Q(role_grants__country=case.country))
+              .distinct().order_by("full_name"))
+    out = []
+    for p in people[:200]:
+        held = sorted(p.roles(case.country) & roles)
+        if not held:
+            continue
+        licence = None
+        role = task.owner_role if task.owner_role in held else next((r for r in held if r in LICENSED), None)
+        if role in LICENSED:
+            from accounts.services import require_valid_licence
+
+            try:
+                lic = require_valid_licence(p, role)
+                licence = {"role": role, "valid": True, "number": lic.number, "expires_on": lic.expires_on,
+                           "message": ""}
+            except DomainError as exc:
+                licence = {"role": role, "valid": False, "number": "", "expires_on": None, "message": exc.detail}
+        out.append({"id": str(p.pk), "name": p.full_name, "roles": held,
+                    "can_be_main": task.owner_role in held and (licence is None or licence["valid"]
+                                                                or task.owner_role not in LICENSED),
+                    "can_be_second": bool(task.site_visit and set(held) & FIELD_ROLES),
+                    "licence": licence})
+    screen = latest_risk_screen(task)
+    disputed = _disputed(case)
+    need = 1
+    if screen is not None:
+        need = max(screen.people_required, 2 if disputed else 1)
+    elif disputed:
+        need = 2
+    return {"task_id": str(task.pk), "owner_role": task.owner_role, "site_visit": task.site_visit,
+            "disputed": disputed, "people_required": need if task.site_visit else 1,
+            "visit_blockers": visit_blockers(task, task.assignee, task.second_assignee) if task.site_visit else [],
+            "people": out}
+
+
 @transaction.atomic
 def assign_task(task: Task, actor, *, assignee=_UNSET, second_assignee=_UNSET) -> Task:
     """FR-CASE-003: assign a named person with the right role (and a valid licence, RUL-20)."""

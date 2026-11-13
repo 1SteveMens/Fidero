@@ -930,6 +930,33 @@ def link_reasons(recheck, person) -> list[str]:
     return reasons
 
 
+def recheck_candidates(recheck) -> list[dict]:
+    """SCR-BO-45: only eligible people are listed: a lawyer or surveyor in the country, with no link to the
+    case (RUL-32) and a licence in date until the due date (RUL-20). assign_recheck checks again."""
+    from django.db.models import Q
+
+    from accounts.models import Person
+    from accounts.services import require_valid_licence
+
+    due = (_now() + timedelta(days=DEFAULT_RECHECK_DUE_DAYS)).date()
+    people = (Person.objects.filter(status="active", role_grants__revoked_at__isnull=True,
+                                    role_grants__role__in=["LW", "SV"])
+              .filter(Q(role_grants__country__isnull=True) | Q(role_grants__country=recheck.country))
+              .distinct().order_by("full_name"))
+    out = []
+    for p in people[:200]:
+        if link_reasons(recheck, p):
+            continue
+        for role in sorted(p.roles(recheck.country) & {"LW", "SV"}):
+            try:
+                lic = require_valid_licence(p, role, on=due)
+            except DomainError:
+                continue
+            out.append({"id": str(p.pk), "name": p.full_name, "role": role, "licence_number": lic.number,
+                        "licence_expires_on": lic.expires_on})
+    return out
+
+
 def _visible_to(user, recheck) -> bool:
     return has_role(user, "RV", "AD", country=recheck.country) and not link_reasons(recheck, user)
 

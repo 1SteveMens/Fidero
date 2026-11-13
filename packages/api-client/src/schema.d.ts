@@ -1755,6 +1755,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/approvals/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description One approval request with its approvals (staff only). Says whether it has its own screen. */
+        get: operations["v1_approvals_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/approvals/{id}/decisions": {
         parameters: {
             query?: never;
@@ -5987,6 +6004,23 @@ export interface paths {
         put?: never;
         /** @description Public: does this SHA-256 match a document Tenmina issued? Answers only yes or no and the release date. */
         post: operations["v1_fingerprint_checks_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/fx-conversions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description FR-ESC-023: conversions checked against the accepted quote, e.g. status=outside for margin alerts. */
+        get: operations["v1_fx_conversions_list"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -11796,6 +11830,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/rechecks/{id}/candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description SCR-BO-45: the eligible people for this re-check (reviewers with no link to the case only). */
+        get: operations["v1_rechecks_candidates_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/rechecks/{id}/results": {
         parameters: {
             query?: never;
@@ -13664,6 +13715,23 @@ export interface paths {
         patch: operations["v1_tasks_partial_update"];
         trace?: never;
     };
+    "/v1/tasks/{id}/candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description W-13: people who may take this task, with licence state and the visit rule (case staff only). */
+        get: operations["v1_tasks_candidates_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/tasks/{id}/complete": {
         parameters: {
             query?: never;
@@ -15208,6 +15276,17 @@ export interface components {
         };
         CancellationInRequest: {
             reason: string;
+        };
+        Candidate: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            roles: string[];
+            can_be_main: boolean;
+            can_be_second: boolean;
+            licence: {
+                [key: string]: unknown;
+            } | null;
         };
         CareAssignInputRequest: {
             /** Format: uuid */
@@ -22324,6 +22403,10 @@ export interface components {
             items?: components["schemas"]["Receipt"][];
             next_cursor?: string | null;
         };
+        PaginatedRecheckCandidateList: {
+            items?: components["schemas"]["RecheckCandidate"][];
+            next_cursor?: string | null;
+        };
         PaginatedRecheckMonthList: {
             items?: components["schemas"]["RecheckMonth"][];
             next_cursor?: string | null;
@@ -25586,6 +25669,15 @@ export interface components {
             /** Format: uuid */
             carried_from?: string | null;
         };
+        RecheckCandidate: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            role: string;
+            licence_number: string;
+            /** Format: date */
+            licence_expires_on: string;
+        };
         RecheckDraw: {
             /** Format: uuid */
             readonly id: string;
@@ -27923,6 +28015,18 @@ export interface components {
             readonly missing_evidence: string[];
             readonly notice: string;
             row_version?: number;
+        };
+        TaskCandidates: {
+            /** Format: uuid */
+            task_id: string;
+            owner_role: string;
+            site_visit: boolean;
+            disputed: boolean;
+            people_required: number;
+            visit_blockers: {
+                [key: string]: unknown;
+            }[];
+            people: components["schemas"]["Candidate"][];
         };
         TaskEvidenceLink: {
             /** Format: uuid */
@@ -31730,6 +31834,27 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApprovalRequest"][];
+                };
+            };
+        };
+    };
+    v1_approvals_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApprovalRequest"];
                 };
             };
         };
@@ -39300,6 +39425,31 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FingerprintResult"];
+                };
+            };
+        };
+    };
+    v1_fx_conversions_list: {
+        parameters: {
+            query?: {
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                /** @description Number of results to return per page. */
+                limit?: number;
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedFxConversionList"];
                 };
             };
         };
@@ -49429,6 +49579,32 @@ export interface operations {
             };
         };
     };
+    v1_rechecks_candidates_list: {
+        parameters: {
+            query?: {
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                /** @description Number of results to return per page. */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedRecheckCandidateList"];
+                };
+            };
+        };
+    };
     v1_rechecks_results_create: {
         parameters: {
             query?: never;
@@ -52549,6 +52725,27 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Task"];
+                };
+            };
+        };
+    };
+    v1_tasks_candidates_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskCandidates"];
                 };
             };
         };

@@ -305,6 +305,15 @@ class RecheckViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         return Response(S.RecheckSerializer(services.assign_recheck(r, request.user, person,
                                                                     role=s.validated_data["role"])).data)
 
+    @extend_schema(request=None, responses=S.RecheckCandidateSerializer(many=True))
+    @action(detail=True, methods=["get"])
+    def candidates(self, request, pk=None):
+        """SCR-BO-45: the eligible people for this re-check (reviewers with no link to the case only)."""
+        r = self.get_object()
+        if not services._visible_to(request.user, r):
+            raise NotFound("Re-check not found.")
+        return Response(services.recheck_candidates(r))
+
     @extend_schema(request=S.SkipInput, responses=S.RecheckSerializer)
     @action(detail=True, methods=["post"])
     def skips(self, request, pk=None):

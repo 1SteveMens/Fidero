@@ -291,6 +291,15 @@ class TaskViewSet(ETagMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, v
         task.refresh_from_db()
         return Response(S.TaskSerializer(task).data)
 
+    @extend_schema(request=None, responses=S.TaskCandidatesSerializer)
+    @action(detail=True, methods=["get"])
+    def candidates(self, request, pk=None):
+        """W-13: people who may take this task, with licence state and the visit rule (case staff only)."""
+        task = self.get_object()
+        if not services.is_case_staff(request.user, task.case):
+            raise NotFound("Not found.")
+        return Response(services.task_candidates(task))
+
     @extend_schema(request=S.CompleteInput, responses=S.TaskSerializer)
     @action(detail=True, methods=["post"])
     @idempotent
