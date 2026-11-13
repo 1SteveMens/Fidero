@@ -580,7 +580,7 @@ def cost_per_case(request):
     if country is None:
         from accounts.selectors import staff_country_codes
 
-        codes = staff_country_codes(request.user, "CM", "RV", "AD")
+        codes = staff_country_codes(request.user, ("CM", "RV", "AD"))
         if codes is not None:
             ids = set(Payable.objects.filter(country__code__in=codes).values_list("case_id", flat=True)) | set(
                 ExpenseClaim.objects.filter(country__code__in=codes).values_list("case_id", flat=True))

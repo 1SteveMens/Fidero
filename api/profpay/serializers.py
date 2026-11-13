@@ -264,12 +264,16 @@ class ProRunSerializer(serializers.ModelSerializer):
     total_net = ProMoney("total_net")
     approval_request = serializers.UUIDField(source="approval_request_id", read_only=True)
     file_downloadable = serializers.SerializerMethodField()
+    prepared_by_name = serializers.CharField(source="prepared_by.full_name", read_only=True, default=None)
+    approved_by_name = serializers.CharField(source="approved_by.full_name", read_only=True, default=None)
+    uploaded_by_name = serializers.CharField(source="uploaded_by.full_name", read_only=True, default=None)
 
     class Meta:
         model = PaymentRun
         fields = ["id", "reference", "country", "operating_account", "file_format", "cut_off_at", "currency",
-                  "total_gross", "total_net", "line_count", "excluded", "prepared_by", "approval_request",
-                  "approved_by", "approved_at", "file_sha256", "file_downloadable", "uploaded_by", "uploaded_at",
+                  "total_gross", "total_net", "line_count", "excluded", "prepared_by", "prepared_by_name",
+                  "approval_request", "approved_by", "approved_by_name", "approved_at", "file_sha256",
+                  "file_downloadable", "uploaded_by", "uploaded_by_name", "uploaded_at",
                   "confirmation_evidence", "status", "status_reason", "row_version", "created_at"]
         read_only_fields = fields
 

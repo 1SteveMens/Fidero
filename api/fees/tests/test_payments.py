@@ -344,6 +344,16 @@ def test_statement_other_client_404_and_pdf_hash(seeded, api, people):
     assert Evidence.objects.get(pk=r.json()["evidence"]).sha256 == r.json()["sha256"]
 
 
+def test_staff_read_family_statement_but_not_issue_it(seeded, api, people):
+    """US-FEE-007, SCR-BO-30: staff in the country read a family member's statement; only the client issues the PDF."""
+    mother = _mother(people)
+    r = api(people["cm"]).get(f"/v1/family-members/{mother.pk}/statement")
+    assert r.status_code == 200, r.content
+    assert api(people["cm"]).get(f"/v1/family-members/{mother.pk}/statement-pdfs").status_code == 200
+    assert api(people["cm"]).post(f"/v1/family-members/{mother.pk}/statement-pdfs").status_code == 404
+    assert api(people["lawyer"]).get(f"/v1/family-members/{mother.pk}/statement").status_code == 404
+
+
 def test_seeded_held_funds_bills_pass_the_escrow_check(seeded, people):
     """The escrow seed's fee_invoice instructions are real FEE bills: the subject check passes for them."""
     from escrow.models import ReleaseInstruction

@@ -692,20 +692,26 @@ class FamilyStatementViewSet(viewsets.GenericViewSet):
             return FamilyMember.objects.none()
         return FamilyMember.objects.filter(client=self.request.user)
 
-    def _fm(self, request, pk):
+    def _fm(self, request, pk, staff_read=False):
+        """The caller's own family member; staff in the member's country may read (not create) statements."""
         from accounts.models import FamilyMember
 
-        fm = FamilyMember.objects.filter(pk=pk, client=request.user).select_related("country").first()
+        fm = FamilyMember.objects.filter(pk=pk).select_related("country", "client").first()
         if fm is None:
             raise NotFound()
-        return fm
+        if fm.client_id == request.user.pk:
+            return fm
+        if staff_read and has_role(request.user, *STAFF, country=fm.country):
+            return fm
+        raise NotFound()
 
     @extend_schema(parameters=[_P()], responses=FeeStatementOut)
     @action(detail=True, methods=["get"])
     def statement(self, request, pk=None):
-        """Invoices, payments, receipts and the amount held at the bank for one family member."""
-        fm = self._fm(request, pk)
-        return Response(services.statement(request.user, fm))
+        """Invoices, payments, receipts and the amount held at the bank for one family member.
+        Staff in the family member's country can read it too (back office, SCR-BO-30)."""
+        fm = self._fm(request, pk, staff_read=True)
+        return Response(services.statement(fm.client, fm))
 
     @extend_schema(parameters=[_P()], request=None, responses={201: FeeStatementDocSerializer,
                                                                200: FeeStatementDocSerializer(many=True)})
@@ -715,9 +721,9 @@ class FamilyStatementViewSet(viewsets.GenericViewSet):
         """Download the statement as a PDF with its hash stored (US-FEE-007 AC2)."""
         from .models import Statement
 
-        fm = self._fm(request, pk)
+        fm = self._fm(request, pk, staff_read=request.method == "GET")
         if request.method == "GET":
-            return Response(FeeStatementDocSerializer(Statement.objects.filter(client=request.user, family_member=fm)
+            return Response(FeeStatementDocSerializer(Statement.objects.filter(client=fm.client, family_member=fm)
                                                    .order_by("-created_at"), many=True).data)
         st = services.statement_pdf(request.user, fm)
         return Response(FeeStatementDocSerializer(st).data, status=201)

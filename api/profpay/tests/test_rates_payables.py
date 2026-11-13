@@ -335,6 +335,9 @@ def test_case_cost_entries(pro, api):
     row = next(r for r in rows if r["case_id"] == str(case.pk))
     assert Decimal(row["payables"]) >= p.gross
     assert api(pro.lawyer).get("/v1/pro/cost-per-case").status_code == 403
+    # Without a country, staff get the cases in their own countries (was a 500).
+    r = api(pro.cm).get("/v1/pro/cost-per-case")
+    assert r.status_code == 200 and any(x["case_id"] == str(case.pk) for x in r.json())
 
 
 def test_my_pay_shows_own_only_and_no_verdict(pro, api):

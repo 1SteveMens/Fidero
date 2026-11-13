@@ -1,0 +1,133 @@
+import type { SectionSpec } from '../spec';
+
+/* Professional pay screens: no verdict, no outcome, next to any amount (03, 5.6b; RUL-26). */
+export const professionals: SectionSpec = {
+  href: '/professionals',
+  title: 'Professionals',
+  screens: 'SCR-BO-37 · SCR-BO-38',
+  intro: 'Contracted lawyers, surveyors, runners, inspectors, quantity surveyors, carers and agents. Paid by Tenmina from its own account, for accepted work at the approved rate. Never from client money, and never by the result of their work.',
+  resources: [
+    {
+      key: 'agreements', label: 'Agreements', list: '/v1/admin/pro/agreements', screen: 'SCR-BO-37',
+      columns: [
+        { key: 'reference', label: 'Agreement', kind: 'ref' },
+        { key: 'professional_name', label: 'Professional', kind: 'name' },
+        { key: 'role', label: 'Role', kind: 'text' },
+        { key: 'valid_from', label: 'From', kind: 'date' },
+        { key: 'status', label: 'Status', kind: 'status' },
+      ],
+      filters: ['status', 'role'],
+      hide: ['row_version'],
+      create: { label: 'New agreement', path: '/v1/admin/pro/agreements', fields: [{ name: 'professional_id', hint: 'The professional\'s person ID.' }, { name: 'agreement_evidence_id', type: 'file', upload: { subject_type: 'pro_agreement', subjectId: () => crypto.randomUUID() } }] },
+      actions: [
+        { label: 'Activate', path: '/v1/admin/pro/agreements/{id}/activate', tone: 'primary', when: (r) => r.status === 'draft', confirm: 'Needs the signed agreement and a verified payee in the agreement\'s name.' },
+        { label: 'Set payee and tax', path: '/v1/admin/pro/agreements/{id}', method: 'PATCH', tone: 'ghost', fields: [{ name: 'payee_id', label: 'Verified payee', source: { path: '/v1/payees', query: { status: 'verified' }, label: (p) => `${p.legal_name} · ending ${p.account_last4}` } }] },
+        { label: 'Suspend', path: '/v1/admin/pro/agreements/{id}/suspend', tone: 'ghost', when: (r) => r.status === 'active' },
+        { label: 'Reinstate', path: '/v1/admin/pro/agreements/{id}/reinstate', when: (r) => r.status === 'suspended' },
+        { label: 'End', path: '/v1/admin/pro/agreements/{id}/end', tone: 'ghost', when: (r) => ['active', 'suspended'].includes(r.status) },
+      ],
+      subs: [{ label: 'Payables', path: '/v1/pro/payables', query: (p) => ({ agreement: p.id }), link: 'payables', columns: [{ key: 'work_kind', label: 'Work', kind: 'text' }, { key: 'net', label: 'Net', kind: 'money' }, { key: 'status', label: 'Status', kind: 'status' }] }],
+    },
+    {
+      key: 'rate-cards', label: 'Rate cards', list: '/v1/admin/pro/rate-cards', screen: 'SCR-BO-37',
+      intro: 'A draft rate card takes effect only after a second administrator approves it.',
+      columns: [
+        { key: 'role', label: 'Role', kind: 'name' },
+        { key: 'unit', label: 'Unit', kind: 'text' },
+        { key: 'scope_key', label: 'Scope', kind: 'text' },
+        { key: 'rate', label: 'Rate', kind: 'money' },
+        { key: 'version', label: 'Version', kind: 'mono' },
+        { key: 'valid_from', label: 'From', kind: 'date' },
+        { key: 'state', label: 'State', kind: 'status' },
+      ],
+      filters: ['state', 'role', 'unit'],
+      title: (r) => `${r.role} · ${String(r.unit).replace(/_/g, ' ')} · v${r.version}`,
+      hide: ['row_version'],
+      create: { label: 'Draft a rate card', path: '/v1/admin/pro/rate-cards', roles: ['AD'] },
+      actions: [
+        { label: 'Approve rate card', path: '/v1/admin/pro/rate-cards/{id}/approvals', tone: 'primary', mfa: true, roles: ['AD'], fixed: { decision: 'approve' }, only: ['note'], when: (r) => r.state === 'draft' || r.state === 'pending_approval', confirm: 'You did not draft this version. It applies from its start date.' },
+        { label: 'Reject', path: '/v1/admin/pro/rate-cards/{id}/approvals', tone: 'ghost', mfa: true, roles: ['AD'], fixed: { decision: 'reject' }, only: ['note'], when: (r) => r.state === 'draft' || r.state === 'pending_approval' },
+        { label: 'Change draft', path: '/v1/admin/pro/rate-cards/{id}', method: 'PATCH', tone: 'ghost', roles: ['AD'], when: (r) => r.state === 'draft' },
+        { label: 'Retire', path: '/v1/admin/pro/rate-cards/{id}/retire', tone: 'ghost', roles: ['AD'], when: (r) => r.state === 'active' },
+      ],
+    },
+    {
+      key: 'payables', label: 'Payables', list: '/v1/pro/payables', screen: 'SCR-BO-38',
+      intro: 'Overdue first. Hold a payable only for a fraud or misconduct review, and say why in plain words.',
+      columns: [
+        { key: 'professional_name', label: 'Professional', kind: 'name' },
+        { key: 'work_kind', label: 'Work', kind: 'text' },
+        { key: 'case_reference', label: 'Reference', kind: 'mono' },
+        { key: 'net', label: 'Net', kind: 'money' },
+        { key: 'due_by', label: 'Due by', kind: 'date' },
+        { key: 'status', label: 'Status', kind: 'status' },
+      ],
+      filters: ['status', 'overdue'],
+      title: (r) => `${r.professional_name} · ${String(r.work_kind).replace(/_/g, ' ')}`,
+      create: { label: 'Check overdue payables', path: '/v1/pro/overdue-checks', tone: 'ghost', showResult: true },
+      actions: [
+        { label: 'Hold', path: '/v1/pro/payables/{id}/holds', tone: 'dark', when: (r) => r.status === 'approved', confirm: 'Held while we check. This is never about the result of the work.' },
+        { label: 'Release hold', path: '/v1/pro/payables/{id}/hold-releases', tone: 'primary', when: (r) => r.status === 'held' },
+        { label: 'Cancel', path: '/v1/pro/payables/{id}/cancellations', tone: 'ghost', when: (r) => ['approved', 'held'].includes(r.status) },
+      ],
+    },
+    {
+      key: 'expenses', label: 'Expense claims', list: '/v1/pro/expense-claims', screen: 'SCR-BO-38',
+      intro: 'Over the limit or without a receipt, a second staff member approves.',
+      columns: [
+        { key: 'claimant_name', label: 'Claimant', kind: 'name' },
+        { key: 'kind', label: 'Kind', kind: 'text' },
+        { key: 'amount', label: 'Amount', kind: 'money' },
+        { key: 'limit', label: 'Limit', kind: 'money' },
+        { key: 'needs_second_approval', label: 'Second approval', kind: 'bool' },
+        { key: 'status', label: 'Status', kind: 'status' },
+      ],
+      filters: ['status'],
+      title: (r) => `${r.claimant_name} · ${r.description ?? r.kind}`,
+      actions: [
+        { label: 'Approve claim', path: '/v1/pro/expense-claims/{id}/decisions', tone: 'primary', fixed: { decision: 'approve' }, only: ['note'], when: (r) => r.status === 'submitted' && !r.approved_by },
+        { label: 'Reject claim', path: '/v1/pro/expense-claims/{id}/decisions', tone: 'ghost', fixed: { decision: 'reject' }, only: ['note'], when: (r) => r.status === 'submitted' && !r.approved_by },
+        { label: 'Second approval', path: '/v1/pro/expense-claims/{id}/approvals', tone: 'primary', mfa: true, fixed: { decision: 'approve' }, only: ['note'], when: (r) => r.needs_second_approval && !!r.approval_request && r.status === 'submitted', confirm: 'You are not the first approver.' },
+      ],
+    },
+    {
+      key: 'licences', label: 'Licences', list: '/v1/licences',
+      intro: 'A professional with no valid licence for the role cannot be assigned or accept work.',
+      columns: [
+        { key: 'role', label: 'Role', kind: 'mono' },
+        { key: 'body', label: 'Body', kind: 'name' },
+        { key: 'number', label: 'Number', kind: 'mono' },
+        { key: 'expires_on', label: 'Expires', kind: 'date' },
+        { key: 'status', label: 'Status', kind: 'status' },
+      ],
+      filters: ['status'],
+      title: (r) => `${r.role} licence ${r.number}`,
+      actions: [
+        { label: 'Verify', path: '/v1/admin/licences/{id}/verify', tone: 'primary', roles: ['AD', 'RV'], when: (r) => r.status === 'submitted', confirm: 'You checked the number with the licensing body.' },
+        { label: 'Reject', path: '/v1/admin/licences/{id}/reject', tone: 'ghost', roles: ['AD', 'RV'], when: (r) => r.status === 'submitted' },
+      ],
+    },
+    {
+      key: 'vetting', label: 'Vetting', list: '/v1/vettings',
+      intro: 'Identity, references, background check and training for carers, agents, runners, inspectors and contractors.',
+      columns: [
+        { key: 'kind', label: 'For', kind: 'name' },
+        { key: 'person', label: 'Person', kind: 'mono' },
+        { key: 'valid_until', label: 'Valid until', kind: 'date' },
+        { key: 'status', label: 'Status', kind: 'status' },
+      ],
+      filters: ['status'],
+      create: { label: 'Start vetting', path: '/v1/vettings', omit: ['references_evidence', 'background_check_evidence', 'training_evidence'] },
+      actions: [
+        { label: 'Attach evidence', path: '/v1/vettings/{id}', method: 'PATCH', tone: 'ghost', only: ['national_id_check', 'references_evidence', 'background_check_evidence', 'training_evidence'], when: (r) => r.status === 'pending', fields: [{ name: 'national_id_check', label: 'National ID check', source: { path: '/v1/national-id-checks', label: (c) => `${c.subject_name} · ${c.result ?? 'pending'}` } }], },
+        { label: 'Complete vetting', path: '/v1/vettings/{id}/complete', tone: 'primary', when: (r) => r.status === 'pending', confirm: 'Every item is recorded with evidence. A different person from the one who started it should complete it.' },
+        { label: 'Revoke', path: '/v1/vettings/{id}/revoke', tone: 'danger', when: (r) => r.status === 'vetted' },
+      ],
+    },
+    {
+      key: 'cost', label: 'Cost per case', list: '/v1/pro/cost-per-case', detail: null,
+      intro: 'Professional pay and expenses per case, for pricing. A working view, not a report of any person.',
+      columns: [],
+    },
+  ],
+};

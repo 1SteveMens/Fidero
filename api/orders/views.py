@@ -123,7 +123,16 @@ class OrderViewSet(ETagMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, 
     filterset_fields = ["status", "kind"]
 
     def get_queryset(self):
-        return selectors.visible_orders(self.request.user)
+        qs = selectors.visible_orders(self.request.user)
+        client = self.request.query_params.get("client")
+        if client:  # back office: one client's orders, within what the caller may see anyway
+            import uuid
+
+            try:
+                qs = qs.filter(client_id=uuid.UUID(client))
+            except ValueError:
+                raise Invalid("client must be a person ID.") from None
+        return qs
 
     def _respond(self, order, status=200):
         order.refresh_from_db()

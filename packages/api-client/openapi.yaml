@@ -3964,30 +3964,6 @@ paths:
                 items:
                   $ref: '#/components/schemas/ApprovalRequest'
           description: ''
-  /v1/approvals/{id}:
-    get:
-      operationId: v1_approvals_retrieve
-      description: One approval request with its approvals (staff only). Says whether
-        it has its own screen.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - v1
-      security:
-      - bearerAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApprovalRequest'
-          description: ''
   /v1/approvals/{id}/decisions:
     post:
       operationId: v1_approvals_decisions_create
@@ -6990,6 +6966,11 @@ paths:
       description: 'Case list and tracker: clients their own, staff their countries,
         professionals what they are assigned.'
       parameters:
+      - in: query
+        name: client
+        schema:
+          type: string
+          format: uuid
       - name: cursor
         required: false
         in: query
@@ -7272,6 +7253,11 @@ paths:
       description: 'Case list and tracker: clients their own, staff their countries,
         professionals what they are assigned.'
       parameters:
+      - in: query
+        name: client
+        schema:
+          type: string
+          format: uuid
       - name: cursor
         required: false
         in: query
@@ -7425,6 +7411,11 @@ paths:
       description: 'Case list and tracker: clients their own, staff their countries,
         professionals what they are assigned.'
       parameters:
+      - in: query
+        name: client
+        schema:
+          type: string
+          format: uuid
       - name: cursor
         required: false
         in: query
@@ -7542,6 +7533,11 @@ paths:
       description: 'FR-ACC-013: the sellers, grantors, consenting parties and signatories
         to check (RUL-31).'
       parameters:
+      - in: query
+        name: client
+        schema:
+          type: string
+          format: uuid
       - name: cursor
         required: false
         in: query
@@ -7683,6 +7679,11 @@ paths:
       description: 'Case list and tracker: clients their own, staff their countries,
         professionals what they are assigned.'
       parameters:
+      - in: query
+        name: client
+        schema:
+          type: string
+          format: uuid
       - name: cursor
         required: false
         in: query
@@ -7835,6 +7836,11 @@ paths:
       description: 'FR-CASE-016, RUL-30: searches lodged from Tenmina''s own registry
         account, by staff only.'
       parameters:
+      - in: query
+        name: client
+        schema:
+          type: string
+          format: uuid
       - name: cursor
         required: false
         in: query
@@ -12801,8 +12807,9 @@ paths:
   /v1/family-members/{id}/statement:
     get:
       operationId: v1_family_members_statement_retrieve
-      description: Invoices, payments, receipts and the amount held at the bank for
-        one family member.
+      description: |-
+        Invoices, payments, receipts and the amount held at the bank for one family member.
+        Staff in the family member's country can read it too (back office, SCR-BO-30).
       parameters:
       - in: path
         name: id
@@ -13353,40 +13360,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FingerprintResult'
-          description: ''
-  /v1/fx-conversions:
-    get:
-      operationId: v1_fx_conversions_list
-      description: 'FR-ESC-023: conversions checked against the accepted quote, e.g.
-        status=outside for margin alerts.'
-      parameters:
-      - name: cursor
-        required: false
-        in: query
-        description: The pagination cursor value.
-        schema:
-          type: string
-      - name: limit
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - in: query
-        name: status
-        schema:
-          type: string
-      tags:
-      - v1
-      security:
-      - bearerAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedFxConversionList'
           description: ''
   /v1/fx-conversions/{id}/resolution-check:
     post:
@@ -25823,42 +25796,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Recheck'
           description: ''
-  /v1/rechecks/{id}/candidates:
-    get:
-      operationId: v1_rechecks_candidates_list
-      description: 'SCR-BO-45: the eligible people for this re-check (reviewers with
-        no link to the case only).'
-      parameters:
-      - name: cursor
-        required: false
-        in: query
-        description: The pagination cursor value.
-        schema:
-          type: string
-      - in: path
-        name: id
-        schema:
-          type: string
-          pattern: ^[0-9a-fA-F-]{36}$
-        required: true
-      - name: limit
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      tags:
-      - v1
-      security:
-      - bearerAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedRecheckCandidateList'
-          description: ''
   /v1/rechecks/{id}/results:
     post:
       operationId: v1_rechecks_results_create
@@ -29723,30 +29660,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Task'
           description: ''
-  /v1/tasks/{id}/candidates:
-    get:
-      operationId: v1_tasks_candidates_retrieve
-      description: 'W-13: people who may take this task, with licence state and the
-        visit rule (case staff only).'
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-          pattern: ^[0-9a-fA-F-]{36}$
-        required: true
-      tags:
-      - v1
-      security:
-      - bearerAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TaskCandidates'
-          description: ''
   /v1/tasks/{id}/complete:
     post:
       operationId: v1_tasks_complete_create
@@ -33299,34 +33212,6 @@ components:
           minLength: 1
       required:
       - reason
-    Candidate:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        roles:
-          type: array
-          items:
-            type: string
-        can_be_main:
-          type: boolean
-        can_be_second:
-          type: boolean
-        licence:
-          type:
-          - object
-          - 'null'
-          additionalProperties: {}
-      required:
-      - can_be_main
-      - can_be_second
-      - id
-      - licence
-      - name
-      - roles
     CareAssignInputRequest:
       type: object
       properties:
@@ -50243,16 +50128,6 @@ components:
         next_cursor:
           type: string
           nullable: true
-    PaginatedRecheckCandidateList:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/RecheckCandidate'
-        next_cursor:
-          type: string
-          nullable: true
     PaginatedRecheckMonthList:
       type: object
       properties:
@@ -55453,6 +55328,9 @@ components:
           type: string
           format: uuid
           readOnly: true
+        prepared_by_name:
+          type: string
+          readOnly: true
         approval_request:
           type: string
           format: uuid
@@ -55462,6 +55340,9 @@ components:
           - string
           - 'null'
           format: uuid
+          readOnly: true
+        approved_by_name:
+          type: string
           readOnly: true
         approved_at:
           type:
@@ -55480,6 +55361,9 @@ components:
           - string
           - 'null'
           format: uuid
+          readOnly: true
+        uploaded_by_name:
+          type: string
           readOnly: true
         uploaded_at:
           type:
@@ -55511,6 +55395,7 @@ components:
       - approval_request
       - approved_at
       - approved_by
+      - approved_by_name
       - confirmation_evidence
       - country
       - created_at
@@ -55524,6 +55409,7 @@ components:
       - line_count
       - operating_account
       - prepared_by
+      - prepared_by_name
       - reference
       - row_version
       - status
@@ -55532,6 +55418,7 @@ components:
       - total_net
       - uploaded_at
       - uploaded_by
+      - uploaded_by_name
     ProRunDetail:
       type: object
       properties:
@@ -55576,6 +55463,9 @@ components:
           type: string
           format: uuid
           readOnly: true
+        prepared_by_name:
+          type: string
+          readOnly: true
         approval_request:
           type: string
           format: uuid
@@ -55585,6 +55475,9 @@ components:
           - string
           - 'null'
           format: uuid
+          readOnly: true
+        approved_by_name:
+          type: string
           readOnly: true
         approved_at:
           type:
@@ -55603,6 +55496,9 @@ components:
           - string
           - 'null'
           format: uuid
+          readOnly: true
+        uploaded_by_name:
+          type: string
           readOnly: true
         uploaded_at:
           type:
@@ -55639,6 +55535,7 @@ components:
       - approval_request
       - approved_at
       - approved_by
+      - approved_by_name
       - confirmation_evidence
       - country
       - created_at
@@ -55653,6 +55550,7 @@ components:
       - lines
       - operating_account
       - prepared_by
+      - prepared_by_name
       - reference
       - row_version
       - status
@@ -55661,6 +55559,7 @@ components:
       - total_net
       - uploaded_at
       - uploaded_by
+      - uploaded_by_name
     ProRunInRequest:
       type: object
       description: Refuses fields it does not know (TC-RUL-26-02).
@@ -58374,27 +58273,6 @@ components:
       - id
       - subject_id
       - subject_type
-    RecheckCandidate:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        role:
-          type: string
-        licence_number:
-          type: string
-        licence_expires_on:
-          type: string
-          format: date
-      required:
-      - id
-      - licence_expires_on
-      - licence_number
-      - name
-      - role
     RecheckDraw:
       type: object
       properties:
@@ -63566,37 +63444,6 @@ components:
       - step_key
       - title
       - waiting_for
-    TaskCandidates:
-      type: object
-      properties:
-        task_id:
-          type: string
-          format: uuid
-        owner_role:
-          type: string
-        site_visit:
-          type: boolean
-        disputed:
-          type: boolean
-        people_required:
-          type: integer
-        visit_blockers:
-          type: array
-          items:
-            type: object
-            additionalProperties: {}
-        people:
-          type: array
-          items:
-            $ref: '#/components/schemas/Candidate'
-      required:
-      - disputed
-      - owner_role
-      - people
-      - people_required
-      - site_visit
-      - task_id
-      - visit_blockers
     TaskEvidenceLink:
       type: object
       properties:
