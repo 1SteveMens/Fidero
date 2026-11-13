@@ -137,12 +137,11 @@ def _report_facts(report_id):
     try:
         from reports import selectors as rsel
 
-        if hasattr(rsel, "conditions_for"):
-            conds = rsel.conditions_for(report_id)
-            verdict = getattr(rsel, "verdict_of", lambda r: snap.verdict if snap else None)(report_id)
-            return verdict, [dict(c) if isinstance(c, dict) else {"id": getattr(c, "pk", None),
-                                                                   "text": getattr(c, "text", str(c))}
-                             for c in conds]
+        report = rsel.report(report_id)
+        if report is not None:
+            conds = [{"id": str(c["source_condition_id"]), "text": c["text"],
+                      "release_part": c.get("release_part") or "main"} for c in rsel.conditions_for(report)]
+            return report.overall_verdict, conds
     except ImportError:
         pass
     if snap is None:

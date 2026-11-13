@@ -28,6 +28,8 @@ def test_seed_is_idempotent_and_quiet(seeded):
                 MonitoringAlert.objects.count())
 
     before = counts()
+    audit_before = AuditEvent.objects.filter(entity__in=["asset", "overlay_layer", "monitoring_alert"]).count()
     seed.run(seeded)
     assert counts() == before
-    assert not AuditEvent.objects.filter(entity__in=["asset", "overlay_layer", "monitoring_alert"]).exists()
+    # Other modules' seeds may audit assets they create; the geo seed itself writes none.
+    assert AuditEvent.objects.filter(entity__in=["asset", "overlay_layer", "monitoring_alert"]).count() == audit_before

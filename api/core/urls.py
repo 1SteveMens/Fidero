@@ -42,7 +42,13 @@ def approval_queue(request):
 def approval_decide(request, pk):
     """Generic approve/reject. Owning modules may add their own endpoints with
     extra checks; this one is for approvals with no extra rule."""
+    from .approvals import DEDICATED
+    from .errors import DomainError
+
     req = ApprovalRequest.objects.get(pk=pk)
+    if req.subject_type in DEDICATED:
+        raise DomainError("Approve this from its own screen, where its extra checks run.",
+                          code="use-dedicated-endpoint", extra={"subject_type": req.subject_type})
     at = require_mfa(request)
     req = decide(req, request.user, decision=request.data.get("decision", "approve"), mfa_at=at,
                  note=request.data.get("note", ""))

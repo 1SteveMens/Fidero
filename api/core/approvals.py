@@ -20,6 +20,15 @@ from .events import publish
 from .models import Approval, ApprovalRequest
 
 
+# Subject types decided only through their owning module's endpoint, which
+# adds its own checks (release rights, the signing lawyer, the client first).
+# The generic /v1/approvals/{id}/decisions endpoint refuses them.
+DEDICATED = {"report_release", "escrow_release", "escrow_cancel", "payee_change", "payee_verification", "refund",
+             "offline_fee_payment", "programme_account", "programme_rate", "pro_payment_run", "pro_expense_exception",
+             "pro_rate_card_change", "fee_payment", "care_payment", "errand_payment", "repair_release",
+             "event_payment", "insurance_premium", "milestone_release", "project_release", "dispute_decision"}
+
+
 def request_approval(subject_type, subject_id, prepared_by, *, required=2, summary="", country=None):
     if subject_type not in ApprovalRequest.SUBJECT_TYPES:
         raise ValueError(f"Unknown approval subject type '{subject_type}'. Add it to ApprovalRequest.SUBJECT_TYPES.")
