@@ -197,7 +197,7 @@ function PayStep({ o, refresh }: { o: Any; refresh: () => void }) {
       <RadioCard name="method" checked={method === 'mobile_money'} onChange={() => setMethod('mobile_money')}><strong>Mobile money</strong></RadioCard>
       {method === 'mobile_money' ? <Field label="Wallet phone number"><Input type="tel" value={wallet} onChange={(e) => setWallet(e.target.value)} /></Field> : null}
       <ProblemBox error={a.error} />
-      <Button variant="primary" block disabled={!o.can_pay} busy={a.busy === 'pay'} onClick={() => a.run('pay', () => a.post<Any>(`/v1/orders/${o.id}/payments`, { method, wallet_phone: method === 'mobile_money' ? wallet : undefined, return_url: `${location.origin}/property/orders/${o.id}` }), undefined, (r) => router.push(`/property/payments/${r.payment.id}`))}>
+      <Button variant="primary" block disabled={!o.can_pay} busy={a.busy === 'pay'} onClick={() => a.run('pay', () => a.post<Any>(`/v1/orders/${o.id}/payments`, { method, wallet_phone: method === 'mobile_money' ? wallet : undefined, return_url: `${location.origin}/property/orders/${o.id}` }), undefined, (r) => router.push(`/checkout/${r.payment.id}?return=${encodeURIComponent(`/property/payments/${r.payment.id}`)}`))}>
         Pay <Money value={o.price} />
       </Button>
       {!o.can_pay && !o.terms?.current ? <p className="muted">The terms changed since you agreed. <Button variant="ghost" size="sm" onClick={() => a.run('edit', () => a.post(`/v1/orders/${o.id}/edit`), undefined, refresh)}>Read and agree again</Button></p> : null}
