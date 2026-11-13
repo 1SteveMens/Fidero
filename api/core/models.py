@@ -53,6 +53,7 @@ class ApprovalRequest(BaseModel):
         "pro_expense_exception", "payee_change", "fee_payment", "care_payment", "errand_payment",
         "repair_release", "event_payment", "insurance_premium", "milestone_release", "project_release",
         "country_activation", "role_grant", "dispute_decision", "legal_hold", "recheck_incident",
+        "offline_fee_payment",
     ]
     ONE_APPROVER_TYPES = {"pro_rate_card_change", "pro_payment_run", "pro_expense_exception"}
 
