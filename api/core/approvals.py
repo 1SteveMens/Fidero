@@ -21,6 +21,8 @@ from .models import Approval, ApprovalRequest
 
 
 def request_approval(subject_type, subject_id, prepared_by, *, required=2, summary="", country=None):
+    if subject_type not in ApprovalRequest.SUBJECT_TYPES:
+        raise ValueError(f"Unknown approval subject type '{subject_type}'. Add it to ApprovalRequest.SUBJECT_TYPES.")
     if required < 2 and subject_type not in ApprovalRequest.ONE_APPROVER_TYPES:
         raise DomainError("Two people must approve this.", code="two-person-rule")
     existing = ApprovalRequest.objects.filter(subject_type=subject_type, subject_id=subject_id, status="open").first()

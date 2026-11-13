@@ -57,7 +57,7 @@ class ApprovalRequest(BaseModel):
     ]
     ONE_APPROVER_TYPES = {"pro_rate_card_change", "pro_payment_run", "pro_expense_exception"}
 
-    subject_type = models.TextField(choices=[(s, s) for s in SUBJECT_TYPES])
+    subject_type = models.TextField()  # checked against SUBJECT_TYPES in core.approvals
     subject_id = models.UUIDField()
     prepared_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
     required = models.PositiveSmallIntegerField(default=2)
