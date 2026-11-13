@@ -454,8 +454,9 @@ FAMILY_MEMBER = state.register("family_member", "acc_family_member", {
 
 
 class BankAccount(CountryScopedModel):
-    """A client's OWN account, e.g. the rent destination (RUL-24). Never a
-    Tenmina account and never a payee's."""
+    """A person's OWN account: a client's rent destination (RUL-24), or the pay
+    account of a professional Tenmina contracts (purpose professional_pay,
+    FR-PRO-006). Never a Tenmina account and never a payee's."""
 
     STATUSES = ["unverified", "pending", "verified", "suspended", "rejected"]
     holder = models.ForeignKey(Person, on_delete=models.PROTECT, related_name="bank_accounts")

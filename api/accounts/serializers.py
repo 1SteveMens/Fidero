@@ -411,6 +411,7 @@ class BankAccountSerializer(StrictMixin, serializers.ModelSerializer):
     account_number_last4 = serializers.CharField(source="last4", read_only=True)
     holder = PersonSummarySerializer(read_only=True)
     approval_status = serializers.CharField(source="approval_request.status", read_only=True, default=None)
+    purpose = serializers.ChoiceField(choices=["rent_destination", "professional_pay"], required=False)
 
     class Meta:
         model = BankAccount
@@ -418,7 +419,7 @@ class BankAccountSerializer(StrictMixin, serializers.ModelSerializer):
                   "account_name", "name_match", "name_source", "verification_status", "evidence", "approval_request",
                   "approval_status", "bank_partner_id", "purpose", "verified_at", "created_at"]
         read_only_fields = ["id", "holder", "name_match", "verification_status", "approval_request",
-                            "approval_status", "verified_at", "created_at", "purpose"]
+                            "approval_status", "verified_at", "created_at"]
 
 
 class BankVerificationSerializer(StrictMixin, serializers.Serializer):

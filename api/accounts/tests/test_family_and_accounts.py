@@ -108,6 +108,36 @@ def test_bank_account_verification_two_steps(seeded, api, people, mfa, gh):
     assert r.json()["verification_status"] == "pending"  # any change needs verifying again
 
 
+def test_professional_adds_own_pay_account(seeded, api, people, mfa, gh):
+    """FR-PRO-006, RUL-24 pattern: a professional Tenmina contracts (LW, SV, RN, IN, QS, CE) adds their own pay
+    account, in their own name, verified like a client's: a preparer and two other staff."""
+    from evidence.services import store
+
+    insp = people["inspector"]
+    letter = store(data=b"pay letter", country=gh, uploaded_by=insp, content_type="text/plain")
+    body = {"bank_name": "Partner Bank", "account_number": "5566778899", "account_name": insp.full_name.upper(),
+            "evidence": str(letter.pk)}
+    r = api(insp).post("/v1/bank-accounts", body, format="json")
+    assert r.status_code == 201, r.content
+    assert r.json()["purpose"] == "professional_pay" and r.json()["name_match"] == "matched"
+    aid = r.json()["id"]
+    r = api(insp).post("/v1/bank-accounts", {**body, "purpose": "rent_destination"}, format="json")
+    assert r.status_code == 403  # a rent account is a client's
+    assert api(people["seller"]).post("/v1/bank-accounts", body, format="json").status_code == 403
+    other = api(insp).post("/v1/bank-accounts", {**body, "account_name": "Someone Else"}, format="json").json()
+    assert other["name_match"] == "mismatch"
+    cm = api(people["cm"])
+    assert cm.post(f"/v1/bank-accounts/{other['id']}/verifications", {},
+                   format="json").json()["code"] == "payee-not-verified"  # nobody overrides a mismatch
+    assert cm.post(f"/v1/bank-accounts/{aid}/verifications", {}, format="json").status_code == 200
+    for key in ("reviewer", "reviewer2"):
+        c = api(people[key])
+        mfa(c, people[key])
+        r = c.post(f"/v1/bank-accounts/{aid}/approvals", {}, format="json")
+    assert r.json()["verification_status"] == "verified"
+    assert api(people["client"]).get(f"/v1/bank-accounts/{aid}").status_code == 404
+
+
 def test_bank_account_name_mismatch_cannot_be_verified(seeded, people):
     """RUL-24, 9.2: nobody can override a mismatch."""
     acct = seeded["bank_accounts"]["wrong"]

@@ -296,3 +296,88 @@ def test_payee_lock_trigger_refuses_unlocked_release(b):
     lock = EscrowPayee.objects.first()
     with pytest.raises(DatabaseError), transaction.atomic():
         EscrowPayee.objects.filter(pk=lock.pk).update(account_version=99)
+
+
+# ----------------------------------------------------------------- the registry without escrow, added payees, RUL-27
+
+def test_payee_registry_works_with_escrow_off(b):
+    """ADR-17, RUL-22: the launch client_direct routes (fees, construction, insurance) pay only verified payees,
+    so the registry works while `escrow.enabled` is off. Escrows and releases still need the flag."""
+    from administration.models import FeatureFlag
+    from core.errors import FeatureOff
+
+    FeatureFlag.objects.filter(name="escrow.enabled").update(enabled=False)
+    p = _verify(b, _new_payee(b, name="Kumasi Roofing Ltd", number="3300556677881"))
+    assert p.verification_status == "verified"
+    services.update_payee(p, b.cm, {"contact_phone": "+233240000999"})
+    with pytest.raises(FeatureOff):
+        b.purchase()
+    with pytest.raises(FeatureOff):
+        services.request_change(b.cm, kind="add_payee", payee=p, escrow=Escrow.objects.filter(
+            status="funded").first(), reason="x", request_source="staff_in_person")
+
+
+def test_add_payee_to_agreed_escrow(b, codes):
+    """FR-ESC-016, RUL-22, RUL-28: a payee verified after agreement (an event vendor, a block supplier) is added
+    to the escrow only with the client's approval first, then two staff, then the cooling-off."""
+    from construction.tests.helpers import Builder
+    from escrow.models import EscrowPayee
+
+    bld = Builder(b.ctx)
+    p = bld.project("escrow")
+    e = Escrow.objects.get(pk=p.escrow_id)
+    sup = _verify(b, _new_payee(b, name="Volta Blocks Ltd", number="3300112233446"))
+    unverified = _new_payee(b, name="Tema Sand Ltd", number="3300112233447")
+    with pytest.raises(Forbidden):
+        services.request_change(b.client, kind="add_payee", payee=sup, escrow=e, reason="x",
+                                request_source="client_signed_in")
+    with pytest.raises(PayeeNotVerified):
+        services.request_change(b.cm, kind="add_payee", payee=unverified, escrow=e, reason="x",
+                                request_source="staff_in_person")
+    with pytest.raises(StateConflict):  # already on the escrow
+        services.request_change(b.cm, kind="add_payee", payee=p.contractor.payee, escrow=e, reason="x",
+                                request_source="staff_in_person")
+    ch = services.request_change(b.cm, kind="add_payee", payee=sup, escrow=e, reason="Block supplier verified",
+                                 request_source="staff_in_person")
+    assert ch.status == "checks_passed"
+    with pytest.raises(StateConflict):  # waiting already
+        services.request_change(b.cm, kind="add_payee", payee=sup, escrow=e, reason="again",
+                                request_source="staff_in_person")
+    with pytest.raises(StateConflict):  # the client approves first (RUL-11)
+        services.decide_change(ch, b.rv, decision="approve", mfa_at=timezone.now())
+    assert not EscrowPayee.objects.filter(escrow=e, payee=sup).exists()
+    services.client_approve_change(ch, e.client, mfa_at=timezone.now())
+    ch.refresh_from_db()
+    services.decide_change(ch, b.rv, decision="approve", mfa_at=timezone.now())
+    services.decide_change(PayeeChange.objects.get(pk=ch.pk), b.rv2, decision="approve", mfa_at=timezone.now())
+    ch.refresh_from_db()
+    assert ch.status == "applied" and ch.cooling_off_until
+    assert EscrowPayee.objects.filter(escrow=e, payee=sup, ended_at__isnull=True).exists()
+    assert EscrowPayee.objects.filter(escrow=e, payee=p.contractor.payee, ended_at__isnull=True).exists()
+    with pytest.raises(RuleBlocked) as ei:
+        services.request_release(Escrow.objects.get(pk=e.pk), requested_by=b.cm, payee=sup, amount="100.00",
+                                 subject_type="milestone", subject_id=bld.ms(p, "foundation").pk)
+    assert "payee-cooling-off" in codes(ei.value) and "payee-not-locked" not in codes(ei.value)
+
+
+def test_contracted_professional_never_paid_from_client_money(b, codes):
+    """RUL-27, 02 6.11: a professional Tenmina contracts is a `contracted_professional` payee, paid by PRO from
+    Tenmina's own account. No release subject may pay it, it is never locked on an escrow, never added to one."""
+    from escrow.models import PAYEE_KIND_FOR_SUBJECT, RELEASABLE_KINDS
+
+    assert all("contracted_professional" not in kinds for kinds in PAYEE_KIND_FOR_SUBJECT.values())
+    assert "contracted_professional" not in RELEASABLE_KINDS
+    pro = _verify(b, _new_payee(b, kind="contracted_professional", name="Asante Chambers", number="3300998811223"))
+    assert pro.verification_status == "verified"
+    hf = b.held_funds("2000.00", client=b.client)
+    with pytest.raises(RuleBlocked):
+        services.lock_payee(hf, pro, client_approved_at=timezone.now())
+    with pytest.raises(RuleBlocked) as ei:
+        services.request_change(b.cm, kind="add_payee", payee=pro, escrow=hf, reason="x",
+                                request_source="staff_in_person")
+    assert ei.value.blocking_reasons[0]["rule"] == "RUL-27"
+    bill = b.fee_invoice(b.client, "100.00", approve=False)
+    with pytest.raises(RuleBlocked) as ei:
+        services.request_release(hf, requested_by=b.cm, payee=pro, amount="100.00", subject_type="fee_invoice",
+                                 subject_id=bill.pk)
+    assert "payee-not-verified" in codes(ei.value)

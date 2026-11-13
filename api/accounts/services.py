@@ -1292,11 +1292,23 @@ def _name_match(account_name, holder):
     return "matched" if normalise_name(account_name) == normalise_name(holder.full_name) else "mismatch"
 
 
+# Professionals Tenmina contracts and pays from its own operating account (PRO, RUL-27): their own pay account.
+PROFESSIONAL_ROLES = ("LW", "SV", "RN", "IN", "QS", "CE")
+BANK_ACCOUNT_PURPOSES = {"rent_destination": ("CL",), "professional_pay": PROFESSIONAL_ROLES}
+
+
 @transaction.atomic
 def add_bank_account(holder, *, bank_name, account_number, account_name, country=None, branch="", evidence=None,
-                     bank_partner_id=None, name_source="") -> BankAccount:
-    if not holder.has_tenmina_role("CL"):
-        raise Forbidden("Only a client registers their own account.")
+                     bank_partner_id=None, name_source="", purpose=None) -> BankAccount:
+    """A person's OWN account, in their own name, verified by a preparer and two other staff: a client's rent
+    destination (RUL-24) or a contracted professional's pay account (FR-PRO-006). Never a Tenmina account."""
+    if purpose is None:
+        purpose = "rent_destination" if holder.has_tenmina_role("CL") else "professional_pay"
+    if purpose not in BANK_ACCOUNT_PURPOSES:
+        raise Invalid(f"Purpose must be one of {', '.join(BANK_ACCOUNT_PURPOSES)}.", code="validation-error")
+    if not holder.has_tenmina_role(*BANK_ACCOUNT_PURPOSES[purpose]):
+        raise Forbidden("Only a client registers a rent account, and only a professional Tenmina contracts "
+                        "registers a pay account, each in their own name.")
     number = re.sub(r"\s+", "", account_number or "")
     if not re.fullmatch(r"[0-9A-Za-z-]{6,34}", number):
         raise Invalid("Enter the account number as the bank gives it.", code="validation-error")
@@ -1304,9 +1316,9 @@ def add_bank_account(holder, *, bank_name, account_number, account_name, country
         holder=holder, country=country or _person_country(holder), bank_name=bank_name.strip(), branch=branch or "",
         account_number=number, account_name=account_name.strip(), account_name_norm=normalise_name(account_name),
         name_match=_name_match(account_name, holder), evidence=evidence, bank_partner_id=bank_partner_id,
-        name_source=name_source or "")
+        name_source=name_source or "", purpose=purpose)
     record(actor=holder, action="bank_account.added", entity="bank_account", entity_id=acct.pk,
-           data={"last4": acct.last4, "name_match": acct.name_match}, country=acct.country)
+           data={"last4": acct.last4, "name_match": acct.name_match, "purpose": purpose}, country=acct.country)
     if evidence is not None:
         from evidence.services import link
 
