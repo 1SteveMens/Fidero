@@ -161,10 +161,17 @@ def test_organisation_with_several_users(seeded, api, people):
 
 # ---------------------------------------------------------------- representatives (US-ACC-008)
 
-def test_representative_named_and_revoked(seeded, api, people):
+def _own_case(api, people, gh):
+    """A real case of the seeded client: the cases module checks that the client owns the subject."""
+    from cases.tests.helpers import paid_case
+
+    return paid_case(api, people, gh).pk
+
+
+def test_representative_named_and_revoked(seeded, api, people, gh):
     """US-ACC-008 AC1 and AC3, TC-ACC-008-01."""
-    case = uuid.uuid4()
-    other_case = uuid.uuid4()
+    case = _own_case(api, people, gh)
+    other_case = _own_case(api, people, gh)
     ama = people["client"]
     r = api(ama).post("/v1/me/representatives", {"email": "cousin@example.com", "full_name": "Cousin Ekua",
                                                  "subject_type": "case", "subject_id": str(case)}, format="json")
@@ -180,10 +187,11 @@ def test_representative_named_and_revoked(seeded, api, people):
     assert not selectors.is_representative(p, "case", case)
 
 
-def test_representative_cannot_hold_release_rights_or_be_staff(seeded, api, people):
+def test_representative_cannot_hold_release_rights_or_be_staff(seeded, api, people, gh):
     """TC-ACC-008-02."""
     r = api(people["client"]).post("/v1/me/representatives", {"email": people["reviewer"].email,
-                                                              "subject_type": "case", "subject_id": str(uuid.uuid4())},
+                                                              "subject_type": "case",
+                                                              "subject_id": str(_own_case(api, people, gh))},
                                    format="json")
     assert r.status_code == 409
     fam = people["family"]
@@ -199,6 +207,9 @@ def test_owner_check_registry(seeded, api, people):
         r = api(people["client"]).post("/v1/me/representatives", {"email": "x@example.com", "subject_type": "project",
                                                                   "subject_id": str(uuid.uuid4())}, format="json")
         assert r.status_code == 404
+        r = api(people["client"]).post("/v1/me/representatives", {"email": "x@example.com", "subject_type": "case",
+                                                                  "subject_id": str(uuid.uuid4())}, format="json")
+        assert r.status_code == 404  # the cases module refuses a case the client does not own
     finally:
         services._owner_checks.pop("project")
 
