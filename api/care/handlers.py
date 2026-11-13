@@ -81,7 +81,11 @@ def visit_payable(instruction) -> list[dict]:
     v = Visit.objects.filter(pk=instruction.subject_id).select_related("carer").first()
     if v is None:
         return [{"rule": "RUL-23", "code": "visit-not-confirmed", "message": "There is no such care visit."}]
-    return services.payable_blockers(v, payee=instruction.payee, amount=instruction.amount)
+    out = services.payable_blockers(v, payee=instruction.payee, amount=instruction.amount)
+    if instruction.escrow.client_id != v.plan.client_id:
+        out.append({"rule": "RUL-22", "code": "escrow-not-client",
+                    "message": "The money held belongs to another client than the visit's plan."})
+    return out
 
 
 esc_registry.register_subject_check("care_visit", visit_payable)

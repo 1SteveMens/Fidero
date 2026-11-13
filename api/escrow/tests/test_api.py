@@ -115,10 +115,8 @@ def test_held_funds_over_the_api(b, api, mfa):
     from escrow import services
 
     services.record_virtual_account(hf, b.cm, virtual_account_ref=f"VA-HF-API-{hf.reference}")
-    b.deposit(Escrow.objects.get(pk=hf.pk), "900.00")
-    ins = services.request_release(Escrow.objects.get(pk=hf.pk), requested_by=b.cm, payee=b.payee("school"),
-                                   amount="300.00", subject_type="fee_invoice", subject_id=uuid.uuid4(),
-                                   subject_label="Term 2 fees")
+    ins = b.fee_release(Escrow.objects.get(pk=hf.pk), "300.00")  # the bank's deposit lets FEE prepare it
+    assert ins.status == "awaiting_client"
     home = c.get("/v1/home").json()
     items = home if isinstance(home, list) else home.get("items", [])
     assert any(i["kind"] == "release_approval" and i["needs_action"] for i in items)

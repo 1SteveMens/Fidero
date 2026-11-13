@@ -113,7 +113,7 @@ def payee_reasons(ins, stage) -> list[dict]:
                       f"The payee's account changed. Releases to it wait until "
                       f"{timezone.localtime(p.cooling_off_until):%d %B %Y %H:%M %Z}.",
                       ends_at=p.cooling_off_until.isoformat()))
-    if lock is not None and lock.change_id and lock.change.kind == "new_payee" and lock.change.cooling_off_until \
+    if lock is not None and lock.change_id and lock.change.kind in ("new_payee", "add_payee") and lock.change.cooling_off_until \
             and lock.change.cooling_off_until > now:
         out.append(_r("RUL-28", "payee-cooling-off",
                       f"The new payee waits until "

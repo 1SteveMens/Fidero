@@ -13,12 +13,6 @@ from datetime import timedelta
 from django.utils import timezone
 
 
-def _demo_id(name):
-    from escrow.seed import demo_id
-
-    return demo_id(name)
-
-
 def _doc(gh, by, name, ct="application/pdf"):
     from core.ids import uuid7
     from evidence.services import store
@@ -113,12 +107,44 @@ def _approve(inv, client):
                                    confirm_payee_account_name=inv.institution.payee.account_name)
 
 
-def _school(gh, people, ctx):
-    """Accra Hills School (demo): verified; adopts the payee escrow's seed already verified, and ties the two
-    fee_invoice instructions escrow seeded to real FEE bills (held_funds route)."""
-    from escrow.models import ReleaseInstruction
+def _held_funds_bills(gh, people, inst, mother):
+    """Two bills paid from the amount held at the bank (FR-ESC-014), through the FEE services: submitted, checked,
+    routed to held funds and approved by the client, which prepares the release. The first is approved by two
+    staff, paid by the bank and receipted; the second waits for the staff approvals."""
+    from escrow import services as esc
+    from escrow.seed import _confirm
     from fees import services
     from fees.models import Invoice, Payment
+
+    cm, rv, rv2, client = people["cm"], people["reviewer"], people["reviewer2"], people["client"]
+    contact = inst.contacts.filter(status="active").first()
+    for ref, label, amount, pay in (("AHS-2026-T1-0042", "Term 1 fees", "6500.00", True),
+                                    ("AHS-2026-BK-0042", "Books and uniform", "1200.00", False)):
+        if Invoice.objects.filter(institution=inst, institution_reference=ref).exists():
+            continue
+        inv = _invoice(gh, client, inst, mother, ref, amount, description=label)
+        services.set_route(inv, cm, "held_funds", reason="Paid from the amount held at the bank [demo]")
+        _check(Invoice.objects.get(pk=inv.pk), cm, contact)
+        _approve(Invoice.objects.get(pk=inv.pk), client)
+        payment = Payment.objects.filter(invoice=inv, route="held_funds").first()
+        if not pay or payment is None or payment.release_instruction_id is None:
+            continue
+        ins = payment.release_instruction
+        for a in (rv, rv2):
+            esc.staff_approve(ins, a, mfa_at=timezone.now())
+        ins.refresh_from_db()
+        if ins.status == "sent":
+            _confirm(ins, cm, rv, "PAY-HF-0001")
+            payment.refresh_from_db()
+            if payment.status == "paid":
+                services.add_receipt(payment, cm, receipt_evidence=_doc(gh, cm, f"receipt-{ref}"),
+                                     confirmation_evidence=_doc(gh, cm, f"enrolment-{ref}"))
+
+
+def _school(gh, people, ctx):
+    """Accra Hills School (demo): verified; adopts the payee escrow's seed already verified, and pays two bills
+    from the amount held at the bank (held_funds route)."""
+    from fees import services
 
     cm, rv, client = people["cm"], people["reviewer"], people["client"]
     payee = (ctx.get("escrow") or {}).get("payees", {}).get("school")
@@ -136,31 +162,8 @@ def _school(gh, people, ctx):
     inst.refresh_from_db()
     mother = (ctx.get("family_members") or {}).get("mother")
     nephew = (ctx.get("family_members") or {}).get("nephew")
-    contact = inst.contacts.filter(status="active").first()
-    if inst.status == "verified" and mother is not None:
-        for key, ref, label, amount in (("invoice:term1", "AHS-2026-T1-0042", "Term 1 fees", "6500.00"),
-                                        ("invoice:books", "AHS-2026-BK-0042", "Books and uniform", "1200.00")):
-            ins = ReleaseInstruction.objects.filter(subject_type="fee_invoice", subject_id=_demo_id(key)).first()
-            if ins is None or Invoice.objects.filter(pk=_demo_id(key)).exists():
-                continue
-            ev = _doc(gh, client, f"bill-{ref}")
-            t = ins.created_at
-            inv = Invoice.objects.create(
-                id=_demo_id(key), country=gh, client=client, family_member=mother, institution=inst,
-                institution_reference=ref, description=label, amount=ins.amount, currency=ins.currency,
-                due_on=timezone.localdate(), submitted_by="client", submitted_by_person=client, evidence=ev,
-                evidence_sha256=ev.sha256, check_status="checked", contact_confirmed_by=contact,
-                contact_confirmed_at=t, checked_by=cm, checked_at=t, route="held_funds", client_approved_at=t,
-                client_approval_method="mfa_step_up", status="instructed")
-            services._link(ev, "fee_invoice", inv.pk, "invoice", client)
-            pay = Payment.objects.create(country=gh, invoice=inv, route="held_funds", amount=inv.amount,
-                                         currency=inv.currency, escrow=ins.escrow, release_instruction=ins,
-                                         status="instructed")
-            if ins.status == "confirmed":
-                services._mark_paid(pay, bank_reference=ins.sent_reference or "PAY-HF-0001")
-                pay.refresh_from_db()
-                services.add_receipt(pay, cm, receipt_evidence=_doc(gh, cm, f"receipt-{ref}"),
-                                     confirmation_evidence=_doc(gh, cm, f"enrolment-{ref}"))
+    if inst.status == "verified" and mother is not None and payee is not None:
+        _held_funds_bills(gh, people, inst, mother)
     if nephew is not None and inst.status == "verified" and not inst.schedules.exists():
         services.create_schedule(client, institution=inst, family_member=nephew, period="term",
                                  expected_amount="6500.00", currency="GHS",

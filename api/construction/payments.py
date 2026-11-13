@@ -24,7 +24,7 @@ from core.money import q
 from core.permissions import has_role
 
 from .common import audit, fmt, log, notify, now, resolve, staff_in
-from .models import Payment, Project
+from .models import Milestone, Payment
 
 APPROVAL_SUBJECT = {"funds": "project_release"}  # every build type: milestone_release
 
@@ -97,10 +97,13 @@ def escrow_subject_check(instruction) -> list[dict]:
         p = Payment.objects.filter(subject_type=instruction.subject_type, subject_id=instruction.subject_id,
                                    status="preparing", route="escrow").select_related("project").first()
     if p is None:
-        if Project.objects.filter(escrow_id=instruction.escrow_id).exists():
+        # A stage is paid only from its project, so the inspection, re-price and evidence rules are checked; an
+        # instruction naming a stage BLD does not know is refused (RUL-09).
+        if Milestone.objects.filter(pk=instruction.subject_id).exists():
             return [_r("RUL-09", "milestone-unknown", "Prepare stage payments from the project, so the inspection, "
                                                       "re-price and evidence rules are checked.")]
-        return []
+        return [_r("RUL-09", "milestone-unknown", "There is no such stage. A stage payment is made only for a "
+                                                  "stage of a checked project.")]
     stage = "staff" if instruction.status == "pending_approval" else "send" if instruction.status == "approved" \
         else "client" if instruction.status == "awaiting_client" else "prepare"
     out = blockers(p, stage)

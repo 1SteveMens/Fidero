@@ -1,5 +1,4 @@
 """Bank events, confirmed funds and refunds: FR-ESC-004, 011, 013, 014, 017, 019; RUL-29, RUL-34 (ADR-18, ADR-26)."""
-import uuid
 from decimal import Decimal
 
 import pytest
@@ -60,31 +59,34 @@ def test_misdirected_deposit_cannot_be_released(b, codes):
     b.deposit(hf, "900.00", misdirected=True)
     assert selectors.held_at_bank(hf) == Decimal("900.00")
     assert selectors.available_to_instruct(hf) == 0
+    inv = b.fee_invoice(hf.client, "100.00")  # approved, but nothing can be instructed from a misdirected credit
+    assert not inv.payments.exists()
     with pytest.raises(RuleBlocked) as ei:
         services.request_release(Escrow.objects.get(pk=hf.pk), requested_by=b.cm, payee=b.payee("school"),
-                                 amount="100.00", subject_type="fee_invoice", subject_id=uuid.uuid4())
+                                 amount="100.00", subject_type="fee_invoice", subject_id=inv.pk)
     assert "held-funds-insufficient" in codes(ei.value)
 
 
 def test_release_larger_than_confirmed_funds_blocked(b):
     """RUL-34, FR-ESC-014 AC2, FR-ESC-019 AC3: shortfall named; no override."""
     hf = b.held_funds("1000.00")
-    first = services.request_release(hf, requested_by=b.cm, payee=b.payee("school"), amount="800.00",
-                                     subject_type="fee_invoice", subject_id=uuid.uuid4())
+    first = b.fee_release(hf, "800.00")
+    second = b.fee_invoice(hf.client, "300.00")  # FEE waits for money; the client is asked to top up
+    assert not second.payments.exists()
     with pytest.raises(RuleBlocked) as ei:
         services.request_release(Escrow.objects.get(pk=hf.pk), requested_by=b.cm, payee=b.payee("school"),
-                                 amount="300.00", subject_type="fee_invoice", subject_id=uuid.uuid4())
+                                 amount="300.00", subject_type="fee_invoice", subject_id=second.pk)
     assert ei.value.code == "held-funds-insufficient"
     assert ei.value.blocking_reasons[0]["shortfall"]["amount"] == "100.00"
-    assert first.status == "awaiting_client"
+    assert first.status == "pending_approval"  # the client's approval of the bill applies to it
 
 
 def test_held_funds_statement_from_bank_events_only(b):
     """FR-ESC-014 AC1, ADR-18: deposits, releases and held at the bank, from bank-confirmed events only."""
     hf = b.held_funds("1000.00")
-    fm = b.ctx["family_members"]["mother"]
-    ins = services.request_release(hf, requested_by=b.cm, payee=b.payee("school"), amount="250.00",
-                                   subject_type="fee_invoice", subject_id=uuid.uuid4(), family_member_id=fm.pk)
+    fm = b.family_member(hf.client)
+    ins = b.fee_release(hf, "250.00")
+    assert ins.family_member_id == fm.pk
     b.confirm(b.approve_all(ins))
     funds = selectors.confirmed_funds(Escrow.objects.get(pk=hf.pk))[0]
     held_before = funds["held_at_bank"]

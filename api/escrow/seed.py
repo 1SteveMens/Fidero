@@ -305,35 +305,11 @@ def run(ctx):
     services.record_virtual_account(hf, cm, virtual_account_ref="VA-GH-HF-000201")
     _deposit(Escrow.objects.get(pk=hf.pk), cm, rv, "20000.00", "DEP-HF-0001")
     _deposit(Escrow.objects.get(pk=hf.pk), cm, rv, "8000.00", "DEP-HF-0002")
-    hf = Escrow.objects.get(pk=hf.pk)
-    mother = ctx.get("family_members", {}).get("mother")
-    paid = _release(hf, cm, client, rv, rv2, payee=payees["school"], amount="6500.00", subject_type="fee_invoice",
-                    subject_id=demo_id("invoice:term1"), subject_label="Term 1 fees, Accra Hills School",
-                    family_member_id=mother.pk if mother else None)
-    if paid.status == "sent":
-        _confirm(paid, cm, rv, "PAY-HF-0001")
-    waiting = services.request_release(hf, requested_by=cm, payee=payees["school"], amount="1200.00",
-                                       subject_type="fee_invoice", subject_id=demo_id("invoice:books"),
-                                       subject_label="Books and uniform, Accra Hills School",
-                                       family_member_id=mother.pk if mother else None)
-    services.client_approve(waiting, client, timezone.now())
-    services.create_standing_approval(hf, client, subject_kind="care_plan", subject_id=demo_id("care:mother"),
-                                      monthly_max="1600.00", mfa_at=timezone.now())
+    # The bills it pays are FEE's (fees seed: real invoices through the FEE services), the care visits CARE's
+    # (care seed: a standing approval on a real plan) and the stage payments BLD's (construction seed: a real
+    # project on the escrow route). No release here names a made-up subject.
 
-    # 7. Construction, paid by milestone (FR-ESC-010).
-    bld = services.open_line_escrow(kind="construction", client=client, country=gh, agreed_amount="600000.00",
-                                    by=cm, title="House at Oyarifa (building in stages)",
-                                    asset_id=demo_id("asset:oyarifa"), project_id=demo_id("project:oyarifa"),
-                                    payees=[payees["contractor"]])
-    _agree(bld, people, cm, "VA-GH-000107")
-    _deposit(Escrow.objects.get(pk=bld.pk), cm, rv, "600000.00", "DEP-BLD-0001")
-    m1 = _release(Escrow.objects.get(pk=bld.pk), cm, client, rv, rv2, payee=payees["contractor"],
-                  amount="60000.00", subject_type="milestone", subject_id=demo_id("milestone:mobilisation"),
-                  subject_label="Milestone 0: mobilisation")
-    if m1.status == "sent":
-        _confirm(m1, cm, rv, "PAY-BLD-0001")
-
-    # 8. A payee change in its cooling-off (RUL-28) on the off-plan developer.
+    # 7. A payee change in its cooling-off (RUL-28) on the off-plan developer.
     off = services.open_line_escrow(kind="offplan", client=client, country=gh, agreed_amount="320000.00", by=cm,
                                     title="Off-plan house at Sunrise Estate", asset_id=demo_id("asset:sunrise"),
                                     project_id=demo_id("project:sunrise"), payees=[payees["developer"]])
@@ -349,7 +325,7 @@ def run(ctx):
         ch.refresh_from_db()
         _approve(ch.approval_request, rv, rv2)
 
-    # 9. Today's rate comparison and a deposit quote on the funded purchase (RUL-35).
+    # 8. Today's rate comparison and a deposit quote on the funded purchase (RUL-35).
     try:
         services.collect_rates(gh)
         services.issue_quote(Escrow.objects.get(pk=e2.pk), client, purpose="deposit", route="transfer_partner",

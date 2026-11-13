@@ -22,7 +22,10 @@ from core.permissions import has_role
 
 from . import adapters, selectors
 from .common import STAFF, alert_staff, audit, has_rr, is_staff, notify, now, setting
-from .models import OPEN_STATUSES, PAYEE_KINDS, Escrow, EscrowPayee, Payee, PayeeChange, ReleaseInstruction
+from .models import (OPEN_STATUSES, PAYEE_KINDS, RELEASABLE_KINDS, Escrow, EscrowPayee, Payee, PayeeChange,
+                     ReleaseInstruction)
+
+PAYEE_KINDS_CHANGES = ("new_payee", "add_payee")  # changes naming an already verified payee
 
 BANK_FIELDS = ("bank_name", "account_number", "account_name", "account_name_source", "account_name_evidence")
 NEVER_SOURCES = ("message", "email", "call", "whatsapp", "sms", "phone", "statement_line", "payee_word")
@@ -30,6 +33,13 @@ NEVER_SOURCES = ("message", "email", "call", "whatsapp", "sms", "phone", "statem
 
 def _require_escrow_on(country):
     flags.require("escrow.enabled", country)
+    flags.read_only_guard()
+
+
+def _registry_on(country):
+    """The verified payee registry works whether or not `escrow.enabled` is on: the launch `client_direct`
+    routes (fees, construction, insurance) pay only verified payees too (ADR-17, RUL-22). Only escrows and
+    releases need the flag."""
     flags.read_only_guard()
 
 
@@ -80,7 +90,7 @@ def create_payee(by, *, country, kind, subject_type, subject_id, legal_name, leg
                  account_number, account_name="", account_name_source, account_name_evidence=None, person=None,
                  organisation=None, national_id_check=None, bank_partner_id=None, contact_email="",
                  contact_phone="") -> Payee:
-    _require_escrow_on(country)
+    _registry_on(country)
     if not is_staff(by, country):
         raise Forbidden("Only Tenmina staff add payees.")
     if kind not in PAYEE_KINDS:
@@ -120,7 +130,7 @@ def create_payee(by, *, country, kind, subject_type, subject_id, legal_name, leg
 def update_payee(p: Payee, by, data: dict) -> Payee:
     """Contact details change freely. Bank details change only through a
     payee change (RUL-28), except on a payee never verified nor locked."""
-    _require_escrow_on(p.country)
+    _registry_on(p.country)
     if not is_staff(by, p.country):
         raise Forbidden("Only Tenmina staff edit payees.")
     bank_change = {k for k in BANK_FIELDS if k in data and data[k] not in (None, "")}
@@ -190,7 +200,7 @@ def payee_identity_reasons(p: Payee) -> list[dict]:
 def prepare_verification(p: Payee, by) -> Payee:
     """Step one: a staff member checks the evidence; two other staff approve
     (`payee_verification`). A mismatch can never be verified (FR-ESC-015)."""
-    _require_escrow_on(p.country)
+    _registry_on(p.country)
     if not is_staff(by, p.country):
         raise Forbidden("Only Tenmina staff verify payees.")
     if p.person_id and p.person_id == by.pk:
@@ -287,6 +297,10 @@ def reinstate_payee(p: Payee, by) -> Payee:
 # ----------------------------------------------------------------- the lock (RUL-28)
 
 def lock_payee(e: Escrow, p: Payee, *, client_approved_at, source="client_approved_payment", change=None):
+    if p.kind == "contracted_professional":
+        raise RuleBlocked("A professional Tenmina contracts is paid from Tenmina's own account, never from client "
+                          "money.", code="payee-not-verified",
+                          blocking_reasons=[{"rule": "RUL-27", "message": "Contracted professional on an escrow"}])
     row, _ = EscrowPayee.objects.get_or_create(
         escrow=e, payee=p, account_version=p.account_version,
         defaults={"source": source, "change": change, "client_approved_at": client_approved_at})
@@ -313,7 +327,10 @@ def request_change(by, *, kind, reason, request_source, payee=None, escrow=None,
     """FR-ESC-016: the only way to change where money goes. Never from a
     message, email or call (RUL-28)."""
     country = (payee or escrow).country
-    _require_escrow_on(country)
+    if escrow is not None or kind != "new_account":
+        _require_escrow_on(country)  # a change tied to an escrow
+    else:
+        _registry_on(country)
     if request_source not in PayeeChange.SOURCES:
         audit(by, "payee_change.source_refused", payee or escrow, {"source": request_source})
         raise RuleBlocked("Bank details are never taken from a message, email or call. The payee asks signed in, "
@@ -353,6 +370,31 @@ def request_change(by, *, kind, reason, request_source, payee=None, escrow=None,
                                    blocking_reasons=[{"rule": "RUL-22", "message": "New payee not verified"}])
         if not EscrowPayee.objects.filter(escrow=escrow, payee=replaces_payee, ended_at__isnull=True).exists():
             raise StateConflict("The payee to replace is not on this escrow.")
+    elif kind == "add_payee":
+        # An extra payee on an agreed escrow, e.g. an event vendor verified after the terms were agreed. Same
+        # checks as a new payee: verified, name matched, a valid identity check, the client's approval first,
+        # two staff and the cooling-off (RUL-22, RUL-28).
+        if not has_role(by, "CM", "RV", country=country):
+            raise Forbidden("Only staff add a payee to an agreed escrow.")
+        if escrow is None or escrow.status not in OPEN_STATUSES or escrow.status == "proposed":
+            raise StateConflict("A payee is added this way only to an agreed escrow. Before agreement, add it to "
+                                "the terms.")
+        if payee is None:
+            raise Invalid("Name the payee to add.", code="validation-error")
+        if payee.country_id != escrow.country_id:
+            raise Invalid("The payee belongs to another country.", code="validation-error")
+        if payee.kind not in RELEASABLE_KINDS:
+            raise RuleBlocked("This kind of payee is never paid from client money.", code="payee-not-verified",
+                              blocking_reasons=[{"rule": "RUL-27" if payee.kind == "contracted_professional"
+                                                 else "RUL-22", "message": f"Payee kind {payee.kind}"}])
+        if payee.verification_status != "verified" or payee.name_match != "matched":
+            raise PayeeNotVerified("The payee must be verified first.",
+                                   blocking_reasons=[{"rule": "RUL-22", "message": "Payee not verified"}])
+        if EscrowPayee.objects.filter(escrow=escrow, payee=payee, ended_at__isnull=True).exists():
+            raise StateConflict("This payee is already on this escrow.", code="payee-exists")
+        if PayeeChange.objects.filter(escrow=escrow, payee=payee, kind="add_payee", status__in=[
+                "requested", "checks_passed", "client_approved", "pending_approval"]).exists():
+            raise StateConflict("This payee is already waiting to be added.", code="payee-exists")
     elif kind == "refund_destination":
         if escrow is None or deposit_event is None or deposit_event.escrow_id != escrow.pk \
                 or deposit_event.kind != "deposit" or deposit_event.status != "confirmed":
@@ -376,7 +418,7 @@ def request_change(by, *, kind, reason, request_source, payee=None, escrow=None,
         country=country, kind=kind, payee=payee, replaces_payee=replaces_payee, escrow=escrow,
         deposit_event=deposit_event, reason=reason, request_source=request_source, bank_name=bank_name or "",
         account_number=number, account_name=name, account_name_norm=normalise_name(name),
-        account_name_source=account_name_source if kind != "new_payee" else "", account_name_evidence=ev,
+        account_name_source=account_name_source if kind not in PAYEE_KINDS_CHANGES else "", account_name_evidence=ev,
         account_name_raw_sha256=raw, requested_by=by)
     audit(by, "payee_change.requested", ch, {"kind": kind, "last4": number[-4:] if number else ""})
     publish("payee_change.requested", ch.pk, {"change_id": ch.pk, "kind": kind,
@@ -385,7 +427,7 @@ def request_change(by, *, kind, reason, request_source, payee=None, escrow=None,
     alert_staff(country, ("CM", "RV"), "payee_change_requested",
                 f"A payee change ({kind.replace('_', ' ')}) was requested. Check the account evidence and run a fresh "
                 "identity check.", obj=ch, link=f"/back-office/payee-changes/{ch.pk}")
-    if kind == "new_payee":
+    if kind in PAYEE_KINDS_CHANGES:
         ch.national_id_check = payee.national_id_check
         ch.save(update_fields=["national_id_check"])
     advance_change(ch)
@@ -393,7 +435,7 @@ def request_change(by, *, kind, reason, request_source, payee=None, escrow=None,
 
 
 def _account_check_done(ch) -> bool:
-    if ch.kind == "new_payee":
+    if ch.kind in PAYEE_KINDS_CHANGES:
         return True
     return ch.account_name_source == "bank_name_check" or ch.account_checked_by_id is not None
 
@@ -402,7 +444,7 @@ def _nid_done(ch) -> bool:
     chk = ch.national_id_check
     if chk is None or chk.result != "match":
         return False
-    if ch.kind == "new_payee":
+    if ch.kind in PAYEE_KINDS_CHANGES:
         return True
     return chk.requested_at >= ch.requested_at  # fresh, made for this change (9.2, 5.12)
 
@@ -472,6 +514,10 @@ def advance_change(ch: PayeeChange) -> PayeeChange:
         elif ch.kind == "new_payee":
             text = (f"Your escrow {ch.escrow.reference} would pay {ch.payee.legal_name} (account ending "
                     f"{ch.payee.last4}) instead of {old.legal_name}. Approve it only if you agree.")
+        elif ch.kind == "add_payee":
+            text = (f"Your escrow {ch.escrow.reference} would also be able to pay {ch.payee.legal_name} (account "
+                    f"ending {ch.payee.last4}). Nothing is paid without your approval of each payment. Approve it "
+                    "only if you agree.")
         else:
             text = (f"{old.legal_name} asked to be paid into a new account: '{ch.account_name}' ending "
                     f"{ch.account_number[-4:]} (now ending {old.last4}). Approve it only if you agree.")
@@ -611,6 +657,8 @@ def apply_payee_change(ch: PayeeChange):
             from .services import withdraw_instruction
 
             withdraw_instruction(ins, None, reason="The payee was replaced (RUL-28)", system=True)
+    elif ch.kind == "add_payee":
+        lock_payee(ch.escrow, ch.payee, client_approved_at=ch.client_approved_at, source="payee_change", change=ch)
     elif ch.kind == "refund_destination":
         ins = ReleaseInstruction.objects.filter(refund_source_event=ch.deposit_event, status__in=[
             "awaiting_client", "pending_approval"]).first()

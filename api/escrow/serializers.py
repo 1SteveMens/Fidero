@@ -104,7 +104,7 @@ class PayeeChangeSerializer(serializers.ModelSerializer):
 
 
 class PayeeChangeCreateSerializer(serializers.Serializer):
-    kind = serializers.ChoiceField(choices=["new_account", "new_payee"])
+    kind = serializers.ChoiceField(choices=["new_account", "new_payee", "add_payee"])
     reason = serializers.CharField()
     request_source = serializers.CharField()
     escrow_id = serializers.UUIDField(required=False, allow_null=True)

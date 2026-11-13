@@ -12,72 +12,101 @@ from escrow import registry, services
 from escrow.models import Escrow, ReleaseInstruction
 
 
-def test_line_subject_check_blocks(b, codes):
-    """RUL-23 via the registry: a line's own evidence rule blocks the release with its reason."""
-    def visit_not_confirmed(ins):
-        return [{"rule": "RUL-23", "code": "visit-not-confirmed", "message": "The family has not confirmed."}]
+def _care(b, monkeypatch):
+    """CARE's own test builder on the seeded client, mother and carer, with a known confirmation code."""
+    from care.tests.conftest import Care
+    from notifications import services as ntf
 
-    registry.register_subject_check("care_visit", visit_not_confirmed)
+    monkeypatch.setattr(ntf.secrets, "randbelow", lambda n: 123456)
+    return Care(b.ctx)
+
+
+def test_line_subject_check_blocks(b, codes, monkeypatch):
+    """RUL-23 via the registry: a line's own evidence rule blocks the release with its reason (a real CARE visit,
+    checked out but not yet confirmed by the family)."""
+    calls = []
+
+    def also_checked(ins):
+        calls.append(ins.subject_id)
+        return []
+
+    care = _care(b, monkeypatch)
+    plan = care.plan()
+    v = care.checked_out(plan)
+    registry.register_subject_check("care_visit", also_checked)
     try:
-        hf = b.held_funds("2000.00")
+        hf = b.held_funds("2000.00", client=b.client)
         with pytest.raises(RuleBlocked) as ei:
-            services.request_release(hf, requested_by=b.cm, payee=b.payee("carer"), amount="150.00",
-                                     subject_type="care_visit", subject_id=uuid.uuid4())
+            services.request_release(hf, requested_by=b.cm, payee=b.payee("carer"), amount=str(v.fee_amount),
+                                     subject_type="care_visit", subject_id=v.pk)
         assert "visit-not-confirmed" in codes(ei.value)
+        assert v.pk in calls  # every registered check runs
     finally:
-        registry.unregister_subject_check("care_visit", visit_not_confirmed)
+        registry.unregister_subject_check("care_visit", also_checked)
 
 
-def test_standing_approval_covers_care_visits_up_to_the_month(b):
-    """RUL-11: a standing approval replaces the client's per-payment approval up to the monthly amount."""
+def test_unknown_line_subject_is_refused(b, codes):
+    """RUL-06, RUL-22: a release naming a bill, visit or stage the line module does not know is refused."""
     hf = b.held_funds("2000.00")
-    plan = uuid.uuid4()
-    sa = services.create_standing_approval(hf, hf.client, subject_kind="care_plan", subject_id=plan,
-                                           monthly_max="300.00", mfa_at=timezone.now())
+    for subject_type, payee in (("fee_invoice", "school"), ("care_visit", "carer")):
+        with pytest.raises(RuleBlocked) as ei:
+            services.request_release(Escrow.objects.get(pk=hf.pk), requested_by=b.cm, payee=b.payee(payee),
+                                     amount="100.00", subject_type=subject_type, subject_id=uuid.uuid4())
+        assert codes(ei.value) & {"invoice-unknown", "visit-not-confirmed"}
+
+
+def test_standing_approval_covers_care_visits_up_to_the_month(b, monkeypatch):
+    """RUL-11: a standing approval replaces the client's per-payment approval up to the monthly amount
+    (real CARE visits, confirmed by the family, prepared by CARE)."""
+    from care.services import prepare_payment
+
+    care = _care(b, monkeypatch)
+    plan = care.plan()
+    hf = b.held_funds("2000.00", client=b.client)
+    assert plan.escrow_id == hf.pk
+    sa = services.create_standing_approval(hf, hf.client, subject_kind="care_plan", subject_id=plan.pk,
+                                           monthly_max="250.00", mfa_at=timezone.now())
     # The care line locks the carer when the client approves the carer assignment; a standing approval never does.
     services.lock_payee(hf, b.payee("carer"), client_approved_at=timezone.now())
-    first = services.request_release(hf, requested_by=b.cm, payee=b.payee("carer"), amount="200.00",
-                                     subject_type="care_visit", subject_id=uuid.uuid4(), standing_approval=sa)
+    first = prepare_payment(care.confirm(care.checked_out(plan)), b.cm)
+    assert first.standing_approval_id == sa.pk
     assert first.status == "pending_approval" and first.client_approval_method == "standing"
     first = b.approve_all(first, client=False)
     assert first.status == "sent", first.last_send_error
-    second = services.request_release(Escrow.objects.get(pk=hf.pk), requested_by=b.cm, payee=b.payee("carer"),
-                                      amount="200.00", subject_type="care_visit", subject_id=uuid.uuid4(),
-                                      standing_approval=sa)
+    second = prepare_payment(care.confirm(care.checked_out(plan, minutes_ago=50)), b.cm)
     assert second.status == "awaiting_client"  # above the month's limit the client approves it alone
 
 
-def test_construction_partial_releases_never_exceed_funds(b):
-    """FR-ESC-010 AC1, AC3: milestone payments are partial releases, never more than the funded amount."""
-    e = services.open_line_escrow(kind="construction", client=b.client, country=b.gh, agreed_amount="1000.00",
-                                  by=b.cm, asset_id=uuid.uuid4(), project_id=uuid.uuid4(),
-                                  payees=[b.payee("contractor")])
-    e = b.agree(e)
-    b.deposit(e, "1000.00")
-    m1 = services.request_release(Escrow.objects.get(pk=e.pk), requested_by=b.cm, payee=b.payee("contractor"),
-                                  amount="600.00", subject_type="milestone", subject_id=uuid.uuid4())
-    assert m1.kind == "partial_release"
-    b.confirm(b.approve_all(m1))
-    assert Escrow.objects.get(pk=e.pk).status == "partly_released"
-    with pytest.raises(RuleBlocked):
-        services.request_release(Escrow.objects.get(pk=e.pk), requested_by=b.cm, payee=b.payee("contractor"),
-                                 amount="500.00", subject_type="milestone", subject_id=uuid.uuid4())
-    m2 = services.request_release(Escrow.objects.get(pk=e.pk), requested_by=b.cm, payee=b.payee("contractor"),
-                                  amount="400.00", subject_type="milestone", subject_id=uuid.uuid4())
-    b.confirm(b.approve_all(m2))
-    assert Escrow.objects.get(pk=e.pk).status == "released"
+def _bld(b):
+    from construction.tests.helpers import Builder
+
+    return Builder(b.ctx)
+
+
+def test_construction_partial_releases_never_exceed_funds(b, codes):
+    """FR-ESC-010 AC1, AC3: milestone payments are partial releases, never more than the funded amount (a real
+    BLD project on the escrow route)."""
+    bld = _bld(b)
+    p = bld.project("escrow")
+    pay = bld.mobilise(p)
+    assert pay.instruction.kind == "partial_release" and pay.instruction.status == "confirmed"
+    e = Escrow.objects.get(pk=p.escrow_id)
+    assert e.status == "partly_released"
+    left = services.available_to_instruct(e)
+    assert Decimal("0") < left < p.budget_amount
+    with pytest.raises(RuleBlocked) as ei:
+        services.request_release(e, requested_by=b.cm, payee=p.contractor.payee, amount=str(left + 1),
+                                 subject_type="milestone", subject_id=bld.ms(p, "foundation").pk)
+    assert "held-funds-insufficient" in codes(ei.value)
 
 
 def test_unlocked_payee_refused_on_line_escrow(b, codes):
     """RUL-28: a construction escrow pays only the payees agreed in its terms."""
-    e = services.open_line_escrow(kind="construction", client=b.client, country=b.gh, agreed_amount="1000.00",
-                                  by=b.cm, asset_id=uuid.uuid4(), project_id=uuid.uuid4(),
-                                  payees=[b.payee("contractor")])
-    e = b.agree(e)
-    b.deposit(e, "1000.00")
+    bld = _bld(b)
+    p = bld.project("escrow")
     with pytest.raises(RuleBlocked) as ei:
-        services.request_release(Escrow.objects.get(pk=e.pk), requested_by=b.cm, payee=b.payee("developer"),
-                                 amount="100.00", subject_type="milestone", subject_id=uuid.uuid4())
+        services.request_release(Escrow.objects.get(pk=p.escrow_id), requested_by=b.cm, payee=b.payee("developer"),
+                                 amount="100.00", subject_type="milestone", subject_id=bld.ms(p, "foundation").pk)
     assert "payee-not-locked" in codes(ei.value)
 
 
@@ -85,21 +114,18 @@ def test_one_live_instruction_per_subject(b):
     """02 6.5: one live instruction per invoice, visit or milestone."""
     from core.errors import StateConflict
 
-    hf = b.held_funds("2000.00")
-    sid = uuid.uuid4()
-    services.request_release(hf, requested_by=b.cm, payee=b.payee("school"), amount="100.00",
-                             subject_type="fee_invoice", subject_id=sid)
+    hf = b.held_funds(None)
+    ins = b.fee_release(hf, "100.00")  # FEE prepares the one instruction for its bill
     with pytest.raises(StateConflict):
         services.request_release(Escrow.objects.get(pk=hf.pk), requested_by=b.cm, payee=b.payee("school"),
-                                 amount="100.00", subject_type="fee_invoice", subject_id=sid)
+                                 amount="100.00", subject_type="fee_invoice", subject_id=ins.subject_id)
 
 
 def test_release_confirmed_event_names_the_subject(b):
     """The event lines subscribe to: release.confirmed with subject_type and subject_id."""
-    hf = b.held_funds("2000.00")
-    sid = uuid.uuid4()
-    ins = services.request_release(hf, requested_by=b.cm, payee=b.payee("school"), amount="100.00",
-                                   subject_type="fee_invoice", subject_id=sid)
+    hf = b.held_funds(None)
+    ins = b.fee_release(hf, "100.00")
+    sid = ins.subject_id
     b.confirm(b.approve_all(ins))
     ev = OutboxEvent.objects.filter(topic="release.confirmed", aggregate_id=ins.pk).first()
     assert ev.payload["subject_type"] == "fee_invoice" and ev.payload["subject_id"] == str(sid)
@@ -157,7 +183,6 @@ def test_held_funds_available_for_lines(b):
     hf = b.held_funds("700.00")
     assert services.held_funds_for(hf.client, b.gh, "GHS").pk == hf.pk
     assert services.available_to_instruct(hf) == Decimal("700.00")
-    services.request_release(hf, requested_by=b.cm, payee=b.payee("school"), amount="200.00",
-                             subject_type="fee_invoice", subject_id=uuid.uuid4())
+    b.fee_release(hf, "200.00")
     assert services.available_to_instruct(Escrow.objects.get(pk=hf.pk)) == Decimal("500.00")
     assert ReleaseInstruction.objects.filter(escrow=hf).count() == 1

@@ -829,7 +829,12 @@ class PayeeChangeRequestView(viewsets.GenericViewSet):
         if p is None:
             raise NotFound()
         d = _valid(PayeeChangeCreateSerializer, request)
-        if d["kind"] == "new_payee":
+        if d["kind"] == "add_payee":
+            # POST /v1/payees/{id}/changes with the escrow: add this verified payee to an agreed escrow.
+            ch = services.request_change(request.user, kind="add_payee", reason=d["reason"],
+                                         request_source=d["request_source"], payee=p,
+                                         escrow=_get(Escrow, d.get("escrow_id")))
+        elif d["kind"] == "new_payee":
             ch = services.request_change(request.user, kind="new_payee", reason=d["reason"],
                                          request_source=d["request_source"],
                                          payee=_get(Payee, d.get("new_payee_id")),

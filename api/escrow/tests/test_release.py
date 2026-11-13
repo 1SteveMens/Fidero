@@ -125,10 +125,9 @@ def test_fresh_search_missing_or_stale_blocks_purchase(b, codes):
 
 def test_held_funds_need_no_fresh_search(b):
     """US-ESC-006 AC5: payments to institutions need no fresh search."""
-    hf = b.held_funds("3000.00")
-    ins = services.request_release(hf, requested_by=b.cm, payee=b.payee("school"), amount="500.00",
-                                   subject_type="fee_invoice", subject_id=hf.pk)
-    assert ins.status == "awaiting_client"
+    hf = b.held_funds(None)
+    ins = b.fee_release(hf, "500.00")
+    assert ins.status == "awaiting_client" and hf.fresh_search_result_date is None
 
 
 def test_full_purchase_journey(b):

@@ -291,9 +291,11 @@ def destination_reasons(agreement) -> list[dict]:
         return [{"rule": "FR-PRO-006", "code": "no-payee", "message": "No verified payee account is on file."}]
     if p is not None:
         p.refresh_from_db()
-        if p.kind not in ("contracted_professional", "professional"):
+        if p.kind != "contracted_professional":
             out.append({"rule": "RUL-27", "code": "payee-kind",
-                        "message": "The payee is not a professional's account. A run pays only professionals."})
+                        "message": "The payee is not registered as a contracted professional's account. A run pays "
+                                   "only professionals Tenmina contracts, and such an account is never paid from "
+                                   "client money."})
         if p.verification_status != "verified":
             out.append({"rule": "FR-PRO-006", "code": "payee-not-verified",
                         "message": f"The payee account ending {p.last4} is {p.verification_status}, not verified."})

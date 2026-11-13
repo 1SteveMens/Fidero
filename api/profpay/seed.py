@@ -96,11 +96,11 @@ def firm_payee(gh, people, *, org_name, signer, number, nid_number):
 
     cm, rv, rv2 = people["cm"], people["reviewer"], people["reviewer2"]
     org, _ = Organisation.objects.get_or_create(name=org_name, kind="law_firm", country=gh)
-    p = Payee.objects.filter(subject_type="organisation", subject_id=org.pk, kind="professional").first()
+    p = Payee.objects.filter(subject_type="organisation", subject_id=org.pk, kind="contracted_professional").first()
     if p is None:
         chk = request_national_id_check(by=cm, country=gh, subject_role="professional", subject_name=signer.full_name,
                                         id_number=nid_number, person=signer)
-        p = esc.create_payee(cm, country=gh, kind="professional", subject_type="organisation", subject_id=org.pk,
+        p = esc.create_payee(cm, country=gh, kind="contracted_professional", subject_type="organisation", subject_id=org.pk,
                              legal_name=org_name, legal_name_evidence=_ev(gh, cm, f"registration-{org_name}.txt"),
                              bank_name="Demo Commercial Bank [TO VERIFY]", account_number=number,
                              account_name_source="bank_name_check", organisation=org, national_id_check=chk)

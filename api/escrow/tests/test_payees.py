@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from core.errors import Forbidden, Invalid, PayeeNotVerified, RuleBlocked, SameApprover, StateConflict
 from escrow import adapters, services
-from escrow.models import Escrow, Payee, PayeeChange
+from escrow.models import Escrow, Payee, PayeeChange, ReleaseInstruction
 
 
 def _new_payee(b, *, kind="supplier", name="Volta Blocks Ltd", number="3300112233445", source="bank_name_check",
@@ -86,15 +86,17 @@ def test_relative_or_representative_never_paid(b, codes):
     rep = b.p["family"]  # seeded as Ama's representative
     p = _verify(b, _new_payee(b, kind="institution", name=rep.full_name, person=rep))
     hf = b.held_funds("2000.00", client=b.client)
+    bill = b.fee_invoice(b.client, "100.00", approve=False)  # a real bill of Ama's
     with pytest.raises(RuleBlocked) as ei:
         services.request_release(hf, requested_by=b.cm, payee=p, amount="100.00", subject_type="fee_invoice",
-                                 subject_id=uuid.uuid4())
+                                 subject_id=bill.pk)
     assert "payee-not-verified" in codes(ei.value)
     nephew = b.ctx["family_members"]["nephew"]
     p2 = _verify(b, _new_payee(b, kind="institution", name=nephew.full_name))
-    with pytest.raises(RuleBlocked):
+    with pytest.raises(RuleBlocked) as ei:
         services.request_release(hf, requested_by=b.cm, payee=p2, amount="100.00", subject_type="fee_invoice",
-                                 subject_id=uuid.uuid4())
+                                 subject_id=bill.pk)
+    assert "payee-not-verified" in codes(ei.value)
 
 
 def test_payee_kind_must_fit_the_subject(b, codes):
@@ -125,9 +127,8 @@ def test_unverified_unlocked_payee_can_be_corrected(b):
 
 def test_suspension_withdraws_live_instructions(b):
     """RUL-22: suspending a payee withdraws open approvals."""
-    hf = b.held_funds("2000.00")
-    ins = services.request_release(hf, requested_by=b.cm, payee=b.payee("school"), amount="100.00",
-                                   subject_type="fee_invoice", subject_id=uuid.uuid4())
+    hf = b.held_funds(None)
+    ins = b.fee_release(hf, "100.00")
     with pytest.raises(Forbidden):
         services.suspend_payee(b.payee("school"), b.cm, "test")
     services.suspend_payee(b.payee("school"), b.rv, "Bursar reported fraud attempt")
@@ -256,9 +257,8 @@ def test_shared_payee_change_needs_each_client(b, codes):
     """I-42, TC-ESC-016-07: a school's new account is approved by each client for their own held amount."""
     school = b.payee("school")
     hf = b.held_funds("3000.00")
-    first = services.request_release(hf, requested_by=b.cm, payee=school, amount="100.00",
-                                     subject_type="fee_invoice", subject_id=uuid.uuid4())
-    services.client_approve(first, hf.client, timezone.now())
+    first = b.fee_release(hf, "100.00")  # approved by the client with the bill: the school is locked
+    assert first.status == "pending_approval"
     adapters.FakeBankNameCheck.REGISTRY["4400555566667"] = school.legal_name
     try:
         ch = services.request_change(b.cm, kind="new_account", payee=school, reason="School moved banks",
@@ -272,14 +272,14 @@ def test_shared_payee_change_needs_each_client(b, codes):
     services.decide_change(ch, b.rv, decision="approve", mfa_at=timezone.now())
     services.decide_change(ch, b.rv2, decision="approve", mfa_at=timezone.now())
     Payee.objects.filter(pk=school.pk).update(cooling_off_until=timezone.now() - timedelta(seconds=1))
+    assert ReleaseInstruction.objects.get(pk=first.pk).status == "withdrawn"  # the account changed (RUL-28)
+    bill = b.fee_invoice(hf.client, "100.00", approve=False)
     with pytest.raises(RuleBlocked) as ei:
         services.request_release(Escrow.objects.get(pk=hf.pk), requested_by=b.cm, payee=Payee.objects.get(
-            pk=school.pk), amount="100.00", subject_type="fee_invoice", subject_id=uuid.uuid4())
+            pk=school.pk), amount="100.00", subject_type="fee_invoice", subject_id=bill.pk)
     assert "payee-not-locked" in codes(ei.value)
     services.client_approve_change(PayeeChange.objects.get(pk=ch.pk), hf.client, mfa_at=timezone.now())
-    ins = services.request_release(Escrow.objects.get(pk=hf.pk), requested_by=b.cm,
-                                   payee=Payee.objects.get(pk=school.pk), amount="100.00",
-                                   subject_type="fee_invoice", subject_id=uuid.uuid4())
+    ins = b.fee_release(Escrow.objects.get(pk=hf.pk), "100.00")
     assert ins.payee_account_version == 2
 
 

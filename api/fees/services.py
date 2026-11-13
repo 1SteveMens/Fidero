@@ -1767,10 +1767,9 @@ def release_check(instruction) -> list[dict]:
     """registry.subject_check("fee_invoice"): runs when the release is prepared, approved and sent."""
     inv = Invoice.objects.filter(pk=instruction.subject_id).select_related("institution").first()
     if inv is None:
-        # An instruction escrow created without a FEE bill (seed or a manual entry) is checked by escrow's own
-        # payee rules only; FEE has nothing to add.
-        log.warning("fee_invoice instruction %s names no FEE invoice", instruction.pk)
-        return []
+        # Money is paid only against a real bill (FR-FEE-003, RUL-22): an instruction naming no FEE bill is refused.
+        return [{"rule": "FR-FEE-003", "code": "invoice-unknown",
+                 "message": "There is no such bill. A payment to an institution is made only against a checked bill."}]
     out = []
 
     def r(rule, code, msg):

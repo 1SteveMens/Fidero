@@ -23,7 +23,7 @@ ESCROW_STATUSES = ["proposed", "agreed", "funded", "ready_to_release", "client_a
 OPEN_STATUSES = [s for s in ESCROW_STATUSES if s not in ("released", "cancelled")]
 
 PAYEE_KINDS = ["institution", "supplier", "vendor", "professional", "contractor", "agency", "insurer", "carer",
-               "seller", "developer", "client_own_account"]
+               "seller", "developer", "client_own_account", "contracted_professional"]
 SUBJECT_TYPES = ["milestone", "offplan_stage", "project_invoice", "fee_invoice", "care_visit", "errand_step",
                  "repair", "event_vendor_payment", "premium"]
 # 02 6.11 esc.payee_kind_for_subject(): which payee kinds each subject may pay. A purchase release
@@ -40,6 +40,11 @@ PAYEE_KIND_FOR_SUBJECT = {
     "event_vendor_payment": {"vendor"},
     "premium": {"insurer"},
 }
+# Kinds some release subject may pay. `contracted_professional` (a lawyer, surveyor, runner, inspector, quantity
+# surveyor or carer Tenmina contracts, paid by PRO from Tenmina's own account) is never valid for any release
+# subject (RUL-27); `client_own_account` only receives refunds.
+RELEASABLE_KINDS = set().union(*PAYEE_KIND_FOR_SUBJECT.values())
+assert "contracted_professional" not in RELEASABLE_KINDS
 LIVE_INSTRUCTION = ["awaiting_client", "pending_approval", "approved", "sent"]
 
 
@@ -389,7 +394,7 @@ class EscrowPayee(BaseModel):
 class PayeeChange(CountryScopedModel):
     """FR-ESC-016, FR-ESC-017, RUL-28, RUL-29, sequence 5.12."""
 
-    KINDS = ["new_account", "new_payee", "refund_destination"]
+    KINDS = ["new_account", "new_payee", "add_payee", "refund_destination"]
     SOURCES = ["payee_signed_in", "staff_in_person", "client_signed_in"]
     STATUSES = ["requested", "checks_passed", "client_approved", "pending_approval", "applied", "stopped",
                 "rejected", "withdrawn"]
