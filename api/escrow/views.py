@@ -1050,6 +1050,19 @@ class FxConversionViewSet(viewsets.GenericViewSet):
             raise NotFound()
         return c
 
+    @extend_schema(responses=FxConversionSerializer(many=True), parameters=[OpenApiParameter("status", str)])
+    def list(self, request):
+        """FR-ESC-023: conversions checked against the accepted quote, e.g. status=outside for margin alerts."""
+        from accounts.selectors import scope_to_staff_countries
+
+        qs = scope_to_staff_countries(FxConversion.objects.select_related("quote").order_by("-created_at"),
+                                      request.user)
+        st = request.query_params.get("status")
+        if st:
+            qs = qs.filter(status=st)
+        page = self.paginate_queryset(qs)
+        return self.get_paginated_response(FxConversionSerializer(page, many=True).data)
+
     @extend_schema(request=NoteEvidenceSerializer, responses=FxConversionSerializer)
     @action(detail=True, methods=["post"], permission_classes=[roles("RV")])
     def resolve(self, request, pk=None):

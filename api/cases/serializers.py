@@ -175,6 +175,25 @@ class TaskUpdateInput(serializers.Serializer):
     reason = serializers.CharField(required=False, allow_blank=True)
 
 
+class CandidateSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    name = serializers.CharField()
+    roles = serializers.ListField(child=serializers.CharField())
+    can_be_main = serializers.BooleanField()
+    can_be_second = serializers.BooleanField()
+    licence = serializers.DictField(allow_null=True)
+
+
+class TaskCandidatesSerializer(serializers.Serializer):
+    task_id = serializers.UUIDField()
+    owner_role = serializers.CharField()
+    site_visit = serializers.BooleanField()
+    disputed = serializers.BooleanField()
+    people_required = serializers.IntegerField()
+    visit_blockers = serializers.ListField(child=serializers.DictField())
+    people = CandidateSerializer(many=True)
+
+
 class CompleteInput(serializers.Serializer):
     note = serializers.CharField(required=False, allow_blank=True)
 

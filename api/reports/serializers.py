@@ -191,6 +191,14 @@ class AssignInput(serializers.Serializer):
     role = serializers.ChoiceField(choices=["LW", "SV"])
 
 
+class RecheckCandidateSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    name = serializers.CharField()
+    role = serializers.CharField()
+    licence_number = serializers.CharField()
+    licence_expires_on = serializers.DateField()
+
+
 class ResultInput(serializers.Serializer):
     result = serializers.ChoiceField(choices=Recheck.RESULTS)
     findings = serializers.CharField(required=False, allow_blank=True)

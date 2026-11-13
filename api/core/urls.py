@@ -37,6 +37,21 @@ def approval_queue(request):
     return Response({"items": ApprovalRequestSerializer(qs[:100], many=True).data, "next_cursor": None})
 
 
+@extend_schema(responses=ApprovalRequestSerializer)
+@api_view(["GET"])
+def approval_detail(request, pk):
+    """One approval request with its approvals (staff only). Says whether it has its own screen."""
+    from .approvals import DEDICATED
+    from .errors import NotFound
+
+    req = ApprovalRequest.objects.filter(pk=pk).first() if is_staff(request.user) else None
+    if req is None:
+        raise NotFound("Approval not found.")
+    data = ApprovalRequestSerializer(req).data
+    data["dedicated"] = req.subject_type in DEDICATED
+    return Response(data)
+
+
 @extend_schema(request=dict, responses=ApprovalRequestSerializer)
 @api_view(["POST"])
 def approval_decide(request, pk):
@@ -57,5 +72,6 @@ def approval_decide(request, pk):
 
 urlpatterns = [
     path("approvals", approval_queue),
+    path("approvals/<uuid:pk>", approval_detail),
     path("approvals/<uuid:pk>/decisions", approval_decide),
 ]
