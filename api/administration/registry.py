@@ -44,7 +44,7 @@ DEFS = [
       to_verify=True, source="FR-GEO-002"),
     S("device_time_gap_s", "int", 300, "Largest gap between device and server time before a flag", "s", 1, 86400,
       to_verify=True, source="FR-MOB-011"),
-    S("dispute_deadlines", "json", {"response_days": 10, "decision_days": 20, "appeal_days": 10},
+    S("dispute_deadlines", "json", {"response_days": 5, "evidence_days": 10, "decision_days": 10, "appeal_days": 10},
       "Dispute deadlines", "working days", affects_release=True, to_verify=True, source="FR-DSP-003"),
     S("client_approval_reminder_days", "int", 3, "Days before the client is reminded of an approval", "days", 1, 30,
       affects_release=True, to_verify=True, source="FR-ESC-006"),
