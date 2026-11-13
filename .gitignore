@@ -12,3 +12,4 @@ __pycache__/
 api/var/
 api/staticfiles/
 .next/
+*.tsbuildinfo

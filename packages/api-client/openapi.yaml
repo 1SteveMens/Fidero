@@ -1,0 +1,547 @@
+openapi: 3.1.0
+info:
+  title: Tenmina API
+  version: 1.0.0
+  description: One API for the portal, back office and the two apps (document 02,
+    section 7).
+paths:
+  /health:
+    get:
+      operationId: health_retrieve
+      tags:
+      - health
+      security:
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /v1/approvals:
+    get:
+      operationId: v1_approvals_list
+      description: Open approvals the caller could give (staff only).
+      tags:
+      - v1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApprovalRequest'
+          description: ''
+  /v1/approvals/{id}/decisions:
+    post:
+      operationId: v1_approvals_decisions_create
+      description: |-
+        Generic approve/reject. Owning modules may add their own endpoints with
+        extra checks; this one is for approvals with no extra rule.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: {}
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              additionalProperties: {}
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalRequest'
+          description: ''
+  /v1/audit-events:
+    get:
+      operationId: v1_audit_events_retrieve
+      description: 'FR-AUD-002: search the audit log (reviewers and administrators).'
+      tags:
+      - v1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /v1/audit-events/verify:
+    post:
+      operationId: v1_audit_events_verify_create
+      description: 'FR-AUD-003: recompute the chain.'
+      tags:
+      - v1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /v1/auth/csrf:
+    get:
+      operationId: v1_auth_csrf_retrieve
+      description: Sets the csrftoken cookie for the web apps.
+      tags:
+      - v1
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /v1/auth/login:
+    post:
+      operationId: v1_auth_login_create
+      description: Web sign-in. If MFA is on, `code` is required and counts as a step-up.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: {}
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              additionalProperties: {}
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: {}
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+          description: ''
+  /v1/auth/logout:
+    post:
+      operationId: v1_auth_logout_create
+      tags:
+      - v1
+      security:
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /v1/auth/mfa/confirm:
+    post:
+      operationId: v1_auth_mfa_confirm_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: {}
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              additionalProperties: {}
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /v1/auth/mfa/setup:
+    post:
+      operationId: v1_auth_mfa_setup_create
+      tags:
+      - v1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /v1/auth/mfa/step-up:
+    post:
+      operationId: v1_auth_mfa_step_up_create
+      description: Fresh MFA for an approval (6.3). Valid for 5 minutes.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: {}
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              additionalProperties: {}
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /v1/auth/refresh:
+    post:
+      operationId: v1_auth_refresh_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: {}
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              additionalProperties: {}
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: {}
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /v1/auth/register:
+    post:
+      operationId: v1_auth_register_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+          description: ''
+  /v1/auth/token:
+    post:
+      operationId: v1_auth_token_create
+      description: 'Mobile sign-in: returns access and refresh bearer tokens.'
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: {}
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              additionalProperties: {}
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: {}
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /v1/me:
+    get:
+      operationId: v1_me_retrieve
+      tags:
+      - v1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+          description: ''
+    patch:
+      operationId: v1_me_partial_update
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPersonRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPersonRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPersonRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+          description: ''
+components:
+  schemas:
+    ApprovalRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        subject_type:
+          $ref: '#/components/schemas/SubjectTypeEnum'
+        subject_id:
+          type: string
+          format: uuid
+        prepared_by:
+          type: string
+          format: uuid
+        required:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        summary:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        closed_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        approvals:
+          type: string
+          readOnly: true
+      required:
+      - approvals
+      - created_at
+      - id
+      - prepared_by
+      - subject_id
+      - subject_type
+    PatchedPersonRequest:
+      type: object
+      properties:
+        phone:
+          type: string
+          maxLength: 32
+        full_name:
+          type: string
+          minLength: 1
+        preferred_language:
+          type: string
+          minLength: 1
+          maxLength: 8
+        residence_country:
+          type: string
+          maxLength: 2
+    Person:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        phone:
+          type: string
+          maxLength: 32
+        full_name:
+          type: string
+        preferred_language:
+          type: string
+          maxLength: 8
+        residence_country:
+          type: string
+          maxLength: 2
+        home_country:
+          type: string
+          readOnly: true
+        mfa_enabled:
+          type: boolean
+          readOnly: true
+        roles:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - email
+      - full_name
+      - home_country
+      - id
+      - mfa_enabled
+      - roles
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 10
+        full_name:
+          type: string
+          minLength: 1
+        phone:
+          type: string
+        residence_country:
+          type: string
+          maxLength: 2
+        home_country:
+          type: string
+          minLength: 1
+          default: GH
+          maxLength: 2
+        preferred_language:
+          type: string
+          minLength: 1
+          default: en
+      required:
+      - email
+      - full_name
+      - password
+    StatusEnum:
+      enum:
+      - open
+      - approved
+      - rejected
+      - withdrawn
+      type: string
+      description: |-
+        * `open` - open
+        * `approved` - approved
+        * `rejected` - rejected
+        * `withdrawn` - withdrawn
+    SubjectTypeEnum:
+      enum:
+      - report_release
+      - escrow_release
+      - escrow_cancel
+      - refund
+      - locked_text_change
+      - bulk_export
+      - payee_verification
+      - bank_account_verification
+      - release_setting_change
+      - release_rights_grant
+      - country_config_publish
+      - payment_rights_grant
+      - pro_rate_card_change
+      - pro_payment_run
+      - pro_expense_exception
+      - payee_change
+      - fee_payment
+      - care_payment
+      - errand_payment
+      - repair_release
+      - event_payment
+      - insurance_premium
+      - milestone_release
+      - project_release
+      - country_activation
+      - role_grant
+      - dispute_decision
+      - legal_hold
+      - recheck_incident
+      type: string
+      description: |-
+        * `report_release` - report_release
+        * `escrow_release` - escrow_release
+        * `escrow_cancel` - escrow_cancel
+        * `refund` - refund
+        * `locked_text_change` - locked_text_change
+        * `bulk_export` - bulk_export
+        * `payee_verification` - payee_verification
+        * `bank_account_verification` - bank_account_verification
+        * `release_setting_change` - release_setting_change
+        * `release_rights_grant` - release_rights_grant
+        * `country_config_publish` - country_config_publish
+        * `payment_rights_grant` - payment_rights_grant
+        * `pro_rate_card_change` - pro_rate_card_change
+        * `pro_payment_run` - pro_payment_run
+        * `pro_expense_exception` - pro_expense_exception
+        * `payee_change` - payee_change
+        * `fee_payment` - fee_payment
+        * `care_payment` - care_payment
+        * `errand_payment` - errand_payment
+        * `repair_release` - repair_release
+        * `event_payment` - event_payment
+        * `insurance_premium` - insurance_premium
+        * `milestone_release` - milestone_release
+        * `project_release` - project_release
+        * `country_activation` - country_activation
+        * `role_grant` - role_grant
+        * `dispute_decision` - dispute_decision
+        * `legal_hold` - legal_hold
+        * `recheck_incident` - recheck_incident

@@ -1,0 +1,19 @@
+/* Back office layout (03, 6.1d): black side bar 236 px, white working area. */
+.bo { display: grid; grid-template-columns: 236px 1fr; min-height: 100vh; }
+.bo-side { background: #0b0b0b; color: #f7f6f2; padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.bo-brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 18px; font-weight: 800; }
+.bo-nav a { display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; border-radius: 10px; text-decoration: none; color: #f7f6f2; font-weight: 600; font-size: 15px; }
+.bo-nav a:hover { background: #1a1a1a; }
+.bo-nav a[aria-current='page'] { background: #a3ee5b; color: #0b0b0b; }
+.bo-nav .count { font-family: var(--font-mono); font-size: 12px; }
+.bo-group { font: 600 10px var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: #a9a69e; padding: 14px 12px 4px; }
+.bo-me { margin-top: auto; padding: 12px; border-top: 1px solid #2c2c2c; font-size: 14px; }
+.bo-main { padding: 24px clamp(16px, 3vw, 36px); min-width: 0; }
+.bo-top { display: none; }
+@media (max-width: 860px) {
+  .bo { grid-template-columns: 1fr; }
+  .bo-side { position: fixed; inset: 0 30% 0 0; z-index: 40; transform: translateX(-100%); transition: transform .2s; height: 100vh; }
+  .bo-side.open { transform: none; }
+  .bo-top { display: flex; align-items: center; justify-content: space-between; background: #0b0b0b; color: #fff; padding: 10px 16px; position: sticky; top: 0; z-index: 30; }
+  .bo-main { padding: 16px; }
+}

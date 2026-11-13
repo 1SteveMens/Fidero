@@ -1,0 +1,14 @@
+/* Portal layout (03, 6.1b): phone-first; black top bar with the current section as a lime block. */
+.pt-top { background: #0b0b0b; color: #f7f6f2; position: sticky; top: 0; z-index: 30; }
+.pt-top-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 10px; padding: 10px 16px; }
+.pt-tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; flex: 1; }
+.pt-tabs a { padding: 8px 12px; border-radius: 10px; text-decoration: none; color: #f7f6f2; font-weight: 700; font-size: 15px; white-space: nowrap; }
+.pt-tabs a[aria-current='page'] { background: #a3ee5b; color: #0b0b0b; }
+.pt-main { max-width: 1100px; margin: 0 auto; padding: 20px 16px 96px; }
+.pt-bottom { display: none; }
+@media (max-width: 700px) {
+  .pt-tabs { display: none; }
+  .pt-bottom { display: flex; position: fixed; bottom: 0; left: 0; right: 0; background: #0b0b0b; padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); z-index: 30; justify-content: space-around; }
+  .pt-bottom a { flex: 1; text-align: center; padding: 8px 2px; border-radius: 10px; color: #f7f6f2; text-decoration: none; font-weight: 700; font-size: 12px; }
+  .pt-bottom a[aria-current='page'] { background: #a3ee5b; color: #0b0b0b; }
+}
