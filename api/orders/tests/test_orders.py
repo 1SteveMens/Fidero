@@ -14,12 +14,6 @@ from orders.models import Order, ReferralCode, ReferralReward, TermsAcceptance
 from .helpers import order_body, place_order, site_plan, terms
 
 
-def _set_config(country, **data):
-    cfg = country.configs.get(status="published")
-    cfg.data = {**cfg.data, **data}
-    cfg.save(update_fields=["data"])
-
-
 # ---------------------------------------------------------------- catalogue (US-ORD-002)
 
 
@@ -108,7 +102,7 @@ def test_draft_is_kept_and_completed_later(seeded, api, people, gh):
     assert r.json()["price"] == {"amount": "150.00", "currency": "USD"}
     from django.core.files.uploadedfile import SimpleUploadedFile
 
-    up = SimpleUploadedFile("plan.pdf", b"%PDF site plan", content_type="application/pdf")
+    up = SimpleUploadedFile("plan.pdf", b"%PDF-1.4 site plan", content_type="application/pdf")
     r = c.post(f"/v1/orders/{o['id']}/documents", {"file": up, "role": "site_plan"}, format="multipart")
     assert r.status_code == 201, r.content
     r = c.post(f"/v1/orders/{o['id']}/submit", terms(gh), format="json")
@@ -349,9 +343,9 @@ def test_family_plan_and_line_orders(seeded, people, gh):
                                    details={"period_month": "2026-12"})
 
 
-def test_extra_plot_same_seller_tier_needs_an_earlier_order(seeded, api, people, gh):
+def test_extra_plot_same_seller_tier_needs_an_earlier_order(seeded, api, people, gh, publish_config):
     """FR-ORD-002: the 'extra plot, same seller' tier applies only after a check with that seller."""
-    _set_config(gh, order_catalogue={"verification.plot": {"tiers": {
+    publish_config(gh, order_catalogue={"verification.plot": {"tiers": {
         "diaspora_standard": {"name": "Diaspora standard", "price": "450.00"},
         "extra_plot_same_seller": {"name": "Extra plot, same seller", "price": "300.00",
                                    "requires_same_seller": True}}}})

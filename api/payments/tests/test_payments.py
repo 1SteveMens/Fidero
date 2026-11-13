@@ -199,15 +199,13 @@ def test_tampered_payment_request_is_refused_and_audited(seeded, api, people, gh
     assert AuditEvent.objects.filter(action="payment.tampered_request_refused").exists()
 
 
-def test_payment_needs_current_terms_and_an_open_order(seeded, api, people, gh):
+def test_payment_needs_current_terms_and_an_open_order(seeded, api, people, gh, publish_config):
     """TC-ORD-003-02: payment cannot start without acceptance of the terms in force."""
     c = api(people["client"])
     draft = c.post("/v1/orders", {"country": "GH", "kind": "verification", "draft": True}, format="json").json()
     assert c.post(f"/v1/orders/{draft['id']}/payments", {"method": "card"}, format="json").status_code == 409
     o = _order(api, people, gh)
-    cfg = gh.configs.get(status="published")
-    cfg.data = {**cfg.data, "legal_texts": {"client_terms": {"version": "client-terms-2027-01-v2", "text": "New"}}}
-    cfg.save(update_fields=["data"])
+    publish_config(gh, legal_texts={"client_terms": {"version": "client-terms-2027-01-v2", "text": "New"}})
     r = c.post(f"/v1/orders/{o['id']}/payments", {"method": "card"}, format="json")
     assert r.status_code == 422 and r.json()["code"] == "terms-not-accepted"
     r = c.post(f"/v1/orders/{o['id']}/terms-acceptance",
@@ -430,7 +428,7 @@ def _offline(api, people, order_id, *, amount="350.00", currency="USD", proof=Tr
             "received_on": "2026-11-12", "source_bank_name": "GCB Bank", "source_account_name": "Kofi Boateng",
             "source_account_number": "1021130045671"}
     if proof:
-        data["proof"] = SimpleUploadedFile("advice.pdf", b"%PDF transfer advice", content_type="application/pdf")
+        data["proof"] = SimpleUploadedFile("advice.pdf", b"%PDF-1.4 transfer advice", content_type="application/pdf")
     return api(people["cm"]).post("/v1/offline-payments", data, format="multipart")
 
 
@@ -483,7 +481,7 @@ def test_offline_refund_goes_back_to_the_source_account(seeded, api, people, gh,
     assert cm.post(url, {"bank_reference": "GCB-RF-1"}, format="multipart").json()["code"] == "proof-required"
     r = cm.post(url, {"bank_reference": "GCB-RF-1", "account_number": "999"}, format="multipart")
     assert r.status_code == 400
-    proof = SimpleUploadedFile("refund.pdf", b"%PDF refund advice", content_type="application/pdf")
+    proof = SimpleUploadedFile("refund.pdf", b"%PDF-1.4 refund advice", content_type="application/pdf")
     done = cm.post(url, {"bank_reference": "GCB-RF-1", "proof": proof}, format="multipart").json()
     assert done["status"] == "completed" and done["provider_refund_ref"] == "GCB-RF-1"
     assert Order.objects.get(pk=o["id"]).status == "refunded"
@@ -576,7 +574,7 @@ def test_checked_plot_is_invoiced_to_the_seller_and_paid(seeded, api, people, gh
     assert Order.objects.get(pk=o["id"]).status == "paid"
 
 
-def test_listing_fee_invoice_and_no_success_fee_by_default(seeded, people, gh):
+def test_listing_fee_invoice_and_no_success_fee_by_default(seeded, people, gh, publish_config):
     """FR-PAY-007, Q-31: listing fee invoiced on submission; success fees only if the country allows them."""
     org = _seller_org(people, gh)
     listing_id = uuid7()
@@ -588,9 +586,7 @@ def test_listing_fee_invoice_and_no_success_fee_by_default(seeded, people, gh):
     publish("listing.sold", listing_id, payload)
     assert not Invoice.objects.filter(kind="success_fee").exists()
     assert AuditEvent.objects.filter(action="seller_invoice.success_fee_not_charged").exists()
-    cfg = gh.configs.get(status="published")
-    cfg.data = {**cfg.data, "payments": {"success_fees": True}}
-    cfg.save(update_fields=["data"])
+    publish_config(gh, payments={"success_fees": True})
     publish("listing.sold", listing_id, payload)
     assert Invoice.objects.get(kind="success_fee").amount == Decimal("250.00")
 
@@ -613,7 +609,7 @@ def test_offline_payment_of_an_invoice(seeded, api, people, gh):
     o = place_order(api(people["seller"]), people["seller"], gh, kind="listing_verification",
                     organisation_id=str(org.pk))
     inv = Invoice.objects.get(order_id=o["id"])
-    ev = site_plan(people["cm"], gh, b"%PDF bank advice")
+    ev = site_plan(people["cm"], gh, b"%PDF-1.4 bank advice")
     r = api(people["cm"]).post("/v1/offline-payments", {
         "invoice_id": str(inv.pk), "amount": "200.00", "currency": "USD", "reference": "ECO-55",
         "received_on": "2026-11-12", "source_bank_name": "Ecobank", "source_account_name": "Ato Estates Ltd",

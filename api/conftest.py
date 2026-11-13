@@ -15,6 +15,14 @@ def _fast(settings, _media_root):
 
 
 @pytest.fixture(scope="session")
+def django_db_createdb():
+    """Always start from an empty test database. Seeds are committed once per run
+    (see `_seed_once`), so a database kept from an earlier run would hold that
+    run's seed rows and evidence rows whose files lived in its media folder."""
+    return True
+
+
+@pytest.fixture(scope="session")
 def _media_root(tmp_path_factory):
     """One evidence store per test run: seeds and tests share it (keys are unique, files write-once)."""
     return tmp_path_factory.mktemp("media")
@@ -94,3 +102,28 @@ def mfa():
         return r
 
     return step_up
+
+
+@pytest.fixture
+def publish_config(people):
+    """publish_config(country, **changes) publishes a new configuration version
+    with `changes` merged in, the way the countries module intends: a draft
+    copy of the current version, prepared by one administrator and approved by
+    a second. A published configuration itself never changes (cty_config_rules)."""
+
+    def publish(country, **changes):
+        from django.utils import timezone
+
+        from countries import services as cty
+
+        draft = cty.create_config(country, by=people["admin"])
+        cty.update_config(draft, by=people["admin"], data={**draft.data, **changes})
+        cty.submit_config(draft, by=people["admin"])
+        draft.refresh_from_db()
+        cty.decide_config(draft, people["admin2"], mfa_at=timezone.now())
+        draft.refresh_from_db()
+        assert draft.status == "published", draft.status
+        return draft
+
+    return publish
+

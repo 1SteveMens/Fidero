@@ -398,17 +398,19 @@ def test_upheld_flag_marks_the_submission_and_blocks_release(gh, people, phone, 
 
 
 def test_reviewer_cannot_review_their_own_evidence(gh, people, phone, milestone):
-    """FR-MOB-011: the person who captured the evidence never reviews its flags."""
+    """FR-MOB-011: the person who captured the evidence never reviews its flags.
+    A case manager may review flags and, holding no payment rights, may also inspect
+    (seeded reviewers hold payment rights, so they cannot hold a field role)."""
     from accounts.models import RoleGrant
 
-    RoleGrant.objects.create(person=people["reviewer"], role="IN")
-    ph, sid = phone("reviewer"), milestone(person="reviewer")
-    m, _ = services.register_item(people["reviewer"], ph.capture("milestone", sid, jpeg("own"), lat=5.0, lng=0.0))
-    m, flags = services.complete_item(m, people["reviewer"], jpeg("own"))
+    RoleGrant.objects.create(person=people["cm"], role="IN")
+    ph, sid = phone("cm"), milestone(person="cm")
+    m, _ = services.register_item(people["cm"], ph.capture("milestone", sid, jpeg("own"), lat=5.0, lng=0.0))
+    m, flags = services.complete_item(m, people["cm"], jpeg("own"))
     from core.errors import Forbidden
 
     with pytest.raises(Forbidden):
-        services.review_flag(flags[0], people["reviewer"], "clear", "Fine")
+        services.review_flag(flags[0], people["cm"], "clear", "Fine")
 
 
 def test_returned_milestone_refuses_submission_with_state_conflict(gh, people, phone, milestone, field_api):
