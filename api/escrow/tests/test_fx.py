@@ -184,6 +184,17 @@ def test_release_short_after_conversion_blocked(b, codes):
 
 def test_daily_comparison_and_best_rate(b, fx_escrow):
     """FR-ESC-024, RUL-35: ranked by amount delivered; "best rate" only on a complete day where the bank wins."""
+    from administration import services as adm
+    from administration.models import Partner
+
+    runs = {r.send_amount: r for r in services.collect_rates(b.gh) if r.from_currency == "USD"}
+    assert runs[Decimal("10000.00")].status == "partial"  # no providers chosen yet: never complete
+    providers = [str(p.pk) for p in Partner.objects.filter(country=b.gh, kind="transfer_partner",
+                                                           name__endswith="[demo]")]
+    _, cr = adm.change_setting(key="fx_comparison_providers", value=providers, by=b.p["admin"], country=b.gh)
+    from core import approvals
+
+    approvals.decide(cr.approval_request, b.p["admin2"], mfa_at=timezone.now())
     runs = {r.send_amount: r for r in services.collect_rates(b.gh) if r.from_currency == "USD"}
     small, large = runs[Decimal("1000.00")], runs[Decimal("10000.00")]
     assert small.status == "complete" and large.status == "complete"

@@ -56,11 +56,8 @@ def _partners(gh, admin, admin2):
                 "max_transfers_per_day": 3, "corridors": ["USD/GHS", "GBP/GHS"], "licence": "[TO VERIFY]",
                 "names_sender_on_credit": False})
         out[name] = p
-    providers = [str(p.pk) for p in out.values()]
-    _, cr = adm.change_setting(key="fx_comparison_providers", value=providers, by=admin, country=gh,
-                               reason="Demo comparison providers [TO VERIFY]")
-    if cr is not None:
-        _approve(cr.approval_request, admin2)
+    # fx_comparison_providers is left for two administrators to choose (FR-ADM-005); until they do, the
+    # daily comparison is incomplete and no screen says "best rate" (RUL-35).
     adm.change_setting(key="fx_comparison_amounts", value={"USD/GHS": ["1000.00", "10000.00"],
                                                           "GBP/GHS": ["1000.00"]}, by=admin, country=gh)
     return out
@@ -271,14 +268,13 @@ def run(ctx):
     services.close_condition(c, cm, evidence_ids=[_ev(gh, cm, "family-consent-oyarifa").pk])
     services.record_fresh_search(e2, cm, case_id=demo_id("case:oyarifa-fresh"), registry_result_date=today,
                                  site_check_date=today)
-    # 3. Ready, client approval waiting.
-    e3 = purchase("Plot at Aburi (waiting for your approval)", "180000.00", "aburi")
+    # 3. Ready to release: the case manager prepares the release next, then the client approves.
+    e3 = purchase("Plot at Aburi (ready to release)", "180000.00", "aburi")
     _agree(e3, people, cm, "VA-GH-000103")
     _deposit(e3, cm, rv, "180000.00", "DEP-ABU-0001")
     _close_all(e3, cm)
     services.record_fresh_search(e3, cm, case_id=demo_id("case:aburi-fresh"), registry_result_date=today,
                                  site_check_date=today - timedelta(days=2))
-    services.request_release(e3.__class__.objects.get(pk=e3.pk), requested_by=cm)
     # 4. Released: the full journey J-02.
     e4 = purchase("Plot at Prampram (released)", "380000.00", "prampram")
     _agree(e4, people, cm, "VA-GH-000104")

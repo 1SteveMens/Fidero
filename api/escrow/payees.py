@@ -517,6 +517,9 @@ def client_approve_change(ch: PayeeChange, client, *, mfa_at=None, code=None, ap
         escrows = [e for e in selectors.escrows_paying(ch.payee) if e.client_id == client.pk]
         if not escrows:
             raise NotFound()
+        from notifications.services import resolve_action
+
+        resolve_action(ch, person=client)
         if not approve:
             for e in escrows:
                 audit(client, "payee_change.client_declined_new_account", ch, {"escrow_id": str(e.pk)})
@@ -529,6 +532,9 @@ def client_approve_change(ch: PayeeChange, client, *, mfa_at=None, code=None, ap
         raise NotFound()
     if ch.status != "checks_passed":
         raise StateConflict("This change is not waiting for your approval.")
+    from notifications.services import resolve_action
+
+    resolve_action(ch, person=client)
     if not approve:
         state.transition(ch, "payee_change", "rejected", actor=client, reason="The client declined")
         return ch

@@ -8,4 +8,4 @@ def test_seed_states(seeded):
     states = set(Escrow.objects.values_list("status", flat=True))
     assert {"proposed", "funded", "ready_to_release", "released", "frozen", "partly_released"} <= states, states
     assert ReleaseInstruction.objects.filter(status="confirmed").count() >= 3
-    assert ReleaseInstruction.objects.filter(status="awaiting_client").exists()
+    assert ReleaseInstruction.objects.filter(status="pending_approval").exists()

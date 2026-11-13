@@ -21,7 +21,7 @@ from core.money import q
 from core.permissions import has_role
 
 from . import adapters, selectors
-from .common import alert_staff, audit, fmt, local_date, local_today, notify, now, setting
+from .common import alert_staff, audit, cfg, fmt, local_date, local_today, notify, now, setting
 from .models import (BankEvent, Escrow, FxAccount, FxComparisonItem, FxComparisonRun, FxConversion, FxQuote,
                      FxRateObservation, ProgrammeAccount, ProgrammeRate, ReleaseInstruction)
 
@@ -695,7 +695,9 @@ def collect_rates(country, *, by=None, day=None) -> list[FxComparisonRun]:
                     items.append((p, manual, manual is None))
                     fresh += 1 if manual else 0
             ranked = sorted([o for _, o, s in items if o is not None and not s], key=lambda o: -o.delivered_amount)
-            status = "complete" if (fresh == expected and expected >= 1 and ref is not None) else \
+            minimum = int(cfg(country, "fx.min_comparison_providers", 3) or 3)  # [3, TO VERIFY] (FR-ESC-024)
+            enough = len(providers) >= minimum and bank is not None
+            status = "complete" if (enough and fresh == expected and ref is not None) else \
                 ("partial" if fresh else "failed")
             best = ranked[0] if ranked else None
             prog_rank = next((i + 1 for i, o in enumerate(ranked) if o.kind == "programme"), None)
