@@ -1,4 +1,5 @@
 'use client';
+import { formatMoney } from '@tenmina/api-client';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -36,7 +37,7 @@ export default function EventPage() {
   return (
     <div className="stack" style={{ gap: 18 }}>
       <PageHead back={{ href: '/family', label: 'Family' }} label={`${words(e.kind)} · ${words(e.status)}`} title={e.name} sub={<><When value={e.event_date} /> · {e.locality}</>} />
-      {waiting.map((x: Any) => <NeedsYou key={x.id} title={`Approve ${x.amount.currency} ${x.amount.amount} to ${x.vendor_name}`} detail={`${words(x.kind)}: ${x.description}. Nothing is paid until you approve.`} href={`/family/vendor-payments/${x.id}`} />)}
+      {waiting.map((x: Any) => <NeedsYou key={x.id} title={`Approve ${formatMoney(x.amount)} to ${x.vendor_name}`} detail={`${words(x.kind)}: ${x.description}. Nothing is paid until you approve.`} href={`/family/vendor-payments/${x.id}`} />)}
       {(e.warnings ?? []).map((w: Any, i: number) => <div key={i} className="card">{w.message ?? String(w)}</div>)}
       {bva ? (
         <section className="card stack">

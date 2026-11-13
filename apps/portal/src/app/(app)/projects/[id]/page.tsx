@@ -1,4 +1,5 @@
 'use client';
+import { formatMoney } from '@tenmina/api-client';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
@@ -27,7 +28,7 @@ export default function ProjectDashboard() {
       <PageHead back={{ href: '/projects', label: 'Projects' }} label={`${funds ? 'Project fund' : words(pr.type)} · ${words(pr.status)}`} title={pr.title}
         sub={funds ? `Run by ${pr.runner_name}` : [pr.contractor_name && `Contractor: ${pr.contractor_name}`, db.inspector && `Inspector: ${db.inspector}`].filter(Boolean).join(' · ')} />
       {awaiting.map((x: Any) => <NeedsYou key={x.id} title={x.status === 'awaiting_client' ? `Approve ${x.label}` : `Pay ${x.payee}: ${x.label}`} detail="Nothing is paid until you approve." href={`/projects/payments/${x.id}`} />)}
-      {openVars.map((v: Any) => <NeedsYou key={v.id} title={`Agree a change: ${v.description}`} detail={`${v.cost_change.currency} ${v.cost_change.amount}, ${v.time_effect_days} days.`} href={`/projects/variations/${v.id}`} />)}
+      {openVars.map((v: Any) => <NeedsYou key={v.id} title={`Agree a change: ${v.description}`} detail={`${formatMoney(v.cost_change)}, ${v.time_effect_days} days.`} href={`/projects/variations/${v.id}`} />)}
       {pr.status_reason ? <Blocked title={words(pr.status)}>{pr.status_reason}</Blocked> : null}
       <section className="card stack">
         <div className="spread"><strong>Budget</strong><Money value={db.budget} /></div>
@@ -45,12 +46,12 @@ export default function ProjectDashboard() {
       {pr.status === 'setup' && !funds ? <SetupSteps pr={pr} onDone={refresh} /> : null}
       {funds ? <Funds pr={pr} db={db} onDone={refresh} /> : null}
       <Section title={funds ? 'Stages' : 'Milestones'}>
-        <Steps items={(db.milestones ?? []).map((m: Any) => ({ label: `${m.name} · ${m.amount.currency} ${m.amount.amount}`, state: m.status === 'paid' ? 'done' : m.needs_client || ['submitted', 'inspected', 'evidence_checked', 'approved', 'in_progress'].includes(m.status) ? 'now' : 'next', detail: words(m.status) }))} />
+        <Steps items={(db.milestones ?? []).map((m: Any) => ({ label: `${m.name} · ${formatMoney(m.amount)}`, state: m.status === 'paid' ? 'done' : m.needs_client || ['submitted', 'inspected', 'evidence_checked', 'approved', 'in_progress'].includes(m.status) ? 'now' : 'next', detail: words(m.status) }))} />
         <div className="stack" style={{ gap: 6 }}>{(db.milestones ?? []).map((m: Any) => <Link key={m.id} href={`/projects/milestones/${m.id}`} className="btn btn-ghost btn-sm" style={{ justifyContent: 'space-between' }}><span>{m.name}</span>{m.needs_client ? <Chip tone="orange">Needs you</Chip> : <span className="mono muted">{words(m.status)}</span>}</Link>)}</div>
       </Section>
       {(db.inspections ?? []).length ? (
         <Section title="Inspections">
-          {db.inspections.map((i: Any) => <div key={i.id} className="card"><div className="spread"><strong>{i.milestone}</strong><Chip>{words(i.outcome || i.status)}</Chip></div><div className="muted" style={{ fontSize: 14 }}>{i.inspector} · {i.recorded_at ? <When value={i.recorded_at} /> : `planned ${i.scheduled_for}`}{Number(i.defect_value?.amount) ? ` · defects ${i.defect_value.currency} ${i.defect_value.amount}` : ''}</div></div>)}
+          {db.inspections.map((i: Any) => <div key={i.id} className="card"><div className="spread"><strong>{i.milestone}</strong><Chip>{words(i.outcome || i.status)}</Chip></div><div className="muted" style={{ fontSize: 14 }}>{i.inspector} · {i.recorded_at ? <When value={i.recorded_at} /> : `planned ${i.scheduled_for}`}{Number(i.defect_value?.amount) ? ` · defects ${formatMoney(i.defect_value)}` : ''}</div></div>)}
         </Section>
       ) : null}
       {myDefects.length ? (

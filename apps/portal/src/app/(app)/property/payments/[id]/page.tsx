@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { Button, KV, Money, ProblemBox, Skeleton, When, useGet } from '@tenmina/web-ui';
 import { Ink, PageHead, Proof, useAction, words, type Any } from '@/components/kit';
 
-const OUTCOME: Record<string, string> = { success: 'Pay', decline: 'Card declined', insufficient_funds: 'Not enough money', timeout: 'No answer', cancel: 'Cancel', cancelled: 'Cancel' };
+const OUTCOME: Record<string, string> = { success: 'Pay', decline: 'Card declined', insufficient_funds: 'Not enough money', timeout: 'No answer', abandon: 'Leave the checkout', '3ds_failed': 'Card check failed', approve_prompt: 'Approve on the phone', reject_prompt: 'Reject on the phone' };
 
 /** SCR-PTL-10 checkout (the fake provider in development) and SCR-PTL-11, the payment result and receipt. */
 export default function PaymentPage() {
@@ -13,17 +13,17 @@ export default function PaymentPage() {
   const p = useGet<Any>(`/v1/payments/${id}`);
   const pay = p.data;
   const checkout = useGet<Any>(pay?.status === 'initiated' ? `/v1/payments/${id}/fake-checkout` : null, undefined, { shouldRetryOnError: false });
-  const receipt = useGet<Any>(pay?.status === 'success' ? `/v1/payments/${id}/receipt` : null, undefined, { shouldRetryOnError: false });
+  const receipt = useGet<Any>(pay?.status === 'confirmed' ? `/v1/payments/${id}/receipt` : null, undefined, { shouldRetryOnError: false });
   const a = useAction();
   useEffect(() => {
-    if (pay && ['pending', 'processing'].includes(pay.status)) { const t = setTimeout(() => a.post(`/v1/payments/${id}/refresh`).then(() => p.mutate()).catch(() => undefined), 2500); return () => clearTimeout(t); }
+    if (pay && ['pending_approval'].includes(pay.status)) { const t = setTimeout(() => a.post(`/v1/payments/${id}/refresh`).then(() => p.mutate()).catch(() => undefined), 2500); return () => clearTimeout(t); }
   }, [pay?.status]); // eslint-disable-line react-hooks/exhaustive-deps
   if (p.isLoading) return <Skeleton lines={5} />;
   if (!pay) return <ProblemBox error={p.error} />;
   const back = pay.order ? `/property/orders/${pay.order}` : '/property';
   return (
     <Ink>
-      <PageHead back={{ href: back, label: pay.order_reference ?? 'Back' }} label="Tenmina's fee" title={pay.status === 'success' ? 'Payment received' : pay.status === 'failed' ? 'The payment did not go through' : 'Pay the fee'} />
+      <PageHead back={{ href: back, label: pay.order_reference ?? 'Back' }} label="Tenmina's fee" title={pay.status === 'confirmed' ? 'Payment received' : pay.status === 'failed' ? 'The payment did not go through' : 'Pay the fee'} />
       <div style={{ fontSize: 36, fontWeight: 800 }}><Money value={pay.amount} /></div>
       {pay.status === 'initiated' && checkout.data ? (
         <section className="card stack">
@@ -36,14 +36,14 @@ export default function PaymentPage() {
           </div>
         </section>
       ) : null}
-      {pay.status === 'pending' || pay.status === 'processing' ? <p>Waiting for the payment provider to confirm. This page updates by itself.</p> : null}
+      {pay.status === 'pending_approval' ? <p>Waiting for the payment provider to confirm. This page updates by itself.</p> : null}
       {pay.status === 'failed' ? (
         <section className="card stack">
           <p style={{ margin: 0 }}>{pay.failure_message || 'The provider refused the payment.'} Nothing was taken.</p>
           {pay.order ? <Link className="btn btn-primary" href={back}>Try again</Link> : null}
         </section>
       ) : null}
-      {pay.status === 'success' ? (
+      {pay.status === 'confirmed' ? (
         <section className="card stack">
           <Proof>Paid <When value={pay.confirmed_at} withTime /></Proof>
           {receipt.data?.receipt ? (

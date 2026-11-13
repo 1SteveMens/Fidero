@@ -1,4 +1,5 @@
 'use client';
+import { formatMoney } from '@tenmina/api-client';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -37,7 +38,7 @@ export default function Member() {
           {(s.held_at_bank ?? []).length ? (
             <Section title="Held at the bank">
               <AcctRow>
-                {s.held_at_bank.map((h: Any) => <AcctCard key={h.escrow_id} href={`/property/escrows/${h.escrow_id}`} title="Held for your family" reference={h.escrow_reference} amount={h.held_at_bank} holder={me?.full_name ?? ''} note={`Ready to pay out: ${h.available_to_instruct.currency} ${h.available_to_instruct.amount}`} />)}
+                {s.held_at_bank.map((h: Any) => <AcctCard key={h.escrow_id} href={`/property/escrows/${h.escrow_id}`} title="Held for your family" reference={h.escrow_reference} amount={h.held_at_bank} holder={me?.full_name ?? ''} note={`Ready to pay out: ${formatMoney(h.available_to_instruct)}`} />)}
               </AcctRow>
               <p className="muted" style={{ margin: 0, fontSize: 14 }}>{s.note}</p>
               <Link className="btn btn-ghost" href={`/property/escrows/${s.held_at_bank[0].escrow_id}/pay-in`}>Add money</Link>

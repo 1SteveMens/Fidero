@@ -1,4 +1,5 @@
 'use client';
+import { formatMoney } from '@tenmina/api-client';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
@@ -67,7 +68,7 @@ export default function Errand() {
         ) : null}
       </Section>
       <Section title="Steps">
-        <Steps items={(e.steps ?? []).map((s: Any) => ({ label: `${s.seq}. ${s.description}`, state: s.status === 'done' ? 'done' : ['in_progress', 'fee_instructed', 'fee_paid', 'receipted'].includes(s.status) ? 'now' : 'next', detail: [s.plain, Number(s.official_fee?.amount) > 0 ? `Fee ${s.official_fee.currency} ${s.official_fee.amount}` : ''].filter(Boolean).join(' · ') }))} />
+        <Steps items={(e.steps ?? []).map((s: Any) => ({ label: `${s.seq}. ${s.description}`, state: s.status === 'done' ? 'done' : ['in_progress', 'fee_instructed', 'fee_paid', 'receipted'].includes(s.status) ? 'now' : 'next', detail: [s.plain, Number(s.official_fee?.amount) > 0 ? `Fee ${formatMoney(s.official_fee)}` : ''].filter(Boolean).join(' · ') }))} />
         <div className="row">{(e.steps ?? []).flatMap((s: Any) => [s.acknowledgement_evidence && <EvidenceLink key={`a${s.id}`} id={s.acknowledgement_evidence} label={`Step ${s.seq} acknowledgement`} variant="preview" />, s.receipt_evidence && <EvidenceLink key={`r${s.id}`} id={s.receipt_evidence} label={`Step ${s.seq} receipt`} variant="preview" />]).filter(Boolean)}</div>
         <div className="card stack">
           {e.standing_approval?.status === 'active' ? (

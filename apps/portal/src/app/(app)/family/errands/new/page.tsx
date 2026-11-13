@@ -1,4 +1,5 @@
 'use client';
+import { formatMoney } from '@tenmina/api-client';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 import { Button, Empty, Field, Money, ProblemBox, Select, Skeleton, Textarea, useGet } from '@tenmina/web-ui';
@@ -31,7 +32,7 @@ function NewErrand() {
               <div className="label">You will need</div>
               <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14 }}>{(c.checklist ?? []).map((d: Any) => <li key={d.key}>{d.label}{d.required ? '' : ' (if you have it)'}</li>)}</ul>
               <div className="label">Steps</div>
-              <ol style={{ margin: 0, paddingLeft: 18, fontSize: 14 }}>{(c.steps ?? []).map((s: Any) => <li key={s.seq}>{s.description}{Number(s.official_fee) > 0 ? ` (${c.official_fees.currency} ${s.official_fee})` : ''}</li>)}</ol>
+              <ol style={{ margin: 0, paddingLeft: 18, fontSize: 14 }}>{(c.steps ?? []).map((s: Any) => <li key={s.seq}>{s.description}{Number(s.official_fee) > 0 ? ` (${formatMoney({ amount: String(s.official_fee), currency: c.official_fees.currency })})` : ''}</li>)}</ol>
             </div>
           ) : null}
         </RadioCard>

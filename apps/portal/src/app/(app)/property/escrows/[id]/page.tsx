@@ -1,4 +1,5 @@
 'use client';
+import { formatMoney } from '@tenmina/api-client';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Button, Chip, Money, NeedsYou, ProblemBox, Skeleton, When, useGet, useSession } from '@tenmina/web-ui';
@@ -33,7 +34,7 @@ export default function EscrowTracker() {
         <div style={{ fontSize: 18, fontWeight: 700 }}>{ESCROW_SENTENCE[e.status] ?? words(e.status)}</div>
       </div>
       <FreezeBanner e={e} />
-      {awaiting.map((i: Any) => <NeedsYou key={i.id} title={`Approve ${i.subject_label || 'the release'}`} detail={`${i.money.currency} ${i.money.amount} to ${i.payee_name}. Nothing is paid until you approve.`} href={`/property/releases/${i.id}`} />)}
+      {awaiting.map((i: Any) => <NeedsYou key={i.id} title={`Approve ${i.subject_label || 'the release'}`} detail={`${formatMoney(i.money)} to ${i.payee_name}. Nothing is paid until you approve.`} href={`/property/releases/${i.id}`} />)}
       <PayeeChanges escrowId={e.id} />
 
       {e.status === 'proposed' ? (
@@ -53,7 +54,7 @@ export default function EscrowTracker() {
         <AcctRow>
           {(e.funds ?? []).map((f: Any) => (
             <AcctCard key={f.currency} title={pi.account_name || 'Escrow account'} reference={f.virtual_account_ref || pi.virtual_account_ref} amount={money(f.held_at_bank, f.currency)} holder={me?.full_name ?? ''} bank={pi.bank_name}
-              note={Number(f.instructed_awaiting_bank) > 0 ? `${f.currency} ${f.instructed_awaiting_bank} instructed, waiting for the bank` : f.last_bank_event_at ? `Bank confirmed ${new Date(String(f.last_bank_event_at).replace(' ', 'T')).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}` : 'Nothing received yet'} />
+              note={Number(f.instructed_awaiting_bank) > 0 ? `${formatMoney({ amount: String(f.instructed_awaiting_bank), currency: f.currency })} instructed, waiting for the bank` : f.last_bank_event_at ? `Bank confirmed ${new Date(String(f.last_bank_event_at).replace(' ', 'T')).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}` : 'Nothing received yet'} />
           ))}
         </AcctRow>
         <p className="muted" style={{ margin: 0 }}>Your money is held by {pi.bank_name ?? 'the partner bank'}, not by Tenmina. {Number(e.agreed_price?.amount) > 0 ? <>Price: <Money value={e.agreed_price} />.</> : null} {e.conversion_choice === 'at_release' ? 'Held in your currency until release (your choice).' : 'Converted when it arrives.'}</p>
