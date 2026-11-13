@@ -31,8 +31,9 @@ def _entries(n=3):
 
 
 def test_audit_chain_verifies_and_is_append_only(seeded):
+    before = AuditEvent.objects.count()  # seeds write their own entries
     _entries()
-    assert verify_chain() == {"ok": True, "checked": 3, "broken_at": None}
+    assert verify_chain() == {"ok": True, "checked": before + 3, "broken_at": None}
     with pytest.raises(Exception), transaction.atomic():
         AuditEvent.objects.all().update(action="tampered")
 
