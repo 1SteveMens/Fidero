@@ -1,0 +1,47 @@
+/* Ops screens in the back office (03, 6.1d). Dense lists on white, rows as soft
+   blocks, one black action per row, 44 px touch targets on a phone. */
+.ops h1 { font-size: clamp(26px, 5vw, 36px); }
+.ops-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+.ops-tabs .tab { white-space: nowrap; min-height: 40px; }
+.ops-tabs .tab.active { background: var(--ink); color: #f7f6f2; }
+.ops-toolbar { align-items: flex-end; }
+.ops-filter { display: flex; flex-direction: column; gap: 4px; min-width: 160px; flex: 1 1 160px; max-width: 280px; }
+.ops-create { margin-left: auto; }
+.ops-table td { vertical-align: top; }
+.ops-table .ops-open { text-align: right; white-space: nowrap; }
+.ops-row-actions { gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.ops-actions { gap: 8px; }
+.ops-back { text-decoration: none; }
+.ops-back:hover { text-decoration: underline; }
+.ops-nested { font-size: 14px; background: var(--color-surface); border-radius: var(--r-sm); padding: 8px 10px; }
+.ops-check { gap: 10px; align-items: flex-start; min-height: 44px; }
+.ops-check input { width: 22px; height: 22px; margin-top: 2px; accent-color: #0b0b0b; flex: none; }
+.ops-mini { font-size: 14px; }
+.ops .kv dd { min-width: 0; }
+.ops-sentence { font-size: 18px; font-weight: 700; line-height: 1.35; }
+.ops-lime { color: var(--lime); }
+.ops-gate { display: flex; gap: 10px; align-items: flex-start; }
+.ops-gate .tick { flex: none; width: 22px; height: 22px; border-radius: 6px; background: var(--lime); color: #0b0b0b; display: grid; place-items: center; font-weight: 800; font-size: 13px; }
+.ops-gate .tick.no { background: transparent; border: 2px solid #f7f6f2; color: #f7f6f2; }
+.ops-slot { border: 2px solid #3a3a3a; border-radius: var(--r-md); padding: 14px; }
+.ops-slot.mine { border-color: var(--lime); }
+.ops-slot.done { border-color: var(--lime); background: #151a10; }
+@media (max-width: 700px) {
+  .ops .btn-sm { min-height: 44px; padding: 10px 14px; font-size: 14px; }
+  .ops .tab { min-height: 44px; }
+  .ops-filter { max-width: none; }
+  .ops-create { margin-left: 0; width: 100%; }
+  .ops-create .btn { width: 100%; }
+  .ops-table .ops-open .btn { width: 100%; }
+  .ops-table td[data-label=''] { display: block; }
+  .ops-table td[data-label='']::before { content: none; }
+  .ops .kv { grid-template-columns: 1fr; gap: 2px 0; }
+  .ops .kv dd { margin-bottom: 8px; }
+  .ops .table.responsive td { flex-wrap: wrap; }
+  .ops .table.responsive td > * { min-width: 0; overflow-wrap: anywhere; text-align: right; }
+}
+.ops-checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.ops-checklist li { display: flex; gap: 10px; align-items: flex-start; background: var(--color-surface); border-radius: var(--r-sm); padding: 10px 12px; }
+.ops-checklist .tick { flex: none; width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--color-line-strong); display: grid; place-items: center; font-weight: 800; font-size: 13px; }
+.ops-checklist li.ok .tick { background: var(--lime); border-color: var(--lime); color: #0b0b0b; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
