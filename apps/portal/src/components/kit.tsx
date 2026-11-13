@@ -305,6 +305,60 @@ export function Bar({ value, max, label }: { value: number; max: number; label?:
   );
 }
 
+/** An action that needs a fresh MFA step-up first (6.3): ask for the code, step up, then run it. */
+export function StepUpButton({ label, onRun, variant = 'action', block, title = 'Enter your code', children }: {
+  label: string; onRun: () => Promise<unknown>; variant?: 'primary' | 'dark' | 'action' | 'ghost'; block?: boolean; title?: string; children?: React.ReactNode;
+}) {
+  const { me, stepUp } = useSession();
+  const [open, setOpen] = useState(false);
+  const [code, setCode] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<unknown>(null);
+  if (me && !me.mfa_enabled) return <Link className={`btn btn-${variant} ${block ? 'btn-block' : ''}`} href="/account/security">{label} (set up your authenticator app first)</Link>;
+  return (
+    <>
+      <Button variant={variant} block={block} onClick={() => { setOpen(true); setCode(''); setError(null); }}>{label}</Button>
+      <Dialog open={open} onClose={() => setOpen(false)} title={title} ink>
+        <div className="stack">
+          {children}
+          <p className="muted" style={{ margin: 0 }}>Code from your authenticator app</p>
+          <CodeBoxes value={code} onChange={setCode} autoFocus />
+          <ProblemBox error={error} />
+          <Button variant="action" block busy={busy} disabled={code.length !== 6} onClick={async () => {
+            setBusy(true); setError(null);
+            try { await stepUp(code); await onRun(); setOpen(false); } catch (e) { setError(e); } finally { setBusy(false); }
+          }}>{label}</Button>
+        </div>
+      </Dialog>
+    </>
+  );
+}
+
+/** For endpoints that take the document inline (`document_base64`, `file_name`, `content_type`). */
+export async function fileFields(f: File, prefix = 'document') {
+  const buf = new Uint8Array(await f.arrayBuffer());
+  let bin = '';
+  for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode(...buf.subarray(i, i + 0x8000));
+  return { [`${prefix}_base64`]: btoa(bin), file_name: f.name, content_type: f.type || 'application/pdf' };
+}
+
+/** Open a stored file through a short-lived signed link (FR-EVD-003). */
+export function EvidenceLink({ id, label = 'Open the file', variant = 'original' }: { id?: string | null; label?: string; variant?: 'original' | 'preview' }) {
+  const { client } = useSession();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<unknown>(null);
+  if (!id) return null;
+  return (
+    <span className="stack" style={{ gap: 4, display: 'inline-flex' }}>
+      <button type="button" className="btn btn-ghost btn-sm" disabled={busy} onClick={async () => {
+        setBusy(true); setError(null);
+        try { const l = await call<Any>(client, 'GET', `/v1/evidence/${id}/link`, undefined, { variant }); window.open(l.url, '_blank', 'noopener'); } catch (e) { setError(e); } finally { setBusy(false); }
+      }}>{busy ? 'Opening…' : label}</button>
+      <ProblemBox error={error} />
+    </span>
+  );
+}
+
 /** The client's home country from configuration (DA-09): code, name and currency. Never hard-coded. */
 export function useCountry(): { code: string; name: string; currency: string } {
   const { me } = useSession();
