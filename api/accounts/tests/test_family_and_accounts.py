@@ -202,6 +202,7 @@ def test_representative_cannot_hold_release_rights_or_be_staff(seeded, api, peop
 
 
 def test_owner_check_registry(seeded, api, people):
+    previous = services._owner_checks.get("project")  # PRJ's own check, if built, is put back afterwards
     services.register_owner_check("project", lambda person, sid: False)
     try:
         r = api(people["client"]).post("/v1/me/representatives", {"email": "x@example.com", "subject_type": "project",
@@ -212,6 +213,8 @@ def test_owner_check_registry(seeded, api, people):
         assert r.status_code == 404  # the cases module refuses a case the client does not own
     finally:
         services._owner_checks.pop("project")
+        if previous is not None:
+            services.register_owner_check("project", previous)
 
 
 # ---------------------------------------------------------------- vetting (FR-CARE-002, RUL-31)

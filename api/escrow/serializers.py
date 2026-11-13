@@ -1,7 +1,7 @@
 """ESC API serializers. Money is {"amount": "250.00", "currency": "GHS"} (7.1).
 Account numbers appear in full only on the bank's payment instructions;
 elsewhere only the last four digits are shown."""
-from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.utils import extend_schema_field, extend_schema_serializer
 from rest_framework import serializers
 
 from core.money import MoneyField as _MoneyField
@@ -173,6 +173,7 @@ class StopSerializer(serializers.Serializer):
 
 # ----------------------------------------------------------------- escrows
 
+@extend_schema_serializer(component_name="EscrowParty")
 class PartySerializer(serializers.ModelSerializer):
     accepted_current_terms = serializers.SerializerMethodField()
 
@@ -194,6 +195,7 @@ class AcceptanceSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+@extend_schema_serializer(component_name="EscrowCondition")
 class ConditionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Condition

@@ -29,9 +29,14 @@ def test_write_records_who_what_and_where(seeded, api, people):
     assert services.verify_chain()["ok"]
 
 
-def test_search_filters_and_is_logged(seeded, api, people):
+def test_search_filters_and_is_logged(seeded, api, people, gh):
     """FR-AUD-003, TC-AUD-003-01: search by object, user, date and action; the search is logged."""
-    rv = people["reviewer"]
+    from accounts.models import Person, RoleGrant
+
+    # A fresh reviewer: the seeded one has already acted on demo cases.
+    rv = Person.objects.create_user("rv-audit@tenmina.test", "tenmina-dev-123", full_name="Audit Reviewer",
+                                    home_country=gh)
+    RoleGrant.objects.create(person=rv, role="RV", country=gh)
     services.record(actor=rv, action="case.note_added", entity="case", entity_id="c-1", data={"x": 1})
     services.record(action="task.created", entity="case_task", entity_id="t-9", data={"case_id": "c-1"})
     c = api(rv)

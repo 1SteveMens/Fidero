@@ -1,4 +1,4 @@
-from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.utils import extend_schema_field, extend_schema_serializer
 from rest_framework import serializers
 
 from countries.models import Country
@@ -8,6 +8,7 @@ from .models import Assignment, CheckIn, Device, FraudFlag, SignedManifest, Subm
 
 # --------------------------------------------------------------------------- app config and devices
 
+@extend_schema_serializer(component_name="FieldAppConfig")
 class AppConfigSerializer(serializers.Serializer):
     app = serializers.CharField()
     platform = serializers.CharField()
@@ -45,6 +46,7 @@ class DeviceSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+@extend_schema_serializer(component_name="FieldReason")
 class ReasonSerializer(serializers.Serializer):
     reason = serializers.CharField()
 

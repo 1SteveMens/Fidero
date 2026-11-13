@@ -122,12 +122,14 @@ def _require_open(case):
         raise StateConflict(f"Case {case.reference} is {case.status.replace('_', ' ')}.")
 
 
-def case_payload(case) -> dict:
-    return {"case_id": case.pk, "reference": case.reference, "country": case.country.code,
+def case_payload(case, *, notified=False) -> dict:
+    """The case.* event payload. `case_ref` and `status_label` are the keys NTF reads; `notified=True`
+    tells NTF that post_status already told the client in the case's own words, so it sends nothing more."""
+    return {"case_id": case.pk, "reference": case.reference, "case_ref": case.reference, "country": case.country.code,
             "product_line": case.product_line, "client_id": case.client_id, "asset_id": case.asset_id,
             "order_id": case.order_id, "subject_type": case.subject_type, "subject_id": case.subject_id,
             "status": case.status, "outcome": case.outcome, "parent_case_id": case.parent_case_id,
-            "origin": case.origin, "origin_ref": case.origin_ref}
+            "origin": case.origin, "origin_ref": case.origin_ref, "notified": notified}
 
 
 @transaction.atomic
@@ -342,7 +344,8 @@ def accept(case: Case, actor) -> Case:
     case.accepted_at = now
     if actor is not None and case.case_manager_id is None and has_role(actor, "CM", country=case.country):
         case.case_manager = actor
-    state.transition(case, "case", "in_progress", actor=actor, payload=case_payload(case) | {"status": "in_progress"},
+    state.transition(case, "case", "in_progress", actor=actor,
+                     payload=case_payload(case, notified=case.origin == "order") | {"status": "in_progress"},
                      extra_fields=["accepted_at", "case_manager"])
     if case.origin == "order":
         post_status(case, None, "case_started", "Your case started on {date}. Next update by {next_date}.")
@@ -530,7 +533,8 @@ def assign_task(task: Task, actor, *, assignee=_UNSET, second_assignee=_UNSET) -
 
     for pid in set(old.values()) - {getattr(new_a, "pk", None), getattr(new_b, "pk", None), None}:
         _revoke_asset_access(case, Person.objects.get(pk=pid), actor)
-    publish("task.assigned", task.pk, {"task_id": task.pk, "case_id": case.pk, "step_key": task.step_key,
+    # cases tells each new assignee itself (above), so NTF is told not to repeat it ("notified").
+    publish("task.assigned", task.pk, {"task_id": task.pk, "case_id": case.pk, "step_key": task.step_key, "notified": True,
                                        "role": task.owner_role, "assignee_id": getattr(new_a, "pk", None),
                                        "second_assignee_id": getattr(new_b, "pk", None),
                                        "assigned_at": task.assigned_at, "country": case.country.code})
@@ -1003,7 +1007,7 @@ def hold(case: Case, actor, reason: str, client_message: str = "") -> Case:
                                                                           "message": "Required."}]})
     case.hold_reason = reason.strip()
     state.transition(case, "case", "on_hold", actor=actor, reason=case.hold_reason,
-                     payload=case_payload(case) | {"status": "on_hold"}, extra_fields=["hold_reason"])
+                     payload=case_payload(case, notified=True) | {"status": "on_hold"}, extra_fields=["hold_reason"])
     post_status(case, None, "on_hold", client_message or "Your case is on hold from {date}: " + case.hold_reason
                 + ". Your case manager will tell you when it starts again.", actor=actor, next_date=None)
     return case
@@ -1013,8 +1017,8 @@ def hold(case: Case, actor, reason: str, client_message: str = "") -> Case:
 def resume(case: Case, actor) -> Case:
     _require_staff(actor, case, ("CM",), "Only a case manager resumes a case.")
     case.hold_reason = ""
-    state.transition(case, "case", "in_progress", actor=actor, payload=case_payload(case) | {"status": "in_progress"},
-                     extra_fields=["hold_reason"])
+    state.transition(case, "case", "in_progress", actor=actor,
+                     payload=case_payload(case, notified=True) | {"status": "in_progress"}, extra_fields=["hold_reason"])
     post_status(case, None, "resumed", "Your case started again on {date}. Next update by {next_date}.", actor=actor)
     return case
 
@@ -1042,7 +1046,7 @@ def cancel(case: Case, actor, reason: str, refund_decision: str, refund_amount=N
     case.cancel_reason, case.refund_decision, case.closed_at = reason.strip(), refund_decision, _now()
     _close_work(case, actor, "Case cancelled")
     state.transition(case, "case", "cancelled", actor=actor, reason=case.cancel_reason,
-                     payload=case_payload(case) | {"status": "cancelled", "refund_decision": refund_decision},
+                     payload=case_payload(case, notified=True) | {"status": "cancelled", "refund_decision": refund_decision},
                      extra_fields=["cancel_reason", "refund_decision", "refund_id", "closed_at"])
     post_status(case, None, "cancelled", "Your case was cancelled on {date}."
                 + (" Your fee will be refunded to the way you paid." if refund_decision == "refund" else ""),
@@ -1091,7 +1095,7 @@ def decide_verification(case: Case, actor, *, outcome, note="") -> Case:
                          extra_fields=["completed_at", "completed_by"])
     case.outcome, case.outcome_note, case.decided_by, case.closed_at = outcome, note or "", actor, _now()
     state.transition(case, "case", "completed", actor=actor,
-                     payload=case_payload(case) | {"status": "completed"},
+                     payload=case_payload(case, notified=True) | {"status": "completed"},
                      extra_fields=["outcome", "outcome_note", "decided_by", "closed_at"])
     from geo.services import revoke_case_access
 
@@ -1130,7 +1134,7 @@ def mark_in_review(case: Case, actor) -> Case:
         raise DomainError("Every task must be done before the report goes to review.", code="task-incomplete",
                           status=409, blocking_reasons=[{"rule": "FR-CASE-002", "message": f"Open: {t.title}"}
                                                         for t in open_work])
-    state.transition(case, "case", "in_review", actor=actor, payload=case_payload(case) | {"status": "in_review"})
+    state.transition(case, "case", "in_review", actor=actor, payload=case_payload(case, notified=True) | {"status": "in_review"})
     post_status(case, None, "in_review", "Your report went to its two-person review on {date}.", actor=actor,
                 next_date=None)
     return case
@@ -1160,8 +1164,8 @@ def on_report_released(case_id, *, report_id=None, released_at=None, correction=
                          extra_fields=["completed_at"])
     if case.status == "in_review":
         case.closed_at = released_at or _now()
-        state.transition(case, "case", "released", payload=case_payload(case) | {"status": "released",
-                                                                                 "report_id": report_id},
+        state.transition(case, "case", "released", payload=case_payload(case, notified=True) | {
+                             "status": "released", "report_id": report_id},
                          extra_fields=["closed_at"])
         post_status(case, None, "release", next((t.client_message for t in case.tasks.filter(step_key="release")),
                                                 "") or "Your report was released on {date}. You can open it now.",

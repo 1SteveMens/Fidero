@@ -662,7 +662,8 @@ def release(report, actor=None) -> Report:
                               "pdf_evidence_id": ev.pk, "pdf_sha256": ev.sha256, "verdict": report.overall_verdict,
                               "released_at": report.released_at, "version": report.version,
                               "reference": report.reference, "supersedes_id": report.supersedes_id,
-                              "client_id": report.case.client_id, "country": report.country.code},
+                              "client_id": report.case.client_id, "country": report.country.code,
+                              "case_ref": report.case.reference, "notified": True},  # told below, in RPT's words
                      extra_fields=["released_at", "pdf_evidence", "pdf_sha256", "release_error", "client_notified_at"])
     if report.supersedes_id:
         old = Report.objects.select_for_update().get(pk=report.supersedes_id)

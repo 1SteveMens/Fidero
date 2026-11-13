@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 
 from accounts.models import Person
@@ -187,6 +188,7 @@ class DataCatalogueSerializer(serializers.ModelSerializer):
                   "notes"]
 
 
+@extend_schema_serializer(component_name="DataProtectionLocation")
 class DataLocationSerializer(serializers.ModelSerializer):
     country = CountryCode(required=False, allow_null=True)
 

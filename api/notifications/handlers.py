@@ -3,6 +3,10 @@ notification when its payload names the person to tell. Producers include
 these keys in their payload; anything else is ignored. Idempotent through
 core.events (one delivery per consumer and event).
 
+A producer that has already told the person in its own words (CASE status
+messages, RPT report release, CASE task assignment) sets `"notified": true`
+in the payload, and this handler sends nothing, so nobody hears it twice.
+
 | topic | template | person key in payload | other keys used |
 |---|---|---|---|
 | case.status_changed | case_status_changed | client_id | case_ref, status_label (or to) |
@@ -36,6 +40,8 @@ def on_event(ev):
 
     code, key, channels, needs_action = EVENT_NOTIFICATIONS[ev.topic]
     p = ev.payload or {}
+    if p.get("notified"):
+        return
     person = _person(p.get(key))
     if person is None:
         return

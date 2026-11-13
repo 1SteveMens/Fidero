@@ -29,10 +29,19 @@ def order_policy(people):
     def can(user, sid):
         return owners.get(str(sid)) == user.pk
 
+    previous = access.policy("order")  # ORD's own policy, put back afterwards
     access.register("order", can_view=can, can_attach=can, country=lambda sid: people["client"].home_country,
                     owner=lambda sid: ("order", sid))
     yield owners
-    access.unregister("order")
+    _restore("order", previous)
+
+
+def _restore(subject_type, previous):
+    """Put back the module's own policy so later tests see the real registry."""
+    if previous is None:
+        access.unregister(subject_type)
+    else:
+        access._POLICIES[subject_type] = previous
 
 
 def _store(gh, person, data=None, **kw):
@@ -390,6 +399,7 @@ def test_access_log_for_a_released_report_folder(gh, people, api):
     rid = uuid.uuid4()
     ev = _store(gh, people["reviewer"], PDF, content_type="application/pdf", source="generated")
     services.link(ev, "report", rid, role="released_report", by=people["reviewer"])
+    previous = access.policy("report")  # RPT's own policy, put back afterwards
     access.register("report", can_view=lambda u, s: u.pk == people["client"].pk)
     try:
         api(people["client"]).get(f"/v1/evidence/{ev.pk}/link")
@@ -398,7 +408,7 @@ def test_access_log_for_a_released_report_folder(gh, people, api):
         assert api(people["client2"]).get(
             f"/v1/evidence-access-logs?subject_type=report&subject_id={rid}").status_code == 404
     finally:
-        access.unregister("report")
+        _restore("report", previous)
 
 
 # --------------------------------------------------------------------------- integrity sampling

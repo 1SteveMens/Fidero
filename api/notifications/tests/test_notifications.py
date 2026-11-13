@@ -78,7 +78,10 @@ def test_quiet_hours_defer_phone_channels(seeded, people):
     assert m.status == "deferred" and m.scheduled_for > now
     s = services.notify(kofi, "security_alert", channels=("sms",), context={"summary": "x"})[0]
     assert s.status == "sent"
-    assert services.send_due(now + timedelta(hours=2)) == 1
+    # Demo messages seeded during someone else's quiet hours are due too; count them in.
+    due = Message.objects.filter(status="deferred", scheduled_for__lte=now + timedelta(hours=2)).count()
+    assert due >= 1
+    assert services.send_due(now + timedelta(hours=2)) == due
     m.refresh_from_db()
     assert m.status == "sent"
 
@@ -282,10 +285,20 @@ def test_reminder_two_working_days_before_and_overdue_once(seeded, people, gh):
 
 def test_task_assigned_event_emails_the_assignee(seeded, people):
     """US-NTF-001a criterion 2: a task assignment emails the assignee."""
+    before = set(Message.objects.filter(person=people["surveyor"], template="task_assigned").values_list("pk", flat=True))
     publish("task.assigned", None, {"assignee_id": people["surveyor"].pk, "title": "Check the boundary",
                                     "case_ref": "TMR-GH-2026-00042", "due_date": "20 November 2026"})
-    m = Message.objects.get(person=people["surveyor"], template="task_assigned", channel="email")
+    new = Message.objects.filter(person=people["surveyor"], template="task_assigned").exclude(pk__in=before)
+    m = new.get(channel="email")
     assert "Check the boundary" in m.body
+
+
+def test_producer_that_already_notified_is_not_repeated(seeded, people):
+    """A producer that told the person itself sets "notified"; NTF sends nothing more."""
+    before = Message.objects.filter(person=people["surveyor"], template="task_assigned").count()
+    publish("task.assigned", None, {"assignee_id": people["surveyor"].pk, "title": "Walk the plot",
+                                    "case_ref": "TMR-GH-2026-00043", "notified": True})
+    assert Message.objects.filter(person=people["surveyor"], template="task_assigned").count() == before
 
 
 # --- Family confirmation codes (ADR-20) ----------------------------------------------------

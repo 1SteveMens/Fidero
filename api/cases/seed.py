@@ -40,6 +40,37 @@ def ensure_case_templates(gh, admin):
             publish_config_version(cv, by=admin)
 
 
+def refresh_country_refs(gh, admin):
+    """Point the country configuration at the templates now in force (FR-CTY-001).
+
+    The administration seed publishes placeholder case and report templates and
+    names them in the configuration; the CASE and RPT seeds replace them with
+    templates in their own format, which retires the placeholders. A configuration
+    naming a retired version could never be republished (publication_blockers),
+    so name the replacements, as an administrator would."""
+    import copy
+
+    from administration.models import ConfigVersion
+    from countries.services import seed_publish
+
+    current = gh.configs.filter(status="published").order_by("-version").first()
+    if current is None:
+        return
+    data = copy.deepcopy(current.data)
+    versions = (data.get("refs") or {}).get("config_versions") or {}
+    changed = False
+    for kind, pk in list(versions.items()):
+        cv = ConfigVersion.objects.filter(pk=pk).first()
+        if cv is None or cv.state == "published":
+            continue
+        new = ConfigVersion.objects.filter(kind=kind, country=gh, product_line=cv.product_line,
+                                           state="published").order_by("-version").first()
+        if new is not None:
+            versions[kind], changed = str(new.pk), True
+    if changed:
+        seed_publish(gh, data, by=admin)
+
+
 def ensure_registry_account(gh, admin):
     from administration.services import update_partner
 
@@ -100,6 +131,7 @@ def run(ctx):
     from reports.seed import ensure_report_templates
 
     ensure_report_templates(gh, admin)
+    refresh_country_refs(gh, admin)
     ensure_registry_account(gh, admin)
     services.grant_safety_read(admin, people["reviewer2"], reason="Safety lead for Ghana (demo)")
 

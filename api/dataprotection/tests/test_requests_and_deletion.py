@@ -13,6 +13,28 @@ from core.models import OutboxEvent
 from dataprotection import registry, services
 from dataprotection.models import DataRequest, LegalHold
 
+_seq = [0]
+
+
+def _fresh_client(family=False):
+    """A new, confirmed client with nothing open. The seeded clients have
+    demo cases, escrows and held funds, which rightly make deletion wait."""
+    from accounts import services as acc
+    from countries.models import Country
+    from dataprotection.selectors import current_notice
+
+    _seq[0] += 1
+    n = _seq[0]
+    notice = current_notice(Country.objects.get(code="GH"))
+    p = acc.register(email=f"dpr-client{n}@example.com", password="tenmina-dev-123", full_name=f"Efua Owusu {n}",
+                     phone=f"+4477009007{n:02d}", privacy_notice_version=notice.version if notice else None)
+    acc.verify_signup_code(p.email, "email", "000000")
+    acc.verify_signup_code(p.phone, "phone", "000000")
+    if family:
+        acc.add_family_member(p, {"full_name": "Kwesi Owusu", "relationship": "father"})
+    p.refresh_from_db()
+    return p
+
 
 def test_access_request_export_holds_only_own_data(seeded, api, people):
     """US-DPR-003 AC1, TC-DPR-003-01/02."""
@@ -64,7 +86,7 @@ def test_overdue_requests_alert_the_dpo(seeded, people):
 
 def test_deletion_preview_lists_deleted_kept_and_why(seeded, api, people):
     """US-APP-004 AC1, TC-APP-004-01."""
-    r = api(people["client2"]).get("/v1/me/deletion-requests/preview")
+    r = api(_fresh_client()).get("/v1/me/deletion-requests/preview")
     d = r.json()
     assert r.status_code == 200 and d["can_complete_now"] is True and d["deleted"]
     kept = {k["data_class"]: k for k in d["kept"]}
@@ -74,8 +96,11 @@ def test_deletion_preview_lists_deleted_kept_and_why(seeded, api, people):
 def test_delete_account_with_nothing_open(seeded, api, people):
     """US-APP-004 AC2: sign-in, sessions and tokens end at once; personal
     data anonymised; held records kept."""
-    kofi = people["client2"]
+    kofi = _fresh_client()
     raw, _ = ApiToken.issue(kofi, "access", timedelta(minutes=10))
+    email = kofi.email
+    assert api().post("/v1/auth/login", {"identifier": email,
+                                         "password": "tenmina-dev-123"}).status_code == 200
     c = api()
     c.credentials(HTTP_AUTHORIZATION="Bearer " + raw)
     r = c.post("/v1/me/deletion-requests", {"confirm": True, "source": "app"}, format="json")
@@ -84,7 +109,7 @@ def test_delete_account_with_nothing_open(seeded, api, people):
     kofi.refresh_from_db()
     assert kofi.status == "anonymised" and kofi.email.endswith("@anonymised.invalid") and kofi.phone == ""
     assert c.get("/v1/me").status_code == 401
-    assert api().post("/v1/auth/login", {"identifier": "kofi@example.com",
+    assert api().post("/v1/auth/login", {"identifier": email,
                                          "password": "tenmina-dev-123"}).status_code == 401
     assert OutboxEvent.objects.filter(topic="account.deletion_requested").exists()
 
@@ -106,7 +131,7 @@ def test_open_escrow_or_hold_makes_deletion_wait(seeded, api, people):
     orders, user told what stays open, held records kept; completes later."""
     from accounts.selectors import can_place_orders
 
-    ama = people["client"]
+    ama = _fresh_client(family=True)
     state = {"open": True}
 
     def open_escrow(person):
@@ -137,11 +162,19 @@ def test_open_escrow_or_hold_makes_deletion_wait(seeded, api, people):
 
 def test_erasure_by_staff(seeded, api, people):
     admin = people["admin"]
-    r = api(admin).post("/v1/dpr/requests", {"subject": str(people["client2"].pk), "type": "erasure"},
+    subject = _fresh_client()
+    r = api(admin).post("/v1/dpr/requests", {"subject": str(subject.pk), "type": "erasure"},
                         format="json")
     r = api(admin).post(f"/v1/dpr/requests/{r.json()['id']}/erase")
     assert r.status_code == 200 and r.json()["status"] == "completed"
-    assert Person.objects.get(pk=people["client2"].pk).status == "anonymised"
+    assert Person.objects.get(pk=subject.pk).status == "anonymised"
+
+
+def test_seeded_client_with_open_escrow_waits(seeded, api, people):
+    """US-APP-004 AC3: the escrow module's open matters keep a seeded client's deletion waiting."""
+    ama = people["client"]
+    kinds = {m["kind"] for m in api(ama).get("/v1/me/deletion-requests/preview").json()["open_matters"]}
+    assert "escrow" in kinds
 
 
 def test_reject_request_needs_a_reason(seeded, api, people):
