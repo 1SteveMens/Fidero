@@ -55,3 +55,22 @@ PostgreSQL runs locally (`tenmina`/`tenmina`). Use your own `TEST_DB_NAME` so pa
 - Write only inside your own module directories. Do not edit `tenmina/settings.py`, `tenmina/urls.py`, `conftest.py` or other modules. The only shared edits allowed are listed above (`ApprovalRequest.SUBJECT_TYPES`). If you need something from another module that does not exist yet, refer to it by UUID field and event topic, and list it under "Needs from other modules" in your final report.
 - Cross-module foreign keys are allowed (`on_delete=PROTECT`) to modules that already exist in the tree.
 - User-facing text: plain English, short sentences. Every price or threshold is a working assumption: seed values carry `[TO VERIFY]` where unknown.
+
+## Registries every module plugs into (from round 1)
+
+Register these in your `handlers.py` (imported at start-up), so the shared screens show your module's work:
+
+- **Client home** (`GET /v1/home`): `accounts.home.register(fn)` where `fn(person)` returns `[accounts.home.item(kind=, id=, title=, status=, status_text=, next_date=, needs_action=, link=, ...)]`. `needs_action=True` only for what needs the client.
+- **Field inbox** (Tenmina Field "My jobs"): `mobile.inbox.register(fn)`; see `mobile/inbox.py` for the item shape. React to `submission.received` and `flags.cleared` to move your records on; call `mobile.services.evidence_blockers(...)` before any release that depends on field evidence.
+- **Evidence access**: `evidence.access.register("your_subject_type", can_view=, can_attach=, country=, owner=)`. Until you do, only staff can see or attach evidence to your subjects.
+- **Data protection**: `dataprotection.registry.open_matters(fn)` (open matters that block account deletion, such as open escrows), `dataprotection.registry.exporter(name)` (what a subject access export includes), `dataprotection.registry.retention(data_class)` (finders for the retention sweep).
+- **Owner checks**: `accounts.services.register_owner_check(subject_type, fn)` for subjects a representative may act on.
+- **Scoping**: `accounts.selectors.scope_to_staff_countries(qs, person)`, `in_staff_scope(person, country)`, `is_representative(person, subject_type, subject_id)`.
+- **Identity and licences**: `accounts.services.require_valid_licence(person, role)` (RUL-20) before assigning or accepting a professional's work; `require_client_identity(person)`; `request_national_id_check(...)`, `national_id_blockers(checks)` and `require_national_id(checks, what)` (RUL-31).
+- **Prices, settings, locked texts, partners**: `administration.selectors.current_price(...)`, `setting(key, country, default)`, `current_locked_text(kind, country)`, `partners(country, kind)`.
+- **Orders for line fees**: `orders.services.create_line_order(client=, kind=, country=, subject_type=, subject_id=, details=)`. `order.paid` carries the order payload.
+- **Notifications**: `notifications.services.notify(...)` respects each person's preferences; the family confirmation code channel is in `notifications` (see its services for the code helpers).
+
+Seeds may call services; the audit-chain test allows seed entries. A domain error does not roll back writes made before it unless your service wraps them in `transaction.atomic()`; do that for every service that changes more than one row.
+
+Granting release rights (RR) or payment rights (PY) goes through a two-administrator request; in tests use `accounts.services.grant_rights_directly(...)`. Seeded staff already hold them.
