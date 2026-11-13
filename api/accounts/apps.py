@@ -8,6 +8,8 @@ class AccountsConfig(AppConfig):
     def ready(self):
         import importlib
 
+        from . import schema  # noqa: F401  OpenAPI security schemes
+
         try:
             importlib.import_module(f"{self.name}.handlers")  # event subscribers
         except ModuleNotFoundError as exc:
