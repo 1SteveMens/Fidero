@@ -193,3 +193,18 @@ class ReplyHookSerializer(serializers.Serializer):
 class MessagingHookAckSerializer(serializers.Serializer):
     received = serializers.BooleanField()
     duplicate = serializers.BooleanField(required=False)
+
+
+class MyConfirmationSerializer(serializers.ModelSerializer):
+    """What a confirmer with an account sees. Never the code or the link."""
+
+    attempts_left = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ConfirmationCode
+        fields = ["id", "subject_type", "subject_id", "purpose", "summary", "channel", "expires_at", "status",
+                  "attempts_left", "confirmed_at", "confirmed_via", "created_at"]
+        read_only_fields = fields
+
+    def get_attempts_left(self, obj) -> int:
+        return max(obj.max_attempts - obj.attempts, 0)

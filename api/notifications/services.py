@@ -657,6 +657,29 @@ def _failure_text(res) -> str:
         res["status"], "This confirmation is already closed.")
 
 
+def my_confirmations(person, limit=50):
+    """Confirmations sent to a family member who has an account (SCR-PTL-45 in the portal). Newest first;
+    expired ones are marked so. The code itself is never returned: it is on the person's own phone."""
+    rows = list(ConfirmationCode.objects.filter(recipient_person=person).exclude(status="superseded").order_by(
+        "-created_at")[:limit])
+    for c in rows:
+        _expire_if_due(c)
+    return rows
+
+
+@transaction.atomic
+def dispute_mine(conf_id, person) -> ConfirmationCode:
+    """The named confirmer says the visit or delivery did not happen. A dispute never pays anyone, so it
+    needs no code (as with a "No" reply to the message); confirming always needs the code."""
+    conf = ConfirmationCode.objects.select_for_update().filter(pk=conf_id, recipient_person=person).first()
+    if conf is None:
+        raise NotFound("There is nothing to confirm here.")
+    _expire_if_due(conf)
+    if conf.status != "pending":
+        raise StateConflict("This confirmation is already closed.")
+    return _confirmed(conf, "app", actor=person, decision="dispute")
+
+
 def by_link(token: str) -> ConfirmationCode:
     conf = ConfirmationCode.objects.filter(link_token_hash=_hash(token, "link")).first()
     if conf is None:

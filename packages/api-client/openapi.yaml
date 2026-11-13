@@ -6966,11 +6966,6 @@ paths:
       description: 'Case list and tracker: clients their own, staff their countries,
         professionals what they are assigned.'
       parameters:
-      - in: query
-        name: client
-        schema:
-          type: string
-          format: uuid
       - name: cursor
         required: false
         in: query
@@ -7253,11 +7248,6 @@ paths:
       description: 'Case list and tracker: clients their own, staff their countries,
         professionals what they are assigned.'
       parameters:
-      - in: query
-        name: client
-        schema:
-          type: string
-          format: uuid
       - name: cursor
         required: false
         in: query
@@ -7411,11 +7401,6 @@ paths:
       description: 'Case list and tracker: clients their own, staff their countries,
         professionals what they are assigned.'
       parameters:
-      - in: query
-        name: client
-        schema:
-          type: string
-          format: uuid
       - name: cursor
         required: false
         in: query
@@ -7533,11 +7518,6 @@ paths:
       description: 'FR-ACC-013: the sellers, grantors, consenting parties and signatories
         to check (RUL-31).'
       parameters:
-      - in: query
-        name: client
-        schema:
-          type: string
-          format: uuid
       - name: cursor
         required: false
         in: query
@@ -7679,11 +7659,6 @@ paths:
       description: 'Case list and tracker: clients their own, staff their countries,
         professionals what they are assigned.'
       parameters:
-      - in: query
-        name: client
-        schema:
-          type: string
-          format: uuid
       - name: cursor
         required: false
         in: query
@@ -7836,11 +7811,6 @@ paths:
       description: 'FR-CASE-016, RUL-30: searches lodged from Tenmina''s own registry
         account, by staff only.'
       parameters:
-      - in: query
-        name: client
-        schema:
-          type: string
-          format: uuid
       - name: cursor
         required: false
         in: query
@@ -12807,9 +12777,8 @@ paths:
   /v1/family-members/{id}/statement:
     get:
       operationId: v1_family_members_statement_retrieve
-      description: |-
-        Invoices, payments, receipts and the amount held at the bank for one family member.
-        Staff in the family member's country can read it too (back office, SCR-BO-30).
+      description: Invoices, payments, receipts and the amount held at the bank for
+        one family member.
       parameters:
       - in: path
         name: id
@@ -17301,6 +17270,50 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Person'
+          description: ''
+  /v1/me/confirmations:
+    get:
+      operationId: v1_me_confirmations_list
+      description: |-
+        Visits and deliveries a family member with an account is asked to confirm (SCR-PTL-45, US-CARE-004).
+        They confirm with the code sent to their own phone (/v1/family-confirmations/codes).
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MyConfirmation'
+          description: ''
+  /v1/me/confirmations/{id}/disputes:
+    post:
+      operationId: v1_me_confirmations_disputes_create
+      description: The named confirmer says it did not happen. Tenmina calls them;
+        nobody is paid for it.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MyConfirmation'
           description: ''
   /v1/me/data-requests:
     get:
@@ -39673,7 +39686,7 @@ components:
           readOnly: true
         status:
           allOf:
-          - $ref: '#/components/schemas/FamilyConfirmationStatusEnum'
+          - $ref: '#/components/schemas/Status8b9Enum'
           readOnly: true
         confirmed_at:
           type:
@@ -39734,26 +39747,6 @@ components:
       - subject_id
       - subject_type
       - summary
-    FamilyConfirmationStatusEnum:
-      enum:
-      - pending
-      - pending_check
-      - confirmed
-      - disputed
-      - locked
-      - expired
-      - superseded
-      - cancelled
-      type: string
-      description: |-
-        * `pending` - pending
-        * `pending_check` - pending_check
-        * `confirmed` - confirmed
-        * `disputed` - disputed
-        * `locked` - locked
-        * `expired` - expired
-        * `superseded` - superseded
-        * `cancelled` - cancelled
     FamilyMember:
       type: object
       description: |-
@@ -47023,6 +47016,66 @@ components:
         * `safety` - safety
         * `account` - account
         * `marketing` - marketing
+    MyConfirmation:
+      type: object
+      description: What a confirmer with an account sees. Never the code or the link.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        subject_type:
+          type: string
+          readOnly: true
+        subject_id:
+          type: string
+          readOnly: true
+        purpose:
+          type: string
+          readOnly: true
+        summary:
+          type: string
+          readOnly: true
+        channel:
+          type: string
+          readOnly: true
+        expires_at:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status8b9Enum'
+          readOnly: true
+        attempts_left:
+          type: integer
+          readOnly: true
+        confirmed_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          readOnly: true
+        confirmed_via:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - attempts_left
+      - channel
+      - confirmed_at
+      - confirmed_via
+      - created_at
+      - expires_at
+      - id
+      - purpose
+      - status
+      - subject_id
+      - subject_type
+      - summary
     NameMatchEnum:
       enum:
       - pending
@@ -55328,9 +55381,6 @@ components:
           type: string
           format: uuid
           readOnly: true
-        prepared_by_name:
-          type: string
-          readOnly: true
         approval_request:
           type: string
           format: uuid
@@ -55340,9 +55390,6 @@ components:
           - string
           - 'null'
           format: uuid
-          readOnly: true
-        approved_by_name:
-          type: string
           readOnly: true
         approved_at:
           type:
@@ -55361,9 +55408,6 @@ components:
           - string
           - 'null'
           format: uuid
-          readOnly: true
-        uploaded_by_name:
-          type: string
           readOnly: true
         uploaded_at:
           type:
@@ -55395,7 +55439,6 @@ components:
       - approval_request
       - approved_at
       - approved_by
-      - approved_by_name
       - confirmation_evidence
       - country
       - created_at
@@ -55409,7 +55452,6 @@ components:
       - line_count
       - operating_account
       - prepared_by
-      - prepared_by_name
       - reference
       - row_version
       - status
@@ -55418,7 +55460,6 @@ components:
       - total_net
       - uploaded_at
       - uploaded_by
-      - uploaded_by_name
     ProRunDetail:
       type: object
       properties:
@@ -55463,9 +55504,6 @@ components:
           type: string
           format: uuid
           readOnly: true
-        prepared_by_name:
-          type: string
-          readOnly: true
         approval_request:
           type: string
           format: uuid
@@ -55475,9 +55513,6 @@ components:
           - string
           - 'null'
           format: uuid
-          readOnly: true
-        approved_by_name:
-          type: string
           readOnly: true
         approved_at:
           type:
@@ -55496,9 +55531,6 @@ components:
           - string
           - 'null'
           format: uuid
-          readOnly: true
-        uploaded_by_name:
-          type: string
           readOnly: true
         uploaded_at:
           type:
@@ -55535,7 +55567,6 @@ components:
       - approval_request
       - approved_at
       - approved_by
-      - approved_by_name
       - confirmation_evidence
       - country
       - created_at
@@ -55550,7 +55581,6 @@ components:
       - lines
       - operating_account
       - prepared_by
-      - prepared_by_name
       - reference
       - row_version
       - status
@@ -55559,7 +55589,6 @@ components:
       - total_net
       - uploaded_at
       - uploaded_by
-      - uploaded_by_name
     ProRunInRequest:
       type: object
       description: Refuses fields it does not know (TC-RUL-26-02).
@@ -62613,6 +62642,26 @@ components:
         * `active` - active
         * `paused` - paused
         * `ended` - ended
+    Status8b9Enum:
+      enum:
+      - pending
+      - pending_check
+      - confirmed
+      - disputed
+      - locked
+      - expired
+      - superseded
+      - cancelled
+      type: string
+      description: |-
+        * `pending` - pending
+        * `pending_check` - pending_check
+        * `confirmed` - confirmed
+        * `disputed` - disputed
+        * `locked` - locked
+        * `expired` - expired
+        * `superseded` - superseded
+        * `cancelled` - cancelled
     StatusBa2Enum:
       enum:
       - scheduled
