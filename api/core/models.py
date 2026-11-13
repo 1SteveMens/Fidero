@@ -54,8 +54,12 @@ class ApprovalRequest(BaseModel):
         "repair_release", "event_payment", "insurance_premium", "milestone_release", "project_release",
         "country_activation", "role_grant", "dispute_decision", "legal_hold", "recheck_incident",
         "offline_fee_payment",
+        "feature_flag_change", "setting_change", "partner_bank_change",
     ]
-    ONE_APPROVER_TYPES = {"pro_rate_card_change", "pro_payment_run", "pro_expense_exception"}
+    ONE_APPROVER_TYPES = {"pro_rate_card_change", "pro_payment_run", "pro_expense_exception",
+                          # "a second administrator" (FR-ADM-003 to 005, 06 2.6, ADR-16): preparer plus one
+                          "locked_text_change", "release_setting_change", "country_config_publish",
+                          "country_activation", "feature_flag_change", "setting_change", "partner_bank_change"}
 
     subject_type = models.TextField()  # checked against SUBJECT_TYPES in core.approvals
     subject_id = models.UUIDField()
