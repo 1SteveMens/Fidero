@@ -24,7 +24,7 @@ def admins(seeded, api, mfa):
 
 
 def _doc():
-    return base64.b64encode(b"signed").decode()
+    return base64.b64encode(b"%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n").decode()
 
 
 def _open_country(a, b, code="KE", name="Kenya", currency="KES"):
@@ -90,10 +90,12 @@ def _make_publishable(a, b, cfg):
     for kind, pk in data["refs"]["locked_texts"].items():
         base = f"/v1/admin/locked-texts/{kind}/versions/{pk}"
         for party in ("lawyer", "insurer"):
-            a.post(f"{base}/signoffs", {"party": party, "approved_by_name": "Kenyan counsel",
-                                        "document_base64": _doc()}, format="json")
-        a.post(f"{base}/submit")
-        assert b.post(f"{base}/approvals", {}, format="json").json()["status"] == "published"
+            _s = a.post(f"{base}/signoffs", {"party": party, "approved_by_name": "Kenyan counsel",
+                                             "document_base64": _doc()}, format="json")
+            assert _s.status_code < 300, _s.json()
+        _s = a.post(f"{base}/submit")
+        assert _s.status_code < 300, _s.json()
+        _r = b.post(f"{base}/approvals", {}, format="json"); assert _r.json().get("status") == "published", _r.json()
     r = a.patch(f"/v1/admin/countries/KE/config-versions/{cfg['version']}", {"data": data}, format="json")
     assert r.status_code == 200 and r.json()["publication_blockers"] == []
 
@@ -165,7 +167,7 @@ def test_cells_and_directory_routing(seeded, admins, api):
     a.patch("/v1/admin/countries/NG", {"cell": "ng-1"}, format="json")
     from accounts.services import register
 
-    register(email="bola@example.com", password="a-long-password-1", full_name="Bola", home_country="NG")
+    register(email="bola@example.com", password="a-long-password-1", full_name="Bola", home_country="NG", phone="+2348012345678", legacy=True)
     entry = DirectoryEntry.objects.get(kind="signin", key=services.blind_index("bola@example.com"))
     assert entry.cell.name == "ng-1" and entry.country_id == ng.pk
     assert "bola" not in entry.key
