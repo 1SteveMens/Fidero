@@ -125,7 +125,9 @@ def test_fresh_search_only_on_verified_asset(seeded, api, people, gh):
     unverified = accepted_case(api, people, gh)
     r = api(people["cm"]).post(f"/v1/assets/{unverified.asset_id}/fresh-searches", {}, format="json")
     assert r.status_code == 409 and r.json()["code"] == "asset-not-verified"
-    released = Case.objects.get(status="released", product_line="land")
+    # Several seeded land cases are released; Ama's is the one with a released report on a verified plot.
+    released = Case.objects.get(order__details__seed="ama_land_card")
+    assert released.status == "released"
     Case.objects.filter(asset=released.asset, product_line="fresh_search").update(status="cancelled",
                                                                                    cancel_reason="test",
                                                                                    refund_decision="no_refund")

@@ -203,13 +203,14 @@ def test_inbox_needs_action_unread_and_read(seeded, api, people):
     ama = people["client"]
     c = api(ama)
     counts = c.get("/v1/me/notifications/unread-count").json()
-    assert counts["needs_action"] == 2 and counts["unread"] >= 3
-    items = c.get("/v1/me/notifications", {"needs_action": "true"}).json()["items"]
-    assert {i["subject_type"] for i in items} == {"fee_invoice", "case_document_request"}
+    # Other modules' seeds give Ama more open actions; the two from this module's seed must be among them.
+    assert counts["needs_action"] >= 2 and counts["unread"] >= 3
+    items = c.get("/v1/me/notifications", {"needs_action": "true", "limit": 100}).json()["items"]
+    assert {"fee_invoice", "case_document_request"} <= {i["subject_type"] for i in items}
     first = items[0]["id"]
     assert c.post(f"/v1/me/notifications/{first}/read").json()["unread"] is False
     services.resolve_action(subject_type="fee_invoice", subject_id="demo-1")
-    assert c.get("/v1/me/notifications/unread-count").json()["needs_action"] == 1
+    assert c.get("/v1/me/notifications/unread-count").json()["needs_action"] == counts["needs_action"] - 1
     assert c.post("/v1/me/notifications/read-all").json()["marked"] >= 1
     assert c.get("/v1/me/notifications/unread-count").json()["unread"] == 0
     other = Message.objects.filter(person=people["client2"], channel="in_app").first()

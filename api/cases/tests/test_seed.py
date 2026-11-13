@@ -9,7 +9,7 @@ def test_seed_journeys_and_idempotent(seeded):
     """FR-CASE-001, FR-RPT-007: seeded paid orders have cases; Ama's report is released with a hash."""
     statuses = set(Case.objects.values_list("status", flat=True))
     assert {"in_progress", "released", "completed"} <= statuses
-    r = Report.objects.get(status="released")
+    r = Report.objects.get(status="released", case__order__details__seed="ama_land_card")
     assert len(r.pdf_sha256) == 64 and r.pdf_evidence_id
     n = Case.objects.count()
     for m in ("cases.seed", "reports.seed"):

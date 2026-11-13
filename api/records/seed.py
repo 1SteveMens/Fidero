@@ -49,7 +49,8 @@ def run(ctx):
         return
     from geo.services import save_boundary
 
-    cases = list(Case.objects.filter(country=gh, status__in=OPEN_STATUSES, asset__isnull=False)
+    # Land verifications only: a fresh search reuses a released plot whose boundary other journeys rely on.
+    cases = list(Case.objects.filter(country=gh, status__in=OPEN_STATUSES, asset__isnull=False, product_line="land")
                  .select_related("asset__current_boundary").order_by("created_at")[:2])
     today = timezone.localdate()
     if not cases:

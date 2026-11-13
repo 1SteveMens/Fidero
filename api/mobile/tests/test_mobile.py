@@ -123,7 +123,9 @@ def test_sync_shows_only_assigned_work_and_removals(gh, people, milestone, visit
     assert {i["subject_id"] for i in first["items"]} == {str(m1), str(m2)}
     assert first["items"][0]["required_evidence"][0]["key"] == "front"
     carer = field_api(people["carer"]).get("/v1/mobile/inbox").json()
-    assert [i["subject_id"] for i in carer] == [str(v)] and carer[0]["point"] == {"lat": 5.5515, "lng": -0.2628}
+    # The care seed gives the carer other visits; this test's visit is there with its point.
+    mine = [i for i in carer if i["subject_id"] == str(v)]
+    assert len(mine) == 1 and mine[0]["point"] == {"lat": 5.5515, "lng": -0.2628}
     from mobile.models import Assignment
 
     a = Assignment.objects.get(subject_id=m2)
@@ -153,8 +155,9 @@ def test_inbox_registry_takes_providers_from_other_modules(gh, people, field_api
     inbox.register(broken)
     try:
         items = field_api(people["carer"]).get("/v1/mobile/inbox").json()
-        assert [i["subject_id"] for i in items] == [str(sid)]
-        assert field_api(people["agent"]).get("/v1/mobile/inbox").json() == []
+        assert [i["subject_id"] for i in items].count(str(sid)) == 1  # the broken provider hides nothing
+        agent = field_api(people["agent"]).get("/v1/mobile/inbox").json()
+        assert str(sid) not in [i["subject_id"] for i in agent]
     finally:
         inbox.unregister(visits)
         inbox.unregister(broken)

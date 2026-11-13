@@ -72,7 +72,7 @@ def test_home_dashboard_registry(seeded, api, people):
         assert {f["full_name"] for f in d["family_members"]} == {"Akosua Mensah", "Kojo Mensah"}
         other = api(people["client2"]).get("/v1/home").json()
         assert "fee_payment" not in [i["kind"] for i in other["items"]]
-        assert other["family_members"] == []
+        assert not {f["full_name"] for f in other["family_members"]} & {"Akosua Mensah", "Kojo Mensah"}
     finally:
         home.unregister(provider)
         home.unregister(broken)

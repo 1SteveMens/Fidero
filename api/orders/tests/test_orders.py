@@ -307,7 +307,13 @@ def test_staff_create_association_codes(seeded, api, people):
 
 def test_extra_inspection_at_the_configured_price(seeded, api, people, gh):
     """US-ORD-007, FR-ORD-007: an extra inspection on a build is ordered at the configured price."""
-    project_id = uuid7()
+    from construction.models import Project
+
+    # A real active build of Ama's (BLD refuses a made-up project id, and another client's project).
+    project_id = Project.objects.filter(client=people["client"], status="active", type="construction").first().pk
+    assert api(people["client"]).post(f"/v1/projects/{uuid7()}/extra-inspections",
+                                      {"concern": "x", "country": "GH", **terms(gh)},
+                                      format="json").status_code == 404
     r = api(people["client"]).post(f"/v1/projects/{project_id}/extra-inspections",
                                    {"concern": "Cracks in the ring beam", "country": "GH", **terms(gh)},
                                    format="json")
