@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from construction.serializers import Money2, MoneyIn
 
-from .models import NO_ADVICE_STATEMENT, Agreement, AmlReview, BackgroundCheck, Invoice, Supplier
+from .models import Agreement, AmlReview, BackgroundCheck, Invoice, Supplier
 
 
 class SupplierSerializer(serializers.ModelSerializer):
@@ -102,7 +102,9 @@ class AgreementSerializer(serializers.ModelSerializer):
         fields = ["id", "project_id", "version", "text", "text_sha256", "no_advice_statement", "accepted_at"]
 
     def get_no_advice_statement(self, obj) -> str:
-        return NO_ADVICE_STATEMENT
+        from .services import no_advice_statement
+
+        return no_advice_statement(obj.country)
 
 
 class InvoiceSerializer(serializers.ModelSerializer):

@@ -85,7 +85,7 @@ def test_mixing_countries_is_refused(seeded, admins, gh):
 
 def _make_publishable(a, b, cfg):
     data = dict(cfg["data"], currency="KES", data_location="af-south-1, shared cell [TO VERIFY]")
-    for kind, pk in data["refs"]["config_versions"].items():
+    for pk in dict.fromkeys(data["refs"]["config_versions"].values()):  # a version two keys name is one copy
         assert a.post(f"/v1/admin/config-versions/{pk}/publish").status_code == 200
     for kind, pk in data["refs"]["locked_texts"].items():
         base = f"/v1/admin/locked-texts/{kind}/versions/{pk}"

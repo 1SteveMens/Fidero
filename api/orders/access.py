@@ -26,10 +26,16 @@ def is_staff_for(user, country, roles=STAFF_ROLES) -> bool:
 
 
 def organisation_ids(user):
+    """Organisations the user acts for: an active ACC membership (FR-ACC-011, the source listings and the other
+    lines use) or a role grant scoped to the organisation."""
     if not user or not user.is_authenticated:
         return []
-    return list(user.role_grants.filter(revoked_at__isnull=True, organisation__isnull=False)
-                .values_list("organisation_id", flat=True))
+    from accounts.selectors import organisations_of
+
+    ids = list(user.role_grants.filter(revoked_at__isnull=True, organisation__isnull=False)
+               .values_list("organisation_id", flat=True))
+    ids += [pk for pk in organisations_of(user).values_list("pk", flat=True) if pk not in ids]
+    return ids
 
 
 def scope(qs, user, *, client_field="client", org_field="organisation", country_field="country"):

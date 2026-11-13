@@ -120,6 +120,15 @@ def create_fund_project(actor, data: dict) -> Project:
     return p
 
 
+def no_advice_statement(country) -> str:
+    """FR-PRJ-005: the country's published locked text `no_advice_statement` (lawyer signed), else the
+    working text NO_ADVICE_STATEMENT [TO VERIFY]."""
+    from administration.selectors import current_locked_text
+
+    lt = current_locked_text("no_advice_statement", country)
+    return lt.text if lt is not None and (lt.text or "").strip() else NO_ADVICE_STATEMENT
+
+
 def agreement_text(p: Project) -> str:
     from administration.selectors import current_locked_text
 
@@ -127,7 +136,7 @@ def agreement_text(p: Project) -> str:
     stages = "\n".join(f"- {m.name}: {fmt(m.amount, m.currency)}" for m in p.milestones.order_by("seq"))
     return (f"Project agreement: {p.title}\n\nClient: {p.client.full_name}\nPerson running the project: "
             f"{p.runner_name}\nBudget: {fmt(p.budget_amount, p.budget_currency)}\n\nStages:\n{stages}\n\n"
-            f"{NO_ADVICE_STATEMENT}\n\nMoney is paid only to named, checked suppliers against invoices, never as "
+            f"{no_advice_statement(p.country)}\n\nMoney is paid only to named, checked suppliers against invoices, never as "
             "cash to the person running the project (RUL-21). "
             + (terms.text if terms else "") + "\n[Working text, TO VERIFY by the lawyer.]")
 
@@ -136,7 +145,7 @@ def _new_agreement(p: Project, by) -> Agreement:
     from administration.selectors import current_locked_text
 
     text = agreement_text(p)
-    if NO_ADVICE_STATEMENT not in text:  # FR-PRJ-005; the database checks it again
+    if no_advice_statement(p.country) not in text:  # FR-PRJ-005; the database checks it again
         raise StateConflict("Every project agreement carries the no-advice statement.", code="statement-missing")
     v = Agreement.objects.filter(project=p).count() + 1
     return Agreement.objects.create(country=p.country, project=p, version=v, text=text,
@@ -716,7 +725,7 @@ def dashboard_extra(p: Project, person=None) -> dict:
     a = current_agreement(p)
     return {"funds": {
         "runner": p.runner_name,
-        "disclaimer": NO_ADVICE_STATEMENT,
+        "disclaimer": no_advice_statement(p.country),
         "agreement": {"version": a.version, "accepted_at": a.accepted_at} if a else None,
         "suppliers": [{"id": str(s.pk), "name": s.name, "status": s.status, "missing": s.missing,
                        "payee_verified": bool(s.payee_id and s.payee.verification_status == "verified")}

@@ -455,6 +455,22 @@ def _check_assignee(task, person, *, second=False):
         from accounts.services import require_valid_licence
 
         require_valid_licence(person, role)  # RUL-20
+    _require_pay_agreement(person, role, case.country)
+
+
+def _require_pay_agreement(person, role, country):
+    """US-PRO-001 AC1: work is assigned only to a professional with a signed, active agreement with Tenmina and
+    a verified pay account (PRO), so every assignment can be paid from Tenmina's own account (RUL-27)."""
+    from profpay.models import CODE_FOR_ROLE
+    from profpay.selectors import assignment_blockers
+
+    pro_roles = set(CODE_FOR_ROLE.values())
+    codes = [role] if role in pro_roles else [r for r in sorted(pro_roles) if person.has_tenmina_role(r, country=country)]
+    for code in codes[:1]:
+        reasons = assignment_blockers(person, code, country)
+        if reasons:
+            raise RuleBlocked(f"{person.full_name} cannot be given this work yet: {reasons[0]['message']}",
+                              code="no-pro-agreement", blocking_reasons=reasons)
 
 
 def _grant_asset_access(task, person, actor):

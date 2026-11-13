@@ -54,7 +54,14 @@ def on_config_published(ev):
     if not c:
         return
     current = c.configs.filter(status="published").order_by("-version").first()
-    used = ((current.data if current else {}).get("refs") or {}).get("config_versions", {}).get(kind)
+    versions = ((current.data if current else {}).get("refs") or {}).get("config_versions", {})
+    line = ev.payload.get("product_line") or ""
+    used = versions.get(f"{kind}:{line}")
+    if used is None and versions.get(kind):
+        from administration.models import ConfigVersion
+
+        named = ConfigVersion.objects.filter(pk=versions[kind]).first()
+        used = versions[kind] if named is None or named.product_line == line else None
     if used and str(used) != str(ev.payload.get("config_version_id")):
         record(action="country_config.refs_outdated", entity="country_config", entity_id=current.pk, country=c,
                data={"kind": kind, "uses": used, "newer": ev.payload.get("config_version_id")})

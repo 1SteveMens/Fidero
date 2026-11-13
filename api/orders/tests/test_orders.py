@@ -371,3 +371,29 @@ def test_client_cannot_order_a_seller_paid_check(seeded, api, people, gh):
     r = api(people["client"]).post("/v1/orders", order_body(gh, kind="listing_verification",
                                                             upload_ids=[str(ev.pk)]), format="json")
     assert r.status_code == 403
+
+
+def test_authority_orders_check_for_family_or_stool_listing(seeded, api, people, gh):
+    """US-LST-009, FR-LST-009: an authority representative (AR) orders the seller-paid check for a family or
+    stool plot, billed to the authority's own organisation; nobody else's organisation, and no client."""
+    from accounts.models import Membership, Organisation
+
+    ar = people["authority"]
+    stool = Organisation.objects.create(name="Teshie Stool (demo)", kind="authority", country=gh)
+    Membership.objects.create(organisation=stool, person=ar, org_role="admin")
+    ev = site_plan(ar, gh, data=b"%PDF-1.4 stool plot TS-9")
+    r = api(ar).post("/v1/orders", order_body(gh, kind="listing_verification", organisation_id=str(stool.pk),
+                                              upload_ids=[str(ev.pk)]), format="json")
+    assert r.status_code == 201, r.content
+    assert r.json()["kind"] == "listing_verification"
+    other = Organisation.objects.create(name="Other Stool (demo)", kind="authority", country=gh)
+    ev2 = site_plan(ar, gh, data=b"%PDF-1.4 stool plot TS-10")
+    r = api(ar).post("/v1/orders", order_body(gh, kind="listing_verification", organisation_id=str(other.pk),
+                                              upload_ids=[str(ev2.pk)]), format="json")
+    assert r.status_code == 403  # not a member
+    seller = people["seller"]
+    Membership.objects.create(organisation=other, person=seller, org_role="admin")
+    ev3 = site_plan(seller, gh, data=b"%PDF-1.4 stool plot TS-11")
+    r = api(seller).post("/v1/orders", order_body(gh, kind="listing_verification", organisation_id=str(other.pk),
+                                                  upload_ids=[str(ev3.pk)]), format="json")
+    assert r.status_code == 422  # a seller does not bill an authority

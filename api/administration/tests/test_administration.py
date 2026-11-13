@@ -34,7 +34,9 @@ def test_publish_creates_new_version_and_keeps_old(seeded, admins, gh):
     """FR-ADM-001, TC-ADM-001-01: a new version is created on publish and the old one kept."""
     a, _ = admins
     old = selectors.current_config("case_template", gh, "land")
-    content = {"tasks": [{"key": "intake", "title": "Intake"}, {"key": "visit", "title": "Site visit"}]}
+    content = {"tasks": [{"key": "intake", "title": "Intake", "role": "CM", "due_days": 1, "evidence": []},
+                         {"key": "visit", "title": "Site visit", "role": "RN", "due_days": 5,
+                          "evidence": ["site_photo"], "after": ["intake"], "site_visit": True}]}
     r = a.post("/v1/admin/config-versions", {"kind": "case_template", "country": "GH", "product_line": "land",
                                              "content": content}, format="json")
     assert r.status_code == 201, r.content
@@ -55,6 +57,87 @@ def test_published_version_cannot_be_edited(seeded, admins, gh):
                 format="json")
     assert r.status_code == 409 and r.json()["code"] == "config-published"
     _sql_fails("UPDATE adm_config_version SET content = '{}' WHERE id = %s", [cv.pk])
+
+
+def test_publish_runs_the_owning_modules_rules(seeded, admins, people, gh):
+    """FR-ADM-001, TC-CASE-002-02, TC-RPT-001-02, TC-TSK-001-02: a case template without owner roles or
+    evidence lists, a report template without sections 1 to 14, or an incomplete errand catalogue is refused
+    at publication (cases.templates, reports.templates, errands.catalogue)."""
+    a, _ = admins
+    bad = {
+        "case_template": {"tasks": [{"key": "intake", "title": "Intake"}]},
+        "report_template": {"sections": [{"key": "summary", "title": "Summary"}]},
+        "errand_catalogue": {"errands": [{"code": "probate", "name": "Probate"}]},
+    }
+    for kind, content in bad.items():
+        cv = services.create_config_version(kind=kind, content=content, by=people["admin"], country=gh,
+                                            product_line="land")
+        r = a.post(f"/v1/admin/config-versions/{cv.pk}/publish")
+        assert r.status_code == 422 and r.json()["code"] == "config-invalid", (kind, r.content)
+        cv.refresh_from_db()
+        assert cv.state == "draft"
+
+
+def test_country_config_naming_an_invalid_template_is_refused(seeded, people, gh):
+    """FR-CTY-001, FR-ADM-001: a country configuration is published only when every template it names passes
+    its module's rules, and its errand catalogue is complete."""
+    from administration.models import ConfigVersion
+    from countries import services as cty
+    from core.errors import RuleBlocked
+
+    bad = ConfigVersion.objects.create(kind="case_template", country=gh, product_line="vendor_verification",
+                                       version=99, content={"tasks": [{"key": "x", "title": "X"}]},
+                                       content_sha256="0" * 64, state="published")
+    draft = cty.create_config(gh, by=people["admin"])
+    refs = dict(draft.data["refs"], config_versions={**draft.data["refs"]["config_versions"],
+                                                     "case_template:vendor_verification": str(bad.pk)})
+    cty.update_config(draft, by=people["admin"], data={**draft.data, "refs": refs,
+                                                      "errand_catalogue": [{"code": "probate", "name": "Probate"}]})
+    with pytest.raises(RuleBlocked) as ei:
+        cty.submit_config(draft, by=people["admin"])
+    messages = " ".join(r["message"] for r in ei.value.blocking_reasons)
+    assert "case template:vendor verification is not valid" in messages and "errand catalogue" in messages
+
+
+def test_country_config_keys_are_settings_to_verify(seeded, people, gh):
+    """FR-ADM-005, 06 2.6: the keys line modules read from the country configuration are in the settings registry,
+    marked [TO VERIFY]; an administrator's value is used where the configuration sets none."""
+    from administration import registry
+    from countries.selectors import config
+
+    keys = ["fees.payment_route", "fees.service_fee", "fees.term_months", "construction.payment_route",
+            "pmg.repair_single_quote_max_amount", "pmg.inspection_interval_months", "evt.deposit_share_pct",
+            "insurance.renewal_reminder_days", "insurance.premium_lead_days",
+            "insurance.intermediary_licence_required"]
+    for k in keys:
+        assert registry.REGISTRY[k].to_verify, k
+    assert config(gh, "fees.term_months", 4) == 4
+    services.change_setting(key="fees.term_months", value=3, by=people["admin"], country=gh)
+    assert config(gh, "fees.term_months", 4) == 3
+    with pytest.raises(Invalid):
+        services.change_setting(key="fees.term_months", value=40, by=people["admin"], country=gh)
+    assert registry.validate("insurance.intermediary_licence_required", "false") is False
+    _, cr = services.change_setting(key="fees.payment_route", value="held_funds", by=people["admin"], country=gh)
+    assert cr is not None and config(gh, "fees.payment_route", "client_direct") == "client_direct"  # waits
+
+
+def test_records_flag_and_locked_statements(seeded, gh):
+    """06 2.6: `records.enabled` is a safety flag; RUL-25 and FR-PRJ-005 statements are locked texts that INS and
+    PRJ read."""
+    from administration.models import SAFETY_FLAGS_PREFIXES, FeatureFlag, LockedTextVersion
+    from insurance.models import Product
+    from insurance.services import statement_for
+    from projectfunds.services import no_advice_statement
+
+    assert FeatureFlag.objects.filter(name="records.enabled").exists()
+    assert "records.enabled".startswith(SAFETY_FLAGS_PREFIXES)
+    assert {"insurance_statement", "no_advice_statement"} <= set(LockedTextVersion.KINDS)
+    ins = selectors.current_locked_text("insurance_statement", gh)
+    nad = selectors.current_locked_text("no_advice_statement", gh)
+    assert ins and nad and nad.text == no_advice_statement(gh)
+    product = Product.objects.filter(country=gh).first()
+    if product is not None:
+        assert statement_for(product) == ins.text.replace("{insurer}", product.insurer.name)
 
 
 def test_config_content_is_checked(seeded, people, gh):

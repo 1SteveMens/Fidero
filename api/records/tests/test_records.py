@@ -139,6 +139,46 @@ def test_match_prefills_chain_for_lawyer(seeded, api):
     assert confirmed_chain(case.pk)[-1]["to"] == "New Allottee"
 
 
+def test_report_drafted_after_match_starts_from_the_records(seeded, api):
+    """FR-REC-002, TC-REC-002-01, FR-RPT-001: the lawyer confirms a records match before the report exists; the
+    report drafted when the case starts reads the confirmed chain (records.selectors.confirmed_chain) into
+    section 9, marked as from the records."""
+    from cases import services as cs
+    from cases.tests.helpers import paid_case, task
+    from geo.services import save_boundary
+    from records import services
+    from reports.models import Report
+
+    gh, people = seeded["gh"], seeded["people"]
+    cm, lawyer = people["cm"], people["lawyer"]
+    from unittest import mock
+
+    from reports import services as rpt
+
+    case = paid_case(api, people, gh)
+    with mock.patch.object(rpt, "create_report"):  # the report is not built yet (e.g. its first build failed)
+        cs.accept(case, cm)
+    assert not Report.objects.filter(case=case).exists()
+    save_boundary(case.asset, actor=cm, source="drawn", points=_square(-0.2400, 5.6100, 0.0012))
+    case.asset.refresh_from_db()
+    shape = json.loads(case.asset.current_boundary.geom.geojson)
+    stool = seeded["records"]["stool"]
+    first = services.capture_allocation(cm, authority=stool, reference="Chain R1", allottee_name="First Allottee",
+                                        allocated_on=date(1992, 1, 1), document_evidence=_ev(gh, cm), geojson=shape)
+    later = services.capture_allocation(cm, authority=stool, reference="Chain R2", allottee_name="Second Allottee",
+                                        allocated_on=date(2015, 1, 1), document_evidence=_ev(gh, cm), geojson=shape,
+                                        previous=first)
+    m = next(x for x in services.match_case(case) if x.allocation_id == later.pk)
+    assert m.kind == "exact"
+    cs.assign_task(task(case, "legal_review"), cm, assignee=lawyer)
+    m = services.confirm_match(m, lawyer, note="Matches the indenture")
+    assert m.status == "confirmed" and m.applied_to_report_id is None
+    report = rpt.create_report(case, cm)  # drafted after the match
+    sec = report.sections.get(number=9)
+    assert [e["to"] for e in sec.findings["chain_from_records"]] == ["First Allottee", "Second Allottee"]
+    assert sec.findings["records_note"] and sec.verdict is None  # the lawyer still decides and signs
+
+
 def test_near_match_not_prefilled_and_no_match(seeded):
     """US-REC-002 AC2, TC-REC-002-02: a partial overlap is flagged for review with nothing pre-filled; no overlap
     does nothing."""

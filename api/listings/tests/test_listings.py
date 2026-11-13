@@ -11,6 +11,7 @@ from core.errors import DomainError, FeatureOff, Forbidden, RuleBlocked, StateCo
 from core.events import publish
 from core.models import OutboxEvent
 from listings import services
+from orders import legal
 from listings.models import Listing, Removal, Reservation, SellerScreening
 
 
@@ -397,9 +398,15 @@ def test_family_and_stool_listing_behind_its_flag(seeded, settings, people, gh):
         services.create_listing(actor=people["authority"], country=gh, data=data)
     settings.TENMINA_FLAG_OVERRIDES = {}
     x = services.create_listing(actor=people["authority"], country=gh, data=data)
-    services.submit(x, people["authority"])
+    services.add_media(x, people["authority"], kind="site_plan",
+                       data=b"%PDF-1.4 stool site plan NS-4", content_type="application/pdf", name="site-plan.pdf")
+    t = legal.current(gh)
+    services.submit(x, people["authority"], terms_version=t["terms_version"], scope_version=t["scope_version"])
     x.refresh_from_db()
-    assert x.status == "draft" and x.verification_order_id is None and x.submitted_at
+    # The same verification rule: the authority orders the same check of the plot, billed to the authority.
+    assert x.submitted_at and x.verification_order_id
+    assert x.verification_order.kind == "listing_verification" and x.verification_order.organisation_id == org.pk
+    assert x.verification_order.client_id == people["authority"].pk
 
 
 # --------------------------------------------------------------------------- enquiries and established sellers

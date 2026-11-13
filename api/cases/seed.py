@@ -57,16 +57,25 @@ def refresh_country_refs(gh, admin):
     if current is None:
         return
     data = copy.deepcopy(current.data)
-    versions = (data.get("refs") or {}).get("config_versions") or {}
+    versions = data.setdefault("refs", {}).setdefault("config_versions", {})
     changed = False
-    for kind, pk in list(versions.items()):
+    for key, pk in list(versions.items()):
         cv = ConfigVersion.objects.filter(pk=pk).first()
         if cv is None or cv.state == "published":
             continue
-        new = ConfigVersion.objects.filter(kind=kind, country=gh, product_line=cv.product_line,
+        new = ConfigVersion.objects.filter(kind=cv.kind, country=gh, product_line=cv.product_line,
                                            state="published").order_by("-version").first()
         if new is not None:
-            versions[kind], changed = str(new.pk), True
+            versions[key], changed = str(new.pk), True
+    # Every case and report template in force, one reference per product line ("case_template:building"), so
+    # the configuration names exactly what new work uses (FR-CTY-001, ADR-11). The plain kind keys stay for land.
+    for cv in ConfigVersion.objects.filter(kind__in=("case_template", "report_template"), country=gh,
+                                           state="published").order_by("kind", "product_line", "-version"):
+        key = f"{cv.kind}:{cv.product_line}"
+        newest = ConfigVersion.objects.filter(kind=cv.kind, country=gh, product_line=cv.product_line,
+                                              state="published").order_by("-version").first()
+        if versions.get(key) != str(newest.pk):
+            versions[key], changed = str(newest.pk), True
     if changed:
         seed_publish(gh, data, by=admin)
 
@@ -133,6 +142,11 @@ def run(ctx):
     ensure_report_templates(gh, admin)
     refresh_country_refs(gh, admin)
     ensure_registry_account(gh, admin)
+    # Work goes only to a professional with an active agreement and a verified pay account (US-PRO-001 AC1):
+    # PRO's agreements for the seeded professionals exist before any task is assigned below.
+    from profpay.seed import ensure_agreements
+
+    ensure_agreements(ctx)
     services.grant_safety_read(admin, people["reviewer2"], reason="Safety lead for Ghana (demo)")
 
     # Cases for the orders PAY's seed paid while the templates were not yet published.

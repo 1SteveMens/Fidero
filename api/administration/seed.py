@@ -16,23 +16,32 @@ DEV_ON = [
     "listings.enabled", "payments.mobile_money", "identity.provider_check", "geo.satellite_monitoring",
     "geo.ghana_post_gps", "partner_api.enabled", "mobile.capture", "projects.funds", "building.construction",
     "lines.fee", "lines.care", "lines.pmg", "lines.tsk", "lines.ins", "lines.evt", "listings.family_and_stool",
+    "records.enabled",
 ]
 DEV_OFF = ["escrow.bank_api", "maintenance.read_only", "escrow.instructions_paused", "pro.payment_runs_paused",
            "country.ng"]
 
-CASE_TEMPLATE = {"tasks": [
-    {"key": "intake_review", "title": "Review the order and documents", "role": "CM", "due_days": 1},
-    {"key": "official_search", "title": "Request the official search from the registry", "role": "CM", "due_days": 2},
-    {"key": "site_visit", "title": "Visit the site and capture evidence", "role": "RN", "due_days": 5},
-    {"key": "survey_check", "title": "Check the boundary and overlays", "role": "SV", "due_days": 7},
-    {"key": "legal_review", "title": "Review title and chain of ownership", "role": "LW", "due_days": 10},
-    {"key": "report_review", "title": "Second review and release", "role": "RV", "due_days": 12},
-]}
-REPORT_TEMPLATE = {"sections": [
-    {"key": "summary", "title": "Summary and verdict"}, {"key": "title", "title": "Title and ownership"},
-    {"key": "survey", "title": "Survey and overlays"}, {"key": "site", "title": "Site visit"},
-    {"key": "conditions", "title": "Conditions"}, {"key": "scope", "title": "Scope and limitations"},
-]}
+def _case_template():
+    """The land case template in CASE's own format, so it passes cases.templates.validate at publication."""
+    from cases.templates import DEFAULT_TEMPLATES
+
+    return DEFAULT_TEMPLATES["land"]
+
+
+def _errand_catalogue():
+    """TSK's complete demo catalogue (every item orderable), so it passes errands.catalogue.validate."""
+    from errands.seed import CATALOGUE
+
+    return CATALOGUE
+
+
+def _report_template():
+    """The land report template in RPT's format (sections 1 to 14, section 12 locked)."""
+    from reports.templates import DEFAULT_TEMPLATES
+
+    return DEFAULT_TEMPLATES["land"]
+
+
 CONDITION_SET = {"conditions": [
     {"key": "family_consent", "text": "Family consent recorded"},
     {"key": "fresh_search", "text": "Fresh official search within the window"},
@@ -111,19 +120,21 @@ def run(ctx):
     # Versioned configuration (FR-ADM-001)
     refs = {"config_versions": {}, "locked_texts": {}, "partners": {}}
     if not ConfigVersion.objects.filter(country=gh).exists():
-        for kind, content, line in (("case_template", CASE_TEMPLATE, "land"),
-                                    ("report_template", REPORT_TEMPLATE, "land"),
+        case_template = _case_template()
+        for kind, content, line in (("case_template", case_template, "land"),
+                                    ("report_template", _report_template(), "land"),
                                     ("condition_set", CONDITION_SET, "land"),
                                     ("milestone_schedule", MILESTONE_SCHEDULE, "building"),
                                     ("tier_catalogue", TIERS, "land"),
                                     ("holiday_calendar", {"dates": gh.config().get("holiday_calendar", [])}, ""),
-                                    ("errand_catalogue", {"errands": gh.config().get("errand_catalogue", [])},
-                                     "tsk")):
+                                    ("errand_catalogue", {"errands": _errand_catalogue()}, "tsk")):
             cv = services.create_config_version(kind=kind, content=content, by=admin, country=gh, product_line=line,
                                                 name=f"Ghana {kind.replace('_', ' ')}")
             services.publish_config_version(cv, by=admin)
-        draft = dict(CASE_TEMPLATE, tasks=CASE_TEMPLATE["tasks"] + [
-            {"key": "recheck", "title": "Random re-check by a different professional", "role": "RV", "due_days": 20}])
+        draft = dict(case_template, tasks=case_template["tasks"] + [
+            {"key": "recheck", "title": "Random re-check by a different professional", "role": "RV", "due_days": 20,
+             "evidence": [], "after": [], "site_visit": False, "search": "", "review": False,
+             "client_message": "A different professional re-checked the file on {date}."}])
         services.create_config_version(kind="case_template", content=draft, by=admin, country=gh,
                                        product_line="land", name="Ghana case template with re-check (draft)")
     for cv in ConfigVersion.objects.filter(country=gh, state="published"):
@@ -194,6 +205,14 @@ def run(ctx):
                                           text=SCOPE_TEXT + " It does not cover customary claims not on record.")
         services.record_signoff(v2, party="lawyer", approved_by_name="Counsel for Tenmina [TO VERIFY]",
                                 evidence=_evidence(gh, admin, "lawyer-scope-v2"), by=admin)
+    if not LockedTextVersion.objects.filter(country=gh, kind="insurance_statement").exists():
+        # Texts INS and PRJ show word for word (RUL-25, FR-PRJ-005); the modules' constants are the fallback.
+        from insurance.services import DEFAULT_STATEMENT
+        from projectfunds.models import NO_ADVICE_STATEMENT
+
+        _published_text("insurance_statement", gh, admin, admin2, DEFAULT_STATEMENT, "Insurance statement",
+                        insurer=True)
+        _published_text("no_advice_statement", gh, admin, admin2, NO_ADVICE_STATEMENT, "No investment advice")
     for lt in LockedTextVersion.objects.filter(country=gh, status="published"):
         refs["locked_texts"][lt.kind] = str(lt.pk)
 

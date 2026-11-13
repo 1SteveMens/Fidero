@@ -248,6 +248,7 @@ def copy_config(source: CountryConfig, target: Country, *, by) -> CountryConfig:
             data[k] = None
     refs = data.get("refs") or {}
     new_refs = {"config_versions": {}, "locked_texts": {}, "partners": {}}
+    copies = {}  # one copy per source version, even when two keys name it ("case_template", "case_template:land")
     for kind, pk in (refs.get("config_versions") or {}).items():
         cv = ConfigVersion.objects.filter(pk=pk).first()
         if cv is None:
@@ -255,7 +256,9 @@ def copy_config(source: CountryConfig, target: Country, *, by) -> CountryConfig:
         if cv.country_id is None:
             new_refs["config_versions"][kind] = str(cv.pk)  # shareable rows stay shared
         else:
-            new_refs["config_versions"][kind] = str(copy_version_to_country(cv, target, by=by).pk)
+            if cv.pk not in copies:
+                copies[cv.pk] = str(copy_version_to_country(cv, target, by=by).pk)
+            new_refs["config_versions"][kind] = copies[cv.pk]
     for kind, pk in (refs.get("locked_texts") or {}).items():
         lt = LockedTextVersion.objects.filter(pk=pk).first()
         if lt is not None:
@@ -319,6 +322,11 @@ def publication_blockers(cfg: CountryConfig) -> list[dict]:
             out.append({"rule": "FR-CTY-001", "message": f"The {kind.replace('_', ' ')} belongs to another country."})
         elif cv.state != "published":
             out.append({"rule": "FR-ADM-001", "message": f"The {kind.replace('_', ' ')} is not published yet."})
+        else:
+            out.extend(_template_reasons(cv.kind, cv.content, c, label=kind))
+    if d.get("errand_catalogue") is not None:
+        out.extend(_template_reasons("errand_catalogue", {"errands": d.get("errand_catalogue") or []}, c,
+                                     label="errand catalogue"))
     for port, pk in (refs.get("partners") or {}).items():
         p = Partner.objects.filter(pk=pk).first()
         if p is None or p.country_id != c.pk:
@@ -326,6 +334,18 @@ def publication_blockers(cfg: CountryConfig) -> list[dict]:
         elif p.status != "active":
             out.append({"rule": "FR-ADM-003", "message": f"The {port} partner is deactivated."})
     return out
+
+
+def _template_reasons(kind, content, country, *, label) -> list[dict]:
+    """FR-ADM-001, FR-CASE-002, FR-RPT-001, FR-TSK-001: a template the configuration names must pass its own
+    module's rules (cases.templates, reports.templates, errands.catalogue)."""
+    from administration.services import validate_for_publication
+
+    try:
+        validate_for_publication(kind, content, country)
+    except Invalid as exc:
+        return [{"rule": "FR-ADM-001", "message": f"The {label.replace('_', ' ')} is not valid: {exc.detail}"}]
+    return []
 
 
 @transaction.atomic

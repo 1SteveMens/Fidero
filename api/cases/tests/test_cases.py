@@ -114,6 +114,30 @@ def test_licence_needed_to_assign_professional(seeded, api, people, gh):
     assert r.status_code == 409 and r.json()["code"] == "licence-invalid"
 
 
+def test_assignment_needs_an_active_pro_agreement(seeded, api, people, gh):
+    """US-PRO-001 AC1, FR-PRO-001: work goes only to a professional with a signed, active agreement and a
+    verified pay account (profpay.selectors.assignment_blockers); the refusal names why."""
+    from profpay.models import Agreement
+
+    case = accepted_case(api, people, gh)
+    t = task(case, "overlay_check")
+    Agreement.objects.filter(professional=people["surveyor"]).update(status="suspended")
+    r = api(people["cm"]).patch(f"/v1/tasks/{t.pk}", {"assignee_id": str(people["surveyor"].pk)}, format="json")
+    assert r.status_code == 409 and r.json()["code"] == "no-pro-agreement"
+    assert r.json()["blocking_reasons"][0]["code"] == "agreement-suspended"
+    t.refresh_from_db()
+    assert t.assignee_id is None
+    Agreement.objects.filter(professional=people["surveyor"]).update(status="active")
+    r = api(people["cm"]).patch(f"/v1/tasks/{t.pk}", {"assignee_id": str(people["surveyor"].pk)}, format="json")
+    assert r.status_code == 200, r.content
+    from cases.tests.helpers import licensed
+
+    new_sv = licensed(gh, "SV", "sv-no-agreement@example.com", "Kofi New Surveyor")  # licensed, never contracted
+    other = task(accepted_case(api, people, gh), "overlay_check")
+    r = api(people["cm"]).patch(f"/v1/tasks/{other.pk}", {"assignee_id": str(new_sv.pk)}, format="json")
+    assert r.status_code == 409 and r.json()["blocking_reasons"][0]["code"] == "no-agreement"
+
+
 def test_task_needs_evidence_then_closes_from_phone(seeded, api, people, gh):
     """US-CASE-004, US-CASE-006, TC-CASE-004-01/02: refused with the missing items named; a receipt
     photographed in the browser is stored as evidence and the task closes."""

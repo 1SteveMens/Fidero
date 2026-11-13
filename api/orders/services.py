@@ -94,8 +94,12 @@ def _organisation_for(actor, product, organisation_id):
     org = Organisation.objects.filter(pk=organisation_id).first()
     if org is None or (org.pk not in organisation_ids(actor) and not has_role(actor, "CM", "AD")):
         raise Forbidden("You can only order for an organisation you belong to.")
-    if org.kind not in ("seller", "developer"):
-        raise Invalid("Only a seller or developer organisation pays for checked plots.")
+    kinds = ("seller", "developer")
+    if org.kind == "authority" and has_role(actor, "AR", "CM", "AD"):
+        kinds = ("seller", "developer", "authority")  # a family or stool listing (US-LST-009)
+    if org.kind not in kinds:
+        raise Invalid("Only a seller or developer organisation, or a family or stool authority for its own "
+                      "listings, pays for checked plots.")
     return org
 
 

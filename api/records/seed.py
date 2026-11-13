@@ -35,7 +35,7 @@ def run(ctx):
 
     gh, people = ctx["gh"], ctx["people"]
     cm, admin, ar = people["cm"], people["admin"], people["authority"]
-    # R3 gate: development only. Production default is off (add records.enabled to 06 2.6).
+    # R3 gate: the administration seed switches records.enabled on for development; production starts Off (06 2.6).
     FeatureFlag.objects.get_or_create(name=services.FLAG, country=None, defaults={"enabled": True, "owner": "founder"})
     stool = Authority.objects.filter(country=gh, name="Oyarifa Stool (demo)").first() or services.create_authority(
         cm, country=gh, name="Oyarifa Stool (demo)", kind="stool", region="Greater Accra", district="Adenta",

@@ -6,10 +6,9 @@ overdue payable. Every rate, limit and period is a working assumption
 [TO VERIFY], not verified data.
 
 Payee accounts: the lawyer is paid through the law firm's verified payee
-(`esc_payee`); the surveyor and the runner through their own verified
-accounts (`acc_bank_account`). ACC lets only clients add accounts today, so the
-seed writes those two rows the way the ACC seed does (see "Needs" in the
-module report)."""
+(`esc_payee` of kind `contracted_professional`); the surveyor and the runner
+through their own pay accounts (`acc_bank_account`, purpose professional_pay),
+added by them and verified by a preparer and two other staff."""
 import uuid
 from datetime import date, timedelta
 from decimal import Decimal
@@ -65,24 +64,68 @@ def _config(gh, admin):
 
 
 def own_account(gh, person, number, approvers, preparer, *, bank="Demo Savings Bank [TO VERIFY]"):
-    """Seed only: a professional's own verified account, written as the ACC seed writes client accounts."""
+    """A professional's own pay account, added by the professional and verified like a client's: a preparer
+    checks the bank letter and two other staff approve (ACC, FR-PRO-006)."""
+    from accounts import services as acc
     from accounts.models import BankAccount
-    from accounts.normalise import normalise_name
-    from accounts.seed import _approved_request
+    from core import approvals
 
     acct = BankAccount.objects.filter(holder=person, account_number=number).first()
-    if acct:
-        return acct
-    letter = _ev(gh, preparer, f"bank-letter-{person.email}.txt", f"Bank letter: account name {person.full_name}")
-    acct = BankAccount.objects.create(country=gh, holder=person, bank_name=bank, account_number=number,
-                                      account_name=person.full_name.upper(),
-                                      account_name_norm=normalise_name(person.full_name), name_match="matched",
-                                      evidence=letter, name_source="bank_letter", verification_status="pending",
-                                      prepared_by=preparer, purpose="professional_pay")
-    acct.approval_request = _approved_request("bank_account_verification", acct.pk, preparer, approvers, country=gh)
-    acct.verification_status, acct.verified_at = "verified", timezone.now()
-    acct.save(update_fields=["approval_request", "verification_status", "verified_at"])
+    if acct is None:
+        letter = _ev(gh, person, f"bank-letter-{person.email}.txt", f"Bank letter: account name {person.full_name}")
+        acct = acc.add_bank_account(person, bank_name=bank, account_number=number,
+                                    account_name=person.full_name.upper(), country=gh, evidence=letter,
+                                    name_source="bank_letter", purpose="professional_pay")
+    if acct.verification_status in ("unverified", "rejected"):
+        acc.prepare_bank_verification(acct, preparer, evidence=acct.evidence, name_source="bank_letter")
+        acct.refresh_from_db()
+        for a in approvers:
+            if acct.approval_request and acct.approval_request.status == "open":
+                approvals.decide(acct.approval_request, a, mfa_at=timezone.now(), note="Seed approval")
+                acct.approval_request.refresh_from_db()
+    acct.refresh_from_db()
     return acct
+
+
+def ensure_agreements(ctx):
+    """Signed, active agreements for the seeded lawyer (through the firm's verified payee), surveyor and runner
+    (their own verified accounts), and a draft one for the inspector (no verified account yet). CASE's seed calls
+    this before it assigns work, since work goes only to a professional with an active agreement (US-PRO-001
+    AC1). Idempotent."""
+    from . import services
+    from .models import Agreement
+
+    gh, people = ctx["gh"], ctx["people"]
+    admin, cm, rv, rv2 = (people[k] for k in ("admin", "cm", "reviewer", "reviewer2"))
+    lawyer, surveyor, runner, inspector = (people[k] for k in ("lawyer", "surveyor", "runner", "inspector"))
+    out = ctx.setdefault("pro", {})
+    if out.get("agreements_ready"):
+        return out
+    start = timezone.localdate() - timedelta(days=400)
+    org, firm = firm_payee(gh, people, org_name="Nana & Co Chambers (demo)", signer=lawyer, number="3300112233",
+                           nid_number="GHA-711111111-1")
+    sv_acct = own_account(gh, surveyor, "4400556677", [rv, rv2], cm)
+    rn_acct = own_account(gh, runner, "5500667788", [rv, rv2], cm)
+
+    def agreement(person, role, **kw):
+        a = Agreement.objects.filter(professional=person, role=role, country=gh).first()
+        if a is None:
+            a = services.create_agreement(admin, country=gh, professional=person, role=role,
+                                          agreement_evidence=_ev(gh, admin, f"signed-agreement-{person.email}-{role}.txt"),
+                                          valid_from=start, **kw)
+        if kw.get("payee") or kw.get("bank_account"):
+            if a.status == "draft":
+                services.activate_agreement(a, admin)
+        return a
+
+    out["lawyer"] = agreement(lawyer, "lawyer", contracting_party="organisation", organisation=org, payee=firm,
+                              tax_status="registered", tax_id="C0001234567 [demo]")
+    out["surveyor"] = agreement(surveyor, "surveyor", bank_account=sv_acct, tax_status="registered")
+    out["runner"] = agreement(runner, "runner", bank_account=rn_acct)
+    out["inspector"] = agreement(inspector, "inspector")  # draft: no verified account yet
+    out["firm_payee"], out["surveyor_account"], out["runner_account"] = firm, sv_acct, rn_acct
+    out["agreements_ready"] = True
+    return out
 
 
 def firm_payee(gh, people, *, org_name, signer, number, nid_number):
@@ -137,11 +180,11 @@ def run(ctx):
     from core.models import OutboxEvent
 
     from . import services
-    from .models import Agreement, ExpenseClaim, Payable, PaymentRun
+    from .models import ExpenseClaim, Payable, PaymentRun
 
     gh, people = ctx["gh"], ctx["people"]
-    admin, admin2, cm, rv, rv2 = (people[k] for k in ("admin", "admin2", "cm", "reviewer", "reviewer2"))
-    lawyer, surveyor, runner, inspector = (people[k] for k in ("lawyer", "surveyor", "runner", "inspector"))
+    admin, admin2, cm, rv = (people[k] for k in ("admin", "admin2", "cm", "reviewer"))
+    lawyer, surveyor, runner = (people[k] for k in ("lawyer", "surveyor", "runner"))
     out = ctx.setdefault("pro", {})
     _config(gh, admin)
     start = timezone.localdate() - timedelta(days=400)
@@ -156,29 +199,8 @@ def run(ctx):
         services.draft_rate_card(admin, country=gh, role="lawyer", unit="report_section", rate="1650.00",
                                  valid_from=nxt)
 
-    # ---- agreements
-    org, firm = firm_payee(gh, people, org_name="Nana & Co Chambers (demo)", signer=lawyer, number="3300112233",
-                           nid_number="GHA-711111111-1")
-    sv_acct = own_account(gh, surveyor, "4400556677", [rv, rv2], cm)
-    rn_acct = own_account(gh, runner, "5500667788", [rv, rv2], cm)
-
-    def agreement(person, role, **kw):
-        a = Agreement.objects.filter(professional=person, role=role, country=gh).first()
-        if a is None:
-            a = services.create_agreement(admin, country=gh, professional=person, role=role,
-                                          agreement_evidence=_ev(gh, admin, f"signed-agreement-{person.email}-{role}.txt"),
-                                          valid_from=start, **kw)
-        if kw.get("payee") or kw.get("bank_account"):
-            if a.status == "draft":
-                services.activate_agreement(a, admin)
-        return a
-
-    out["lawyer"] = agreement(lawyer, "lawyer", contracting_party="organisation", organisation=org, payee=firm,
-                              tax_status="registered", tax_id="C0001234567 [demo]")
-    out["surveyor"] = agreement(surveyor, "surveyor", bank_account=sv_acct, tax_status="registered")
-    out["runner"] = agreement(runner, "runner", bank_account=rn_acct)
-    out["inspector"] = agreement(inspector, "inspector")  # draft: no verified account yet
-    out["firm_payee"], out["surveyor_account"], out["runner_account"] = firm, sv_acct, rn_acct
+    # ---- agreements (CASE's seed already made them before assigning work; idempotent)
+    ensure_agreements(ctx)
 
     # ---- payables from released reports (replays the work.accepted events RPT already sent)
     for ev in OutboxEvent.objects.filter(topic="work.accepted").order_by("created_at"):

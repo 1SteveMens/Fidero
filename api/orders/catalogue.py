@@ -44,8 +44,10 @@ PRODUCTS: dict[str, Product] = {p.kind: p for p in [
     Product("extra_inspection", "Extra inspection on your build", "inspection_fee", "property",
             product_line="construction", flag="building.construction", subject_type="project",
             description="An inspector visits your build between milestones to check a worry."),
+    # US-LST-009: an authority representative (AR) orders the check for a family or stool listing, billed to
+    # the authority's organisation, on the same terms as a seller.
     Product("listing_verification", "Checked plot (seller pays)", "report_fee", "property",
-            needs_asset=True, needs_documents=True, roles=("SE", "DV"), bill_to="organisation",
+            needs_asset=True, needs_documents=True, roles=("SE", "DV", "AR"), bill_to="organisation",
             asset_types=("plot", "building"),
             description="A seller pays a fixed fee per plot checked, the same whatever the verdict. "
                         "There is no success fee."),

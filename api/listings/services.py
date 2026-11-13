@@ -457,8 +457,8 @@ def _verification_order(listing, actor, terms_version, scope_version):
     from orders import legal
     from orders import services as orders
 
-    if listing.origin in ("family", "stool"):
-        return None  # verification for family and stool plots is opened by a case manager with REC (R3)
+    # Family and stool plots follow the same verification and badge rules (US-LST-009): the authority's
+    # representative orders the same check, billed to the authority's organisation.
     cur = legal.current(listing.country)
     if not terms_version or not scope_version:
         raise Invalid("Read and accept the scope statement and terms first.", code="terms-not-accepted",

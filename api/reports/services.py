@@ -135,12 +135,30 @@ def _build_sections(report, cv, lt, case, copy_from=None):
             findings = _cover(case)
         if s["number"] == 12:
             findings = _scope_findings(lt)
+        if s["number"] == 9 and not prev:
+            findings = _records_chain(case) or findings
         Section.objects.create(report=report, number=s["number"], position=s["position"], label=s["label"],
                                key=s["key"], title=s["title"], owner_role=s["owner"], locked=s["locked"],
                                in_verdict_rule=s["in_verdict_rule"], needs_signature=s["needs_signature"],
                                findings=findings, verdict=prev.verdict if prev else None,
                                proposed_verdict=prev.proposed_verdict if prev else None,
                                proposed_reasons=prev.proposed_reasons if prev else [])
+
+
+def _records_chain(case) -> dict:
+    """FR-REC-002, TC-REC-002-01: when the lawyer already confirmed an exact records match for the case, a report
+    drafted afterwards starts section 9 from that chain, marked as from the records. The lawyer still signs it."""
+    from records.selectors import confirmed_chain
+
+    try:
+        chain = confirmed_chain(case.pk)
+    except Exception:  # noqa: BLE001 - the records module never stops a report being built
+        log.exception("records chain for case %s could not be read", case.pk)
+        return {}
+    if not chain:
+        return {}
+    return {"chain_from_records": chain,
+            "records_note": "Chain of ownership from the family or stool register, confirmed by the lawyer."}
 
 
 def refresh_geo(asset_id):
