@@ -133,7 +133,7 @@ def test_monitoring_api_journey(watched, people, api, monkeypatch):
     assert api(people["client"]).post(f"/v1/monitoring-alerts/{aid}/resolve", {}, format="json").status_code == 403
     from evidence.services import store
 
-    ev = store(data=b"site photo", country=asset.country, uploaded_by=people["cm"], content_type="image/jpeg")
+    ev = store(data=b"\xff\xd8\xff\xe0site photo", country=asset.country, uploaded_by=people["cm"], content_type="image/jpeg")
     r = cm.post(f"/v1/monitoring-alerts/{aid}/resolve", {"resolution": "change_confirmed",
                                                          "note": "A block wall was built.",
                                                          "evidence_id": str(ev.pk)}, format="json")

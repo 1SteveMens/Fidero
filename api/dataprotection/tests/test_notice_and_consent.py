@@ -14,7 +14,7 @@ from dataprotection.models import Consent, PrivacyAcceptance
 def _ev(gh, by, name="video.mp4"):
     from evidence.services import store
 
-    return store(data=name.encode() + uuid.uuid4().bytes, country=gh, uploaded_by=by, content_type="video/mp4",
+    return store(data=b"\x00\x00\x00\x18ftypmp42" + name.encode() + uuid.uuid4().bytes, country=gh, uploaded_by=by, content_type="video/mp4",
                  original_name=name)
 
 

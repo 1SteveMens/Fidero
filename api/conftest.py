@@ -9,15 +9,20 @@ from rest_framework.test import APIClient
 
 
 @pytest.fixture(autouse=True)
-def _fast(settings, tmp_path):
+def _fast(settings, _media_root):
     settings.PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
-    settings.MEDIA_ROOT = tmp_path
+    settings.MEDIA_ROOT = _media_root
 
 
-@pytest.fixture
-def seeded(db):
-    """Runs every module's seed (countries, people, flags, ...). Returns ctx."""
+@pytest.fixture(scope="session")
+def _media_root(tmp_path_factory):
+    """One evidence store per test run: seeds and tests share it (keys are unique, files write-once)."""
+    return tmp_path_factory.mktemp("media")
+
+
+def _run_seeds():
     import importlib
+
     from django.conf import settings
 
     ctx = {"people": {}}
@@ -30,6 +35,27 @@ def seeded(db):
             raise
         mod.run(ctx)
     return ctx
+
+
+@pytest.fixture(scope="session")
+def _seed_once(django_db_setup, django_db_blocker, _media_root):
+    """Seeds load once per test run and are committed; each test then runs in
+    a transaction that is rolled back, so every test starts from the seeded state."""
+    from django.test import override_settings
+
+    with django_db_blocker.unblock(), override_settings(
+        MEDIA_ROOT=_media_root,
+        PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"],
+    ):
+        return _run_seeds()
+
+
+@pytest.fixture
+def seeded(db, _seed_once):
+    """Every module's seed (countries, people, flags, ...). Returns a fresh copy of ctx."""
+    import copy
+
+    return copy.deepcopy(_seed_once)
 
 
 @pytest.fixture
