@@ -1718,6 +1718,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/analytics/catalogue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Metrics on the dashboard and their columns */
+        get: operations["v1_analytics_catalogue_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/analytics/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export log: who exported which table, when (FR-ANL-002) */
+        get: operations["v1_analytics_exports_list"];
+        put?: never;
+        /** Export a metric table as CSV, logged; personal data goes through the bulk export */
+        post: operations["v1_analytics_exports_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/analytics/metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Operating dashboard with the A9 metrics (FR-ANL-001, -003) */
+        get: operations["analytics_dashboard"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/analytics/metrics/{name}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One metric table */
+        get: operations["analytics_metric"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/analytics/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Day-90 review: the validation plan's go criteria from platform data */
+        get: operations["v1_analytics_review_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/app-config": {
         parameters: {
             query?: never;
@@ -1747,6 +1833,23 @@ export interface paths {
         };
         /** @description Open approvals the caller could give (staff only). */
         get: operations["v1_approvals_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/approvals/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description One approval request with its approvals (staff only). Says whether it has its own screen. */
+        get: operations["v1_approvals_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5744,7 +5847,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Invoices, payments, receipts and the amount held at the bank for one family member. */
+        /**
+         * @description Invoices, payments, receipts and the amount held at the bank for one family member.
+         *     Staff in the family member's country can read it too (back office, SCR-BO-30).
+         */
         get: operations["v1_family_members_statement_retrieve"];
         put?: never;
         post?: never;
@@ -5987,6 +6093,23 @@ export interface paths {
         put?: never;
         /** @description Public: does this SHA-256 match a document Tenmina issued? Answers only yes or no and the release date. */
         post: operations["v1_fingerprint_checks_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/fx-conversions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description FR-ESC-023: conversions checked against the accepted quote, e.g. status=outside for margin alerts. */
+        get: operations["v1_fx_conversions_list"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -7831,6 +7954,43 @@ export interface paths {
         head?: never;
         /** @description Profile, language and notification preferences (FR-ACC-010). */
         patch: operations["v1_me_partial_update"];
+        trace?: never;
+    };
+    "/v1/me/confirmations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Visits and deliveries a family member with an account is asked to confirm (SCR-PTL-45, US-CARE-004).
+         *     They confirm with the code sent to their own phone (/v1/family-confirmations/codes).
+         */
+        get: operations["v1_me_confirmations_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/confirmations/{id}/disputes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description The named confirmer says it did not happen. Tenmina calls them; nobody is paid for it. */
+        post: operations["v1_me_confirmations_disputes_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/v1/me/data-requests": {
@@ -11796,6 +11956,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/rechecks/{id}/candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description SCR-BO-45: the eligible people for this re-check (reviewers with no link to the case only). */
+        get: operations["v1_rechecks_candidates_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/rechecks/{id}/results": {
         parameters: {
             query?: never;
@@ -13664,6 +13841,23 @@ export interface paths {
         patch: operations["v1_tasks_partial_update"];
         trace?: never;
     };
+    "/v1/tasks/{id}/candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description W-13: people who may take this task, with licence state and the visit rule (case staff only). */
+        get: operations["v1_tasks_candidates_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/tasks/{id}/complete": {
         parameters: {
             query?: never;
@@ -14855,12 +15049,18 @@ export interface components {
             readonly approval_status: string;
             /** Format: uuid */
             bank_partner_id?: string | null;
-            readonly purpose: string;
+            purpose?: components["schemas"]["BankAccountPurposeEnum"];
             /** Format: date-time */
             readonly verified_at: string | null;
             /** Format: date-time */
             readonly created_at: string;
         };
+        /**
+         * @description * `rent_destination` - rent_destination
+         *     * `professional_pay` - professional_pay
+         * @enum {string}
+         */
+        BankAccountPurposeEnum: "rent_destination" | "professional_pay";
         /**
          * @description Refuse fields the API does not know (TC-ACC-012-02: only catalogued
          *     fields are accepted, NFR-PRIV-02).
@@ -14876,6 +15076,7 @@ export interface components {
             evidence?: string | null;
             /** Format: uuid */
             bank_partner_id?: string | null;
+            purpose?: components["schemas"]["BankAccountPurposeEnum"];
         };
         /**
          * @description * `unverified` - unverified
@@ -15208,6 +15409,17 @@ export interface components {
         };
         CancellationInRequest: {
             reason: string;
+        };
+        Candidate: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            roles: string[];
+            can_be_main: boolean;
+            can_be_second: boolean;
+            licence: {
+                [key: string]: unknown;
+            } | null;
         };
         CareAssignInputRequest: {
             /** Format: uuid */
@@ -15587,6 +15799,15 @@ export interface components {
             steps: components["schemas"]["ErrandCatalogueStep"][];
             orderable: boolean;
             problems: string[];
+        };
+        CatalogueOut: {
+            name: string;
+            title: string;
+            description: string;
+            source: string;
+            columns: string[];
+            filters: string[];
+            personal_data: boolean;
         };
         CatalogueProduct: {
             kind: string;
@@ -16452,6 +16673,12 @@ export interface components {
             funds?: {
                 [key: string]: unknown;
             };
+        };
+        DashboardOut: {
+            filters: components["schemas"]["FiltersOut"];
+            /** Format: date-time */
+            generated_at: string;
+            tiles: components["schemas"]["TableOut"][];
         };
         DataCatalogue: {
             /** Format: uuid */
@@ -17833,6 +18060,48 @@ export interface components {
          * @enum {string}
          */
         EvtVendorStatusEnum: "unverified" | "verifying" | "verified" | "rejected" | "removed";
+        ExportInRequest: {
+            metric: string;
+            /** Format: date */
+            date_from?: string;
+            /** Format: date */
+            date_to?: string;
+            /** @description One code, or several joined by commas */
+            country?: string;
+            line?: components["schemas"]["LineEnum"] | components["schemas"]["BlankEnum"];
+            tier?: string;
+            purpose?: string;
+            /** @description Personal-data tables only: the fields to include */
+            fields?: string[];
+        };
+        ExportLog: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: uuid */
+            readonly requested_by: string;
+            readonly country: string;
+            readonly countries: unknown;
+            readonly metric: string;
+            readonly filters: unknown;
+            readonly format: components["schemas"]["FormatEnum"];
+            readonly status: components["schemas"]["ExportLogStatusEnum"];
+            readonly row_count: number;
+            readonly sha256: string;
+            readonly suppressed_cells: number;
+            readonly personal_data: boolean;
+            /** Format: uuid */
+            readonly bulk_export_id: string | null;
+            readonly bulk_export_status: string | null;
+            readonly purpose: string;
+        };
+        /**
+         * @description * `produced` - produced
+         *     * `sent_for_approval` - sent_for_approval
+         * @enum {string}
+         */
+        ExportLogStatusEnum: "produced" | "sent_for_approval";
         ExtraAssignInputRequest: {
             /** Format: uuid */
             inspector_id: string;
@@ -17899,7 +18168,7 @@ export interface components {
             readonly expires_at: string;
             readonly attempts: number;
             readonly max_attempts: number;
-            readonly status: components["schemas"]["FamilyConfirmationStatusEnum"];
+            readonly status: components["schemas"]["Status8b9Enum"];
             /** Format: date-time */
             readonly confirmed_at: string | null;
             readonly confirmed_via: string;
@@ -17914,18 +18183,6 @@ export interface components {
             /** Format: date-time */
             readonly created_at: string;
         };
-        /**
-         * @description * `pending` - pending
-         *     * `pending_check` - pending_check
-         *     * `confirmed` - confirmed
-         *     * `disputed` - disputed
-         *     * `locked` - locked
-         *     * `expired` - expired
-         *     * `superseded` - superseded
-         *     * `cancelled` - cancelled
-         * @enum {string}
-         */
-        FamilyConfirmationStatusEnum: "pending" | "pending_check" | "confirmed" | "disputed" | "locked" | "expired" | "superseded" | "cancelled";
         /**
          * @description Refuse fields the API does not know (TC-ACC-012-02: only catalogued
          *     fields are accepted, NFR-PRIV-02).
@@ -18740,6 +18997,15 @@ export interface components {
             /** Format: binary */
             file: string;
         };
+        FiltersOut: {
+            /** Format: date */
+            date_from: string;
+            /** Format: date */
+            date_to: string;
+            countries: string[] | null;
+            line: string;
+            tier: string;
+        };
         FingerprintRequestRequest: {
             /** @description SHA-256 of the document you were given, 64 hex characters. */
             sha256: string;
@@ -18769,6 +19035,11 @@ export interface components {
             flag: components["schemas"]["FeatureFlag"] | null;
             change_request: components["schemas"]["ChangeRequest"] | null;
         };
+        /**
+         * @description * `csv` - csv
+         * @enum {string}
+         */
+        FormatEnum: "csv";
         FraudFlag: {
             /** Format: uuid */
             readonly id: string;
@@ -20114,14 +20385,6 @@ export interface components {
          */
         Kind6cfEnum: "outside_buffer" | "time_gap" | "before_previous_pass" | "duplicate_hash" | "metadata_mismatch" | "bad_signature" | "software_key" | "outside_address_radius" | "checkout_too_soon" | "integrity_failed" | "emulator" | "unassigned_capture" | "chain_break" | "device_revoked" | "hash_mismatch";
         /**
-         * @description * `scope_statement` - scope_statement
-         *     * `terms` - terms
-         *     * `privacy_notice` - privacy_notice
-         *     * `escrow_terms` - escrow_terms
-         * @enum {string}
-         */
-        Kind762Enum: "scope_statement" | "terms" | "privacy_notice" | "escrow_terms";
-        /**
          * @description * `health` - health
          *     * `funeral` - funeral
          * @enum {string}
@@ -20178,20 +20441,15 @@ export interface components {
          */
         KindC1fEnum: "medicine" | "meal" | "reading" | "companionship" | "transport" | "groceries" | "hospital_visit" | "other";
         /**
-         * @description * `institution` - institution
-         *     * `supplier` - supplier
-         *     * `vendor` - vendor
-         *     * `professional` - professional
-         *     * `contractor` - contractor
-         *     * `agency` - agency
-         *     * `insurer` - insurer
-         *     * `carer` - carer
-         *     * `seller` - seller
-         *     * `developer` - developer
-         *     * `client_own_account` - client_own_account
+         * @description * `scope_statement` - scope_statement
+         *     * `terms` - terms
+         *     * `privacy_notice` - privacy_notice
+         *     * `escrow_terms` - escrow_terms
+         *     * `insurance_statement` - insurance_statement
+         *     * `no_advice_statement` - no_advice_statement
          * @enum {string}
          */
-        KindCacEnum: "institution" | "supplier" | "vendor" | "professional" | "contractor" | "agency" | "insurer" | "carer" | "seller" | "developer" | "client_own_account";
+        KindCa1Enum: "scope_statement" | "terms" | "privacy_notice" | "escrow_terms" | "insurance_statement" | "no_advice_statement";
         /**
          * @description * `verification` - verification
          *     * `fresh_search` - fresh_search
@@ -20220,6 +20478,22 @@ export interface components {
          * @enum {string}
          */
         KindE2fEnum: "programme" | "single_escrow";
+        /**
+         * @description * `institution` - institution
+         *     * `supplier` - supplier
+         *     * `vendor` - vendor
+         *     * `professional` - professional
+         *     * `contractor` - contractor
+         *     * `agency` - agency
+         *     * `insurer` - insurer
+         *     * `carer` - carer
+         *     * `seller` - seller
+         *     * `developer` - developer
+         *     * `client_own_account` - client_own_account
+         *     * `contracted_professional` - contracted_professional
+         * @enum {string}
+         */
+        KindEebEnum: "institution" | "supplier" | "vendor" | "professional" | "contractor" | "agency" | "insurer" | "carer" | "seller" | "developer" | "client_own_account" | "contracted_professional";
         /**
          * @description * `health` - health
          *     * `safety` - safety
@@ -20412,6 +20686,14 @@ export interface components {
          * @enum {string}
          */
         LicenceStatusEnum: "submitted" | "verified" | "rejected" | "expired" | "revoked";
+        /**
+         * @description * `` -
+         *     * `property` - property
+         *     * `family` - family
+         *     * `projects` - projects
+         * @enum {string}
+         */
+        LineEnum: "property" | "family" | "projects";
         Link: {
             subject_type: components["schemas"]["LinkSubjectTypeEnum"];
             /** Format: uuid */
@@ -20590,7 +20872,7 @@ export interface components {
             /** Format: uuid */
             readonly id: string;
             country: string;
-            readonly kind: components["schemas"]["Kind762Enum"];
+            readonly kind: components["schemas"]["KindCa1Enum"];
             readonly version: number;
             title?: string;
             text: string;
@@ -21072,6 +21354,25 @@ export interface components {
          * @enum {string}
          */
         MutedCategoriesEnum: "status" | "task" | "request" | "approval" | "reminder" | "money" | "safety" | "account" | "marketing";
+        /** @description What a confirmer with an account sees. Never the code or the link. */
+        MyConfirmation: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly subject_type: string;
+            readonly subject_id: string;
+            readonly purpose: string;
+            readonly summary: string;
+            readonly channel: string;
+            /** Format: date-time */
+            readonly expires_at: string;
+            readonly status: components["schemas"]["Status8b9Enum"];
+            readonly attempts_left: number;
+            /** Format: date-time */
+            readonly confirmed_at: string | null;
+            readonly confirmed_via: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
         /**
          * @description * `pending` - pending
          *     * `matched` - matched
@@ -22007,6 +22308,10 @@ export interface components {
             items?: components["schemas"]["EvtReceipt"][];
             next_cursor?: string | null;
         };
+        PaginatedExportLogList: {
+            items?: components["schemas"]["ExportLog"][];
+            next_cursor?: string | null;
+        };
         PaginatedFamilyConfirmationList: {
             items?: components["schemas"]["FamilyConfirmation"][];
             next_cursor?: string | null;
@@ -22322,6 +22627,10 @@ export interface components {
         };
         PaginatedReceiptList: {
             items?: components["schemas"]["Receipt"][];
+            next_cursor?: string | null;
+        };
+        PaginatedRecheckCandidateList: {
+            items?: components["schemas"]["RecheckCandidate"][];
             next_cursor?: string | null;
         };
         PaginatedRecheckMonthList: {
@@ -22651,6 +22960,7 @@ export interface components {
             evidence?: string | null;
             /** Format: uuid */
             bank_partner_id?: string | null;
+            purpose?: components["schemas"]["BankAccountPurposeEnum"];
         };
         PatchedCarePlanUpdateInputRequest: {
             items?: components["schemas"]["PlanItemInputRequest"][];
@@ -22961,7 +23271,7 @@ export interface components {
             readonly id: string;
             /** Format: uuid */
             readonly country: string;
-            readonly kind: components["schemas"]["KindCacEnum"];
+            readonly kind: components["schemas"]["KindEebEnum"];
             readonly subject_type: components["schemas"]["SubjectType215Enum"];
             /** Format: uuid */
             readonly subject_id: string;
@@ -23046,9 +23356,10 @@ export interface components {
         /**
          * @description * `new_account` - new_account
          *     * `new_payee` - new_payee
+         *     * `add_payee` - add_payee
          * @enum {string}
          */
-        PayeeChangeCreateKindEnum: "new_account" | "new_payee";
+        PayeeChangeCreateKindEnum: "new_account" | "new_payee" | "add_payee";
         PayeeChangeCreateRequest: {
             kind: components["schemas"]["PayeeChangeCreateKindEnum"];
             reason: string;
@@ -23071,10 +23382,11 @@ export interface components {
         /**
          * @description * `new_account` - new_account
          *     * `new_payee` - new_payee
+         *     * `add_payee` - add_payee
          *     * `refund_destination` - refund_destination
          * @enum {string}
          */
-        PayeeChangeKindEnum: "new_account" | "new_payee" | "refund_destination";
+        PayeeChangeKindEnum: "new_account" | "new_payee" | "add_payee" | "refund_destination";
         /**
          * @description * `requested` - requested
          *     * `checks_passed` - checks_passed
@@ -23089,7 +23401,7 @@ export interface components {
         PayeeChangeStatusEnum: "requested" | "checks_passed" | "client_approved" | "pending_approval" | "applied" | "stopped" | "rejected" | "withdrawn";
         PayeeCreateRequest: {
             country: string;
-            kind: components["schemas"]["KindCacEnum"];
+            kind: components["schemas"]["KindEebEnum"];
             subject_type: components["schemas"]["SubjectType215Enum"];
             /** Format: uuid */
             subject_id: string;
@@ -24464,16 +24776,19 @@ export interface components {
             readonly excluded: unknown;
             /** Format: uuid */
             readonly prepared_by: string;
+            readonly prepared_by_name: string;
             /** Format: uuid */
             readonly approval_request: string;
             /** Format: uuid */
             readonly approved_by: string | null;
+            readonly approved_by_name: string;
             /** Format: date-time */
             readonly approved_at: string | null;
             readonly file_sha256: string;
             readonly file_downloadable: boolean;
             /** Format: uuid */
             readonly uploaded_by: string | null;
+            readonly uploaded_by_name: string;
             /** Format: date-time */
             readonly uploaded_at: string | null;
             /** Format: uuid */
@@ -24502,16 +24817,19 @@ export interface components {
             readonly excluded: unknown;
             /** Format: uuid */
             readonly prepared_by: string;
+            readonly prepared_by_name: string;
             /** Format: uuid */
             readonly approval_request: string;
             /** Format: uuid */
             readonly approved_by: string | null;
+            readonly approved_by_name: string;
             /** Format: date-time */
             readonly approved_at: string | null;
             readonly file_sha256: string;
             readonly file_downloadable: boolean;
             /** Format: uuid */
             readonly uploaded_by: string | null;
+            readonly uploaded_by_name: string;
             /** Format: date-time */
             readonly uploaded_at: string | null;
             /** Format: uuid */
@@ -25149,7 +25467,7 @@ export interface components {
             /** Format: uuid */
             readonly id: string;
             readonly country: string;
-            kind: components["schemas"]["Kind762Enum"];
+            kind: components["schemas"]["KindCa1Enum"];
             version: number;
             title?: string;
             text: string;
@@ -25585,6 +25903,15 @@ export interface components {
             skip_reason?: string;
             /** Format: uuid */
             carried_from?: string | null;
+        };
+        RecheckCandidate: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            role: string;
+            licence_number: string;
+            /** Format: date */
+            licence_expires_on: string;
         };
         RecheckDraw: {
             /** Format: uuid */
@@ -27522,6 +27849,18 @@ export interface components {
          */
         Status86dEnum: "active" | "paused" | "ended";
         /**
+         * @description * `pending` - pending
+         *     * `pending_check` - pending_check
+         *     * `confirmed` - confirmed
+         *     * `disputed` - disputed
+         *     * `locked` - locked
+         *     * `expired` - expired
+         *     * `superseded` - superseded
+         *     * `cancelled` - cancelled
+         * @enum {string}
+         */
+        Status8b9Enum: "pending" | "pending_check" | "confirmed" | "disputed" | "locked" | "expired" | "superseded" | "cancelled";
+        /**
          * @description * `scheduled` - scheduled
          *     * `checked_in` - checked_in
          *     * `checked_out` - checked_out
@@ -27842,6 +28181,11 @@ export interface components {
          * @enum {string}
          */
         SupplierStatusEnum: "incomplete" | "pending_check" | "checking" | "passed" | "failed" | "removed";
+        SuppressionOut: {
+            applied: boolean;
+            min_group_size: number;
+            cells_blanked: number;
+        };
         Suspension: {
             /** Format: uuid */
             readonly id: string;
@@ -27885,6 +28229,33 @@ export interface components {
             platform: string;
             model: string;
         };
+        TableOut: {
+            name: string;
+            title: string;
+            description: string;
+            source: string;
+            columns: string[];
+            /** @description One object per row, keyed by column. Money is a string with two decimals; a blanked cell is null. */
+            rows: {
+                [key: string]: unknown;
+            }[];
+            suppression: components["schemas"]["SuppressionOut"];
+            filters_ignored: string[];
+        };
+        TableWithFiltersOut: {
+            name: string;
+            title: string;
+            description: string;
+            source: string;
+            columns: string[];
+            /** @description One object per row, keyed by column. Money is a string with two decimals; a blanked cell is null. */
+            rows: {
+                [key: string]: unknown;
+            }[];
+            suppression: components["schemas"]["SuppressionOut"];
+            filters_ignored: string[];
+            filters: components["schemas"]["FiltersOut"];
+        };
         Task: {
             /** Format: uuid */
             readonly id: string;
@@ -27923,6 +28294,18 @@ export interface components {
             readonly missing_evidence: string[];
             readonly notice: string;
             row_version?: number;
+        };
+        TaskCandidates: {
+            /** Format: uuid */
+            task_id: string;
+            owner_role: string;
+            site_visit: boolean;
+            disputed: boolean;
+            people_required: number;
+            visit_blockers: {
+                [key: string]: unknown;
+            }[];
+            people: components["schemas"]["Candidate"][];
         };
         TaskEvidenceLink: {
             /** Format: uuid */
@@ -31683,6 +32066,170 @@ export interface operations {
             };
         };
     };
+    v1_analytics_catalogue_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogueOut"][];
+                };
+            };
+        };
+    };
+    v1_analytics_exports_list: {
+        parameters: {
+            query?: {
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                /** @description Number of results to return per page. */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedExportLogList"];
+                };
+            };
+        };
+    };
+    v1_analytics_exports_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExportInRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ExportInRequest"];
+                "multipart/form-data": components["schemas"]["ExportInRequest"];
+            };
+        };
+        responses: {
+            /** @description The metric table */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+            /** @description Personal data: sent for two approvals in DPR */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExportLog"];
+                };
+            };
+        };
+    };
+    analytics_dashboard: {
+        parameters: {
+            query?: {
+                /** @description Country code, or codes joined by commas */
+                country?: string;
+                /** @description Default: 11 months ago, 1st */
+                date_from?: string;
+                /** @description Default: today */
+                date_to?: string;
+                line?: "family" | "projects" | "property";
+                /** @description Metric names joined by commas */
+                metrics?: string;
+                tier?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardOut"];
+                };
+            };
+        };
+    };
+    analytics_metric: {
+        parameters: {
+            query?: {
+                /** @description Country code, or codes joined by commas */
+                country?: string;
+                /** @description Default: 11 months ago, 1st */
+                date_from?: string;
+                /** @description Default: today */
+                date_to?: string;
+                line?: "family" | "projects" | "property";
+                tier?: string;
+            };
+            header?: never;
+            path: {
+                name: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TableWithFiltersOut"];
+                };
+            };
+        };
+    };
+    v1_analytics_review_retrieve: {
+        parameters: {
+            query?: {
+                /** @description Country code, or codes joined by commas */
+                country?: string;
+                /** @description Default: 11 months ago, 1st */
+                date_from?: string;
+                /** @description Default: today */
+                date_to?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TableWithFiltersOut"];
+                };
+            };
+        };
+    };
     v1_app_config_retrieve: {
         parameters: {
             query: {
@@ -31730,6 +32277,27 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApprovalRequest"][];
+                };
+            };
+        };
+    };
+    v1_approvals_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApprovalRequest"];
                 };
             };
         };
@@ -34141,6 +34709,7 @@ export interface operations {
     v1_cases_list: {
         parameters: {
             query?: {
+                client?: string;
                 /** @description The pagination cursor value. */
                 cursor?: string;
                 /** @description Number of results to return per page. */
@@ -34357,6 +34926,7 @@ export interface operations {
     v1_cases_document_requests_list: {
         parameters: {
             query?: {
+                client?: string;
                 /** @description The pagination cursor value. */
                 cursor?: string;
                 /** @description Number of results to return per page. */
@@ -34460,6 +35030,7 @@ export interface operations {
     v1_cases_messages_list: {
         parameters: {
             query?: {
+                client?: string;
                 /** @description The pagination cursor value. */
                 cursor?: string;
                 /** @description Number of results to return per page. */
@@ -34536,6 +35107,7 @@ export interface operations {
     v1_cases_parties_list: {
         parameters: {
             query?: {
+                client?: string;
                 /** @description The pagination cursor value. */
                 cursor?: string;
                 /** @description Number of results to return per page. */
@@ -34633,6 +35205,7 @@ export interface operations {
     v1_cases_risk_screens_list: {
         parameters: {
             query?: {
+                client?: string;
                 /** @description The pagination cursor value. */
                 cursor?: string;
                 /** @description Number of results to return per page. */
@@ -34736,6 +35309,7 @@ export interface operations {
     v1_cases_search_requests_list: {
         parameters: {
             query?: {
+                client?: string;
                 /** @description The pagination cursor value. */
                 cursor?: string;
                 /** @description Number of results to return per page. */
@@ -39304,6 +39878,31 @@ export interface operations {
             };
         };
     };
+    v1_fx_conversions_list: {
+        parameters: {
+            query?: {
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                /** @description Number of results to return per page. */
+                limit?: number;
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedFxConversionList"];
+                };
+            };
+        };
+    };
     v1_fx_conversions_resolution_check_create: {
         parameters: {
             query?: never;
@@ -42465,6 +43064,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Person"];
+                };
+            };
+        };
+    };
+    v1_me_confirmations_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyConfirmation"][];
+                };
+            };
+        };
+    };
+    v1_me_confirmations_disputes_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyConfirmation"];
                 };
             };
         };
@@ -49429,6 +50068,32 @@ export interface operations {
             };
         };
     };
+    v1_rechecks_candidates_list: {
+        parameters: {
+            query?: {
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                /** @description Number of results to return per page. */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedRecheckCandidateList"];
+                };
+            };
+        };
+    };
     v1_rechecks_results_create: {
         parameters: {
             query?: never;
@@ -52549,6 +53214,27 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Task"];
+                };
+            };
+        };
+    };
+    v1_tasks_candidates_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskCandidates"];
                 };
             };
         };

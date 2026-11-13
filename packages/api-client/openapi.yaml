@@ -3892,6 +3892,223 @@ paths:
               schema:
                 $ref: '#/components/schemas/Aml'
           description: ''
+  /v1/analytics/catalogue:
+    get:
+      operationId: v1_analytics_catalogue_list
+      summary: Metrics on the dashboard and their columns
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CatalogueOut'
+          description: ''
+  /v1/analytics/exports:
+    get:
+      operationId: v1_analytics_exports_list
+      summary: 'Export log: who exported which table, when (FR-ANL-002)'
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: string
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedExportLogList'
+          description: ''
+    post:
+      operationId: v1_analytics_exports_create
+      summary: Export a metric table as CSV, logged; personal data goes through the
+        bulk export
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportInRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExportInRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExportInRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            text/csv:
+              schema:
+                type: string
+          description: The metric table
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportLog'
+          description: 'Personal data: sent for two approvals in DPR'
+  /v1/analytics/metrics:
+    get:
+      operationId: analytics_dashboard
+      summary: Operating dashboard with the A9 metrics (FR-ANL-001, -003)
+      parameters:
+      - in: query
+        name: country
+        schema:
+          type: string
+        description: Country code, or codes joined by commas
+      - in: query
+        name: date_from
+        schema:
+          type: string
+          format: date
+        description: 'Default: 11 months ago, 1st'
+      - in: query
+        name: date_to
+        schema:
+          type: string
+          format: date
+        description: 'Default: today'
+      - in: query
+        name: line
+        schema:
+          type: string
+          enum:
+          - family
+          - projects
+          - property
+      - in: query
+        name: metrics
+        schema:
+          type: string
+        description: Metric names joined by commas
+      - in: query
+        name: tier
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardOut'
+          description: ''
+  /v1/analytics/metrics/{name}:
+    get:
+      operationId: analytics_metric
+      summary: One metric table
+      parameters:
+      - in: query
+        name: country
+        schema:
+          type: string
+        description: Country code, or codes joined by commas
+      - in: query
+        name: date_from
+        schema:
+          type: string
+          format: date
+        description: 'Default: 11 months ago, 1st'
+      - in: query
+        name: date_to
+        schema:
+          type: string
+          format: date
+        description: 'Default: today'
+      - in: query
+        name: line
+        schema:
+          type: string
+          enum:
+          - family
+          - projects
+          - property
+      - in: path
+        name: name
+        schema:
+          type: string
+        required: true
+      - in: query
+        name: tier
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TableWithFiltersOut'
+          description: ''
+  /v1/analytics/review:
+    get:
+      operationId: v1_analytics_review_retrieve
+      summary: 'Day-90 review: the validation plan''s go criteria from platform data'
+      parameters:
+      - in: query
+        name: country
+        schema:
+          type: string
+        description: Country code, or codes joined by commas
+      - in: query
+        name: date_from
+        schema:
+          type: string
+          format: date
+        description: 'Default: 11 months ago, 1st'
+      - in: query
+        name: date_to
+        schema:
+          type: string
+          format: date
+        description: 'Default: today'
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TableWithFiltersOut'
+          description: ''
   /v1/app-config:
     get:
       operationId: v1_app_config_retrieve
@@ -3963,6 +4180,30 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ApprovalRequest'
+          description: ''
+  /v1/approvals/{id}:
+    get:
+      operationId: v1_approvals_retrieve
+      description: One approval request with its approvals (staff only). Says whether
+        it has its own screen.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalRequest'
           description: ''
   /v1/approvals/{id}/decisions:
     post:
@@ -6966,6 +7207,11 @@ paths:
       description: 'Case list and tracker: clients their own, staff their countries,
         professionals what they are assigned.'
       parameters:
+      - in: query
+        name: client
+        schema:
+          type: string
+          format: uuid
       - name: cursor
         required: false
         in: query
@@ -7248,6 +7494,11 @@ paths:
       description: 'Case list and tracker: clients their own, staff their countries,
         professionals what they are assigned.'
       parameters:
+      - in: query
+        name: client
+        schema:
+          type: string
+          format: uuid
       - name: cursor
         required: false
         in: query
@@ -7401,6 +7652,11 @@ paths:
       description: 'Case list and tracker: clients their own, staff their countries,
         professionals what they are assigned.'
       parameters:
+      - in: query
+        name: client
+        schema:
+          type: string
+          format: uuid
       - name: cursor
         required: false
         in: query
@@ -7518,6 +7774,11 @@ paths:
       description: 'FR-ACC-013: the sellers, grantors, consenting parties and signatories
         to check (RUL-31).'
       parameters:
+      - in: query
+        name: client
+        schema:
+          type: string
+          format: uuid
       - name: cursor
         required: false
         in: query
@@ -7659,6 +7920,11 @@ paths:
       description: 'Case list and tracker: clients their own, staff their countries,
         professionals what they are assigned.'
       parameters:
+      - in: query
+        name: client
+        schema:
+          type: string
+          format: uuid
       - name: cursor
         required: false
         in: query
@@ -7811,6 +8077,11 @@ paths:
       description: 'FR-CASE-016, RUL-30: searches lodged from Tenmina''s own registry
         account, by staff only.'
       parameters:
+      - in: query
+        name: client
+        schema:
+          type: string
+          format: uuid
       - name: cursor
         required: false
         in: query
@@ -12777,8 +13048,9 @@ paths:
   /v1/family-members/{id}/statement:
     get:
       operationId: v1_family_members_statement_retrieve
-      description: Invoices, payments, receipts and the amount held at the bank for
-        one family member.
+      description: |-
+        Invoices, payments, receipts and the amount held at the bank for one family member.
+        Staff in the family member's country can read it too (back office, SCR-BO-30).
       parameters:
       - in: path
         name: id
@@ -13329,6 +13601,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FingerprintResult'
+          description: ''
+  /v1/fx-conversions:
+    get:
+      operationId: v1_fx_conversions_list
+      description: 'FR-ESC-023: conversions checked against the accepted quote, e.g.
+        status=outside for margin alerts.'
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: string
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFxConversionList'
           description: ''
   /v1/fx-conversions/{id}/resolution-check:
     post:
@@ -17270,6 +17576,50 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Person'
+          description: ''
+  /v1/me/confirmations:
+    get:
+      operationId: v1_me_confirmations_list
+      description: |-
+        Visits and deliveries a family member with an account is asked to confirm (SCR-PTL-45, US-CARE-004).
+        They confirm with the code sent to their own phone (/v1/family-confirmations/codes).
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MyConfirmation'
+          description: ''
+  /v1/me/confirmations/{id}/disputes:
+    post:
+      operationId: v1_me_confirmations_disputes_create
+      description: The named confirmer says it did not happen. Tenmina calls them;
+        nobody is paid for it.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MyConfirmation'
           description: ''
   /v1/me/data-requests:
     get:
@@ -25765,6 +26115,42 @@ paths:
               schema:
                 $ref: '#/components/schemas/Recheck'
           description: ''
+  /v1/rechecks/{id}/candidates:
+    get:
+      operationId: v1_rechecks_candidates_list
+      description: 'SCR-BO-45: the eligible people for this re-check (reviewers with
+        no link to the case only).'
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: string
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRecheckCandidateList'
+          description: ''
   /v1/rechecks/{id}/results:
     post:
       operationId: v1_rechecks_results_create
@@ -29629,6 +30015,30 @@ paths:
               schema:
                 $ref: '#/components/schemas/Task'
           description: ''
+  /v1/tasks/{id}/candidates:
+    get:
+      operationId: v1_tasks_candidates_retrieve
+      description: 'W-13: people who may take this task, with licence state and the
+        visit rule (case staff only).'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskCandidates'
+          description: ''
   /v1/tasks/{id}/complete:
     post:
       operationId: v1_tasks_complete_create
@@ -32283,8 +32693,7 @@ components:
           - 'null'
           format: uuid
         purpose:
-          type: string
-          readOnly: true
+          $ref: '#/components/schemas/BankAccountPurposeEnum'
         verified_at:
           type:
           - string
@@ -32305,9 +32714,16 @@ components:
       - holder
       - id
       - name_match
-      - purpose
       - verification_status
       - verified_at
+    BankAccountPurposeEnum:
+      enum:
+      - rent_destination
+      - professional_pay
+      type: string
+      description: |-
+        * `rent_destination` - rent_destination
+        * `professional_pay` - professional_pay
     BankAccountRequest:
       type: object
       description: |-
@@ -32343,6 +32759,8 @@ components:
           - string
           - 'null'
           format: uuid
+        purpose:
+          $ref: '#/components/schemas/BankAccountPurposeEnum'
       required:
       - account_name
       - account_number
@@ -33181,6 +33599,34 @@ components:
           minLength: 1
       required:
       - reason
+    Candidate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        can_be_main:
+          type: boolean
+        can_be_second:
+          type: boolean
+        licence:
+          type:
+          - object
+          - 'null'
+          additionalProperties: {}
+      required:
+      - can_be_main
+      - can_be_second
+      - id
+      - licence
+      - name
+      - roles
     CareAssignInputRequest:
       type: object
       properties:
@@ -34124,6 +34570,35 @@ components:
       - steps
       - target_days
       - tenmina_charge
+    CatalogueOut:
+      type: object
+      properties:
+        name:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        source:
+          type: string
+        columns:
+          type: array
+          items:
+            type: string
+        filters:
+          type: array
+          items:
+            type: string
+        personal_data:
+          type: boolean
+      required:
+      - columns
+      - description
+      - filters
+      - name
+      - personal_data
+      - source
+      - title
     CatalogueProduct:
       type: object
       properties:
@@ -36117,6 +36592,22 @@ components:
       - title
       - type
       - variations_agreed
+    DashboardOut:
+      type: object
+      properties:
+        filters:
+          $ref: '#/components/schemas/FiltersOut'
+        generated_at:
+          type: string
+          format: date-time
+        tiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/TableOut'
+      required:
+      - filters
+      - generated_at
+      - tiles
     DataCatalogue:
       type: object
       properties:
@@ -39497,6 +39988,121 @@ components:
         * `verified` - verified
         * `rejected` - rejected
         * `removed` - removed
+    ExportInRequest:
+      type: object
+      properties:
+        metric:
+          type: string
+          minLength: 1
+        date_from:
+          type: string
+          format: date
+        date_to:
+          type: string
+          format: date
+        country:
+          type: string
+          description: One code, or several joined by commas
+        line:
+          oneOf:
+          - $ref: '#/components/schemas/LineEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        tier:
+          type: string
+        purpose:
+          type: string
+        fields:
+          type: array
+          items:
+            type: string
+            minLength: 1
+          description: 'Personal-data tables only: the fields to include'
+      required:
+      - metric
+    ExportLog:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        requested_by:
+          type: string
+          format: uuid
+          readOnly: true
+        country:
+          type: string
+          readOnly: true
+        countries:
+          readOnly: true
+        metric:
+          type: string
+          readOnly: true
+        filters:
+          readOnly: true
+        format:
+          allOf:
+          - $ref: '#/components/schemas/FormatEnum'
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ExportLogStatusEnum'
+          readOnly: true
+        row_count:
+          type: integer
+          readOnly: true
+        sha256:
+          type: string
+          readOnly: true
+        suppressed_cells:
+          type: integer
+          readOnly: true
+        personal_data:
+          type: boolean
+          readOnly: true
+        bulk_export_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          readOnly: true
+        bulk_export_status:
+          type:
+          - string
+          - 'null'
+          readOnly: true
+        purpose:
+          type: string
+          readOnly: true
+      required:
+      - bulk_export_id
+      - bulk_export_status
+      - countries
+      - country
+      - created_at
+      - filters
+      - format
+      - id
+      - metric
+      - personal_data
+      - purpose
+      - requested_by
+      - row_count
+      - sha256
+      - status
+      - suppressed_cells
+    ExportLogStatusEnum:
+      enum:
+      - produced
+      - sent_for_approval
+      type: string
+      description: |-
+        * `produced` - produced
+        * `sent_for_approval` - sent_for_approval
     ExtraAssignInputRequest:
       type: object
       properties:
@@ -39642,7 +40248,7 @@ components:
           readOnly: true
         status:
           allOf:
-          - $ref: '#/components/schemas/FamilyConfirmationStatusEnum'
+          - $ref: '#/components/schemas/Status8b9Enum'
           readOnly: true
         confirmed_at:
           type:
@@ -39703,26 +40309,6 @@ components:
       - subject_id
       - subject_type
       - summary
-    FamilyConfirmationStatusEnum:
-      enum:
-      - pending
-      - pending_check
-      - confirmed
-      - disputed
-      - locked
-      - expired
-      - superseded
-      - cancelled
-      type: string
-      description: |-
-        * `pending` - pending
-        * `pending_check` - pending_check
-        * `confirmed` - confirmed
-        * `disputed` - disputed
-        * `locked` - locked
-        * `expired` - expired
-        * `superseded` - superseded
-        * `cancelled` - cancelled
     FamilyMember:
       type: object
       description: |-
@@ -41587,6 +42173,31 @@ components:
           format: binary
       required:
       - file
+    FiltersOut:
+      type: object
+      properties:
+        date_from:
+          type: string
+          format: date
+        date_to:
+          type: string
+          format: date
+        countries:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+        line:
+          type: string
+        tier:
+          type: string
+      required:
+      - countries
+      - date_from
+      - date_to
+      - line
+      - tier
     FingerprintRequestRequest:
       type: object
       properties:
@@ -41664,6 +42275,11 @@ components:
       - change_request
       - flag
       - status
+    FormatEnum:
+      enum:
+      - csv
+      type: string
+      description: '* `csv` - csv'
     FraudFlag:
       type: object
       properties:
@@ -44802,18 +45418,6 @@ components:
         * `chain_break` - chain_break
         * `device_revoked` - device_revoked
         * `hash_mismatch` - hash_mismatch
-    Kind762Enum:
-      enum:
-      - scope_statement
-      - terms
-      - privacy_notice
-      - escrow_terms
-      type: string
-      description: |-
-        * `scope_statement` - scope_statement
-        * `terms` - terms
-        * `privacy_notice` - privacy_notice
-        * `escrow_terms` - escrow_terms
     Kind7e1Enum:
       enum:
       - health
@@ -44902,32 +45506,22 @@ components:
         * `groceries` - groceries
         * `hospital_visit` - hospital_visit
         * `other` - other
-    KindCacEnum:
+    KindCa1Enum:
       enum:
-      - institution
-      - supplier
-      - vendor
-      - professional
-      - contractor
-      - agency
-      - insurer
-      - carer
-      - seller
-      - developer
-      - client_own_account
+      - scope_statement
+      - terms
+      - privacy_notice
+      - escrow_terms
+      - insurance_statement
+      - no_advice_statement
       type: string
       description: |-
-        * `institution` - institution
-        * `supplier` - supplier
-        * `vendor` - vendor
-        * `professional` - professional
-        * `contractor` - contractor
-        * `agency` - agency
-        * `insurer` - insurer
-        * `carer` - carer
-        * `seller` - seller
-        * `developer` - developer
-        * `client_own_account` - client_own_account
+        * `scope_statement` - scope_statement
+        * `terms` - terms
+        * `privacy_notice` - privacy_notice
+        * `escrow_terms` - escrow_terms
+        * `insurance_statement` - insurance_statement
+        * `no_advice_statement` - no_advice_statement
     KindD49Enum:
       enum:
       - verification
@@ -44972,6 +45566,34 @@ components:
       description: |-
         * `programme` - programme
         * `single_escrow` - single_escrow
+    KindEebEnum:
+      enum:
+      - institution
+      - supplier
+      - vendor
+      - professional
+      - contractor
+      - agency
+      - insurer
+      - carer
+      - seller
+      - developer
+      - client_own_account
+      - contracted_professional
+      type: string
+      description: |-
+        * `institution` - institution
+        * `supplier` - supplier
+        * `vendor` - vendor
+        * `professional` - professional
+        * `contractor` - contractor
+        * `agency` - agency
+        * `insurer` - insurer
+        * `carer` - carer
+        * `seller` - seller
+        * `developer` - developer
+        * `client_own_account` - client_own_account
+        * `contracted_professional` - contracted_professional
     KindF1eEnum:
       enum:
       - health
@@ -45357,6 +45979,14 @@ components:
         * `rejected` - rejected
         * `expired` - expired
         * `revoked` - revoked
+    LineEnum:
+      enum:
+      - property
+      - family
+      - projects
+      type: string
+      description: "* `` - \n* `property` - property\n* `family` - family\n* `projects`
+        - projects"
     Link:
       type: object
       properties:
@@ -45787,7 +46417,7 @@ components:
           type: string
         kind:
           allOf:
-          - $ref: '#/components/schemas/Kind762Enum'
+          - $ref: '#/components/schemas/KindCa1Enum'
           readOnly: true
         version:
           type: integer
@@ -46992,6 +47622,66 @@ components:
         * `safety` - safety
         * `account` - account
         * `marketing` - marketing
+    MyConfirmation:
+      type: object
+      description: What a confirmer with an account sees. Never the code or the link.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        subject_type:
+          type: string
+          readOnly: true
+        subject_id:
+          type: string
+          readOnly: true
+        purpose:
+          type: string
+          readOnly: true
+        summary:
+          type: string
+          readOnly: true
+        channel:
+          type: string
+          readOnly: true
+        expires_at:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status8b9Enum'
+          readOnly: true
+        attempts_left:
+          type: integer
+          readOnly: true
+        confirmed_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          readOnly: true
+        confirmed_via:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - attempts_left
+      - channel
+      - confirmed_at
+      - confirmed_via
+      - created_at
+      - expires_at
+      - id
+      - purpose
+      - status
+      - subject_id
+      - subject_type
+      - summary
     NameMatchEnum:
       enum:
       - pending
@@ -49305,6 +49995,16 @@ components:
         next_cursor:
           type: string
           nullable: true
+    PaginatedExportLogList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExportLog'
+        next_cursor:
+          type: string
+          nullable: true
     PaginatedFamilyConfirmationList:
       type: object
       properties:
@@ -50097,6 +50797,16 @@ components:
         next_cursor:
           type: string
           nullable: true
+    PaginatedRecheckCandidateList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecheckCandidate'
+        next_cursor:
+          type: string
+          nullable: true
     PaginatedRecheckMonthList:
       type: object
       properties:
@@ -50867,6 +51577,8 @@ components:
           - string
           - 'null'
           format: uuid
+        purpose:
+          $ref: '#/components/schemas/BankAccountPurposeEnum'
     PatchedCarePlanUpdateInputRequest:
       type: object
       properties:
@@ -51535,7 +52247,7 @@ components:
           readOnly: true
         kind:
           allOf:
-          - $ref: '#/components/schemas/KindCacEnum'
+          - $ref: '#/components/schemas/KindEebEnum'
           readOnly: true
         subject_type:
           allOf:
@@ -51825,10 +52537,12 @@ components:
       enum:
       - new_account
       - new_payee
+      - add_payee
       type: string
       description: |-
         * `new_account` - new_account
         * `new_payee` - new_payee
+        * `add_payee` - add_payee
     PayeeChangeCreateRequest:
       type: object
       properties:
@@ -51875,11 +52589,13 @@ components:
       enum:
       - new_account
       - new_payee
+      - add_payee
       - refund_destination
       type: string
       description: |-
         * `new_account` - new_account
         * `new_payee` - new_payee
+        * `add_payee` - add_payee
         * `refund_destination` - refund_destination
     PayeeChangeStatusEnum:
       enum:
@@ -51909,7 +52625,7 @@ components:
           minLength: 1
           maxLength: 2
         kind:
-          $ref: '#/components/schemas/KindCacEnum'
+          $ref: '#/components/schemas/KindEebEnum'
         subject_type:
           $ref: '#/components/schemas/SubjectType215Enum'
         subject_id:
@@ -55297,6 +56013,9 @@ components:
           type: string
           format: uuid
           readOnly: true
+        prepared_by_name:
+          type: string
+          readOnly: true
         approval_request:
           type: string
           format: uuid
@@ -55306,6 +56025,9 @@ components:
           - string
           - 'null'
           format: uuid
+          readOnly: true
+        approved_by_name:
+          type: string
           readOnly: true
         approved_at:
           type:
@@ -55324,6 +56046,9 @@ components:
           - string
           - 'null'
           format: uuid
+          readOnly: true
+        uploaded_by_name:
+          type: string
           readOnly: true
         uploaded_at:
           type:
@@ -55355,6 +56080,7 @@ components:
       - approval_request
       - approved_at
       - approved_by
+      - approved_by_name
       - confirmation_evidence
       - country
       - created_at
@@ -55368,6 +56094,7 @@ components:
       - line_count
       - operating_account
       - prepared_by
+      - prepared_by_name
       - reference
       - row_version
       - status
@@ -55376,6 +56103,7 @@ components:
       - total_net
       - uploaded_at
       - uploaded_by
+      - uploaded_by_name
     ProRunDetail:
       type: object
       properties:
@@ -55420,6 +56148,9 @@ components:
           type: string
           format: uuid
           readOnly: true
+        prepared_by_name:
+          type: string
+          readOnly: true
         approval_request:
           type: string
           format: uuid
@@ -55429,6 +56160,9 @@ components:
           - string
           - 'null'
           format: uuid
+          readOnly: true
+        approved_by_name:
+          type: string
           readOnly: true
         approved_at:
           type:
@@ -55447,6 +56181,9 @@ components:
           - string
           - 'null'
           format: uuid
+          readOnly: true
+        uploaded_by_name:
+          type: string
           readOnly: true
         uploaded_at:
           type:
@@ -55483,6 +56220,7 @@ components:
       - approval_request
       - approved_at
       - approved_by
+      - approved_by_name
       - confirmation_evidence
       - country
       - created_at
@@ -55497,6 +56235,7 @@ components:
       - lines
       - operating_account
       - prepared_by
+      - prepared_by_name
       - reference
       - row_version
       - status
@@ -55505,6 +56244,7 @@ components:
       - total_net
       - uploaded_at
       - uploaded_by
+      - uploaded_by_name
     ProRunInRequest:
       type: object
       description: Refuses fields it does not know (TC-RUL-26-02).
@@ -57133,7 +57873,7 @@ components:
           type: string
           readOnly: true
         kind:
-          $ref: '#/components/schemas/Kind762Enum'
+          $ref: '#/components/schemas/KindCa1Enum'
         version:
           type: integer
           maximum: 2147483647
@@ -58218,6 +58958,27 @@ components:
       - id
       - subject_id
       - subject_type
+    RecheckCandidate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        role:
+          type: string
+        licence_number:
+          type: string
+        licence_expires_on:
+          type: string
+          format: date
+      required:
+      - id
+      - licence_expires_on
+      - licence_number
+      - name
+      - role
     RecheckDraw:
       type: object
       properties:
@@ -62558,6 +63319,26 @@ components:
         * `active` - active
         * `paused` - paused
         * `ended` - ended
+    Status8b9Enum:
+      enum:
+      - pending
+      - pending_check
+      - confirmed
+      - disputed
+      - locked
+      - expired
+      - superseded
+      - cancelled
+      type: string
+      description: |-
+        * `pending` - pending
+        * `pending_check` - pending_check
+        * `confirmed` - confirmed
+        * `disputed` - disputed
+        * `locked` - locked
+        * `expired` - expired
+        * `superseded` - superseded
+        * `cancelled` - cancelled
     StatusBa2Enum:
       enum:
       - scheduled
@@ -63184,6 +63965,19 @@ components:
         * `passed` - passed
         * `failed` - failed
         * `removed` - removed
+    SuppressionOut:
+      type: object
+      properties:
+        applied:
+          type: boolean
+        min_group_size:
+          type: integer
+        cells_blanked:
+          type: integer
+      required:
+      - applied
+      - cells_blanked
+      - min_group_size
     Suspension:
       type: object
       properties:
@@ -63284,6 +64078,83 @@ components:
       - model
       - platform
       - status
+    TableOut:
+      type: object
+      properties:
+        name:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        source:
+          type: string
+        columns:
+          type: array
+          items:
+            type: string
+        rows:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          description: One object per row, keyed by column. Money is a string with
+            two decimals; a blanked cell is null.
+        suppression:
+          $ref: '#/components/schemas/SuppressionOut'
+        filters_ignored:
+          type: array
+          items:
+            type: string
+      required:
+      - columns
+      - description
+      - filters_ignored
+      - name
+      - rows
+      - source
+      - suppression
+      - title
+    TableWithFiltersOut:
+      type: object
+      properties:
+        name:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        source:
+          type: string
+        columns:
+          type: array
+          items:
+            type: string
+        rows:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          description: One object per row, keyed by column. Money is a string with
+            two decimals; a blanked cell is null.
+        suppression:
+          $ref: '#/components/schemas/SuppressionOut'
+        filters_ignored:
+          type: array
+          items:
+            type: string
+        filters:
+          $ref: '#/components/schemas/FiltersOut'
+      required:
+      - columns
+      - description
+      - filters
+      - filters_ignored
+      - name
+      - rows
+      - source
+      - suppression
+      - title
     Task:
       type: object
       properties:
@@ -63389,6 +64260,37 @@ components:
       - step_key
       - title
       - waiting_for
+    TaskCandidates:
+      type: object
+      properties:
+        task_id:
+          type: string
+          format: uuid
+        owner_role:
+          type: string
+        site_visit:
+          type: boolean
+        disputed:
+          type: boolean
+        people_required:
+          type: integer
+        visit_blockers:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+        people:
+          type: array
+          items:
+            $ref: '#/components/schemas/Candidate'
+      required:
+      - disputed
+      - owner_role
+      - people
+      - people_required
+      - site_visit
+      - task_id
+      - visit_blockers
     TaskEvidenceLink:
       type: object
       properties:
