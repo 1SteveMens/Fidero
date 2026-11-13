@@ -9,14 +9,27 @@ def by_code(code: str) -> Country:
 
 
 def config(country: Country | str, key: str, default=None):
-    """A value from the country's published configuration, by dotted path."""
+    """A value from the country's published configuration, by dotted path. A key in the settings registry
+    (administration.registry, e.g. `fees.payment_route`) that the configuration does not set falls back to an
+    administrator's setting row for the country or the platform, then to `default`."""
     c = by_code(country) if isinstance(country, str) else country
     data = c.config()
     for part in key.split("."):
         if not isinstance(data, dict) or part not in data:
-            return default
+            return _setting_row_value(c, key, default)
         data = data[part]
     return data
+
+
+def _setting_row_value(country, key, default):
+    from administration.registry import REGISTRY
+
+    if key not in REGISTRY:
+        return default
+    from administration.selectors import setting_row
+
+    row = setting_row(key, country)
+    return default if row is None or row.value is None else row.value
 
 
 def current_config(country: Country | str) -> CountryConfig | None:

@@ -13,7 +13,7 @@ from core.models import BaseModel, CountryScopedModel
 from core.money import amount_field, currency_field
 
 SAFETY_FLAGS_PREFIXES = ("escrow.enabled", "escrow.bank", "escrow.partial", "listings.", "partner_api.", "mobile.",
-                         "projects.", "building.", "lines.", "country.", "payments.", "identity.", "geo.")
+                         "projects.", "building.", "lines.", "country.", "payments.", "identity.", "geo.", "records.")
 KILL_SWITCHES = ("maintenance.read_only", "escrow.instructions_paused", "pro.payment_runs_paused")
 
 
@@ -172,7 +172,11 @@ class LockedTextVersion(CountryScopedModel):
     second administrator approves (locked_text_change) and, where the kind
     needs them, the lawyer's and insurer's approvals are recorded."""
 
-    KINDS = ["scope_statement", "terms", "privacy_notice", "escrow_terms"]
+    # insurance_statement: the insurer's name and that Tenmina is not the insurer (RUL-25, TC-RUL-25-04), with
+    # {insurer} where the insurer's name goes. no_advice_statement: every project fund agreement carries it
+    # (FR-PRJ-005).
+    KINDS = ["scope_statement", "terms", "privacy_notice", "escrow_terms", "insurance_statement",
+             "no_advice_statement"]
     STATUSES = ["draft", "pending_approval", "published", "superseded", "retired"]
 
     kind = models.TextField(choices=[(k, k) for k in KINDS])

@@ -17,7 +17,7 @@ from core.errors import Invalid
 @dataclass(frozen=True)
 class SettingDef:
     key: str
-    type: str  # int | decimal | money | text | choice | json | list
+    type: str  # int | decimal | money | text | choice | json | list | bool
     default: object
     description: str
     unit: str = ""
@@ -86,6 +86,32 @@ DEFS = [
       "local currency", "0", "100", to_verify=True, source="IF-15"),
     S("app_fee_payment_mode", "choice", "web", "How the apps take Tenmina's fees (per country)", "",
       choices=("web", "in_app_provider"), second_admin=True, source="FR-APP-005"),
+    # Keys the line modules read from the country configuration (countries.selectors.config). A value in the
+    # published country configuration wins; else an administrator's setting row; else the module's default,
+    # which is the default shown here. All are working assumptions [TO VERIFY].
+    S("fees.payment_route", "choice", "client_direct", "How family payments to institutions are paid: the client "
+      "pays the verified account directly, or the bank pays from money held for the client", "",
+      choices=("client_direct", "held_funds"), affects_release=True, to_verify=True, source="FR-FEE-003"),
+    S("fees.service_fee", "choice", "per_payment", "Tenmina's own fee on a family payment: per payment, or none",
+      "", choices=("per_payment", "none"), second_admin=True, to_verify=True, source="FR-FEE-003"),
+    S("fees.term_months", "int", 4, "Length of a school term for recurring fee schedules", "months", 1, 12,
+      to_verify=True, source="FR-FEE-005"),
+    S("construction.payment_route", "choice", "client_direct", "How stage payments on a build are paid: the client "
+      "pays the verified contractor directly, or the bank pays from escrow", "",
+      choices=("client_direct", "escrow"), affects_release=True, to_verify=True, source="FR-BLD-005"),
+    S("pmg.repair_single_quote_max_amount", "decimal", None, "Largest repair that may go ahead on one quote (unset: "
+      "every repair needs two quotes)", "local currency", "0", None, affects_release=True, to_verify=True,
+      source="FR-PMG-004"),
+    S("pmg.inspection_interval_months", "int", 6, "Months between routine inspections of a managed property",
+      "months", 1, 24, to_verify=True, source="FR-PMG-002"),
+    S("evt.deposit_share_pct", "decimal", "50", "Share of an event vendor's price paid as a deposit", "%", "0",
+      "100", affects_release=True, to_verify=True, source="FR-EVT-002"),
+    S("insurance.renewal_reminder_days", "int", 30, "Days before renewal that the client is reminded", "days", 1,
+      120, to_verify=True, source="FR-INS-003"),
+    S("insurance.premium_lead_days", "int", 14, "Days before a premium is due that the client is reminded", "days",
+      1, 60, to_verify=True, source="FR-INS-002"),
+    S("insurance.intermediary_licence_required", "bool", True, "Tenmina must hold an intermediary licence before "
+      "insurance is offered in the country", "", second_admin=True, to_verify=True, source="C-11"),
 ]
 REGISTRY = {d.key: d for d in DEFS}
 
@@ -152,6 +178,12 @@ def validate(key: str, value):
         if value not in d.choices:
             raise Invalid(f"{key} must be one of {', '.join(d.choices)}.", code="setting-out-of-range", extra=err)
         return value
+    if d.type == "bool":
+        if isinstance(value, bool):
+            return value
+        if str(value).strip().lower() in ("true", "false"):
+            return str(value).strip().lower() == "true"
+        raise Invalid(f"{key} must be true or false.", code="setting-out-of-range", extra=err)
     if d.type == "list":
         if not isinstance(value, list):
             raise Invalid(f"{key} must be a list.", code="setting-out-of-range", extra=err)

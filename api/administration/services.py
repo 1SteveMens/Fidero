@@ -128,12 +128,37 @@ def update_config_draft(cv: ConfigVersion, *, by, content=None, name=None) -> Co
     return cv
 
 
+def validate_for_publication(kind: str, content, country=None) -> None:
+    """The owning module's own rules for a template, run when it is published (and again when a country
+    configuration naming it is published): CASE for case templates, RPT for report templates, TSK for the
+    errand catalogue. Raises Invalid (config-invalid) with the module's message."""
+    if kind == "case_template":
+        from cases.templates import validate
+
+        validate(content)
+    elif kind == "report_template":
+        from reports.templates import validate
+
+        validate(content)
+    elif kind == "errand_catalogue":
+        if country is None:
+            return  # a shareable catalogue is checked against each country's currency when a country names it
+        from errands.catalogue import validate
+
+        problems = validate((content or {}).get("errands") if isinstance(content, dict) else content, country)
+        if problems:
+            raise Invalid("Some errands are incomplete: " + "; ".join(
+                f"{p['code']}: {' '.join(p['problems'])}" for p in problems), code="config-invalid",
+                extra={"problems": problems})
+
+
 @transaction.atomic
 def publish_config_version(cv: ConfigVersion, *, by) -> ConfigVersion:
     flags.read_only_guard()
     _require_admin(by)
     if cv.state != "draft":
         raise StateConflict("Only a draft can be published.")
+    validate_for_publication(cv.kind, cv.content, cv.country)
     previous = list(ConfigVersion.objects.filter(kind=cv.kind, country=cv.country, product_line=cv.product_line,
                                                  state="published").exclude(pk=cv.pk))
     cv.published_by, cv.published_at = by, timezone.now()
@@ -381,6 +406,8 @@ REQUIRED_SIGNOFFS = {
     "terms": ("lawyer",),
     "escrow_terms": ("lawyer",),
     "privacy_notice": ("lawyer",),
+    "insurance_statement": ("lawyer", "insurer"),
+    "no_advice_statement": ("lawyer",),
 }
 
 
