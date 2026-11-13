@@ -198,6 +198,18 @@ def _register():
                     country=lambda sid: getattr(_prop(sid), "country", None),
                     owner=lambda sid: ("managed_property", sid))
 
+    # FR-PMG-001: an owner stores ownership documents before the property exists, so they can register it.
+    # The subject is the owner themself; only they (and staff) see or add these files.
+    def _owner_country(sid):
+        from accounts.models import Person
+
+        return getattr(Person.objects.filter(pk=sid).first(), "home_country", None)
+
+    access.register("pmg_owner_document",
+                    can_view=lambda u, sid: str(u.pk) == str(sid) or services.is_staff(u, _owner_country(sid)),
+                    can_attach=lambda u, sid: str(u.pk) == str(sid),
+                    country=_owner_country)
+
     def _ten(sid):
         return Tenancy.objects.filter(pk=sid).select_related("property").first()
 

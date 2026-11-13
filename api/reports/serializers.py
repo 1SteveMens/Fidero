@@ -90,14 +90,56 @@ class ReportDetailSerializer(ReportSerializer):
                 for a in req.approvals.order_by("approved_at")]
 
 
+class ClientSectionSerializer(serializers.Serializer):
+    """A released section as the client reads it in the viewer (W-08): its verdict and what was found."""
+
+    number = serializers.IntegerField()
+    label = serializers.CharField()
+    title = serializers.CharField()
+    in_verdict_rule = serializers.BooleanField()
+    verdict = serializers.CharField(allow_null=True)
+    text = serializers.SerializerMethodField()
+
+    def get_text(self, obj) -> str:
+        return str((obj.findings or {}).get("text", ""))
+
+
+class ClientSignatureSerializer(serializers.Serializer):
+    """Who signed, with their licence (W-08). No ids or hashes of the professional's other work."""
+
+    role = serializers.CharField()
+    signer_name = serializers.CharField()
+    licence_number = serializers.CharField()
+    licence_body = serializers.CharField()
+    signed_at = serializers.DateTimeField()
+    section_label = serializers.CharField(source="section.label")
+
+
 class ClientReportSerializer(ReportSerializer):
-    """What a client or representative sees: the released version, its verdict and the hash."""
+    """What a client or representative sees: the released version, its verdict, the section verdicts,
+    the signatures and the hash (FR-RPT-005, W-08). Sections are shown only once the report is released."""
 
     conditions = ConditionSerializer(many=True, read_only=True)
+    sections = serializers.SerializerMethodField()
+    signatures = serializers.SerializerMethodField()
 
     class Meta(ReportSerializer.Meta):
         fields = ["id", "reference", "case", "case_reference", "version", "status", "overall_verdict",
-                  "released_at", "pdf_sha256", "supersedes", "correction_reason", "scope_version", "conditions"]
+                  "released_at", "pdf_sha256", "supersedes", "correction_reason", "scope_version", "conditions",
+                  "sections", "signatures"]
+
+    @extend_schema_field(ClientSectionSerializer(many=True))
+    def get_sections(self, obj):
+        if obj.status != "released":
+            return []
+        return ClientSectionSerializer(obj.sections.order_by("position"), many=True).data
+
+    @extend_schema_field(ClientSignatureSerializer(many=True))
+    def get_signatures(self, obj):
+        if obj.status != "released":
+            return []
+        sigs = obj.signatures.filter(invalidated_at__isnull=True).select_related("section").order_by("signed_at")
+        return ClientSignatureSerializer(sigs, many=True).data
 
 
 class SectionInput(serializers.Serializer):

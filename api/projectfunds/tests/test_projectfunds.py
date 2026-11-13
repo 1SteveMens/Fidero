@@ -191,3 +191,26 @@ def test_scoping(b, api):
     assert api(p.client).get(f"/v1/projects/{p.pk}/background-checks").status_code == 404
     assert api(b.cm).get(f"/v1/projects/{p.pk}/background-checks").status_code == 200
     _ = timezone, StateConflict, Project
+
+
+def test_client_uploads_an_invoice_file_and_submits_it(b, api):
+    """FR-PRJ-003, RUL-21: the client stores the invoice file against a named supplier, then submits the
+    invoice with it; another client cannot attach files to that supplier."""
+    import hashlib
+
+    p = _ready(b, _new(b))
+    s = Supplier.objects.get(project=p)
+    stage = p.milestones.get(seq=0)
+    data = b"%PDF-1.4 invoice"
+    slot = {"subject_type": "prj_supplier", "subject_id": str(s.pk), "role": "invoice", "content_type": "application/pdf",
+            "size_bytes": len(data), "sha256": hashlib.sha256(data).hexdigest(), "original_name": "inv.pdf"}
+    assert api(b.client).post("/v1/uploads", slot, format="json").status_code == 404
+    c = api(p.client)
+    r = c.post("/v1/uploads", slot, format="json")
+    assert r.status_code == 201, r.content
+    ev = c.put(f"/v1/uploads/{r.json()['id']}/content", data=data, content_type="application/pdf")
+    assert ev.status_code == 201, ev.content
+    r = c.post(f"/v1/projects/{p.pk}/invoices", {
+        "supplier_id": str(s.pk), "milestone_id": str(stage.pk), "number": "INV-C1",
+        "amount": {"amount": "1000.00", "currency": "GHS"}, "evidence_ids": [ev.json()["id"]]}, format="json")
+    assert r.status_code == 201, r.content

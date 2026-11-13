@@ -7833,43 +7833,6 @@ export interface paths {
         patch: operations["v1_me_partial_update"];
         trace?: never;
     };
-    "/v1/me/confirmations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * @description Visits and deliveries a family member with an account is asked to confirm (SCR-PTL-45, US-CARE-004).
-         *     They confirm with the code sent to their own phone (/v1/family-confirmations/codes).
-         */
-        get: operations["v1_me_confirmations_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/me/confirmations/{id}/disputes": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** @description The named confirmer says it did not happen. Tenmina calls them; nobody is paid for it. */
-        post: operations["v1_me_confirmations_disputes_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/v1/me/data-requests": {
         parameters: {
             query?: never;
@@ -17936,7 +17899,7 @@ export interface components {
             readonly expires_at: string;
             readonly attempts: number;
             readonly max_attempts: number;
-            readonly status: components["schemas"]["Status8b9Enum"];
+            readonly status: components["schemas"]["FamilyConfirmationStatusEnum"];
             /** Format: date-time */
             readonly confirmed_at: string | null;
             readonly confirmed_via: string;
@@ -17951,6 +17914,18 @@ export interface components {
             /** Format: date-time */
             readonly created_at: string;
         };
+        /**
+         * @description * `pending` - pending
+         *     * `pending_check` - pending_check
+         *     * `confirmed` - confirmed
+         *     * `disputed` - disputed
+         *     * `locked` - locked
+         *     * `expired` - expired
+         *     * `superseded` - superseded
+         *     * `cancelled` - cancelled
+         * @enum {string}
+         */
+        FamilyConfirmationStatusEnum: "pending" | "pending_check" | "confirmed" | "disputed" | "locked" | "expired" | "superseded" | "cancelled";
         /**
          * @description Refuse fields the API does not know (TC-ACC-012-02: only catalogued
          *     fields are accepted, NFR-PRIV-02).
@@ -21097,25 +21072,6 @@ export interface components {
          * @enum {string}
          */
         MutedCategoriesEnum: "status" | "task" | "request" | "approval" | "reminder" | "money" | "safety" | "account" | "marketing";
-        /** @description What a confirmer with an account sees. Never the code or the link. */
-        MyConfirmation: {
-            /** Format: uuid */
-            readonly id: string;
-            readonly subject_type: string;
-            readonly subject_id: string;
-            readonly purpose: string;
-            readonly summary: string;
-            readonly channel: string;
-            /** Format: date-time */
-            readonly expires_at: string;
-            readonly status: components["schemas"]["Status8b9Enum"];
-            readonly attempts_left: number;
-            /** Format: date-time */
-            readonly confirmed_at: string | null;
-            readonly confirmed_via: string;
-            /** Format: date-time */
-            readonly created_at: string;
-        };
         /**
          * @description * `pending` - pending
          *     * `matched` - matched
@@ -27565,18 +27521,6 @@ export interface components {
          * @enum {string}
          */
         Status86dEnum: "active" | "paused" | "ended";
-        /**
-         * @description * `pending` - pending
-         *     * `pending_check` - pending_check
-         *     * `confirmed` - confirmed
-         *     * `disputed` - disputed
-         *     * `locked` - locked
-         *     * `expired` - expired
-         *     * `superseded` - superseded
-         *     * `cancelled` - cancelled
-         * @enum {string}
-         */
-        Status8b9Enum: "pending" | "pending_check" | "confirmed" | "disputed" | "locked" | "expired" | "superseded" | "cancelled";
         /**
          * @description * `scheduled` - scheduled
          *     * `checked_in` - checked_in
@@ -42521,46 +42465,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Person"];
-                };
-            };
-        };
-    };
-    v1_me_confirmations_list: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MyConfirmation"][];
-                };
-            };
-        };
-    };
-    v1_me_confirmations_disputes_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MyConfirmation"];
                 };
             };
         };

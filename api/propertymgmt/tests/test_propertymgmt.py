@@ -39,6 +39,25 @@ def test_register_opens_case_and_condition_inspection(api, gh, people, doc):
     assert "managed_property.registered" in topics("managed_property.registered")
 
 
+def test_owner_uploads_ownership_documents_before_registering(api, gh, people):
+    """FR-PMG-001, SCR-PTL-46: the owner stores the ownership document against themself, then registers the
+    house with it; nobody else can add files under the owner."""
+    import hashlib
+
+    data = b"%PDF-1.4 indenture scan"
+    slot = {"subject_type": "pmg_owner_document", "subject_id": str(people["client"].pk), "role": "ownership",
+            "content_type": "application/pdf", "size_bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+    assert api(people["client2"]).post("/v1/uploads", slot, format="json").status_code == 404
+    c = api(people["client"])
+    r = c.post("/v1/uploads", slot, format="json")
+    assert r.status_code == 201, r.content
+    ev = c.put(f"/v1/uploads/{r.json()['id']}/content", data=data, content_type="application/pdf")
+    assert ev.status_code == 201, ev.content
+    r = c.post("/v1/managed-properties", {"country": "GH", "title": "House at Spintex", "locality": "Spintex",
+                                          "ownership_evidence_ids": [ev.json()["id"]]}, format="json")
+    assert r.status_code == 201, r.content
+
+
 def test_register_needs_ownership_documents_and_flag(api, gh, people, settings):
     """FR-PMG-001: no ownership document, no registration; the line is behind lines.pmg."""
     c = api(people["client"])

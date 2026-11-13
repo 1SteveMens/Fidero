@@ -17271,50 +17271,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Person'
           description: ''
-  /v1/me/confirmations:
-    get:
-      operationId: v1_me_confirmations_list
-      description: |-
-        Visits and deliveries a family member with an account is asked to confirm (SCR-PTL-45, US-CARE-004).
-        They confirm with the code sent to their own phone (/v1/family-confirmations/codes).
-      tags:
-      - v1
-      security:
-      - bearerAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/MyConfirmation'
-          description: ''
-  /v1/me/confirmations/{id}/disputes:
-    post:
-      operationId: v1_me_confirmations_disputes_create
-      description: The named confirmer says it did not happen. Tenmina calls them;
-        nobody is paid for it.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - v1
-      security:
-      - bearerAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MyConfirmation'
-          description: ''
   /v1/me/data-requests:
     get:
       operationId: v1_me_data_requests_list
@@ -39686,7 +39642,7 @@ components:
           readOnly: true
         status:
           allOf:
-          - $ref: '#/components/schemas/Status8b9Enum'
+          - $ref: '#/components/schemas/FamilyConfirmationStatusEnum'
           readOnly: true
         confirmed_at:
           type:
@@ -39747,6 +39703,26 @@ components:
       - subject_id
       - subject_type
       - summary
+    FamilyConfirmationStatusEnum:
+      enum:
+      - pending
+      - pending_check
+      - confirmed
+      - disputed
+      - locked
+      - expired
+      - superseded
+      - cancelled
+      type: string
+      description: |-
+        * `pending` - pending
+        * `pending_check` - pending_check
+        * `confirmed` - confirmed
+        * `disputed` - disputed
+        * `locked` - locked
+        * `expired` - expired
+        * `superseded` - superseded
+        * `cancelled` - cancelled
     FamilyMember:
       type: object
       description: |-
@@ -47016,66 +46992,6 @@ components:
         * `safety` - safety
         * `account` - account
         * `marketing` - marketing
-    MyConfirmation:
-      type: object
-      description: What a confirmer with an account sees. Never the code or the link.
-      properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-        subject_type:
-          type: string
-          readOnly: true
-        subject_id:
-          type: string
-          readOnly: true
-        purpose:
-          type: string
-          readOnly: true
-        summary:
-          type: string
-          readOnly: true
-        channel:
-          type: string
-          readOnly: true
-        expires_at:
-          type: string
-          format: date-time
-          readOnly: true
-        status:
-          allOf:
-          - $ref: '#/components/schemas/Status8b9Enum'
-          readOnly: true
-        attempts_left:
-          type: integer
-          readOnly: true
-        confirmed_at:
-          type:
-          - string
-          - 'null'
-          format: date-time
-          readOnly: true
-        confirmed_via:
-          type: string
-          readOnly: true
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-      required:
-      - attempts_left
-      - channel
-      - confirmed_at
-      - confirmed_via
-      - created_at
-      - expires_at
-      - id
-      - purpose
-      - status
-      - subject_id
-      - subject_type
-      - summary
     NameMatchEnum:
       enum:
       - pending
@@ -62642,26 +62558,6 @@ components:
         * `active` - active
         * `paused` - paused
         * `ended` - ended
-    Status8b9Enum:
-      enum:
-      - pending
-      - pending_check
-      - confirmed
-      - disputed
-      - locked
-      - expired
-      - superseded
-      - cancelled
-      type: string
-      description: |-
-        * `pending` - pending
-        * `pending_check` - pending_check
-        * `confirmed` - confirmed
-        * `disputed` - disputed
-        * `locked` - locked
-        * `expired` - expired
-        * `superseded` - superseded
-        * `cancelled` - cancelled
     StatusBa2Enum:
       enum:
       - scheduled

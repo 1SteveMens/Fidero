@@ -69,7 +69,9 @@ def _can_attach(subject_type):
             return False
         if has_role(user, "CM", "RV", country=p.country):
             return True
-        return subject_type == "prj_invoice" and user.pk in (p.client_id, p.runner_person_id)
+        # The client or the runner may attach an invoice file to a named supplier before submitting it
+        # (FR-PRJ-003): the invoice itself does not exist until the file is stored.
+        return subject_type in ("prj_invoice", "prj_supplier") and user.pk in (p.client_id, p.runner_person_id)
 
     return fn
 
