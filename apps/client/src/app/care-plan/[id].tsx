@@ -27,6 +27,8 @@ interface CarePlan {
   needs_client: string | null;
 }
 
+const CHANNEL: Record<string, string> = { sms: 'text message', whatsapp: 'WhatsApp', call: 'phone call', app: 'the app' };
+
 interface Visit {
   id: string;
   window_start: string;
@@ -106,7 +108,7 @@ export default function CarePlanScreen() {
               ['Carer', d.carer ? `${d.carer.name} · ${words(d.carer.status)}` : 'Not assigned yet'],
               ['Where', d.address],
               ['When', `${(d.schedule.weekly ?? []).map((x) => x.toUpperCase()).join(', ')} ${d.schedule.window ?? ''}`.trim() || '—'],
-              ['Confirms', `${d.confirmers.map((c) => c.full_name).join(', ') || '—'} by ${words(d.confirm_channel)}`],
+              ['Confirms', `${d.confirmers.map((c) => c.full_name).join(', ') || '—'} by ${CHANNEL[d.confirm_channel] ?? words(d.confirm_channel)}`],
               ['Next visit', when(d.next_visit_at)],
             ]}
           />

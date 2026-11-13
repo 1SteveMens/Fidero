@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { brand, space } from '@tenmina/tokens';
@@ -69,10 +69,12 @@ export function VisitScreen({ job }: { job: Job }) {
   const left = plan.filter((i) => !ready(i)).length;
 
   function setItem(k: string, patch: ItemState) {
-    const next = { ...items, [k]: { ...items[k], ...patch } };
-    setItems(next);
-    keep({ items: next });
+    setItems((prev) => ({ ...prev, [k]: { ...prev[k], ...patch } }));
   }
+  useEffect(() => {
+    keep({ items });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items]);
 
   /** Each item goes to the server on its own once the carer is checked in (care visits), or with the check-out (other visits). */
   function checkOut(at: string) {

@@ -138,8 +138,8 @@ class Wait extends Error {}
 export function FieldProvider({ children }: { children: ReactNode }) {
   const { api, me, status } = useSession();
   const [saved, setSaved] = useState<Saved>(() => loadState(EMPTY));
+  // The latest state, kept in step synchronously so the queue never acts on a stale copy.
   const ref = useRef(saved);
-  ref.current = saved;
   const net = useNetInfo();
   const online = !saved.noSignal && net.isConnected !== false && net.isInternetReachable !== false;
   const [registering, setRegistering] = useState(false);
@@ -148,11 +148,9 @@ export function FieldProvider({ children }: { children: ReactNode }) {
   const pumping = useRef(false);
 
   const update = useCallback((fn: (s: Saved) => Saved) => {
-    setSaved((s) => {
-      const n = fn(s);
-      ref.current = n;
-      return n;
-    });
+    const n = fn(ref.current);
+    ref.current = n;
+    setSaved(n);
   }, []);
 
   useEffect(() => saveState(saved), [saved]);

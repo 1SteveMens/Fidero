@@ -128,7 +128,7 @@ export default function Order() {
           </Panel>
           <Panel style={{ gap: 0 }}>
             <Label>How deep a check?</Label>
-            {(tiers.data ?? []).map((t) => (
+            {[...(tiers.data ?? [])].sort((a, b) => Number(a.price.amount) - Number(b.price.amount)).map((t) => (
               <Choice
                 key={t.tier}
                 selected={tier === t.tier}

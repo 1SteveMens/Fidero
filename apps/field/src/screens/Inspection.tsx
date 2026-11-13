@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { space } from '@tenmina/tokens';
 import { Button, Choice, Input, Label, Panel, Rise, Screen, T, YesNo, haptic, usePalette } from '@tenmina/ui';
@@ -36,6 +36,10 @@ export function InspectionScreen({ job }: { job: Job }) {
   const done = useDone(job, ['inspection']);
   const currency = CURRENCY[job.country ?? 'GH'] ?? 'GHS';
   const keep = (patch: Record<string, unknown>) => setProgress(key, patch);
+  useEffect(() => {
+    keep({ answers });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answers]);
 
   if (done) {
     return <Submitted ground="paper" title="Result saved." detail="It goes to Tenmina when you have signal. The client and the bank see it only after Tenmina checks it." />;
@@ -58,9 +62,7 @@ export function InspectionScreen({ job }: { job: Job }) {
   const holdback = defects.reduce((s, d) => s + (Number(d.amount) || 0), 0);
 
   function answer(k: string, v: 'yes' | 'no' | 'na') {
-    const next = { ...answers, [k]: v };
-    setAnswers(next);
-    keep({ answers: next });
+    setAnswers((prev) => ({ ...prev, [k]: v }));
   }
   function setDefect(n: number, patch: Partial<DefectDraft>) {
     const next = defects.map((d) => (d.n === n ? { ...d, ...patch } : d));

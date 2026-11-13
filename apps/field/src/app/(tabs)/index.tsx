@@ -36,7 +36,8 @@ export default function Jobs() {
   const { jobs, errands, ops, lastSyncAt, syncNow, syncProblem, online } = useField();
   const waiting = ops.filter((o) => o.state !== 'sent').length;
   const doneKeys = new Set(ops.filter((o) => ['submission', 'inspection', 'checkout'].includes(o.kind) && o.state !== 'failed').map((o) => jobKey(o.subjectType, o.subjectId)));
-  const sorted = [...jobs].sort((a, b) => (a.due_at ?? '9999').localeCompare(b.due_at ?? '9999'));
+  // Steps of an errand open the errand screen, which drives them through /v1/mobile/errands.
+  const sorted = [...jobs].filter((j) => !(j.details as { errand_id?: string }).errand_id || !errands.some((e) => e.id === (j.details as { errand_id?: string }).errand_id)).sort((a, b) => (a.due_at ?? '9999').localeCompare(b.due_at ?? '9999'));
   const nextJob = sorted.find((j) => j.accepts_submissions && !doneKeys.has(jobKey(j.subject_type, j.subject_id)));
   const today = new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase();
 
