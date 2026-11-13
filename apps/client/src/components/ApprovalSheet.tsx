@@ -2,28 +2,27 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Animated, Platform, View } from 'react-native';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { formatMoney, type Money, type Payee } from '@tenmina/shared';
 import { brand, holdToApproveMs, radius, space } from '@tenmina/tokens';
-import { usePalette, useReducedMotion, useScreenReader } from '@tenmina/ui';
-import { Button, CodeField, HoldButton, Label, Panel, Pulse, Rise, Screen, T, Tick, haptic } from '@tenmina/ui';
-import { Ticket } from '@tenmina/ui';
+import { Button, CodeField, HoldButton, Label, Panel, Pulse, Rise, Screen, T, Tick, haptic, usePalette, useReducedMotion, useScreenReader } from '@tenmina/ui';
+import { Field, ProblemBox, initials, money, useSession, type ApiMoney, type Problem } from '@tenmina/mobile';
 
 /** Who approves, in order. Two different Tenmina staff, then the bank pays (RUL-05, RUL-11). */
 const CHAIN = ['You', 'Staff 1', 'Staff 2', 'Bank pays'] as const;
 
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter((w) => /^[A-Z]/.test(w))
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join('');
+export interface PayeeLine {
+  name: string;
+  last4?: string;
+  bank?: string;
+  place?: string;
+  /** The bank's account-name check (FR-ESC-015). Red only when it does not match. */
+  matched: boolean | null;
 }
 
 /**
- * One approval pattern for every payment (RUL-05, RUL-11, RUL-22):
- * the amount and exactly who is paid on a ticket, what must be true, the code,
- * then press and hold. Silence is never approval: nothing moves until the client acts.
+ * One approval pattern for every payment (RUL-05, RUL-11, RUL-22): the amount
+ * and exactly who is paid on a ticket, every condition ticked, the approval
+ * chain, the code, then press and hold. Silence is never approval: nothing
+ * moves until the client acts, and declining says why.
  */
 export function ApprovalSheet({
   title,
@@ -31,58 +30,101 @@ export function ApprovalSheet({
   amount,
   description,
   payee,
-  payeePlace,
   checks,
   blockers,
   onApprove,
+  onDecline,
+  approvedMessage,
   children,
+  chain = CHAIN,
+  after,
 }: {
   title: string;
-  /** Shown above the amount, for example "Release from PB-ESC-2207". */
   source: string;
-  amount: Money;
+  amount: ApiMoney;
   description?: string;
-  payee: Payee;
-  payeePlace?: string;
+  payee: PayeeLine;
   checks: { label: string; detail?: string; ok: boolean }[];
   blockers: string[];
-  onApprove: (code: string) => Promise<{ ok: boolean; message: string }>;
+  onApprove: (code: string) => Promise<Problem | undefined>;
+  onDecline?: (reason: string) => Promise<Problem | undefined>;
+  approvedMessage: string;
   children?: ReactNode;
+  chain?: readonly string[];
+  /** What happens after the client approves; by default two staff, then the bank. */
+  after?: { title: string; detail: string }[];
 }) {
   const screenReader = useScreenReader();
+  const { me } = useSession();
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<{ ok: boolean; message: string }>();
+  const [problem, setProblem] = useState<Problem>();
+  const [done, setDone] = useState<'approved' | 'declined'>();
+  const [declining, setDeclining] = useState(false);
+  const [reason, setReason] = useState('');
 
   async function approve() {
     setBusy(true);
-    const r = await onApprove(code);
+    setProblem(undefined);
+    const p = await onApprove(code);
     setBusy(false);
-    setResult(r);
-    haptic(r.ok ? 'success' : 'warning');
+    if (p) {
+      haptic('warning');
+      setProblem(p);
+      setCode('');
+      return;
+    }
+    haptic('success');
+    setDone('approved');
   }
 
-  if (result?.ok) return <Approved amount={amount} payee={payee} message={result.message} />;
+  async function decline() {
+    if (!onDecline) return;
+    setBusy(true);
+    const p = await onDecline(reason.trim());
+    setBusy(false);
+    if (p) {
+      setProblem(p);
+      return;
+    }
+    setDone('declined');
+  }
 
+  if (done === 'approved') return <Approved amount={amount} payee={payee} message={approvedMessage} after={after} />;
+  if (done === 'declined') {
+    return (
+      <Screen ground="ink" footer={<Button title="Done" onPress={() => router.back()} />}>
+        <View style={{ paddingTop: space[7], gap: space[3] }}>
+          <T v="display" header>Declined.</T>
+          <T v="callout" muted>Nothing was paid. The money stays at the bank. Tenmina will contact you about what happens next.</T>
+        </View>
+      </Screen>
+    );
+  }
+
+  const noMfa = me && !me.mfa_enabled;
   const ready = blockers.length === 0;
-  const matched = payee.nameCheck === 'matched';
+  const matched = payee.matched !== false;
+  const canApprove = ready && matched && !noMfa && code.length === 6;
 
   return (
     <Screen
       ground="ink"
       title={title}
-      eyebrow="Step 1 of 4"
+      eyebrow="You approve first"
       footer={
-        <>
-          {result && !result.ok ? (
-            <T v="callout" color={brand.orange} style={{ textAlign: 'center' }}>
-              {result.message}
-            </T>
-          ) : null}
-          <HoldButton label="Approve" holdMs={holdToApproveMs} screenReader={screenReader} disabled={!ready || !matched || code.length < 6} loading={busy} onConfirm={approve} />
-          <Label style={{ textAlign: 'center' }}>Nothing moves until you approve</Label>
-          <Button title="Something is wrong: raise a dispute" variant="danger" onPress={() => undefined} />
-        </>
+        declining ? (
+          <>
+            <Button title="Decline this payment" variant="danger" disabled={reason.trim().length < 5} loading={busy} onPress={() => void decline()} />
+            <Button title="Back" variant="quiet" onPress={() => setDeclining(false)} />
+          </>
+        ) : (
+          <>
+            <HoldButton label="Approve" holdMs={holdToApproveMs} screenReader={screenReader} disabled={!canApprove} loading={busy} onConfirm={() => void approve()} />
+            <Label style={{ textAlign: 'center' }}>Nothing moves until you approve</Label>
+            {onDecline && ready ? <Button title="Something is wrong: decline" variant="danger" onPress={() => setDeclining(true)} /> : null}
+          </>
+        )
       }
     >
       <Rise delay={60}>
@@ -90,7 +132,7 @@ export function ApprovalSheet({
           top={
             <>
               <Label color={brand.ink}>{source}</Label>
-              <T v="amount" color={brand.ink} style={{ fontSize: 40, lineHeight: 46 }}>{formatMoney(amount)}</T>
+              <T v="amount" color={brand.ink} style={{ fontSize: 38, lineHeight: 44 }}>{money(amount)}</T>
               {description ? <T v="callout" color={brand.ink}>{description}</T> : null}
             </>
           }
@@ -102,32 +144,36 @@ export function ApprovalSheet({
               <View style={{ flex: 1, gap: 2 }}>
                 <T v="headline" color={brand.ink}>{payee.name}</T>
                 <Label color={matched ? brand.ink : '#B3261E'}>
-                  {`${payeePlace ? `${payeePlace} · ` : ''}${payee.bankName} ••${payee.accountLast4} · ${matched ? 'name matched' : 'name not matched'}`}
+                  {[payee.place, payee.bank, payee.last4 ? `••${payee.last4}` : undefined, payee.matched === null ? 'name check pending' : matched ? 'name matched' : 'name not matched']
+                    .filter(Boolean)
+                    .join(' · ')}
                 </Label>
               </View>
-              <Tick ok={matched} size={26} />
+              {payee.matched === null ? null : <Tick ok={matched} size={26} />}
             </View>
           }
         />
       </Rise>
 
-      <Rise delay={180}>
-        <Panel style={{ paddingVertical: space[2], gap: 0 }}>
-          {checks.map((c, i) => (
-            <View key={c.label} style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], paddingVertical: space[3], borderBottomWidth: i < checks.length - 1 ? 1 : 0, borderBottomColor: '#2C2C2C' }}>
-              <Tick ok={c.ok} />
-              <T v="callout" style={{ flex: 1 }}>{c.label}</T>
-              {c.detail ? <Label>{c.detail}</Label> : null}
-            </View>
-          ))}
-        </Panel>
-      </Rise>
+      {checks.length ? (
+        <Rise delay={160}>
+          <Panel style={{ paddingVertical: space[2], gap: 0 }}>
+            {checks.map((c, i) => (
+              <View key={`${c.label}-${i}`} style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], paddingVertical: space[3], borderBottomWidth: i < checks.length - 1 ? 1 : 0, borderBottomColor: '#2C2C2C' }}>
+                <Tick ok={c.ok} />
+                <T v="callout" style={{ flex: 1 }}>{c.label}</T>
+                {c.detail ? <Label>{c.detail}</Label> : null}
+              </View>
+            ))}
+          </Panel>
+        </Rise>
+      ) : null}
 
       {children}
 
-      <Rise delay={280}>
-        <View style={{ flexDirection: 'row', gap: 6 }} accessibilityLabel="You approve first. Then two Tenmina staff. Then the bank pays.">
-          {CHAIN.map((c, i) => (
+      <Rise delay={260}>
+        <View style={{ flexDirection: 'row', gap: 6 }} accessibilityLabel={`You approve first. Then ${chain.slice(1).join(', then ')}.`}>
+          {chain.map((c, i) => (
             <View key={c} style={{ flex: 1, gap: 6 }}>
               <View style={{ height: 8, borderRadius: 4, backgroundColor: i === 0 ? brand.orange : '#2C2C2C' }} />
               <Label color={i === 0 ? brand.orange : undefined}>{i === 0 ? 'You · now' : c}</Label>
@@ -136,24 +182,53 @@ export function ApprovalSheet({
         </View>
       </Rise>
 
-      {ready ? (
-        <Rise delay={360}>
-          <CodeField label="Code from your authenticator app" value={code} onChange={setCode} />
-        </Rise>
-      ) : (
+      {!ready ? (
         <Panel style={{ borderWidth: 2, borderColor: brand.orange, backgroundColor: 'transparent' }}>
           <Label color={brand.orange}>Not ready for your approval</Label>
           {blockers.map((b) => (
             <T key={b} v="callout">{b}</T>
           ))}
         </Panel>
+      ) : noMfa ? (
+        <Panel style={{ borderWidth: 2, borderColor: brand.orange, backgroundColor: 'transparent' }}>
+          <Label color={brand.orange}>Set up your authenticator first</Label>
+          <T v="callout">Every approval needs a 6-digit code from an authenticator app. It takes a minute.</T>
+          <Button title="Set up the authenticator" variant="dark" onPress={() => router.push('/account/security')} />
+        </Panel>
+      ) : declining ? (
+        <Field label="Why are you declining?" value={reason} onChange={setReason} multiline hint="Tenmina staff read this before anything else happens." />
+      ) : (
+        <Rise delay={340}>
+          <CodeField label="Code from your authenticator app" value={code} onChange={setCode} />
+        </Rise>
       )}
+      <ProblemBox problem={problem} />
     </Screen>
   );
 }
 
+/** The amount above a tear line, who gets paid below. Used only where money is about to move. */
+function Ticket({ top, bottom }: { top: ReactNode; bottom: ReactNode }) {
+  const [tear, setTear] = useState<number>();
+  return (
+    <View style={{ backgroundColor: brand.paper, borderRadius: radius.xl }}>
+      <View onLayout={(e) => setTear(e.nativeEvent.layout.height)} style={{ padding: space[5], paddingBottom: space[4], gap: 4 }}>
+        {top}
+      </View>
+      <View style={{ marginHorizontal: space[4], borderTopWidth: 2, borderStyle: 'dashed', borderColor: 'rgba(11,11,11,0.25)' }} />
+      <View style={{ padding: space[5], paddingTop: space[4] }}>{bottom}</View>
+      {tear !== undefined ? (
+        <>
+          <View pointerEvents="none" style={{ position: 'absolute', left: -11, top: tear - 10, width: 22, height: 22, borderRadius: 11, backgroundColor: brand.ink }} />
+          <View pointerEvents="none" style={{ position: 'absolute', right: -11, top: tear - 10, width: 22, height: 22, borderRadius: 11, backgroundColor: brand.ink }} />
+        </>
+      ) : null}
+    </View>
+  );
+}
+
 /** After the client approves: what happens next, and that the money is still at the bank. */
-function Approved({ amount, payee, message }: { amount: Money; payee: Payee; message: string }) {
+function Approved({ amount, payee, message, after }: { amount: ApiMoney; payee: PayeeLine; message: string; after?: { title: string; detail: string }[] }) {
   const reduced = useReducedMotion();
   const pop = useRef(new Animated.Value(reduced ? 1 : 0)).current;
   useEffect(() => {
@@ -161,11 +236,14 @@ function Approved({ amount, payee, message }: { amount: Money; payee: Payee; mes
     Animated.spring(pop, { toValue: 1, friction: 5, tension: 80, useNativeDriver: Platform.OS !== 'web' }).start();
   }, [pop, reduced]);
   const p = usePalette('ink');
+  const next = after ?? [
+    { title: 'Tenmina staff, first check', detail: 'Checking the conditions again' },
+    { title: 'Tenmina staff, second check', detail: 'A different person checks again' },
+    { title: 'The bank pays', detail: `${payee.name}${payee.last4 ? ` ••${payee.last4}` : ''}. The receipt comes here.` },
+  ];
   const rows: { state: 'done' | 'now' | 'next'; title: string; detail: string }[] = [
     { state: 'done', title: 'You approved', detail: 'Just now, with your authenticator code' },
-    { state: 'now', title: 'Tenmina staff, first check', detail: 'Checking the conditions again' },
-    { state: 'next', title: 'Tenmina staff, second check', detail: 'A different person checks again' },
-    { state: 'next', title: 'The bank pays', detail: `${payee.name} ••${payee.accountLast4}. The receipt comes here.` },
+    ...next.map((r, i) => ({ ...r, state: (i === 0 ? 'now' : 'next') as 'now' | 'next' })),
   ];
   return (
     <Screen ground="ink" footer={<Button title="Done" onPress={() => router.back()} />}>
@@ -174,9 +252,7 @@ function Approved({ amount, payee, message }: { amount: Money; payee: Payee; mes
           <Ionicons name="checkmark" size={56} color={brand.ink} />
         </Animated.View>
         <T v="display" header style={{ textAlign: 'center' }}>Your approval is in.</T>
-        <T v="callout" muted style={{ textAlign: 'center' }}>
-          {formatMoney(amount)}. {message} The money stays at the bank until every step is done.
-        </T>
+        <T v="callout" muted style={{ textAlign: 'center' }}>{`${money(amount)}. ${message}`}</T>
       </View>
       <Rise delay={300}>
         <Panel>
@@ -186,7 +262,7 @@ function Approved({ amount, payee, message }: { amount: Money; payee: Payee; mes
                 {r.state === 'done' ? (
                   <Tick size={30} />
                 ) : r.state === 'now' ? (
-                  <Pulse size={30} radius={9}>
+                  <Pulse size={30} radius={9} color={brand.lime}>
                     <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: brand.ink }} />
                   </Pulse>
                 ) : (

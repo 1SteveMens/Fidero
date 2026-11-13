@@ -1,13 +1,13 @@
 import { Redirect, Tabs } from 'expo-router';
 import { TabBar } from '@tenmina/ui';
-import { useSession } from '../../data';
+import { useSession } from '@tenmina/mobile';
 
 const ICONS = { index: 'home', property: 'business', family: 'people', projects: 'checkbox', account: 'person-circle' } as const;
 
-/** Tabs match the portal (docs/specs/03): Home, Property, Family, Projects, Account. */
+/** Tabs match the portal (docs/specs/03 2.4): Home, Property, Family, Projects, Account. */
 export default function TabsLayout() {
-  const { signedIn } = useSession();
-  if (!signedIn) return <Redirect href="/welcome" />;
+  const { status } = useSession();
+  if (status !== 'signedIn') return <Redirect href="/welcome" />;
   return (
     <Tabs tabBar={(props) => <TabBar {...props} icons={ICONS} />} screenOptions={{ headerShown: false }}>
       <Tabs.Screen name="index" options={{ title: 'Home' }} />
