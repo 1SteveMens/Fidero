@@ -2,46 +2,43 @@ import { Pressable, View } from 'react-native';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { brand, font, radius, space } from '@tenmina/tokens';
-import { ArrowBox, Chip, ErrorView, Label, Loading, Mark, Panel, Rise, Screen, T, haptic } from '@tenmina/ui';
-import { useField, useFieldLoad } from '../../store';
-import type { FieldJob } from '@tenmina/shared';
+import { ArrowBox, Chip, Label, Mark, Panel, Rise, Screen, T, haptic } from '@tenmina/ui';
+import { Empty, ProblemBox, clock, day, useSession, when } from '@tenmina/mobile';
+import { jobKey, useField } from '../../store';
+import { KIND_LABEL, OnlineChip } from '../../screens/common';
+import type { Job } from '../../types';
 
-function today(): string {
-  return new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase();
-}
-
-export function OnlineChip() {
-  const { online } = useField();
-  return online ? <Chip tone="lime" label="Online" /> : <Chip tone="orange" icon="cloud-offline" label="Offline" />;
-}
-
-function JobCard({ job, next, sent }: { job: FieldJob; next: boolean; sent: boolean }) {
-  const bg = next ? brand.orange : undefined;
+function JobCard({ job, next, sent, onPress }: { job: Job; next: boolean; sent: boolean; onPress: () => void }) {
   return (
     <Panel
       tone={next ? 'orange' : 'surface'}
-      onPress={() => router.push(`/job/${job.id}`)}
-      accessibilityLabel={`${job.startsAt}. ${job.title}. ${job.site.name}. ${sent ? 'Sent' : next ? 'Next' : ''}`}
-      style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], backgroundColor: bg }}
+      onPress={onPress}
+      accessibilityLabel={`${job.title}. ${job.address}. ${sent ? 'Sent' : next ? 'Next' : ''}`}
+      style={{ flexDirection: 'row', alignItems: 'center', gap: space[3] }}
     >
-      <View style={{ width: 58, gap: 2 }}>
-        <Label color={next ? brand.ink : undefined}>{job.startsAt}</Label>
+      <View style={{ width: 64, gap: 2 }}>
+        <Label color={next ? brand.ink : undefined}>{job.due_at ? clock(job.due_at) : 'Any time'}</Label>
         {next ? <T v="footnote" color={brand.ink}>Next</T> : sent ? <Chip tone="lime" label="Sent" /> : null}
       </View>
       <View style={{ flex: 1 }}>
-        <T v="headline" color={next ? brand.ink : undefined} style={{ fontSize: 17 }}>{job.title}</T>
-        <T v="footnote" color={next ? '#3A1408' : undefined} muted={!next}>{`${job.site.name} · ${job.detail}`}</T>
+        <T v="headline" color={next ? brand.ink : undefined} style={{ fontSize: 16 }}>{job.title}</T>
+        <T v="footnote" color={next ? '#3A1408' : undefined} muted={!next}>{`${KIND_LABEL[job.kind] ?? job.kind} · ${job.address || '—'}`}</T>
+        {!job.accepts_submissions && job.state_reason ? <T v="footnote" color={next ? '#3A1408' : undefined} muted={!next}>{job.state_reason}</T> : null}
       </View>
       <ArrowBox arrow={next ? brand.orange : brand.lime} />
     </Panel>
   );
 }
 
+/** My jobs (SCR-MOB-02; FR-MOB-001): everything assigned, from the last sync, readable offline. */
 export default function Jobs() {
-  const { queue, submitted, role } = useField();
-  const { data, error, reload } = useFieldLoad(async (api) => ({ me: await api.me(), jobs: await api.listJobs() }), 'jobs');
-  const waiting = queue.filter((q) => q.state !== 'sent').length;
-  const nextId = data?.jobs.find((j) => !submitted[j.id])?.id;
+  const { me } = useSession();
+  const { jobs, errands, ops, lastSyncAt, syncNow, syncProblem, online } = useField();
+  const waiting = ops.filter((o) => o.state !== 'sent').length;
+  const doneKeys = new Set(ops.filter((o) => ['submission', 'inspection', 'checkout'].includes(o.kind) && o.state !== 'failed').map((o) => jobKey(o.subjectType, o.subjectId)));
+  const sorted = [...jobs].sort((a, b) => (a.due_at ?? '9999').localeCompare(b.due_at ?? '9999'));
+  const nextJob = sorted.find((j) => j.accepts_submissions && !doneKeys.has(jobKey(j.subject_type, j.subject_id)));
+  const today = new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase();
 
   return (
     <Screen ground="paper" tabs>
@@ -54,38 +51,53 @@ export default function Jobs() {
         <OnlineChip />
       </Rise>
       <Rise delay={60}>
-        <T v="largeTitle" header>Today</T>
-        <Label>{data ? `${today()} · ${data.me.name} · ${data.me.roleLabel}` : today()}</Label>
+        <T v="largeTitle" header>My jobs</T>
+        <Label>{`${today} · ${me?.full_name ?? ''}`}</Label>
       </Rise>
       {waiting > 0 ? (
-        <Rise delay={100}>
-          <Pressable
-            onPress={() => {
-              haptic('tap');
-              router.push('/queue');
-            }}
-            accessibilityRole="button"
-            style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: space[3], backgroundColor: brand.ink, borderRadius: radius.md + 2, padding: space[3], opacity: pressed ? 0.85 : 1 })}
-          >
-            <Ionicons name="cloud-upload-outline" size={20} color={brand.lime} />
-            <T v="callout" color="#F7F6F2" style={{ flex: 1 }}>{`${waiting} ${waiting === 1 ? 'item' : 'items'} saved on this phone. They upload when you have signal.`}</T>
-            <Ionicons name="chevron-forward" size={18} color="#A9A69E" />
-          </Pressable>
-        </Rise>
+        <Pressable
+          onPress={() => {
+            haptic('tap');
+            router.push('/queue');
+          }}
+          accessibilityRole="button"
+          style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: space[3], backgroundColor: brand.ink, borderRadius: radius.md + 2, padding: space[3], minHeight: 44, opacity: pressed ? 0.85 : 1 })}
+        >
+          <Ionicons name="cloud-upload-outline" size={20} color={brand.lime} />
+          <T v="callout" color="#F7F6F2" style={{ flex: 1 }}>{`${waiting} ${waiting === 1 ? 'item' : 'items'} saved on this phone. ${online ? 'Sending now.' : 'They upload when you have signal.'}`}</T>
+          <Ionicons name="chevron-forward" size={18} color="#A9A69E" />
+        </Pressable>
       ) : null}
-      {error ? <ErrorView message={error} onRetry={reload} /> : null}
-      {!data && !error ? <Loading /> : null}
-      {data?.jobs.map((j, i) => (
-        <Rise key={j.id} delay={140 + i * 80}>
-          <JobCard job={j} next={j.id === nextId} sent={!!submitted[j.id]} />
+      {syncProblem && syncProblem.code !== 'offline' ? <ProblemBox problem={syncProblem} onRetry={() => void syncNow()} /> : null}
+      {!lastSyncAt && !jobs.length ? <Empty icon="sync-outline" title="Getting your jobs" detail="The first sync needs signal. After that, your jobs stay on this phone." /> : null}
+      {lastSyncAt && !jobs.length && !errands.length ? <Empty title="No jobs right now" detail="Tenmina assigns work here. The app checks every minute, or tap sync below." /> : null}
+      {sorted.map((j, i) => (
+        <Rise key={jobKey(j.subject_type, j.subject_id)} delay={100 + i * 50}>
+          <JobCard
+            job={j}
+            next={j === nextJob}
+            sent={doneKeys.has(jobKey(j.subject_type, j.subject_id))}
+            onPress={() => router.push({ pathname: '/job/[type]/[id]', params: { type: j.subject_type, id: j.subject_id } })}
+          />
         </Rise>
       ))}
-      {data && role !== 'carer' ? (
-        <Rise delay={400} style={{ flexDirection: 'row', gap: space[2], alignItems: 'flex-start' }}>
-          <Ionicons name="shield-checkmark-outline" size={18} color={brand.ink} />
-          <T v="footnote" muted style={{ flex: 1 }}>You have no link to the people on these jobs. If that changes, tell us before you start (RUL-10).</T>
-        </Rise>
+      {errands.length ? (
+        <View style={{ gap: space[2] }}>
+          <Label>Errands</Label>
+          {errands.map((e) => (
+            <Panel key={e.id} onPress={() => router.push({ pathname: '/errand/[id]', params: { id: e.id } })} style={{ flexDirection: 'row', alignItems: 'center', gap: space[3] }}>
+              <View style={{ flex: 1 }}>
+                <T v="headline" style={{ fontSize: 16 }}>{e.name}</T>
+                <T v="footnote" muted>{`${e.reference} · ${e.steps.filter((s) => s.status === 'done').length} of ${e.steps.length} steps${e.due_on ? ` · due ${day(e.due_on)}` : ''}`}</T>
+              </View>
+              <ArrowBox />
+            </Panel>
+          ))}
+        </View>
       ) : null}
+      <Pressable onPress={() => void syncNow()} accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }}>
+        <Label style={{ textAlign: 'center' }}>{lastSyncAt ? `Last sync ${when(lastSyncAt)} · tap to sync now` : 'Tap to sync now'}</Label>
+      </Pressable>
     </Screen>
   );
 }

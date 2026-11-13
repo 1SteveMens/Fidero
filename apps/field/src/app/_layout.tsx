@@ -3,25 +3,40 @@ import { Stack, SplashScreen } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { brand } from '@tenmina/tokens';
 import { useBlocFonts } from '@tenmina/ui';
-import { FieldProvider } from '../store';
+import { SessionProvider, UpdateRequiredScreen, useSession } from '@tenmina/mobile';
+import { FieldProvider, useField } from '../store';
 
 void SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-  const ready = useBlocFonts();
+function Root() {
+  const { status, update } = useSession();
+  const { ops } = useField();
   useEffect(() => {
-    if (ready) void SplashScreen.hideAsync();
-  }, [ready]);
-  if (!ready) return null;
+    if (status !== 'loading') void SplashScreen.hideAsync();
+  }, [status]);
+  if (status === 'loading') return null;
+  // SCR-APP-05: too old to use. Saved items stay on the phone and upload after the update.
+  if (update) return <UpdateRequiredScreen info={update} savedItems={ops.filter((o) => o.state !== 'sent').length} />;
   return (
-    <FieldProvider>
+    <>
       <StatusBar style="auto" />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="welcome" options={{ animation: 'fade' }} />
-        <Stack.Screen name="job/[id]" />
         <Stack.Screen name="capture" options={{ presentation: 'fullScreenModal', contentStyle: { backgroundColor: brand.ink } }} />
       </Stack>
-    </FieldProvider>
+    </>
+  );
+}
+
+export default function RootLayout() {
+  const ready = useBlocFonts();
+  if (!ready) return null;
+  return (
+    <SessionProvider app="field">
+      <FieldProvider>
+        <Root />
+      </FieldProvider>
+    </SessionProvider>
   );
 }
