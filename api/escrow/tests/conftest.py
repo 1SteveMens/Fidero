@@ -1,55 +1,11 @@
-"""ESC test fixtures. Every module's seed runs once per session and is
-committed to the ESC test database (TEST_DB_NAME=test_esc); each test then
-runs in its own transaction and is rolled back. Fetch objects fresh by
-primary key; never rely on an instance another test may have changed."""
+"""ESC test helpers. Seeds load once per session (api/conftest.py); fetch
+objects fresh by primary key rather than relying on an instance another
+test may have changed."""
 import itertools
 from decimal import Decimal
 
 import pytest
 from django.utils import timezone
-
-
-@pytest.fixture(scope="session")
-def _esc_media(tmp_path_factory):
-    return tmp_path_factory.mktemp("esc-media")
-
-
-@pytest.fixture(autouse=True)
-def _fast(settings, _esc_media):
-    settings.PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
-    settings.MEDIA_ROOT = _esc_media
-
-
-@pytest.fixture(scope="session")
-def _world(django_db_setup, django_db_blocker, _esc_media):
-    import importlib
-
-    from django.conf import settings
-    from django.test import override_settings
-
-    ctx = {"people": {}}
-    with django_db_blocker.unblock(), override_settings(
-            MEDIA_ROOT=_esc_media, PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"]):
-        for name in settings.TENMINA_MODULES:
-            try:
-                mod = importlib.import_module(f"{name}.seed")
-            except ModuleNotFoundError as exc:
-                if exc.name == f"{name}.seed":
-                    continue
-                raise
-            mod.run(ctx)
-    return ctx
-
-
-@pytest.fixture
-def seeded(_world, db):
-    from accounts.models import Person
-    from countries.models import Country
-
-    ctx = dict(_world)
-    ctx["people"] = {k: Person.objects.get(pk=p.pk) for k, p in _world["people"].items()}
-    ctx["gh"] = Country.objects.get(pk=_world["gh"].pk)
-    return ctx
 
 
 _seq = itertools.count(1)
