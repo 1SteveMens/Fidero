@@ -84,6 +84,9 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    # FR-APP-006: 426 for an app below the minimum version (Tenmina-App header); evidence paths apply the
+    # 30-day grace in their views.
+    "mobile.appversion.AppVersionMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "core.middleware.TraceMiddleware",
@@ -172,6 +175,9 @@ CORS_ALLOWED_ORIGINS = env("TENMINA_CORS_ORIGINS", "http://localhost:3000,http:/
 
 CELERY_BROKER_URL = env("CELERY_BROKER_URL", "redis://localhost:6379/0")
 CELERY_TASK_ALWAYS_EAGER = env_bool("CELERY_TASK_ALWAYS_EAGER", True)
+CELERY_TIMEZONE = "UTC"
+# Every periodic job (02 section 7.12). Run one by hand: python manage.py run_jobs <name>.
+from .celery_schedule import CELERY_BEAT_SCHEDULE  # noqa: E402
 
 TENMINA = {
     # How outbox events reach their consumers: "immediate" (same transaction,

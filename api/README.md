@@ -21,6 +21,19 @@ Every seeded person signs in with the password `tenmina-dev-123`. Staff (case ma
 TEST_DB_NAME=test_tenmina python -m pytest -q
 ```
 
+## Background jobs
+
+Periodic work runs on Celery beat (ADR-08, document 02 section 7.12). The schedule is in `tenmina/celery_schedule.py` and is loaded into `CELERY_BEAT_SCHEDULE` by `tenmina/settings.py`; times are UTC (GMT) and every one is a working assumption. Each job is a Celery task in its module's `tasks.py`. Jobs that react to an event (for example `cases.create_from_order`) are not on the schedule.
+
+```bash
+python manage.py run_jobs --list                 # every scheduled job and when it runs
+python manage.py run_jobs fees.schedule_due      # run one job now, in this process
+celery -A tenmina worker -l info                 # production: a worker ...
+celery -A tenmina beat -l info                   # ... and exactly one beat process
+```
+
+In development and tests `CELERY_TASK_ALWAYS_EAGER` runs tasks inline and events dispatch at once, so `run_jobs` is the way to move time-based work along by hand. No job approves or releases anything: silence is never approval.
+
 ## Integrations
 
 Every integration is a port with a fake or manual adapter (ADR-10), named in `settings.TENMINA["ADAPTERS"]`. The whole workflow runs with the fakes. A real integration replaces one adapter path through an environment variable; nothing else changes.
