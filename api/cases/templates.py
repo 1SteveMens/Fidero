@@ -50,6 +50,9 @@ LINES = {
                          "flag": "building.construction"},
     "developer_check": {"name": "Developer check", "needs_order": False, "needs_asset": False, "report": False,
                         "flag": "listings.enabled"},
+    # BLD (FR-BLD-011, US-BLD-011a): a developer's title, permits and company before an off-plan escrow.
+    "offplan_check": {"name": "Off-plan developer check", "needs_order": False, "needs_asset": False,
+                      "report": False, "flag": "building.construction"},
 }
 
 SEARCH_NOTICE = "Search results come from Tenmina's office, not from you."
@@ -177,6 +180,15 @@ DEFAULT_TEMPLATES = {
         _t("land_title_check", "Check title to the development land", "LW", 7, evidence=["legal_note"],
            msg="The lawyer checked the development land on {date}."),
     ], visit_title="Visit the development site")},
+    # BLD (FR-BLD-011): title, permits and company for an off-plan estate.
+    "offplan_check": {"tasks": _verification([
+        _t("company_check", "Check the developer's company registration and standing", "CM", 2,
+           evidence=["registration_certificate"], msg="We checked the developer's company on {date}."),
+        _t("land_title_check", "Check title to the estate land", "LW", 7, evidence=["legal_note"],
+           msg="The lawyer checked title to the estate land on {date}."),
+        _t("permit_check", "Check the building permits with the assembly", "LW", 7, evidence=["permit_copy"],
+           msg="The building permits were checked on {date}."),
+    ], visit_role="IN", visit_title="Visit the estate and check building has started as claimed")},
 }
 
 # Fallback status texts by step key when a template step has none (TC-CASE-007-02: never a blank status).
