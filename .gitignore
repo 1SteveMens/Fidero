@@ -13,3 +13,4 @@ api/var/
 api/staticfiles/
 .next/
 *.tsbuildinfo
+.claude/worktrees/
