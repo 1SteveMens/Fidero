@@ -310,3 +310,19 @@ def test_submit_review_by_api(seeded, api, people, gh):
     r.refresh_from_db()
     assert r.approval_request.subject_type == "report_release" and r.case.status == "in_review"
     assert OutboxEvent.objects.filter(topic="report.submitted", aggregate_id=r.pk).exists()
+
+
+def test_client_sees_section_verdicts_and_signatures_once_released(seeded, api, people, gh):
+    """FR-RPT-005, W-08: the client's report viewer shows each section's verdict, what was found and who
+    signed with their licence, but only once the report is released."""
+    draft = _report(api, people, gh)
+    resp = api(people["client"]).get(f"/v1/reports/{draft.pk}")
+    assert resp.status_code == 404 or (resp.json()["sections"] == [] and resp.json()["signatures"] == [])
+    r = _report(api, people, gh, stop=None)
+    body = api(people["client"]).get(f"/v1/reports/{r.pk}").json()
+    numbers = [s["number"] for s in body["sections"]]
+    assert numbers == sorted(numbers) and 4 in numbers
+    s4 = next(s for s in body["sections"] if s["number"] == 4)
+    assert set(s4) == {"number", "label", "title", "in_verdict_rule", "verdict", "text"} and s4["in_verdict_rule"]
+    assert body["signatures"] and all(set(x) == {"role", "signer_name", "licence_number", "licence_body",
+                                                 "signed_at", "section_label"} for x in body["signatures"])
