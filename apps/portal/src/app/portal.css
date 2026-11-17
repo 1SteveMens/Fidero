@@ -13,7 +13,7 @@
   .pt-bottom a[aria-current='page'] { background: #a3ee5b; color: #0b0b0b; }
 }
 /* Other black panels take the same dark tokens as .ground-ink (bloc.css), so what sits inside reads on black. */
-.acct-card, .msg.mine, .result-no, .pt-top, .pt-bottom, .pub-top, .rl-menu { --color-bg: #0b0b0b; --color-surface: #1a1a1a; --color-surface-2: #242424; --color-text: #f7f6f2; --color-text-muted: #a9a69e; --color-line: #2c2c2c; --color-line-strong: #3a3a3a; --color-raised: #ffffff; --color-on-raised: #0b0b0b; --color-focus: #a3ee5b; color-scheme: dark; }
+.acct-card, .acct-one, .msg.mine, .result-no, .pt-top, .pt-bottom, .pub-top, .rl-menu { --color-bg: #0b0b0b; --color-surface: #1a1a1a; --color-surface-2: #242424; --color-text: #f7f6f2; --color-text-muted: #a9a69e; --color-line: #2c2c2c; --color-line-strong: #3a3a3a; --color-raised: #ffffff; --color-on-raised: #0b0b0b; --color-focus: #a3ee5b; color-scheme: dark; }
 /* Neutral stand-in for a missing or failed photo (components/photo.tsx): never a broken-image icon. */
 .photo-missing { display: grid; place-items: center; align-content: center; gap: 4px; width: 100%; aspect-ratio: 4 / 3; background: var(--color-surface-2); color: var(--color-text-muted); border-radius: var(--r-md); font: 600 12px var(--font-mono); text-transform: uppercase; letter-spacing: .06em; }
 .photo-strip .photo-missing { scroll-snap-align: start; }

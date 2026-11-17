@@ -8,11 +8,13 @@ All figures are assumptions. Unknown numbers are `[TO VERIFY]`.
 
 **Why.** Tenmina never holds client money itself, so a licensed bank must hold it. No Bank of Ghana directive licensing escrow agents was found (12 November 2026); the working structure is the bank as escrow agent under a three-party agreement with the client and Tenmina. The lawyer and the bank confirm this (Q-28 in `docs/specs/01`).
 
+**Account structure.** One Tenmina account per client per country (`docs/decisions/2026-11-17-one-client-account.md`): one set of pay-in details and one balance for the client, inside the bank's programme escrow account. When the client commits money to a purchase, a build, an event or a repair, the bank sets it aside inside the account as a commitment tracked on its own sub-ledger, so a release for one deal can never use money committed to another, and a seller's three-party agreement still guarantees the agreed price. A move between the free balance and a commitment is an instruction to the bank that the client approves; the bank confirms it. A cancelled commitment is refunded to the source account unless the client keeps it in the account. This replaces a virtual account per escrow.
+
 **What they get.** Hard-currency inflows from diaspora clients, new accounts, a share of the escrow fee (1-2% of price, split `[TO VERIFY]`), and a pipeline of verified land for mortgage lending.
 
 **First ask.** A meeting with the head of diaspora banking or retail products. Bring the report numbers from the 90-day validation. Ask for a pilot of 10 escrows under a simple agreement: client deposits, Tenmina confirms conditions met, bank releases to seller. The proposal to send is the Claude doc at https://claude.ai/artifact/FZFBcp6pAToDwRyfH6vcB9.
 
-**Open questions.** Fee split. Who signs the release instruction. Whether the bank can take deposits from abroad without the client opening a Ghana account `[TO VERIFY]`. Timeline for a status API or a daily statement.
+**Open questions.** Fee split. Who signs the release instruction. Whether the bank can take deposits from abroad without the client opening a Ghana account `[TO VERIFY]`. Timeline for a status API or a daily statement. Whether the bank can keep commitments on sub-ledgers inside one client account and report each one's balance daily (Q-29).
 
 **Targets.** Two banks and one licensed escrow agent in parallel `[TO VERIFY]`.
 

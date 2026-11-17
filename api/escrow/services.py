@@ -5,13 +5,24 @@ licensed bank reports; held funds are derived from bank-confirmed events and
 never edited (ADR-18, ADR-26). Everything here is behind the `escrow.enabled`
 flag, and no instruction is sent while `escrow.instructions_paused` is on.
 
+One account per client per country (decision 2026-11-17, accounts.py): the
+client has one Tenmina account at the bank with one set of pay-in details.
+Its free balance is the `held_funds` escrow in each currency; every other
+escrow is a commitment of the account (money set aside for one deal). The
+bank keeps each commitment apart, so a release can only use the money of the
+line it is drawn on (RUL-34) and only pays a payee locked on it (RUL-28).
+
 Line-facing interface (family and property lines: fees, care, errands,
 insurance, events, repairs, construction milestones, project funds)
 ------------------------------------------------------------------------
-    held_funds_for(client, country, currency) -> Escrow | None
-    open_held_funds(client, country, currency, *, by) -> Escrow
+    held_funds_for(client, country, currency) -> Escrow | None   # the account's free balance in that currency
+    open_held_funds(client, country, currency, *, by) -> Escrow  # opens the account and its free balance line
     open_line_escrow(*, kind, client, country, agreed_amount, by, title="", currency=None, asset_id=None,
-                     project_id=None, case_id=None, payees=(), conditions=()) -> Escrow
+                     project_id=None, case_id=None, payees=(), conditions=()) -> Escrow   # a commitment
+    account_for(client, country) -> ClientAccount | None
+    fund_commitment(commitment, client, *, amount=None, mfa_at=None, code=None) -> ReleaseInstruction
+    keep_in_account(commitment, client, *, mfa_at=None, code=None) -> ReleaseInstruction
+    still_to_set_aside(commitment) -> Decimal
     available_to_instruct(escrow, currency=None) -> Decimal
     request_release(escrow, *, payee, amount, subject_type, subject_id, requested_by, evidence_ids=(), reason="",
                     subject_label="", family_member_id=None, holdback_amount=0, currency=None, kind=None,
@@ -58,7 +69,7 @@ from .blockers import fresh_search_reasons, open_condition_reasons, raise_if_blo
 from .blockers import release_blockers as _release_blockers
 from .common import (add_working_days, alert_staff, audit, cfg, fmt, has_rr, is_staff, local_date, local_today, log,
                      notify, now, setting, working_day_on_or_after)
-from .models import (ESCROW, OPEN_STATUSES, STAGED_KINDS, Acceptance, BankEvent, Condition, Escrow, EscrowPayee,
+from .models import (ESCROW, OPEN_STATUSES, STAGED_KINDS, TRANSFER_KINDS, Acceptance, BankEvent, Condition, Escrow, EscrowPayee,
                      Freeze, Party, Payee, PayeeChange, ProgrammeAccount, ReleaseInstruction, ReportSnapshot,
                      StandingApproval)
 from .payees import (_client_signed, apply_payee_change, apply_verification, change_identity_check,  # noqa: F401
@@ -66,6 +77,8 @@ from .payees import (_client_signed, apply_payee_change, apply_verification, cha
                      end_cooling_off, expire_payees, lock_payee, on_change_approval, prepare_verification,
                      reinstate_payee, request_change, stop_change, suspend_payee, update_payee, withdraw_change)
 from .selectors import available_to_instruct, held_funds_for  # noqa: F401
+from .accounts import (account_for, fund_commitment, keep_in_account, open_account,  # noqa: F401,E402
+                       still_to_set_aside)
 
 ZERO = Decimal("0.00")
 RELEASABLE = ("funded", "ready_to_release", "client_approved", "release_approved", "partly_released")
@@ -217,9 +230,12 @@ def create_escrow(by, *, kind, client, country, agreed_amount, currency=None, ti
             asset_id = asset_id or snap.asset_id
             case_id = case_id or snap.case_id
     bank = _bank_for(country, bank_partner)
+    from .accounts import ensure_account
+
+    account = ensure_account(client, country, by=by, bank_partner=bank)
     e = Escrow.objects.create(
         country=country, reference=_new_reference(country), kind=kind, title=title or kind.replace("_", " ").title(),
-        client=client, asset_id=asset_id, report_id=report_id, project_id=project_id, case_id=case_id,
+        client=client, account=account, asset_id=asset_id, report_id=report_id, project_id=project_id, case_id=case_id,
         bank_partner=bank, agreed_amount=agreed_amount, held_back_amount=held_back_amount,
         held_back_condition=held_back_condition or "", currency=currency, terms_version=terms, created_by=by)
     Party.objects.create(escrow=e, role="buyer", person=client, name=client.full_name)
@@ -237,9 +253,17 @@ def create_escrow(by, *, kind, client, country, agreed_amount, currency=None, ti
     pa = _programme_account(country, currency)
     if pa is not None:
         e.programme_account = pa
-        ref = adapters.bank_instructions().open_virtual_account(escrow=e, programme_account=pa, currency=currency)
+        ref = None
+        if kind == "held_funds" and account.virtual_account_ref and not Escrow.objects.filter(
+                programme_account=pa, virtual_account_ref=account.virtual_account_ref).exists():
+            ref = account.virtual_account_ref  # one pay-in reference for every currency of the account
+        ref = ref or adapters.bank_instructions().open_virtual_account(escrow=e, programme_account=pa,
+                                                                        currency=currency)
         if ref:
             e.virtual_account_ref = ref
+            if kind == "held_funds" and not account.virtual_account_ref:
+                account.virtual_account_ref = ref
+                account.save(update_fields=["virtual_account_ref"])
         e.save(update_fields=["programme_account", "virtual_account_ref"])
     audit(by, "escrow.proposed", e, {"kind": kind, "amount": f"{agreed_amount:.2f}", "currency": currency})
     publish("escrow.proposed", e.pk, _escrow_payload(e))
@@ -328,6 +352,18 @@ def record_virtual_account(e: Escrow, by, *, virtual_account_ref, programme_acco
         alert_staff(e.country, ("RV",), "virtual_account_duplicate",
                     f"The virtual account {ref} is already used by another escrow.", obj=e)
         raise StateConflict("This virtual account is already used by another escrow or held amount.",
+                            code="virtual-account-duplicate")
+    acc = e.account
+    if e.kind == "held_funds":
+        if acc.virtual_account_ref and acc.virtual_account_ref != ref:
+            raise StateConflict(f"This client's account already has its pay-in reference {acc.virtual_account_ref}. "
+                                "The bank uses one reference for every currency of the account.",
+                                code="account-reference-differs")
+        if not acc.virtual_account_ref:
+            acc.virtual_account_ref = ref
+            acc.save(update_fields=["virtual_account_ref"])
+    elif acc.virtual_account_ref == ref:
+        raise StateConflict("This is the client's pay-in reference. A commitment has its own sub-ledger at the bank.",
                             code="virtual-account-duplicate")
     e.programme_account, e.virtual_account_ref = pa, ref
     e.save(update_fields=["programme_account", "virtual_account_ref"])
@@ -441,7 +477,22 @@ def try_agree(e: Escrow) -> bool:
 
 
 def payment_instructions(e: Escrow) -> dict:
-    """FR-ESC-003, RUL-01: only the bank's details, never a Tenmina account."""
+    """FR-ESC-003, RUL-01: only the bank's details, never a Tenmina account. Since the decision of 17 November
+    2026 every line of an account shows the account's one set of pay-in details (FR-ESC-025): the client pays
+    into the account and sets money aside for a commitment from its free balance (FR-ESC-027)."""
+    from .accounts import pay_in_details, still_to_set_aside
+
+    if e.account_id:
+        out = pay_in_details(e.account, e.currency)
+        if e.is_commitment:
+            out["commitment"] = {"id": str(e.pk), "title": e.title, "reference": e.reference,
+                                 "still_to_set_aside": {"amount": f"{still_to_set_aside(e):.2f}",
+                                                        "currency": e.currency},
+                                 "agreed": e.status != "proposed"}
+            if out.get("available"):
+                out["note"] = ("Pay the bank, never Tenmina. Pay into your Tenmina account with your reference, then "
+                               f"set the money aside for {e.title} from your balance.")
+        return out
     if e.status == "proposed" or not e.virtual_account_ref:
         return {"available": False, "message": "The bank's payment details appear once the escrow is agreed."}
     pa, bank = e.programme_account, e.bank_partner
@@ -756,6 +807,8 @@ def client_approve(ins: ReleaseInstruction, client, mfa_at=None, *, code=None) -
         raise StateConflict("This payment is not waiting for your approval.")
     if ins.kind == "conversion":
         raise StateConflict("Approve a conversion by accepting its quote.")
+    if ins.kind in TRANSFER_KINDS:
+        raise StateConflict("A move inside your account is approved when you ask for it.")
     method = _client_signed(client, mfa_at, code)
     raise_if_blocked(ins, "client")
     t = now()
@@ -791,7 +844,7 @@ def client_decline(ins: ReleaseInstruction, client, reason="") -> ReleaseInstruc
     if ins.status != "awaiting_client":
         raise StateConflict("This payment is not waiting for your approval.")
     ins.client_declined_at, ins.closed_reason = now(), reason or "Declined by the client"
-    if ins.approval_request.status == "open":
+    if ins.approval_request_id and ins.approval_request.status == "open":
         approvals.withdraw(ins.approval_request, client)
     state.transition(ins, "release_instruction", "rejected", actor=client, event="release.rejected",
                      extra_fields=["client_declined_at", "closed_reason"], payload=_client_payload(ins))
@@ -861,7 +914,7 @@ def withdraw_instruction(ins: ReleaseInstruction, by, *, reason, system=False) -
         raise Forbidden("Only staff withdraw an instruction.")
     if ins.status not in ("draft", "awaiting_client", "pending_approval", "approved"):
         raise StateConflict("Only an instruction not yet sent can be withdrawn.")
-    if ins.approval_request.status == "open":
+    if ins.approval_request_id and ins.approval_request.status == "open":
         approvals.withdraw(ins.approval_request, by or ins.prepared_by)
     ins.closed_reason = reason
     ins.save(update_fields=["closed_reason"])
@@ -877,7 +930,7 @@ def _document(ins: ReleaseInstruction) -> dict:
     e = ins.escrow
     approvals_ = [{"slot": a.slot, "approver": a.approver.full_name, "at": a.approved_at.isoformat()}
                   for a in ins.approval_request.approvals.filter(decision="approve").select_related("approver")
-                  .order_by("approved_at")]
+                  .order_by("approved_at")] if ins.approval_request_id else []
     doc = {
         "format": "tenmina-instruction-v1 [TO VERIFY with the bank]", "instruction_id": str(ins.pk),
         "kind": ins.kind, "escrow_reference": e.reference, "bank_reference": e.bank_reference,
@@ -909,6 +962,13 @@ def _document(ins: ReleaseInstruction) -> dict:
             doc["refund_to"] = {"basis": "source of the deposit", "name": dep.source_account_name,
                                 "bank": dep.source_bank_name, "account_number": dep.source_account_number}
         doc["refunds_deposit"] = {"bank_reference": dep.bank_reference, "date": dep.occurred_at.date().isoformat()}
+    if ins.kind in TRANSFER_KINDS:
+        t = ins.to_escrow
+        doc["transfer_within_account"] = {
+            "basis": "FR-ESC-027: a move between two lines of the same client's account; pays nobody",
+            "account_reference": e.account.reference, "to_escrow_reference": t.reference,
+            "to_virtual_account": t.virtual_account_ref, "client_approved_by": ins.client_approved_by.full_name
+            if ins.client_approved_by_id else ""}
     if ins.kind == "conversion":
         qt = ins.fx_quote
         doc["conversion"] = {"to_currency": ins.to_currency, "quote_id": str(qt.pk),
@@ -1055,7 +1115,12 @@ def retry_unsent(limit=200) -> int:
 
 # ----------------------------------------------------------------- bank events (FR-ESC-004, 009, 017, 019)
 
-def _match_account(e: Escrow, virtual_account_ref):
+def _match_account(e: Escrow, virtual_account_ref, currency=None):
+    if currency and currency.upper() != e.currency:
+        # The account's pay-in reference is the same in every currency (FR-ESC-025): the currency picks the line.
+        fx = e.fx_accounts.filter(virtual_account_ref=virtual_account_ref, currency=currency.upper()).first()
+        if fx is not None:
+            return fx.programme_account, fx.currency
     if e.virtual_account_ref and virtual_account_ref == e.virtual_account_ref:
         return e.programme_account, e.currency
     fx = e.fx_accounts.filter(virtual_account_ref=virtual_account_ref).first()
@@ -1087,8 +1152,11 @@ def record_bank_event(e: Escrow, *, kind, amount, bank_reference, occurred_at=No
         raise StateConflict("The escrow is not agreed yet; the bank has no account for it.")
     if kind not in BankEvent.KINDS:
         raise Invalid(f"Unknown event kind '{kind}'.", code="validation-error")
+    if kind == "commitment_credit":
+        raise Invalid("Record the bank's confirmation of the move as commitment_debit on the line the money left; "
+                      "the credit leg follows from it.", code="validation-error")
     ref = virtual_account_ref or e.virtual_account_ref
-    pa, cur = _match_account(e, ref)
+    pa, cur = _match_account(e, ref, currency)
     if pa is None:
         raise RuleBlocked("This line's virtual account is not this escrow's. It stays in the unmatched queue; it "
                           "counts only where the bank credited it.", code="virtual-account-mismatch",
@@ -1102,14 +1170,15 @@ def record_bank_event(e: Escrow, *, kind, amount, bank_reference, occurred_at=No
                           blocking_reasons=[{"rule": "RUL-29", "message": "No source account recorded"}])
         if transfer_partner is not None and not source_account_number:
             source_account_known = False
-    if kind in ("release_confirmed", "refund_confirmed", "conversion_debit"):
+    if kind in ("release_confirmed", "refund_confirmed", "conversion_debit", "commitment_debit"):
         if instruction is None or instruction.escrow_id != e.pk:
             raise Invalid("Name the instruction the bank confirms.", code="validation-error")
         if instruction.status != "sent":
             raise StateConflict("Only a sent instruction can be confirmed. Without a sent instruction, nothing is "
                                 "marked released.", code="instruction-not-sent")
-        expected = "refund_confirmed" if instruction.kind == "cancel_refund" else \
-            "conversion_debit" if instruction.kind == "conversion" else "release_confirmed"
+        expected = {"cancel_refund": "refund_confirmed", "conversion": "conversion_debit",
+                    "commitment_fund": "commitment_debit", "commitment_return": "commitment_debit"}.get(
+            instruction.kind, "release_confirmed")
         if kind != expected:
             raise Invalid(f"A {instruction.kind.replace('_', ' ')} is confirmed as {expected}.",
                           code="validation-error")
@@ -1186,6 +1255,10 @@ def _on_confirmed(ev: BankEvent):
         from . import fx
 
         fx.on_conversion_leg(ev)
+    elif ev.kind == "commitment_debit":
+        from .accounts import on_transfer_debit
+
+        on_transfer_debit(ev)
     sync_status(e)
 
 
@@ -1309,8 +1382,9 @@ def prepare_refund(e: Escrow, by, *, deposit: BankEvent, amount=None, reason="",
     no address field to edit: the bank instruction names the source account
     exactly as the bank's confirmation gave it."""
     _on(e.country)
-    if deposit.escrow_id != e.pk or deposit.kind != "deposit" or deposit.status != "confirmed":
-        raise Invalid("Name a bank-confirmed deposit of this escrow.", code="validation-error")
+    if not deposit_funds(e, deposit) or deposit.kind != "deposit" or deposit.status != "confirmed":
+        raise Invalid("Name a bank-confirmed deposit of this escrow or of the account it was set aside from.",
+                      code="validation-error")
     amt = q(amount) if amount is not None else min(_refundable(deposit),
                                                    selectors.available_to_instruct(e, deposit.currency))
     if amt <= 0:
@@ -1340,13 +1414,31 @@ def prepare_refund(e: Escrow, by, *, deposit: BankEvent, amount=None, reason="",
     return ins
 
 
+def deposit_funds(e: Escrow, dep: BankEvent) -> bool:
+    """RUL-29: a refund from this line may name this deposit: one of its own, or, for a commitment, a deposit into
+    the free balance of the same account (the money it was set aside from)."""
+    if dep.escrow_id == e.pk:
+        return True
+    return e.is_commitment and Escrow.objects.filter(pk=dep.escrow_id, account_id=e.account_id, kind="held_funds",
+                                                     currency=dep.currency).exists()
+
+
+def _source_deposits(e: Escrow, cur):
+    lines = [e.pk]
+    if e.is_commitment:
+        lines += list(Escrow.objects.filter(account_id=e.account_id, kind="held_funds", currency=cur)
+                      .values_list("pk", flat=True))
+    return BankEvent.objects.filter(escrow_id__in=lines, kind="deposit", status="confirmed", currency=cur,
+                                    misdirected=False).order_by("-occurred_at")
+
+
 def _refund_plan(e: Escrow) -> list[tuple[BankEvent, Decimal]]:
-    """Money still held, refunded to the source of each deposit, newest first."""
+    """Money still held, refunded to the source of each deposit, newest first. A commitment's money came from
+    the account's deposits, so it goes back to their source accounts (RUL-29)."""
     plan = []
     for cur, _ in selectors.currencies(e):
         left = selectors.available_to_instruct(e, cur)
-        for dep in BankEvent.objects.filter(escrow=e, kind="deposit", status="confirmed", currency=cur,
-                                            misdirected=False).order_by("-occurred_at"):
+        for dep in _source_deposits(e, cur):
             if left <= 0:
                 break
             amt = min(_refundable(dep), left)
@@ -1388,6 +1480,8 @@ def request_cancellation(e: Escrow, by, *, reason) -> Escrow:
     for ins in ReleaseInstruction.objects.filter(escrow=e, status__in=["awaiting_client", "pending_approval"]) \
             .exclude(kind="cancel_refund"):
         withdraw_instruction(ins, by, reason="The escrow is being cancelled")
+    for ins in ReleaseInstruction.objects.filter(to_escrow=e, status__in=["awaiting_client", "approved"]):
+        withdraw_instruction(ins, by, reason="The commitment is being cancelled")
     if ReleaseInstruction.objects.filter(escrow=e, status__in=["approved", "sent"]).exclude(kind="cancel_refund") \
             .exists():
         raise StateConflict("An approved or sent release must be confirmed or recalled with the bank first.")
@@ -1401,6 +1495,12 @@ def request_cancellation(e: Escrow, by, *, reason) -> Escrow:
         prepare_refund(e, by, deposit=dep, amount=amt, reason=f"Cancellation: {reason}")
     audit(by, "escrow.cancellation_requested", e, {"reason": reason, "refunds": len(plan)})
     for person in _parties_to_tell(e):
+        if e.is_commitment and person == e.client and plan:
+            notify(person, "escrow_cancelling", f"{e.title} is being cancelled. The money set aside for it goes back "
+                                                "to the account it came from, unless you choose to keep it in your "
+                                                "Tenmina account.", obj=e, needs_action=True,
+                   link=f"/commitments/{e.pk}", category="money")
+            continue
         notify(person, "escrow_cancelling", f"Escrow {e.reference} is being cancelled. Any money held goes back to "
                                             "where it came from.", obj=e, category="money")
     return e

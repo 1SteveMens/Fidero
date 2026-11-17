@@ -6,13 +6,45 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useMemo, useState } from 'react';
 import { Button, call, Empty, Field, Input, ProblemBox, Select, Skeleton, Tabs, useGet, useSession } from '@tenmina/web-ui';
 import { ActionForm, ClockChip, day, dayTime, Head, money, Panel, useAct, words } from '@/components/core/kit';
-import type { BankEvent, EscrowRow, Instruction, Page } from '@/components/core/types';
+import type { AccountRow, BankEvent, EscrowRow, Instruction, Page } from '@/components/core/types';
 
 const STATUSES = ['proposed', 'agreed', 'funded', 'ready_to_release', 'client_approved', 'release_approved', 'partly_released', 'released', 'frozen', 'cancelled'];
 const KINDS = ['purchase', 'construction', 'offplan', 'project_fund', 'held_funds', 'repair', 'event'];
 type StatementFile = { id: string; country: string; account_kind: string; sha256: string; original_name: string; line_count: number; matched_count: number; unmatched_count: number; created_at: string };
 type Line = { id: string; line_no: number; booked_on: string; kind: string; amount: string; currency: string; virtual_account_ref: string; bank_reference: string; counterparty_name: string; narrative: string; match_status: string; note: string };
 type Position = { id: string; escrow: string; virtual_account_ref: string; as_of: string; reported_held_amount: string; currency: string; source: string; derived_held_at_bank: string; status: string; resolution_note: string; created_at: string };
+
+/** SCR-BO-10, Accounts tab: clients' Tenmina accounts (FR-ESC-025). One per client per country; commitments inside it. */
+function Accounts() {
+  const [q, setQ] = useState('');
+  const list = useGet<Page<AccountRow>>('/v1/accounts', { limit: 100, ...(q.trim().length >= 2 ? { search: q.trim() } : {}) });
+  return (
+    <div className="stack">
+      <div className="filters">
+        <Field label="Search"><Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Client, account or pay-in reference" /></Field>
+      </div>
+      <p className="muted" style={{ margin: 0, fontSize: 14 }}>Each client has one account at the bank. The bank keeps each commitment apart: a release uses only that commitment&apos;s money (RUL-34).</p>
+      <ProblemBox error={list.error} />
+      {list.isLoading ? <Skeleton lines={6} /> : list.data?.items.length ? (
+        <div className="rows">
+          {list.data.items.map((a) => (
+            <Link key={a.id} href={`/escrow/accounts/${a.id}`} className="rowlink">
+              <div className="main">
+                <div className="mono" style={{ fontSize: 12 }}>{a.reference} · pay-in {a.virtual_account_ref ?? 'not issued yet'}</div>
+                <div className="title">{a.client_name}</div>
+                <div className="meta">{a.balances.map((b) => `${money(b.held_at_bank.amount, b.currency)} held · ${money(b.free_balance.amount, b.currency)} free · ${money(b.set_aside.amount, b.currency)} set aside`).join(' / ')}</div>
+              </div>
+              <div className="row" style={{ gap: 6 }}>
+                <span className="chip">{a.open_commitments} {a.open_commitments === 1 ? 'commitment' : 'commitments'}</span>
+                {a.balances.some((b) => b.bank_position.mismatch) ? <span className="chip chip-ink">Bank figure differs</span> : null}
+              </div>
+            </Link>
+          ))}
+        </div>
+      ) : <Empty>No accounts match.</Empty>}
+    </div>
+  );
+}
 
 function Escrows() {
   const [status, setStatus] = useState('');
@@ -84,7 +116,7 @@ function Releases() {
             <Link key={i.id} href={`/escrow/releases/${i.id}`} className={`rowlink ${i.clock?.state === 'send_overdue' || i.clock?.state === 'bank_overdue' ? 'late' : ''}`}>
               <div className="main">
                 <div className="mono" style={{ fontSize: 12 }}>{i.escrow_reference} · {words(i.kind)}</div>
-                <div className="title">{money(i.amount, i.currency)} to {i.payee_name || 'the source account'}</div>
+                <div className="title">{money(i.amount, i.currency)} to {i.payee_name || (i.to_escrow_reference ? `${i.to_escrow_reference}, inside the same account` : 'the source account')}</div>
                 <div className="meta">{i.subject_label || i.reason || '—'} · {words(i.status)} · approval {i.approvals.length} of 2</div>
               </div>
               <ClockChip clock={i.clock} />
@@ -190,11 +222,11 @@ function Bank() {
 function EscrowHome() {
   const sp = useSearchParams();
   const router = useRouter();
-  const tab = sp.get('tab') ?? 'escrows';
+  const tab = sp.get('tab') ?? 'accounts';
   const { hasRole } = useSession();
   return (
     <div className="stack" style={{ gap: 18 }}>
-      <Head title="Escrow" sub="Tenmina never holds client money. The partner bank does; money moves only on two staff approvals after the client." actions={<>
+      <Head title="Escrow" sub="Tenmina never holds client money. The partner bank holds one account per client, with commitments inside it; money moves only on two staff approvals after the client." actions={<>
         <Link className="btn btn-ghost btn-sm" href="/escrow/fx">Rates and accounts</Link>
         {hasRole('CM', 'RV') ? (
           <ActionForm label="+ New escrow" variant="dark" path="/v1/escrows" fields={[
@@ -207,8 +239,8 @@ function EscrowHome() {
             onDone={(out) => { const x = out as { id?: string }; if (x?.id) router.push(`/escrow/${x.id}`); }} submitLabel="Create escrow" intro="Parties, the virtual account and the terms version are added on the escrow next." />
         ) : null}
       </>} />
-      <div className="tabs-scroll"><Tabs items={[{ key: 'escrows', label: 'Escrows' }, { key: 'releases', label: 'Releases' }, { key: 'bank', label: 'Bank and reconciliation' }]} current={tab} onChange={(k) => router.replace(`/escrow?tab=${k}`)} /></div>
-      {tab === 'escrows' ? <Escrows /> : tab === 'releases' ? <Releases /> : <Bank />}
+      <div className="tabs-scroll"><Tabs items={[{ key: 'accounts', label: 'Accounts' }, { key: 'escrows', label: 'Commitments' }, { key: 'releases', label: 'Releases' }, { key: 'bank', label: 'Bank and reconciliation' }]} current={tab} onChange={(k) => router.replace(`/escrow?tab=${k}`)} /></div>
+      {tab === 'accounts' ? <Accounts /> : tab === 'escrows' ? <Escrows /> : tab === 'releases' ? <Releases /> : <Bank />}
     </div>
   );
 }

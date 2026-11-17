@@ -58,7 +58,7 @@ export default function Errand() {
             <div className="card stack" style={{ gap: 4 }}>
               <div className="spread"><strong>Official fees</strong><Money value={money(pay.data.official_fees.amount, pay.data.official_fees.currency)} /></div>
               <span className="muted" style={{ fontSize: 14 }}>{pay.data.official_fees.note}</span>
-              <Link className="btn btn-ghost btn-sm" href="/family/held-funds">Add money at the bank</Link>
+              <Link className="btn btn-ghost btn-sm" href="/money/pay-in">Pay into your Tenmina account</Link>
             </div>
           </div>
         ) : <Skeleton />}

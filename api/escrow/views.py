@@ -20,6 +20,9 @@ from . import selectors, services
 from .models import (Party, BankEvent, BankPosition, Condition, Escrow, Freeze, FxConversion, FxQuote, FxRateObservation,
                      Payee, PayeeChange, ProgrammeAccount, ProgrammeRate, ReleaseInstruction, StandingApproval,
                      StatementFile)
+from .models import OPEN_STATUSES, TRANSFER_KINDS
+from .serializers import (AccountListItem, AccountOpenIn, AccountSerializer, CommitmentDetail, CommitmentSummary,
+                          FundCommitmentIn, KeepInAccountIn)
 from .serializers import (AcceptanceSerializer, AcceptIn, AcceptQuoteIn, BankEventIn, BankEventSerializer,
                           BankPositionIn, BankPositionSerializer, BankRejectionIn, CancellationIn, CheckSerializer,
                           ClientApprovalSerializer, CloseConditionIn, CollectIn, ComparisonSerializer,
@@ -486,6 +489,158 @@ class HeldFundsViewSet(viewsets.GenericViewSet):
         d = _valid(HeldFundsIn, request)
         e = services.open_held_funds(request.user, _country(d["country"]), d.get("currency"), by=request.user)
         return Response(EscrowSerializer(e).data, status=201)
+
+
+# ----------------------------------------------------------------- the client's account (FR-ESC-025 to FR-ESC-028)
+
+def _my_account(request):
+    from .models import ClientAccount
+
+    qs = ClientAccount.objects.filter(client=request.user).select_related("country", "client", "bank_partner")
+    code = request.query_params.get("country")
+    if code:
+        acc = qs.filter(country__code=str(code).upper()).first()
+    else:
+        home = getattr(request.user, "home_country_id", None)
+        acc = (qs.filter(country_id=home).first() if home else None) or qs.order_by("-opened_at").first()
+    if acc is None:
+        raise NotFound("You have no Tenmina account in this country yet.", code="account-missing")
+    return acc, list(qs.values_list("country__code", flat=True))
+
+
+def _commitment_of(request, pk) -> Escrow:
+    e = Escrow.objects.filter(pk=pk, client=request.user).exclude(kind="held_funds") \
+        .select_related("account", "country").first()
+    if e is None:
+        raise NotFound()
+    return e
+
+
+def _commitment_detail(e):
+    from .accounts import commitment_summary
+
+    transfers = ReleaseInstruction.objects.filter(Q(escrow=e) | Q(to_escrow=e), kind__in=TRANSFER_KINDS) \
+        .select_related("escrow", "to_escrow").order_by("-created_at")
+    releases = ReleaseInstruction.objects.filter(escrow=e).exclude(kind__in=TRANSFER_KINDS) \
+        .select_related("escrow", "payee").order_by("-created_at")
+    return {"account": {"id": str(e.account_id), "reference": e.account.reference, "country": e.country.code},
+            "commitment": commitment_summary(e), "escrow": EscrowSerializer(e).data,
+            "transfers": InstructionSerializer(transfers, many=True).data,
+            "releases": InstructionSerializer(releases, many=True).data}
+
+
+class AccountView(viewsets.ViewSet):
+    """GET /v1/account: the client's one Tenmina account in a country (`?country=GH`; default their home
+    country): pay-in details, a balance per currency, the free balance and every commitment inside it."""
+
+    @extend_schema(responses=AccountSerializer, parameters=[OpenApiParameter("country", str)])
+    def retrieve(self, request):
+        from .accounts import summary
+
+        acc, codes = _my_account(request)
+        return Response({**summary(acc), "countries": codes})
+
+    @extend_schema(request=AccountOpenIn, responses={201: AccountSerializer})
+    @idempotent
+    def create(self, request):
+        """Open the account and its free balance so the bank's pay-in details can be shown (idempotent)."""
+        from .accounts import open_account, summary
+
+        d = _valid(AccountOpenIn, request)
+        acc = open_account(request.user, _country(d["country"]), by=request.user, currency=d.get("currency"))
+        return Response(summary(acc), status=201)
+
+
+class AccountCommitmentViewSet(viewsets.ViewSet):
+    """The commitments inside the client's account, and setting money aside for one from the free balance."""
+
+    @extend_schema(responses=CommitmentSummary(many=True), parameters=[OpenApiParameter("country", str)])
+    def list(self, request):
+        from .accounts import commitment_summary, commitments
+
+        acc, _ = _my_account(request)
+        return Response([commitment_summary(e) for e in commitments(acc)])
+
+    @extend_schema(responses=CommitmentDetail, parameters=[_P("id")])
+    def retrieve(self, request, pk=None):
+        return Response(_commitment_detail(_commitment_of(request, pk)))
+
+    @extend_schema(request=FundCommitmentIn, responses={201: InstructionSerializer})
+    @idempotent
+    def create(self, request):
+        """Set money aside for a commitment: an instruction to the bank the client approves with their second
+        factor. It counts once the bank confirms it."""
+        d = _valid(FundCommitmentIn, request)
+        e = _commitment_of(request, d["commitment_id"])
+        amt = (d.get("amount") or {}).get("amount")
+        if d.get("amount") and str(d["amount"]["currency"]).upper() != e.currency:
+            raise Invalid(f"{e.title} is in {e.currency}.", code="validation-error")
+        ins = services.fund_commitment(e, request.user, amount=amt, mfa_at=_mfa(request, d.get("code")),
+                                       code=d.get("code") or None)
+        ins.refresh_from_db()
+        return Response(InstructionSerializer(ins).data, status=201)
+
+    @extend_schema(request=KeepInAccountIn, responses={201: InstructionSerializer}, parameters=[_P("id")])
+    @action(detail=True, methods=["post"], url_path="keep-in-account")
+    @idempotent
+    def keep_in_account(self, request, pk=None):
+        """A cancelled commitment's money goes back to source (RUL-29) unless the client keeps it in the account."""
+        e = _commitment_of(request, pk)
+        d = _valid(KeepInAccountIn, request)
+        ins = services.keep_in_account(e, request.user, mfa_at=_mfa(request, d.get("code")),
+                                       code=d.get("code") or None)
+        ins.refresh_from_db()
+        return Response(InstructionSerializer(ins).data, status=201)
+
+
+class StaffAccountViewSet(viewsets.GenericViewSet):
+    """Back office: clients' accounts with their commitments and the bank's position per account and per
+    commitment, within the countries the caller works in."""
+
+    serializer_class = AccountListItem
+    permission_classes = [roles(*STAFF)]
+
+    def get_queryset(self):
+        from .accounts import accounts_visible_to
+        from .models import ClientAccount
+
+        if getattr(self, "swagger_fake_view", False):
+            return ClientAccount.objects.none()
+        return accounts_visible_to(self.request.user).select_related("country", "client", "bank_partner") \
+            .order_by("-opened_at")
+
+    @extend_schema(responses=AccountListItem(many=True), parameters=[
+        OpenApiParameter("client", str), OpenApiParameter("search", str), OpenApiParameter("country", str)])
+    def list(self, request):
+        from .accounts import balances
+
+        qs = self.get_queryset()
+        if request.query_params.get("client"):
+            import uuid
+
+            try:
+                qs = qs.filter(client_id=uuid.UUID(request.query_params["client"]))
+            except ValueError:
+                raise Invalid("client must be a person ID.") from None
+        if request.query_params.get("country"):
+            qs = qs.filter(country__code=request.query_params["country"].upper())
+        qs = search(qs, request, "reference", "client__full_name", "virtual_account_ref")
+        page = self.paginate_queryset(qs)
+        rows = [{"id": str(a.pk), "reference": a.reference, "country": a.country.code, "status": a.status,
+                 "client": str(a.client_id), "client_name": a.client.full_name,
+                 "virtual_account_ref": a.virtual_account_ref,
+                 "open_commitments": a.lines.exclude(kind="held_funds").filter(status__in=OPEN_STATUSES).count(),
+                 "balances": balances(a)} for a in page]
+        return self.get_paginated_response(rows)
+
+    @extend_schema(responses=AccountSerializer)
+    def retrieve(self, request, pk=None):
+        from .accounts import summary
+
+        acc = self.get_queryset().filter(pk=pk).first()
+        if acc is None:
+            raise NotFound()
+        return Response(summary(acc, include_closed=True))
 
 
 # ----------------------------------------------------------------- release instructions

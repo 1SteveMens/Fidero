@@ -195,11 +195,11 @@ def _escrow_through(e, people, ref, amount):
     for party in e.parties.filter(must_accept=True, role="tenmina"):
         esc.accept_terms(e, cm, party=party)
     esc.record_virtual_account(e, cm, virtual_account_ref=ref)
-    ev = esc.record_bank_event(e, kind="deposit", amount=amount, bank_reference=f"DEP-{ref}", by=cm, source="manual",
-                               proof_evidence=_doc(e.country, cm, f"credit-advice-{ref}.txt"),
-                               source_bank_name="NatWest [demo]", source_account_number="GB29NWBK60161331926819",
-                               source_account_name="AMA MENSAH")
-    esc.check_bank_event(ev, rv)
+    # The owner pays into their one account; the money is then set aside for the repair (FR-ESC-027).
+    from escrow.models import Escrow
+    from escrow.seed import _deposit
+
+    _deposit(Escrow.objects.get(pk=e.pk), cm, rv, amount, f"DEP-{ref}")
 
 
 def _pay(ins, people, ref):

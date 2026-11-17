@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Empty, NeedsYou, Skeleton, Tabs, useGet, useSession } from '@tenmina/web-ui';
 import { Item, PageHead, Section, list, words, type Any } from '@/components/kit';
-import { HeldAtBank } from '@/components/money-cards';
+import { AccountCard } from '@/components/account-card';
 import { familyOf, toPortal } from '@/lib/links';
 
 /** The Family tab (03, 2.1 FAMILY): people, bills paid direct to institutions, care, errands, cover and events. */
@@ -16,7 +16,7 @@ export default function Family() {
     <div className="stack" style={{ gap: 18 }}>
       <PageHead label="Family" title="Your family at home" sub="Tenmina pays schools, hospitals and vendors directly, against proof. Never cash to a relative." />
       {needs.map((n: Any) => <NeedsYou key={`${n.kind}-${n.id}`} title={n.title} detail={n.status_text} href={toPortal(n.link)} />)}
-      {me ? <HeldAtBank holder={me.full_name} kinds={['held_funds']} /> : null}
+      {me ? <AccountCard holder={me.full_name} max={3} openIfMissing /> : null}
       <Tabs current={tab} onChange={setTab} items={[{ key: 'people', label: 'People' }, { key: 'bills', label: 'Bills' }, { key: 'care', label: 'Care' }, { key: 'errands', label: 'Errands' }, { key: 'cover', label: 'Cover' }, { key: 'events', label: 'Events' }]} />
       {tab === 'people' ? <People /> : tab === 'bills' ? <Bills /> : tab === 'care' ? <Care /> : tab === 'errands' ? <Errands /> : tab === 'cover' ? <Cover /> : <Events />}
     </div>

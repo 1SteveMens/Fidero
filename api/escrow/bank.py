@@ -251,8 +251,11 @@ def reconcile_positions(as_of=None) -> dict:
 
 # ----------------------------------------------------------------- statement import (FR-ESC-011)
 
-def _escrow_by_ref(ref, country):
-    e = Escrow.objects.filter(virtual_account_ref=ref, country=country).first()
+def _escrow_by_ref(ref, country, currency=None):
+    """The line a bank reference belongs to. An account's pay-in reference is the same for each currency, so the
+    currency picks the free-balance line (FR-ESC-025)."""
+    qs = Escrow.objects.filter(virtual_account_ref=ref, country=country)
+    e = (qs.filter(currency=str(currency).upper()).first() if currency else None) or qs.first()
     if e is not None:
         return e
     fx = FxAccount.objects.filter(virtual_account_ref=ref, country=country).select_related("escrow").first()
@@ -319,8 +322,23 @@ def _apply_line(sf, line: StatementLine, by) -> str:
 
     if sf.account_kind == "owner_rent":
         return "ignored"
-    e = _escrow_by_ref(line.virtual_account_ref, sf.country) if line.virtual_account_ref else None
+    e = _escrow_by_ref(line.virtual_account_ref, sf.country, line.currency) if line.virtual_account_ref else None
     occurred = timezone.make_aware(datetime.combine(line.booked_on, time(12, 0)))
+    transfer = _named_instruction(line, statuses=("sent", "confirmed"), kinds=("commitment_fund", "commitment_return"))
+    if transfer is not None and line.kind in ("credit", "debit"):
+        # FR-ESC-027: either leg of a move inside the client's account confirms the move once; the other leg
+        # is recorded from the same confirmation.
+        if transfer.status == "confirmed" or transfer.amount != line.amount:
+            line.escrow = transfer.escrow
+            line.note = "The other leg of a move inside the account; counted once with its confirmation." \
+                if transfer.status == "confirmed" else "The amount differs from the move the client asked for."
+            return "duplicate" if transfer.status == "confirmed" else "unmatched"
+        ev = record_bank_event(transfer.escrow, kind="commitment_debit", amount=line.amount, currency=line.currency,
+                               bank_reference=line.bank_reference or f"{sf.sha256[:8]}-{line.line_no}",
+                               occurred_at=occurred, virtual_account_ref=transfer.escrow.virtual_account_ref,
+                               source="statement", by=by, instruction=transfer, statement_line=line)
+        line.escrow, line.bank_event = transfer.escrow, ev
+        return "matched"
     if line.kind == "position":
         if e is None:
             line.note = "No escrow has this virtual account."
@@ -354,27 +372,36 @@ def _apply_line(sf, line: StatementLine, by) -> str:
         line.escrow, line.bank_event = e, ev
         return "matched"
     # debit: the narrative or reference names the instruction
-    ins = None
-    for token in (line.narrative + " " + line.bank_reference).replace(",", " ").split():
-        try:
-            ins = ReleaseInstruction.objects.filter(pk=token.strip(), status="sent").first()
-        except Exception:  # noqa: BLE001 - not a uuid
-            ins = None
-        if ins is None:
-            ins = ReleaseInstruction.objects.filter(sent_reference=token.strip(), status="sent").first() \
-                if token.strip() else None
-        if ins is not None:
-            break
+    ins = _named_instruction(line)
     if ins is None or (e is not None and ins.escrow_id != e.pk) or ins.amount != line.amount:
         line.note = "No sent instruction of this amount matches this line."
         return "unmatched"
     kind = {"cancel_refund": "refund_confirmed", "conversion": "conversion_debit"}.get(ins.kind, "release_confirmed")
+    # (moves inside the account are handled above)
     ev = record_bank_event(ins.escrow, kind=kind, amount=line.amount, currency=line.currency,
                            bank_reference=line.bank_reference or f"{sf.sha256[:8]}-{line.line_no}",
                            occurred_at=occurred, virtual_account_ref=line.virtual_account_ref or None,
                            source="statement", by=by, instruction=ins, statement_line=line)
     line.escrow, line.bank_event = ins.escrow, ev
     return "matched"
+
+
+def _named_instruction(line, statuses=("sent",), kinds=None):
+    for token in (line.narrative + " " + line.bank_reference).replace(",", " ").split():
+        token = token.strip()
+        if not token:
+            continue
+        qs = ReleaseInstruction.objects.filter(status__in=statuses)
+        if kinds:
+            qs = qs.filter(kind__in=kinds)
+        try:
+            ins = qs.filter(pk=token).first()
+        except Exception:  # noqa: BLE001 - not a uuid
+            ins = None
+        ins = ins or qs.filter(sent_reference=token).first()
+        if ins is not None:
+            return ins
+    return None
 
 
 def unmatched_lines(sf: StatementFile):

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Chip, Dialog, Empty, NeedsYou, ProblemBox, Skeleton, useGet, useSession } from '@tenmina/web-ui';
 import { Item, Section, words, type Any } from '@/components/kit';
-import { HeldAtBank } from '@/components/money-cards';
+import { AccountCard } from '@/components/account-card';
 import { familyOf, toPortal } from '@/lib/links';
 
 type HomeItem = { kind: string; id: string; title: string; status: string; status_text: string; next_date: string | null; needs_action: boolean; link: string; line: string; amount: Any; family_member_id: string | null };
@@ -55,7 +55,7 @@ export default function Home() {
           {needs.length > 6 && !allNeeds ? <button className="btn btn-ghost" onClick={() => setAllNeeds(true)}>Show {needs.length - 6} more that need you</button> : null}
         </section>
       ) : null}
-      {me ? <HeldAtBank holder={me.full_name} /> : null}
+      {me ? <AccountCard holder={me.full_name} /> : null}
       <div className="grid2">
         {SECTIONS.map((s) => {
           const mine = rest.filter((i) => familyOf(i.line, i.kind) === s.key);

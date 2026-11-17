@@ -5,13 +5,13 @@ import { list, money, words, type Any } from './kit';
 
 export const ESCROW_SENTENCE: Record<string, string> = {
   proposed: 'Waiting for everyone to accept the escrow terms.',
-  agreed: 'Agreed. Pay the price to the bank using its instructions.',
+  agreed: 'Agreed. Set the money aside from your Tenmina account. It counts once the bank confirms it.',
   funded: 'The bank holds the money. Conditions are being closed.',
   ready_to_release: 'Every condition is closed. Your approval is needed. Tenmina staff approve after you.',
   client_approved: 'You approved. Two Tenmina staff now check and approve.',
   release_approved: 'Approved. Tenmina told the bank to pay.',
   partly_released: 'Part paid. The rest stays at the bank.',
-  released: 'The bank paid. This escrow is complete.',
+  released: 'The bank paid. This commitment is complete.',
   frozen: 'No money can move until the check or dispute is resolved.',
   cancel_requested: 'Cancellation requested. Two Tenmina staff decide.',
   cancelled: 'Cancelled. Any money goes back to the account it came from.',

@@ -1,12 +1,11 @@
 import { Pressable, View } from 'react-native';
 import { router, type Href } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import type { HeldAccount } from '@tenmina/shared';
 import { brand, font, radius, space } from '@tenmina/tokens';
-import { AccountCards, IconButton, Label, Mark, Rise, Screen, T, haptic, usePalette, type IconName } from '@tenmina/ui';
-import { LoadState, Section, itemsOf, toMinor, useGet, useLoad, type ApiMoney } from '@tenmina/mobile';
+import { IconButton, Label, Mark, Rise, Screen, T, haptic, usePalette, TenminaAccountCard, type IconName, type TenminaAccountCardData } from '@tenmina/ui';
+import { LoadState, Section, toMinor, useGet, useLoad } from '@tenmina/mobile';
 import { ItemList, NeedsYouList } from '../../components/rows';
-import type { Escrow, Home as HomeData } from '../../lib';
+import { COMMITMENT_KIND, commitmentState, type Home as HomeData, type TenminaAccount } from '../../lib';
 
 function Quick({ icon, label, tone, href, delay }: { icon: IconName; label: string; tone: 'lime' | 'ink' | 'surface'; href: Href; delay: number }) {
   const p = usePalette();
@@ -32,41 +31,32 @@ function Quick({ icon, label, tone, href, delay }: { icon: IconName; label: stri
   );
 }
 
-const HELD = ['funded', 'ready_to_release', 'partly_released', 'client_approved', 'release_approved', 'frozen', 'disputed'];
-
-/** Every account the bank holds for the client, as cards with the seal (03 6.1a). Tenmina never holds it (RUL-01). */
-async function loadAccounts(api: Parameters<Parameters<typeof useLoad>[0]>[0]): Promise<{ accounts: HeldAccount[]; total: ApiMoney | null }> {
-  const [held, list] = await Promise.all([
-    api.get<Escrow[]>('/v1/held-funds'),
-    api.get<{ items: { id: string; status: string; kind: string }[] }>('/v1/escrows'),
-  ]);
-  const others = itemsOf(list).filter((e) => HELD.includes(e.status) && e.kind !== 'held_funds').slice(0, 5);
-  const details = await Promise.all(others.map((e) => api.get<Escrow>(`/v1/escrows/${e.id}`).catch(() => null)));
-  const all = [...held, ...details.filter((d): d is Escrow => !!d)];
-  const accounts: HeldAccount[] = [];
-  for (const e of all) {
-    const f = e.funds?.[0];
-    if (!f || Number(f.held_at_bank) <= 0) continue;
-    accounts.push({
-      id: e.id,
-      label: e.kind === 'held_funds' ? 'Family and bills' : e.title,
-      kind: e.kind === 'held_funds' ? 'family' : 'escrow',
-      bankRef: f.virtual_account_ref || e.reference,
-      heldAt: e.payment_instructions?.bank_name?.replace(/\s*\[TO VERIFY\]/, '') || 'Partner bank',
-      held: toMinor({ amount: f.held_at_bank, currency: f.currency }) as HeldAccount['held'],
-      href: `/escrow/${e.id}`,
-    });
-  }
-  const currency = accounts[0]?.held.currency;
-  const sum = accounts.filter((a) => a.held.currency === currency).reduce((n, a) => n + a.held.amountMinor, 0);
-  return { accounts, total: currency ? { amount: (sum / 100).toFixed(2), currency } : null };
+/** The client's one Tenmina account and the commitments inside it (03 6.1a, decision 2026-11-17). The bank holds
+ * it, never Tenmina (RUL-01). No account yet: no card. */
+async function loadAccount(api: Parameters<Parameters<typeof useLoad>[0]>[0]): Promise<TenminaAccountCardData | null> {
+  const acc = await api.get<TenminaAccount>('/v1/account').catch(() => null);
+  if (!acc) return null;
+  const open = acc.commitments.filter((c) => !['released', 'cancelled'].includes(c.status) || Number(c.set_aside.amount) > 0);
+  return {
+    reference: acc.pay_in?.reference ?? acc.reference,
+    heldAt: (acc.pay_in?.bank_name ?? acc.bank_name).replace(/\s*\[TO VERIFY\]/, '') || 'Partner bank',
+    href: '/money',
+    balances: acc.balances.map((b) => ({ held: toMinor(b.held_at_bank), free: toMinor(b.free_balance), setAside: toMinor(b.set_aside) })),
+    commitments: open.map((c) => {
+      const setAside = Number(c.set_aside.amount) > 0;
+      return {
+        id: c.id, label: c.title, kind: COMMITMENT_KIND[c.kind] ?? c.kind, state: commitmentState(c), href: `/escrow/${c.id}`,
+        amount: toMinor(setAside ? c.set_aside : c.agreed), amountNote: setAside ? 'set aside' : 'agreed', needsYou: c.needs_you,
+      };
+    }),
+  };
 }
 
-/** Home dashboard (SCR-PTL-36, W-25): account cards with the seal, what needs you, then everything else. */
+/** Home dashboard (SCR-PTL-36, W-25): the one account card with its commitments, what needs you, then everything else. */
 export default function Home() {
   const p = usePalette('paper');
   const home = useGet<HomeData>('/v1/home');
-  const money = useLoad(loadAccounts, 'accounts');
+  const money = useLoad(loadAccount, 'account');
   const unread = useGet<{ count: number }>('/v1/me/notifications/unread-count');
   const d = home.data;
   const needs = d?.items.filter((i) => i.needs_action) ?? [];
@@ -89,9 +79,7 @@ export default function Home() {
 
       <LoadState loading={home.loading} problem={home.problem} onRetry={home.reload} hasData={!!d} />
 
-      {money.data && money.data.accounts.length && money.data.total ? (
-        <AccountCards accounts={money.data.accounts} holder={d?.person.full_name.toUpperCase() ?? ''} total={toMinor(money.data.total) as HeldAccount['held']} />
-      ) : null}
+      {money.data ? <TenminaAccountCard account={money.data} holder={d?.person.full_name.toUpperCase() ?? ''} /> : null}
 
       {d ? (
         <>

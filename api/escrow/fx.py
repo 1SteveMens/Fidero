@@ -316,8 +316,15 @@ def record_fx_account(e: Escrow, by, *, currency, virtual_account_ref) -> FxAcco
                                          status="active").first()
     if pa is None:
         raise StateConflict(f"There is no active {currency} programme account.", code="programme-account-missing")
-    if Escrow.objects.filter(virtual_account_ref=virtual_account_ref).exists() or \
-            FxAccount.objects.filter(virtual_account_ref=virtual_account_ref).exists():
+    # FR-ESC-025: the account's free balance takes other currencies under the client's one pay-in reference.
+    account_ref = e.kind == "held_funds" and virtual_account_ref == e.account.virtual_account_ref
+    if account_ref:
+        used = FxAccount.objects.filter(programme_account=pa, virtual_account_ref=virtual_account_ref) \
+            .exclude(escrow=e).exists()
+    else:
+        used = Escrow.objects.filter(virtual_account_ref=virtual_account_ref).exists() or \
+            FxAccount.objects.filter(virtual_account_ref=virtual_account_ref).exists()
+    if used:
         raise StateConflict("This virtual account is already used.", code="virtual-account-duplicate")
     fx, _ = FxAccount.objects.update_or_create(escrow=e, currency=currency, defaults=dict(
         country=e.country, programme_account=pa, virtual_account_ref=virtual_account_ref))

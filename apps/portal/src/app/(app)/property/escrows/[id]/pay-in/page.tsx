@@ -5,9 +5,9 @@ import { Button, Chip, CodeBoxes, Dialog, Field, Input, Money, ProblemBox, Selec
 import { Ink, PageHead, RadioCard, useAction, words, type Any } from '@/components/kit';
 
 const ROUTE_LABEL: Record<string, string> = {
-  escrow_fx_account: "Bank transfer in your currency to this escrow's own account at the partner bank",
-  escrow_local_account: 'Send from your own bank into the escrow account; your bank converts',
-  transfer_partner: "A transfer service into this escrow's local account",
+  escrow_fx_account: "Bank transfer in your currency to your Tenmina account at the partner bank",
+  escrow_local_account: 'Send from your own bank into your Tenmina account; your bank converts',
+  transfer_partner: 'A transfer service into your Tenmina account',
   local_bank: 'From a bank in the country, no exchange',
 };
 const CURRENCIES = ['GBP', 'USD', 'EUR', 'CAD'];

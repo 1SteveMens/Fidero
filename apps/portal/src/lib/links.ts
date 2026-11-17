@@ -13,6 +13,8 @@ const RULES: [RegExp, string][] = [
   [/^\/escrows\/[^/]+\/payee-changes\/([^/]+)/, '/property/payee-changes/$1'],
   [/^\/payee-changes\/([^/]+)/, '/property/payee-changes/$1'],
   [/^\/escrows\/([^/]+)/, '/property/escrows/$1'],
+  [/^\/commitments\/([^/]+)/, '/money/commitments/$1'],
+  [/^\/tenmina-account(\/.*)?$/, '/money$1'],
   [/^\/release-instructions\/([^/]+)/, '/property/releases/$1'],
   [/^\/disputes\/([^/]+)/, '/property/disputes/$1'],
   [/^\/listings\/([^/]+)/, '/property/listings/$1'],

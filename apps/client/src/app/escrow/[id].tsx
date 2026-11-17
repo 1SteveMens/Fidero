@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -5,17 +6,19 @@ import { brand, space } from '@tenmina/tokens';
 import { Button, Chip, Label, Panel, Rise, Screen, T, Tick } from '@tenmina/ui';
 import { KV, LoadState, ProblemBox, Section, day, itemsOf, money, moneyOf, useAction, useGet, useSession } from '@tenmina/mobile';
 import { ActionRow, Figures } from '../../components/rows';
-import { ESCROW_STATUS, type Escrow, type Instruction } from '../../lib';
+import { ESCROW_STATUS, commitmentState, type AccountCommitment, type Escrow, type Instruction } from '../../lib';
 
 /**
- * Escrow tracker (SCR-PTL-17, W-09) with its terms (SCR-PTL-16) and the bank's
- * own payment details (SCR-PTL-18). The money is at the partner bank, never at
- * Tenmina (RUL-01). Releases wait for the client, then two staff.
+ * A commitment inside the client's Tenmina account (SCR-PTL-17, W-09; decision 2026-11-17) with its terms
+ * (SCR-PTL-16) and the account's one set of pay-in details (SCR-PTL-18). The money is at the partner bank, never at
+ * Tenmina (RUL-01). Money is set aside from the free balance; releases wait for the client, then two staff.
  */
 export default function EscrowScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { me } = useSession();
   const e = useGet<Escrow>(`/v1/escrows/${id}`);
+  const cm = useGet<{ commitment: AccountCommitment }>(`/v1/account/commitments/${id}`);
+  const c = cm.data?.commitment;
   const waiting = useGet<{ items: Instruction[] }>('/v1/release-instructions', { status: 'awaiting_client' });
   const accept = useAction();
   const d = e.data;
@@ -29,8 +32,9 @@ export default function EscrowScreen() {
     if (r) e.reload();
   }
 
+  useEffect(() => { if (d?.kind === 'held_funds') router.replace('/money'); }, [d?.kind]);
   return (
-    <Screen ground="paper" back eyebrow={d ? `${d.reference} · ${d.country}` : 'Escrow'}>
+    <Screen ground="paper" back eyebrow={d ? `${d.reference} · ${d.country}` : 'Commitment'}>
       <LoadState loading={e.loading} problem={e.problem} onRetry={e.reload} hasData={!!d} />
       {d ? (
         <>
@@ -63,7 +67,20 @@ export default function EscrowScreen() {
           ) : null}
           <ProblemBox problem={accept.problem} />
 
-          {f ? (
+          {c ? (
+            <Section title="Inside your Tenmina account">
+              <Figures items={[['Set aside', c.set_aside], ['Paid out', c.paid_out], ['Still to set aside', c.still_to_set_aside]]} />
+              <T v="footnote" muted>{`${commitmentState(c)} The bank keeps it for this deal only and pays only ${c.payees.length ? c.payees.join(', ') : 'the verified payee'}, on proof.`}</T>
+              {c.can_fund ? <Button title="Set aside from my balance" icon="arrow-down-circle-outline" onPress={() => router.push(`/set-aside/${id}`)} /> : null}
+              {c.can_keep_in_account ? (
+                <Panel>
+                  <T v="headline">This commitment is being cancelled</T>
+                  <T v="footnote" muted>{`${money(c.available_to_instruct)} goes back to the bank account it came from. You can keep it in your Tenmina account instead.`}</T>
+                  <Button title="Keep it in my account" variant="quiet" onPress={() => router.push(`/set-aside/${id}?keep=1`)} />
+                </Panel>
+              ) : null}
+            </Section>
+          ) : f ? (
             <Figures
               items={[
                 ['Held at the bank', { amount: f.held_at_bank, currency: f.currency }],
@@ -100,7 +117,7 @@ export default function EscrowScreen() {
           ) : null}
 
           {pi?.available ? (
-            <Section title="Pay in: the bank's own details">
+            <Section title="Pay into your Tenmina account">
               <Panel tone="raised">
                 <Label color="#A9A69E">Pay the bank, never Tenmina</Label>
                 <T v="headline" color="#F7F6F2" style={{ fontSize: 15 }}>{pi.bank_name}</T>
