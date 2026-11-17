@@ -13,6 +13,9 @@ export default function Welcome() {
   const { status } = useSession();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
+  // The seal sits above the "Released only on proof" badge, never under it, on a small phone too.
+  const block = Math.min(300, height * 0.27);
+  const seal = Math.min(200, height * 0.2, block - 60);
   if (status === 'signedIn') return <Redirect href="/" />;
   return (
     <GroundContext.Provider value="ink">
@@ -23,8 +26,8 @@ export default function Welcome() {
         </Rise>
 
         <Rise delay={120} style={{ flex: 1, justifyContent: 'center', paddingVertical: space[4] }}>
-          <View style={{ height: Math.min(300, height * 0.27), borderRadius: radius.xl + 8, backgroundColor: brand.lime, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-            <Seal id="welcome-seal" ring="#86C94A" text="#3F5A1F" check={brand.ink} size={Math.min(200, height * 0.2)} />
+          <View style={{ height: block, paddingBottom: 52, borderRadius: radius.xl + 8, backgroundColor: brand.lime, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+            <Seal id="welcome-seal" ring="#86C94A" text="#3F5A1F" check={brand.ink} size={seal} />
             <View style={{ position: 'absolute', left: space[4], bottom: space[4], backgroundColor: brand.ink, borderRadius: radius.md, paddingHorizontal: space[3], paddingVertical: space[2] }}>
               <Label color={brand.lime}>Released only on proof</Label>
             </View>

@@ -11,7 +11,7 @@ from core.models import OutboxEvent
 from orders import services
 from orders.models import Order, ReferralCode, ReferralReward, TermsAcceptance
 
-from .helpers import order_body, place_order, site_plan, terms
+from .helpers import checkout, order_body, place_order, site_plan, start_payment, terms
 
 
 # ---------------------------------------------------------------- catalogue (US-ORD-002)
@@ -191,6 +191,21 @@ def test_reopen_change_tier_and_resubmit(seeded, api, people, gh):
     r = c.post(f"/v1/orders/{o['id']}/submit", {}, format="json")
     assert r.json()["price"]["amount"] == "650.00"
     assert OutboxEvent.objects.filter(topic="order.created", aggregate_id=o["id"]).count() == 1
+
+
+def test_open_payment_is_named_so_the_app_can_resume_it(seeded, api, people, gh):
+    """A started but unfinished payment blocks a second one; the order names it, so the client can go back to it."""
+    c = api(people["client"])
+    o = place_order(c, people["client"], gh)
+    assert c.get(f"/v1/orders/{o['id']}").json()["open_payment"] is None
+    p = start_payment(c, o["id"])
+    got = c.get(f"/v1/orders/{o['id']}").json()
+    assert got["can_pay"] is False
+    assert got["open_payment"]["id"] == p["id"]
+    assert got["open_payment"]["method"] == "card"
+    checkout(c, p["id"], outcome="decline")
+    got = c.get(f"/v1/orders/{o['id']}").json()
+    assert got["open_payment"] is None and got["can_pay"] is True
 
 
 def test_cancel_unpaid_but_not_paid_orders(seeded, api, people, gh):

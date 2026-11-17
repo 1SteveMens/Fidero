@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { router } from 'expo-router';
 import { brand, holdToApproveMs } from '@tenmina/tokens';
-import { Button, GroundContext, HoldButton, Label, Panel, T, haptic, useScreenReader } from '@tenmina/ui';
+import { Button, HoldButton, Label, Panel, T, haptic, useScreenReader } from '@tenmina/ui';
 import { ProblemBox, SecondFactorInput, money, toProblem, useSecondFactor, type ApiMoney, type Problem } from '@tenmina/mobile';
 
 /**
@@ -38,24 +38,23 @@ export function InlineApproval({ title, amount, payee, note, onApprove, onDone }
   }
 
   return (
-    <GroundContext.Provider value="ink">
-      <Panel style={{ backgroundColor: brand.ink }}>
-        <Label color={brand.orange}>Needs you · you approve first</Label>
-        <T v="headline">{title}</T>
-        <T v="amount" style={{ fontSize: 30, lineHeight: 36 }}>{money(amount)}</T>
-        <T v="footnote" muted>{`To ${payee}, a verified payee. Then two Tenmina staff approve and the bank pays.${note ? ` ${note}` : ''}`}</T>
-        {factor.mode === 'none' ? (
-          <Button title="Confirm your mobile number first" onPress={() => router.push('/account/phone')} />
-        ) : factor.mode === 'paused' ? (
+    // The black strip: its contents take the black palette from the panel, in light and dark mode alike.
+    <Panel tone="raised">
+      <Label color={brand.orange}>Needs you · you approve first</Label>
+      <T v="headline">{title}</T>
+      <T v="amount" style={{ fontSize: 30, lineHeight: 36 }}>{money(amount)}</T>
+      <T v="footnote" muted>{`To ${payee}, a verified payee. Then two Tenmina staff approve and the bank pays.${note ? ` ${note}` : ''}`}</T>
+      {factor.mode === 'none' ? (
+        <Button title="Confirm your mobile number first" onPress={() => router.push('/account/phone')} />
+      ) : factor.mode === 'paused' ? (
+        <SecondFactorInput factor={factor} />
+      ) : (
+        <>
           <SecondFactorInput factor={factor} />
-        ) : (
-          <>
-            <SecondFactorInput factor={factor} />
-            <HoldButton label="Approve" holdMs={holdToApproveMs} screenReader={screenReader} disabled={!factor.ready} loading={busy} onConfirm={() => void go()} />
-          </>
-        )}
-        <ProblemBox problem={problem} />
-      </Panel>
-    </GroundContext.Provider>
+          <HoldButton label="Approve" holdMs={holdToApproveMs} screenReader={screenReader} disabled={!factor.ready} loading={busy} onConfirm={() => void go()} />
+        </>
+      )}
+      <ProblemBox problem={problem} />
+    </Panel>
   );
 }

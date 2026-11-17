@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { brand, space } from '@tenmina/tokens';
-import { Button, Chip, DotStepper, Label, Panel, Screen, T, Tick } from '@tenmina/ui';
+import { Button, Chip, DotStepper, Label, Panel, Screen, T, Tick, usePalette } from '@tenmina/ui';
 import { LoadState, ProblemBox, Section, day, money, useAction, useApi, useGet, words, type ApiMoney } from '@tenmina/mobile';
 import { AddFile, FileRow } from '../../components/files';
 
@@ -34,6 +34,7 @@ interface Errand {
  * and the handover. The agent never handles the money.
  */
 export default function ErrandScreen() {
+  const pal = usePalette();
   const { id } = useLocalSearchParams<{ id: string }>();
   const e = useGet<Errand>(`/v1/errands/${id}`);
   const api = useApi();
@@ -85,8 +86,8 @@ export default function ErrandScreen() {
           <Section title="Steps">
             <Panel style={{ gap: 0, paddingVertical: space[1] }}>
               {d.steps.map((s, i) => (
-                <View key={s.id} style={{ flexDirection: 'row', gap: space[3], alignItems: 'center', paddingVertical: space[3], borderTopWidth: i ? 1 : 0, borderTopColor: '#ECEAE4' }}>
-                  {s.status === 'done' ? <Tick /> : <View style={{ width: 22, height: 22, borderRadius: 7, borderWidth: 2, borderColor: '#D6D3CB' }} />}
+                <View key={s.id} style={{ flexDirection: 'row', gap: space[3], alignItems: 'center', paddingVertical: space[3], borderTopWidth: i ? 1 : 0, borderTopColor: pal.line }}>
+                  {s.status === 'done' ? <Tick /> : <View style={{ width: 22, height: 22, borderRadius: 7, borderWidth: 2, borderColor: pal.lineStrong }} />}
                   <View style={{ flex: 1 }}>
                     <T v="callout">{`${s.seq}. ${s.description}`}</T>
                     <Label>{`${s.plain}${Number(s.official_fee.amount) > 0 ? ` · official fee ${money(s.official_fee)}` : ''}`}</Label>
@@ -102,7 +103,7 @@ export default function ErrandScreen() {
                 {d.documents.map((doc, i) => {
                   const canSend = ['missing', 'pending', 'rejected', 'uploaded'].includes(doc.status) && ['draft', 'documents_pending', 'ordered', 'funded'].includes(d.status);
                   return (
-                    <View key={doc.key} style={{ paddingVertical: space[3], borderTopWidth: i ? 1 : 0, borderTopColor: '#ECEAE4', gap: space[2] }}>
+                    <View key={doc.key} style={{ paddingVertical: space[3], borderTopWidth: i ? 1 : 0, borderTopColor: pal.line, gap: space[2] }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[2] }}>
                         <T v="callout" style={{ flex: 1 }}>{`${doc.label}${doc.required ? '' : ' (if you have it)'}`}</T>
                         <Chip label={words(doc.status)} tone={doc.status === 'accepted' ? 'lime' : doc.status === 'rejected' || doc.status === 'missing' ? 'orange' : 'paper'} />

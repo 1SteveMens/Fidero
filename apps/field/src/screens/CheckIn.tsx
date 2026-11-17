@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { brand, radius, space } from '@tenmina/tokens';
-import { Button, Input, Label, Panel, Pulse, T, Tick } from '@tenmina/ui';
+import { Button, Input, Label, Panel, Pulse, T, Tick, usePalette } from '@tenmina/ui';
 import { clock } from '@tenmina/mobile';
 import { currentPosition, siteCheck, type Position } from '../capture';
 import { useField } from '../store';
@@ -20,6 +20,7 @@ export function CheckCard({ job, kind, done, onDone }: { job: Job; kind: 'checki
   const [why, setWhy] = useState('');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string>();
+  const pal = usePalette();
 
   async function locate() {
     setLocating(true);
@@ -41,8 +42,9 @@ export function CheckCard({ job, kind, done, onDone }: { job: Job; kind: 'checki
   const check = siteCheck(job, pos);
   return (
     <Panel style={{ gap: space[3] }}>
-      <View style={{ height: 140, borderRadius: radius.lg, backgroundColor: '#1A1A1A', overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
-        <View style={{ position: 'absolute', left: 40, right: 40, top: 64, height: 8, borderRadius: 4, backgroundColor: '#2C2C2C' }} />
+      {/* The map keeps its marks above the position strip, which can wrap to two lines on a small phone. */}
+      <View style={{ height: 180, borderRadius: radius.lg, backgroundColor: '#1A1A1A', overflow: 'hidden', alignItems: 'center', justifyContent: 'flex-start', paddingTop: 32 }}>
+        <View style={{ position: 'absolute', left: 40, right: 40, top: 48, height: 8, borderRadius: 4, backgroundColor: '#2C2C2C' }} />
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 60 }}>
           <Pulse size={20} radius={10} color={check.far ? brand.orange : brand.lime} />
           <View style={{ alignItems: 'center' }}>
@@ -58,7 +60,12 @@ export function CheckCard({ job, kind, done, onDone }: { job: Job; kind: 'checki
       <Button title="Check my position again" variant="quiet" icon="refresh" onPress={() => void locate()} />
       {!pos && !locating ? <T v="callout" muted>Turn on location for Tenmina Field. A check-in needs your position.</T> : null}
       {check.far && pos && !locating ? <Input label={`Why are you ${kind === 'checkin' ? 'checking in' : 'checking out'} from here?`} value={why} onChange={setWhy} multiline hint="It is flagged for review. The family or client sees your reason." /> : null}
-      {err ? <T v="callout" color={brand.orange}>{err}</T> : null}
+      {err ? (
+        <View accessibilityRole="alert" style={{ flexDirection: 'row', gap: space[2], alignItems: 'flex-start' }}>
+          <Ionicons name="alert-circle" size={20} color={pal.text} />
+          <T v="callout" style={{ flex: 1 }}>{err}</T>
+        </View>
+      ) : null}
       <Button
         title={kind === 'checkin' ? 'Check in' : 'Check out'}
         icon="locate"

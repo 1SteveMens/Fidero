@@ -1,7 +1,7 @@
-import { Switch, View } from 'react-native';
+import { View } from 'react-native';
 import { router } from 'expo-router';
 import { brand, space } from '@tenmina/tokens';
-import { Button, Chip, Label, ListRow, Panel, Rise, Screen, T } from '@tenmina/ui';
+import { Button, Chip, Label, ListRow, Panel, Rise, Screen, SwitchRow, T } from '@tenmina/ui';
 import { APP_VERSION, initials, useSession, when, words } from '@tenmina/mobile';
 import { useField } from '../../store';
 
@@ -36,12 +36,14 @@ export default function Account() {
           <ListRow icon="camera-outline" title="Evidence taken in this app" detail="Camera only. No gallery or files (RUL-08)" trailing={<Chip tone="paper" label={String(captures.length)} />} />
           <ListRow icon="cloud-upload-outline" title="Waiting to upload" detail={`${onPhone} ${onPhone === 1 ? 'capture' : 'captures'} stored on the phone until Tenmina has them`} trailing={<Chip tone={waiting ? 'orange' : 'paper'} label={String(waiting)} />} />
           <ListRow icon="sync-outline" title="Last sync" detail={lastSyncAt ? when(lastSyncAt) : 'Not yet'} />
-          <ListRow
+          <SwitchRow
             icon="cloud-offline-outline"
             title="Test: pretend there is no signal"
             detail="Try the upload queue without airplane mode"
+            value={noSignal}
+            onChange={setNoSignal}
+            onTone="orange"
             last
-            trailing={<Switch value={noSignal} onValueChange={setNoSignal} trackColor={{ true: brand.orange, false: '#3A3A3A' }} thumbColor={brand.ink} accessibilityLabel="Pretend there is no signal" />}
           />
         </Panel>
       </Rise>

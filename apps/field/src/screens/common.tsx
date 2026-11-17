@@ -80,7 +80,7 @@ export function SearchStrip() {
   return (
     <Panel tone="raised" style={{ flexDirection: 'row', alignItems: 'flex-start', paddingVertical: space[3] }}>
       <Ionicons name="document-lock-outline" size={20} color={brand.lime} />
-      <T v="callout" color="#F7F6F2" style={{ flex: 1 }}>
+      <T v="callout" style={{ flex: 1 }}>
         Search results come from Tenmina's office through the registry's own channel, not from you. Do not collect or photograph one for us.
       </T>
     </Panel>
@@ -92,7 +92,7 @@ export function ConflictStrip({ who }: { who?: string }) {
   return (
     <Panel tone="raised" style={{ flexDirection: 'row', alignItems: 'flex-start', paddingVertical: space[3] }}>
       <Ionicons name="shield-checkmark-outline" size={20} color={brand.lime} />
-      <T v="callout" color="#F7F6F2" style={{ flex: 1 }}>
+      <T v="callout" style={{ flex: 1 }}>
         {`You have no link to ${who ?? 'the contractor or the client'}. If that changes, tell Tenmina before you start. Your pay is the same whatever you find.`}
       </T>
     </Panel>

@@ -45,7 +45,7 @@ export default function PremiumScreen() {
           {d.route === 'client_direct_to_insurer' && d.pay_to && !d.client_reported_at && !d.paid_at ? (
             <>
               <Panel tone="raised">
-                <Label color="#A9A69E">Pay the insurer's own account</Label>
+                <Label>Pay the insurer's own account</Label>
                 {[
                   ['Bank', d.pay_to.bank_name],
                   ['Account name', d.pay_to.account_name],
@@ -53,11 +53,11 @@ export default function PremiumScreen() {
                   ['Reference', d.pay_to.reference],
                 ].map(([k, v]) => (
                   <View key={k} style={{ flexDirection: 'row', gap: space[3] }}>
-                    <T v="footnote" color="#A9A69E" style={{ width: 110 }}>{k}</T>
+                    <T v="footnote" muted style={{ width: 110 }}>{k}</T>
                     <T v="mono" color={brand.lime} style={{ flex: 1, fontSize: 14 }}>{v}</T>
                   </View>
                 ))}
-                <T v="footnote" color="#A9A69E">{d.pay_to.note}</T>
+                <T v="footnote" muted>{d.pay_to.note}</T>
               </Panel>
               <Panel tone="orange">
                 <Label color={brand.ink}>Needs you</Label>

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { brand, space } from '@tenmina/tokens';
-import { Button, Choice, Chip, Input, Label, Panel, Screen, T, Tick } from '@tenmina/ui';
+import { Button, Choice, Chip, Input, Label, Panel, Screen, T, Tick, usePalette } from '@tenmina/ui';
 import { Empty, day, money, words } from '@tenmina/mobile';
 import { useField } from '../../store';
 import { CaptureButton, OfflineBanner } from '../../screens/common';
@@ -14,6 +14,7 @@ import { CaptureButton, OfflineBanner } from '../../screens/common';
  * fees are paid by the bank straight to the agency: the agent never carries money.
  */
 export default function ErrandScreen() {
+  const pal = usePalette();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { errands, queue, ops, capturesFor } = useField();
   const e = errands.find((x) => x.id === id);
@@ -35,7 +36,7 @@ export default function ErrandScreen() {
     <Screen ground="paper" back title={e.name} eyebrow={`${e.reference}${e.due_on ? ` · due ${day(e.due_on)}` : ''}`}>
       <OfflineBanner />
       <Panel tone="raised" style={{ paddingVertical: space[3] }}>
-        <T v="callout" color="#F7F6F2">Official fees are paid by the bank straight to the agency. Never carry or hand over money.</T>
+        <T v="callout">Official fees are paid by the bank straight to the agency. Never carry or hand over money.</T>
       </Panel>
       {e.steps.map((s) => {
         const receipts = capturesFor('errand_step', s.id, 'receipt');
@@ -46,7 +47,7 @@ export default function ErrandScreen() {
         return (
           <Panel key={s.id} style={{ gap: space[2] }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[3] }}>
-              {done ? <Tick /> : <View style={{ width: 22, height: 22, borderRadius: 7, borderWidth: 2, borderColor: '#D6D3CB' }} />}
+              {done ? <Tick /> : <View style={{ width: 22, height: 22, borderRadius: 7, borderWidth: 2, borderColor: pal.lineStrong }} />}
               <View style={{ flex: 1 }}>
                 <T v="headline" style={{ fontSize: 15 }}>{`${s.seq}. ${s.description}`}</T>
                 <Label>{`${s.plain}${Number(s.official_fee.amount) > 0 ? ` · fee ${money(s.official_fee)}, paid by the bank` : ''}`}</Label>

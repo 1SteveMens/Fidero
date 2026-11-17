@@ -17,6 +17,9 @@ describe('routeFor', () => {
     expect(routeFor('/cases/c1')).toBe('/case/c1');
     expect(routeFor('/reports/r1?x=1')).toBe('/report/r1');
     expect(routeFor('/repairs/r2')).toBe('/repair/r2');
+    expect(routeFor('/events/e1/receipts')).toBe('/event/e1');
+    expect(routeFor('/account/bank-accounts/b1')).toBe('/account/bank-accounts');
+    expect(routeFor('/account/data-requests/d1')).toBe('/account/data');
   });
 
   it('shows anything else as a summary inside the app, never a web page', () => {

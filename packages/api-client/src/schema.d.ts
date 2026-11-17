@@ -22275,6 +22275,9 @@ export interface components {
             readonly last_payment_status: string;
             readonly last_payment_message: string;
             readonly can_pay: boolean;
+            readonly open_payment: {
+                [key: string]: unknown;
+            } | null;
             readonly missing: {
                 [key: string]: unknown;
             }[];

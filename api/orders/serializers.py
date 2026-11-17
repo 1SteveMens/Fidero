@@ -62,6 +62,7 @@ class OrderSerializer(serializers.ModelSerializer):
     referral_code = serializers.SlugRelatedField(slug_field="code", read_only=True)
     terms = OrderTermsStateSerializer(source="*", read_only=True)
     can_pay = serializers.SerializerMethodField()
+    open_payment = serializers.SerializerMethodField()
     missing = serializers.SerializerMethodField()
     next = serializers.SerializerMethodField()
 
@@ -73,7 +74,7 @@ class OrderSerializer(serializers.ModelSerializer):
                   "price", "local_price", "guides", "price_source", "config_version", "quoted_at", "turnaround_days",
                   "lead_source", "lead_source_detail", "referral_code", "terms", "submitted_at", "paid_at",
                   "paid_method", "cancelled_at", "cancel_reason", "refunded_at", "case_id",
-                  "last_payment_status", "last_payment_message", "can_pay", "missing", "next", "created_at",
+                  "last_payment_status", "last_payment_message", "can_pay", "open_payment", "missing", "next", "created_at",
                   "updated_at", "row_version"]
         read_only_fields = fields
 
@@ -90,6 +91,17 @@ class OrderSerializer(serializers.ModelSerializer):
     def get_can_pay(self, obj) -> bool:
         return obj.status == "awaiting_payment" and services.terms_current(obj) and \
             obj.last_payment_status not in ("initiated", "pending_approval")
+
+    @extend_schema_field(serializers.DictField(allow_null=True))
+    def get_open_payment(self, obj):
+        """The payment the client started and has not finished, so the app can take them back to it.
+        While it is open the order cannot be paid again (can_pay is false)."""
+        if obj.last_payment_status not in ("initiated", "pending_approval"):
+            return None
+        p = obj.payments.filter(status__in=("initiated", "pending_approval")).order_by("-created_at").first()
+        if not p:
+            return None
+        return {"id": str(p.pk), "method": p.method, "status": p.status, "checkout_url": p.checkout_url}
 
     @extend_schema_field(serializers.ListField(child=serializers.DictField()))
     def get_missing(self, obj):

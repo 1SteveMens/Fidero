@@ -117,7 +117,7 @@ export function InspectionScreen({ job }: { job: Job }) {
               <CaptureButton subjectType={job.subject_type} subjectId={job.subject_id} reqKey={item.key} label={item.label ?? item.key} count={photos(item.key)} compact />
               <YesNo label={item.label ?? item.key} value={answers[item.key] === 'na' ? undefined : (answers[item.key] as 'yes' | 'no' | undefined)} onChange={(v) => answer(item.key, v)} />
             </View>
-            <Pressable onPress={() => answer(item.key, 'na')} accessibilityRole="radio" accessibilityState={{ selected: answers[item.key] === 'na' }} style={{ alignSelf: 'flex-start', minHeight: 32, justifyContent: 'center' }}>
+            <Pressable onPress={() => answer(item.key, 'na')} accessibilityRole="radio" accessibilityState={{ selected: answers[item.key] === 'na' }} accessibilityLabel={`${item.label ?? item.key}: not applicable`} style={{ alignSelf: 'flex-start', minHeight: 44, minWidth: 44, justifyContent: 'center' }}>
               <Label color={answers[item.key] === 'na' ? pal.text : undefined}>{answers[item.key] === 'na' ? '● Not applicable' : '○ Not applicable'}</Label>
             </Pressable>
             {answers[item.key] === 'no' && !defects.some((d) => d.itemKey === item.key) ? (

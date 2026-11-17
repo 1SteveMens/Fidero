@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { router } from 'expo-router';
 import { space } from '@tenmina/tokens';
-import { Button, Choice, Input, Label, Panel, Screen, T, Tick } from '@tenmina/ui';
+import { Button, Choice, Input, Label, Panel, Screen, T, Tick, usePalette } from '@tenmina/ui';
 import { newUuid, useCountry } from '@tenmina/mobile';
 import { useField } from '../../store';
 import { CaptureButton, OfflineBanner, Submitted } from '../../screens/common';
@@ -20,6 +20,7 @@ const KINDS = [
  */
 export default function Claim() {
   const country = useCountry();
+  const pal = usePalette();
   const { progress, setProgress, capturesFor, queue } = useField();
   const draft = progress('claim-draft') as { id?: string };
   const subjectId = useMemo(() => draft.id ?? newUuid(), [draft.id]);
@@ -64,7 +65,7 @@ export default function Claim() {
       <Input label={country.currency ? `Amount (${country.currency})` : 'Amount'} value={amount} onChange={(v) => setAmount(v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" />
       <Input label="Date paid (YYYY-MM-DD)" value={date} onChange={setDate} />
       <Panel style={{ flexDirection: 'row', alignItems: 'center', gap: space[3] }}>
-        {receipts.length ? <Tick /> : <View style={{ width: 22, height: 22, borderRadius: 7, borderWidth: 2, borderColor: '#D6D3CB' }} />}
+        {receipts.length ? <Tick /> : <View style={{ width: 22, height: 22, borderRadius: 7, borderWidth: 2, borderColor: pal.lineStrong }} />}
         <View style={{ flex: 1 }}>
           <T v="headline" style={{ fontSize: 15 }}>The receipt</T>
           <T v="footnote" muted>Photograph it with this app. One receipt pays once.</T>

@@ -54,19 +54,19 @@ export default function MoneyScreen() {
           <Section title="Pay in: one set of details">
             {pi?.available ? (
               <Panel tone="raised">
-                <Label color="#A9A69E">Pay the bank, never Tenmina</Label>
-                <T v="headline" color="#F7F6F2" style={{ fontSize: 15 }}>{pi.bank_name}</T>
+                <Label>Pay the bank, never Tenmina</Label>
+                <T v="headline" style={{ fontSize: 15 }}>{pi.bank_name}</T>
                 <View style={{ flexDirection: 'row', gap: space[3] }}>
-                  <T v="footnote" color="#A9A69E" style={{ width: 110 }}>Your reference</T>
+                  <T v="footnote" muted style={{ width: 110 }}>Your reference</T>
                   <T v="mono" color={brand.lime} style={{ flex: 1, fontSize: 14 }}>{pi.reference}</T>
                 </View>
                 {pi.lines.map((l) => (
                   <View key={`${l.currency}-${l.account_number}`} style={{ flexDirection: 'row', gap: space[3] }}>
-                    <T v="footnote" color="#A9A69E" style={{ width: 110 }}>{`${l.currency} account`}</T>
-                    <T v="mono" color="#F7F6F2" style={{ flex: 1, fontSize: 14 }}>{`${l.account_name}\n${l.account_number}`}</T>
+                    <T v="footnote" muted style={{ width: 110 }}>{`${l.currency} account`}</T>
+                    <T v="mono" style={{ flex: 1, fontSize: 14 }}>{`${l.account_name}\n${l.account_number}`}</T>
                   </View>
                 ))}
-                <T v="footnote" color="#A9A69E">{pi.note}</T>
+                <T v="footnote" muted>{pi.note}</T>
               </Panel>
             ) : <T v="callout" muted>{pi?.message ?? 'The bank is opening your account.'}</T>}
           </Section>
