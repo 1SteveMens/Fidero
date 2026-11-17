@@ -3,9 +3,10 @@
 - Publishes the case templates for every line (and RPT's report templates, so reports can be built).
 - Names Tenmina's own registry account on the Lands Commission partner (RUL-30) [demo value, TO VERIFY].
 - Opens cases for the orders PAY's seed paid, then walks them into several states:
-  Kofi's land case in progress (searches lodged, a site visit screened and assigned, a document request,
-  messages, costs, a safety incident), a checked plot waiting to be accepted, an institution verification
-  in progress and a contractor check finished. RPT's seed takes Ama's land case to a released report.
+  Kofi's land case in progress (searches lodged, a site visit screened and assigned to the runner, the overlay
+  check assigned to the surveyor, a document request, messages, costs, a safety incident), a checked plot
+  waiting to be accepted, an institution verification in progress and a contractor check finished. RPT's seed
+  takes Ama's land case to a released report.
 """
 import logging
 from datetime import timedelta
@@ -187,6 +188,8 @@ def _kofi_in_progress(case, gh, people):
     services.record_risk_screen(case, cm, task=visit, outcome="proceed", hazards="Busy road at the entrance.",
                                 people_required=1)
     services.assign_task(visit, cm, assignee=runner)
+    # The surveyor's overlay check: in the surveyor's Tenmina Field inbox and on /work/tasks.
+    services.assign_task(case.tasks.get(step_key="overlay_check"), cm, assignee=people["surveyor"])
     services.add_party(case, cm, role="seller", name="Esther Lartey", id_number="GHA-711000201-3")
     services.request_document(case, cm, title="Copy of the indenture from the seller",
                               description="A clear photo of every page is enough.",

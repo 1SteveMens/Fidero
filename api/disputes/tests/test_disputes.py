@@ -9,16 +9,34 @@ from core.errors import DomainError, Forbidden, NotFound, StateConflict
 from core.models import OutboxEvent
 from disputes import services
 from disputes.models import Dispute
-from disputes.seed import funded_escrow
 from escrow.models import Escrow
 
 
 @pytest.fixture
 def escrow(seeded, gh, people):
+    """A funded purchase escrow between Ama and Ato Estates on a green report snapshot (test data only; the
+    seed's dispute escrows sit on real released reports)."""
     import uuid
 
+    from accounts.models import Organisation
+    from escrow import services as esc
+    from escrow.models import Payee, ReportSnapshot
+    from escrow.seed import _agree, _deposit
+
     key = uuid.uuid4().hex[:6]
-    return funded_escrow(gh, people, f"t{key}", f"Test plot {key}", "50000.00", f"VA-GH-T{key}")
+    rid = uuid.uuid4()
+    ReportSnapshot.objects.create(report_id=rid, country=gh, client=people["client"], verdict="green",
+                                  case_id=uuid.uuid4(), asset_id=uuid.uuid4(), released_at=timezone.now(),
+                                  conditions=[])
+    ato = Organisation.objects.filter(name="Ato Estates Ltd").first()
+    payee = Payee.objects.filter(organisation=ato, kind="seller", verification_status="verified").first()
+    e = esc.create_escrow(people["cm"], kind="purchase", client=people["client"], country=gh,
+                          agreed_amount="50000.00", title=f"Test plot {key}", report_id=rid,
+                          parties=[{"role": "seller", "person": people["seller"], "organisation": ato,
+                                    "name": "Ato Estates Ltd", "payee": payee}])
+    _agree(e, people, people["cm"], f"VA-GH-T{key}")
+    _deposit(Escrow.objects.get(pk=e.pk), people["cm"], people["reviewer"], "50000.00", f"DEP-DSP-T{key.upper()}")
+    return Escrow.objects.get(pk=e.pk)
 
 
 def _open(escrow, people, **kw):

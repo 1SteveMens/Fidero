@@ -20,28 +20,32 @@ ESCROWS = {
     "closed": ("Plot at Nsawam (dispute decided)", "88000.00", "VA-GH-000303"),
     "referred": ("Plot at Ada (dispute with mediator)", "102000.00", "VA-GH-000304"),
 }
+PLOTS = {"evidence": ("Ashaiman", "AS-12"), "decision": ("Kasoa", "KS-40"), "closed": ("Nsawam", "NS-08"),
+         "referred": ("Ada", "AD-19")}
 
 
-def funded_escrow(gh, people, key, title, price, va):
-    """A funded purchase escrow between Ama and Ato Estates, on a green report snapshot."""
+def funded_escrow(ctx, gh, people, key, title, price, va):
+    """A funded purchase escrow between Ama and Ato Estates, on a real green report on its plot."""
     from accounts.models import Organisation
     from escrow import services as esc
-    from escrow.models import Escrow, Payee, ReportSnapshot
-    from escrow.seed import _agree, _deposit, demo_id
+    from escrow.models import Escrow, Payee
+    from escrow.seed import _agree, _deposit
+    from reports.seed import plot_report
 
     e = Escrow.objects.filter(title=title).first()
     if e is not None:
         return e
     cm, rv = people["cm"], people["reviewer"]
-    rid = demo_id(f"report:dsp:{key}")
-    ReportSnapshot.objects.get_or_create(report_id=rid, defaults=dict(
-        country=gh, client=people["client"], case_id=demo_id(f"case:dsp:{key}"),
-        asset_id=demo_id(f"asset:dsp:{key}"), verdict="green", released_at=timezone.now(), conditions=[]))
+    locality, plot = PLOTS.get(key) or (title, key)
+    r = plot_report(ctx, f"dsp-{key}", locality=locality, plot_number=plot, verdict="green")
+    if r is None:
+        return None
     ato = Organisation.objects.filter(name="Ato Estates Ltd").first()
     payee = Payee.objects.filter(organisation=ato, kind="seller", verification_status="verified").first()
     e = esc.create_escrow(cm, kind="purchase", client=people["client"], country=gh, agreed_amount=price, title=title,
-                          report_id=rid, parties=[{"role": "seller", "person": people["seller"], "organisation": ato,
-                                                   "name": "Ato Estates Ltd", "payee": payee}])
+                          report_id=r.pk, case_id=r.case_id, asset_id=r.case.asset_id,
+                          parties=[{"role": "seller", "person": people["seller"], "organisation": ato,
+                                    "name": "Ato Estates Ltd", "payee": payee}])
     _agree(e, people, cm, va)
     _deposit(Escrow.objects.get(pk=e.pk), cm, rv, price, f"DEP-DSP-{key.upper()}")
     return Escrow.objects.get(pk=e.pk)
@@ -57,7 +61,9 @@ def run(ctx):
     for key, fn in (("evidence", _evidence), ("decision", _decision), ("closed", _closed), ("referred", _referred)):
         try:
             title, price, va = ESCROWS[key]
-            e = funded_escrow(gh, people, key, title, price, va)
+            e = funded_escrow(ctx, gh, people, key, title, price, va)
+            if e is None:
+                continue  # no demo payment provider: no report, so no purchase escrow
             seeded[f"{key}_escrow"] = e
             seeded[key] = fn(gh, people, e)
         except DomainError as exc:
