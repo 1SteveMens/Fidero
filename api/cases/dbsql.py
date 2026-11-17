@@ -8,6 +8,9 @@
 - case.search_staff_only(): who submits, receives or confirms a search holds a case manager or reviewer grant
   and none of the runner, seller, developer, client or agent roles (RUL-30, ADR-25).
 - Status messages, messages, risk screens and copy checks are append-only; so is safety.incident.
+- safety.incident_counts(from, to): counts only, by country, month and severity, for analytics. It is the
+  one way other code learns anything from the restricted log (RUL-17, 02 10.9). In production it is owned
+  by `tenmina_safety` (SECURITY DEFINER) and only EXECUTE on it is granted to the application role.
 """
 from core.dbsql import append_only
 
@@ -85,6 +88,22 @@ SQL = append_only("case_status_message") + append_only("case_message") + append_
         EXECUTE 'DROP TRIGGER IF EXISTS trg_safety_incident_append_only ' || 'ON safety.incident';
         EXECUTE 'CREATE TRIGGER trg_safety_incident_append_only BEFORE UPDATE OR DELETE ' || 'ON safety.incident '
              || 'FOR EACH ROW EXECUTE FUNCTION core_append_only()';
+      END IF;
+    END $$;""",
+    """DO $$ BEGIN
+      IF to_regclass('safety.incident') IS NOT NULL THEN
+        EXECUTE $f$
+          CREATE OR REPLACE FUNCTION safety.incident_counts(from_ts timestamptz, to_ts timestamptz)
+          RETURNS TABLE(country_code text, month text, severity text, incidents bigint)
+          LANGUAGE sql STABLE SECURITY DEFINER SET search_path = safety, pg_temp AS $body$
+            SELECT i.country_code::text,
+                   to_char(date_trunc('month', i.occurred_at AT TIME ZONE 'UTC'), 'YYYY-MM'),
+                   i.severity, count(*)
+              FROM safety.incident i
+             WHERE i.occurred_at >= from_ts AND i.occurred_at < to_ts
+             GROUP BY 1, 2, 3
+          $body$
+        $f$;
       END IF;
     END $$;""",
 ]

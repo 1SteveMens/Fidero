@@ -10,9 +10,9 @@ from core.idempotency import idempotent
 from core.permissions import has_role
 
 from . import selectors, services
-from .models import Rating, RatingOpportunity, TrackRecord
-from .serializers import (HideIn, OpportunitySerializer, RateIn, RatingSerializer, SummarySerializer,
-                          TrackRecordSerializer)
+from .models import Rating, RatingOpportunity, SatisfactionSurvey, TrackRecord
+from .serializers import (HideIn, OpportunitySerializer, RateIn, RatingSerializer, SatisfactionAnswerIn,
+                          SatisfactionSerializer, SummarySerializer, TrackRecordSerializer)
 
 
 def _valid(cls, request):
@@ -144,3 +144,34 @@ class TrackRecordViewSet(viewsets.GenericViewSet):
         if not has_role(request.user, "RV", "AD"):
             raise Forbidden()
         return Response({"recomputed": services.recompute_all()})
+
+
+class SatisfactionViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    """The client's own satisfaction questions (I-07). Only the client sees their answers; staff see the score
+    in analytics, as counts."""
+
+    serializer_class = SatisfactionSerializer
+    queryset = SatisfactionSurvey.objects.none()
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return SatisfactionSurvey.objects.none()
+        qs = SatisfactionSurvey.objects.filter(client=self.request.user).order_by("-asked_at")
+        if self.request.query_params.get("open") in ("1", "true", "yes"):
+            qs = qs.filter(answered_at__isnull=True)
+        return qs
+
+    @extend_schema(parameters=[OpenApiParameter("open", bool, required=False,
+                                                description="Only questions not answered yet.")])
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @extend_schema(request=SatisfactionAnswerIn, responses=SatisfactionSerializer,
+                   summary="Answer how likely you are to recommend Tenmina, 0 to 10, once")
+    @action(detail=True, methods=["post"])
+    @idempotent
+    def answer(self, request, pk=None):
+        sv = self.get_object()
+        d = _valid(SatisfactionAnswerIn, request)
+        return Response(SatisfactionSerializer(services.answer_satisfaction(
+            sv, request.user, score=d["score"], comment=d.get("comment", ""))).data)

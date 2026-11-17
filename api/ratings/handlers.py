@@ -50,6 +50,29 @@ def on_dispute_closed(ev):
     _safe(services.on_dispute_closed, ev.payload)
 
 
+# Client satisfaction (I-07): one question after a released report, a paid family bill or a completed project.
+
+@subscribe("report.released")
+def ask_after_report(ev):
+    from . import services
+
+    _safe(services.on_report_released_ask, ev.payload)
+
+
+@subscribe("fee_payment.status_changed")
+def ask_after_fee_payment(ev):
+    from . import services
+
+    _safe(services.on_fee_payment_paid_ask, ev.payload)
+
+
+@subscribe("project.completed")
+def ask_after_project(ev):
+    from . import services
+
+    _safe(services.on_project_completed_ask, ev.payload)
+
+
 def _home(person):
     from accounts.home import item
 
@@ -71,9 +94,15 @@ def _register():
     def export_ratings(person):
         from .models import Rating
 
+        from .models import SatisfactionSurvey
+
         return {"ratings_given": [{"subject": r.opportunity.subject_name, "score": r.score, "comment": r.comment,
                                    "created_at": r.created_at.isoformat()}
-                                  for r in Rating.objects.filter(rater=person).select_related("opportunity")]}
+                                  for r in Rating.objects.filter(rater=person).select_related("opportunity")],
+                "satisfaction_answers": [{"about": s.context_label, "score": s.score, "comment": s.comment,
+                                          "asked_at": s.asked_at.isoformat(),
+                                          "answered_at": s.answered_at.isoformat() if s.answered_at else None}
+                                         for s in SatisfactionSurvey.objects.filter(client=person)]}
 
 
 _register()

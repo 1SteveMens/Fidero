@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import CONTEXT_TYPES, SUBJECT_TYPES, Rating, RatingOpportunity, TrackRecord
+from .models import CONTEXT_TYPES, SUBJECT_TYPES, Rating, RatingOpportunity, SatisfactionSurvey, TrackRecord
 
 
 class RateIn(serializers.Serializer):
@@ -92,3 +92,24 @@ class SummarySerializer(serializers.Serializer):
     disputes_lost = serializers.IntegerField()
     average_score = serializers.DecimalField(max_digits=3, decimal_places=2, allow_null=True)
     ratings_count = serializers.IntegerField()
+
+
+class SatisfactionSerializer(serializers.ModelSerializer):
+    question = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SatisfactionSurvey
+        fields = ["id", "context_type", "context_id", "context_label", "question", "asked_at", "score", "comment",
+                  "answered_at"]
+        read_only_fields = fields
+
+    def get_question(self, o) -> str:
+        from .services import SATISFACTION_QUESTION
+
+        return SATISFACTION_QUESTION
+
+
+class SatisfactionAnswerIn(serializers.Serializer):
+    score = serializers.IntegerField(min_value=0, max_value=10,
+                                     help_text="0: not at all likely to recommend Tenmina; 10: certainly.")
+    comment = serializers.CharField(required=False, allow_blank=True, max_length=1000)

@@ -18,8 +18,9 @@ Rules every metric follows:
   (`analytics.day90_targets`).
 - Health and care readings, concerns and insurance applications are never
   read (TR-12, 02 section 10.9); care and insurance metrics count statuses only.
-  The safety incident log is not readable by analytics by design (RUL-17);
-  safety incidents are reported from that log by the people named on it.
+  The safety incident log is not readable by analytics by design (RUL-17):
+  analytics gets counts only, by country, month and severity, through
+  `cases.selectors.safety_incident_counts`, never a row of the log.
 """
 from __future__ import annotations
 
@@ -789,6 +790,53 @@ def insurance(f: Filters) -> list[dict]:
         rows[(_month(r["m"]), r["country__code"])]["claims_paid"] += r["n"]
     out = [{"month": m, "country": c, **v} for (m, c), v in rows.items()]
     return _sort(out, METRICS["insurance"].dims)
+
+
+@metric("safety_incidents", "Safety incidents", dims=("month", "country", "severity"), values=("incidents",),
+        base=None, source="Safety incident log (CASE), counts only",
+        description="Incidents logged by month of occurrence, country and severity. Counts only: the log itself "
+                    "stays restricted to the people granted to read it (RUL-17).")
+def safety_incidents(f: Filters) -> list[dict]:
+    from cases.selectors import safety_incident_counts
+
+    return _sort(safety_incident_counts(f.start, f.end, f.countries), METRICS["safety_incidents"].dims)
+
+
+def _promoter_class(score: int) -> str:
+    return "promoter" if score >= 9 else "passive" if score >= 7 else "detractor"
+
+
+@metric("client_satisfaction", "Client satisfaction", dims=("month", "country", "context"),
+        values=("asked", "answers", "response_rate_pct", "promoters", "passives", "detractors", "nps",
+                "average_score"),
+        base="answers", uses=("line",), source="Satisfaction question (RAT), issue I-07",
+        description="One question after a released report, a paid family bill or a completed project: how likely "
+                    "is the client to recommend Tenmina, 0 to 10. Net promoter score is the share of 9 and 10 "
+                    "less the share of 0 to 6. By the month the question was asked. Comments are never read here.")
+def client_satisfaction(f: Filters) -> list[dict]:
+    from ratings.models import SatisfactionSurvey
+
+    line_of = {"report": "property", "fee_payment": "family", "project": "property"}
+    groups = defaultdict(lambda: {"asked": 0, "scores": []})
+    qs = _window(SatisfactionSurvey.objects.all(), f, "asked_at")
+    for code, asked_at, context, score in qs.values_list("country__code", "asked_at", "context_type", "score"):
+        if f.line and line_of.get(context) != f.line:
+            continue
+        g = groups[(_month(asked_at), code or "", context)]
+        g["asked"] += 1
+        if score is not None:
+            g["scores"].append(score)
+    rows = []
+    for (month, code, context), g in groups.items():
+        xs = g["scores"]
+        kinds = [_promoter_class(x) for x in xs]
+        pro, pas, det = kinds.count("promoter"), kinds.count("passive"), kinds.count("detractor")
+        rows.append({"month": month, "country": code, "context": context, "asked": g["asked"], "answers": len(xs),
+                     "response_rate_pct": pct(len(xs), g["asked"]), "promoters": pro, "passives": pas,
+                     "detractors": det,
+                     "nps": None if not xs else round(100.0 * (pro - det) / len(xs), 1),
+                     "average_score": None if not xs else round(sum(xs) / len(xs), 1)})
+    return _sort(rows, METRICS["client_satisfaction"].dims)
 
 
 # --------------------------------------------------------------------------- the day-90 review

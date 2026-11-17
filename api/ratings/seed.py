@@ -1,6 +1,7 @@
 """RAT demo data: opportunities come from the events earlier seeds produced (released cases, confirmed
 releases). Ama rates some of them: one comment waiting for moderation, one published, one hidden for abuse.
-Then every track record is computed (ratings.recompute)."""
+Then every track record is computed (ratings.recompute). Satisfaction questions were asked by the same events;
+Ama answers the first one (a promoter) and leaves the others open, so both screens have data."""
 import logging
 
 from core.errors import DomainError
@@ -14,8 +15,8 @@ PLAN = [(5, "The surveyor explained the boundary clearly and sent photos the sam
 
 
 def run(ctx):
-    from .models import Rating, RatingOpportunity
     from . import services
+    from .models import Rating, RatingOpportunity, SatisfactionSurvey
 
     people = ctx["people"]
     client = people["client"]
@@ -29,6 +30,11 @@ def run(ctx):
                 elif mod == "hide":
                     services.hide_comment(r, people["reviewer"], "Abusive language about named people.")
         services.recompute_all()
+        if not SatisfactionSurvey.objects.filter(client=client, answered_at__isnull=False).exists():
+            first = SatisfactionSurvey.objects.filter(client=client).order_by("asked_at").first()
+            if first is not None:
+                services.answer_satisfaction(first, client, score=9,
+                                             comment="Clear report and quick answers on WhatsApp. [demo]")
     except DomainError as exc:
         log.warning("seed ratings: %s", exc.detail)
-    ctx["ratings"] = {"count": Rating.objects.count()}
+    ctx["ratings"] = {"count": Rating.objects.count(), "satisfaction": SatisfactionSurvey.objects.count()}
