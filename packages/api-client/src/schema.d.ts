@@ -2318,6 +2318,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/auth/approval-keys": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description FR-ACC-014: register this phone's approval key (Face ID or fingerprint
+         *     for approvals). Needs the authenticator code, in `code` or as a code
+         *     step-up in the last 5 minutes. Only the public key reaches Tenmina.
+         */
+        post: operations["v1_auth_approval_keys_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/auth/csrf": {
         parameters: {
             query?: never;
@@ -2389,6 +2410,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/auth/mfa/challenge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description FR-ACC-014: a one-time challenge for a step-up with this phone's
+         *     approval key. It expires in 2 minutes and works once.
+         */
+        post: operations["v1_auth_mfa_challenge_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/auth/mfa/confirm": {
         parameters: {
             query?: never;
@@ -2450,7 +2491,11 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Fresh MFA for an approval (6.3). Valid for 5 minutes. */
+        /**
+         * @description Fresh MFA for an approval (6.3). Valid for 5 minutes. Either the
+         *     authenticator `code`, or (FR-ACC-014) `key_id`, `challenge` and
+         *     `signature` from the phone's approval key after Face ID or a fingerprint.
+         */
         post: operations["v1_auth_mfa_step_up_create"];
         delete?: never;
         options?: never;
@@ -7954,6 +7999,50 @@ export interface paths {
         head?: never;
         /** @description Profile, language and notification preferences (FR-ACC-010). */
         patch: operations["v1_me_partial_update"];
+        trace?: never;
+    };
+    "/v1/me/approval-keys": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description FR-ACC-014: the phones set up for Face ID or fingerprint approvals.
+         *     DELETE revokes the key (it is kept, marked revoked, for the audit).
+         */
+        get: operations["v1_me_approval_keys_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/approval-keys/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description FR-ACC-014: the phones set up for Face ID or fingerprint approvals.
+         *     DELETE revokes the key (it is kept, marked revoked, for the audit).
+         */
+        get: operations["v1_me_approval_keys_retrieve"];
+        put?: never;
+        post?: never;
+        /**
+         * @description FR-ACC-014: the phones set up for Face ID or fingerprint approvals.
+         *     DELETE revokes the key (it is kept, marked revoked, for the audit).
+         */
+        delete: operations["v1_me_approval_keys_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/v1/me/confirmations": {
@@ -14736,6 +14825,41 @@ export interface components {
             decision: components["schemas"]["ApprovalInputDecisionEnum"];
             note?: string;
         };
+        ApprovalKey: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly device_name: string;
+            readonly platform: components["schemas"]["PlatformEnum"];
+            readonly key_alg: components["schemas"]["ApprovalKeyKeyAlgEnum"];
+            readonly status: components["schemas"]["StatusD50Enum"];
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly last_used_at: string | null;
+            /** Format: date-time */
+            readonly revoked_at: string | null;
+            readonly revoke_reason: string;
+        };
+        /**
+         * @description Refuse fields the API does not know (TC-ACC-012-02: only catalogued
+         *     fields are accepted, NFR-PRIV-02).
+         */
+        ApprovalKeyEnrolRequest: {
+            /** @description Ed25519 public key: 32 raw bytes in base64 or base64url, or DER SubjectPublicKeyInfo in base64. */
+            public_key: string;
+            device_name: string;
+            platform: components["schemas"]["PlatformEnum"];
+            /**
+             * @description The authenticator code. Without it, a code step-up in the last 5 minutes is needed.
+             * @default
+             */
+            code: string;
+        };
+        /**
+         * @description * `EdDSA` - EdDSA
+         * @enum {string}
+         */
+        ApprovalKeyKeyAlgEnum: "EdDSA";
         ApprovalRequest: {
             /** Format: uuid */
             readonly id: string;
@@ -16974,14 +17098,14 @@ export interface components {
             readonly person: string;
             readonly platform: components["schemas"]["PlatformEnum"];
             readonly app_id: string;
-            readonly key_alg: components["schemas"]["KeyAlgEnum"];
+            readonly key_alg: components["schemas"]["KeyAlgA38Enum"];
             readonly key_security: components["schemas"]["KeySecurityEnum"];
             readonly attestation_kind: components["schemas"]["AttestationKindEnum"];
             readonly integrity_status: components["schemas"]["IntegrityStatusEnum"];
             readonly model: string;
             readonly os_version: string;
             readonly app_version: string;
-            readonly status: components["schemas"]["DeviceStatusEnum"];
+            readonly status: components["schemas"]["StatusD50Enum"];
             /** Format: date-time */
             readonly registered_at: string;
             /** Format: date-time */
@@ -17006,12 +17130,6 @@ export interface components {
             /** @default  */
             app_version: string;
         };
-        /**
-         * @description * `active` - active
-         *     * `revoked` - revoked
-         * @enum {string}
-         */
-        DeviceStatusEnum: "active" | "revoked";
         DigitalAddress: {
             status: components["schemas"]["DigitalAddressStatusEnum"];
             code: string;
@@ -20266,7 +20384,7 @@ export interface components {
          *     * `EdDSA` - EdDSA
          * @enum {string}
          */
-        KeyAlgEnum: "ES256" | "EdDSA";
+        KeyAlgA38Enum: "ES256" | "EdDSA";
         /**
          * @description * `registered_company` - registered_company
          *     * `agency_licence` - agency_licence
@@ -21152,6 +21270,19 @@ export interface components {
          * @enum {string}
          */
         Method56dEnum: "api" | "file" | "manual";
+        MfaChallengeResult: {
+            challenge: string;
+            /** @description The exact text to sign: a fixed prefix, then the challenge. */
+            message: string;
+            /** Format: date-time */
+            expires_at: string;
+        };
+        /**
+         * @description * `totp` - totp
+         *     * `device_biometric` - device_biometric
+         * @enum {string}
+         */
+        MfaMethodEnum: "totp" | "device_biometric";
         MfaSetupResult: {
             otpauth_uri: string;
             secret: string;
@@ -21160,6 +21291,7 @@ export interface components {
             /** Format: date-time */
             mfa_at: string;
             valid_for_seconds: number;
+            mfa_method: components["schemas"]["MfaMethodEnum"];
         };
         Milestone: {
             /** Format: uuid */
@@ -22182,6 +22314,10 @@ export interface components {
         };
         PaginatedAgentList: {
             items?: components["schemas"]["Agent"][];
+            next_cursor?: string | null;
+        };
+        PaginatedApprovalKeyList: {
+            items?: components["schemas"]["ApprovalKey"][];
             next_cursor?: string | null;
         };
         PaginatedAssetList: {
@@ -27882,6 +28018,12 @@ export interface components {
          */
         StatusC9dEnum: "pending" | "passed" | "failed";
         /**
+         * @description * `active` - active
+         *     * `revoked` - revoked
+         * @enum {string}
+         */
+        StatusD50Enum: "active" | "revoked";
+        /**
          * @description * `open` - open
          *     * `cleared` - cleared
          *     * `upheld` - upheld
@@ -27947,6 +28089,23 @@ export interface components {
             kind: components["schemas"]["StepProofInputKindEnum"];
             /** Format: uuid */
             evidence_id: string;
+        };
+        /**
+         * @description A fresh MFA step-up: the authenticator `code`, or a signature from this
+         *     phone's approval key over a challenge (FR-ACC-014).
+         */
+        StepUpRequest: {
+            /** @default  */
+            code: string;
+            /** Format: uuid */
+            key_id?: string | null;
+            /** @default  */
+            challenge: string;
+            /**
+             * @description Ed25519 signature, base64 or base64url, over the UTF-8 bytes of the challenge's `message`.
+             * @default
+             */
+            signature: string;
         };
         StopRequest: {
             /** @default  */
@@ -33058,6 +33217,31 @@ export interface operations {
             };
         };
     };
+    v1_auth_approval_keys_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApprovalKeyEnrolRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ApprovalKeyEnrolRequest"];
+                "multipart/form-data": components["schemas"]["ApprovalKeyEnrolRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApprovalKey"];
+                };
+            };
+        };
+    };
     v1_auth_csrf_retrieve: {
         parameters: {
             query?: never;
@@ -33145,6 +33329,25 @@ export interface operations {
             };
         };
     };
+    v1_auth_mfa_challenge_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MfaChallengeResult"];
+                };
+            };
+        };
+    };
     v1_auth_mfa_confirm_create: {
         parameters: {
             query?: never;
@@ -33220,11 +33423,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody: {
+        requestBody?: {
             content: {
-                "application/json": components["schemas"]["CodeRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["CodeRequest"];
-                "multipart/form-data": components["schemas"]["CodeRequest"];
+                "application/json": components["schemas"]["StepUpRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["StepUpRequest"];
+                "multipart/form-data": components["schemas"]["StepUpRequest"];
             };
         };
         responses: {
@@ -43065,6 +43268,74 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Person"];
                 };
+            };
+        };
+    };
+    v1_me_approval_keys_list: {
+        parameters: {
+            query?: {
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                /** @description Number of results to return per page. */
+                limit?: number;
+                status?: "active" | "revoked";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedApprovalKeyList"];
+                };
+            };
+        };
+    };
+    v1_me_approval_keys_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this approval key. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApprovalKey"];
+                };
+            };
+        };
+    };
+    v1_me_approval_keys_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this approval key. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

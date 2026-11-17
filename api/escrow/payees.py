@@ -548,7 +548,10 @@ def _client_signed(client, mfa_at, code):
         return "totp_code"
     if mfa_at is None or timezone.now() - mfa_at > settings.TENMINA["MFA_FRESHNESS"]:
         raise MfaRequired()
-    return "mfa_step_up"
+    from core.mfa import DEVICE_BIOMETRIC, method_of
+
+    # FR-ACC-014: a step-up signed by the approval key on the client's phone.
+    return "device_biometric" if method_of(mfa_at) == DEVICE_BIOMETRIC else "mfa_step_up"
 
 
 @transaction.atomic

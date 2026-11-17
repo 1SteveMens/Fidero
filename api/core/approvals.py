@@ -52,12 +52,16 @@ def open_request(subject_type, subject_id):
 
 
 def decide(req: ApprovalRequest, approver, *, decision="approve", mfa_at=None, slot=None, note="",
-           allowed=None):
+           allowed=None, mfa_method=None):
     """Record one approval or rejection.
 
     `allowed(approver) -> bool` lets the owning module apply extra checks
-    (release rights, payment rights, assigned reviewer).
+    (release rights, payment rights, assigned reviewer). `mfa_method` is how
+    the approver stepped up ("totp" or "device_biometric", FR-ACC-014); by
+    default it is read from `mfa_at` as `core.views.require_mfa` returns it.
     """
+    from . import mfa as mfa_kernel
+
     from audit.services import record
 
     with transaction.atomic():
@@ -76,10 +80,14 @@ def decide(req: ApprovalRequest, approver, *, decision="approve", mfa_at=None, s
         if mfa_at is None or now - mfa_at > settings.TENMINA["MFA_FRESHNESS"]:
             raise MfaRequired()
         n = req.approvals.count()
+        method = mfa_method or mfa_kernel.method_of(mfa_at)
+        if method not in mfa_kernel.METHODS:
+            raise ValueError(f"Unknown MFA method '{method}'.")
         Approval.objects.create(request=req, slot=slot or f"approver_{n + 1}", approver=approver,
-                                decision=decision, mfa_at=mfa_at, note=note)
+                                decision=decision, mfa_at=mfa_kernel.plain(mfa_at), mfa_method=method, note=note)
         record(actor=approver, action=f"approval.{decision}", entity="approval_request", entity_id=req.pk,
-               data={"subject_type": req.subject_type, "subject_id": str(req.subject_id), "note": note})
+               data={"subject_type": req.subject_type, "subject_id": str(req.subject_id), "note": note,
+                     "mfa_method": method})
         if decision == "reject":
             req.status = "rejected"
         elif req.approvals.filter(decision="approve").values("approver").distinct().count() >= req.required:

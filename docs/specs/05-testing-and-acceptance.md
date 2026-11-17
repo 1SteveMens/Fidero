@@ -8,12 +8,12 @@ Test strategy, test cases, acceptance criteria and traceability for the Tenmina 
 |---|---|
 | Document | 05 of 6 in `docs/specs/` |
 | Title | Testing and acceptance |
-| Version | 0.8 |
-| Date | 12 November 2026 |
+| Version | 0.9 |
+| Date | 17 November 2026 |
 | Status | Draft. For review. Not yet baselined |
 | Owner | QA and test lead (role to be filled), for the founder as product owner |
 | Approver | Founder, acting as product owner |
-| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01), version 0.15 |
+| Source of truth | `docs/specs/01-requirements-and-product-specification.md` (document 01), version 0.18 |
 | Other sources | `docs/decisions/2026-11-01-diaspora-platform.md`, `docs/operations/verification-report-template.md`, `docs/operations/milestone-schedule.md`, `docs/validation-plan.md`, `docs/product/architecture.md` |
 | Related documents | Document 02 (architecture), document 04 (epics `EP-<MODULE>` and user stories `US-<MODULE>-nnn`), document 06 (operations, runbooks, backup and restore) |
 
@@ -27,6 +27,7 @@ Test strategy, test cases, acceptance criteria and traceability for the Tenmina 
 | 0.6 | 12 November 2026 | QA and test architect | Aligned to 01 v0.12: fund and evidence protection. New functional tests TC-ACC-013-01 to -06, TC-PAY-008-01 to -03, TC-CASE-016-01 to -05, TC-RPT-012-01 to -05, TC-ESC-016-01 to -07 and TC-ESC-017-01 to -05 (31); rule tests TC-RUL-28-01 to -06, TC-RUL-29-01 to -05, TC-RUL-30-01 to -04, TC-RUL-31-01 to -05 and TC-RUL-32-01 to -05 (25) in new section 3.7, with abuse cases for bank details changed by WhatsApp, a release during the cooling-off period, a payee change approved twice by one person, a refund addressed to a new account, a search result uploaded by a runner, an identity "check" from a photocopy, the identity service down, a re-check assigned to someone linked to the case and a failed re-check that does not freeze an open escrow. State tests TC-STM-ESC-27 and -28 (TC-STM-ESC-13 now refunds to the source account); journey tests TC-E2E-J01-09, TC-E2E-J02-08 and -09; security tests TC-SEC-48 to TC-SEC-50; UAT-45 to UAT-47; OAT-18; PAT-29 and PAT-30 with the escrow bank. Risk rows, objectives, test data, R1 release criteria, go/no-go, traceability (user stories US-ACC-013, US-PAY-008, US-CASE-016, US-RPT-012, US-ESC-016, US-ESC-017) and coverage counts regenerated: 1,054 test cases. Issues 42 to 48 added. |
 | 0.7 | 12 November 2026 | QA and test architect | Aligned to 01 v0.13: release timing and escrow account structure. New functional tests TC-ESC-018-01 to -06, TC-ESC-019-01 to -07 and TC-ESC-020-01 to -04 (17); rule tests TC-RUL-33-01 to -06 and TC-RUL-34-01 to -07 (13) in new section 3.8, and TC-RUL-07-06 for the fresh-search window counted from the dates of the registry's result and the site check (TC-RUL-07-01 and -02 updated for `[14 days, TO VERIFY]`). Abuse cases cover a waiting period or "send later" after approval, part of an approved release held back without terms, an instruction larger than the escrow's confirmed balance, a release drawing on another escrow's money in the shared escrow account, a deposit credited to the wrong escrow's reference and an escrow account set up in Tenmina's name. NFR tests TC-NFR-PERF-06-01 and -02; state tests TC-STM-ESC-29 and -30; journey tests TC-E2E-J02-10 to -12; security test TC-SEC-51; UAT-48; OAT-03 widened to the release clock alerts; PAT-31 to PAT-33 with the escrow bank (a virtual account per escrow, a statement line credited to the wrong virtual account, payment time). Risk row, objectives, test data, R1 release criteria, go/no-go, traceability (user stories US-ESC-018, US-ESC-019, US-ESC-020) and coverage counts regenerated: 1,099 test cases. TC-RUL-06-05 and TC-RUL-07-07 added for the 01 v0.13 review fixes (a held-back share's own condition does not block the main release; the fresh search and site check are checked at the last approval and again at sending). Issue 1 partly resolved; issues 49 and 50 added. |
 | 0.8 | 12 November 2026 | QA and test architect | Aligned to 01 v0.15: exchange rates and deposit routes. New functional tests TC-ESC-021-01 to -09, TC-ESC-022-01 to -08, TC-ESC-023-01 to -05 and TC-ESC-024-01 to -05 (27), and TC-ADM-005-06 for the buffer and comparison providers; rule tests TC-RUL-35-01 to -08 and TC-RUL-36-01 to -07 (15) in new section 3.9. Abuse cases cover a hidden margin (added by Tenmina, left out of a route, or taken at the bank's conversion), a stale reference rate, "best rate" shown when another provider beat the bank, a price or seller payment in foreign currency while Q-32 is open, and a release attempted while the converted amount is short, including a shortfall found only at sending. State tests TC-STM-ESC-31 to -33; journey tests TC-E2E-J02-13, TC-E2E-J02-14 and TC-E2E-J09-09; security tests TC-SEC-52 (rate manipulation) and TC-SEC-53 (fake deposit route); UAT-49 and UAT-50; OAT-19; PAT-34 and PAT-35 with the escrow bank (programme rate, holding foreign currency) and new section 11.10 with PAT-36 and PAT-37 for a money transfer partner (deposit into the cedi account; source of funds, refund and disclosure). Objectives, risk row, test data, R1 release criteria, go/no-go, traceability (user stories US-ESC-021 to US-ESC-024) and coverage counts regenerated: 1,157 test cases. Tests follow the 01 v0.15 review fixes (ranking by amount delivered after fees on a complete day, the client's own bank as an estimate, held amounts converted per payment with no buffer, partner deliveries checked against their quote, converted refunds to foreign accounts, a second administrator for comparison providers). Issues 51 to 54 added; 53 partly closed. |
+| 0.9 | 17 November 2026 | QA and test architect | Aligned to 01 v0.18: Face ID or fingerprint for approvals (FR-ACC-014, `docs/decisions/2026-11-17-biometric-approvals.md`). New functional tests TC-ACC-014-01 to -09: enrolment only with a fresh authenticator code, a signed challenge as a step-up recorded as `device_biometric`, refusal of a wrong signature, a reused or expired challenge, a revoked key and another person's key or challenge, revocation of every key on a password reset, a lock, a suspension or MFA switched off, the app's fallback to the code, and the web on the code. TC-APP-003-03 and TC-SEC-44 reworded: biometric unlock alone is still never the second factor. Security test TC-SEC-54 (stolen password enrols a key; captured step-up replayed); UAT-51. Traceability and coverage counts updated: 1,168 test cases. |
 
 Every figure in this document is a working assumption, not verified data. Unknown numbers are marked `[TO VERIFY]`. Test tooling named here is a proposal. The engineering lead confirms it before R1 build starts.
 
@@ -574,6 +575,15 @@ Each test case also verifies the acceptance criteria of the user story with the 
 | TC-ACC-013-04 | FR-ACC-013 | Identity service down | Sandbox times out, then returns an error | Request the check; retry after the service returns | Pending while down; case manager alerted; release blocked with no override; passes on retry (TC-RUL-31-03) | P1 | Y | R1 |
 | TC-ACC-013-05 | FR-ACC-013 | No match or name differs | Sandbox returns no record; another returns a different name | Run the checks | Both failed; reviewer alerted; blocks stay until a new check passes | P1 | Y | R1 |
 | TC-ACC-013-06 | FR-ACC-013 | Country channel from configuration | Testland seller | Run the check | Testland's configured channel is used; no Ghana channel or value in code | P1 | Y | R1 |
+| TC-ACC-014-01 | FR-ACC-014 | Approval key enrolment needs a fresh authenticator code | Client with an authenticator; a new Ed25519 key | Register the key with no code and no step-up; with a wrong code; after a step-up made with another approval key; after a code step-up 6 minutes old; then with the right code | The first four refused (`mfa-required` or `mfa-invalid`), no key stored; the last stores the public key only; enrolment audited; the client is told on two channels | P1 | Y | R2 |
+| TC-ACC-014-02 | FR-ACC-014 | Signed challenge is a step-up and is recorded | Approver with an enrolled key; an open approval | Take a challenge; sign the message with the phone's key; step up; approve | Step-up answers `mfa_method = device_biometric`, valid 5 minutes; `core_approval.mfa_method` and, for a client approval, `client_approval_method` are `device_biometric`; the step-up is audited; a code step-up still records `totp` | P1 | Y | R2 |
+| TC-ACC-014-03 | FR-ACC-014 | Wrong signature refused | Enrolled key | Sign the challenge with another key; sign other text; send an empty challenge | Each refused (`mfa-signature-invalid` or `mfa-challenge-invalid`); the refusal is audited; the challenge cannot be tried again | P1 | Y | R2 |
+| TC-ACC-014-04 | FR-ACC-014 | Reused or expired challenge refused | Enrolled key | Step up; send the same signed challenge again; use a challenge older than 2 minutes | Both refused with `mfa-challenge-invalid`; the database refuses to clear `used_at` | P1 | Y | R2 |
+| TC-ACC-014-05 | FR-ACC-014 | Revoked key refused; the person manages phones | Two enrolled phones | List the phones; remove one; step up with it; try to make it active again in the database | The list shows both; the removed key is refused (`approval-key-revoked`) and the code still works; the revocation is audited; the database refuses to reactivate it | P1 | Y | R2 |
+| TC-ACC-014-06 | FR-ACC-014 | Another person's key or challenge refused | Clients A and B each with a key | A steps up with B's key; A uses B's challenge; A lists or removes B's phone | All refused; A sees and can remove only A's phones (404 for B's) | P1 | Y | R2 |
+| TC-ACC-014-07 | FR-ACC-014 | Keys revoked on reset, lock, suspension and MFA off | Client with two keys | Reset the password; enrol again and fail sign-in 5 times; enrol again and switch MFA off; suspend another person with a key | After each, every active key of that person is revoked with the reason recorded | P1 | Y | R2 |
+| TC-ACC-014-08 | FR-ACC-014, FR-APP-003 | App: Face ID after the hold, the code as fallback | iPhone with Face ID and an Android phone with a fingerprint; Face ID turned on for approvals | Approve a release; cancel Face ID once, then three times; approve on a phone with no biometric set up; remove the phone in Account on another device, then approve | Face ID is asked after the hold and the approval goes with no code typed; one cancel approves nothing and says so; three cancels show the six code boxes; no biometric or a removed key shows the code boxes; in every case nothing is approved without a fresh step-up | P1 | P | R2 |
+| TC-ACC-014-09 | FR-ACC-014 | Web keeps the code | Same client in the portal and in the app's web build | Open each approval | The six code boxes show; nothing offers Face ID; the approval works end to end with the code | P2 | Y | R2 |
 
 ### 4.2 Orders and leads (ORD)
 
@@ -885,7 +895,7 @@ Tests run on both platforms unless the title names one. FR-APP-004 and FR-APP-00
 | TC-APP-002-03 | FR-APP-002 | Preferences and sign-out respected | Client turns push off in Account; second client signs out | Trigger events for both | No push sent to either; other chosen channels still used; signed-out token revoked | P2 | Y | R2 |
 | TC-APP-003-01 | FR-APP-003 | Biometric unlock | Client set up Face ID on iPhone and fingerprint on Android | Leave and return to the app | The biometric prompt opens the app without a password | P2 | P | R2 |
 | TC-APP-003-02 | FR-APP-003 | New biometric enrolled | Biometric unlock on | Add a new fingerprint or face in the phone's settings; open the app | Biometric unlock refused; the client must sign in again | P1 | P | R2 |
-| TC-APP-003-03 | FR-APP-003 | Biometrics are not the second factor | Client unlocked with biometrics; escrow ready for approval | Approve without entering the second factor; replay the API call without a step-up | Refused with `mfa-required`; no approval recorded | P1 | Y | R2 |
+| TC-APP-003-03 | FR-APP-003 | Biometric unlock alone is not the second factor | Client unlocked with biometrics; escrow ready for approval | Approve without a code and without an approval-key step-up; replay the API call without a step-up | Refused with `mfa-required`; no approval recorded. Only a step-up with the code or the approval key (FR-ACC-014) counts | P1 | Y | R2 |
 | TC-APP-004-01 | FR-APP-004 | Delete account in the client app | Client with no open money matters | Account, Delete my account; read the preview; confirm with the second factor | Preview lists what is deleted, what is kept, why and until when; sessions and push tokens revoked at once; deletion request recorded with source `app`; personal data deleted or anonymised by the sweep except kept classes | P1 | Y | R2 |
 | TC-APP-004-02 | FR-APP-004 | Delete account in Tenmina Field | Contractor with signed evidence on past milestones | Delete the account in the app | Device keys revoked; sign-in ends; signed evidence kept with its case record under Object Lock; the preview said so | P1 | Y | R2 |
 | TC-APP-004-03 | FR-APP-004 | Open escrow or legal hold | Client with an open escrow; another under a legal hold | Delete each account | Request recorded; account closed to new orders; user told what stays open; held records kept; no escrow cancelled by the deletion | P1 | Y | R2 |
@@ -1594,7 +1604,7 @@ Security testing is threat-driven. The main threats are people who want money re
 | TC-SEC-41 | Fake or modified Tenmina Field registers a device | FR-MOB-004, NFR-STORE-01 | Re-sign the Android build and side-load it; run on an emulator; run an iOS development build; replay a captured attestation | Registration refused (`attestation-failed`); replayed challenge rejected; attempt logged and alerted per platform | P | R2 |
 | TC-SEC-42 | Lock-screen push leaks money or family details | FR-APP-002, FR-NTF-004 | Trigger every push template with maximum content; read lock screen and notification centre on both platforms | Generic text only; no amount above the threshold, report content, names of family members or bank details | Y | R2 |
 | TC-SEC-43 | Deep link abuse | FR-APP-001, FR-APP-002 | Open approval and case links from another app, another user's session and a look-alike custom scheme; tamper IDs | App checks the session and permissions; opening never approves; other users' objects return not found; only verified Universal Links and App Links open the app | Y | R2 |
-| TC-SEC-44 | Stolen unlocked phone approves a payment | FR-APP-003, FR-ACC-003 | Use an unlocked phone with the client app open; try every approval type | Every approval asks for the second factor; biometric unlock alone approves nothing | Y | R2 |
+| TC-SEC-44 | Stolen unlocked phone approves a payment | FR-APP-003, FR-ACC-003 | Use an unlocked phone with the client app open; try every approval type | Every approval asks for a fresh second factor: Face ID or a fingerprint releasing the approval key, or the code; biometric unlock alone approves nothing | Y | R2 |
 | TC-SEC-45 | Bulk payment file altered between approval and upload | FR-PRO-005, RUL-27 | Change an amount or account in the stored file; download it; upload a different file in the bank's test portal | Hash mismatch blocks the download; the confirmation import flags lines that do not match the approved run; alert raised | Y | R1 |
 | TC-SEC-46 | A professional reads another professional's pay | FR-PRO-002, FR-PRO-007, FR-ACC-007 | As lawyer A, call `/v1/me/pro/*` and `/v1/pro/*` with lawyer B's IDs; enumerate payable and statement IDs | 404 for every object not A's own; staff endpoints refused | Y | R1 |
 | TC-SEC-47 | Operating account credentials reachable from the escrow side | FR-PRO-006, RUL-27 | From the ESC dispatch task role, read the operating account's secrets; sign a payment file with `kms/release-signing` | Both denied by IAM and key policy; attempt logged | Y | R1 |
@@ -1604,6 +1614,7 @@ Security testing is threat-driven. The main threats are people who want money re
 | TC-SEC-51 | Deposit diverted to another escrow, or money drawn from the shared escrow account | RUL-34, FR-ESC-019, FR-ESC-003 | Send the client a fake message with another escrow's reference; tamper with the reference on the payment page through the API; as an insider, build an instruction against the shared account's total, or write an escrow's balance directly | The payment page shows only the reference from the escrow's bank record; a wrongly credited deposit cannot be released from either escrow; no instruction exceeds its escrow's bank-confirmed balance; no user can write a balance; attempts audited and alerted | Y | R1 |
 | TC-SEC-52 | Rate manipulation: a quote or reference rate changed after acceptance, a forged rate source, or a margin hidden in the rate | RUL-35, FR-ESC-021, FR-ESC-023 | As an insider, edit an accepted quote or a stored reference rate; point the rate source at a forged feed; through the API, submit a quote with a better rate than offered | Accepted quotes and collected rates cannot be edited; a rate from an unconfigured or unsigned source is refused; the server rebuilds every quote and ignores client-sent rates; each attempt audited and alerted | Y | R1 |
 | TC-SEC-53 | Fake deposit route: a fraudster sends the client a "Tenmina transfer partner" link or new account details for paying in | RUL-35, RUL-34, FR-ESC-021, FR-ESC-003 | Send a phishing message with a payment link; try to add an unapproved partner through the API | The routes page lists only partners an administrator approved with a second administrator (FR-ADM-003); it never shows a payment link; the client is warned on every deposit page that Tenmina never sends payment links | P | R1 |
+| TC-SEC-54 | Approval key abuse: a stolen password enrols the attacker's phone, or a captured signed step-up is replayed | FR-ACC-014, FR-ACC-003 | Sign in with the password only and register a key; register with a stale code step-up or another approval key; capture a step-up request and send it again, also from another account | Enrolment refused without a fresh authenticator code; replays refused because the challenge is single use, 2 minutes long and bound to the person; each refusal audited; the client is told when a phone is added | Y | R2 |
 
 ### 8.3 OWASP ASVS level 2 verification (NFR-SEC-05)
 
@@ -1869,6 +1880,7 @@ Supporting checks: TC-NFR-USE-02-01 and TC-NFR-USE-02-02 for status message plai
 | UAT-48 | Pay into an escrow's own account and follow the release to payment | P-01, P-03, P-04 | RUL-33, RUL-34, FR-ESC-018, FR-ESC-019 | Client says the account on the payment page belongs to this escrow at the bank, not to Tenmina; after approving, says when the seller will be paid and that there is no waiting period; the case manager finds a planted overdue release on the escrow list and My work and follows the runbook | R1 |
 | UAT-49 | Choose how to pay in and understand the exchange | P-01 | RUL-35, RUL-36, FR-ESC-021, FR-ESC-022 | Client picks a route and says what they send, what the seller receives in cedis, the margin and the fees, and that Tenmina takes no margin; after choosing to hold dollars, says what happens if the cedi amount falls short and where leftover money goes | R1 |
 | UAT-50 | Check a conversion and handle a margin alert | P-03, P-04 | RUL-35, FR-ESC-023, FR-ESC-024 | Case manager finds a planted conversion outside the programme margin, compares it with the accepted quote, raises it with the bank and records the answer; a reviewer reads the day's rate comparison and says whether the bank's rate was best that day | R1 |
+| UAT-51 | Approve with Face ID | P-01 | FR-ACC-014, FR-APP-003, RUL-11 | Client turns on Face ID after sign-in with one code, approves a school fee by press and hold and Face ID, says that Tenmina never sees their face, then removes the phone in Account and approves the next one with the code | R2 |
 
 ### 11.4 UAT sign-off form
 
@@ -2184,6 +2196,7 @@ Read each row left to right: business requirement, feature, functional requireme
 | BR-10, BR-17 | BR-10, BR-17 | F-01, F-19, F-29 | FR-ACC-011 | Should | R2 | US-ACC-011 | TC-ACC-011-01, TC-ACC-011-02, TC-ACC-011-03 | TC-SEC-31 |
 | BR-17 | BR-17 | F-35 | FR-ACC-012 | Should | R1 | US-ACC-012 | TC-ACC-012-01, TC-ACC-012-02, TC-ACC-012-03 | — |
 | BR-05 | RUL-31, BR-05 | F-01 | FR-ACC-013 | Must | R1 | US-ACC-013 | TC-ACC-013-01, TC-ACC-013-02, TC-ACC-013-03, TC-ACC-013-04, TC-ACC-013-05, TC-ACC-013-06 | TC-RUL-31-01, TC-RUL-31-02, TC-RUL-31-03, TC-RUL-31-04, TC-RUL-31-05, TC-SEC-50, TC-E2E-J02-09 |
+| BR-15 | FR-ACC-003, BR-15 | F-36 | FR-ACC-014 | Should | R2 | US-APP-003 (a story of its own to add in 04) | TC-ACC-014-01, TC-ACC-014-02, TC-ACC-014-03, TC-ACC-014-04, TC-ACC-014-05, TC-ACC-014-06, TC-ACC-014-07, TC-ACC-014-08, TC-ACC-014-09 | TC-APP-003-03, TC-SEC-44, TC-SEC-54, UAT-51 |
 
 **ORD — Orders and leads**
 
@@ -2324,7 +2337,7 @@ Read each row left to right: business requirement, feature, functional requireme
 |---|---|---|---|---|---|---|---|---|
 | BR-01 | F-36 | F-36 | FR-APP-001 | Must | R2 | US-APP-001 (001a to 001e) | TC-APP-001-01, TC-APP-001-02, TC-APP-001-03, TC-APP-001-04, TC-APP-001-05 | TC-SEC-43, UAT-36, UAT-37 |
 | BR-01 | BR-01, FR-NTF-004 | F-36 | FR-APP-002 | Should | R2 | US-APP-002 | TC-APP-002-01, TC-APP-002-02, TC-APP-002-03 | TC-SEC-42 |
-| BR-15 | FR-ACC-003 | F-36 | FR-APP-003 | Should | R2 | US-APP-003 | TC-APP-003-01, TC-APP-003-02, TC-APP-003-03 | TC-SEC-44, UAT-37 |
+| BR-15 | FR-ACC-003, FR-ACC-014 | F-36 | FR-APP-003 | Should | R2 | US-APP-003 | TC-APP-003-01, TC-APP-003-02, TC-APP-003-03 | TC-SEC-44, TC-ACC-014-08, UAT-37, UAT-51 |
 | BR-15 | C-14, FR-DPR-004 | F-36, F-15 | FR-APP-004 | Must | R2 | US-APP-004 | TC-APP-004-01, TC-APP-004-02, TC-APP-004-03, TC-APP-004-04 | TC-STORE-05, UAT-38 |
 | BR-01 | AS-14, RUL-01 | F-36 | FR-APP-005 | Must | R2 | US-APP-005 | TC-APP-005-01, TC-APP-005-02, TC-APP-005-03, TC-APP-005-04 | TC-RUL-01-02, UAT-39 |
 | BR-08, BR-15 | C-14, FR-MOB-005 | F-36, F-15 | FR-APP-006 | Must | R2 | US-APP-006 | TC-APP-006-01, TC-APP-006-02, TC-APP-006-03 | TC-STORE-06, OAT-16 |
@@ -2635,9 +2648,9 @@ Read each row left to right: business requirement, feature, functional requireme
 
 Counts are of test cases written in this version of the document.
 
-| Item | In document 01 version 0.15 | Covered by at least one test | Notes |
+| Item | In document 01 version 0.18 | Covered by at least one test | Notes |
 |---|---|---|---|
-| Functional requirements | 224 (149 Must, 61 Should, 14 Could) | 224 | Every Must FR has at least one positive and one negative test |
+| Functional requirements | 225 (149 Must, 62 Should, 14 Could) | 225 | Every Must FR has at least one positive and one negative test |
 | Business rules | 36 | 36 | Every rule has 2 to 8 tests; 178 in total |
 | Non-functional requirements | 27 | 27 | 38 tests |
 | State models | 5 | 5 | 111 named tests plus the generated matrix test per model |
@@ -2646,26 +2659,26 @@ Counts are of test cases written in this version of the document.
 
 | Test type | Count |
 |---|---|
-| Functional (`TC-<MODULE>-nnn-xx`) | 566 |
+| Functional (`TC-<MODULE>-nnn-xx`) | 575 |
 | Business rule (`TC-RUL-nn-xx`) | 178 |
 | State transition (`TC-STM-…`) | 111 |
 | End-to-end journey (`TC-E2E-J0n-xx`) | 78 |
 | Non-functional (`TC-NFR-…`) | 38 |
-| Security threat (`TC-SEC-nn`) | 53 |
+| Security threat (`TC-SEC-nn`) | 54 |
 | Mobile and field (`TC-FLD-nn`) | 20 |
 | App store acceptance (`TC-STORE-nn`) | 7 |
-| User acceptance (`UAT-nn`) | 50 |
+| User acceptance (`UAT-nn`) | 51 |
 | Operational acceptance (`OAT-nn`) | 19 |
 | Partner acceptance (`PAT-nn`) | 37 |
-| **Total** | **1,157** |
+| **Total** | **1,168** |
 
-Functional test cases by release: R1 341, R2 213, R3 12.
+Functional test cases by release: R1 341, R2 222, R3 12.
 
 Functional coverage by module:
 
 | Module | FRs | Must FRs | FRs with a test | Functional test cases | Automated (Y) |
 |---|---|---|---|---|---|
-| ACC | 13 | 9 | 13 | 36 | 35 |
+| ACC | 14 | 9 | 14 | 45 | 43 |
 | ORD | 7 | 4 | 7 | 14 | 14 |
 | PAY | 8 | 5 | 8 | 16 | 16 |
 | CASE | 16 | 12 | 16 | 33 | 33 |
@@ -2695,9 +2708,9 @@ Functional coverage by module:
 | EVT | 3 | 0 | 3 | 5 | 5 |
 | REC | 4 | 0 | 4 | 5 | 5 |
 | CTY | 4 | 4 | 4 | 12 | 10 |
-| **Total** | **224** | **149** | **224** | **566** | **547** |
+| **Total** | **225** | **149** | **225** | **575** | **555** |
 
-Verification of this version: a script compared every `FR-`, `RUL-` and `NFR-` ID in document 01 version 0.15 with this document. Every ID in 01 appears here, no ID here is absent from 01, and every test ID referenced in a table is defined in a table.
+Verification of this version: a script compared every `FR-`, `RUL-` and `NFR-` ID in document 01 version 0.18 with this document. Every ID in 01 appears here, no ID here is absent from 01, and every test ID referenced in a table is defined in a table.
 
 ### 14.6 Keeping traceability current
 

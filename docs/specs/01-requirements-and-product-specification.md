@@ -5,7 +5,7 @@ Business requirements (BRD), product requirements (PRD) and software requirement
 | Item | Value |
 |---|---|
 | Document | 01 of 6 in `docs/specs/` |
-| Version | 0.18, working draft |
+| Version | 0.19, working draft |
 | Date | 17 November 2026 |
 | Owner | Founder, acting as product owner |
 | Status | For review. Not yet baselined |
@@ -18,6 +18,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 31 October 2026 | First draft |
+| 0.19 | 17 November 2026 | Founder decision `docs/decisions/2026-11-17-biometric-approvals.md`: in the two phone apps, Face ID or a fingerprint replaces typing the authenticator code at each approval. Adds FR-ACC-014 (approval keys per person and phone; a signed one-time challenge is a fresh step-up, recorded as `device_biometric` on every approval; enrolment needs the authenticator code; revocation; fallback to the code). FR-APP-003 updated: besides biometric unlock, the second factor for an approval may be the authenticator code or the phone's approval key after Face ID or a fingerprint; unlocking the app alone still never counts. FR-ACC-003, RUL-05 and RUL-11 are unchanged. The web portal and back office keep the authenticator code; WebAuthn passkeys are the later web equivalent. |
 | 0.18 | 17 November 2026 | Founder decision `docs/decisions/2026-11-17-in-app-everything.md`: the client app does everything itself and never sends the person to the website to finish a task. FR-APP-005 now takes Tenmina's fees through the payment provider inside the app (card or mobile money), never as an in-app purchase and never on the web. AS-14 and Q-23 restated: the fee pays for real-world services (App Store Review Guideline 3.1.3(e)), to be confirmed by the lawyer. |
 | 0.17 | 12 November 2026 | Founder decision `docs/decisions/2026-11-12-two-front-doors.md`: the launch has two front doors, family payments against proof and property checks on land and houses, with a test of building in stages. A1 updated. R0 family payments use a verify-and-confirm model (the client pays the verified institution directly) until a licensed partner can pay on the client's behalf. No requirement IDs change; release scope is unchanged. |
 | 0.16 | 12 November 2026 | Adds Q-34 on candidate lines from diaspora habits (household bills, family pot, home watch, funeral package, trip home bundle, repeat prescriptions and NHIS renewal, inheritance and family property, religious giving against proof, farm watch), informed by the R0 survey. No requirement changes. |
@@ -607,6 +608,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-ACC-010 | The system shall let users manage notification preferences and their preferred channel. | Should | R1 | BR-01 |
 | FR-ACC-011 | The system shall let a developer, seller, institution or insurer create an organisation account with several users. | Should | R2 | BR-10, BR-17 |
 | FR-ACC-013 | The system shall verify the identity of each seller, grantor, consenting party and individual payee against the national identity system through IF-03, store the result, its reference and time but never biometric data, block payee verification while a check is missing or failed, and block report release while a check is missing or pending. A failed check is not hidden: it is reported as a finding in the report. | Must | R1 | RUL-31, BR-05 |
+| FR-ACC-014 | The system shall let a person with an authenticator register an approval key for each phone, so the phone apps can use Face ID or a fingerprint instead of the authenticator code for an approval's step-up. The phone keeps the private key, readable only after the biometric where the platform allows it; Tenmina stores only the public key and never biometric data. Registering a key needs the authenticator code, entered then or in the last 5 minutes. A step-up with the key signs a random one-time challenge that expires after 2 minutes; it counts exactly as a code step-up (5 minutes, every approval) and is recorded on the approval as the method `device_biometric`. The system shall refuse a wrong signature, a used or expired challenge, a revoked key and another person's key; let the person list and revoke their phones; revoke every key on a password reset, an account lock, a suspension or MFA switched off; and audit each registration, revocation and step-up. When the biometric is unavailable, not set up, or cancelled three times, the app falls back to the code. | Should | R2 | FR-ACC-003, BR-15 |
 
 ### C4.2 Orders and leads (ORD)
 
@@ -747,7 +749,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 |---|---|---|---|---|
 | FR-APP-001 | The client app, on iOS and Android, shall offer the client features of the portal: home dashboard, orders, case tracking, reports and fingerprint check, escrow and invoice approvals, statements, messages and settings, on the same API and rules. | Must | R2 | F-36 |
 | FR-APP-002 | The client app shall send push notifications for status changes, requests and approvals, following the user's channel preferences and FR-NTF-004's limits on content. | Should | R2 | BR-01, FR-NTF-004 |
-| FR-APP-003 | The client app shall allow biometric unlock. Approving a release still needs the user's second factor. | Should | R2 | FR-ACC-003 |
+| FR-APP-003 | The client app shall allow biometric unlock, and Face ID or a fingerprint as the second factor for approvals through this phone's approval key (FR-ACC-014). Unlocking the app alone is never the second factor: every approval still needs a fresh step-up, with the approval key after the biometric or with the authenticator code. | Should | R2 | FR-ACC-003, FR-ACC-014 |
 | FR-APP-004 | Both apps shall let a user delete their account from inside the app, subject to legal holds and the retention rules in C5.2, and say plainly what is kept and why. | Must | R2 | C-14, FR-DPR-004 |
 | FR-APP-005 | The client app shall take Tenmina's fees through the payment provider inside the app (card or mobile money), as payment for real-world services. It shall never offer an in-app purchase for them, never send the user to the web to pay, and never take purchase, construction or project money. | Must | R2 | AS-14, RUL-01, `docs/decisions/2026-11-17-in-app-everything.md` |
 | FR-APP-006 | Both apps shall check for a minimum supported version at start and ask the user to update when theirs is too old, without losing queued evidence. | Must | R2 | C-14, FR-MOB-005 |

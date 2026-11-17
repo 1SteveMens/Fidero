@@ -194,6 +194,7 @@ class ApiToken(BaseModel):
     expires_at = models.DateTimeField()
     revoked_at = models.DateTimeField(null=True, blank=True)
     mfa_at = models.DateTimeField(null=True, blank=True)
+    mfa_method = models.TextField(blank=True, default="")  # totp | device_biometric (FR-ACC-014)
     app = models.TextField(blank=True, default="")  # e.g. field/ios/1.4.0
     device_id = models.TextField(blank=True, default="")
 
@@ -210,6 +211,44 @@ class ApiToken(BaseModel):
         tok = cls.objects.create(person=person, kind=kind, token_hash=cls.hash(raw),
                                  expires_at=timezone.now() + ttl, **kw)
         return raw, tok
+
+
+class ApprovalKey(BaseModel):
+    """A public key whose private half sits on one person's phone, readable
+    only after Face ID or a fingerprint (FR-ACC-014, ADR-13). A signature over
+    a one-time challenge counts as a fresh MFA step-up. The server holds only
+    the public key: no face, fingerprint or other biometric data (ADR-25)."""
+
+    PLATFORMS = ("ios", "android")
+    STATUSES = ("active", "revoked")
+    person = models.ForeignKey(Person, on_delete=models.PROTECT, related_name="approval_keys")
+    public_key = models.TextField()  # base64 DER SubjectPublicKeyInfo
+    key_alg = models.TextField(default="EdDSA", choices=[("EdDSA", "EdDSA")])
+    key_sha256 = models.CharField(max_length=64, unique=True)  # SHA-256 of the SPKI: one key, one person
+    device_name = models.TextField()
+    platform = models.TextField(choices=[(p, p) for p in PLATFORMS])
+    app = models.TextField(blank=True, default="")  # Tenmina-App header at enrolment
+    status = models.TextField(default="active", choices=[(s, s) for s in STATUSES])
+    last_used_at = models.DateTimeField(null=True, blank=True)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    revoked_by = models.ForeignKey(Person, null=True, blank=True, on_delete=models.PROTECT, related_name="+")
+    revoke_reason = models.TextField(blank=True, default="")
+
+    class Meta:
+        db_table = "acc_approval_key"
+        indexes = [models.Index(fields=["person", "status"])]
+
+
+class MfaChallenge(BaseModel):
+    """A random one-time challenge for an approval-key step-up: 2 minutes, single use."""
+
+    person = models.ForeignKey(Person, on_delete=models.PROTECT, related_name="+")
+    challenge = models.CharField(max_length=64, unique=True)
+    expires_at = models.DateTimeField()
+    used_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = "acc_mfa_challenge"
 
 
 class OneTimeCode(BaseModel):

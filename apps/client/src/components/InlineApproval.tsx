@@ -1,30 +1,28 @@
 import { useState } from 'react';
 import { router } from 'expo-router';
 import { brand, holdToApproveMs } from '@tenmina/tokens';
-import { Button, CodeField, GroundContext, HoldButton, Label, Panel, T, haptic, useScreenReader } from '@tenmina/ui';
-import { ProblemBox, money, stepUp, toProblem, useApi, useSession, type ApiMoney, type Problem } from '@tenmina/mobile';
+import { Button, GroundContext, HoldButton, Label, Panel, T, haptic, useScreenReader } from '@tenmina/ui';
+import { ProblemBox, SecondFactorInput, money, toProblem, useSecondFactor, type ApiMoney, type Problem } from '@tenmina/mobile';
 
 /**
  * A smaller approval on a black panel, for screens that list several payments
- * (event vendors, repair quotes). Same rule as the full sheet: the code, then
- * press and hold. The code is checked first as a step-up (6.3), then the action runs.
+ * (event vendors, repair quotes). Same rule as the full sheet: press and hold,
+ * then Face ID or a fingerprint (FR-ACC-014), or the code where this phone has
+ * no approval key. The step-up runs first (6.3), then the action.
  */
 export function InlineApproval({ title, amount, payee, note, onApprove, onDone }: { title: string; amount: ApiMoney; payee: string; note?: string; onApprove: () => Promise<unknown>; onDone: () => void }) {
-  const api = useApi();
-  const { me } = useSession();
+  const factor = useSecondFactor();
   const screenReader = useScreenReader();
-  const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<Problem>();
 
   async function go() {
     setBusy(true);
     setProblem(undefined);
-    const p = await stepUp(api, code);
-    if (p) {
-      setProblem(p);
+    const f = await factor.confirm({ stepUp: true });
+    if (!f.ok) {
+      setProblem(f.problem);
       setBusy(false);
-      setCode('');
       return;
     }
     try {
@@ -33,6 +31,7 @@ export function InlineApproval({ title, amount, payee, note, onApprove, onDone }
       onDone();
     } catch (e) {
       setProblem(toProblem(e));
+      factor.reset();
     }
     setBusy(false);
   }
@@ -44,13 +43,13 @@ export function InlineApproval({ title, amount, payee, note, onApprove, onDone }
         <T v="headline">{title}</T>
         <T v="amount" style={{ fontSize: 30, lineHeight: 36 }}>{money(amount)}</T>
         <T v="footnote" muted>{`To ${payee}, a verified payee. Then two Tenmina staff approve and the bank pays.${note ? ` ${note}` : ''}`}</T>
-        {me?.mfa_enabled ? (
-          <>
-            <CodeField label="Code from your authenticator app" value={code} onChange={setCode} />
-            <HoldButton label="Approve" holdMs={holdToApproveMs} screenReader={screenReader} disabled={code.length < 6} loading={busy} onConfirm={() => void go()} />
-          </>
-        ) : (
+        {factor.mode === 'none' ? (
           <Button title="Set up the authenticator first" onPress={() => router.push('/account/security')} />
+        ) : (
+          <>
+            <SecondFactorInput factor={factor} />
+            <HoldButton label="Approve" holdMs={holdToApproveMs} screenReader={screenReader} disabled={!factor.ready} loading={busy} onConfirm={() => void go()} />
+          </>
         )}
         <ProblemBox problem={problem} />
       </Panel>

@@ -111,6 +111,19 @@ The app now uses the development API and its seeded data. Nothing moves real mon
 - Account, Delete my account: read it, but do not confirm on your own account.
 - Turn on Dark Mode, Reduce Motion and VoiceOver in the iPhone's Settings and try again. With VoiceOver, a double tap approves instead of holding.
 
+### Face ID for approvals (FR-ACC-014)
+
+In Expo Go, the Face ID permission question names Expo Go, not Tenmina. That is expected; the store build shows Tenmina's own text.
+
+1. Set up the authenticator first (Account, Authenticator app). Sign out and sign in again with the code.
+2. After sign-in the app offers "Use Face ID for approvals". Tap it, allow Face ID for Expo Go, and look at the phone. If it asks for the code, enter it once.
+3. Family: open the hospital bill. There are no code boxes now: press and hold, then Face ID. The approval goes, and the next screen says "with Face ID".
+4. Open the next approval, hold, and cancel Face ID once: nothing is approved and it says so. Cancel three times: the six code boxes appear. Approve with the code.
+5. On an approval, tap "Use the code instead": the code boxes appear.
+6. Account, "Face ID or fingerprint for approvals": this phone shows as on. Tap "Turn off on this phone", then approve something: it asks for the code again. Turn it back on from the same screen.
+7. Cover the camera or turn Face ID off for Expo Go in the iPhone's Settings, then approve: the app falls back to the code.
+8. Optional: reset your password on the website and sign in again. The next approval says Face ID was turned off for this phone and asks for the code; Account shows no phones until you turn it on again.
+
 ## If the app stays on "Connecting to Tenmina…" or a sign-in fails
 
 The app shows "Connecting to Tenmina…" and the address it is trying when it cannot reach the API. Check the connection from the phone itself:

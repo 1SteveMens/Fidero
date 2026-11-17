@@ -8,7 +8,10 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.tenmina.client"
+      "bundleIdentifier": "com.tenmina.client",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Tenmina uses Face ID to approve payments on this phone, instead of typing the code from your authenticator app. Your face never leaves the phone."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -35,6 +38,18 @@
           "photosPermission": "Tenmina uses your photos only when you choose one to send as a document.",
           "cameraPermission": false,
           "microphonePermission": false
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Tenmina uses Face ID to approve payments on this phone, instead of typing the code from your authenticator app. Your face never leaves the phone."
+        }
+      ],
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": "Tenmina uses Face ID to approve payments on this phone, instead of typing the code from your authenticator app. Your face never leaves the phone."
         }
       ]
     ],

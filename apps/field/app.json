@@ -8,7 +8,10 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.tenmina.field"
+      "bundleIdentifier": "com.tenmina.field",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Tenmina Field uses Face ID to confirm it is you on this phone. Your face never leaves the phone."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -40,6 +43,18 @@
         "expo-location",
         {
           "locationWhenInUsePermission": "Tenmina Field records where each photo is taken and where you check in, so the client knows the work was done on site."
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Tenmina Field uses Face ID to confirm it is you on this phone. Your face never leaves the phone."
+        }
+      ],
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": "Tenmina Field uses Face ID to confirm it is you on this phone. Your face never leaves the phone."
         }
       ]
     ],

@@ -15,6 +15,7 @@ router.register("admin/licences", views.AdminLicenceViewSet, basename="admin-lic
 router.register("identity-checks", views.IdentityCheckViewSet, basename="identity-check")
 router.register("national-id-checks", views.NationalIdCheckViewSet, basename="national-id-check")
 router.register("me/representatives", views.MyRepresentativeViewSet, basename="my-representative")
+router.register("me/approval-keys", views.MyApprovalKeyViewSet, basename="my-approval-key")
 router.register("family-members", views.FamilyMemberViewSet, basename="family-member")
 router.register("bank-accounts", views.BankAccountViewSet, basename="bank-account")
 router.register("vettings", views.VettingViewSet, basename="vetting")
@@ -37,6 +38,8 @@ urlpatterns = [
     path("auth/mfa/setup", views.mfa_setup),
     path("auth/mfa/confirm", views.mfa_confirm),
     path("auth/mfa/step-up", views.mfa_step_up),
+    path("auth/mfa/challenge", views.mfa_challenge),
+    path("auth/approval-keys", views.approval_key_enrol),
     path("auth/mfa/disable", views.mfa_disable),
     path("me", views.me),
     path("me/identity-checks", views.my_identity_checks),

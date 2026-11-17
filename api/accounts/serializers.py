@@ -3,8 +3,9 @@ from rest_framework import serializers
 from countries.models import Country
 from evidence.models import Evidence
 
-from .models import (BankAccount, FamilyMember, IdentityCheck, Invitation, Membership, NationalIdCheck,
-                     Organisation, Person, ProfessionalLicence, RepresentativeGrant, RightsRequest, RoleGrant, Vetting)
+from .models import (ApprovalKey, BankAccount, FamilyMember, IdentityCheck, Invitation, Membership, NationalIdCheck,
+                     Organisation, Person, ProfessionalLicence, RepresentativeGrant, RightsRequest, RoleGrant,
+                     Vetting)
 from .normalise import mask
 
 
@@ -162,6 +163,42 @@ class CodeSerializer(serializers.Serializer):
     code = serializers.CharField()
 
 
+class StepUpSerializer(StrictMixin, serializers.Serializer):
+    """A fresh MFA step-up: the authenticator `code`, or a signature from this
+    phone's approval key over a challenge (FR-ACC-014)."""
+
+    code = serializers.CharField(required=False, allow_blank=True, default="")
+    key_id = serializers.UUIDField(required=False, allow_null=True, default=None)
+    challenge = serializers.CharField(required=False, allow_blank=True, default="")
+    signature = serializers.CharField(required=False, allow_blank=True, default="",
+                                      help_text="Ed25519 signature, base64 or base64url, over the UTF-8 bytes of "
+                                                "the challenge's `message`.")
+
+
+class MfaChallengeResultSerializer(serializers.Serializer):
+    challenge = serializers.CharField()
+    message = serializers.CharField(help_text="The exact text to sign: a fixed prefix, then the challenge.")
+    expires_at = serializers.DateTimeField()
+
+
+class ApprovalKeyEnrolSerializer(StrictMixin, serializers.Serializer):
+    public_key = serializers.CharField(help_text="Ed25519 public key: 32 raw bytes in base64 or base64url, or "
+                                                 "DER SubjectPublicKeyInfo in base64.")
+    device_name = serializers.CharField(max_length=80)
+    platform = serializers.ChoiceField(choices=["ios", "android"])
+    code = serializers.CharField(required=False, allow_blank=True, default="",
+                                 help_text="The authenticator code. Without it, a code step-up in the last 5 "
+                                           "minutes is needed.")
+
+
+class ApprovalKeySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApprovalKey
+        fields = ["id", "device_name", "platform", "key_alg", "status", "created_at", "last_used_at", "revoked_at",
+                  "revoke_reason"]
+        read_only_fields = fields
+
+
 class MfaSetupResultSerializer(serializers.Serializer):
     otpauth_uri = serializers.CharField()
     secret = serializers.CharField()
@@ -170,6 +207,7 @@ class MfaSetupResultSerializer(serializers.Serializer):
 class MfaStepUpResultSerializer(serializers.Serializer):
     mfa_at = serializers.DateTimeField()
     valid_for_seconds = serializers.IntegerField()
+    mfa_method = serializers.ChoiceField(choices=["totp", "device_biometric"])
 
 
 class CsrfSerializer(serializers.Serializer):

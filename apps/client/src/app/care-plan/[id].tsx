@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { brand, holdToApproveMs, space } from '@tenmina/tokens';
-import { Button, Chip, CodeField, HoldButton, Label, ListRow, Panel, Screen, T, useScreenReader } from '@tenmina/ui';
-import { KV, LoadState, ProblemBox, Section, day, itemsOf, money, stepUp, useAction, useApi, useGet, useLoad, useSession, when, words, type ApiMoney, type Problem } from '@tenmina/mobile';
+import { Button, Chip, HoldButton, Label, ListRow, Panel, Screen, T, useScreenReader } from '@tenmina/ui';
+import { KV, LoadState, ProblemBox, SecondFactorInput, Section, day, itemsOf, money, useAction, useGet, useLoad, useSecondFactor, when, words, type ApiMoney, type Problem } from '@tenmina/mobile';
 
 interface CarePlan {
   id: string;
@@ -40,27 +40,26 @@ interface Visit {
 /**
  * Care plan, visits and alerts (SCR-PTL-43, SCR-PTL-44; W-29): who visits, what
  * they do, who confirms, and each visit's state. Starting the plan accepts the
- * terms and agrees the carer as payee, with the authenticator code (RUL-28).
+ * terms and agrees the carer as payee: press and hold, then Face ID or a
+ * fingerprint, or the authenticator code (RUL-28, FR-ACC-014).
  */
 export default function CarePlanScreen() {
-  const api = useApi();
-  const { me } = useSession();
+  const factor = useSecondFactor();
   const screenReader = useScreenReader();
   const { id } = useLocalSearchParams<{ id: string }>();
   const plan = useGet<CarePlan>(`/v1/care-plans/${id}`);
   const visits = useGet<{ items: (Visit & { plan: string })[] }>('/v1/care-visits');
   const terms = useLoad((a) => a.get<{ terms: { title: string; text: string }; terms_version: string; scope_version: string }>('/v1/catalogue/terms'), 'terms');
   const act = useAction();
-  const [code, setCode] = useState('');
   const [problem, setProblem] = useState<Problem>();
   const d = plan.data;
   const mine = itemsOf(visits.data).filter((v) => v.plan === id);
 
   async function activate() {
     setProblem(undefined);
-    const p = await stepUp(api, code);
-    if (p) {
-      setProblem(p);
+    const f = await factor.confirm({ stepUp: true });
+    if (!f.ok) {
+      setProblem(f.problem);
       return;
     }
     const r = await act.run('POST', `/v1/care-plans/${id}/activate`, { terms_version: terms.data?.terms_version, scope_version: terms.data?.scope_version });
@@ -85,10 +84,10 @@ export default function CarePlanScreen() {
                 {`Accepting starts the visits. Each visit is paid ${money(d.visit_fee)} from your money held at the bank, only after the family confirms it.`}
               </T>
               {terms.data ? <T v="footnote" color="#A9A69E">{`${terms.data.terms.title}: ${terms.data.terms.text}`}</T> : null}
-              {me?.mfa_enabled ? (
+              {factor.mode !== 'none' ? (
                 <>
-                  <CodeField label="Code from your authenticator app" value={code} onChange={setCode} />
-                  <HoldButton label="Start the plan" holdMs={holdToApproveMs} screenReader={screenReader} disabled={code.length < 6 || !terms.data} loading={act.busy} onConfirm={() => void activate()} />
+                  <SecondFactorInput factor={factor} />
+                  <HoldButton label="Start the plan" holdMs={holdToApproveMs} screenReader={screenReader} disabled={!factor.ready || !terms.data} loading={act.busy} onConfirm={() => void activate()} />
                 </>
               ) : (
                 <Button title="Set up the authenticator first" variant="primary" onPress={() => router.push('/account/security')} />
