@@ -41,6 +41,7 @@ urlpatterns = [
     path("auth/mfa/challenge", views.mfa_challenge),
     path("auth/approval-keys", views.approval_key_enrol),
     path("auth/mfa/disable", views.mfa_disable),
+    path("people", views.people_search),
     path("me", views.me),
     path("me/identity-checks", views.my_identity_checks),
     path("me/represented", views.represented),

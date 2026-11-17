@@ -26,7 +26,7 @@
 .check-row .tick.done { background: var(--lime); color: var(--ink); }
 .seg { display: flex; gap: 6px; flex-wrap: wrap; }
 .seg button { min-height: 44px; padding: 8px 14px; border-radius: var(--r-sm); border: 1.5px solid var(--color-line-strong); background: var(--color-bg); color: var(--color-text); font: 700 14px var(--font-sans); cursor: pointer; }
-.seg button[aria-pressed='true'] { background: var(--ink); color: #fff; border-color: var(--ink); }
+.seg button[aria-pressed='true'] { background: var(--color-raised); color: var(--color-on-raised); border-color: var(--color-raised); }
 .pub-top { background: #0b0b0b; color: #f7f6f2; }
 .pub-top-inner { max-width: 1100px; margin: 0 auto; display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 10px 16px; }
 .pub-top a { color: #f7f6f2; text-decoration: none; font-weight: 700; }
@@ -44,7 +44,6 @@
 .result-no { background: var(--ink); color: #fff; border-radius: var(--r-lg); padding: 18px; }
 .pt-main .btn-sm { min-height: 44px; }
 @media (max-width: 480px) { .pub-top .rl-brand { display: none; } }
-.card-ink { --color-bg: #0b0b0b; --color-surface: #1a1a1a; --color-surface-2: #242424; --color-text: #f7f6f2; --color-text-muted: #a9a69e; --color-line: #2c2c2c; --color-line-strong: #3a3a3a; --color-raised: #ffffff; --color-on-raised: #0b0b0b; --color-focus: #a3ee5b; }
 .field > .filepick { font: 700 15px var(--font-sans); text-transform: none; letter-spacing: 0; color: var(--color-text); }
 .grid2 > *, .field { min-width: 0; }
 .input { min-width: 0; }

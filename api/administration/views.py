@@ -12,7 +12,7 @@ from core.errors import Invalid, NotFound
 from core.idempotency import idempotent
 from core.money import q
 from core.permissions import roles
-from core.views import require_mfa
+from core.views import SEARCH, require_mfa, search
 from countries.models import Country
 
 from . import appversion, registry, selectors, services
@@ -207,12 +207,12 @@ class PartnerList(generics.ListAPIView):
     serializer_class = RegistryPartnerSerializer
 
     @extend_schema(parameters=[OpenApiParameter("country", str), OpenApiParameter("kind", str),
-                               OpenApiParameter("status", str)])
+                               OpenApiParameter("status", str), SEARCH])
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        qs = Partner.objects.all()
+        qs = search(Partner.objects.all(), self.request, "name")
         p = self.request.query_params
         if p.get("country"):
             qs = qs.filter(country__code=p["country"].upper())

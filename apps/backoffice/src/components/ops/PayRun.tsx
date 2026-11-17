@@ -83,12 +83,12 @@ function Approval({ run, onDone }: { run: Row; onDone: () => void }) {
       {returning ? (
         <div className="row">
           <Button variant="primary" busy={busy} disabled={!note.trim()} onClick={() => decide('reject')}>Return with comment</Button>
-          <Button variant="ghost" style={{ color: '#fff' }} onClick={() => setReturning(false)}>Back</Button>
+          <Button variant="ghost" onClick={() => setReturning(false)}>Back</Button>
         </div>
       ) : (
         <>
           <HoldButton tone="lime" label={busy ? 'Working…' : 'Approve run'} disabled={!checked || code.length !== 6 || busy} onConfirm={() => decide('approve')} />
-          <Button variant="ghost" style={{ color: '#fff' }} onClick={() => setReturning(true)}>Return with comment</Button>
+          <Button variant="ghost" onClick={() => setReturning(true)}>Return with comment</Button>
         </>
       )}
     </div>

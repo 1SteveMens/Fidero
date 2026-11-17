@@ -34,6 +34,26 @@ def scope_to_staff_countries(qs, p, field="country", roles=STAFF_ROLES):
     return qs.filter(**{f"{field}__code__in": codes})
 
 
+def _mask_email(email: str) -> str:
+    local, _, domain = (email or "").partition("@")
+    return f"{local[:1]}•••@{domain}" if domain else ""
+
+
+def people_for_picker(staff, q, role=None, limit=20) -> list[dict]:
+    """Staff people picker (forms that ask for a person): people whose home
+    country, or an active role grant, is in the staff member's countries."""
+    qs = Person.objects.filter(is_active=True).filter(
+        Q(full_name__icontains=q) | Q(email__icontains=q) | Q(phone__icontains=q))
+    codes = staff_country_codes(staff)
+    if codes is not None:
+        qs = qs.filter(Q(home_country__code__in=codes)
+                       | Q(role_grants__country__code__in=codes, role_grants__revoked_at__isnull=True))
+    if role:
+        qs = qs.filter(role_grants__role=role, role_grants__revoked_at__isnull=True)
+    return [{"id": p.pk, "full_name": p.full_name, "roles": sorted(p.roles()), "email_masked": _mask_email(p.email)}
+            for p in qs.distinct().order_by("full_name")[:limit]]
+
+
 def in_staff_scope(p, country, roles=STAFF_ROLES) -> bool:
     codes = staff_country_codes(p, roles)
     return codes is None or getattr(country, "code", country) in codes

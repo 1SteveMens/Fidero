@@ -4,6 +4,7 @@
  * (FR-GEO-006), monitoring (FR-GEO-007) and the disputed flag (RUL-17). */
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useState } from 'react';
 import { Blocked, Button, call, Empty, ProblemBox, Skeleton, useGet, useSession } from '@tenmina/web-ui';
 import { ActionForm, day, dayTime, Facts, Head, Panel, useAct, words } from '@/components/core/kit';
 import { GeoMap, type FC } from '@/components/core/GeoMap';
@@ -17,6 +18,15 @@ type Image = { id: string; purpose: string; status: string; provider: string; ca
 type Enrolment = { id: string; reason: string; status: string; baseline_date: string | null; last_checked_at: string | null; ended_reason: string; created_at: string };
 
 const OUT: Record<string, string> = { inside: '✕ Inside', near: '! Near', clear: '✓ Clear' };
+
+/** A satellite image, or a neutral block when it cannot be loaded (never a broken-image icon). */
+function SatImage({ src, alt }: { src: string; alt: string }) {
+  const [failed, setFailed] = useState(false);
+  const box = { width: 150, height: 150, borderRadius: 12, background: 'var(--color-surface-2)' } as const;
+  if (!src || failed) return <div role="img" aria-label={`${alt}: not available`} className="muted" style={{ ...box, display: 'grid', placeItems: 'center', fontSize: 13, textAlign: 'center', padding: 8 }}>Image not available</div>;
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={src} alt={alt} style={{ ...box, objectFit: 'cover' }} onError={() => setFailed(true)} ref={(el) => { if (el && el.complete && el.naturalWidth === 0) setFailed(true); }} />;
+}
 
 export default function AssetPage() {
   const { id } = useParams<{ id: string }>();
@@ -122,7 +132,7 @@ export default function AssetPage() {
             <div className="row" style={{ gap: 10 }}>
               {images.data.slice(0, 4).map((im) => (
                 <figure key={im.id} style={{ margin: 0, width: 150 }}>
-                  {im.status === 'available' ? <img src={im.content_url} alt={`Satellite image ${im.captured_on ?? ''}`} style={{ width: 150, height: 150, objectFit: 'cover', borderRadius: 12, background: '#e9e6df' }} /> : <div className="card" style={{ height: 150, display: 'grid', placeItems: 'center', fontSize: 13 }}>{im.gap_reason || words(im.status)}</div>}
+                  {im.status === 'available' ? <SatImage src={im.content_url} alt={`Satellite image ${im.captured_on ?? ''}`} /> : <div className="card" style={{ height: 150, display: 'grid', placeItems: 'center', fontSize: 13 }}>{im.gap_reason || words(im.status)}</div>}
                   <figcaption className="mono" style={{ fontSize: 11 }}>{day(im.captured_on)} · {words(im.purpose)}{im.cloud_cover ? ` · ${im.cloud_cover}% cloud` : ''}</figcaption>
                 </figure>
               ))}

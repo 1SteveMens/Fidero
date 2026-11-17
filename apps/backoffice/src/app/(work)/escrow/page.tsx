@@ -199,9 +199,9 @@ function EscrowHome() {
         {hasRole('CM', 'RV') ? (
           <ActionForm label="+ New escrow" variant="dark" path="/v1/escrows" fields={[
             { name: 'kind', label: 'Kind', type: 'select', required: true, options: KINDS.map((k) => ({ value: k, label: words(k) })) },
-            { name: 'title', label: 'Title', required: true }, { name: 'client_id', label: 'Client ID', required: true },
+            { name: 'title', label: 'Title', required: true }, { name: 'client_id', label: 'Client', required: true, pick: { kind: 'person', query: { role: 'CL' } } },
             { name: 'amount', label: 'Agreed price', type: 'money' }, { name: 'currency', label: 'Currency', initial: 'GHS' },
-            { name: 'report_id', label: 'Released report ID (its conditions are copied)' }, { name: 'case_id', label: 'Case ID' }, { name: 'asset_id', label: 'Property ID' },
+            { name: 'report_id', label: 'Released report (its conditions are copied)', pick: { kind: 'report', query: { status: 'released' } } }, { name: 'case_id', label: 'Case', pick: 'case' }, { name: 'asset_id', label: 'Property ID' },
             { name: 'held_back_amount', label: 'Held back until a later condition', type: 'money' }, { name: 'held_back_condition', label: 'That condition' },
           ]} body={(v) => ({ kind: v.kind, country: 'GH', title: v.title, client_id: v.client_id, ...(v.amount ? { agreed_price: { amount: v.amount, currency: String(v.currency || 'GHS').toUpperCase() } } : {}), ...(v.report_id ? { report_id: v.report_id } : {}), ...(v.case_id ? { case_id: v.case_id } : {}), ...(v.asset_id ? { asset_id: v.asset_id } : {}), held_back_amount: v.held_back_amount || 0, held_back_condition: v.held_back_condition || '' })}
             onDone={(out) => { const x = out as { id?: string }; if (x?.id) router.push(`/escrow/${x.id}`); }} submitLabel="Create escrow" intro="Parties, the virtual account and the terms version are added on the escrow next." />

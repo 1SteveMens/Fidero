@@ -1,9 +1,25 @@
 """Helpers shared by every module's API."""
+from django.db.models import Q
 from django.utils import timezone
+from drf_spectacular.utils import OpenApiParameter
 from rest_framework import mixins, viewsets
 from rest_framework.exceptions import ValidationError
 
 from .errors import MfaRequired
+
+SEARCH = OpenApiParameter("search", str, description="Part of a name or reference (the back office pickers use it).")
+
+
+def search(qs, request, *fields):
+    """Filter a list by `?search=`: case-insensitive match on any of `fields`.
+    Only narrows what the caller may already see."""
+    q = (request.query_params.get("search") or "").strip()
+    if not q:
+        return qs
+    cond = Q()
+    for f in fields:
+        cond |= Q(**{f"{f}__icontains": q})
+    return qs.filter(cond).distinct()
 
 
 def mfa_at(request):

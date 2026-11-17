@@ -9,7 +9,7 @@ from accounts.models import FamilyMember, Organisation, Person
 from core.errors import Forbidden, Invalid, NotFound
 from core.idempotency import idempotent
 from core.permissions import has_role, is_staff
-from core.views import ETagMixin, mfa_at, require_mfa
+from core.views import SEARCH, ETagMixin, mfa_at, require_mfa, search
 
 from . import selectors, services
 from . import serializers as S
@@ -155,7 +155,12 @@ class CarerViewSet(ETagMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, 
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
             return Carer.objects.none()
-        return selectors.panel(self.request.user).order_by("-created_at")
+        return search(selectors.panel(self.request.user).order_by("-created_at"), self.request, "person__full_name",
+                      "areas")
+
+    @extend_schema(parameters=[SEARCH])
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     def _out(self, carer, status=200):
         carer.refresh_from_db()

@@ -18,10 +18,10 @@ export const professionals: SectionSpec = {
       ],
       filters: ['status', 'role'],
       hide: ['row_version'],
-      create: { label: 'New agreement', path: '/v1/admin/pro/agreements', fields: [{ name: 'professional_id', hint: 'The professional\'s person ID.' }, { name: 'agreement_evidence_id', type: 'file', upload: { subject_type: 'pro_agreement', subjectId: () => crypto.randomUUID() } }] },
+      create: { label: 'New agreement', path: '/v1/admin/pro/agreements', fields: [{ name: 'professional_id', label: 'Professional', hint: 'Search by name, email or phone.' }, { name: 'agreement_evidence_id', type: 'file', upload: { subject_type: 'pro_agreement', subjectId: () => crypto.randomUUID() } }] },
       actions: [
         { label: 'Activate', path: '/v1/admin/pro/agreements/{id}/activate', tone: 'primary', when: (r) => r.status === 'draft', confirm: 'Needs the signed agreement and a verified payee in the agreement\'s name.' },
-        { label: 'Set payee and tax', path: '/v1/admin/pro/agreements/{id}', method: 'PATCH', tone: 'ghost', fields: [{ name: 'payee_id', label: 'Verified payee', source: { path: '/v1/payees', query: { status: 'verified' }, label: (p) => `${p.legal_name} · ending ${p.account_last4}` } }] },
+        { label: 'Set payee and tax', path: '/v1/admin/pro/agreements/{id}', method: 'PATCH', tone: 'ghost', fields: [{ name: 'payee_id', label: 'Verified payee', source: { path: '/v1/payees', query: { verification_status: 'verified' }, label: (p) => `${p.legal_name} · ending ${p.account_last4}` } }] },
         { label: 'Suspend', path: '/v1/admin/pro/agreements/{id}/suspend', tone: 'ghost', when: (r) => r.status === 'active' },
         { label: 'Reinstate', path: '/v1/admin/pro/agreements/{id}/reinstate', when: (r) => r.status === 'suspended' },
         { label: 'End', path: '/v1/admin/pro/agreements/{id}/end', tone: 'ghost', when: (r) => ['active', 'suspended'].includes(r.status) },

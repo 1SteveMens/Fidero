@@ -21,7 +21,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <nav className="pt-tabs" aria-label="Sections">
             {TABS.map((t) => <Link key={t.href} href={t.href} aria-current={active(t.href) ? 'page' : undefined}>{t.label}</Link>)}
           </nav>
-          <Link href="/inbox" className="btn btn-sm btn-ghost" style={{ color: '#fff' }} aria-label="Messages">Inbox</Link>
+          <Link href="/inbox" className="btn btn-sm btn-ghost" aria-label="Messages">Inbox</Link>
         </div>
       </header>
       <main className="pt-main">{loading || !me ? <Skeleton lines={6} /> : children}</main>

@@ -16,7 +16,7 @@ from audit.services import record
 from core.errors import DomainError, Forbidden, Invalid, NotFound, _problem
 from core.idempotency import idempotent
 from core.permissions import has_role
-from core.views import ETagMixin, require_mfa
+from core.views import SEARCH, ETagMixin, require_mfa, search
 
 from . import selectors, services
 from . import serializers as S
@@ -44,8 +44,13 @@ class ReportViewSet(ETagMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin,
     filterset_fields = ["status", "case"]
 
     def get_queryset(self):
-        return selectors.visible_reports(self.request.user).select_related(
+        qs = selectors.visible_reports(self.request.user).select_related(
             "case", "scope_text_version", "template_version").order_by("-created_at")
+        return search(qs, self.request, "reference", "case__reference", "case__title")
+
+    @extend_schema(parameters=[SEARCH])
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     def _staff_or_pro(self, report):
         from cases.services import is_assigned

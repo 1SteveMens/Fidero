@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { ApiError } from '@tenmina/api-client';
 import { Button, call, Empty, Input, ProblemBox, Select, Skeleton, useGet, useSession, type Page } from '@tenmina/web-ui';
 import { ActionButton, fill, listInfo } from './actions';
 import { autoColumns, Cell, get, humanize } from './fmt';
@@ -113,7 +114,7 @@ export function ResourceList({ section, res }: { section: SectionSpec; res: Reso
         <Button variant="ghost" busy={loadingMore} onClick={async () => {
           setLoadingMore(true); setMoreErr(null);
           try {
-            const d = await call<Page<Row>>(client, 'GET', res.list, undefined, { ...query, cursor });
+            const d = await call<Page<Row>>(client, 'GET', res.list, undefined, { ...query, [res.cursorParam ?? 'cursor']: cursor });
             setMore((m) => [...m, ...d.items]);
             setCursor(d.next_cursor);
           } catch (e) { setMoreErr(e); } finally { setLoadingMore(false); }
@@ -143,7 +144,7 @@ export function SubList({ section, sub, parent, onParentChange, subject }: { sec
         {sub.create ? <ActionButton a={{ tone: 'dark', ...sub.create }} row={parent} onDone={done} subject={subject} /> : null}
       </div>
       {sub.note ? <p className="muted" style={{ margin: 0 }}>{sub.note}</p> : null}
-      {error ? <ProblemBox error={error} /> : isLoading && !sub.from ? <Skeleton /> : rows.length ? (
+      {error instanceof ApiError && error.problem.status === 404 ? <Empty>{error.problem.detail && error.problem.detail !== error.problem.title ? error.problem.detail : 'None yet.'}</Empty> : error ? <ProblemBox error={error} /> : isLoading && !sub.from ? <Skeleton /> : rows.length ? (
         <DataTable rows={rows} columns={sub.columns ?? []} href={href} actions={sub.actions} parent={parent} onDone={done} subject={subject} />
       ) : <Empty>None yet.</Empty>}
     </section>

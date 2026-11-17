@@ -5,6 +5,9 @@ import { useEffect, useState } from 'react';
 import { Mark, Skeleton, useSession } from '@tenmina/web-ui';
 import { NAV, STAFF_ROLES } from '@/lib/nav';
 
+const listOf = (xs: string[]) => (xs.length > 1 ? `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}` : xs.join(''));
+const ROLE_NAMES: Record<string, string> = { AD: 'administrators', RV: 'reviewers', DPO: 'the data protection officer', PY: 'staff with payment rights', CM: 'case managers' };
+
 export default function WorkLayout({ children }: { children: React.ReactNode }) {
   const { me, loading, signOut, hasRole } = useSession();
   const router = useRouter();
@@ -27,10 +30,12 @@ export default function WorkLayout({ children }: { children: React.ReactNode }) 
     );
   }
   const active = (href: string) => (href === '/' ? path === '/' : path === href || path.startsWith(href + '/'));
+  // A section this person's roles do not open says so, instead of loading lists the API refuses.
+  const closed = NAV.flatMap((g) => g.items).find((it) => it.href !== '/' && active(it.href) && it.roles && !hasRole(...it.roles));
   return (
     <div className="bo">
       <div className="bo-top">
-        <button className="btn btn-sm btn-ghost" style={{ color: '#fff' }} onClick={() => setOpen(!open)} aria-expanded={open} aria-controls="bo-side">Menu</button>
+        <button className="btn btn-sm btn-ghost" onClick={() => setOpen(!open)} aria-expanded={open} aria-controls="bo-side">Menu</button>
         <span className="row"><Mark size={22} /> Back office</span>
       </div>
       <nav id="bo-side" className={`bo-side ${open ? 'open' : ''}`} aria-label="Sections">
@@ -48,10 +53,15 @@ export default function WorkLayout({ children }: { children: React.ReactNode }) 
         <div className="bo-me">
           <div style={{ fontWeight: 700 }}>{me.full_name}</div>
           <div className="mono" style={{ fontSize: 12, color: '#a9a69e' }}>{me.roles.join(' · ')}</div>
-          <button className="btn btn-sm btn-ghost" style={{ color: '#fff', marginTop: 8 }} onClick={async () => { await signOut(); router.replace('/login'); }}>Sign out</button>
+          <button className="btn btn-sm btn-ghost" style={{ marginTop: 8 }} onClick={async () => { await signOut(); router.replace('/login'); }}>Sign out</button>
         </div>
       </nav>
-      <main className="bo-main">{children}</main>
+      <main className="bo-main">{closed ? (
+        <div className="stack">
+          <h1>{closed.label}</h1>
+          <p className="muted" style={{ margin: 0 }}>This section is for {listOf((closed.roles ?? []).map((r) => ROLE_NAMES[r] ?? r))}. Ask an administrator if you need it.</p>
+        </div>
+      ) : children}</main>
     </div>
   );
 }

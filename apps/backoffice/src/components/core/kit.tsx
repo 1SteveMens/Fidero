@@ -9,6 +9,7 @@ import {
   Button, call, CodeBoxes, Dialog, Field, HoldButton, Input, ProblemBox, Select, Textarea, useSession, useToast,
 } from '@tenmina/web-ui';
 import { uploadEvidence } from './upload';
+import { Picker, type PickSpec } from '../Picker';
 import './core.css';
 
 /** snake_case to "Snake case". */
@@ -133,6 +134,8 @@ export type FieldSpec = {
   hint?: string;
   initial?: string | boolean;
   placeholder?: string;
+  /** Choose a person or record from a search instead of typing its ID. */
+  pick?: PickSpec | ((values: Record<string, string | boolean>) => PickSpec | undefined);
 };
 
 export type Upload = { subject_type: string; subject_id: string; role?: string; country?: string };
@@ -195,7 +198,7 @@ export function ActionForm({
         <form className="stack" onSubmit={submit}>
           {intro ? <div className="muted" style={{ fontSize: 14 }}>{intro}</div> : null}
           {fields.map((f) => (
-            <FormField key={f.name} spec={f} value={vals[f.name]} onChange={(x) => setVals((s) => ({ ...s, [f.name]: x }))} onFile={(file) => setFiles((s) => ({ ...s, [f.name]: file }))} />
+            <FormField key={f.name} spec={f} values={vals} value={vals[f.name]} onChange={(x) => setVals((s) => ({ ...s, [f.name]: x }))} onFile={(file) => setFiles((s) => ({ ...s, [f.name]: file }))} />
           ))}
           {stepUp ? <Field label="Code from your authenticator app"><CodeBoxes value={code} onChange={setCode} /></Field> : null}
           <ProblemBox error={act.error} />
@@ -209,8 +212,19 @@ export function ActionForm({
   );
 }
 
-function FormField({ spec, value, onChange, onFile }: { spec: FieldSpec; value: string | boolean | undefined; onChange: (v: string | boolean) => void; onFile: (f: File | null) => void }) {
+function FormField({ spec, values, value, onChange, onFile }: { spec: FieldSpec; values: Record<string, string | boolean>; value: string | boolean | undefined; onChange: (v: string | boolean) => void; onFile: (f: File | null) => void }) {
   const t = spec.type ?? 'text';
+  const pick = typeof spec.pick === 'function' ? spec.pick(values) : spec.pick;
+  if (pick) {
+    // Not a <label>: the picker holds its own buttons, and a label would press the first one.
+    return (
+      <div className="field">
+        <span>{spec.label}</span>
+        <Picker key={JSON.stringify(pick)} spec={pick} value={typeof value === 'string' ? value : ''} onChange={onChange} required={spec.required} label={spec.label} placeholder={spec.placeholder} />
+        {spec.hint ? <small className="muted">{spec.hint}</small> : null}
+      </div>
+    );
+  }
   if (t === 'checkbox') {
     return (
       <label className="row" style={{ gap: 10, minHeight: 44, flexWrap: 'nowrap' }}>

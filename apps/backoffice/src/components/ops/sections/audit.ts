@@ -7,7 +7,7 @@ export const audit: SectionSpec = {
   intro: 'Every action, append-only and hash-chained. Search it, follow one record\'s trail, and check the chain has not been changed.',
   resources: [
     {
-      key: 'events', label: 'Search', list: '/v1/audit-events', detail: null, idKey: 'seq',
+      key: 'events', label: 'Search', list: '/v1/audit-events', detail: null, idKey: 'seq', cursorParam: 'before_seq',
       filters: ['action', 'entity', 'entity_id', 'actor_id', 'case_id', 'occurred_from', 'occurred_to'],
       columns: [
         { key: 'seq', label: 'Seq', kind: 'mono' },

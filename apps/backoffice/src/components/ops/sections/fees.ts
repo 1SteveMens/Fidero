@@ -25,7 +25,7 @@ export const fees: SectionSpec = {
         { label: 'Send account for two-person check', path: '/v1/institutions/{id}/payee-verification', when: (r) => !!r.payee && r.payee.verification_status !== 'verified', confirm: 'Two other staff with release rights then verify the account in Approvals.' },
         { label: 'Review look-alike', path: '/v1/institutions/{id}/look-alike-review', roles: ['RV'], when: (r) => r.look_alike?.status === 'open' },
         { label: 'Not eligible for direct payment', path: '/v1/institutions/{id}/eligibility', tone: 'ghost', confirm: 'A case manager proposes with the reason; a reviewer confirms or declines. No cash route is ever offered.' },
-        { label: 'Runner task (paper only)', path: '/v1/institutions/{id}/runner-tasks', roles: ['CM'], tone: 'ghost', fields: [{ name: 'runner_id', source: { path: '/v1/admin/people', query: { role: 'RN' }, label: (p) => p.full_name } }], confirm: 'A runner collects an invoice or delivers a receipt. No amount and no money.' },
+        { label: 'Runner task (paper only)', path: '/v1/institutions/{id}/runner-tasks', roles: ['CM'], tone: 'ghost', fields: [{ name: 'runner_id', label: 'Runner', pick: { kind: 'person', query: { role: 'RN' } } }], confirm: 'A runner collects an invoice or delivers a receipt. No amount and no money.' },
         { label: 'Start re-verification', path: '/v1/institutions/{id}/reverification', tone: 'ghost', when: (r) => ['not_eligible', 'not_verified', 'suspended'].includes(r.status) },
         { label: 'Edit details', path: '/v1/institutions/{id}', method: 'PATCH', tone: 'ghost', fields: [{ name: 'registration_evidence_id', type: 'file' }] },
       ],
@@ -117,7 +117,7 @@ export const fees: SectionSpec = {
         { key: 'institution.name', label: 'Latest institution', kind: 'text' },
       ],
       title: (r) => `Statement · ${r.family_member?.full_name ?? r.family_member_name ?? ''}`,
-      subs: [{ label: 'Issued statement PDFs', path: '/v1/family-members/{id}/statement-pdfs', note: 'The client issues these. Each carries its SHA-256.' }],
+      subs: [{ label: 'Issued statement PDFs', path: '/v1/family-members/{family_member.id}/statement-pdfs', note: 'The client issues these. Each carries its SHA-256.' }],
     },
   ],
 };

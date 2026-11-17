@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { apiGet, day, money } from '@/components/roles/server-api';
 import type { Listing } from '@/components/roles/listings';
+import { Photo } from '@/components/photo';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
@@ -50,7 +51,7 @@ export default async function ListingSearch({ searchParams }: { searchParams: SP
           const photo = x.media.find((m) => m.kind === 'photo' && m.public);
           return (
             <Link key={x.id} href={`/listings/${x.id}`} className="card card-link listing-card">
-              {photo ? <img src={photo.url} alt={photo.caption || x.title} loading="lazy" /> : null}
+              <Photo src={photo?.url} alt={photo?.caption || x.title} loading="lazy" />
               <div className="label">{[x.locality, x.district].filter(Boolean).join(', ')}</div>
               <div style={{ fontWeight: 800, fontSize: 17 }}>{x.title}</div>
               <div style={{ fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>{money(x.price)}</div>

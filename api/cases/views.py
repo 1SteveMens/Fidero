@@ -12,7 +12,7 @@ from accounts.models import Person
 from core.errors import Forbidden, Invalid, NotFound
 from core.idempotency import idempotent
 from core.permissions import has_role, roles
-from core.views import ETagMixin
+from core.views import SEARCH, ETagMixin, search
 
 from . import selectors, services
 from . import serializers as S
@@ -65,8 +65,13 @@ class CaseViewSet(ETagMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, v
     filterset_fields = ["status", "product_line", "client"]
 
     def get_queryset(self):
-        return selectors.visible_cases(self.request.user).select_related(
+        qs = selectors.visible_cases(self.request.user).select_related(
             "country", "client", "case_manager", "template_version").order_by("-created_at")
+        return search(qs, self.request, "reference", "title", "client__full_name")
+
+    @extend_schema(parameters=[SEARCH])
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     def get_serializer_class(self):
         return S.CaseDetailSerializer if self.action == "retrieve" else S.CaseSerializer

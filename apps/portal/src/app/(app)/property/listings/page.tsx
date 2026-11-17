@@ -1,8 +1,10 @@
 'use client';
 import Link from 'next/link';
 import { useState } from 'react';
-import { Button, Chip, Empty, Field, Input, Money, ProblemBox, Select, Skeleton, Tabs, When, useGet } from '@tenmina/web-ui';
+import { Button, Chip, Empty, Field, Input, Money, OsmMap, ProblemBox, Select, Skeleton, Tabs, When, useGet } from '@tenmina/web-ui';
+import { useRouter } from 'next/navigation';
 import { PageHead, list, useCountry, type Any } from '@/components/kit';
+import { Photo } from '@/components/photo';
 
 /** W-21 · SCR-PTL-26: search checked plots, as a list or on a map. */
 export default function Listings() {
@@ -31,7 +33,7 @@ export default function Listings() {
         <div className="grid3">
           {rows.map((x: Any) => (
             <Link key={x.id} href={`/property/listings/${x.id}`} className="card card-link stack" style={{ gap: 6, padding: 0, overflow: 'hidden' }}>
-              {x.media?.[0]?.url ? <img src={x.media[0].url} alt={x.media[0].caption || x.title} style={{ width: '100%', aspectRatio: '16 / 10', objectFit: 'cover', background: 'var(--color-surface-2)' }} /> : null}
+              <Photo src={x.media?.[0]?.url} alt={x.media?.[0]?.caption || x.title} style={{ width: '100%', aspectRatio: '16 / 10', objectFit: 'cover', background: 'var(--color-surface-2)', borderRadius: 0 }} />
               <div className="stack" style={{ gap: 4, padding: '4px 16px 16px' }}>
                 {x.badge ? <Chip tone="lime">✓ {x.badge.label}</Chip> : null}
                 <strong>{x.title}</strong>
@@ -48,23 +50,28 @@ export default function Listings() {
   );
 }
 
-/** A plain map of result points (no third-party tiles). Plots without a confirmed point stay in the list. */
+/** Result points on OpenStreetMap tiles, or on a plain drawing when tiles cannot load. Plots without a confirmed point stay in the list. */
 function ListingMap({ fc, rows }: { fc?: Any; rows: Any[] }) {
+  const router = useRouter();
   const pts: Any[] = fc?.features ?? [];
   if (!pts.length) return <Empty>None of these plots has a confirmed map point yet. They are all in the list.</Empty>;
   const xs = pts.map((p) => p.geometry.coordinates[0]); const ys = pts.map((p) => p.geometry.coordinates[1]);
   const [minX, maxX, minY, maxY] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
   const sx = (x: number) => 20 + ((x - minX) / (maxX - minX || 1)) * 260; const sy = (y: number) => 280 - ((y - minY) / (maxY - minY || 1)) * 260;
+  const drawing = (
+    <svg viewBox="0 0 300 300" className="map-box" role="img" aria-label={`${pts.length} plots on the map`}>
+      {pts.map((p) => (
+        <a key={p.id} href={`/property/listings/${p.id}`}>
+          <circle cx={sx(p.geometry.coordinates[0])} cy={sy(p.geometry.coordinates[1])} r="9" fill="#a3ee5b" stroke="#0b0b0b" strokeWidth="2" />
+          <title>{p.properties?.title}</title>
+        </a>
+      ))}
+    </svg>
+  );
   return (
     <div className="stack">
-      <svg viewBox="0 0 300 300" className="map-box" role="img" aria-label={`${pts.length} plots on the map`}>
-        {pts.map((p) => (
-          <a key={p.id} href={`/property/listings/${p.id}`}>
-            <circle cx={sx(p.geometry.coordinates[0])} cy={sy(p.geometry.coordinates[1])} r="9" fill="#a3ee5b" stroke="#0b0b0b" strokeWidth="2" />
-            <title>{p.properties?.title}</title>
-          </a>
-        ))}
-      </svg>
+      <OsmMap label={`${pts.length} plots on the map`} features={{ type: 'FeatureCollection', features: pts.map((p) => ({ ...p, properties: { ...(p.properties ?? {}), id: p.id } })) }}
+        title={(f) => String(f.properties.title ?? '')} onFeatureClick={(f) => router.push(`/property/listings/${f.properties.id}`)} fallback={drawing} />
       <p className="muted" style={{ fontSize: 14 }}>{rows.length - pts.length} of the results have no map point and are shown only in the list.</p>
     </div>
   );

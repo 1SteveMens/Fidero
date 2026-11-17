@@ -79,7 +79,7 @@ export const property: SectionSpec = {
       actions: [
         { label: 'Add a quote', path: '/v1/repairs/{id}/quotes', tone: 'primary', when: (r) => ['reported', 'quoting', 'quotes_ready'].includes(r.status), fields: [
           { name: 'contractor_id', label: 'Vetted contractor', source: { path: '/v1/panel-members', query: { kind: 'contractor', status: 'active' }, label: (c) => c.name } },
-          { name: 'payee_id', label: 'Contractor\'s verified account', source: { path: '/v1/payees', query: { status: 'verified' }, label: (p) => `${p.legal_name} · ending ${p.account_last4}` } },
+          { name: 'payee_id', label: 'Contractor\'s verified account', source: { path: '/v1/payees', query: { verification_status: 'verified' }, label: (p) => `${p.legal_name} · ending ${p.account_last4}` } },
           { name: 'evidence_id', type: 'file', label: 'Quote document' },
         ] },
         { label: 'Single-quote exception', path: '/v1/repairs/{id}/single-quote-exceptions', roles: ['RV'], tone: 'ghost', when: (r) => ['quoting', 'reported'].includes(r.status) },

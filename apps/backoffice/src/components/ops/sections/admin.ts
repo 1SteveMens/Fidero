@@ -24,8 +24,8 @@ const lockedText = (kind: string, label: string): ResourceSpec => ({
 export const admin: SectionSpec = {
   href: '/admin',
   title: 'Admin',
-  screens: 'SCR-BO-18 to SCR-BO-21 · SCR-BO-25 · SCR-BO-26 · SCR-BO-29',
-  intro: 'People and rights, flags, settings, prices, locked texts, countries, partners and the records programme. Anything that changes who can move money, or a safety flag, needs a second administrator.',
+  screens: 'SCR-BO-18 to SCR-BO-21 · SCR-BO-25 · SCR-BO-29',
+  intro: 'People and rights, flags, settings, prices, locked texts, countries, partners. The records programme has its own page. Anything that changes who can move money, or a safety flag, needs a second administrator.',
   resources: [
     {
       key: 'people', label: 'People and roles', list: '/v1/admin/people', screen: 'SCR-BO-20',
@@ -263,68 +263,6 @@ export const admin: SectionSpec = {
       ],
       filters: ['status', 'channel', 'template'],
       title: (r) => `${r.template} · ${r.channel}`,
-    },
-    {
-      key: 'authorities', label: 'Records: authorities', list: '/v1/records/authorities', screen: 'SCR-BO-26',
-      intro: 'Stools, skins and families who keep allocation records with Tenmina under an agreement, and their revenue share.',
-      columns: [
-        { key: 'name', label: 'Authority', kind: 'name' },
-        { key: 'kind', label: 'Kind', kind: 'text' },
-        { key: 'region', label: 'Region', kind: 'text' },
-        { key: 'share_per_case', label: 'Share per case', kind: 'money' },
-        { key: 'status', label: 'Status', kind: 'status' },
-      ],
-      create: { label: 'Add an authority', path: '/v1/records/authorities', omit: ['agreement_evidence_id'] },
-      actions: [{ label: 'Add representative', path: '/v1/records/authorities/{id}/representatives', fields: [{ name: 'authorisation_evidence_id', type: 'file', upload: { subject_type: 'rec_authority' } }] }],
-    },
-    {
-      key: 'allocations', label: 'Records: allocations', list: '/v1/records/allocations', screen: 'SCR-BO-26',
-      columns: [
-        { key: 'authority_name', label: 'Authority', kind: 'name' },
-        { key: 'allottee_name', label: 'Allottee', kind: 'text' },
-        { key: 'allocated_on', label: 'Allocated', kind: 'date' },
-        { key: 'area_sqm', label: 'Area m²', kind: 'mono' },
-        { key: 'status', label: 'Status', kind: 'status' },
-      ],
-      filters: ['status', 'q'],
-      title: (r) => `${r.allottee_name} · ${r.reference}`,
-      actions: [
-        { label: 'Confirm', path: '/v1/records/allocations/{id}/confirm', tone: 'primary', when: (r) => r.status === 'captured' },
-        { label: 'Correct', path: '/v1/records/allocations/{id}/corrections', tone: 'ghost' },
-        { label: 'Mark disputed', path: '/v1/records/allocations/{id}/dispute', tone: 'ghost', when: (r) => r.status !== 'disputed' },
-      ],
-      subs: [{ label: 'Overlaps', from: 'overlaps', actions: [{ label: 'Resolve', path: '/v1/records/overlaps/{id}/resolutions' }] }],
-    },
-    {
-      key: 'matches', label: 'Records: matches', list: '/v1/records/matches', screen: 'SCR-BO-26',
-      columns: [
-        { key: 'case_reference', label: 'Case', kind: 'ref' },
-        { key: 'authority_name', label: 'Authority', kind: 'name' },
-        { key: 'kind', label: 'Match', kind: 'text' },
-        { key: 'share_of_plot', label: 'Share of plot', kind: 'mono' },
-        { key: 'status', label: 'Status', kind: 'status' },
-      ],
-      create: { label: 'Match a case', path: '/v1/records/matches/run', showResult: true },
-      actions: [
-        { label: 'Confirm match', path: '/v1/records/matches/{id}/confirm', tone: 'primary', when: (r) => ['proposed', 'review'].includes(r.status) },
-        { label: 'Reject match', path: '/v1/records/matches/{id}/reject', tone: 'ghost', when: (r) => ['proposed', 'review'].includes(r.status) },
-      ],
-    },
-    {
-      key: 'shares', label: 'Records: revenue shares', list: '/v1/records/revenue-shares', screen: 'SCR-BO-26',
-      columns: [
-        { key: 'authority_name', label: 'Authority', kind: 'name' },
-        { key: 'period_start', label: 'From', kind: 'date' },
-        { key: 'period_end', label: 'To', kind: 'date' },
-        { key: 'case_count', label: 'Cases', kind: 'mono' },
-        { key: 'amount', label: 'Amount', kind: 'money' },
-        { key: 'status', label: 'Status', kind: 'status' },
-      ],
-      create: { label: 'Compute shares', path: '/v1/records/revenue-shares/compute', showResult: true },
-      actions: [
-        { label: 'Approve', path: '/v1/records/revenue-shares/{id}/approve', tone: 'primary', mfa: true, when: (r) => r.status === 'computed', confirm: 'Paid by Tenmina from its own account. You did not compute this share.' },
-        { label: 'Mark paid', path: '/v1/records/revenue-shares/{id}/paid', when: (r) => r.status === 'approved' },
-      ],
     },
   ],
 };
