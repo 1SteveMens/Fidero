@@ -35,9 +35,10 @@ from .serializers import (AcceptInvitationSerializer, AddMemberResultSerializer,
                           MfaSetupResultSerializer, MfaStepUpResultSerializer, NationalIdCheckSerializer,
                           OrganisationSerializer, OtpSendSerializer, OtpVerifyResultSerializer, OtpVerifySerializer,
                           PasswordChangeSerializer, PasswordResetConfirmSerializer, PasswordResetSerializer,
-                          PersonPickPageSerializer, PersonSerializer, ReasonSerializer, RefreshSerializer,
-                          RegisterSerializer, RepresentativeSerializer, RequestNationalIdCheckSerializer,
-                          RightsRequestSerializer, RoleGrantSerializer, SignupResultSerializer, SignupSerializer,
+                          PersonPickPageSerializer, PersonSerializer, PhoneChangeSerializer, ReasonSerializer,
+                          RefreshSerializer, RegisterSerializer, RepresentativeSerializer,
+                          RequestNationalIdCheckSerializer, RightsRequestSerializer, RoleGrantSerializer,
+                          SignupResultSerializer, SignupSerializer, SmsCodeSentSerializer,
                           StaffPortalResultSerializer, StartIdentityCheckSerializer, StepUpSerializer,
                           TokenPairSerializer, VettingSerializer)
 
@@ -45,9 +46,9 @@ T = settings.TENMINA
 NEUTRAL = {"detail": "If the details are right, we have sent a code."}
 
 
-def _tokens(person, request, mfa_at=None):
+def _tokens(person, request, mfa_at=None, mfa_method="totp"):
     access, _ = ApiToken.issue(person, "access", T["ACCESS_TOKEN_TTL"], mfa_at=mfa_at,
-                               mfa_method="totp" if mfa_at else "", app=request.headers.get("Tenmina-App", ""))
+                               mfa_method=mfa_method if mfa_at else "", app=request.headers.get("Tenmina-App", ""))
     refresh, _ = ApiToken.issue(person, "refresh", T["REFRESH_TOKEN_TTL"], app=request.headers.get("Tenmina-App", ""))
     return {"access": access, "refresh": refresh, "expires_in": int(T["ACCESS_TOKEN_TTL"].total_seconds())}
 
@@ -63,16 +64,24 @@ def _valid(serializer_cls, request, **kw):
 
 
 def _second_factor(request, p):
-    """MFA at sign-in. A wrong code counts towards the lockout."""
-    if not p.mfa_enabled:
-        return None
+    """MFA at sign-in: the authenticator code, or for a client without one a
+    code sent by SMS to the confirmed number (FR-ACC-015). Without `code` the
+    answer is mfa-required with `method` "totp" or "sms" (an SMS code is sent
+    then; posting again without a code sends a new one). A wrong code counts
+    towards the lockout. Returns (time, method) or (None, "")."""
     code = request.data.get("code")
-    if not code:
-        raise DomainError("Enter the code from your authenticator app.", code="mfa-required", status=401)
-    if not services.mfa_verify(p, code):
-        services._count_failure(p)
-        raise Invalid("That code is not right.", code="mfa-invalid")
-    return timezone.now()
+    if p.mfa_enabled:
+        if not code:
+            raise DomainError("Enter the code from your authenticator app.", code="mfa-required", status=401,
+                              extra={"method": "totp"})
+        if not services.mfa_verify(p, code):
+            services._count_failure(p)
+            raise Invalid("That code is not right.", code="mfa-invalid")
+        return timezone.now(), "totp"
+    if services.uses_sms_factor(p):
+        services.sms_sign_in(p, code)
+        return timezone.now(), "sms_code"
+    return None, ""
 
 
 # ---------------------------------------------------------------- auth
@@ -156,11 +165,11 @@ def session_login(request):
     d = _valid(LoginSerializer, request)
     p = services.check_credentials(request, d["identifier"], d.get("password"), otp=d.get("otp"),
                                    channel=d.get("channel"))
-    at = _second_factor(request, p)
+    at, method = _second_factor(request, p)
     login(request, p, backend="django.contrib.auth.backends.ModelBackend")
     if at:
         request.session["mfa_at"] = at.isoformat()
-        request.session["mfa_method"] = "totp"
+        request.session["mfa_method"] = method
     return Response(PersonSerializer(p).data)
 
 
@@ -190,8 +199,8 @@ def token(request):
     d = _valid(LoginSerializer, request)
     p = services.check_credentials(request, d["identifier"], d.get("password"), otp=d.get("otp"),
                                    channel=d.get("channel"))
-    at = _second_factor(request, p)
-    return Response({"person": PersonSerializer(p).data, **_tokens(p, request, at)})
+    at, method = _second_factor(request, p)
+    return Response({"person": PersonSerializer(p).data, **_tokens(p, request, at, method)})
 
 
 token = transaction.non_atomic_requests(token)
@@ -228,7 +237,8 @@ def password_reset(request):
 @permission_classes([permissions.AllowAny])
 def password_reset_confirm(request):
     d = _valid(PasswordResetConfirmSerializer, request)
-    services.confirm_password_reset(d["identifier"], d["code"], d["new_password"], d.get("channel"))
+    services.confirm_password_reset(d["identifier"], d["code"], d["new_password"], d.get("channel"),
+                                    sms_code=d.get("sms_code", ""))
     return Response({"detail": "Your password is changed. Sign in with the new password."})
 
 
@@ -272,23 +282,75 @@ def mfa_confirm(request):
 @extend_schema(request=StepUpSerializer, responses={200: MfaStepUpResultSerializer})
 @api_view(["POST"])
 def mfa_step_up(request):
-    """Fresh MFA for an approval (6.3). Valid for 5 minutes. Either the
-    authenticator `code`, or (FR-ACC-014) `key_id`, `challenge` and
-    `signature` from the phone's approval key after Face ID or a fingerprint."""
-    if not request.user.mfa_enabled:
-        raise DomainError("Set up an authenticator app first.", code="mfa-not-set-up", status=409)
+    """Fresh MFA for an approval (6.3). Valid for 5 minutes. The authenticator
+    `code`; or (FR-ACC-014) `key_id`, `challenge` and `signature` from the
+    phone's approval key after Face ID or a fingerprint; or (FR-ACC-015, clients
+    only) `method` "sms" and the `code` sent by POST /v1/auth/mfa/sms, recorded
+    as `sms_code`. Staff are refused SMS (sms-not-allowed); SMS is refused for
+    72 hours after a number change or a reported SIM swap (sms-paused)."""
     d = _valid(StepUpSerializer, request)
+    p = request.user
     if not d["code"] and (d["key_id"] or d["challenge"] or d["signature"]):
-        services.verify_approval_signature(request.user, key_id=d["key_id"], challenge=d["challenge"],
+        services.verify_approval_signature(p, key_id=d["key_id"], challenge=d["challenge"],
                                            signature=d["signature"])
         return _stepped_up(request, "device_biometric")
-    if not services.mfa_verify(request.user, d["code"]):
+    method = d["method"] or ("totp" if p.mfa_enabled or not services.sms_allowed(p) else "sms")
+    if method == "sms":
+        services.sms_step_up(p, d["code"])
+        return _stepped_up(request, "sms_code")
+    if not p.mfa_enabled:
+        raise DomainError("Set up an authenticator app first.", code="mfa-not-set-up", status=409)
+    if not services.mfa_verify(p, d["code"]):
         raise Invalid("That code is not right.", code="mfa-invalid")
     return _stepped_up(request)
 
 
 # The challenge is spent and a refusal audited even when the step-up fails.
 mfa_step_up = transaction.non_atomic_requests(mfa_step_up)
+
+
+@extend_schema(request=None, responses={202: SmsCodeSentSerializer})
+@api_view(["POST"])
+def mfa_sms(request):
+    """FR-ACC-015: send a 6-digit code by SMS to the client's confirmed number
+    for an approval step-up. It works for 5 minutes, once, with 5 tries. At
+    most 3 codes in 10 minutes and 10 a day [TO VERIFY]. Refused for staff and
+    anyone holding release or payment rights (sms-not-allowed), and for 72
+    hours after a number change or a reported SIM swap (sms-paused)."""
+    otp = services.send_sms_code(request.user, "mfa_step_up")
+    to = services.mask_phone(otp.destination)
+    return Response({"sent_to": to, "expires_in": int(services.SMS_CODE_TTL.total_seconds()),
+                     "detail": f"We sent a code to {to}."}, status=202)
+
+
+mfa_sms = transaction.non_atomic_requests(mfa_sms)
+
+
+@extend_schema(request=PhoneChangeSerializer, responses={202: SmsCodeSentSerializer})
+@api_view(["POST"])
+def phone_change(request):
+    """FR-ACC-015: change the mobile number. Needs the password; a code goes
+    to the new number. Nothing changes until POST /v1/me/phone/confirm."""
+    d = _valid(PhoneChangeSerializer, request)
+    otp = services.start_phone_change(request.user, phone=d["phone"], password=d["password"])
+    to = services.mask_phone(otp.destination)
+    return Response({"sent_to": to, "expires_in": int(services.SMS_CODE_TTL.total_seconds()),
+                     "detail": f"We sent a code to {to}."}, status=202)
+
+
+phone_change = transaction.non_atomic_requests(phone_change)
+
+
+@extend_schema(request=CodeSerializer, responses={200: PersonSerializer})
+@api_view(["POST"])
+def phone_change_confirm(request):
+    """FR-ACC-015: the code from the new number confirms it. SMS approvals
+    then pause for 72 hours, and Face ID phones are removed."""
+    p = services.confirm_phone_change(request.user, request.data.get("code", ""))
+    return Response(PersonSerializer(p).data)
+
+
+phone_change_confirm = transaction.non_atomic_requests(phone_change_confirm)
 
 
 @extend_schema(request=None, responses={201: MfaChallengeResultSerializer})
@@ -305,8 +367,9 @@ def mfa_challenge(request):
 @api_view(["POST"])
 def approval_key_enrol(request):
     """FR-ACC-014: register this phone's approval key (Face ID or fingerprint
-    for approvals). Needs the authenticator code, in `code` or as a code
-    step-up in the last 5 minutes. Only the public key reaches Tenmina."""
+    for approvals). Needs the authenticator code, or for a client without one
+    the code sent by POST /v1/auth/mfa/sms (FR-ACC-015), in `code` or as a
+    code step-up in the last 5 minutes. Only the public key reaches Tenmina."""
     from core.views import mfa_at
 
     d = _valid(ApprovalKeyEnrolSerializer, request)
@@ -314,6 +377,9 @@ def approval_key_enrol(request):
                                       platform=d["platform"], code=d["code"] or None, mfa_at=mfa_at(request),
                                       app=request.headers.get("Tenmina-App", ""))
     return Response(ApprovalKeySerializer(key).data, status=201)
+
+
+approval_key_enrol = transaction.non_atomic_requests(approval_key_enrol)
 
 
 class MyApprovalKeyViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,

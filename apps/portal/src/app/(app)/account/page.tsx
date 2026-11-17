@@ -4,10 +4,11 @@ import { useRouter } from 'next/navigation';
 import { Button, NeedsYou, useGet, useSession } from '@tenmina/web-ui';
 import { Ink, PageHead, Proof, words, type Any } from '@/components/kit';
 import { familyOf, toPortal } from '@/lib/links';
+import { SmsPausedCard } from '@/components/secondfactor';
 
 const LINKS = [
   { href: '/account/profile', label: 'Profile', sub: 'Name, phone, email, language' },
-  { href: '/account/security', label: 'Sign-in and authenticator app', sub: 'Password and the code for approvals' },
+  { href: '/account/security', label: 'Sign-in and approvals', sub: 'Codes by text message, password, an authenticator app if you want one' },
   { href: '/account/identity', label: 'Identity check', sub: 'Needed before your first report or escrow' },
   { href: '/account/bank-accounts', label: 'Bank accounts', sub: 'Your own accounts, for rent and refunds' },
   { href: '/account/representatives', label: 'Representatives', sub: 'Someone you trust who can follow a case' },
@@ -32,10 +33,11 @@ export default function Account() {
       <div className="row">
         {me.email_verified ? <Proof>Email confirmed</Proof> : null}
         {me.phone_verified ? <Proof>Phone confirmed</Proof> : null}
-        {me.mfa_enabled ? <Proof>Authenticator app on</Proof> : null}
+        {me.mfa_enabled ? <Proof>Authenticator app on</Proof> : me.second_factor === 'sms' ? <Proof>Codes by text message</Proof> : null}
         {me.id_check_status === 'passed' ? <Proof>Identity checked</Proof> : null}
       </div>
-      {!me.mfa_enabled ? <NeedsYou title="Set up your authenticator app" detail="You need it to approve any payment." href="/account/security" /> : null}
+      {me.second_factor === 'none' ? <NeedsYou title="Confirm your mobile number" detail="We text you a code to sign in and to approve payments." href="/account/profile" /> : null}
+      {me.sms_pause ? <SmsPausedCard pause={me.sms_pause} /> : null}
       {me.privacy_notice_pending ? <NeedsYou title="Read the new privacy notice" detail="It changed since you last accepted it." href="/account/privacy" /> : null}
       {needs.map((n: Any) => <NeedsYou key={`${n.kind}-${n.id}`} title={n.title} detail={n.status_text} href={toPortal(n.link)} />)}
       <nav className="stack" style={{ gap: 8 }} aria-label="Account">

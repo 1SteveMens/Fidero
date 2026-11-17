@@ -27,6 +27,17 @@ LOCK_FOR = timedelta(minutes=15)    # FR-ACC-009
 OTP_TTL = timedelta(minutes=10)     # 10.3, assumption
 OTP_MAX_TRIES = 5                   # 10.3, assumption
 OTP_MAX_PER_HOUR = 5                # assumption [TO VERIFY]
+# FR-ACC-015: SMS codes as the clients' second factor. Working assumptions [TO VERIFY].
+SMS_CODE_TTL = timedelta(minutes=5)
+SMS_MAX_PER_10_MIN = 3
+SMS_MAX_PER_DAY = 10
+SMS_PAUSE = timedelta(hours=72)     # after a number change or a reported SIM swap
+SMS_PURPOSES = ("mfa_login", "mfa_step_up", "phone_change")
+# Roles that may use an SMS code as their second factor: clients and the
+# client side (family members, tenants; a representative holds CL). Anyone
+# holding any other role (staff CM, RV, AD, AN, DPO, SUP; professionals;
+# field roles; RR or PY) uses the authenticator app or an approval key.
+SMS_ROLES = {"CL", "FM", "TN"}
 LICENCE_WARNING_DAYS = 30           # assumption [TO VERIFY]
 
 # FR-ACC-003: staff, professionals, administrators and anyone who approves a
@@ -93,21 +104,26 @@ def _otp_salt(person, channel, purpose):
     return f"{person.pk}:{channel}:{purpose}"
 
 
-def send_code(person, channel, purpose) -> OneTimeCode:
-    dest = person.email if channel == "email" else person.phone
+def send_code(person, channel, purpose, *, destination=None) -> OneTimeCode:
+    dest = destination or (person.email if channel == "email" else person.phone)
     if not dest:
         raise Invalid("There is no address on the account for this channel.", code="validation-error")
     now = _now()
-    if OneTimeCode.objects.filter(person=person, channel=channel, created_at__gte=now - timedelta(hours=1)).count() \
-            >= OTP_MAX_PER_HOUR:
+    sms_factor = purpose in SMS_PURPOSES
+    if sms_factor:
+        _sms_rate_limit(person, now)
+    elif OneTimeCode.objects.filter(person=person, channel=channel, created_at__gte=now - timedelta(hours=1)) \
+            .count() >= OTP_MAX_PER_HOUR:
         raise DomainError("Too many codes asked for. Try again in an hour.", code="rate-limited", status=429)
     OneTimeCode.objects.filter(person=person, channel=channel, purpose=purpose, used_at__isnull=True,
                                expires_at__gt=now).update(expires_at=now)
+    ttl = SMS_CODE_TTL if sms_factor else OTP_TTL
     code = f"{secrets.randbelow(10 ** 6):06d}"
     otp = OneTimeCode.objects.create(person=person, channel=channel, purpose=purpose, destination=dest,
                                      code_hash=code_hash(_otp_salt(person, channel, purpose), code),
-                                     expires_at=now + OTP_TTL)
-    _otp_adapter().send(channel=channel, destination=dest, code=code, purpose=purpose)
+                                     expires_at=now + ttl)
+    _otp_adapter().send(channel=channel, destination=dest, code=code, purpose=purpose, person=person,
+                        expires_minutes=int(ttl.total_seconds() // 60))
     record(actor=person, action="otp.sent", entity="person", entity_id=person.pk,
            data={"channel": channel, "purpose": purpose})
     return otp
@@ -241,7 +257,8 @@ def _count_failure(p):
         fields.append("locked_until")
         record(actor=p, action="account.locked", entity="person", entity_id=p.pk)
         publish("account.locked", p.pk, {"person_id": p.pk, "until": p.locked_until})
-        revoke_approval_keys(p, reason="account_locked")
+        # Approval keys stay: anyone who knows an email address could lock an
+        # account, and must not be able to wipe a client's Face ID phones.
         _notify(p, "account_locked", subject="Your Tenmina account is locked for 15 minutes",
                 body="Someone entered the wrong password 5 times. Your account is locked for 15 minutes. "
                      "If this was not you, reset your password.", channels=("in_app", "email"), obj=p)
@@ -274,6 +291,9 @@ def check_credentials(request, identifier, password=None, *, otp=None, channel=N
                           code="account-unverified", status=403,
                           extra={"email_verified": bool(p.email_verified_at),
                                  "phone_verified": bool(p.phone_verified_at)})
+    if otp and (channel or _channel_for(identifier)) == "phone" and uses_sms_factor(p):
+        raise DomainError("Sign in with your password. The code we text you is your second check.",
+                          code="password-required", status=401)
     record(actor=p, action="person.signed_in", entity="person", entity_id=p.pk,
            data={"method": "otp" if otp else "password"})
     return p
@@ -291,22 +311,41 @@ def send_login_code(identifier, channel=None):
 
 
 def request_password_reset(identifier, channel=None):
+    """A code to the email address (or the phone). For a client whose second
+    factor is an SMS code, a reset needs both the email code and a code sent
+    to the phone, so a stolen SIM alone never takes over the account
+    (FR-ACC-015)."""
     p = find_person(identifier)
     channel = channel or _channel_for(identifier)
     if p is None or p.status not in ("active", "closing"):
+        return
+    if uses_sms_factor(p):
+        if p.email_verified_at:
+            send_code(p, "email", "password_reset")
+        send_code(p, "phone", "password_reset")
         return
     if (channel == "email" and not p.email_verified_at) or (channel == "phone" and not p.phone_verified_at):
         return
     send_code(p, channel, "password_reset")
 
 
-def confirm_password_reset(identifier, code, new_password, channel=None) -> Person:
+def confirm_password_reset(identifier, code, new_password, channel=None, sms_code="") -> Person:
+    """`code` is the code from the email (or the phone, for someone who does
+    not use SMS codes as a second factor); `sms_code` the code sent to the
+    phone when the person's second factor is SMS."""
     from django.contrib.auth.password_validation import validate_password
 
     p = find_person(identifier)
     channel = channel or _channel_for(identifier)
-    if p is None or not check_code(p, channel, "password_reset", code):
-        raise Invalid("That code is not right or has expired. Ask for a new code.", code="otp-invalid")
+    bad = Invalid("That code is not right or has expired. Ask for a new code.", code="otp-invalid")
+    if p is not None and uses_sms_factor(p):
+        if not sms_code:
+            raise Invalid("Enter the code we texted to your phone as well.", code="sms-code-required")
+        if not check_code(p, "email", "password_reset", code) or not check_code(p, "phone", "password_reset",
+                                                                                 sms_code):
+            raise bad
+    elif p is None or not check_code(p, channel, "password_reset", code):
+        raise bad
     try:
         validate_password(new_password, p)
     except Exception as exc:  # noqa: BLE001
@@ -381,6 +420,262 @@ def disable_mfa(person, by):
     revoke_approval_keys(person, by=by, reason="mfa_disabled")
 
 
+# ---------------------------------------------------------------- SMS codes for clients (FR-ACC-015)
+#
+# Decision of 17 November 2026: clients without an authenticator app sign in
+# and approve on the web with a 6-digit code sent by SMS to their confirmed
+# number. Staff and anyone holding release or payment rights never do. SMS
+# approvals pause for 72 hours after the number changes or the mobile network
+# reports a recent SIM swap; Face ID in the app or the authenticator still work.
+
+def sms_allowed(person) -> bool:
+    """True when every role the person holds is on the client side."""
+    return not (person.roles() - SMS_ROLES)
+
+
+def uses_sms_factor(person) -> bool:
+    """The person's second factor is an SMS code: a client with no
+    authenticator app and a confirmed mobile number."""
+    return (not person.mfa_enabled and bool(person.phone) and person.phone_verified_at is not None
+            and sms_allowed(person))
+
+
+def second_factor(person) -> str:
+    """"authenticator", "sms" or "none" (FR-ACC-003, FR-ACC-015)."""
+    if person.mfa_enabled:
+        return "authenticator"
+    return "sms" if uses_sms_factor(person) else "none"
+
+
+def mask_phone(phone: str) -> str:
+    """"+447700900123" -> "+44 •••• 123". Shown on screens; never the full number."""
+    from .normalise import normalise_phone
+
+    phone = normalise_phone(phone) or phone or ""
+    if len(phone) < 7:
+        return "••••"
+    cc_len = 3 if phone[1:4] in ("233", "234", "254", "255", "256", "225", "221") else 2 if phone[1] != "1" else 1
+    return f"{phone[:cc_len + 1]} •••• {phone[-3:]}"
+
+
+def _sms_rate_limit(person, now):
+    qs = OneTimeCode.objects.filter(person=person, channel="phone", purpose__in=SMS_PURPOSES)
+    if qs.filter(created_at__gte=now - timedelta(minutes=10)).count() >= SMS_MAX_PER_10_MIN:
+        raise DomainError("You asked for 3 codes in 10 minutes. Wait a few minutes, then ask again.",
+                          code="rate-limited", status=429, extra={"retry_after_seconds": 600})
+    if qs.filter(created_at__gte=now - timedelta(days=1)).count() >= SMS_MAX_PER_DAY:
+        raise DomainError("You asked for too many codes today. Try again tomorrow, or contact Tenmina.",
+                          code="rate-limited", status=429, extra={"retry_after_seconds": 86400})
+
+
+def _sim_swap_adapter():
+    return get_adapter("sim_swap", default="accounts.adapters.FakeSimSwapCheck")
+
+
+def check_sim_swap(person):
+    """Ask the mobile network when the number last moved to a new SIM, where
+    the check is available [TO VERIFY]. A failed check is audited and does
+    not block; a reported swap is kept on the person and audited."""
+    if not person.phone:
+        return None
+    try:
+        at = _sim_swap_adapter().last_swap(person.phone)
+    except Exception as exc:  # noqa: BLE001 - the check is a safeguard on top, not a gate
+        record(actor=person, action="sim_swap.check_failed", entity="person", entity_id=person.pk,
+               data={"error": str(exc)[:200]})
+        return None
+    if at and at != person.sim_swapped_at:
+        person.sim_swapped_at = at
+        person.save(update_fields=["sim_swapped_at"])
+        record(actor=person, action="sim_swap.reported", entity="person", entity_id=person.pk,
+               data={"swapped_at": at.isoformat()})
+    return at
+
+
+def _when(dt) -> str:
+    return f"{dt:%d %B %Y, %H:%M} UTC".lstrip("0")
+
+
+def sms_pause(person, *, check_network=False) -> dict | None:
+    """Why SMS approvals are paused for this person, if they are: 72 hours
+    after the confirmed number changed, or after the network reported a SIM
+    swap. Returns {reason, until, detail} or None."""
+    if check_network:
+        check_sim_swap(person)
+    now = _now()
+    found = []
+    if person.phone_changed_at and now < person.phone_changed_at + SMS_PAUSE:
+        found.append(("phone_changed", person.phone_changed_at + SMS_PAUSE))
+    if person.sim_swapped_at and now < person.sim_swapped_at + SMS_PAUSE:
+        found.append(("sim_swap", person.sim_swapped_at + SMS_PAUSE))
+    if not found:
+        return None
+    reason, until = max(found, key=lambda f: f[1])
+    why = ("Your mobile number changed" if reason == "phone_changed"
+           else "Your mobile network told us the SIM card for your number changed")
+    ways = []
+    if ApprovalKey.objects.filter(person=person, status="active").exists():
+        ways.append("with Face ID or a fingerprint in the Tenmina app")
+    if person.mfa_enabled:
+        ways.append("with your authenticator app")
+    then = (f"You can still approve {' or '.join(ways)}." if ways else
+            "Nothing is paid until you approve, so payments wait safely at the bank. If something is urgent, "
+            "contact Tenmina.")
+    return {"reason": reason, "until": until,
+            "detail": f"{why}. To keep your money safe, approvals by text message are paused until {_when(until)}. "
+                      f"{then}"}
+
+
+def _refuse_sms_for(person):
+    if not sms_allowed(person):
+        raise DomainError("Tenmina staff approve with the authenticator app. Codes by text message are for "
+                          "clients only.", code="sms-not-allowed", status=403)
+    if not person.phone or person.phone_verified_at is None:
+        raise DomainError("Confirm your mobile number first.", code="phone-not-confirmed", status=409)
+
+
+def _refuse_if_paused(person, *, check_network=False):
+    pause = sms_pause(person, check_network=check_network)
+    if pause:
+        record(actor=person, action="mfa.sms_paused", entity="person", entity_id=person.pk,
+               data={"reason": pause["reason"]})
+        raise DomainError(pause["detail"], code="sms-paused", status=409,
+                          extra={"paused_until": pause["until"].isoformat(), "reason": pause["reason"]})
+
+
+def send_sms_code(person, purpose="mfa_step_up") -> OneTimeCode:
+    """FR-ACC-015: send a 6-digit code to the confirmed number, for sign-in
+    (`mfa_login`) or for an approval step-up (`mfa_step_up`). 5 minutes,
+    single use, 5 tries, at most 3 sends in 10 minutes and 10 a day."""
+    _refuse_sms_for(person)
+    if purpose == "mfa_step_up":
+        _refuse_if_paused(person, check_network=True)
+    return send_code(person, "phone", purpose)
+
+
+def check_sms_code(person, purpose, code) -> str:
+    """"ok", or why the code failed: "wrong", "expired" or "used_up"
+    (5 wrong tries: ask for a new code). Audited either way."""
+    ok = check_code(person, "phone", purpose, code)
+    if ok:
+        return "ok"
+    latest = OneTimeCode.objects.filter(person=person, channel="phone", purpose=purpose,
+                                        used_at__isnull=True).order_by("-created_at").first()
+    why = ("expired" if latest is None or latest.expires_at <= _now()
+           else "used_up" if latest.attempts >= OTP_MAX_TRIES else "wrong")
+    record(actor=person, action="mfa.sms_refused", entity="person", entity_id=person.pk,
+           data={"purpose": purpose, "why": why})
+    return why
+
+
+SMS_FAILURES = {
+    "wrong": ("That code is not right. Check the text message and try again.", "mfa-invalid"),
+    "expired": ("That code has expired. Ask for a new code.", "mfa-code-expired"),
+    "used_up": ("Too many wrong tries for this code. Ask for a new code.", "mfa-code-used-up"),
+}
+
+
+def _sms_failure(why):
+    detail, code = SMS_FAILURES[why]
+    return Invalid(detail, code=code)
+
+
+def sms_step_up(person, code):
+    """FR-ACC-015: check an SMS code for an approval step-up. Refused for staff
+    and rights holders, while paused, and for a wrong, expired or used code.
+    Call outside the request transaction so tries are counted."""
+    _refuse_sms_for(person)
+    _refuse_if_paused(person)
+    why = check_sms_code(person, "mfa_step_up", code)
+    if why != "ok":
+        raise _sms_failure(why)
+    record(actor=person, action="mfa.stepped_up", entity="person", entity_id=person.pk,
+           data={"method": "sms_code"})
+
+
+def sms_sign_in(person, code):
+    """FR-ACC-015: the SMS second factor at sign-in. Without a code, send one
+    and ask for it. A wrong code counts towards the lockout."""
+    if not code:
+        send_code(person, "phone", "mfa_login")
+        raise DomainError(f"We sent a code to {mask_phone(person.phone)}. Enter it to sign in.", code="mfa-required",
+                          status=401, extra={"method": "sms", "sent_to": mask_phone(person.phone),
+                                             "expires_in": int(SMS_CODE_TTL.total_seconds())})
+    why = check_sms_code(person, "mfa_login", code)
+    if why != "ok":
+        _count_failure(person)
+        raise _sms_failure(why)
+
+
+def client_signed(client, mfa_at, code) -> str:
+    """How a client's approval was confirmed, for every client approval
+    (RUL-05, FR-ACC-003, FR-ACC-014, FR-ACC-015). `code` is the
+    authenticator code; otherwise a fresh step-up must exist (the
+    authenticator, Face ID or an SMS code). Returns "totp_code", "sms_code",
+    "device_biometric" or "mfa_step_up"."""
+    from django.conf import settings
+
+    from core.errors import MfaRequired
+    from core.mfa import client_method
+
+    if code:
+        if client.mfa_secret:
+            if not mfa_verify(client, code):
+                raise MfaRequired("The code is not right. Try again.")
+            return "totp_code"
+        # An SMS code is checked only at /v1/auth/mfa/step-up, where every wrong try counts.
+        raise MfaRequired("Ask for a code by text message and confirm it first.")
+    if mfa_at is None or _now() - mfa_at > settings.TENMINA["MFA_FRESHNESS"]:
+        raise MfaRequired()
+    return client_method(mfa_at)
+
+
+def start_phone_change(person, *, phone, password) -> OneTimeCode:
+    """FR-ACC-015: a new mobile number, confirmed by a code sent to it. Needs
+    the password. Nothing changes until the code comes back."""
+    if not person.check_password(password or ""):
+        raise Invalid("Your password is not right.", code="bad-credentials")
+    phone = _check_phone(phone)
+    if phone == person.phone:
+        raise Invalid("That is already your number.", code="validation-error")
+    if Person.objects.filter(phone=phone).exclude(pk=person.pk).exists():
+        raise Invalid("This number cannot be used.", code="validation-error")
+    otp = send_code(person, "phone", "phone_change", destination=phone)
+    record(actor=person, action="person.phone_change_started", entity="person", entity_id=person.pk)
+    return otp
+
+
+@transaction.atomic
+def confirm_phone_change(person, code) -> Person:
+    """The code from the new number confirms it. SMS approvals pause for 72
+    hours, Face ID phones are removed (the new phone sets it up again), and
+    the person is told on the old number's channels and by email."""
+    otp = OneTimeCode.objects.filter(person=person, channel="phone", purpose="phone_change",
+                                     used_at__isnull=True).order_by("-created_at").first()
+    if otp is None:
+        raise Invalid("Ask for a code for your new number first.", code="mfa-code-expired")
+    new = otp.destination
+    why = check_sms_code(person, "phone_change", code)
+    if why != "ok":
+        raise _sms_failure(why)
+    if Person.objects.filter(phone=new).exclude(pk=person.pk).exists():
+        raise Invalid("This number cannot be used.", code="validation-error")
+    old = person.phone
+    now = _now()
+    person.phone, person.phone_verified_at, person.phone_changed_at = new, now, now
+    person.save(update_fields=["phone", "phone_verified_at", "phone_changed_at"])
+    revoke_approval_keys(person, by=person, reason="phone_changed")
+    record(actor=person, action="person.phone_changed", entity="person", entity_id=person.pk,
+           data={"old": mask_phone(old), "new": mask_phone(new)})
+    publish("person.phone_changed", person.pk, {"person_id": person.pk})
+    until = _when(now + SMS_PAUSE)
+    _notify(person, "phone_changed", subject="Your Tenmina mobile number was changed",
+            body=f"Your mobile number is now {mask_phone(new)}. Approvals by text message are paused until {until}. "
+                 "Face ID approvals were turned off on your phones; turn them on again in the app. If this was not "
+                 "you, contact Tenmina at once.", channels=("in_app", "email"), obj=person, category="safety")
+    return person
+
+
 # ---------------------------------------------------------------- approval keys (FR-ACC-014, ADR-13)
 #
 # Face ID or a fingerprint for approvals in the two phone apps. The phone
@@ -438,30 +733,34 @@ def parse_approval_public_key(text: str):
 
 
 def _fresh_code_step_up(mfa_at) -> bool:
+    """A step-up with a code (authenticator or SMS) in the last 5 minutes. An
+    approval key's own signature never enrols another key."""
     from django.conf import settings
 
-    from core.mfa import TOTP, method_of
+    from core.mfa import SMS_CODE, TOTP, method_of
 
-    return (mfa_at is not None and method_of(mfa_at) == TOTP
+    return (mfa_at is not None and method_of(mfa_at) in (TOTP, SMS_CODE)
             and _now() - mfa_at <= settings.TENMINA["MFA_FRESHNESS"])
 
 
-@transaction.atomic
 def enrol_approval_key(person, *, public_key, device_name, platform, code=None, mfa_at=None,
                        app="") -> ApprovalKey:
-    """FR-ACC-014: register this phone's approval key. Needs the authenticator
-    code now (`code`) or a step-up with the code in the last 5 minutes, so a
-    stolen password alone never enrols a key, nor does another approval key."""
+    """FR-ACC-014, FR-ACC-015: register this phone's approval key. Needs the
+    authenticator code now (`code`), or for a client without one an SMS code
+    sent for a step-up, or a code step-up in the last 5 minutes. So a stolen
+    password alone never enrols a key, nor does another approval key. While
+    SMS approvals are paused, an SMS code does not enrol a key either. Call
+    outside the request transaction so wrong SMS tries are counted."""
     from core.errors import MfaRequired
+    from core.mfa import SMS_CODE, method_of
 
-    if not person.mfa_enabled:
-        raise DomainError("Set up an authenticator app first.", code="mfa-not-set-up", status=409)
-    if code:
-        if not mfa_verify(person, code):
-            raise Invalid("That code is not right.", code="mfa-invalid")
-    elif not _fresh_code_step_up(mfa_at):
+    if not person.mfa_enabled and not uses_sms_factor(person):
+        raise DomainError("Confirm your mobile number or set up an authenticator app first.",
+                          code="mfa-not-set-up", status=409)
+    if not code and not _fresh_code_step_up(mfa_at):
         raise MfaRequired("Enter the code from your authenticator app to turn on Face ID or fingerprint "
-                          "for approvals.")
+                          "for approvals." if person.mfa_enabled else
+                          "Enter the code we text you to turn on Face ID or fingerprint for approvals.")
     if platform not in ApprovalKey.PLATFORMS:
         raise Invalid("Face ID and fingerprint approvals work only in the iPhone and Android apps.",
                       code="approval-key-platform")
@@ -475,16 +774,27 @@ def enrol_approval_key(person, *, public_key, device_name, platform, code=None, 
     if ApprovalKey.objects.filter(person=person, status="active").count() >= MAX_APPROVAL_KEYS:
         raise DomainError(f"You have {MAX_APPROVAL_KEYS} phones set up for approvals. Remove one in Account "
                           "first.", code="approval-key-limit", status=409)
-    key = ApprovalKey.objects.create(person=person, public_key=spki, key_alg="EdDSA", key_sha256=key_hash,
-                                     device_name=device_name, platform=platform, app=(app or "")[:64])
-    record(actor=person, action="approval_key.enrolled", entity="approval_key", entity_id=key.pk,
-           data={"device_name": device_name, "platform": platform, "key_sha256": key_hash,
-                 "with": "code" if code else "step_up"})
-    publish("approval_key.enrolled", key.pk, {"person_id": person.pk, "key_id": key.pk})
-    _notify(person, "approval_key_enrolled", subject="Face ID or fingerprint approvals turned on",
-            body=f"Approvals with Face ID or fingerprint were turned on for {device_name}. If this was not you, "
-                 "remove the phone in Account and contact Tenmina at once.",
-            channels=("in_app", "email"), obj=key, category="safety")
+    with_ = "step_up"
+    if code:
+        if person.mfa_enabled:
+            if not mfa_verify(person, code):
+                raise Invalid("That code is not right.", code="mfa-invalid")
+            with_ = "code"
+        else:
+            sms_step_up(person, code)
+            with_ = "sms_code"
+    elif method_of(mfa_at) == SMS_CODE:
+        _refuse_if_paused(person)
+    with transaction.atomic():
+        key = ApprovalKey.objects.create(person=person, public_key=spki, key_alg="EdDSA", key_sha256=key_hash,
+                                         device_name=device_name, platform=platform, app=(app or "")[:64])
+        record(actor=person, action="approval_key.enrolled", entity="approval_key", entity_id=key.pk,
+               data={"device_name": device_name, "platform": platform, "key_sha256": key_hash, "with": with_})
+        publish("approval_key.enrolled", key.pk, {"person_id": person.pk, "key_id": key.pk})
+        _notify(person, "approval_key_enrolled", subject="Face ID or fingerprint approvals turned on",
+                body=f"Approvals with Face ID or fingerprint were turned on for {device_name}. If this was not you, "
+                     "remove the phone in Account and contact Tenmina at once.",
+                channels=("in_app", "email"), obj=key, category="safety")
     return key
 
 
@@ -506,8 +816,10 @@ def revoke_approval_key(key: ApprovalKey, by, reason="revoked_by_person", *, che
 
 
 def revoke_approval_keys(person, by=None, reason="") -> int:
-    """Every active approval key of the person: on a password reset, an account
-    lock, a suspension or MFA switched off (FR-ACC-014)."""
+    """Every active approval key of the person: on a password reset, a
+    suspension, an account closure, a new mobile number or the authenticator
+    switched off (FR-ACC-014). Not on an account lock: anyone who knows the
+    email address could cause one."""
     n = 0
     for key in ApprovalKey.objects.filter(person=person, status="active"):
         revoke_approval_key(key, by, reason=reason, check_owner=False)
@@ -517,8 +829,9 @@ def revoke_approval_keys(person, by=None, reason="") -> int:
 
 def issue_mfa_challenge(person) -> MfaChallenge:
     """FR-ACC-014: a random challenge for one approval-key step-up, 2 minutes, single use."""
-    if not person.mfa_enabled:
-        raise DomainError("Set up an authenticator app first.", code="mfa-not-set-up", status=409)
+    if not (person.mfa_enabled or uses_sms_factor(person) or ApprovalKey.objects.filter(person=person).exists()):
+        raise DomainError("Confirm your mobile number or set up an authenticator app first.",
+                          code="mfa-not-set-up", status=409)
     return MfaChallenge.objects.create(person=person, challenge=secrets.token_urlsafe(32),
                                        expires_at=_now() + CHALLENGE_TTL)
 
@@ -561,19 +874,18 @@ def verify_approval_signature(person, *, key_id, challenge, signature) -> Approv
     key = ApprovalKey.objects.filter(pk=kid, person=person).first() if kid else None
     if key is None:
         raise _step_up_refused(person, "approval-key-unknown",
-                               "This phone is not set up for Face ID or fingerprint approvals. Use the code from "
-                               "your authenticator app.", key_id)
+                               "This phone is not set up for Face ID or fingerprint approvals. Use the code "
+                               "instead.", key_id)
     if key.status != "active":
         raise _step_up_refused(person, "approval-key-revoked",
-                               "Face ID or fingerprint approvals were turned off for this phone. Use the code from "
-                               "your authenticator app, then turn them on again in Account.", key_id)
+                               "Face ID or fingerprint approvals were turned off for this phone. Use the code "
+                               "instead, then turn them on again in Account.", key_id)
     pub, _, _ = parse_approval_public_key(key.public_key)
     try:
         pub.verify(_b64any(signature), step_up_message(str(challenge)).encode())
     except (InvalidSignature, ValueError, TypeError, binascii.Error) as exc:
         raise _step_up_refused(person, "mfa-signature-invalid",
-                               "The phone's signature did not check out. Use the code from your authenticator "
-                               "app.", key_id) from exc
+                               "The phone's signature did not check out. Use the code instead.", key_id) from exc
     with transaction.atomic():
         key.last_used_at = _now()
         key.save(update_fields=["last_used_at"])
@@ -622,11 +934,13 @@ def update_profile(person, data: dict) -> Person:
     fields = list(changed)
     if "phone" in changed:
         person.phone_verified_at = None
-        fields.append("phone_verified_at")
+        person.phone_changed_at = _now()
+        fields += ["phone_verified_at", "phone_changed_at"]
     person.save(update_fields=fields)
     record(actor=person, action="person.updated", entity="person", entity_id=person.pk,
            data={"fields": sorted(changed)})
     if "phone" in changed:
+        revoke_approval_keys(person, by=person, reason="phone_changed")
         send_code(person, "phone", "signup")
     return person
 

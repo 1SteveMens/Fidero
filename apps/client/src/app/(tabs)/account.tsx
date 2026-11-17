@@ -1,11 +1,15 @@
 import { useCallback, useState } from 'react';
-import { Linking, View } from 'react-native';
+import { View } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { brand, space } from '@tenmina/tokens';
 import { Button, Chip, Label, ListRow, Panel, Rise, Screen, T } from '@tenmina/ui';
-import { APP_VERSION, initials, itemsOf, localApprovalKey, portalUrl, useGet, useSession } from '@tenmina/mobile';
+import { APP_VERSION, initials, itemsOf, localApprovalKey, useGet, useSession } from '@tenmina/mobile';
 
-/** Account (SCR-PTL-20, 21, 34 and SCR-APP-04): who you are, security, how fees are paid, your data. */
+/**
+ * Account (SCR-PTL-20, 21, 34 and SCR-APP-04): who you are, security, how fees
+ * are paid, your data. Everything opens inside the app: the mobile number for
+ * codes by text message (FR-ACC-015), bank accounts, representatives and help.
+ */
 export default function Account() {
   const { me, signOut, config, api } = useSession();
   const reps = useGet<{ items: { id: string; full_name: string; status: string }[] }>('/v1/me/representatives');
@@ -34,18 +38,31 @@ export default function Account() {
         <Label style={{ marginBottom: space[2] }}>Security</Label>
         <Panel style={{ paddingVertical: space[1], gap: 0 }}>
           <ListRow
-            icon="lock-closed"
-            title="Authenticator app"
-            detail="Needed for every approval, and the back-up to Face ID"
-            onPress={() => router.push('/account/security')}
-            trailing={me?.mfa_enabled ? <Chip label="On" tone="lime" /> : <Chip label="Set up" tone="orange" />}
+            icon="chatbubble-ellipses-outline"
+            title="Mobile number"
+            detail={
+              me?.sms_pause
+                ? `${me.phone_masked ?? ''} · approvals by text paused`
+                : me?.mfa_enabled
+                  ? `${me?.phone_masked ?? ''} · you sign in with the authenticator`
+                  : `${me?.phone_masked ?? ''} · codes for sign-in and the website`
+            }
+            onPress={() => router.push('/account/phone')}
+            trailing={me?.sms_pause ? <Chip label="Paused" tone="orange" /> : me?.phone_verified ? <Chip label="Confirmed" tone="lime" /> : <Chip label="Confirm" tone="orange" />}
           />
           <ListRow
             icon="scan-outline"
             title="Face ID or fingerprint for approvals"
-            detail={faceId ? 'On for this phone · manage phones' : 'Approve without typing the code'}
+            detail={faceId ? 'On for this phone · manage phones' : 'Approve without typing a code'}
             onPress={() => router.push('/account/approval-keys')}
             trailing={faceId ? <Chip label="On" tone="lime" /> : <Chip label="Off" tone="paper" />}
+          />
+          <ListRow
+            icon="key-outline"
+            title="Authenticator app"
+            detail={me?.mfa_enabled ? 'Replaces the text message code' : 'Optional, instead of codes by text'}
+            onPress={() => router.push('/account/security')}
+            trailing={me?.mfa_enabled ? <Chip label="On" tone="lime" /> : <Chip label="Off" tone="paper" />}
             last
           />
         </Panel>
@@ -65,7 +82,7 @@ export default function Account() {
             icon="wallet-outline"
             title="Your bank accounts"
             detail={banks.data ? `${itemsOf(banks.data).length} saved · refunds go only here` : 'Loading'}
-            onPress={() => void Linking.openURL(`${portalUrl()}/account/bank-accounts`)}
+            onPress={() => router.push('/account/bank-accounts')}
           />
           <ListRow icon="notifications-outline" title="Notifications" detail="App, email, text and WhatsApp" onPress={() => router.push('/account/notifications')} />
           <ListRow
@@ -86,7 +103,7 @@ export default function Account() {
         </Panel>
       </Rise>
 
-      <Button title="Get help" variant="dark" icon="help-circle-outline" onPress={() => void Linking.openURL(`${portalUrl()}/help`)} />
+      <Button title="Get help" variant="dark" icon="help-circle-outline" onPress={() => router.push('/help')} />
       <Button
         title="Sign out"
         variant="quiet"

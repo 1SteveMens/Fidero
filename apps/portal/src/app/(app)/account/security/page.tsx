@@ -2,11 +2,18 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { Button, CodeBoxes, Field, Input, ProblemBox, useSession } from '@tenmina/web-ui';
+import Link from 'next/link';
 import { Copy, Ink, PageHead, Proof, Section, useAction, type Any } from '@/components/kit';
+import { SmsPausedCard, useMeFactor } from '@/components/secondfactor';
 
-/** FR-ACC-003: the authenticator app (scan the QR code, confirm a code) and the password. */
+/**
+ * Sign-in and approvals (FR-ACC-003, FR-ACC-015): codes by text message to the
+ * confirmed number, the optional authenticator app (scan the QR code, confirm a
+ * code; it then replaces the text message), and the password.
+ */
 export default function Security() {
   const { me, refresh } = useSession();
+  const mf = useMeFactor();
   const a = useAction();
   const [setup, setSetup] = useState<Any>(null);
   const [qr, setQr] = useState('');
@@ -21,17 +28,33 @@ export default function Security() {
   return (
     <Ink>
       <PageHead back={{ href: '/account', label: 'Account' }} label="Account" title="Sign-in and approvals" />
-      <Section title="Authenticator app">
+      {!me.mfa_enabled ? (
+        <Section title="Codes by text message">
+          <div className="card stack">
+            {mf?.second_factor === 'sms' ? (
+              <>
+                <Proof>On</Proof>
+                <span>We text a 6-digit code to <strong className="mono">{mf.phone_masked}</strong> when you sign in and when you approve a payment on the website. In the phone app, Face ID or a fingerprint can approve instead.</span>
+              </>
+            ) : (
+              <span>Confirm your mobile number to get codes for sign-in and approvals.</span>
+            )}
+            {mf?.sms_pause ? <SmsPausedCard pause={mf.sms_pause} /> : null}
+            <Link className="btn btn-ghost" href="/account/profile">Change or confirm your number</Link>
+          </div>
+        </Section>
+      ) : null}
+      <Section title={me.mfa_enabled ? 'Authenticator app' : 'Authenticator app (optional)'}>
         {me.mfa_enabled ? (
           <div className="card stack">
-            <Proof>On. Every money approval asks for its code.</Proof>
-            <span className="muted" style={{ fontSize: 14 }}>To switch it off, enter a current code. You will not be able to approve payments until you set it up again.</span>
+            <Proof>On. Sign-in and every approval on the website ask for its code.</Proof>
+            <span className="muted" style={{ fontSize: 14 }}>To switch it off, enter a current code. Clients then get codes by text message instead. Staff and professionals cannot switch it off.</span>
             <CodeBoxes value={off} onChange={setOff} />
             <Button variant="ghost" disabled={off.length !== 6} busy={a.busy === 'off'} onClick={() => a.run('off', () => a.post('/v1/auth/mfa/disable', { code: off }), 'Switched off', () => refresh())}>Switch it off</Button>
           </div>
         ) : !setup ? (
           <div className="card stack">
-            <span>Use an authenticator app such as Google Authenticator or Microsoft Authenticator. You need it to approve any payment.</span>
+            <span>If you prefer, use an authenticator app such as Google Authenticator or Microsoft Authenticator. Its code then replaces the text message at sign-in and for approvals.</span>
             <Button variant="primary" busy={a.busy === 'setup'} onClick={() => a.run('setup', () => a.post('/v1/auth/mfa/setup'), undefined, (r) => { setSetup(r); setCode(''); })}>Set up the app</Button>
           </div>
         ) : (

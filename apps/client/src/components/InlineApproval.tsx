@@ -7,8 +7,9 @@ import { ProblemBox, SecondFactorInput, money, toProblem, useSecondFactor, type 
 /**
  * A smaller approval on a black panel, for screens that list several payments
  * (event vendors, repair quotes). Same rule as the full sheet: press and hold,
- * then Face ID or a fingerprint (FR-ACC-014), or the code where this phone has
- * no approval key. The step-up runs first (6.3), then the action.
+ * then Face ID or a fingerprint (FR-ACC-014), or where this phone has no
+ * approval key the authenticator code or a code by SMS (FR-ACC-015). The
+ * step-up runs first (6.3), then the action.
  */
 export function InlineApproval({ title, amount, payee, note, onApprove, onDone }: { title: string; amount: ApiMoney; payee: string; note?: string; onApprove: () => Promise<unknown>; onDone: () => void }) {
   const factor = useSecondFactor();
@@ -44,7 +45,9 @@ export function InlineApproval({ title, amount, payee, note, onApprove, onDone }
         <T v="amount" style={{ fontSize: 30, lineHeight: 36 }}>{money(amount)}</T>
         <T v="footnote" muted>{`To ${payee}, a verified payee. Then two Tenmina staff approve and the bank pays.${note ? ` ${note}` : ''}`}</T>
         {factor.mode === 'none' ? (
-          <Button title="Set up the authenticator first" onPress={() => router.push('/account/security')} />
+          <Button title="Confirm your mobile number first" onPress={() => router.push('/account/phone')} />
+        ) : factor.mode === 'paused' ? (
+          <SecondFactorInput factor={factor} />
         ) : (
           <>
             <SecondFactorInput factor={factor} />

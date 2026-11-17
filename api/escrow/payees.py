@@ -539,20 +539,11 @@ def _open_staff_approval(ch):
 
 
 def _client_signed(client, mfa_at, code):
-    from django.conf import settings
+    """FR-ACC-003, FR-ACC-014, FR-ACC-015: the authenticator code, or a fresh
+    step-up (authenticator, Face ID or fingerprint, or an SMS code)."""
+    from accounts.services import client_signed
 
-    from accounts.services import mfa_verify
-
-    if code:
-        if not mfa_verify(client, code):
-            raise MfaRequired("The code is not right. Try again.")
-        return "totp_code"
-    if mfa_at is None or timezone.now() - mfa_at > settings.TENMINA["MFA_FRESHNESS"]:
-        raise MfaRequired()
-    from core.mfa import DEVICE_BIOMETRIC, method_of
-
-    # FR-ACC-014: a step-up signed by the approval key on the client's phone.
-    return "device_biometric" if method_of(mfa_at) == DEVICE_BIOMETRIC else "mfa_step_up"
+    return client_signed(client, mfa_at, code)
 
 
 @transaction.atomic

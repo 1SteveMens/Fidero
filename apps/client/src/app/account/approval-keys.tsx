@@ -19,7 +19,8 @@ interface ApprovalKey {
 /**
  * Phones that can approve with Face ID or a fingerprint (FR-ACC-014): this
  * phone, turn it on or off; other phones, remove any you no longer use. A
- * password reset or a locked account removes them all.
+ * password reset, a new mobile number or closing the account removes them all;
+ * a locked account does not.
  */
 export default function ApprovalKeys() {
   const { me, api } = useSession();
@@ -61,11 +62,11 @@ export default function ApprovalKeys() {
   return (
     <Screen ground="ink" back title="Phones that can approve">
       <T v="callout" muted>Approve payments with Face ID or a fingerprint instead of typing the code. Each phone has its own key; your face or fingerprint never leaves the phone.</T>
-      {!me?.mfa_enabled ? (
+      {!me?.mfa_enabled && me?.second_factor !== 'sms' ? (
         <Panel style={{ borderWidth: 2, borderColor: brand.orange, backgroundColor: 'transparent' }}>
-          <Label color={brand.orange}>Set up your authenticator first</Label>
-          <T v="callout">Face ID and fingerprint approvals need an authenticator app as the back-up.</T>
-          <Button title="Set up the authenticator" variant="dark" onPress={() => router.push('/account/security')} />
+          <Label color={brand.orange}>Confirm your mobile number first</Label>
+          <T v="callout">Turning on Face ID needs a code we text you, once. Confirm your number to get it.</T>
+          <Button title="Confirm your number" variant="dark" onPress={() => router.push('/account/phone')} />
         </Panel>
       ) : (
         <>
@@ -78,7 +79,7 @@ export default function ApprovalKeys() {
                 <Button title="Turn off on this phone" variant="danger" loading={busy} onPress={() => void remove(here)} />
               </>
             ) : Platform.OS === 'web' ? (
-              <T v="callout" muted>A browser uses the code from your authenticator app. Face ID and fingerprint work in the iPhone and Android apps.</T>
+              <T v="callout" muted>A browser uses a code by text message, or your authenticator app if you set one up. Face ID and fingerprint work in the iPhone and Android apps.</T>
             ) : localId === undefined ? null : (
               <EnrolBiometric
                 onDone={() => {

@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { Button, Field, Input, KV, Money, ProblemBox, Skeleton, Textarea, When, useGet } from '@tenmina/web-ui';
 import { ActionDialog, Item, PageHead, Proof, Section, StepUpButton, list, money, useAction, useCountry, words, type Any } from '@/components/kit';
+import { FactorField, useWebFactor } from '@/components/secondfactor';
 
 /** W-29 and SCR-PTL-44: the care plan, its visits, the standing approval and the carer as payee. */
 export default function CarePlan() {
@@ -16,7 +17,7 @@ export default function CarePlan() {
   const a = useAction();
   const [sa, setSa] = useState(false);
   const [max, setMax] = useState('');
-  const [code, setCode] = useState('');
+  const f = useWebFactor();
   const [stop, setStop] = useState<null | 'pause' | 'end'>(null);
   const [reason, setReason] = useState('');
   if (q.isLoading) return <Skeleton lines={6} />;
@@ -76,10 +77,10 @@ export default function CarePlan() {
         {p.status === 'paused' ? <Button variant="ghost" busy={a.busy === 'r'} onClick={() => a.run('r', () => a.post(`/v1/care-plans/${id}/resume`), 'Resumed', refresh)}>Resume visits</Button> : null}
         {['active', 'paused', 'draft'].includes(p.status) ? <Button variant="ghost" onClick={() => setStop('end')}>End the plan</Button> : null}
       </div>
-      <ActionDialog ink open={sa} onClose={() => setSa(false)} title="Standing approval" submit="Give the approval" busy={a.busy === 'sa'} error={a.error} disabled={!max || code.length !== 6}
-        onSubmit={() => a.run('sa', () => a.post(`/v1/care-plans/${id}/standing-approvals`, { monthly_max: max, code }), 'Standing approval given', () => { setSa(false); refresh(); })}>
+      <ActionDialog ink open={sa} onClose={() => setSa(false)} title="Standing approval" submit="Give the approval" busy={a.busy === 'sa'} error={a.error} disabled={!max || !f.ready}
+        onSubmit={() => a.run('sa', async () => { await f.stepUp(); return a.post(`/v1/care-plans/${id}/standing-approvals`, { monthly_max: max }); }, 'Standing approval given', () => { setSa(false); refresh(); })}>
         <Field label={`Up to this much a month (${p.visit_fee?.currency})`}><Input inputMode="decimal" value={max} onChange={(e) => setMax(e.target.value.replace(/[^\d.]/g, ''))} /></Field>
-        <Field label="Code from your authenticator app"><Input inputMode="numeric" maxLength={6} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} /></Field>
+        <FactorField f={f} />
       </ActionDialog>
       <ActionDialog open={!!stop} onClose={() => setStop(null)} title={stop === 'end' ? 'End the plan' : 'Pause visits'} submit={stop === 'end' ? 'End' : 'Pause'} busy={a.busy === 's'} error={a.error}
         onSubmit={() => a.run('s', () => a.post(`/v1/care-plans/${id}/${stop}`, { reason }), 'Done', () => { setStop(null); refresh(); })}>

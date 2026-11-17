@@ -250,9 +250,11 @@ def test_another_persons_key_and_challenge_are_refused(seeded, api, ama, people)
     assert r.status_code == 422 and r.json()["code"] == "mfa-challenge-invalid"
 
 
-def test_password_reset_lock_suspension_and_mfa_off_revoke_every_key(seeded, api, ama, people):
-    """FR-ACC-014, TC-ACC-014-07: a password reset, an account lock, a
-    suspension or switching MFA off revokes every approval key."""
+def test_password_reset_suspension_and_mfa_off_revoke_every_key_but_a_lock_does_not(seeded, api, ama, people):
+    """FR-ACC-014, TC-ACC-014-07: a password reset, a suspension or switching
+    MFA off revokes every approval key. An account lock does not: anyone who
+    knows the email address could lock the account to wipe the client's
+    Face ID phones."""
     from accounts import services
     from accounts.adapters import FakeOtpSender
 
@@ -270,14 +272,16 @@ def test_password_reset_lock_suspension_and_mfa_off_revoke_every_key(seeded, api
     _enrol(c, ama)
     for _ in range(5):
         api().post("/v1/auth/login", {"identifier": ama.email, "password": "wrong-password"}, format="json")
-    assert not ApprovalKey.objects.filter(person=ama, status="active").exists()
-    assert ApprovalKey.objects.filter(person=ama, revoke_reason="account_locked").count() == 1
+    ama.refresh_from_db()
+    assert ama.is_locked
+    assert ApprovalKey.objects.filter(person=ama, status="active").count() == 1
+    assert not ApprovalKey.objects.filter(person=ama, revoke_reason="account_locked").exists()
 
     ama.locked_until = None
     ama.save(update_fields=["locked_until"])
     _enrol(c, ama)
     services.disable_mfa(ama, ama)
-    assert ApprovalKey.objects.filter(person=ama, revoke_reason="mfa_disabled").count() == 1
+    assert ApprovalKey.objects.filter(person=ama, revoke_reason="mfa_disabled").count() == 2
 
     kofi = _with_mfa(people["client2"])
     _enrol(api(kofi), kofi)
@@ -306,11 +310,12 @@ def test_database_keeps_challenges_single_use_and_revocations_final(seeded, api,
                                 mfa_at=timezone.now(), mfa_method="sms")
 
 
-def test_no_authenticator_means_no_keys(seeded, api, people):
-    """FR-ACC-014: a person with no authenticator sets one up first."""
+def test_no_second_factor_means_no_keys(seeded, api, people):
+    """FR-ACC-014, FR-ACC-015: a person with no authenticator and no confirmed
+    number (so no SMS codes) sets one of them up first."""
     kofi = people["client2"]
-    kofi.mfa_enabled = False
-    kofi.save(update_fields=["mfa_enabled"])
+    kofi.mfa_enabled, kofi.phone_verified_at = False, None
+    kofi.save(update_fields=["mfa_enabled", "phone_verified_at"])
     c = api(kofi)
     r = c.post("/v1/auth/mfa/challenge")
     assert r.status_code == 409 and r.json()["code"] == "mfa-not-set-up"

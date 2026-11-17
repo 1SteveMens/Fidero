@@ -5223,8 +5223,9 @@ paths:
       operationId: v1_auth_approval_keys_create
       description: |-
         FR-ACC-014: register this phone's approval key (Face ID or fingerprint
-        for approvals). Needs the authenticator code, in `code` or as a code
-        step-up in the last 5 minutes. Only the public key reaches Tenmina.
+        for approvals). Needs the authenticator code, or for a client without one
+        the code sent by POST /v1/auth/mfa/sms (FR-ACC-015), in `code` or as a
+        code step-up in the last 5 minutes. Only the public key reaches Tenmina.
       tags:
       - v1
       requestBody:
@@ -5424,13 +5425,37 @@ paths:
               schema:
                 $ref: '#/components/schemas/MfaSetupResult'
           description: ''
+  /v1/auth/mfa/sms:
+    post:
+      operationId: v1_auth_mfa_sms_create
+      description: |-
+        FR-ACC-015: send a 6-digit code by SMS to the client's confirmed number
+        for an approval step-up. It works for 5 minutes, once, with 5 tries. At
+        most 3 codes in 10 minutes and 10 a day [TO VERIFY]. Refused for staff and
+        anyone holding release or payment rights (sms-not-allowed), and for 72
+        hours after a number change or a reported SIM swap (sms-paused).
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmsCodeSent'
+          description: ''
   /v1/auth/mfa/step-up:
     post:
       operationId: v1_auth_mfa_step_up_create
       description: |-
-        Fresh MFA for an approval (6.3). Valid for 5 minutes. Either the
-        authenticator `code`, or (FR-ACC-014) `key_id`, `challenge` and
-        `signature` from the phone's approval key after Face ID or a fingerprint.
+        Fresh MFA for an approval (6.3). Valid for 5 minutes. The authenticator
+        `code`; or (FR-ACC-014) `key_id`, `challenge` and `signature` from the
+        phone's approval key after Face ID or a fingerprint; or (FR-ACC-015, clients
+        only) `method` "sms" and the `code` sent by POST /v1/auth/mfa/sms, recorded
+        as `sms_code`. Staff are refused SMS (sms-not-allowed); SMS is refused for
+        72 hours after a number change or a reported SIM swap (sms-paused).
       tags:
       - v1
       requestBody:
@@ -18069,6 +18094,66 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UnreadCount'
+          description: ''
+  /v1/me/phone:
+    post:
+      operationId: v1_me_phone_create
+      description: |-
+        FR-ACC-015: change the mobile number. Needs the password; a code goes
+        to the new number. Nothing changes until POST /v1/me/phone/confirm.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhoneChangeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PhoneChangeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PhoneChangeRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmsCodeSent'
+          description: ''
+  /v1/me/phone/confirm:
+    post:
+      operationId: v1_me_phone_confirm_create
+      description: |-
+        FR-ACC-015: the code from the new number confirms it. SMS approvals
+        then pause for 72 hours, and Face ID phones are removed.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CodeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CodeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CodeRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
           description: ''
   /v1/me/privacy-acceptances:
     get:
@@ -32365,7 +32450,8 @@ components:
         code:
           type: string
           default: ''
-          description: The authenticator code. Without it, a code step-up in the last
+          description: The authenticator code, or for a client without one the code
+            sent by POST /v1/auth/mfa/sms. Without it, a code step-up in the last
             5 minutes is needed.
       required:
       - device_name
@@ -47043,7 +47129,8 @@ components:
         code:
           type: string
           minLength: 1
-          description: Authenticator code when MFA is on
+          description: 'The second factor: the authenticator code, or the code sent
+            by SMS when the answer was mfa-required with method sms (FR-ACC-015)'
     ManifestRequest:
       type: object
       description: Canonical JSON (RFC 8785) of this object is what the device signs.
@@ -47609,10 +47696,12 @@ components:
       enum:
       - totp
       - device_biometric
+      - sms_code
       type: string
       description: |-
         * `totp` - totp
         * `device_biometric` - device_biometric
+        * `sms_code` - sms_code
     MfaSetupResult:
       type: object
       properties:
@@ -51966,6 +52055,12 @@ components:
         code:
           type: string
           minLength: 1
+          description: The code from the email (or the phone)
+        sms_code:
+          type: string
+          default: ''
+          description: 'FR-ACC-015: for a client whose second factor is SMS, the code
+            texted to the phone as well'
         new_password:
           type: string
           writeOnly: true
@@ -53595,6 +53690,24 @@ components:
         mfa_enabled:
           type: boolean
           readOnly: true
+        second_factor:
+          type: string
+          readOnly: true
+          description: 'FR-ACC-003, FR-ACC-015: how this person signs in and approves
+            on the web: the authenticator app, a code by SMS (clients only), or none
+            yet.'
+        phone_masked:
+          type: string
+          readOnly: true
+          description: The mobile number as screens show it, e.g. +44 •••• 123.
+        sms_pause:
+          oneOf:
+          - $ref: '#/components/schemas/SmsPause'
+          - type: 'null'
+          readOnly: true
+          description: 'FR-ACC-015: when SMS approvals are paused (72 hours after
+            a number change or a reported SIM swap), why and until when. Null when
+            not paused.'
         roles:
           type: array
           items:
@@ -53640,9 +53753,12 @@ components:
       - id
       - id_check_status
       - mfa_enabled
+      - phone_masked
       - phone_verified
       - privacy_notice_pending
       - roles
+      - second_factor
+      - sms_pause
       - status
     PersonPick:
       type: object
@@ -53710,6 +53826,23 @@ components:
       required:
       - email
       - full_name
+    PhoneChangeRequest:
+      type: object
+      description: |-
+        Refuse fields the API does not know (TC-ACC-012-02: only catalogued
+        fields are accepted, NFR-PRIV-02).
+      properties:
+        phone:
+          type: string
+          minLength: 1
+          description: The new mobile number with its country code
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - password
+      - phone
     PlanItem:
       type: object
       properties:
@@ -63226,6 +63359,43 @@ components:
           minLength: 1
       required:
       - reason
+    SmsCodeSent:
+      type: object
+      properties:
+        sent_to:
+          type: string
+          description: 'The number the code went to, masked: +44 •••• 123'
+        expires_in:
+          type: integer
+          description: Seconds the code works for
+        detail:
+          type: string
+      required:
+      - detail
+      - expires_in
+      - sent_to
+    SmsPause:
+      type: object
+      properties:
+        reason:
+          $ref: '#/components/schemas/SmsPauseReasonEnum'
+        until:
+          type: string
+          format: date-time
+        detail:
+          type: string
+      required:
+      - detail
+      - reason
+      - until
+    SmsPauseReasonEnum:
+      enum:
+      - phone_changed
+      - sim_swap
+      type: string
+      description: |-
+        * `phone_changed` - phone_changed
+        * `sim_swap` - sim_swap
     Source56dEnum:
       enum:
       - file
@@ -64124,12 +64294,27 @@ components:
       required:
       - evidence_id
       - kind
+    StepUpMethodEnum:
+      enum:
+      - totp
+      - sms
+      type: string
+      description: |-
+        * `totp` - totp
+        * `sms` - sms
     StepUpRequest:
       type: object
       description: |-
-        A fresh MFA step-up: the authenticator `code`, or a signature from this
-        phone's approval key over a challenge (FR-ACC-014).
+        A fresh MFA step-up: the authenticator `code`; an SMS `code` with
+        `method` "sms" (clients only, FR-ACC-015); or a signature from this
+        phone's approval key over a challenge (FR-ACC-014). Without `method`, a
+        code is the authenticator's when the person has one, else an SMS code.
       properties:
+        method:
+          default: ''
+          oneOf:
+          - $ref: '#/components/schemas/StepUpMethodEnum'
+          - $ref: '#/components/schemas/BlankEnum'
         code:
           type: string
           default: ''

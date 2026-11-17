@@ -2330,8 +2330,9 @@ export interface paths {
         put?: never;
         /**
          * @description FR-ACC-014: register this phone's approval key (Face ID or fingerprint
-         *     for approvals). Needs the authenticator code, in `code` or as a code
-         *     step-up in the last 5 minutes. Only the public key reaches Tenmina.
+         *     for approvals). Needs the authenticator code, or for a client without one
+         *     the code sent by POST /v1/auth/mfa/sms (FR-ACC-015), in `code` or as a
+         *     code step-up in the last 5 minutes. Only the public key reaches Tenmina.
          */
         post: operations["v1_auth_approval_keys_create"];
         delete?: never;
@@ -2483,6 +2484,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/auth/mfa/sms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description FR-ACC-015: send a 6-digit code by SMS to the client's confirmed number
+         *     for an approval step-up. It works for 5 minutes, once, with 5 tries. At
+         *     most 3 codes in 10 minutes and 10 a day [TO VERIFY]. Refused for staff and
+         *     anyone holding release or payment rights (sms-not-allowed), and for 72
+         *     hours after a number change or a reported SIM swap (sms-paused).
+         */
+        post: operations["v1_auth_mfa_sms_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/auth/mfa/step-up": {
         parameters: {
             query?: never;
@@ -2493,9 +2517,12 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * @description Fresh MFA for an approval (6.3). Valid for 5 minutes. Either the
-         *     authenticator `code`, or (FR-ACC-014) `key_id`, `challenge` and
-         *     `signature` from the phone's approval key after Face ID or a fingerprint.
+         * @description Fresh MFA for an approval (6.3). Valid for 5 minutes. The authenticator
+         *     `code`; or (FR-ACC-014) `key_id`, `challenge` and `signature` from the
+         *     phone's approval key after Face ID or a fingerprint; or (FR-ACC-015, clients
+         *     only) `method` "sms" and the `code` sent by POST /v1/auth/mfa/sms, recorded
+         *     as `sms_code`. Staff are refused SMS (sms-not-allowed); SMS is refused for
+         *     72 hours after a number change or a reported SIM swap (sms-paused).
          */
         post: operations["v1_auth_mfa_step_up_create"];
         delete?: never;
@@ -8229,6 +8256,46 @@ export interface paths {
         get: operations["v1_me_notifications_unread_count_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/phone": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description FR-ACC-015: change the mobile number. Needs the password; a code goes
+         *     to the new number. Nothing changes until POST /v1/me/phone/confirm.
+         */
+        post: operations["v1_me_phone_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/phone/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description FR-ACC-015: the code from the new number confirms it. SMS approvals
+         *     then pause for 72 hours, and Face ID phones are removed.
+         */
+        post: operations["v1_me_phone_confirm_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -14973,7 +15040,7 @@ export interface components {
             device_name: string;
             platform: components["schemas"]["PlatformEnum"];
             /**
-             * @description The authenticator code. Without it, a code step-up in the last 5 minutes is needed.
+             * @description The authenticator code, or for a client without one the code sent by POST /v1/auth/mfa/sms. Without it, a code step-up in the last 5 minutes is needed.
              * @default
              */
             code: string;
@@ -21173,7 +21240,7 @@ export interface components {
             /** @description One-time code instead of a password */
             otp?: string;
             channel?: components["schemas"]["Channel204Enum"];
-            /** @description Authenticator code when MFA is on */
+            /** @description The second factor: the authenticator code, or the code sent by SMS when the answer was mfa-required with method sms (FR-ACC-015) */
             code?: string;
         };
         /** @description Canonical JSON (RFC 8785) of this object is what the device signs. */
@@ -21411,9 +21478,10 @@ export interface components {
         /**
          * @description * `totp` - totp
          *     * `device_biometric` - device_biometric
+         *     * `sms_code` - sms_code
          * @enum {string}
          */
-        MfaMethodEnum: "totp" | "device_biometric";
+        MfaMethodEnum: "totp" | "device_biometric" | "sms_code";
         MfaSetupResult: {
             otpauth_uri: string;
             secret: string;
@@ -23176,7 +23244,13 @@ export interface components {
         PasswordResetConfirmRequest: {
             identifier: string;
             channel?: components["schemas"]["Channel204Enum"];
+            /** @description The code from the email (or the phone) */
             code: string;
+            /**
+             * @description FR-ACC-015: for a client whose second factor is SMS, the code texted to the phone as well
+             * @default
+             */
+            sms_code: string;
             new_password: string;
         };
         PasswordResetRequest: {
@@ -23862,6 +23936,12 @@ export interface components {
             residence_country?: string;
             readonly home_country: string;
             readonly mfa_enabled: boolean;
+            /** @description FR-ACC-003, FR-ACC-015: how this person signs in and approves on the web: the authenticator app, a code by SMS (clients only), or none yet. */
+            readonly second_factor: string;
+            /** @description The mobile number as screens show it, e.g. +44 •••• 123. */
+            readonly phone_masked: string;
+            /** @description FR-ACC-015: when SMS approvals are paused (72 hours after a number change or a reported SIM swap), why and until when. Null when not paused. */
+            readonly sms_pause: components["schemas"]["SmsPause"] | null;
             readonly roles: string[];
             readonly status: components["schemas"]["Status151Enum"];
             readonly id_check_status: components["schemas"]["IdCheckStatusEnum"];
@@ -23897,6 +23977,15 @@ export interface components {
             full_name: string;
             /** Format: email */
             email: string;
+        };
+        /**
+         * @description Refuse fields the API does not know (TC-ACC-012-02: only catalogued
+         *     fields are accepted, NFR-PRIV-02).
+         */
+        PhoneChangeRequest: {
+            /** @description The new mobile number with its country code */
+            phone: string;
+            password: string;
         };
         PlanItem: {
             /** Format: uuid */
@@ -27783,6 +27872,25 @@ export interface components {
         SkipInputRequest: {
             reason: string;
         };
+        SmsCodeSent: {
+            /** @description The number the code went to, masked: +44 •••• 123 */
+            sent_to: string;
+            /** @description Seconds the code works for */
+            expires_in: number;
+            detail: string;
+        };
+        SmsPause: {
+            reason: components["schemas"]["SmsPauseReasonEnum"];
+            /** Format: date-time */
+            until: string;
+            detail: string;
+        };
+        /**
+         * @description * `phone_changed` - phone_changed
+         *     * `sim_swap` - sim_swap
+         * @enum {string}
+         */
+        SmsPauseReasonEnum: "phone_changed" | "sim_swap";
         /**
          * @description * `file` - file
          *     * `api` - api
@@ -28267,10 +28375,20 @@ export interface components {
             evidence_id: string;
         };
         /**
-         * @description A fresh MFA step-up: the authenticator `code`, or a signature from this
-         *     phone's approval key over a challenge (FR-ACC-014).
+         * @description * `totp` - totp
+         *     * `sms` - sms
+         * @enum {string}
+         */
+        StepUpMethodEnum: "totp" | "sms";
+        /**
+         * @description A fresh MFA step-up: the authenticator `code`; an SMS `code` with
+         *     `method` "sms" (clients only, FR-ACC-015); or a signature from this
+         *     phone's approval key over a challenge (FR-ACC-014). Without `method`, a
+         *     code is the authenticator's when the person has one, else an SMS code.
          */
         StepUpRequest: {
+            /** @default  */
+            method: components["schemas"]["StepUpMethodEnum"] | components["schemas"]["BlankEnum"];
             /** @default  */
             code: string;
             /** Format: uuid */
@@ -33595,6 +33713,25 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MfaSetupResult"];
+                };
+            };
+        };
+    };
+    v1_auth_mfa_sms_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SmsCodeSent"];
                 };
             };
         };
@@ -43846,6 +43983,56 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UnreadCount"];
+                };
+            };
+        };
+    };
+    v1_me_phone_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PhoneChangeRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PhoneChangeRequest"];
+                "multipart/form-data": components["schemas"]["PhoneChangeRequest"];
+            };
+        };
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SmsCodeSent"];
+                };
+            };
+        };
+    };
+    v1_me_phone_confirm_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CodeRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CodeRequest"];
+                "multipart/form-data": components["schemas"]["CodeRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Person"];
                 };
             };
         };

@@ -34,7 +34,12 @@ def test_new_version_is_asked_for_at_next_sign_in(seeded, api, people):
     assert r.status_code == 201 and r.json()["status"] == "published"
     assert api(people["client"]).post("/v1/dpr/privacy-notices", {"version": "3", "text": "x"},
                                       format="json").status_code == 403
-    r = api().post("/v1/auth/login", {"identifier": "ama@example.com", "password": "tenmina-dev-123"})
+    from accounts.adapters import FakeOtpSender
+
+    c0 = api()
+    c0.post("/v1/auth/login", {"identifier": "ama@example.com", "password": "tenmina-dev-123"})
+    r = c0.post("/v1/auth/login", {"identifier": "ama@example.com", "password": "tenmina-dev-123",
+                                   "code": FakeOtpSender.last_code(people["client"].phone, "mfa_login")})
     assert r.json()["privacy_notice_pending"] == "2.0"
     assert api().get("/v1/privacy-notices/current").json()["version"] == "2.0"
     c = api(people["client"])

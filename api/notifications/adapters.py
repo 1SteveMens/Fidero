@@ -68,6 +68,53 @@ class ConsolePush(ConsoleMessaging):
         return {"ok": True, "provider_ref": ""}
 
 
+class FakeSmsProvider:
+    """The SMS provider port for one-time codes (FR-ACC-015, IF-07). Writes
+    each text to the log, so in development the code appears in the API log,
+    and keeps it in memory for tests. A real provider implements send_sms()."""
+
+    name = "fake_sms"
+    sent: list = []  # {"to", "text", "ref"}, newest last
+    fail = False     # tests switch the provider off
+
+    def send_sms(self, *, to: str, text: str) -> dict:
+        if type(self).fail:
+            log.info("[sms] simulated failure to %s", to)
+            return {"ok": False, "error": "SMS provider unavailable (simulated)"}
+        ref = f"fake-sms-{uuid.uuid4().hex[:12]}"
+        type(self).sent.append({"to": to, "text": text, "ref": ref})
+        del type(self).sent[:-200]
+        log.info("[sms] to %s: %s", to, text)
+        return {"ok": True, "provider_ref": ref}
+
+
+class _PlannedSmsProvider:
+    """Placeholder for a Ghanaian SMS gateway. Not connected: the contract,
+    sender ID registration and cost per message are [TO VERIFY]. Until then
+    it refuses to send, so a misconfigured server never fails silently."""
+
+    name = "planned"
+    env_key = ""
+
+    def send_sms(self, *, to: str, text: str) -> dict:
+        return {"ok": False, "error": f"{self.name} is not connected yet [TO VERIFY]. Set {self.env_key} and "
+                                      "finish the adapter."}
+
+
+class HubtelSms(_PlannedSmsProvider):
+    """Hubtel SMS API (Ghana) [TO VERIFY]: client id and secret, sender ID 'Tenmina'."""
+
+    name = "hubtel"
+    env_key = "TENMINA_HUBTEL_CLIENT_ID and TENMINA_HUBTEL_CLIENT_SECRET"
+
+
+class ArkeselSms(_PlannedSmsProvider):
+    """Arkesel SMS API (Ghana) [TO VERIFY]: API key, sender ID 'Tenmina'."""
+
+    name = "arkesel"
+    env_key = "TENMINA_ARKESEL_API_KEY"
+
+
 def sign(raw: bytes) -> str:
     """For tests and local tools: the signature the console adapter expects."""
     return hmac.new(webhook_secret().encode(), raw, hashlib.sha256).hexdigest()

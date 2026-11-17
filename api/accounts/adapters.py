@@ -11,16 +11,25 @@ log = logging.getLogger(__name__)
 
 
 class FakeOtpSender:
-    """Logs each one-time code instead of sending it. In dev and test the
+    """Logs each one-time code by email instead of sending it, and sends codes
+    for a phone through the notifications SMS provider port (FR-ACC-015;
+    the fake SMS provider writes them to the API log). In dev and test the
     code 000000 is also accepted, so demos and app builds can sign up."""
 
     MASTER_CODE = "000000"
     sent: list = []  # (channel, destination, purpose, code), newest last; for tests and local demos
 
-    def send(self, *, channel: str, destination: str, code: str, purpose: str) -> bool:
-        log.info("one-time code %s for %s via %s: %s", purpose, destination, channel, code)
+    def send(self, *, channel: str, destination: str, code: str, purpose: str, person=None,
+             expires_minutes: int = 10) -> bool:
         type(self).sent.append((channel, destination, purpose, code))
         del type(self).sent[:-200]
+        if channel == "phone":
+            from notifications.services import send_security_code
+
+            m = send_security_code(to_address=destination, code=code, purpose=purpose, person=person,
+                                   expires_minutes=expires_minutes)
+            return m.status == "sent"
+        log.info("one-time code %s for %s via %s: %s", purpose, destination, channel, code)
         return True
 
     def accepts_master_code(self) -> bool:
@@ -31,6 +40,28 @@ class FakeOtpSender:
         for ch, dest, pur, code in reversed(cls.sent):
             if dest == destination and (purpose is None or pur == purpose):
                 return code
+        return None
+
+
+class FakeSimSwapCheck:
+    """When the mobile network last moved a number to a new SIM card
+    (FR-ACC-015). A real adapter asks the network operator's SIM-swap API
+    where one is available [TO VERIFY provider and coverage in Ghana]. The
+    fake reports a swap one day ago for numbers in `swapped`, and for numbers
+    ending in 9990 so a demo can show the pause; otherwise none."""
+
+    name = "fake-sim-swap"
+    swapped: dict = {}  # phone -> datetime of the swap; tests set it
+
+    def last_swap(self, phone: str):
+        from datetime import timedelta
+
+        from django.utils import timezone
+
+        if phone in type(self).swapped:
+            return type(self).swapped[phone]
+        if (phone or "").endswith("9990"):
+            return timezone.now() - timedelta(days=1)
         return None
 
 

@@ -5,14 +5,13 @@ import { brand, radius, space, type } from '@tenmina/tokens';
 import { Button, Chip, CodeField, Label, Panel, Rise, Screen, T, Tick, haptic, usePalette, type ChipTone, type IconName } from '@tenmina/ui';
 import { apiBaseUrl, toProblem, type Problem, type UpdateRequired } from './api';
 import { useAction, useGet } from './hooks';
-import { useApi, useSession } from './session';
+import { useApi, useSession, type CodeAsk } from './session';
 import { day } from './format';
 
 /* ---------- Problems ---------- */
 
 const PLAIN: Record<string, string> = {
-  'mfa-required': 'Enter the 6-digit code from your authenticator app to go on.',
-  'mfa-not-set-up': 'Set up an authenticator app in Account first. Every approval needs it, also with Face ID.',
+  'mfa-not-set-up': 'Confirm your mobile number or set up an authenticator app in Account first.',
   unauthenticated: 'Please sign in again.',
 };
 
@@ -191,14 +190,15 @@ export function SignInForm({ onSignedIn, footer }: { onSignedIn: () => void; foo
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
-  const [needsCode, setNeedsCode] = useState(false);
+  const [ask, setAsk] = useState<CodeAsk | null>(null);
   const [busy, setBusy] = useState(false);
+  const [resent, setResent] = useState(false);
   const [problem, setProblem] = useState<Problem>();
 
-  async function go() {
+  async function go(opts: { resend?: boolean } = {}) {
     setBusy(true);
     setProblem(undefined);
-    const r = await signIn(identifier, password, needsCode ? code : undefined);
+    const r = await signIn(identifier, password, ask && !opts.resend ? code : undefined);
     setBusy(false);
     if (r.ok) {
       haptic('success');
@@ -206,8 +206,10 @@ export function SignInForm({ onSignedIn, footer }: { onSignedIn: () => void; foo
       return;
     }
     if (r.needsCode) {
-      setNeedsCode(true);
+      // A wrong code keeps what we already know about where the code went.
+      setAsk((was) => (r.problem && was ? was : r.ask));
       if (r.problem) setProblem(r.problem);
+      setResent(!!opts.resend);
       setCode('');
       return;
     }
@@ -215,13 +217,19 @@ export function SignInForm({ onSignedIn, footer }: { onSignedIn: () => void; foo
     setProblem(r.problem);
   }
 
-  const ready = identifier.trim().length > 3 && password.length > 0 && (!needsCode || code.length === 6);
+  const sms = ask?.method === 'sms';
+  const ready = identifier.trim().length > 3 && password.length > 0 && (!ask || code.length === 6);
   return (
     <View style={{ gap: space[4] }}>
-      {needsCode ? (
+      {ask ? (
         <Rise style={{ gap: space[3] }}>
-          <T v="callout" muted>Open your authenticator app and enter the 6-digit code for Tenmina.</T>
-          <CodeField label="Code from your authenticator app" value={code} onChange={setCode} />
+          <T v="callout" muted>
+            {sms ? `We sent a code to ${ask.sentTo ?? 'your phone'}. It works for 5 minutes.` : 'Open your authenticator app and enter the 6-digit code for Tenmina.'}
+          </T>
+          <CodeField label={sms ? 'Code from the text message' : 'Code from your authenticator app'} value={code} onChange={setCode} />
+          {sms ? (
+            <Button title={resent ? 'Sent again' : 'Send a new code'} variant="quiet" icon="refresh" disabled={busy} onPress={() => void go({ resend: true })} />
+          ) : null}
         </Rise>
       ) : (
         <>
@@ -230,8 +238,9 @@ export function SignInForm({ onSignedIn, footer }: { onSignedIn: () => void; foo
         </>
       )}
       <ProblemBox problem={problem} />
-      <Button title={needsCode ? 'Confirm and sign in' : 'Sign in'} icon="arrow-forward" disabled={!ready} loading={busy} onPress={() => void go()} />
-      {needsCode ? <Button title="Use a different account" variant="quiet" onPress={() => setNeedsCode(false)} /> : null}
+      <Button title={ask ? 'Confirm and sign in' : 'Sign in'} icon="arrow-forward" disabled={!ready} loading={busy} onPress={() => void go()} />
+      {ask ? <Button title="Use a different account" variant="quiet" onPress={() => { setAsk(null); setCode(''); setProblem(undefined); }} /> : null}
+      {sms ? <T v="footnote" muted>Do not share this code. Tenmina will never call you for it.</T> : null}
       {footer}
     </View>
   );
@@ -261,10 +270,13 @@ export function UpdateRequiredScreen({ info, savedItems }: { info: UpdateRequire
 
 /* ---------- Step-up ---------- */
 
-/** POST /v1/auth/mfa/step-up: a fresh second factor for an approval, valid for 5 minutes. */
-export async function stepUp(api: ReturnType<typeof useApi>, code: string): Promise<Problem | undefined> {
+/**
+ * POST /v1/auth/mfa/step-up: a fresh second factor for an approval, valid for
+ * 5 minutes. `method` "sms" for a code sent by SMS (FR-ACC-015).
+ */
+export async function stepUp(api: ReturnType<typeof useApi>, code: string, method?: 'totp' | 'sms'): Promise<Problem | undefined> {
   try {
-    await api.post('/v1/auth/mfa/step-up', { code });
+    await api.post('/v1/auth/mfa/step-up', method ? { code, method } : { code });
     return undefined;
   } catch (e) {
     return toProblem(e);

@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { Button, Field, Input, KV, Money, NeedsYou, ProblemBox, Skeleton, Steps, Textarea, When, useGet } from '@tenmina/web-ui';
 import { ActionDialog, EvidenceLink, FilePick, PageHead, Proof, Section, StepUpButton, money, postForm, useAction, useCountry, words, type Any } from '@/components/kit';
+import { FactorField, useWebFactor } from '@/components/secondfactor';
 
 /** W-34 · SCR-PTL-50: errand checklist and progress, step fees approved one by one or under a standing approval. */
 export default function Errand() {
@@ -16,7 +17,7 @@ export default function Errand() {
   const a = useAction();
   const [sa, setSa] = useState(false);
   const [max, setMax] = useState('');
-  const [code, setCode] = useState('');
+  const f = useWebFactor();
   const [cancel, setCancel] = useState(false);
   const [reason, setReason] = useState('');
   if (q.isLoading) return <Skeleton lines={6} />;
@@ -93,10 +94,10 @@ export default function Errand() {
       ) : null}
       <ProblemBox error={a.error} />
       {!['handed_over', 'completed', 'cancelled'].includes(e.status) ? <Button variant="ghost" onClick={() => setCancel(true)}>Cancel the errand</Button> : null}
-      <ActionDialog ink open={sa} onClose={() => setSa(false)} title="Standing approval for step fees" submit="Give the approval" busy={a.busy === 'sa'} error={a.error} disabled={!max || code.length !== 6}
-        onSubmit={() => a.run('sa', () => a.post(`/v1/errands/${id}/standing-approvals`, { monthly_max: max, code }), 'Standing approval given', () => { setSa(false); refresh(); })}>
+      <ActionDialog ink open={sa} onClose={() => setSa(false)} title="Standing approval for step fees" submit="Give the approval" busy={a.busy === 'sa'} error={a.error} disabled={!max || !f.ready}
+        onSubmit={() => a.run('sa', async () => { await f.stepUp(); return a.post(`/v1/errands/${id}/standing-approvals`, { monthly_max: max }); }, 'Standing approval given', () => { setSa(false); refresh(); })}>
         <Field label={`Up to this much a month (${pay.data?.official_fees?.currency ?? country.currency})`}><Input inputMode="decimal" value={max} onChange={(ev) => setMax(ev.target.value.replace(/[^\d.]/g, ''))} /></Field>
-        <Field label="Code from your authenticator app"><Input inputMode="numeric" maxLength={6} value={code} onChange={(ev) => setCode(ev.target.value.replace(/\D/g, ''))} /></Field>
+        <FactorField f={f} />
       </ActionDialog>
       <ActionDialog open={cancel} onClose={() => setCancel(false)} title="Cancel the errand" submit="Cancel" busy={a.busy === 'c'} error={a.error}
         onSubmit={() => a.run('c', () => a.post(`/v1/errands/${id}/cancel`, { reason }), 'Cancelled', () => { setCancel(false); refresh(); })}>

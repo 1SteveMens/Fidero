@@ -17,7 +17,7 @@ const sheet = {
 };
 
 /** Screens that work signed out. Every other link waits for sign-in; it never approves anything by itself. */
-const PUBLIC = ['welcome', 'sign-in', 'sign-up'];
+const PUBLIC = ['welcome', 'sign-in', 'sign-up', 'forgot-password', 'help'];
 
 function Root() {
   const { status, update } = useSession();

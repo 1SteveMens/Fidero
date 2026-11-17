@@ -41,7 +41,7 @@ interface Visit {
  * Care plan, visits and alerts (SCR-PTL-43, SCR-PTL-44; W-29): who visits, what
  * they do, who confirms, and each visit's state. Starting the plan accepts the
  * terms and agrees the carer as payee: press and hold, then Face ID or a
- * fingerprint, or the authenticator code (RUL-28, FR-ACC-014).
+ * fingerprint, or a code by SMS or the authenticator (RUL-28, FR-ACC-014, FR-ACC-015).
  */
 export default function CarePlanScreen() {
   const factor = useSecondFactor();
@@ -90,7 +90,7 @@ export default function CarePlanScreen() {
                   <HoldButton label="Start the plan" holdMs={holdToApproveMs} screenReader={screenReader} disabled={!factor.ready || !terms.data} loading={act.busy} onConfirm={() => void activate()} />
                 </>
               ) : (
-                <Button title="Set up the authenticator first" variant="primary" onPress={() => router.push('/account/security')} />
+                <Button title="Confirm your mobile number first" variant="primary" onPress={() => router.push('/account/phone')} />
               )}
               <ProblemBox problem={problem ?? act.problem} />
             </Panel>

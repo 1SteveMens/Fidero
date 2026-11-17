@@ -8,10 +8,11 @@ import { ProblemBox, localApprovalKey, useAction, useSession } from '@tenmina/mo
 import { EnrolBiometric } from '../../components/EnrolBiometric';
 
 /**
- * Authenticator app (FR-ACC-003). Every approval needs a second factor, so a
- * client sets it up once: add the key to an authenticator app, then enter a
- * code. Then this phone can use Face ID or a fingerprint instead of typing the
- * code at each approval (FR-ACC-014).
+ * Authenticator app, optional for clients (FR-ACC-003, FR-ACC-015). A client
+ * signs in and approves with a code by SMS, or Face ID in the app; the
+ * authenticator is for those who prefer it. Once it is on, it replaces the
+ * SMS code at sign-in and on the website. This phone can still use Face ID
+ * or a fingerprint instead of typing the code at each approval (FR-ACC-014).
  */
 export default function Security() {
   const { me, reloadMe } = useSession();
@@ -43,7 +44,7 @@ export default function Security() {
           <Tick size={28} />
           <T v="headline" style={{ flex: 1 }}>Your authenticator is set up.</T>
         </Panel>
-        <T v="callout" muted>Each approval asks for its 6-digit code, or Face ID or a fingerprint on a phone where you turn it on. If you lose the phone with the authenticator, contact Tenmina: we check who you are before resetting it.</T>
+        <T v="callout" muted>Sign-in and each approval on the website ask for its 6-digit code instead of a text message. In this app, Face ID or a fingerprint still works. If you lose the phone with the authenticator, contact Tenmina: we check who you are before resetting it.</T>
         <Panel>
           <Label>Face ID or fingerprint for approvals</Label>
           {biometricOn ? (
@@ -64,7 +65,7 @@ export default function Security() {
     <Screen
       ground="ink"
       back
-      title="Set up your authenticator"
+      title="Authenticator app"
       footer={
         setup ? (
           <Button title="Confirm" icon="checkmark" disabled={code.length < 6} loading={act.busy} onPress={() => void confirm()} />
@@ -73,7 +74,7 @@ export default function Security() {
         )
       }
     >
-      <T v="callout" muted>Use an authenticator app such as Google Authenticator, Microsoft Authenticator or 1Password. Approving a payment needs its code, or Face ID or a fingerprint once you turn that on for this phone.</T>
+      <T v="callout" muted>{`Optional. You can keep using the codes we text to ${me?.phone_masked || 'your phone'}. If you prefer, use an authenticator app such as Google Authenticator, Microsoft Authenticator or 1Password: its code then replaces the text message at sign-in and on the website.`}</T>
       {setup ? (
         <>
           <Panel>

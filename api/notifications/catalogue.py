@@ -106,6 +106,15 @@ CATALOGUE = {
         "phone": "Tenmina: please confirm {{ summary }}. Code {{ otp_code }}. Or open {{ link }}. "
                  "Valid {{ expires_in }}. Do not share this code.",
     },
+    "security_code": {
+        "category": "safety", "variables": ["otp_code", "request_label", "expires_in"],
+        "required": ["otp_code"], "allows_code": True,
+        "defaults": {"subject": "Your Tenmina code",
+                     "body": "Your Tenmina code {{ request_label }} is {{ otp_code }}. It expires in {{ expires_in }}. "
+                             "Do not share this code. Tenmina will never call you for it."},
+        "phone": "Tenmina: your code {{ request_label }} is {{ otp_code }}. It expires in {{ expires_in }}. "
+                 "Do not share this code. Tenmina will never call you for it.",
+    },
     "security_alert": {
         "category": "safety", "variables": ["summary", "link"], "required": ["summary"],
         "defaults": {"subject": "Security alert", "body": "Security alert: {{ summary }}."},

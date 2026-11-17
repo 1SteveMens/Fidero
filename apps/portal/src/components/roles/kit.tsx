@@ -4,9 +4,10 @@
    main action, orange only for this person's own step, black grounds for money. */
 import Link from 'next/link';
 import React, { useCallback, useState } from 'react';
-import { Button, CodeBoxes, Dialog, Empty, Field, ProblemBox, Skeleton, useClient, useSession, useToast, call } from '@tenmina/web-ui';
+import { Button, Dialog, Empty, Field, ProblemBox, Skeleton, useClient, useToast, call } from '@tenmina/web-ui';
 import type { Money as MoneyT } from '@tenmina/api-client';
 import { openEvidence } from './files';
+import { FactorField, useWebFactor } from '../secondfactor';
 
 export type Page<T> = { items: T[]; next_cursor?: string | null };
 export type { MoneyT };
@@ -97,10 +98,13 @@ export function useApi() {
   return useCallback(<T = unknown,>(method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE', path: string, body?: unknown, query?: Record<string, unknown>) => call<T>(client, method, path, body, query), [client]);
 }
 
-/** Ask for a fresh second-factor code, then run the action (signing, money and other irreversible steps). */
+/**
+ * Ask for a fresh second factor, then run the action (signing, money and other
+ * irreversible steps). Staff and professionals use the authenticator app; a
+ * client without one gets a code by SMS (FR-ACC-003, FR-ACC-015).
+ */
 export function StepUpDialog({ open, onClose, title, onConfirmed, children, ink }: { open: boolean; onClose: () => void; title: string; onConfirmed: () => Promise<void>; children?: React.ReactNode; ink?: boolean }) {
-  const { stepUp, me } = useSession();
-  const [code, setCode] = useState('');
+  const f = useWebFactor();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
   async function go(e: React.FormEvent) {
@@ -108,9 +112,9 @@ export function StepUpDialog({ open, onClose, title, onConfirmed, children, ink 
     setBusy(true);
     setError(null);
     try {
-      await stepUp(code);
+      await f.stepUp();
       await onConfirmed();
-      setCode('');
+      f.reset();
       onClose();
     } catch (err) {
       setError(err);
@@ -122,10 +126,9 @@ export function StepUpDialog({ open, onClose, title, onConfirmed, children, ink 
     <Dialog open={open} onClose={onClose} title={title} ink={ink}>
       <form onSubmit={go} className="stack">
         {children}
-        {me && !me.mfa_enabled ? <p>Set up an authenticator app first. Your Tenmina contact can help.</p> : null}
-        <Field label="Code from your authenticator app"><CodeBoxes value={code} onChange={setCode} autoFocus /></Field>
+        <FactorField f={f} autoFocus />
         <ProblemBox error={error} />
-        <Button variant="primary" type="submit" busy={busy} disabled={code.length !== 6} block>Confirm</Button>
+        {f.method === 'totp' || f.method === 'sms' ? <Button variant="primary" type="submit" busy={busy} disabled={!f.ready} block>Confirm</Button> : null}
       </form>
     </Dialog>
   );

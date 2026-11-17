@@ -38,6 +38,44 @@ class ConfirmationCodeInvalid(DomainError):
     title = "The confirmation code is wrong, expired or used up"
 
 
+# --- One-time codes by SMS (FR-ACC-015) ----------------------------------------------
+
+CODE_PURPOSE_LABELS = {
+    "signup": "to confirm your number", "login": "to sign in", "mfa_login": "to sign in",
+    "mfa_step_up": "to approve", "password_reset": "to reset your password",
+    "phone_change": "to confirm your new number",
+}
+
+
+def send_security_code(*, to_address: str, code: str, purpose: str, person=None, expires_minutes: int = 10,
+                       country=None) -> Message:
+    """Send a one-time code by SMS through the SMS provider port. The text
+    follows the content policy (no amounts, no account numbers, a warning
+    never to share it). It goes whatever the person's channel settings,
+    because it is how they prove who they are. The delivery log keeps the
+    text with the code hidden: only a hash of the code is kept anywhere."""
+    ctx = {"otp_code": code, "request_label": CODE_PURPOSE_LABELS.get(purpose, ""),
+           "expires_in": f"{expires_minutes} minutes"}
+    if country is None and person is not None:
+        country = getattr(person, "home_country", None)
+    _, text, _ = compose("security_code", "sms", person=person, context=ctx, country=country)
+    adapter = get_adapter("sms", default="notifications.adapters.FakeSmsProvider")
+    m = Message.objects.create(person=person, to_address=to_address, channel="sms", template="security_code",
+                               category="safety", country=country, body=text.replace(code, "••••••"),
+                               subject_type="one_time_code", subject_id=purpose, attempts=1,
+                               provider=getattr(adapter, "name", "") or type(adapter).__name__)
+    try:
+        res = adapter.send_sms(to=to_address, text=text)
+    except Exception as exc:  # noqa: BLE001 - a provider error is a failed send, logged
+        res = {"ok": False, "error": str(exc)}
+    if res.get("ok"):
+        m.status, m.sent_at, m.provider_ref = "sent", timezone.now(), res.get("provider_ref", "") or ""
+        m.save(update_fields=["status", "sent_at", "provider_ref"])
+    else:
+        _fail(m, res.get("error") or "provider refused the message")
+    return m
+
+
 # --- Preferences -------------------------------------------------------------------
 
 def _prefs(person) -> dict:

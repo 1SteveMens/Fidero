@@ -77,6 +77,11 @@ def test_login_lockout_and_mfa_step_up(seeded, api, mfa):
 def test_token_auth_and_problem_json(seeded, api):
     c = api()
     r = c.post("/v1/auth/token", {"email": "kofi@example.com", "password": "tenmina-dev-123"})
+    assert r.status_code == 401 and r.json()["code"] == "mfa-required" and r.json()["method"] == "sms"
+    from accounts.adapters import FakeOtpSender
+
+    code = FakeOtpSender.last_code("+12025550142", "mfa_login")  # FR-ACC-015: Kofi's code by SMS
+    r = c.post("/v1/auth/token", {"email": "kofi@example.com", "password": "tenmina-dev-123", "code": code})
     assert r.status_code == 200
     c.credentials(HTTP_AUTHORIZATION="Bearer " + r.json()["access"])
     assert c.get("/v1/me").json()["roles"] == ["CL"]

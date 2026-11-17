@@ -197,6 +197,10 @@ TENMINA = {
         "fx_rates": env("TENMINA_ADAPTER_FX", "escrow.adapters.FakeRateSource"),
         "messaging": env("TENMINA_ADAPTER_MESSAGING", "notifications.adapters.ConsoleMessaging"),
         "push": env("TENMINA_ADAPTER_PUSH", "notifications.adapters.ConsolePush"),
+        # One-time codes by SMS (FR-ACC-015): HubtelSms or ArkeselSms once connected [TO VERIFY].
+        "sms": env("TENMINA_ADAPTER_SMS", "notifications.adapters.FakeSmsProvider"),
+        # SIM-swap check from the mobile network (FR-ACC-015) [TO VERIFY provider].
+        "sim_swap": env("TENMINA_ADAPTER_SIM_SWAP", "accounts.adapters.FakeSimSwapCheck"),
         "evidence_store": env("TENMINA_ADAPTER_EVIDENCE", "evidence.adapters.LocalWriteOnceStore"),
         "malware_scan": env("TENMINA_ADAPTER_SCAN", "evidence.adapters.NoopScanner"),
         "registry_search": env("TENMINA_ADAPTER_REGISTRY", "cases.adapters.ManualRegistrySearch"),

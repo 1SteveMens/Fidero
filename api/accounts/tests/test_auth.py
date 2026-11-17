@@ -37,6 +37,9 @@ def test_signup_journey_with_two_codes(seeded, api):
                                        "code": _code("+447700900555"), "mode": "token"})
     assert r.status_code == 200 and r.json()["verified"] is True and r.json()["access"]
     r = api().post("/v1/auth/login", {"identifier": "+447700900555", "password": SIGNUP["password"]})
+    assert r.status_code == 401 and r.json()["method"] == "sms"  # FR-ACC-015: a client's second factor by SMS
+    r = api().post("/v1/auth/login", {"identifier": "+447700900555", "password": SIGNUP["password"],
+                                      "code": _code("+447700900555", "mfa_login")})
     assert r.status_code == 200
     assert r.json()["privacy_notice_pending"] is None
     assert AuditEvent.objects.filter(action="person.signed_in", entity_id=str(p.pk)).exists()
@@ -107,6 +110,17 @@ def test_sign_in_by_one_time_code_goes_only_to_verified_channel(seeded, api, peo
     assert c.post("/v1/auth/otp/send", {"identifier": ama.phone, "purpose": "login"}).status_code == 202
     code = _code(ama.phone, "login")
     r = c.post("/v1/auth/token", {"identifier": ama.phone, "otp": code})
+    # FR-ACC-015: the phone is Ama's second factor, so a phone code alone never signs her in.
+    assert r.status_code == 401 and r.json()["code"] == "password-required"
+    c.post("/v1/auth/otp/send", {"identifier": ama.email, "purpose": "login"})
+    r = c.post("/v1/auth/token", {"identifier": ama.email, "otp": _code(ama.email, "login")})
+    assert r.status_code == 401 and r.json()["method"] == "sms"
+    r = c.post("/v1/auth/token", {"identifier": ama.email, "otp": _code(ama.email, "login"),
+                                  "code": _code(ama.phone, "mfa_login")})
+    assert r.status_code == 401  # the email code was used once already
+    c.post("/v1/auth/otp/send", {"identifier": ama.email, "purpose": "login"})
+    r = c.post("/v1/auth/token", {"identifier": ama.email, "otp": _code(ama.email, "login"),
+                                  "code": _code(ama.phone, "mfa_login")})
     assert r.status_code == 200 and r.json()["access"]
     Person.objects.filter(pk=ama.pk).update(phone_verified_at=None)
     FakeOtpSender.sent.clear()
@@ -123,34 +137,41 @@ def test_lockout_notifies_and_expires(seeded, api, people):
     c = api()
     for _ in range(4):
         assert c.post("/v1/auth/login", {"identifier": ama.email, "password": "nope-nope-nope"}).status_code == 401
-    assert c.post("/v1/auth/login", {"identifier": ama.email, "password": "tenmina-dev-123"}).status_code == 200
+    r = c.post("/v1/auth/login", {"identifier": ama.email, "password": "tenmina-dev-123"})
+    assert r.status_code == 401 and r.json()["code"] == "mfa-required"  # the password was right
     for _ in range(5):
         c.post("/v1/auth/login", {"identifier": ama.email, "password": "nope-nope-nope"})
     r = c.post("/v1/auth/login", {"identifier": ama.email, "password": "tenmina-dev-123"})
     assert r.status_code == 423 and r.json()["code"] == "account-locked"
     assert Message.objects.filter(person=ama, template="account_locked", channel="email").exists()
     Person.objects.filter(pk=ama.pk).update(locked_until=timezone.now() - timedelta(seconds=1))
-    assert c.post("/v1/auth/login", {"identifier": ama.email, "password": "tenmina-dev-123"}).status_code == 200
+    r = c.post("/v1/auth/login", {"identifier": ama.email, "password": "tenmina-dev-123"})
+    assert r.status_code == 401 and r.json()["code"] == "mfa-required"
 
 
 def test_password_reset_journey(seeded, api, people):
-    ama = people["client"]
-    raw, _ = ApiToken.issue(ama, "access", timedelta(minutes=10))
+    """A staff member with an authenticator resets with the email code alone."""
+    rv = people["reviewer"]
+    raw, _ = ApiToken.issue(rv, "access", timedelta(minutes=10))
     c = api()
-    assert c.post("/v1/auth/password-reset", {"identifier": ama.email}).status_code == 202
-    code = _code(ama.email, "password_reset")
-    r = c.post("/v1/auth/password-reset/confirm", {"identifier": ama.email, "code": "000001" if code != "000001"
+    assert c.post("/v1/auth/password-reset", {"identifier": rv.email}).status_code == 202
+    code = _code(rv.email, "password_reset")
+    r = c.post("/v1/auth/password-reset/confirm", {"identifier": rv.email, "code": "000001" if code != "000001"
                                                    else "000002", "new_password": "a-brand-new-pass-9"})
     assert r.status_code == 422
-    r = c.post("/v1/auth/password-reset/confirm", {"identifier": ama.email, "code": code,
+    r = c.post("/v1/auth/password-reset/confirm", {"identifier": rv.email, "code": code,
                                                    "new_password": "a-brand-new-pass-9"})
     assert r.status_code == 200
     assert ApiToken.objects.get(token_hash=ApiToken.hash(raw)).revoked_at is not None
-    assert c.post("/v1/auth/login", {"identifier": ama.email, "password": "a-brand-new-pass-9"}).status_code == 200
+    r = c.post("/v1/auth/login", {"identifier": rv.email, "password": "a-brand-new-pass-9"})
+    assert r.status_code == 401 and r.json()["method"] == "totp"
 
 
-def test_refresh_rotates_and_reuse_revokes_everything(seeded, api):
-    r = api().post("/v1/auth/token", {"identifier": "kofi@example.com", "password": "tenmina-dev-123"})
+def test_refresh_rotates_and_reuse_revokes_everything(seeded, api, people):
+    kofi = people["client2"]
+    api().post("/v1/auth/token", {"identifier": kofi.email, "password": "tenmina-dev-123"})
+    r = api().post("/v1/auth/token", {"identifier": kofi.email, "password": "tenmina-dev-123",
+                                      "code": _code(kofi.phone, "mfa_login")})
     first = r.json()["refresh"]
     r2 = api().post("/v1/auth/token/refresh", {"refresh": first})
     assert r2.status_code == 200

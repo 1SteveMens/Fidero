@@ -142,4 +142,21 @@ SQL = [
     "DROP TRIGGER IF EXISTS trg_acc_approval_key_rules ON acc_approval_key;",
     """CREATE TRIGGER trg_acc_approval_key_rules BEFORE UPDATE ON acc_approval_key
        FOR EACH ROW EXECUTE FUNCTION acc_approval_key_rules();""",
+    # Decision of 17 November 2026: an approval resting on an SMS code is never
+    # one by staff or by anyone holding release or payment rights. They use
+    # the authenticator app (or an approval key).
+    """CREATE OR REPLACE FUNCTION acc_no_sms_for_staff() RETURNS trigger AS $$
+    BEGIN
+      IF NEW.mfa_method = 'sms_code' AND EXISTS (
+          SELECT 1 FROM acc_role_grant g
+           WHERE g.person_id = NEW.approver_id AND g.revoked_at IS NULL
+             AND g.role IN ('CM', 'RV', 'AD', 'AN', 'DPO', 'SUP', 'RR', 'PY')) THEN
+        RAISE EXCEPTION 'Staff and rights holders never approve with an SMS code'
+          USING ERRCODE = 'check_violation';
+      END IF;
+      RETURN NEW;
+    END $$ LANGUAGE plpgsql;""",
+    "DROP TRIGGER IF EXISTS trg_acc_no_sms_for_staff ON core_approval;",
+    """CREATE TRIGGER trg_acc_no_sms_for_staff BEFORE INSERT ON core_approval
+       FOR EACH ROW EXECUTE FUNCTION acc_no_sms_for_staff();""",
 ]

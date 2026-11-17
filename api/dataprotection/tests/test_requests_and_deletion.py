@@ -99,8 +99,9 @@ def test_delete_account_with_nothing_open(seeded, api, people):
     kofi = _fresh_client()
     raw, _ = ApiToken.issue(kofi, "access", timedelta(minutes=10))
     email = kofi.email
-    assert api().post("/v1/auth/login", {"identifier": email,
-                                         "password": "tenmina-dev-123"}).status_code == 200
+    r = api().post("/v1/auth/login", {"identifier": email, "password": "tenmina-dev-123"})
+    # The password is right; a client then gets a code by SMS (FR-ACC-015).
+    assert r.status_code == 200 or r.json()["code"] == "mfa-required"
     c = api()
     c.credentials(HTTP_AUTHORIZATION="Bearer " + raw)
     r = c.post("/v1/me/deletion-requests", {"confirm": True, "source": "app"}, format="json")
