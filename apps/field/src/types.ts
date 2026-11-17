@@ -7,6 +7,8 @@ export interface Job {
   title: string;
   kind: string;
   country: string | null;
+  /** The country's currency, from configuration (sent with the job so it works offline). */
+  currency?: string | null;
   status: string;
   address: string;
   point: { lat: number; lng: number } | null;

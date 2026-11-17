@@ -1,8 +1,8 @@
 import { ScrollView, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { brand, space } from '@tenmina/tokens';
-import { Button, Chip, Label, Panel, Screen, SegBar, T, Tick } from '@tenmina/ui';
-import { LoadState, Section, day, itemsOf, money, useLoad, words, type ApiMoney } from '@tenmina/mobile';
+import { Button, Chip, Label, Panel, Screen, SegBar, T, Tick, usePalette } from '@tenmina/ui';
+import { Empty, LoadState, Section, day, itemsOf, money, useLoad, words, type ApiMoney } from '@tenmina/mobile';
 import { ActionRow, Figures } from '../../components/rows';
 import { EvidenceThumb } from '../../components/EvidenceThumb';
 import type { Instruction } from '../../lib';
@@ -45,6 +45,7 @@ const OUTCOME: Record<string, string> = { pass: 'Passed', pass_with_defects: 'Pa
  * timeline taken in Tenmina Field. A milestone is paid only after it passes.
  */
 export default function ProjectScreen() {
+  const pal = usePalette();
   const { id } = useLocalSearchParams<{ id: string }>();
   const data = useLoad(async (a) => {
     const [dash, project, waiting] = await Promise.all([
@@ -81,16 +82,26 @@ export default function ProjectScreen() {
               ...(d.defect_value_held && Number(d.defect_value_held.amount) > 0 ? ([['Held for defects', d.defect_value_held]] as [string, ApiMoney][]) : []),
             ]}
           />
-          <View style={{ gap: space[2] }}>
-            <SegBar done={paidCount} total={d.milestones.length} current={d.milestones.some((m) => m.needs_client)} />
-            <Label>{`${paidCount} of ${d.milestones.length} milestones paid${d.contractor ? ` · ${d.contractor}` : ''}${d.inspector ? ` · inspector ${d.inspector}` : ''}`}</Label>
-          </View>
+          {d.milestones.length ? (
+            <View style={{ gap: space[2] }}>
+              <SegBar done={paidCount} total={d.milestones.length} current={d.milestones.some((m) => m.needs_client)} />
+              <Label>{`${paidCount} of ${d.milestones.length} milestones paid${d.contractor ? ` · ${d.contractor}` : ''}${d.inspector ? ` · inspector ${d.inspector}` : ''}`}</Label>
+            </View>
+          ) : null}
 
           <Section title="Milestones">
-            <Panel style={{ gap: 0, paddingVertical: space[1] }}>
+            {/* A project being set up has no milestones yet: say so, rather than show an empty panel. */}
+            {!d.milestones.length ? (
+              <Empty
+                icon="list-outline"
+                title="No milestones yet"
+                detail={`Tenmina is setting up this project${d.contractor ? ` with ${d.contractor}` : ''}. The milestones and what each one pays show here once they are agreed.`}
+              />
+            ) : null}
+            {d.milestones.length ? <Panel style={{ gap: 0, paddingVertical: space[1] }}>
               {d.milestones.map((m, i) => (
-                <View key={m.id} style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], paddingVertical: space[3], borderTopWidth: i ? 1 : 0, borderTopColor: '#ECEAE4' }}>
-                  {m.status === 'paid' ? <Tick /> : <View style={{ width: 22, height: 22, borderRadius: 7, borderWidth: 2, borderColor: m.needs_client ? brand.orange : '#D6D3CB' }} />}
+                <View key={m.id} style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], paddingVertical: space[3], borderTopWidth: i ? 1 : 0, borderTopColor: pal.line }}>
+                  {m.status === 'paid' ? <Tick /> : <View style={{ width: 22, height: 22, borderRadius: 7, borderWidth: 2, borderColor: m.needs_client ? brand.orange : pal.lineStrong }} />}
                   <View style={{ flex: 1 }}>
                     <T v="headline" style={{ fontSize: 15 }}>{m.name}</T>
                     <Label>{`${money(m.amount)} · ${words(m.status)}`}</Label>
@@ -98,7 +109,7 @@ export default function ProjectScreen() {
                   {m.needs_client ? <Chip label="Needs you" tone="orange" /> : null}
                 </View>
               ))}
-            </Panel>
+            </Panel> : null}
           </Section>
 
           {d.inspections.length ? (
@@ -137,7 +148,7 @@ export default function ProjectScreen() {
             <Section title="Payments">
               <Panel style={{ gap: 0, paddingVertical: space[1] }}>
                 {d.payments.map((p, i) => (
-                  <View key={p.id} style={{ paddingVertical: space[3], borderTopWidth: i ? 1 : 0, borderTopColor: '#ECEAE4', gap: 2 }}>
+                  <View key={p.id} style={{ paddingVertical: space[3], borderTopWidth: i ? 1 : 0, borderTopColor: pal.line, gap: 2 }}>
                     <View style={{ flexDirection: 'row', gap: space[2] }}>
                       <T v="callout" style={{ flex: 1 }}>{p.label}</T>
                       <T v="headline" style={{ fontSize: 15 }}>{money(p.amount)}</T>

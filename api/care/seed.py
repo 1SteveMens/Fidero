@@ -1,8 +1,7 @@
 """CARE demo data (J-10), built through the real services so every rule runs: the carer panel, an active plan
 for the client's mother with visits in several states (missed; confirmed by a checked call and instructed under
-a standing approval; checked out and waiting for the family's code; checked in now away from the house, the flag
-cleared by a reviewer; scheduled), a second plan waiting for the client, and concerns. Every fee and threshold
-is a working assumption [TO VERIFY]."""
+a standing approval; checked out and waiting for the family's code; checked in now; scheduled), a second plan
+waiting for the client, and concerns. Every fee and threshold is a working assumption [TO VERIFY]."""
 import hashlib
 from datetime import timedelta
 
@@ -48,14 +47,13 @@ def _visit(plan, start, hours=2):
     return v
 
 
-def _check(phone, kind, v, at, away=(0.0, 0.0)):
-    """A signed check-in or check-out at the registered address, or `away` (degrees of lat, lng) from it."""
+def _check(phone, kind, v, at, away=0.0):
+    """A signed check-in or check-out at the house, or `away` degrees of latitude from it (0.018 is about 2 km)."""
     from mobile.services import record_checkin
 
     p = v.plan
-    record_checkin(phone.person, phone.check(kind, "care_visit", v.pk, lat=float(p.point_lat) + away[0],
-                                             lng=float(p.point_lng) + away[1], accuracy=6.0, captured_at=at),
-                   kind)
+    record_checkin(phone.person, phone.check(kind, "care_visit", v.pk, lat=float(p.point_lat) + away,
+                                             lng=float(p.point_lng), accuracy=6.0, captured_at=at), kind)
 
 
 def _photo(phone, v, key, at):
@@ -153,17 +151,16 @@ def run(ctx):
     _items(b, carer_person, phone, b.window_start + timedelta(minutes=25))
     _check(phone, "checkout", b, b.window_start + timedelta(minutes=66))
     _clear_flags(b, rv2)
-    # C: now, checked in about 2 km from the house (Tenmina Field flags it), cleared by a reviewer who called the
-    #    family; two tasks done.
+    # C: now, checked in 2 km from the house (flagged), two tasks done. A reviewer called the family and cleared
+    # the flag: she had gone with the carer to the clinic.
     c = _visit(plan, now - timedelta(minutes=30), hours=3)
-    _check(phone, "checkin", c, now - timedelta(minutes=25), away=(0.0175, 0.0068))
+    _check(phone, "checkin", c, now - timedelta(minutes=25), away=0.018)
     from mobile.models import FraudFlag
     from mobile.services import review_flag
 
     for f in FraudFlag.objects.filter(subject_type="care_visit", subject_id=c.pk, kind="outside_address_radius",
                                       status="open"):
-        review_flag(f, rv, "clear", f"Called the family: {mother.full_name.split()[0]} was at the clinic with "
-                                    f"{carer_person.full_name.split()[0]} [demo].")
+        review_flag(f, rv, "clear", "Called the family: Akosua was at the clinic with the carer [demo].")
     _items(c, carer_person, phone, now - timedelta(minutes=10), all_items=False)
     services.missed_and_unconfirmed(now)
     refs["visits"] = {"missed": missed, "confirmed": a, "awaiting": b, "in_progress": c}

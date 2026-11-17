@@ -35,6 +35,8 @@ export const paper = {
   lineStrong: '#D6D3CB',
   accent: '#0B0B0B',
   onAccent: '#F7F6F2',
+  /** Red as text, only for a payee name the bank did not match: #FF5A4E is too light on white (3.3:1). */
+  redText: '#B3261E',
 } as const;
 
 export type Palette = { [K in keyof typeof paper]: string };
@@ -51,7 +53,37 @@ export const ink: Palette = {
   lineStrong: '#3A3A3A',
   accent: '#A3EE5B',
   onAccent: '#0B0B0B',
+  redText: '#FF5A4E',
 };
+
+/**
+ * Palettes for blocks of another colour inside a screen (03 6.1a). Text, labels,
+ * buttons and rows inside a block draw with the block's palette, never the
+ * screen's, so nothing is drawn in the colour of what it sits on.
+ */
+function onColour(muted: string): Palette {
+  return { ...paper, text: brand.ink, textMuted: muted, line: 'rgba(11,11,11,0.16)', lineStrong: 'rgba(11,11,11,0.32)', surface: 'rgba(255,255,255,0.4)', surfaceAlt: 'rgba(255,255,255,0.55)' };
+}
+
+export const blocks = {
+  /** The black strip on a white screen. */
+  raisedOnPaper: ink,
+  /** The black strip on a black screen (dark mode): one step lighter, so it still reads as a block. */
+  raisedOnInk: { ...ink, surface: '#2C2C2C', surfaceAlt: '#333333', line: '#3A3A3A', lineStrong: '#4A4A4A' } as Palette,
+  /** Black text on lime, orange, Amber yellow and red, with a muted tint dark enough for 4.5:1. */
+  lime: onColour('#3F5A1F'),
+  orange: onColour('#3A1408'),
+  amber: onColour('#5A4E10'),
+  red: onColour('#3A0A06'),
+  /** The white ticket, on any ground. */
+  ticket: { ...paper } as Palette,
+} as const;
+
+/** Background of each block, by the ground of the screen it sits on. */
+export function blockBackground(kind: 'raised' | 'lime' | 'orange' | 'amber' | 'red', onInk: boolean): string {
+  if (kind === 'raised') return onInk ? ink.surfaceAlt : brand.ink;
+  return brand[kind];
+}
 
 export const space = { 1: 4, 2: 8, 3: 12, 4: 16, 5: 20, 6: 24, 7: 32, 8: 40 } as const;
 

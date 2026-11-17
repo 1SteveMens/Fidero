@@ -17,7 +17,7 @@ interface CatalogueItem {
 /** Errand catalogue (SCR-PTL-49, FR-TSK-001): choose the paperwork, say who it is for, and Tenmina quotes. */
 export default function NewErrand() {
   const { me } = useSession();
-  const cat = useGet<{ items: CatalogueItem[] } | CatalogueItem[]>('/v1/errand-catalogue', { country: me?.home_country ?? 'GH' });
+  const cat = useGet<{ items: CatalogueItem[] } | CatalogueItem[]>(me?.home_country ? '/v1/errand-catalogue' : null, { country: me?.home_country });
   const home = useGet<Home>('/v1/home');
   const act = useAction();
   const [code, setCode] = useState<string>();

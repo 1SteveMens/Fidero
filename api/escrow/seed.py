@@ -134,14 +134,49 @@ def _agree(e, people, cm, ref):
     return e
 
 
+def free_balance(client, country, cm):
+    """The client's account and its free balance in the country's currency, open at the bank (FR-ESC-025)."""
+    from escrow import services
+    from escrow.models import Escrow
+
+    hf = services.held_funds_for(client, country, country.currency)
+    if hf is None:
+        hf = services.open_held_funds(client, country, country.currency, by=client)
+    if hf.status == "proposed":
+        services.accept_terms(hf, client)
+    hf = Escrow.objects.get(pk=hf.pk)
+    if not hf.virtual_account_ref:
+        ref = hf.account.virtual_account_ref or f"VA-{hf.account.reference}"
+        services.record_virtual_account(hf, cm, virtual_account_ref=ref)
+    return Escrow.objects.get(pk=hf.pk)
+
+
 def _deposit(e, cm, rv, amount, ref, source_name="AMA MENSAH", source_number="GB29NWBK60161331926819"):
+    """A deposit the bank confirms. Since the decision of 17 November 2026 the client pays into their one account:
+    for a commitment, the money lands in the account's free balance and the client then sets it aside for the
+    commitment (FR-ESC-027), which counts once the bank confirms the move. Returns the deposit."""
     from escrow import services
 
-    ev = services.record_bank_event(e, kind="deposit", amount=amount, bank_reference=ref, by=cm, source="manual",
-                                    proof_evidence=_ev(e.country, cm, f"bank-credit-advice-{ref}"),
+    target = free_balance(e.client, e.country, cm) if e.is_commitment else e
+    ev = services.record_bank_event(target, kind="deposit", amount=amount, bank_reference=ref, by=cm,
+                                    source="manual", proof_evidence=_ev(e.country, cm, f"bank-credit-advice-{ref}"),
                                     source_bank_name="NatWest [demo]", source_account_number=source_number,
                                     source_account_name=source_name)
-    return services.check_bank_event(ev, rv)
+    ev = services.check_bank_event(ev, rv)
+    if e.is_commitment:
+        set_aside(e, cm, rv, amount, f"MOV-{ref}")
+    return ev
+
+
+def set_aside(e, cm, rv, amount, ref):
+    """The client sets money aside for a commitment with their second factor; the bank confirms the move."""
+    from escrow import services
+
+    ins = services.fund_commitment(e, e.client, amount=amount, mfa_at=timezone.now())
+    ins.refresh_from_db()
+    if ins.status == "sent":
+        _confirm(ins, cm, rv, ref)
+    return ins
 
 
 def _close_all(e, cm):
@@ -166,7 +201,8 @@ def _release(e, cm, client, rv, rv2, **kw):
 def _confirm(ins, cm, rv, ref):
     from escrow import services
 
-    kind = "refund_confirmed" if ins.kind == "cancel_refund" else "release_confirmed"
+    kind = {"cancel_refund": "refund_confirmed", "commitment_fund": "commitment_debit",
+            "commitment_return": "commitment_debit"}.get(ins.kind, "release_confirmed")
     ev = services.record_bank_event(ins.escrow, kind=kind, amount=ins.amount, bank_reference=ref, by=cm,
                                     source="manual", instruction=ins,
                                     proof_evidence=_ev(ins.country, cm, f"bank-debit-advice-{ref}"))
@@ -196,7 +232,7 @@ def run(ctx):
         refs["payees"] = {k: Payee.objects.filter(subject_id=orgs[o].pk, kind=kind).first()
                           for k, (o, kind) in keys.items()}
         refs["payees"]["carer"] = Payee.objects.filter(subject_id=people["carer"].pk, kind="carer").first()
-        refs["payees"]["mismatch"] = Payee.objects.filter(subject_id=demo_id("supplier:cement")).first()
+        refs["payees"]["mismatch"] = Payee.objects.filter(legal_name="Tema Cement Supplies Ltd").first()
         refs["transfer_partners"] = {p.name: p for p in Partner.objects.filter(country=gh, kind="transfer_partner")}
         refs["programme_accounts"] = {a.currency: a for a in ProgrammeAccount.objects.filter(
             country=gh, kind="programme", status="active")}
@@ -208,6 +244,11 @@ def run(ctx):
 
     # ---- the verified payee registry (ADR-17)
     seller_nid = checks.get("seller") or _nid(gh, cm, "Kwabena Owusu", "GHA-700000001-1", "seller")
+    from accounts.models import Organisation
+    from accounts.services import create_organisation
+
+    cement = Organisation.objects.filter(name="Tema Cement Supplies Ltd", kind="supplier", country=gh).first() \
+        or create_organisation(cm, name="Tema Cement Supplies Ltd", kind="supplier", country=gh)
     payees = {
         "seller": _payee(gh, cm, rv, rv2, key="ato", kind="seller", subject_type="organisation",
                          subject_id=orgs["ato"].pk, organisation=orgs["ato"], person=people["seller"],
@@ -233,90 +274,130 @@ def run(ctx):
                           legal_name="Insurer Partner Ltd (demo)", account_number="1100777788889",
                           nid=_nid(gh, cm, "Insurer Partner", "GHA-700000024-6", person=people["insurer"])),
         # A bank letter in another name: shown red, and nobody can verify it (FR-ESC-015).
-        "mismatch": _payee(gh, cm, rv, rv2, key="mismatch", kind="supplier", subject_type="supplier",
-                           subject_id=demo_id("supplier:cement"), legal_name="Tema Cement Supplies Ltd",
+        "mismatch": _payee(gh, cm, rv, rv2, key="mismatch", kind="supplier", subject_type="organisation",
+                           subject_id=cement.pk, organisation=cement, legal_name="Tema Cement Supplies Ltd",
                            account_number="1100345345345", source="bank_letter",
                            account_name="K. OFORI ENTERPRISE", nid=None, verify=False),
     }
     refs["payees"] = payees
 
-    # ---- a released report per plot: a real paid land check taken to release by RPT's seed, so the escrow's
-    # report, case and plot all exist (RPT publishes report.released; ESC keeps the facts it needs).
-    from reports.seed import plot_report
+    # ---- a released report for each plot: ordered, paid, checked and released through ORD, PAY, CASE and RPT, so
+    # the escrow's report, case and asset are real rows (RPT publishes report.released; ESC keeps the facts).
+    from reports.seed import released_report
+
+    reports = {}
+
+    def report(name):
+        reports[name] = released_report(ctx, f"esc_{name}", locality=name.capitalize(), plot_number="12")
+        return reports[name].pk
+
+    def fresh_search(name):
+        """A real fresh search case on the plot (FR-CASE-014), for the escrow's release condition."""
+        from cases import services as cs
+
+        return cs.open_fresh_search(reports[name].case.asset, actor=cm, reason="Escrow release coming up (demo)").pk
 
     seller_party = [{"role": "seller", "person": people["seller"], "organisation": orgs["ato"],
                      "name": "Ato Estates Ltd", "payee": payees["seller"], "national_id_check": seller_nid}]
 
-    def purchase(title, price, name, plot):
-        r = plot_report(ctx, f"esc-{name}", locality=name.capitalize(), plot_number=plot)
+    def purchase(title, price, name):
         return services.create_escrow(cm, kind="purchase", client=client, country=gh, agreed_amount=price,
-                                      title=title, report_id=r.pk, case_id=r.case_id, asset_id=r.case.asset_id,
-                                      parties=seller_party)
+                                      title=title, report_id=report(name), parties=seller_party)
 
-    # The purchases need real reports, and those need the demo payment provider to pay the land checks.
-    from payments import adapters
-
-    e2 = None
-    if isinstance(adapters.provider(), adapters.FakePaymentProvider):
-        today = timezone.localdate()
-        # 1. Proposed: waiting for the seller's acceptance.
-        e1 = purchase("Plot at Kwabenya (proposed)", "250000.00", "kwabenya", "K-21")
-        services.accept_terms(e1, client)
-        # 2. Funded, the family consent closed and the other conditions still open, fresh search recorded.
-        e2 = purchase("Plot at Oyarifa (funded)", "450000.00", "oyarifa", "O-07")
-        _agree(e2, people, cm, "VA-GH-000102")
-        _deposit(e2, cm, rv, "450000.00", "DEP-OYA-0001")
-        c = e2.conditions.filter(status="open").first()
-        services.close_condition(c, cm, evidence_ids=[_ev(gh, cm, "family-consent-oyarifa").pk])
-        services.record_fresh_search(e2, cm, case_id=demo_id("case:oyarifa-fresh"), registry_result_date=today,
-                                     site_check_date=today)
-        # 3. Ready to release: the case manager prepares the release next, then the client approves.
-        e3 = purchase("Plot at Aburi (ready to release)", "180000.00", "aburi", "A-33")
-        _agree(e3, people, cm, "VA-GH-000103")
-        _deposit(e3, cm, rv, "180000.00", "DEP-ABU-0001")
-        _close_all(e3, cm)
-        services.record_fresh_search(e3, cm, case_id=demo_id("case:aburi-fresh"), registry_result_date=today,
-                                     site_check_date=today - timedelta(days=2))
-        # 4. Released: the full journey J-02.
-        e4 = purchase("Plot at Prampram (released)", "380000.00", "prampram", "P-15")
-        _agree(e4, people, cm, "VA-GH-000104")
-        _deposit(e4, cm, rv, "380000.00", "DEP-PRA-0001")
-        _close_all(e4, cm)
-        services.record_fresh_search(e4, cm, case_id=demo_id("case:prampram-fresh"), registry_result_date=today,
-                                     site_check_date=today)
-        ins4 = _release(Escrow.objects.get(pk=e4.pk), cm, client, rv, rv2)
-        if ins4.status == "sent":
-            _confirm(ins4, cm, rv, "PAY-PRA-0001")
-        # 5. Frozen by a failed re-check (RUL-32).
-        e5 = purchase("Plot at Dodowa (on hold)", "150000.00", "dodowa", "D-04")
-        _agree(e5, people, cm, "VA-GH-000105")
-        _deposit(e5, cm, rv, "150000.00", "DEP-DOD-0001")
-        services.freeze(Escrow.objects.get(pk=e5.pk), kind="incident", source_id=demo_id("incident:dodowa"),
-                        reason="A re-check found the site plan does not match the registry record [demo]")
-        services.record_bank_position(Escrow.objects.get(pk=e5.pk), as_of=today - timedelta(days=1),
-                                      reported_held_amount="149000.00", by=cm,
-                                      proof_evidence=_ev(gh, cm, "bank-daily-report-dodowa"))
-        from escrow.models import BankPosition
-
-        services.check_bank_position(BankPosition.objects.filter(escrow=e5).first(), rv)
-        services.record_bank_position(Escrow.objects.get(pk=e2.pk), as_of=today - timedelta(days=1),
-                                      reported_held_amount="450000.00", source="api")
-
-    # 6. Held funds for school fees and care visits (FR-ESC-014).
+    today = timezone.localdate()
+    # 0. The client's one Tenmina account (decision 2026-11-17, FR-ESC-025): one pay-in reference at the bank and
+    # a free balance. Every deposit below lands here; money for a purchase is then set aside as a commitment.
     hf = services.open_held_funds(client, gh, "GHS", by=client)
     services.record_virtual_account(hf, cm, virtual_account_ref="VA-GH-HF-000201")
     _deposit(Escrow.objects.get(pk=hf.pk), cm, rv, "20000.00", "DEP-HF-0001")
     _deposit(Escrow.objects.get(pk=hf.pk), cm, rv, "8000.00", "DEP-HF-0002")
+    # 1. Proposed: waiting for the seller's acceptance.
+    e1 = purchase("Plot at Kwabenya (proposed)", "250000.00", "kwabenya")
+    services.accept_terms(e1, client)
+    # 2. Funded, one condition still open, fresh search recorded.
+    e2 = purchase("Plot at Oyarifa (funded)", "450000.00", "oyarifa")
+    _agree(e2, people, cm, "VA-GH-000102")
+    _deposit(e2, cm, rv, "450000.00", "DEP-OYA-0001")
+    c = e2.conditions.filter(status="open").first()
+    services.close_condition(c, cm, evidence_ids=[_ev(gh, cm, "family-consent-oyarifa").pk])
+    services.record_fresh_search(e2, cm, case_id=fresh_search("oyarifa"), registry_result_date=today,
+                                 site_check_date=today)
+    # 3. Ready to release: the case manager prepares the release next, then the client approves.
+    e3 = purchase("Plot at Aburi (ready to release)", "180000.00", "aburi")
+    _agree(e3, people, cm, "VA-GH-000103")
+    _deposit(e3, cm, rv, "180000.00", "DEP-ABU-0001")
+    _close_all(e3, cm)
+    services.record_fresh_search(e3, cm, case_id=fresh_search("aburi"), registry_result_date=today,
+                                 site_check_date=today - timedelta(days=2))
+    # 4. Released: the full journey J-02.
+    e4 = purchase("Plot at Prampram (released)", "380000.00", "prampram")
+    _agree(e4, people, cm, "VA-GH-000104")
+    _deposit(e4, cm, rv, "380000.00", "DEP-PRA-0001")
+    _close_all(e4, cm)
+    services.record_fresh_search(e4, cm, case_id=fresh_search("prampram"), registry_result_date=today,
+                                 site_check_date=today)
+    ins4 = _release(Escrow.objects.get(pk=e4.pk), cm, client, rv, rv2)
+    if ins4.status == "sent":
+        _confirm(ins4, cm, rv, "PAY-PRA-0001")
+    # 5. On hold: a reviewer holds releases (US-ESC-006 AC4) while a question about the site plan is answered.
+    e5 = purchase("Plot at Dodowa (on hold)", "150000.00", "dodowa")
+    _agree(e5, people, cm, "VA-GH-000105")
+    _deposit(e5, cm, rv, "150000.00", "DEP-DOD-0001")
+    services.place_hold(Escrow.objects.get(pk=e5.pk), rv,
+                        reason="The site plan does not match the registry record. Holding until it is explained "
+                               "[demo]")
+    services.record_bank_position(Escrow.objects.get(pk=e5.pk), as_of=today - timedelta(days=1),
+                                  reported_held_amount="149000.00", by=cm,
+                                  proof_evidence=_ev(gh, cm, "bank-daily-report-dodowa"))
+    from escrow.models import BankPosition
+
+    services.check_bank_position(BankPosition.objects.filter(escrow=e5).first(), rv)
+    services.record_bank_position(Escrow.objects.get(pk=e2.pk), as_of=today - timedelta(days=1),
+                                  reported_held_amount="450000.00", source="api")
+
+    # 6. (now step 0, above) The account's free balance pays school fees and care visits (FR-ESC-014).
     # The bills it pays are FEE's (fees seed: real invoices through the FEE services), the care visits CARE's
     # (care seed: a standing approval on a real plan) and the stage payments BLD's (construction seed: a real
     # project on the escrow route). No release here names a made-up subject.
 
-    # 7. A payee change in its cooling-off (RUL-28) on the off-plan developer.
+    # 7. The off-plan escrow and its payee change are in run_late: they need BLD's real off-plan project.
+
+    # 8. Today's rate comparison and a deposit quote on the funded purchase (RUL-35).
+    try:
+        services.collect_rates(gh)
+        services.issue_quote(Escrow.objects.get(pk=e2.pk), client, purpose="deposit", route="transfer_partner",
+                             from_currency="USD", from_amount="1000.00",
+                             provider_partner=list(refs["transfer_partners"].values())[0])
+    except Exception:  # noqa: BLE001 - demo extras never stop the seed
+        import logging
+
+        logging.getLogger("escrow").exception("fx demo data skipped")
+
+    for e in Escrow.objects.filter(country=gh):
+        refs[e.title] = e
+
+
+def run_late(ctx):
+    """7. An off-plan escrow on BLD's real off-plan project (the construction seed runs after this one), with a
+    payee change in its cooling-off (RUL-28) on the developer."""
+    from escrow import services
+    from escrow.models import Escrow
+
+    project = (ctx.get("construction") or {}).get("offplan")
+    developer = ((ctx.get("escrow") or {}).get("payees") or {}).get("developer")
+    if project is None or developer is None:
+        return
+    title = "Off-plan house at Sunrise Estate"
+    if Escrow.objects.filter(kind="offplan", title=title).exists():
+        ctx["escrow"][title] = Escrow.objects.filter(kind="offplan", title=title).first()
+        return
+    gh, people = ctx["gh"], ctx["people"]
+    cm, rv, rv2, client = people["cm"], people["reviewer"], people["reviewer2"], people["client"]
     off = services.open_line_escrow(kind="offplan", client=client, country=gh, agreed_amount="320000.00", by=cm,
-                                    title="Off-plan house at Sunrise Estate", asset_id=demo_id("asset:sunrise"),
-                                    project_id=demo_id("project:sunrise"), payees=[payees["developer"]])
+                                    title=title, asset_id=project.asset_id, project_id=project.pk,
+                                    payees=[developer])
     _agree(off, people, cm, "VA-GH-000108")
-    ch = services.request_change(people["developer"], kind="new_account", payee=payees["developer"],
+    ch = services.request_change(people["developer"], kind="new_account", payee=developer,
                                  escrow=Escrow.objects.get(pk=off.pk), reason="Moved banks [demo]",
                                  request_source="payee_signed_in", bank_name="Demo Savings Bank [TO VERIFY]",
                                  account_number="2200343434343", account_name_source="bank_name_check")
@@ -326,18 +407,4 @@ def run(ctx):
         services.client_approve_change(ch, client, mfa_at=timezone.now())
         ch.refresh_from_db()
         _approve(ch.approval_request, rv, rv2)
-
-    # 8. Today's rate comparison and a deposit quote on the funded purchase (RUL-35).
-    try:
-        services.collect_rates(gh)
-        if e2 is not None:
-            services.issue_quote(Escrow.objects.get(pk=e2.pk), client, purpose="deposit",
-                                 route="transfer_partner", from_currency="USD", from_amount="1000.00",
-                                 provider_partner=list(refs["transfer_partners"].values())[0])
-    except Exception:  # noqa: BLE001 - demo extras never stop the seed
-        import logging
-
-        logging.getLogger("escrow").exception("fx demo data skipped")
-
-    for e in Escrow.objects.filter(country=gh):
-        refs[e.title] = e
+    ctx["escrow"][title] = Escrow.objects.get(pk=off.pk)

@@ -17,9 +17,9 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { brand, minTouch, radius, space, type, type Ground } from '@tenmina/tokens';
+import { blockBackground, blocks, brand, minTouch, radius, space, type, type Ground, type Palette } from '@tenmina/tokens';
 import type { CaseStep, Verdict } from '@tenmina/shared';
-import { GroundContext, useGround, usePalette, useReducedMotion } from './theme';
+import { GroundContext, PaletteContext, useGround, usePalette, useReducedMotion } from './theme';
 
 export type IconName = keyof typeof Ionicons.glyphMap;
 const nativeDriver = Platform.OS !== 'web';
@@ -154,6 +154,7 @@ export function Screen({
   const insets = useSafeAreaInsets();
   return (
     <GroundContext.Provider value={g}>
+      <PaletteContext.Provider value={null}>
       <View style={{ flex: 1, backgroundColor: p.ground }}>
         <ScrollView
           style={{ flex: 1 }}
@@ -186,6 +187,7 @@ export function Screen({
         </ScrollView>
         {footer ? <View style={{ paddingHorizontal: space[5], paddingTop: space[3], paddingBottom: insets.bottom + space[3], gap: space[2], backgroundColor: p.ground }}>{footer}</View> : null}
       </View>
+      </PaletteContext.Provider>
     </GroundContext.Provider>
   );
 }
@@ -214,23 +216,28 @@ export function IconButton({ icon, label, onPress, tone = 'surface' }: { icon: I
 
 export type PanelTone = 'surface' | 'raised' | 'lime' | 'orange' | 'amber' | 'red' | 'ground';
 
-export function usePanelColors(tone: PanelTone) {
+/**
+ * Colours of a panel, and the palette its contents draw with (tokens `blocks`). A raised panel is the
+ * black strip: black on a white screen, and #242424 on a black screen, so it still reads as a block in
+ * dark mode and keeps light text, lime and orange legible.
+ */
+export function usePanelColors(tone: PanelTone): { bg: string; fg: string; muted: string; palette: Palette | null } {
   const p = usePalette();
+  const onInk = p.ground === brand.ink;
   switch (tone) {
-    case 'raised':
-      return { bg: p.raised, fg: p.onRaised, muted: p.raised === brand.ink ? '#A9A69E' : '#6A675F' };
+    case 'raised': {
+      const palette = onInk ? blocks.raisedOnInk : blocks.raisedOnPaper;
+      return { bg: blockBackground('raised', onInk), fg: palette.text, muted: palette.textMuted, palette };
+    }
     case 'lime':
-      return { bg: brand.lime, fg: brand.ink, muted: '#3F5A1F' };
     case 'orange':
-      return { bg: brand.orange, fg: brand.ink, muted: '#4A1A0A' };
     case 'amber':
-      return { bg: brand.amber, fg: brand.ink, muted: '#5A4E10' };
     case 'red':
-      return { bg: brand.red, fg: brand.ink, muted: '#4A0E0A' };
+      return { bg: blockBackground(tone, onInk), fg: blocks[tone].text, muted: blocks[tone].textMuted, palette: blocks[tone] };
     case 'ground':
-      return { bg: p.ground, fg: p.text, muted: p.textMuted };
+      return { bg: p.ground, fg: p.text, muted: p.textMuted, palette: null };
     default:
-      return { bg: p.surface, fg: p.text, muted: p.textMuted };
+      return { bg: p.surface, fg: p.text, muted: p.textMuted, palette: null };
   }
 }
 
@@ -249,7 +256,8 @@ export function Panel({
 }) {
   const c = usePanelColors(tone);
   const base: ViewStyle = { backgroundColor: c.bg, borderRadius: radius.xl, padding: space[4], gap: space[3] };
-  if (!onPress) return <View style={[base, style]}>{children}</View>;
+  const inner = c.palette ? <PaletteContext.Provider value={c.palette}>{children}</PaletteContext.Provider> : children;
+  if (!onPress) return <View style={[base, style]}>{inner}</View>;
   return (
     <Pressable
       onPress={() => {
@@ -260,7 +268,7 @@ export function Panel({
       accessibilityLabel={accessibilityLabel}
       style={({ pressed }) => [base, { opacity: pressed ? 0.9 : 1, transform: [{ scale: pressed ? 0.985 : 1 }] }, style]}
     >
-      {children}
+      {inner}
     </Pressable>
   );
 }
@@ -304,8 +312,10 @@ export function Chip({ label, tone = 'surface', icon }: { label: string; tone?: 
     paper: { bg: brand.paper, fg: brand.ink },
     surface: { bg: p.surface, fg: p.text },
   }[tone];
+  // A white or surface chip can sit on a ground or panel of its own colour, so it keeps a thin outline.
+  const outline = tone === 'paper' || tone === 'surface';
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: map.bg, borderRadius: radius.sm, paddingHorizontal: 9, paddingVertical: 4 }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: map.bg, borderRadius: radius.sm, paddingHorizontal: outline ? 8 : 9, paddingVertical: outline ? 3 : 4, borderWidth: outline ? 1 : 0, borderColor: p.lineStrong }}>
       {icon ? <Ionicons name={icon} size={13} color={map.fg} /> : null}
       <Text style={[type.footnote, { fontFamily: type.headline.fontFamily, fontSize: 12, lineHeight: 16, color: map.fg }]}>{label}</Text>
     </View>
@@ -376,6 +386,57 @@ export function ListRow({
   );
 }
 
+/**
+ * A setting that is on or off. The whole row toggles it, so the touch target is the
+ * row and not a small switch (a native switch is 40 x 20 on the web and 51 x 31 on iOS).
+ * The track is lime when on (orange for a test setting that takes the phone offline).
+ */
+export function SwitchRow({
+  title,
+  detail,
+  value,
+  onChange,
+  icon,
+  iconTone,
+  onTone = 'lime',
+  last,
+  disabled,
+}: {
+  title: string;
+  detail?: string;
+  value: boolean;
+  onChange: (v: boolean) => void;
+  icon?: IconName;
+  iconTone?: 'ink' | 'lime' | 'orange' | 'surface' | 'paper';
+  onTone?: 'lime' | 'orange';
+  last?: boolean;
+  disabled?: boolean;
+}) {
+  const p = usePalette();
+  return (
+    <Pressable
+      onPress={() => {
+        haptic('tap');
+        onChange(!value);
+      }}
+      disabled={disabled}
+      accessibilityRole="switch"
+      accessibilityState={{ checked: value, disabled: !!disabled }}
+      accessibilityLabel={detail ? `${title}. ${detail}` : title}
+      style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: space[3], minHeight: 56, paddingVertical: space[2], borderBottomWidth: last ? 0 : 1, borderBottomColor: p.line, opacity: disabled ? 0.4 : pressed ? 0.8 : 1 })}
+    >
+      {icon ? <IconTile name={icon} tone={iconTone} size={38} /> : null}
+      <View style={{ flex: 1, gap: 1 }}>
+        <T v="headline" style={{ fontSize: 15 }}>{title}</T>
+        {detail ? <T v="footnote" muted>{detail}</T> : null}
+      </View>
+      <View style={{ width: 52, height: 32, borderRadius: 16, padding: 3, backgroundColor: value ? (onTone === 'orange' ? brand.orange : brand.lime) : p.textMuted, alignItems: value ? 'flex-end' : 'flex-start', justifyContent: 'center' }}>
+        <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: value ? brand.ink : p.ground }} />
+      </View>
+    </Pressable>
+  );
+}
+
 /** The orange card for something only the client can do. */
 export function NeedsYou({ title, detail, count, onPress }: { title: string; detail?: string; count?: number; onPress: () => void }) {
   return (
@@ -395,7 +456,8 @@ export function NeedsYou({ title, detail, count, onPress }: { title: string; det
 export function SegBar({ done, total, current = true, onDark }: { done: number; total: number; current?: boolean; onDark?: boolean }) {
   const p = usePalette();
   return (
-    <View accessibilityRole="progressbar" accessibilityValue={{ min: 0, max: total, now: done }} style={{ flexDirection: 'row', gap: 4 }}>
+    // aria-value* as well: React Native Web drops accessibilityValue, and a progress bar with no value reads as "busy".
+    <View accessibilityRole="progressbar" accessibilityValue={{ min: 0, max: total, now: done, text: `${done} of ${total}` }} aria-valuemin={0} aria-valuemax={total} aria-valuenow={done} aria-valuetext={`${done} of ${total}`} style={{ flexDirection: 'row', gap: 4 }}>
       {Array.from({ length: total }, (_, i) => (
         <View
           key={i}
@@ -473,7 +535,7 @@ export function DotStepper({ labels, done }: { labels: string[]; done: number })
   const p = usePalette();
   const n = labels.length;
   return (
-    <View accessibilityRole="progressbar" accessibilityValue={{ min: 0, max: n, now: done }}>
+    <View accessibilityRole="progressbar" accessibilityValue={{ min: 0, max: n, now: done, text: `Step ${Math.min(done + 1, n)} of ${n}: ${labels[Math.min(done, n - 1)] ?? ''}` }} aria-valuemin={0} aria-valuemax={n} aria-valuenow={done} aria-valuetext={`Step ${Math.min(done + 1, n)} of ${n}: ${labels[Math.min(done, n - 1)] ?? ''}`}>
       <View style={{ position: 'absolute', left: `${50 / n}%`, right: `${50 / n}%`, top: 12, height: 2, backgroundColor: p.lineStrong }} />
       <View style={{ position: 'absolute', left: `${50 / n}%`, width: `${(done / n) * 100}%`, top: 12, height: 2, backgroundColor: p.text }} />
       <View style={{ flexDirection: 'row' }}>
@@ -753,7 +815,7 @@ export function Choice({ selected, onPress, title, detail }: { selected: boolean
       accessibilityRole="radio"
       accessibilityState={{ selected }}
       accessibilityLabel={detail ? `${title}. ${detail}` : title}
-      style={({ pressed }) => ({ flexDirection: 'row', gap: space[3], alignItems: 'center', paddingVertical: space[2], opacity: pressed ? 0.8 : 1 })}
+      style={({ pressed }) => ({ flexDirection: 'row', gap: space[3], alignItems: 'center', paddingVertical: space[2], minHeight: minTouch, opacity: pressed ? 0.8 : 1 })}
     >
       <View style={{ width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: p.text, alignItems: 'center', justifyContent: 'center' }}>
         {selected ? <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: p.text }} /> : null}

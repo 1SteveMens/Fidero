@@ -23,7 +23,8 @@ export default function SignUp() {
   const pal = usePalette('ink');
   const countries = useGet<Country[]>('/v1/countries');
   const notice = useGet<{ version: string; title: string; summary: string }>('/v1/privacy-notices/current');
-  const [country, setCountry] = useState('GH');
+  const [picked, setCountry] = useState('');
+  const country = picked || countries.data?.[0]?.code || '';
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -88,7 +89,7 @@ export default function SignUp() {
     <Screen ground="ink" back title="Create your account" footer={<Button title="Create account" icon="arrow-forward" disabled={!ready} loading={busy} onPress={() => void create()} />}>
       <Panel style={{ gap: 0 }}>
         <Label>Where is the work done?</Label>
-        {(countries.data ?? [{ code: 'GH', name: 'Ghana', currency: 'GHS', phone_prefix: '+233' }]).map((c) => (
+        {(countries.data ?? []).map((c) => (
           <Choice key={c.code} selected={country === c.code} onPress={() => setCountry(c.code)} title={c.name} detail={`Prices in ${c.currency}`} />
         ))}
       </Panel>

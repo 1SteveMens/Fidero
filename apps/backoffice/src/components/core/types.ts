@@ -43,7 +43,7 @@ export type Candidates = {
 export type Approval = { id: string; subject_type: string; subject_id: string; prepared_by: string; required: number; status: string; summary: string; created_at: string; closed_at: string | null; approvals: { approver: string; approver_name: string; decision: string; slot: string; at: string }[]; dedicated?: boolean };
 
 export type Instruction = {
-  id: string; escrow: string; escrow_reference: string; kind: string; subject_type: string | null; subject_label: string; payee: string | null; payee_name: string;
+  id: string; escrow: string; escrow_reference: string; escrow_title?: string; to_escrow?: string | null; to_escrow_reference?: string; to_escrow_title?: string; kind: string; subject_type: string | null; subject_label: string; payee: string | null; payee_name: string;
   payee_account_last4: string; money: MoneyT; amount: string; currency: string; holdback_amount: string; to_currency: string | null; fx_quote: string | null;
   prepared_by: string; reason: string; status: string; client_approved_at: string | null; client_approval_method: string; release_part: string;
   approvals: { slot: string; approver: string; decision: string; at: string }[]; clock: import('./kit').Clock; document_sha256: string; sent_at: string | null;
@@ -53,6 +53,7 @@ export type Instruction = {
 
 export type EscrowRow = { id: string; reference: string; kind: string; title: string; country: string; client: string; status: string; agreed_price: MoneyT; currency: string; created_at: string };
 export type Escrow = EscrowRow & {
+  account: string; account_reference: string;
   asset_id: string | null; report_id: string | null; project_id: string | null; case_id: string | null; bank_partner: string | null; bank_reference: string;
   virtual_account_ref: string; held_back_amount: string; held_back_condition: string; conversion_choice: string; fx_buffer_pct: string | null; terms_version: string | null;
   prior_status: string; fresh_search_case_id: string | null; fresh_search_result_date: string | null; site_check_date: string | null; agreed_at: string | null;
@@ -98,4 +99,20 @@ export type ReportDetail = Report & {
 };
 
 export type Page<T> = { items: T[]; next_cursor: string | null };
+
+/** The client's one Tenmina account (FR-ESC-025): GET /v1/accounts and /v1/accounts/{id}. */
+export type AccountMoney = { amount: string; currency: string };
+export type AccountBalance = { currency: string; held_at_bank: AccountMoney; free_balance: AccountMoney; set_aside: AccountMoney; instructed_awaiting_bank: AccountMoney; bank_position: { reported: AccountMoney; lines_reported: number; lines: number; complete: boolean; mismatch: boolean } };
+export type AccountCommitment = {
+  id: string; reference: string; kind: string; title: string; status: string; currency: string; agreed: AccountMoney; set_aside: AccountMoney; paid_out: AccountMoney;
+  on_its_way_in: AccountMoney; instructed_awaiting_bank: AccountMoney; still_to_set_aside: AccountMoney; available_to_instruct: AccountMoney; payees: string[];
+  frozen: boolean; cancelling: boolean; needs_you: boolean; bank_sub_ledger_ref: string | null; bank_position: { as_of: string; reported: AccountMoney; status: string } | null;
+};
+export type AccountRow = { id: string; reference: string; country: string; status: string; client: string; client_name: string; virtual_account_ref: string | null; open_commitments: number; balances: AccountBalance[] };
+export type Account = {
+  id: string; reference: string; country: string; status: string; client: string; client_name: string; bank_name: string; opened_at: string;
+  pay_in: Record<string, unknown> & { lines?: { currency: string; account_name: string; account_number: string; virtual_account_ref: string }[] };
+  balances: AccountBalance[]; free_balance_lines: { id: string; reference: string; currency: string; status: string; virtual_account_ref: string | null; held_at_bank: AccountMoney; available_to_instruct: AccountMoney }[];
+  commitments: AccountCommitment[]; closed_commitments: number;
+};
 export type Asset = { id: string; reference: string; type: string; name: string; country: string; owner: string | null; owner_name: string; region: string; district: string; locality: string; address: string; plot_number: string; site_plan_ref: string; ghana_post_gps: string; location: number[] | null; location_source: string; current_boundary: { id: string; version: number; source: string; area_sqm: string; area_acres: string; perimeter_m: string; created_at: string } | null; disputed_flag: boolean; disputed_reason: string; verified_at: string | null; listed_at: string | null; monitoring_active: boolean; open_alerts: number; created_at: string };

@@ -3,8 +3,8 @@ import { View } from 'react-native';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { brand, space } from '@tenmina/tokens';
-import { Button, Chip, IconTile, Label, Panel, Rise, Screen, T } from '@tenmina/ui';
-import { day, itemsOf, money, toProblem, useApi, useSession, when, words, type ApiMoney, type Problem } from '@tenmina/mobile';
+import { Button, Chip, IconTile, Label, Panel, Rise, Screen, T, usePalette } from '@tenmina/ui';
+import { day, itemsOf, money, toProblem, useApi, useCountry, useSession, when, words, type ApiMoney, type Problem } from '@tenmina/mobile';
 import { useField } from '../../store';
 
 export interface Payable {
@@ -70,15 +70,17 @@ function sum(list: ApiMoney[]): ApiMoney | null {
  * hints that pay depends on a verdict or a result.
  */
 export default function Pay() {
+  const pal = usePalette();
   const { hasRole } = useSession();
   const { pay, problem, refresh } = usePay();
+  const country = useCountry();
   const professional = hasRole('RN', 'SV', 'IN', 'QS', 'LW');
 
   if (!professional || problem?.status === 403) {
     return (
       <Screen ground="paper" tabs title="Pay">
         <Panel style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
-          <Ionicons name="information-circle-outline" size={22} color={brand.ink} />
+          <Ionicons name="information-circle-outline" size={22} color={pal.text} />
           <T v="callout" style={{ flex: 1 }}>
             {hasRole('CT')
               ? 'Contractors are paid by the bank for each milestone that passes inspection, after the client and two Tenmina staff approve.'
@@ -103,18 +105,18 @@ export default function Pay() {
           <Rise style={{ flexDirection: 'row', gap: space[2] }}>
             <Panel style={{ flex: 1, gap: space[1] }}>
               <T v="footnote" muted>Accepted, not yet paid</T>
-              <T v="title" style={{ fontSize: 20 }}>{money(sum(unpaid.map((p) => p.net)) ?? { amount: '0', currency: pay.payables[0]?.net.currency ?? 'GHS' })}</T>
+              <T v="title" style={{ fontSize: 20 }}>{money(sum(unpaid.map((p) => p.net)) ?? { amount: '0', currency: pay.payables[0]?.net.currency ?? country.currency })}</T>
             </Panel>
             <Panel style={{ flex: 1, gap: space[1] }}>
               <T v="footnote" muted>Paid this month</T>
-              <T v="title" style={{ fontSize: 20 }}>{money(sum(thisMonth.map((p) => p.net)) ?? { amount: '0', currency: pay.payables[0]?.net.currency ?? 'GHS' })}</T>
+              <T v="title" style={{ fontSize: 20 }}>{money(sum(thisMonth.map((p) => p.net)) ?? { amount: '0', currency: pay.payables[0]?.net.currency ?? country.currency })}</T>
             </Panel>
           </Rise>
           <Panel tone="raised" style={{ flexDirection: 'row', alignItems: 'center' }}>
             <IconTile name="business-outline" tone="lime" size={44} />
             <View style={{ flex: 1 }}>
-              <T v="headline" color="#F7F6F2">{pay.agreement ? `Agreement ${pay.agreement.reference}` : 'Your agreement'}</T>
-              <T v="footnote" color="#A9A69E">{pay.agreement?.destination ? `Paid by Tenmina from its own account, to ${pay.agreement.destination.bank_name.replace(/\s*\[TO VERIFY\]/, '')} ••${pay.agreement.destination.account_last4}` : 'Paid by Tenmina from its own account'}</T>
+              <T v="headline">{pay.agreement ? `Agreement ${pay.agreement.reference}` : 'Your agreement'}</T>
+              <T v="footnote" muted>{pay.agreement?.destination ? `Paid by Tenmina from its own account, to ${pay.agreement.destination.bank_name.replace(/\s*\[TO VERIFY\]/, '')} ••${pay.agreement.destination.account_last4}` : 'Paid by Tenmina from its own account'}</T>
             </View>
           </Panel>
           <View style={{ flexDirection: 'row', gap: space[2] }}>
@@ -129,7 +131,7 @@ export default function Pay() {
             <T v="headline" header style={{ fontSize: 18, marginBottom: space[1] }}>Jobs and pay</T>
             {pay.payables.length ? (
               pay.payables.map((p, i) => (
-                <Panel key={p.id} tone="ground" onPress={() => router.push({ pathname: '/pay/[id]', params: { id: p.id } })} style={{ paddingHorizontal: 0, paddingVertical: space[3], borderRadius: 0, borderBottomWidth: i < pay.payables.length - 1 ? 1 : 0, borderBottomColor: '#ECEAE4', gap: 2 }}>
+                <Panel key={p.id} tone="ground" onPress={() => router.push({ pathname: '/pay/[id]', params: { id: p.id } })} style={{ paddingHorizontal: 0, paddingVertical: space[3], borderRadius: 0, borderBottomWidth: i < pay.payables.length - 1 ? 1 : 0, borderBottomColor: pal.line, gap: 2 }}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: space[2] }}>
                     <T v="headline" style={{ fontSize: 15, flex: 1 }}>{`${words(p.work_kind)}${p.case_reference ? ` · ${p.case_reference}` : ''}`}</T>
                     <T v="headline" style={{ fontSize: 15 }}>{money(p.net)}</T>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 import { brand, space } from '@tenmina/tokens';
-import { Button, Chip, Label, Panel, Rise, Screen, T, Tick, haptic, type ChipTone } from '@tenmina/ui';
+import { Button, Chip, Label, Panel, Rise, Screen, T, Tick, haptic, usePalette, type ChipTone } from '@tenmina/ui';
 import { Empty, Field, LoadState, ProblemBox, day, itemsOf, useAction, useGet, useSession } from '@tenmina/mobile';
 import { AddFile, type StoredEvidence } from '../../components/files';
 import { useCountry } from '../../components/country';
@@ -37,6 +37,7 @@ const STATE: Record<string, { label: string; tone: ChipTone; detail: string }> =
  * the money.
  */
 export default function BankAccounts() {
+  const pal = usePalette();
   const { me } = useSession();
   const country = useCountry();
   const list = useGet<{ items: BankAccount[] }>('/v1/bank-accounts');
@@ -97,7 +98,7 @@ export default function BankAccounts() {
               <Chip label={st.label} tone={st.tone} />
             </View>
             <T v="footnote" muted>{b.verified_at ? `Verified ${day(b.verified_at)}. ${st.detail}` : st.detail}</T>
-            {b.name_match === 'mismatch' ? <T v="footnote" color="#B3261E">The name on the account does not match your name. Money can only go to an account in your own name.</T> : null}
+            {b.name_match === 'mismatch' ? <T v="footnote" color={pal.redText}>The name on the account does not match your name. Money can only go to an account in your own name.</T> : null}
           </Panel>
         );
       })}

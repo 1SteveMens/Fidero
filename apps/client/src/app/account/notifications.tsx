@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Switch, View } from 'react-native';
 import { brand, space } from '@tenmina/tokens';
-import { Button, Label, Panel, Screen, T } from '@tenmina/ui';
+import { Button, Label, Panel, Screen, SwitchRow, T } from '@tenmina/ui';
 import { LoadState, ProblemBox, pushChoice, registerPush, setPushChoice, toProblem, useAction, useApi, useGet, words, type Problem } from '@tenmina/mobile';
 
 interface Pref {
@@ -57,19 +56,14 @@ export default function Notifications() {
       {items.length ? (
         <Panel style={{ paddingVertical: space[1], gap: 0 }}>
           {items.map((p, i) => (
-            <View key={p.channel} style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], minHeight: 56, borderTopWidth: i ? 1 : 0, borderTopColor: '#2C2C2C' }}>
-              <View style={{ flex: 1 }}>
-                <T v="headline" style={{ fontSize: 15 }}>{NAMES[p.channel] ?? words(p.channel)}</T>
-                {p.quiet_start ? <T v="footnote" muted>{`Quiet ${p.quiet_start.slice(0, 5)} to ${p.quiet_end?.slice(0, 5)}`}</T> : null}
-              </View>
-              <Switch
-                value={p.enabled}
-                onValueChange={(v) => setItems((all) => all.map((x) => (x.channel === p.channel ? { ...x, enabled: v } : x)))}
-                trackColor={{ true: brand.lime, false: '#3A3A3A' }}
-                thumbColor={brand.ink}
-                accessibilityLabel={NAMES[p.channel] ?? p.channel}
-              />
-            </View>
+            <SwitchRow
+              key={p.channel}
+              title={NAMES[p.channel] ?? words(p.channel)}
+              detail={p.quiet_start ? `Quiet ${p.quiet_start.slice(0, 5)} to ${p.quiet_end?.slice(0, 5)}` : undefined}
+              value={p.enabled}
+              onChange={(v) => setItems((all) => all.map((x) => (x.channel === p.channel ? { ...x, enabled: v } : x)))}
+              last={i === items.length - 1}
+            />
           ))}
         </Panel>
       ) : null}

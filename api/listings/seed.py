@@ -13,7 +13,6 @@ from datetime import timedelta
 from django.utils import timezone
 
 from core.errors import DomainError
-from reports.seed import release_report  # noqa: F401 - RPT owns it; listings and its tests use it
 
 log = logging.getLogger(__name__)
 
@@ -67,6 +66,33 @@ def check_invoice(listing):
     if not listing.verification_order_id:
         return None
     return Invoice.objects.filter(order_id=listing.verification_order_id).exclude(status="void").first()
+
+
+def release_report(case, gh, people, verdict="green"):
+    """Sequence 5.2 to a released report with the given verdict (green, or amber with conditions)."""
+    from reports import services as rs
+    from reports.models import Report
+    from reports.seed import release_demo_case
+
+    if verdict == "amber":
+        return release_demo_case(case, gh, people)
+    report = release_demo_case(case, gh, people, stop="sections")
+    report = Report.objects.get(pk=report.pk)
+    if report.status == "draft":
+        rs.set_overall_verdict(report, people["lawyer"], verdict)
+        if not report.conditions.exists():
+            rs.add_condition(report, people["lawyer"], key="fresh_search",
+                             text="Fresh official search within the window before release", responsible="tenmina",
+                             closing_evidence="Official search result from Tenmina's registry account")
+        rs.sign_sections(report, people["surveyor"])
+        rs.sign_sections(report, people["lawyer"])
+        report = rs.submit_review(report, people["cm"])
+    if report.status == "in_review":
+        now = timezone.now()
+        rs.approve(report, people["lawyer"], mfa_at=now, note="Legal sections reviewed.")
+        rs.approve(report, people["reviewer"], mfa_at=now, note="Second review done.")
+    report.refresh_from_db()
+    return report
 
 
 def new_listing(gh, people, *, seller="seller", org=None, title, plot, price="150000.00", kind="plot",

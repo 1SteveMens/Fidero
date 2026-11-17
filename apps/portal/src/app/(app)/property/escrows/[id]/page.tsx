@@ -1,22 +1,33 @@
 'use client';
 import { formatMoney } from '@tenmina/api-client';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { Button, Chip, Money, NeedsYou, ProblemBox, Skeleton, When, useGet, useSession } from '@tenmina/web-ui';
-import { AcctCard, AcctRow, PageHead, Proof, Section, list, money, useAction, words, type Any } from '@/components/kit';
+import { PageHead, Proof, Seal, Section, list, money, useAction, words, type Any } from '@/components/kit';
 import { ApprovalChain, ESCROW_SENTENCE, FreezeBanner, PayeeChanges, RELEASE_SENTENCE } from '@/components/escrow-bits';
+import { KeepInAccount, SetAside, commitmentState, kindWord, type Commitment } from '@/components/account-card';
 
-/** W-09 · SCR-PTL-17: the escrow tracker. Money is held by the bank, never by Tenmina. */
+const TRANSFER = ['commitment_fund', 'commitment_return'];
+
+/** W-09 · SCR-PTL-17: a commitment inside the client's Tenmina account (decision 2026-11-17), with its terms,
+ * conditions and releases. Money is held by the bank, never by Tenmina. Also served at /money/commitments/{id}. */
 export default function EscrowTracker() {
   const { id } = useParams<{ id: string }>();
   const { me } = useSession();
+  const router = useRouter();
   const q = useGet<Any>(`/v1/escrows/${id}`);
+  const isClient = !!q.data && q.data.client === me?.id;
+  const detail = useGet<Any>(isClient && q.data.kind !== 'held_funds' ? `/v1/account/commitments/${id}` : null);
+  const acct = useGet<Any>(isClient ? '/v1/account' : null, { country: q.data?.country });
+  const [setting, setSetting] = useState(false);
+  useEffect(() => { if (q.data?.kind === 'held_funds') router.replace('/money'); }, [q.data?.kind, router]);
   const ins = useGet<Any[]>(`/v1/escrows/${id}/release-instructions`);
   const conv = useGet<Any[]>(`/v1/escrows/${id}/conversions`);
   const stmt = useGet<Any>(`/v1/escrows/${id}/statement`);
   const terms = useGet<Any>(q.data?.status === 'proposed' ? '/v1/legal-texts/escrow_terms/current' : null, { country: q.data?.country });
   const a = useAction();
-  if (q.isLoading) return <Skeleton lines={8} />;
+  if (q.isLoading || q.data?.kind === 'held_funds') return <Skeleton lines={8} />;
   if (!q.data) return <ProblemBox error={q.error} />;
   const e = q.data;
   const pi = e.payment_instructions ?? {};
@@ -24,11 +35,16 @@ export default function EscrowTracker() {
   const instructions = list(ins.data);
   const awaiting = instructions.filter((i: Any) => i.status === 'awaiting_client');
   const closed = (e.conditions ?? []).filter((c: Any) => c.status === 'closed').length;
-  const refunds = instructions.filter((i: Any) => i.kind === 'refund');
-  const canPayIn = ['agreed', 'funded', 'partly_released', 'ready_to_release'].includes(e.status) || e.kind === 'held_funds';
+  const refunds = instructions.filter((i: Any) => i.kind === 'cancel_refund');
+  const payments = instructions.filter((i: Any) => i.kind !== 'cancel_refund' && !TRANSFER.includes(i.kind));
+  const c: Commitment | undefined = detail.data?.commitment;
+  const transfers: Any[] = detail.data?.transfers ?? [];
+  const freeBal = (acct.data?.balances ?? []).find((b: Any) => b.currency === e.currency)?.free_balance;
+  const bank = (pi.bank_name ?? 'the partner bank').replace(/\s*\[TO VERIFY\]/, '');
+  const refresh = () => { q.mutate(); detail.mutate(); acct.mutate(); ins.mutate(); stmt.mutate(); setSetting(false); };
   return (
     <div className="stack" style={{ gap: 20 }}>
-      <PageHead back={{ href: e.kind === 'held_funds' ? '/family' : '/property', label: e.kind === 'held_funds' ? 'Family' : 'Property' }} label={`Escrow ${e.reference} · held by ${pi.bank_name ?? 'the partner bank'}`} title={e.title} />
+      <PageHead back={isClient ? { href: '/money', label: 'Your Tenmina account' } : { href: '/property', label: 'Property' }} label={`${kindWord(e.kind)} · commitment ${e.reference}`} title={e.title} />
       <div className="card-ink stack" style={{ gap: 6 }}>
         <span className="label" style={{ color: '#a9a69e' }}>Now</span>
         <div style={{ fontSize: 18, fontWeight: 700 }}>{ESCROW_SENTENCE[e.status] ?? words(e.status)}</div>
@@ -50,22 +66,51 @@ export default function EscrowTracker() {
         </Section>
       ) : null}
 
-      <Section title="Money at the bank">
-        <AcctRow>
-          {(e.funds ?? []).map((f: Any) => (
-            <AcctCard key={f.currency} title={pi.account_name || 'Escrow account'} reference={f.virtual_account_ref || pi.virtual_account_ref} amount={money(f.held_at_bank, f.currency)} holder={me?.full_name ?? ''} bank={pi.bank_name}
-              note={Number(f.instructed_awaiting_bank) > 0 ? `${formatMoney({ amount: String(f.instructed_awaiting_bank), currency: f.currency })} instructed, waiting for the bank` : f.last_bank_event_at ? `Bank confirmed ${new Date(String(f.last_bank_event_at).replace(' ', 'T')).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}` : 'Nothing received yet'} />
-          ))}
-        </AcctRow>
-        <p className="muted" style={{ margin: 0 }}>Your money is held by {pi.bank_name ?? 'the partner bank'}, not by Tenmina. {Number(e.agreed_price?.amount) > 0 ? <>Price: <Money value={e.agreed_price} />.</> : null} {e.conversion_choice === 'at_release' ? 'Held in your currency until release (your choice).' : 'Converted when it arrives.'}</p>
+      <Section title="Inside your Tenmina account">
+        <div className="acct-one">
+          <div className="acct-head">
+            <div style={{ minWidth: 0 }}>
+              <div className="acct-label">Set aside for this {kindWord(e.kind).toLowerCase()}</div>
+              <div className="mono" style={{ fontSize: 13 }}>{detail.data?.account?.reference ?? pi.account_reference ?? e.reference}</div>
+            </div>
+            <Seal />
+          </div>
+          <div className="acct-total">{c ? <Money value={c.set_aside} /> : (e.funds ?? []).map((f: Any) => <div key={f.currency}><Money value={money(f.held_at_bank, f.currency)} /></div>)}</div>
+          {c ? (
+            <>
+              <div className="acct-split">
+                <div><div className="acct-label">Agreed</div><div className="acct-fig"><Money value={c.agreed} /></div></div>
+                <div><div className="acct-label">Paid out</div><div className="acct-fig"><Money value={c.paid_out} /></div></div>
+                <div><div className="acct-label">Still to set aside</div><div className="acct-fig"><Money value={c.still_to_set_aside} /></div></div>
+                <div><div className="acct-label">On its way in</div><div className="acct-fig"><Money value={c.on_its_way_in} /></div></div>
+              </div>
+              <div className="acct-commit-state" style={{ marginTop: 10 }}>{commitmentState(c)}</div>
+            </>
+          ) : null}
+          <div className="acct-foot"><span>{(me?.full_name ?? '').toUpperCase()}</span><span style={{ color: '#a9a69e' }}>{bank}</span></div>
+        </div>
+        <p className="muted" style={{ margin: 0 }}>{bank} holds this money for this deal only, not Tenmina. It pays only {c?.payees?.length ? c.payees.join(', ') : 'the verified payee'}, on proof, after you approve. {Number(e.agreed_price?.amount) > 0 ? <>Price: <Money value={e.agreed_price} />.</> : null}</p>
         {Number(e.held_back_amount) > 0 ? <div className="card"><strong>Release 2 of 2.</strong> Held back until: {e.held_back_condition}. <Money value={money(e.held_back_amount, e.currency)} /></div> : null}
-        {canPayIn ? (
+        {c?.can_fund && !setting ? (
           <div className="row">
-            <Link className="btn btn-primary" href={`/property/escrows/${id}/pay-in`}>{e.kind === 'held_funds' ? 'Add money' : 'Choose how to pay in'}</Link>
-            <Link className="btn btn-ghost" href={`/property/escrows/${id}/bank-details`}>Bank details</Link>
+            <Button variant="primary" onClick={() => setSetting(true)}>Set aside from my balance</Button>
+            <Link className="btn btn-ghost" href="/money/pay-in">How to pay in</Link>
           </div>
         ) : null}
+        {c && setting ? <div className="card stack"><SetAside c={c} free={freeBal} onDone={refresh} /><Button variant="ghost" onClick={() => setSetting(false)}>Not now</Button></div> : null}
+        {c?.can_keep_in_account ? <KeepInAccount c={c} onDone={refresh} /> : null}
       </Section>
+
+      {transfers.length ? (
+        <Section title="Money set aside">
+          {transfers.map((t: Any) => (
+            <div key={t.id} className="card spread">
+              <span><strong>{t.kind === 'commitment_fund' ? 'From your free balance' : 'Back to your free balance'}</strong><br /><span className="muted" style={{ fontSize: 14 }}>{t.status === 'confirmed' ? 'The bank confirmed it.' : t.status === 'sent' ? 'Waiting for the bank to confirm it.' : words(t.status)}</span></span>
+              <span style={{ textAlign: 'right' }}><Money value={t.money} />{t.status === 'confirmed' ? <><br /><Proof>Bank confirmed</Proof></> : null}</span>
+            </div>
+          ))}
+        </Section>
+      ) : null}
 
       {e.conditions?.length ? (
         <Section title={`Conditions (${closed} of ${e.conditions.length} closed)`}>
@@ -88,8 +133,8 @@ export default function EscrowTracker() {
         </Section>
       ) : null}
 
-      <Section title="Payments from this escrow">
-        {instructions.filter((i: Any) => i.kind !== 'refund').length ? instructions.filter((i: Any) => i.kind !== 'refund').map((i: Any) => (
+      <Section title="Payments from this commitment">
+        {payments.length ? payments.map((i: Any) => (
           <Link key={i.id} href={`/property/releases/${i.id}`} className="card card-link stack" style={{ gap: 6 }}>
             <div className="spread" style={{ flexWrap: 'nowrap', alignItems: 'flex-start' }}>
               <div><div className="label">{words(i.kind)} · {words(i.release_part)}</div><strong>{i.subject_label || i.payee_name}</strong><div className="muted" style={{ fontSize: 14 }}>{RELEASE_SENTENCE[i.status] ?? words(i.status)}</div></div>
@@ -104,7 +149,7 @@ export default function EscrowTracker() {
       {refunds.length || e.status === 'cancelled' ? (
         <Section title="Refunds">
           {refunds.map((r: Any) => <div key={r.id} className="card"><Money value={r.money} /> back to the account it came from{r.payee_account_last4 ? `, ending ${r.payee_account_last4}` : ''}. {RELEASE_SENTENCE[r.status] ?? words(r.status)}</div>)}
-          {!refunds.length ? <p className="muted">Any money at the bank goes back only to the account it came from. Tenmina prepares the refund and two staff approve it.</p> : null}
+          {!refunds.length ? <p className="muted">Money set aside goes back only to the account it came from, unless you choose to keep it in your Tenmina account. Tenmina prepares the refund and two staff approve it.</p> : null}
         </Section>
       ) : null}
 

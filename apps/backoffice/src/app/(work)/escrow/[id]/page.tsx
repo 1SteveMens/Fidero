@@ -49,11 +49,14 @@ function Overview({ e, reload }: { e: Escrow; reload: () => void }) {
             ) : null}
           </div>
         </Panel>
-        <Panel title="Account at the bank">
-          {pi?.available ? (
-            <Facts items={[['Bank', String(pi.bank_name ?? '')], ['Account name', String(pi.account_name ?? '')], ['Escrow reference', <span key="r" className="mono">{String(pi.virtual_account_ref ?? '')}</span>], ['Pay with reference', <span key="p" className="mono">{String(pi.reference ?? '')}</span>]]} />
-          ) : <p className="muted" style={{ margin: 0 }}>No virtual account at the bank yet. The client cannot pay in until there is one.</p>}
-          <p className="muted" style={{ margin: 0, fontSize: 13 }}>Clients see only the bank&apos;s payment instructions, never a Tenmina account.</p>
+        <Panel title={e.kind === 'held_funds' ? 'Free balance of the client\'s account' : 'Commitment inside the client\'s account'}>
+          <Facts items={[
+            ['Client account', <Link key="a" href={`/escrow/accounts/${e.account}`} className="mono">{e.account_reference}</Link>],
+            [e.kind === 'held_funds' ? 'Pay-in reference' : 'Bank sub-ledger', <span key="s" className="mono">{e.virtual_account_ref || 'not issued yet'}</span>],
+            ...(pi?.available ? [['Bank', String(pi.bank_name ?? '')], ['Client pays in with', <span key="p" className="mono">{String(pi.reference ?? '')}</span>]] as [string, React.ReactNode][] : []),
+          ]} />
+          {!pi?.available ? <p className="muted" style={{ margin: 0 }}>{String(pi?.message ?? 'The account has no pay-in details at the bank yet.')}</p> : null}
+          <p className="muted" style={{ margin: 0, fontSize: 13 }}>{e.kind === 'held_funds' ? 'Deposits land here. Family bills are released from it.' : 'The client pays into their account and sets money aside here. The bank keeps it apart; a release uses only this commitment\'s money (RUL-34).'} Clients see only the bank&apos;s details, never a Tenmina account.</p>
           {isStaff ? (
             <div className="row">
               <ActionForm label={e.virtual_account_ref ? 'Change reference' : 'Record virtual account'} path={`/v1/escrows/${e.id}/virtual-account`} fields={[{ name: 'virtual_account_ref', label: "The bank's virtual account number or reference", required: true }, { name: 'programme_account_id', label: 'Programme account ID (if not the default)' }]}
@@ -257,7 +260,7 @@ function FxTab({ e }: { e: Escrow }) {
       <Panel title="Conversions against the accepted quote" actions={STAFF_CAN(hasRole) ? (
         <ActionForm label="Get a quote" path={`/v1/escrows/${e.id}/fx-quotes`} fields={[
           { name: 'purpose', label: 'For', type: 'select', initial: 'release_conversion', options: [{ value: 'deposit', label: 'A deposit' }, { value: 'release_conversion', label: 'Converting before a release' }, { value: 'refund_conversion', label: 'A refund' }] },
-          { name: 'route', label: 'Route', type: 'select', required: true, options: [{ value: 'escrow_fx_account', label: "The escrow's foreign-currency account" }, { value: 'escrow_local_account', label: "The escrow's cedi account" }, { value: 'transfer_partner', label: 'A transfer service' }] },
+          { name: 'route', label: 'Route', type: 'select', required: true, options: [{ value: 'escrow_fx_account', label: "The escrow's foreign-currency account" }, { value: 'escrow_local_account', label: `The escrow's ${e.currency} account` }, { value: 'transfer_partner', label: 'A transfer service' }] },
           { name: 'amount', label: 'Amount', type: 'money', required: true }, { name: 'currency', label: 'From currency', initial: 'USD', required: true },
         ]} body={(v) => ({ purpose: v.purpose, route: v.route, amount: { amount: v.amount, currency: String(v.currency).toUpperCase() } })}
           onDone={(q) => { const x = q as Quote; act.show(`Quote ${x.from_currency} ${x.from_amount} → ${x.to_currency} ${x.expected_to_amount} at ${x.offered_rate}. The client accepts it in the app.`); }} submitLabel="Get quote" intro="Tenmina takes no margin on the exchange. The client sees and accepts the quote." />

@@ -8,22 +8,54 @@ import { Button, call, Empty, Field, Input, ProblemBox, Select, Skeleton, Tabs, 
 import { ActionForm, day, dayTime, Head, useAct, words } from '@/components/core/kit';
 import { GeoMap, type FC } from '@/components/core/GeoMap';
 import type { Asset, Page } from '@/components/core/types';
+import { CountryPick, useWorkCountry } from '@/components/core/country';
 
 type Layer = { id: string; code: string; name: string; kind: string; description: string; buffer_m: string | null; effective_buffer_m: string; status: string; is_sample: boolean; current_version: { id: string; version: number; status: string; source: string; valid_from: string | null; feature_count: number; created_at: string } | null };
 type Overlap = { id: string; asset: string; asset_reference: string; other_asset: { id: string; reference: string; locality: string; plot_number: string; owner_name: string } | null; other_kind: string; overlap_area_sqm: string; overlap_share: string; other_overlap_share: string; status: string; resolution: string; resolution_note: string; resolved_by_name: string | null; created_at: string };
 type Alert = { id: string; asset: string; asset_reference: string; previous_date: string | null; new_date: string | null; change_score: string; threshold: string; change_kind: string; status: string; assigned_to_name: string; resolution: string; resolution_note: string; created_at: string; previous_image: { content_url: string } | null; new_image: { content_url: string } | null };
 
-const AREAS: Record<string, string> = { 'Accra sample area': '-0.25,5.65,-0.05,5.85', 'Greater Accra': '-0.6,5.45,0.7,6.1', Ghana: '-3.3,4.7,1.2,11.2' };
 const LAYER_KINDS = ['government_acquisition', 'forest_reserve', 'road_reserve', 'waterway', 'wetland', 'flood_zone', 'known_dispute', 'planning_zone', 'other'];
+
+type Extent = { country: string; label: string; geometry: { type: string; coordinates: unknown } };
+
+/** min_lng,min_lat,max_lng,max_lat around every [lng, lat] pair, with a margin; null when there are none. */
+function bboxOf(points: number[][], margin = 0): string | null {
+  const ok = points.filter((p) => p.length >= 2 && Number.isFinite(p[0]) && Number.isFinite(p[1]));
+  if (!ok.length) return null;
+  const xs = ok.map((p) => p[0]), ys = ok.map((p) => p[1]);
+  const m = Math.max(margin, 0.01);
+  return [Math.min(...xs) - m, Math.min(...ys) - m, Math.max(...xs) + m, Math.max(...ys) + m].map((n) => n.toFixed(4)).join(',');
+}
+
+function flatten(c: unknown): number[][] {
+  if (!Array.isArray(c)) return [];
+  if (typeof c[0] === 'number') return [c as number[]];
+  return (c as unknown[]).flatMap(flatten);
+}
+
+/** The areas to look at, from the country's configured land extent and the plots on record (no fixed places). */
+function useAreas(code: string, name: string): Record<string, string> {
+  const ext = useGet<Extent>(code ? `/v1/admin/geo/country-extents/${code}` : null);
+  const assets = useGet<Page<Asset>>(code ? '/v1/assets' : null, { limit: 100 });
+  const out: Record<string, string> = {};
+  const plots = bboxOf((assets.data?.items ?? []).filter((a) => a.country === code && a.location).map((a) => a.location as number[]), 0.03);
+  if (plots) out['Where the plots are'] = plots;
+  const whole = ext.data ? bboxOf(flatten(ext.data.geometry.coordinates)) : null;
+  if (whole) out[`All of ${name || code}`] = whole;
+  return out;
+}
 
 function AreaMap() {
   const router = useRouter();
-  const layers = useGet<Page<Layer>>('/v1/admin/overlay-layers', { country: 'GH' });
-  const [area, setArea] = useState('Accra sample area');
+  const country = useWorkCountry();
+  const AREAS = useAreas(country.code, country.name);
+  const layers = useGet<Page<Layer>>(country.code ? '/v1/admin/overlay-layers' : null, { country: country.code });
+  const [picked, setArea] = useState('');
+  const area = picked in AREAS ? picked : Object.keys(AREAS)[0] ?? '';
   const [on, setOn] = useState<string[] | null>(null);
   const active = (layers.data?.items ?? []).filter((l) => l.status === 'active');
   const codes = on ?? active.map((l) => l.code);
-  const map = useGet<FC>('/v1/geo/map', { country: 'GH', bbox: AREAS[area], ...(codes.length ? { layers: codes.join(',') } : {}) });
+  const map = useGet<FC>(area ? '/v1/geo/map' : null, { country: country.code, bbox: AREAS[area], ...(codes.length ? { layers: codes.join(',') } : {}) });
   return (
     <div className="stack">
       <div className="filters">
@@ -36,7 +68,7 @@ function AreaMap() {
         })}
       </div>
       <ProblemBox error={map.error} />
-      {map.isLoading ? <Skeleton lines={6} /> : <GeoMap data={map.data} onSelect={(f) => { if (f.properties.asset_id) router.push(`/geo/assets/${f.properties.asset_id}`); }} />}
+      {!area ? <Empty>No plots and no land extent for this country yet.</Empty> : map.isLoading ? <Skeleton lines={6} /> : <GeoMap data={map.data} onSelect={(f) => { if (f.properties.asset_id) router.push(`/geo/assets/${f.properties.asset_id}`); }} />}
       {active.some((l) => l.is_sample) ? <p className="muted" style={{ margin: 0, fontSize: 13 }}>Layers marked sample are drawn for demonstration. They are not a real map.</p> : null}
     </div>
   );
@@ -103,6 +135,7 @@ function Overlaps() {
 
 function Alerts() {
   const { client, hasRole } = useSession();
+  const country = useWorkCountry();
   const [status, setStatus] = useState('open');
   const list = useGet<Page<Alert>>('/v1/monitoring-alerts', { status });
   const act = useAct();
@@ -110,7 +143,7 @@ function Alerts() {
     <div className="stack">
       <div className="filters">
         <Field label="Status"><Select value={status} onChange={(e) => setStatus(e.target.value)}>{['open', 'in_review', 'resolved'].map((s) => <option key={s} value={s}>{words(s)}</option>)}</Select></Field>
-        {hasRole('CM', 'RV') ? <Button variant="ghost" busy={act.busy} onClick={() => act.run(() => call<{ checked: number; alerts: number }>(client, 'POST', '/v1/monitoring/runs', { country: 'GH' }).then((r) => { list.mutate(); act.show(`${r.checked} plots compared, ${r.alerts} new alerts.`); }))}>Compare imagery now</Button> : null}
+        {hasRole('CM', 'RV') ? <Button variant="ghost" busy={act.busy} onClick={() => act.run(() => call<{ checked: number; alerts: number }>(client, 'POST', '/v1/monitoring/runs', { country: country.code }).then((r) => { list.mutate(); act.show(`${r.checked} plots compared, ${r.alerts} new alerts.`); }))}>Compare imagery now</Button> : null}
       </div>
       <ProblemBox error={list.error ?? act.error} />
       {list.isLoading ? <Skeleton /> : list.data?.items.length ? (
@@ -142,7 +175,8 @@ function Alerts() {
 
 function Layers() {
   const { hasRole } = useSession();
-  const list = useGet<Page<Layer>>('/v1/admin/overlay-layers', { country: 'GH' });
+  const country = useWorkCountry();
+  const list = useGet<Page<Layer>>(country.code ? '/v1/admin/overlay-layers' : null, { country: country.code });
   return (
     <div className="stack">
       {hasRole('AD') ? (
@@ -151,7 +185,7 @@ function Layers() {
           { name: 'kind', label: 'Kind', type: 'select', required: true, options: LAYER_KINDS.map((k) => ({ value: k, label: words(k) })) },
           { name: 'description', label: 'Description', type: 'textarea' }, { name: 'buffer_m', label: 'Buffer in metres (empty: country setting)', type: 'number' },
           { name: 'is_sample', label: 'Sample data, not a real map', type: 'checkbox' },
-        ]} body={(v) => ({ country: 'GH', code: v.code, name: v.name, kind: v.kind, description: v.description || '', is_sample: !!v.is_sample, ...(v.buffer_m ? { buffer_m: v.buffer_m } : {}) })} onDone={() => list.mutate()} submitLabel="Create" /></div>
+        ]} body={(v) => ({ country: country.code, code: v.code, name: v.name, kind: v.kind, description: v.description || '', is_sample: !!v.is_sample, ...(v.buffer_m ? { buffer_m: v.buffer_m } : {}) })} onDone={() => list.mutate()} submitLabel="Create" /></div>
       ) : null}
       <ProblemBox error={list.error} />
       {list.isLoading ? <Skeleton /> : list.data?.items.length ? (
@@ -176,6 +210,7 @@ function GeoHome() {
   return (
     <div className="stack" style={{ gap: 18 }}>
       <Head title="Maps and layers" sub="Every plot is checked against each overlay layer when its boundary is saved, and against earlier plots." />
+      <CountryPick />
       <div className="tabs-scroll"><Tabs items={TABS} current={tab} onChange={(k) => router.replace(`/geo?tab=${k}`)} /></div>
       {tab === 'map' ? <AreaMap /> : tab === 'assets' ? <Assets /> : tab === 'overlaps' ? <Overlaps /> : tab === 'alerts' ? <Alerts /> : <Layers />}
     </div>

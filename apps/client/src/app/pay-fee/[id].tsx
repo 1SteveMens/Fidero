@@ -16,7 +16,9 @@ interface Order {
   local_price: ApiMoney | null;
   paid_at: string | null;
   can_pay: boolean;
-  missing: string[];
+  /** A payment the client started and has not finished; while it is open the fee cannot be paid again. */
+  open_payment: { id: string; method: string; status: string; checkout_url: string } | null;
+  missing: { pointer: string; message: string }[];
   case_id: string | null;
   last_payment_message: string;
 }
@@ -45,6 +47,19 @@ export default function PayFee() {
   const [key] = useState(() => newUuid());
   const d = order.data;
 
+  /** Back into a checkout that was started and left: the in-app form, or the provider's sheet. */
+  async function resume() {
+    const open = d?.open_payment;
+    if (!open) return;
+    if (!open.checkout_url || open.checkout_url.includes('/fake-checkout')) {
+      router.push({ pathname: '/checkout/[id]', params: { id: open.id, order: id } });
+      return;
+    }
+    await WebBrowser.openAuthSessionAsync(open.checkout_url, `tenmina://pay-fee/${id}`);
+    await act.run('POST', `/v1/payments/${open.id}/refresh`);
+    order.reload();
+  }
+
   async function pay() {
     const started = await act.run<Started>(
       'POST',
@@ -72,7 +87,9 @@ export default function PayFee() {
       back
       title="Pay Tenmina's fee"
       footer={
-        d && !d.paid_at ? (
+        d && !d.paid_at && d.open_payment ? (
+          <Button title="Continue the payment" icon="arrow-forward" loading={act.busy} onPress={() => void resume()} />
+        ) : d && !d.paid_at ? (
           <Button title={method === 'card' ? 'Pay by card' : 'Pay by mobile money'} icon="lock-closed" disabled={!d.can_pay || !momoOk} loading={act.busy} onPress={() => void pay()} />
         ) : (
           <Button title="Done" onPress={() => (d?.case_id ? router.replace(`/case/${d.case_id}`) : router.back())} />
@@ -96,6 +113,13 @@ export default function PayFee() {
               <Tick />
               <T v="callout" style={{ flex: 1 }}>{d.case_id ? 'Paid. Your case starts now.' : 'Paid. Thank you.'}</T>
             </Panel>
+          ) : d.open_payment ? (
+            // A started payment blocks a second one, so say so and offer the way back, never a greyed-out button alone.
+            <Panel style={{ gap: space[2] }}>
+              <Label>Payment started</Label>
+              <T v="callout">{`You started paying by ${d.open_payment.method === 'mobile_money' ? 'mobile money' : 'card'} and did not finish. Continue it to pay. Nothing is charged twice.`}</T>
+              {d.last_payment_message ? <T v="footnote" muted>{d.last_payment_message}</T> : null}
+            </Panel>
           ) : (
             <>
               <Panel style={{ gap: 0, paddingVertical: space[2] }}>
@@ -112,7 +136,7 @@ export default function PayFee() {
                   <T v="callout" style={{ flex: 1 }}>This pays Tenmina for the work, through the licensed payment provider. It stays in the app.</T>
                 </View>
                 <T v="footnote" muted>Money for a purchase, a build or a family bill never goes through this screen. It goes to the partner bank.</T>
-                {d.missing.length ? <T v="footnote" muted>{`Before you can pay: ${d.missing.join(', ')}`}</T> : null}
+                {d.missing.length ? <T v="footnote" muted>{`Before you can pay: ${d.missing.map((m) => m.message).join(' ')}`}</T> : null}
                 {d.last_payment_message ? <T v="footnote" muted>{d.last_payment_message}</T> : null}
               </Panel>
             </>

@@ -296,6 +296,8 @@ class InboxItemSerializer(serializers.Serializer):
     title = serializers.CharField()
     kind = serializers.CharField()
     country = serializers.CharField(allow_null=True)
+    currency = serializers.CharField(allow_null=True, help_text="The country's currency, for values the worker "
+                                     "enters offline (a defect's cost). From country configuration.")
     status = serializers.CharField()
     address = serializers.CharField(allow_blank=True)
     point = PointSerializer(allow_null=True)

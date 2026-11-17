@@ -58,7 +58,7 @@ export default function CaseScreen() {
               <View style={{ alignItems: 'flex-end' }}>
                 <T v="display" style={{ fontSize: 40, lineHeight: 42 }}>
                   {done}
-                  <T v="display" color={pal.lineStrong} style={{ fontSize: 40, lineHeight: 42 }}>{`/${steps.length}`}</T>
+                  <T v="display" color={pal.textMuted} style={{ fontSize: 40, lineHeight: 42 }}>{`/${steps.length}`}</T>
                 </T>
                 <Label>Steps done</Label>
               </View>
@@ -67,9 +67,9 @@ export default function CaseScreen() {
 
           {d.latest_status ? (
             <Panel tone="raised">
-              <Label color="#A9A69E">{`Latest · ${day(d.latest_status.message_date)}`}</Label>
-              <T v="headline" color="#F7F6F2">{d.latest_status.text}</T>
-              {d.latest_status.next_expected_date ? <T v="footnote" color="#A9A69E">{`Next update by ${day(d.latest_status.next_expected_date)}`}</T> : null}
+              <Label>{`Latest · ${day(d.latest_status.message_date)}`}</Label>
+              <T v="headline">{d.latest_status.text}</T>
+              {d.latest_status.next_expected_date ? <T v="footnote" muted>{`Next update by ${day(d.latest_status.next_expected_date)}`}</T> : null}
             </Panel>
           ) : null}
           {d.status === 'on_hold' && d.hold_reason ? (

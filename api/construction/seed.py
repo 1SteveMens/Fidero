@@ -10,8 +10,7 @@ Projects for Ama:
 - A. House at Millennium City, Kasoa: the launch route (client_direct). Mobilisation paid directly and
   confirmed by the builder; the foundation inspection is scheduled with Esi.
 - B. Boys' quarters at Kasoa: the escrow route. The bank holds the money; mobilisation paid by the bank; the
-  foundation passed with a defect held back and waits for Ama's approval; a variation waits for her agreement;
-  one blocks photo is dated before the foundation passed, so it is flagged and held for a reviewer.
+  foundation passed with a defect held back and waits for Ama's approval; a variation waits for her agreement.
 - C. Off-plan house at Sunrise Estate: the developer's off-plan check is in progress.
 """
 import logging
@@ -253,32 +252,23 @@ def _project_a(ctx, gh, people, panel_, asset):
     return p
 
 
-def _field_submit(gh, m, person, key, reused=()):
-    """Capture the required evidence with a Tenmina Field phone and submit it. With `reused`, the items with those
-    requirement keys are old photos dated before the previous stage passed, so Tenmina Field flags them and the
-    submission waits for a reviewer (FR-MOB-011); the other items are captured now."""
+def _field_submit(gh, m, person, key):
+    """Capture the required evidence with a Tenmina Field phone and submit it."""
     from core import samples
     from mobile.devtools import mp4
     from mobile.seed import _item, _phone
     from mobile.services import submit
 
-    from .models import Milestone
-
     phone = _phone(person, f"bld-{key}", platform="android")
     items, when = [], timezone.now() - timedelta(hours=3)
-    prev = Milestone.objects.filter(project=m.project, seq__lt=m.seq, inspected_at__isnull=False) \
-        .order_by("-seq").first()
     for n, req in enumerate(m.required_evidence):
-        at = when + timedelta(minutes=n * 2)
-        if reused:
-            at = prev.inspected_at - timedelta(days=2) if req["key"] in reused else timezone.now()
         scene = samples.photo_kind_for(f"{req['key']} {m.key} {m.name}", default="foundation")
         data = mp4(f"bld-{key}-{m.key}-{n}") if req["media"] == "video" else samples.photo(
             scene, f"bld-{key}-{m.key}-{n}", caption=f"{m.name}: {req.get('label') or req['key']}"[:58],
             model=phone.model)
         it = _item(phone, str(demo_id(f"{key}-{m.pk}-{n}")), "milestone", m.pk, data, requirement_key=req["key"],
-                   media_type="video/mp4" if req["media"] == "video" else "image/jpeg", captured_at=at,
-                   lat=5.5342, lng=-0.4256)
+                   media_type="video/mp4" if req["media"] == "video" else "image/jpeg",
+                   captured_at=when + timedelta(minutes=n * 2), lat=5.5342, lng=-0.4256)
         items.append({"requirement_key": req["key"], "evidence_id": str(it.evidence_id)})
     submit(person, client_submission_id=str(demo_id(f"sub-{key}-{m.pk}")), subject_type="milestone", subject_id=m.pk,
            items=items, note=f"{m.name} done [demo]")
@@ -365,15 +355,6 @@ def _project_b(ctx, gh, people, panel_, asset):
         projects.propose_variation(p, panel_["mensah"].person, milestone_id=blocks.pk,
                                    description="Add a store room window on the east wall",
                                    cost_change="2400.00", time_effect_days=2)
-    # Blocks: one photo is dated two days before the foundation passed (an old photo used again). Tenmina Field
-    # flags it and the submission waits for a reviewer: the open flag in the back office's fraud queue.
-    from mobile.models import Submission
-
-    blocks.refresh_from_db()
-    if blocks.status == "not_started" and blocks.required_evidence and not Submission.objects.filter(
-            subject_type="milestone", subject_id=blocks.pk).exists():
-        _field_submit(gh, blocks, panel_["mensah"].person, "mensah-b",
-                      reused={blocks.required_evidence[0]["key"]})
     return p
 
 

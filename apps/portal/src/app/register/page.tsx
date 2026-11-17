@@ -14,7 +14,7 @@ export default function Register() {
   const router = useRouter();
   const countries = useGet<Any>('/v1/countries');
   const notice = useGet<Any>('/v1/privacy-notices/current');
-  const [f, setF] = useState({ full_name: '', email: '', phone: '', password: '', residence_country: 'GB', home_country: 'GH' });
+  const [f, setF] = useState({ full_name: '', email: '', phone: '', password: '', residence_country: 'GB', home_country: '' });
   const [agree, setAgree] = useState(false);
   const [step, setStep] = useState<'form' | 'codes'>('form');
   const [codes, setCodes] = useState({ email: '', phone: '' });
@@ -24,6 +24,8 @@ export default function Register() {
   const [info, setInfo] = useState('');
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value });
   const homes: Any[] = Array.isArray(countries.data) ? countries.data : countries.data?.items ?? [];
+  // The open countries come from configuration; the first is chosen until the person picks another.
+  const home = f.home_country || homes[0]?.code || '';
 
   async function run(key: string, fn: () => Promise<void>) {
     setBusy(key); setError(null); setInfo('');
@@ -33,7 +35,7 @@ export default function Register() {
     e.preventDefault();
     await run('signup', async () => {
       await call(client, 'GET', '/v1/auth/csrf');
-      await call(client, 'POST', '/v1/auth/signup', { ...f, privacy_notice_version: notice.data?.version ?? '' });
+      await call(client, 'POST', '/v1/auth/signup', { ...f, home_country: home, privacy_notice_version: notice.data?.version ?? '' });
       setStep('codes');
     });
   }
@@ -66,7 +68,7 @@ export default function Register() {
           <Field label="Mobile number" hint="With country code, for example +44 7700 900123. We send a code to confirm it."><Input type="tel" value={f.phone} onChange={set('phone')} required autoComplete="tel" /></Field>
           <Field label="Password" hint="At least 10 characters"><Input type="password" value={f.password} onChange={set('password')} required minLength={10} autoComplete="new-password" /></Field>
           <Field label="Where you live"><Select value={f.residence_country} onChange={set('residence_country')}>{RESIDENCE.map(([c, n]) => <option key={c} value={c}>{n}</option>)}</Select></Field>
-          <Field label="The country where things are" hint="This sets the currency and the partner bank."><Select value={f.home_country} onChange={set('home_country')}>{(homes.length ? homes : [{ code: 'GH', name: 'Ghana' }]).map((c: Any) => <option key={c.code} value={c.code}>{c.name}</option>)}</Select></Field>
+          <Field label="The country where things are" hint="This sets the currency and the partner bank."><Select value={home} onChange={set('home_country')} required>{homes.map((c: Any) => <option key={c.code} value={c.code}>{c.name}</option>)}</Select></Field>
           {notice.data ? (
             <details className="card" style={{ background: '#1a1a1a' }}>
               <summary style={{ cursor: 'pointer', fontWeight: 700, minHeight: 32 }}>{notice.data.title} (version {notice.data.version})</summary>

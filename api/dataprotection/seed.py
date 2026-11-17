@@ -6,7 +6,7 @@ from datetime import timedelta
 
 from django.utils import timezone
 
-from accounts.seed import demo_id, open_request
+from accounts.seed import open_request
 
 from .models import (BulkExport, Consent, DataCatalogueEntry, DataLocation, DataRequest, LegalHold,
                      PrivacyAcceptance, PrivacyNotice, RetentionRule)
@@ -128,20 +128,11 @@ def _catalogue():
 
 
 def _consents(gh, people):
-    from accounts.seed import _evidence
-
     client = people["client"]
-    if not Consent.objects.filter(person=client, purpose="partner_status").exists():
-        Consent.objects.create(country=gh, person=client, purpose="partner_status", text_version="1",
-                               partner_client_id=demo_id("partner:bank"), recorded_by=client)
+    # The consent to share status with the partner bank is PTR's seed's (it names the real API client).
+    if not Consent.objects.filter(person=client, purpose="marketing").exists():
         Consent.objects.create(country=gh, person=client, purpose="marketing", text_version="1", recorded_by=client,
                                withdrawn_at=timezone.now(), withdrawn_by=client)
-    video = _evidence(gh, people["lawyer"], "consent-video-family-head-demo.txt",
-                      "Stand-in for a consent video of the family head (demo)")
-    if not Consent.objects.filter(purpose="video_recording", recording_evidence=video).exists():
-        Consent.objects.create(country=gh, subject_name="Nana Kofi Asare (family head)", purpose="video_recording",
-                               text_version="1", recording_evidence=video, case_id=demo_id("case:ama-plot"),
-                               role_in_recording="family head", recorded_by=people["lawyer"])
 
 
 def _requests(gh, people):
@@ -156,10 +147,6 @@ def _requests(gh, people):
                                    due_on=today + timedelta(days=30), status="completed",
                                    completed_at=timezone.now(), completed_by=people["admin"],
                                    corrections=[{"field": "full_name", "at": timezone.now().isoformat()}])
-    case_id = demo_id("case:disputed-plot")
-    if not LegalHold.objects.filter(subject_type="case", subject_id=case_id).exists():
-        LegalHold.objects.create(country=gh, subject_type="case", subject_id=case_id, placed_by=people["lawyer"],
-                                 reason="Seller has threatened a claim over the boundary (demo).")
     if not BulkExport.objects.filter(purpose__startswith="Demo").exists():
         be = BulkExport.objects.create(country=gh, requested_by=people["admin"],
                                        purpose="Demo: client list for the webinar invitation (opted in only)",
@@ -178,5 +165,25 @@ def run(ctx):
     _catalogue()
     _consents(gh, people)
     _requests(gh, people)
-    ctx["dpr_demo_hold_case_id"] = demo_id("case:disputed-plot")
+
+
+def run_late(ctx):
+    """Rows about real cases, which CASE's seed opens after this module's seed: the family head's recorded
+    consent on Ama's land case, and a legal hold on Kofi's case, where the seller has threatened a claim."""
+    from accounts.seed import _evidence
+
+    gh, people, cases = ctx["gh"], ctx["people"], ctx.get("cases") or {}
+    ama, kofi = cases.get("ama_land_card"), cases.get("kofi_land_offline_paid")
+    if ama is not None:
+        video = _evidence(gh, people["lawyer"], "consent-video-family-head-demo.txt",
+                          "Stand-in for a consent video of the family head (demo)")
+        if not Consent.objects.filter(purpose="video_recording", recording_evidence=video).exists():
+            Consent.objects.create(country=gh, subject_name="Nana Kofi Asare (family head)",
+                                   purpose="video_recording", text_version="1", recording_evidence=video,
+                                   case_id=ama.pk, role_in_recording="family head", recorded_by=people["lawyer"])
+    if kofi is not None:
+        if not LegalHold.objects.filter(subject_type="case", subject_id=kofi.pk).exists():
+            LegalHold.objects.create(country=gh, subject_type="case", subject_id=kofi.pk, placed_by=people["lawyer"],
+                                     reason="Seller has threatened a claim over the boundary (demo).")
+        ctx["dpr_demo_hold_case_id"] = kofi.pk
 

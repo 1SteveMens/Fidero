@@ -1,19 +1,16 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Animated, Easing, Platform, Pressable, ScrollView, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
+import { Animated, Easing, Platform, Pressable, View } from 'react-native';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Svg, { Circle, Defs, Path, Text as SvgText, TextPath } from 'react-native-svg';
-import { formatMoney, type HeldAccount, type Money } from '@tenmina/shared';
-import { brand, font, radius, space } from '@tenmina/tokens';
-import { usePalette, useReducedMotion } from './theme';
+import { formatMoney, type Money } from '@tenmina/shared';
+import { blocks, brand, font, radius, space } from '@tenmina/tokens';
+import { PaletteContext, usePalette, useReducedMotion } from './theme';
 import { Label, T, haptic } from './ui';
 
 const nativeDriver = Platform.OS !== 'web';
-const CARD_W = 300;
-const CARD_H = 190;
-const GAP = 12;
 
-/** The round seal on every account card. Its words turn slowly; the check stays still. */
+/** The round seal on the account card. Its words turn slowly; the check stays still. */
 export function Seal({ id, ring, text, check, size = 132, words = 'HELD AT THE BANK · RELEASED ON PROOF · ' }: { id: string; ring: string; text: string; check: string; size?: number; words?: string }) {
   const reduced = useReducedMotion();
   const spin = useRef(new Animated.Value(0)).current;
@@ -25,7 +22,8 @@ export function Seal({ id, ring, text, check, size = 132, words = 'HELD AT THE B
   }, [reduced, spin]);
   const rotate = spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
   return (
-    <View style={{ width: size, height: size }} pointerEvents="none">
+    // Decoration: the words are said elsewhere on the screen, so screen readers skip the seal.
+    <View style={{ width: size, height: size }} pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" aria-hidden>
       <Animated.View style={{ position: 'absolute', inset: 0, transform: [{ rotate }] }}>
         <Svg width={size} height={size} viewBox="0 0 120 120">
           <Defs>
@@ -45,107 +43,140 @@ export function Seal({ id, ring, text, check, size = 132, words = 'HELD AT THE B
   );
 }
 
-const CARD_STYLES = [
-  { bg: brand.ink, fg: '#F7F6F2', sub: '#A9A69E', strip: '#1A1A1A', bank: brand.lime, ring: '#262626', seal: '#55534D', check: brand.lime },
-  { bg: brand.lime, fg: brand.ink, sub: '#3F5A1F', strip: '#8FDB47', bank: brand.ink, ring: '#86C94A', seal: '#3F5A1F', check: brand.ink },
-];
+/** One commitment inside the account (decision 2026-11-17): money set aside for one deal. */
+export interface AccountCommitmentRow {
+  id: string;
+  /** What the money is for, for example "Plot at Kasoa". */
+  label: string;
+  /** Purchase, Building, Event, Repair, ... */
+  kind: string;
+  /** One plain sentence on its state. */
+  state: string;
+  amount: Money;
+  /** "set aside" or "agreed". */
+  amountNote: string;
+  href: string;
+  needsYou?: boolean;
+}
 
-function AccountCard({ account, holder, index }: { account: HeldAccount; holder: string; index: number }) {
-  const s = CARD_STYLES[index % CARD_STYLES.length];
+export interface TenminaAccountCardData {
+  /** The client's one pay-in reference at the bank. */
+  reference: string;
+  heldAt: string;
+  /** One line per currency the client pays in. */
+  balances: { held: Money; free: Money; setAside: Money }[];
+  commitments: AccountCommitmentRow[];
+  href: string;
+}
+
+/**
+ * The client's one Tenmina account (03 6.1a, decision 2026-11-17): one black card with the seal, the balance held
+ * at the bank, the free balance and what is set aside, and the commitments inside it. Never a wallet, never a payment
+ * card: the bank holds the money and releases it only on proof. Tenmina never holds it (RUL-01).
+ */
+export function TenminaAccountCard({ account, holder, max = 4 }: { account: TenminaAccountCardData; holder: string; max?: number }) {
   const reduced = useReducedMotion();
   const enter = useRef(new Animated.Value(reduced ? 1 : 0)).current;
   useEffect(() => {
     if (reduced) return;
-    Animated.timing(enter, { toValue: 1, duration: 800, delay: 100 + index * 380, easing: Easing.out(Easing.cubic), useNativeDriver: nativeDriver }).start();
-  }, [enter, index, reduced]);
-  const kind = account.kind === 'escrow' ? 'Escrow' : 'Family';
+    Animated.timing(enter, { toValue: 1, duration: 800, delay: 100, easing: Easing.out(Easing.cubic), useNativeDriver: nativeDriver }).start();
+  }, [enter, reduced]);
+  // A black card on a white screen. On a black screen (dark mode) it is one step lighter, so it still reads as a card.
+  const onBlack = usePalette().ground === brand.ink;
+  const card = onBlack ? '#1A1A1A' : brand.ink;
+  const strip = onBlack ? '#242424' : '#1A1A1A';
+  const fg = '#F7F6F2';
+  const sub = '#A9A69E';
+  const line = onBlack ? '#333333' : '#2C2C2C';
+  const shown = account.commitments.slice(0, max);
+  const main = account.balances[0];
+  const open = (href: string) => {
+    haptic('tap');
+    router.push(href as never);
+  };
   return (
     <Animated.View
       style={{
         opacity: enter,
-        transform: index === 0
-          ? [{ perspective: 900 }, { rotateX: enter.interpolate({ inputRange: [0, 1], outputRange: ['24deg', '0deg'] }) }, { translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [30, 0] }) }]
-          : [{ translateX: enter.interpolate({ inputRange: [0, 1], outputRange: [80, 0] }) }],
+        transform: [{ perspective: 900 }, { rotateX: enter.interpolate({ inputRange: [0, 1], outputRange: ['18deg', '0deg'] }) }, { translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) }],
+        borderRadius: radius.xl,
+        backgroundColor: card,
+        overflow: 'hidden',
+        shadowColor: '#000',
+        shadowOpacity: 0.2,
+        shadowRadius: 16,
+        shadowOffset: { width: 0, height: 10 },
+        elevation: 6,
       }}
     >
       <Pressable
-        onPress={() => {
-          haptic('tap');
-          router.push(account.href as never);
-        }}
+        onPress={() => open(account.href)}
         accessibilityRole="button"
-        accessibilityLabel={`${kind} account. ${account.label}. ${formatMoney(account.held)} held by ${account.heldAt}.`}
-        style={({ pressed }) => ({
-          width: CARD_W,
-          height: CARD_H,
-          borderRadius: radius.xl,
-          backgroundColor: s.bg,
-          overflow: 'hidden',
-          transform: [{ scale: pressed ? 0.98 : 1 }],
-          shadowColor: '#000',
-          shadowOpacity: 0.2,
-          shadowRadius: 16,
-          shadowOffset: { width: 0, height: 10 },
-          elevation: 6,
-        })}
+        accessibilityLabel={`Your Tenmina account, reference ${account.reference}. ${account.balances.map((b) => `${formatMoney(b.held)} held by ${account.heldAt}, ${formatMoney(b.free)} free, ${formatMoney(b.setAside)} set aside`).join('. ')}.`}
+        style={{ paddingHorizontal: space[5], paddingTop: space[4], paddingBottom: space[3], minHeight: 44 }}
       >
         <View style={{ position: 'absolute', right: -26, top: -36 }}>
-          <Seal id={`seal-${account.id}`} ring={s.ring} text={s.seal} check={s.check} />
+          <Seal id="seal-account" ring="#262626" text="#55534D" check={brand.lime} />
         </View>
-        <View style={{ height: CARD_H - 54, paddingHorizontal: space[5], paddingTop: space[4], justifyContent: 'space-between' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[2] }}>
-            <T v="headline" color={s.fg} style={{ fontFamily: font.heavy, fontSize: 19, letterSpacing: -0.8 }}>tenmina</T>
-            <Label color={s.sub} style={{ fontSize: 10 }}>{`${kind} · ${account.bankRef}`}</Label>
-          </View>
-          <View>
-            <Label color={s.sub} style={{ fontSize: 10 }}>{account.label}</Label>
-            <T v="amount" color={s.fg} style={{ fontSize: 30, lineHeight: 36 }}>{formatMoney(account.held)}</T>
-          </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[2] }}>
+          <T v="headline" color={fg} style={{ fontFamily: font.heavy, fontSize: 19, letterSpacing: -0.8 }}>tenmina</T>
+          <Label color={sub} style={{ fontSize: 10 }}>{`Account · ${account.reference}`}</Label>
         </View>
-        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 54, paddingHorizontal: space[5], backgroundColor: s.strip, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Label color={s.fg}>{holder}</Label>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <Ionicons name="business" size={14} color={s.bank} />
-            <Label color={s.bank}>{account.heldAt}</Label>
-          </View>
-        </View>
-      </Pressable>
-    </Animated.View>
-  );
-}
-
-/** Each account the bank holds, side by side. The next card peeks in from the right. */
-export function AccountCards({ accounts, holder, total }: { accounts: HeldAccount[]; holder: string; total: Money }) {
-  const p = usePalette();
-  const [page, setPage] = useState(0);
-  const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => setPage(Math.round(e.nativeEvent.contentOffset.x / (CARD_W + GAP)));
-  return (
-    <View style={{ gap: space[3] }} accessibilityLabel={`Money held for you: ${accounts.length} accounts, ${formatMoney(total)} in total.`}>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        snapToInterval={CARD_W + GAP}
-        decelerationRate="fast"
-        onScroll={onScroll}
-        scrollEventThrottle={32}
-        style={{ marginHorizontal: -space[5], overflow: 'visible' }}
-        contentContainerStyle={{ paddingHorizontal: space[5], paddingVertical: space[2], gap: GAP }}
-      >
-        {accounts.map((a, i) => (
-          <AccountCard key={a.id} account={a} holder={holder} index={i} />
+        <Label color={sub} style={{ fontSize: 10, marginTop: space[4] }}>Held at the bank for you</Label>
+        {account.balances.map((b) => (
+          <T key={b.held.currency} v="amount" color={fg} style={{ fontSize: 30, lineHeight: 36 }}>{formatMoney(b.held)}</T>
         ))}
-      </ScrollView>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 4 }}>
-        <View style={{ flexDirection: 'row', gap: 5 }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-          {accounts.map((a, i) => (
-            <View key={a.id} style={{ width: i === page ? 18 : 6, height: 6, borderRadius: 3, backgroundColor: i === page ? p.text : p.lineStrong }} />
+        {main ? (
+          <View style={{ flexDirection: 'row', gap: space[4], marginTop: space[2], paddingTop: space[2], borderTopWidth: 1, borderTopColor: line }}>
+            <View style={{ flex: 1 }}>
+              <Label color={sub} style={{ fontSize: 10 }}>Free balance</Label>
+              {account.balances.map((b) => <T key={b.free.currency} v="callout" color={fg} style={{ fontFamily: font.bold }}>{formatMoney(b.free)}</T>)}
+            </View>
+            <View style={{ flex: 1 }}>
+              <Label color={sub} style={{ fontSize: 10 }}>Set aside</Label>
+              {account.balances.map((b) => <T key={b.setAside.currency} v="callout" color={fg} style={{ fontFamily: font.bold }}>{formatMoney(b.setAside)}</T>)}
+            </View>
+          </View>
+        ) : null}
+      </Pressable>
+      {shown.length ? (
+        <View style={{ paddingHorizontal: space[5] }}>
+          <Label color={sub} style={{ fontSize: 10, marginBottom: 2 }}>{`Commitments inside it · ${account.commitments.length}`}</Label>
+          {shown.map((c, i) => (
+            <Pressable
+              key={c.id}
+              onPress={() => open(c.href)}
+              accessibilityRole="button"
+              accessibilityLabel={`${c.kind}: ${c.label}. ${formatMoney(c.amount)} ${c.amountNote}. ${c.state}${c.needsYou ? ' Needs you.' : ''}`}
+              style={({ pressed }) => ({ flexDirection: 'row', gap: space[3], paddingVertical: space[2], minHeight: 44, borderTopWidth: i ? 1 : 0, borderTopColor: line, opacity: pressed ? 0.8 : 1 })}
+            >
+              {/* minWidth 0 lets a long name shrink and end in "…" instead of running under the amount */}
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Label color={c.needsYou ? brand.orange : sub} style={{ fontSize: 10 }}>{c.needsYou ? `${c.kind} · needs you` : c.kind}</Label>
+                <T v="callout" color={fg} style={{ fontFamily: font.bold }} numberOfLines={1}>{c.label}</T>
+                <T v="footnote" color={sub} numberOfLines={2}>{c.state}</T>
+              </View>
+              <View style={{ alignItems: 'flex-end', flexShrink: 0 }}>
+                <T v="callout" color={fg} style={{ fontFamily: font.bold }}>{formatMoney(c.amount)}</T>
+                <T v="footnote" color={sub}>{c.amountNote}</T>
+              </View>
+            </Pressable>
           ))}
+          {account.commitments.length > shown.length ? (
+            <Pressable onPress={() => open(account.href)} accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }}>
+              <T v="footnote" color={fg} style={{ fontFamily: font.semibold }}>{`See all ${account.commitments.length} commitments`}</T>
+            </Pressable>
+          ) : null}
         </View>
-        <T v="footnote" muted>
-          Total held <T v="footnote" style={{ fontFamily: font.bold }}>{formatMoney(total)}</T> · {accounts.length} accounts
-        </T>
+      ) : null}
+      <View style={{ minHeight: 54, paddingHorizontal: space[5], backgroundColor: strip, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space[3], marginTop: space[2] }}>
+        <Label color={fg} style={{ flexShrink: 1 }}>{holder}</Label>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 1 }}>
+          <Ionicons name="business" size={14} color={sub} />
+          <Label color={sub}>{account.heldAt}</Label>
+        </View>
       </View>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -153,13 +184,16 @@ export function AccountCards({ accounts, holder, total }: { accounts: HeldAccoun
 export function Ticket({ top, bottom }: { top: ReactNode; bottom: ReactNode }) {
   const p = usePalette();
   const [tear, setTear] = useState<number>();
+  // The ticket is white paper on any ground, so what is printed on it uses the paper palette.
   return (
     <View style={{ backgroundColor: brand.paper, borderRadius: radius.xl }}>
-      <View onLayout={(e) => setTear(e.nativeEvent.layout.height)} style={{ padding: space[5], paddingBottom: space[4], gap: 4 }}>
-        {top}
-      </View>
-      <View style={{ marginHorizontal: space[4], borderTopWidth: 2, borderStyle: 'dashed', borderColor: 'rgba(11,11,11,0.25)' }} />
-      <View style={{ padding: space[5], paddingTop: space[4] }}>{bottom}</View>
+      <PaletteContext.Provider value={blocks.ticket}>
+        <View onLayout={(e) => setTear(e.nativeEvent.layout.height)} style={{ padding: space[5], paddingBottom: space[4], gap: 4 }}>
+          {top}
+        </View>
+        <View style={{ marginHorizontal: space[4], borderTopWidth: 2, borderStyle: 'dashed', borderColor: 'rgba(11,11,11,0.25)' }} />
+        <View style={{ padding: space[5], paddingTop: space[4] }}>{bottom}</View>
+      </PaletteContext.Provider>
       {tear !== undefined ? (
         <>
           <View pointerEvents="none" style={{ position: 'absolute', left: -11, top: tear - 10, width: 22, height: 22, borderRadius: 11, backgroundColor: p.ground }} />

@@ -18,7 +18,8 @@ from .models import (FRESH_SEARCH_KINDS, PAYEE_KIND_FOR_SUBJECT, BankEvent, Cond
                      StandingApproval)
 
 RELEASE_KINDS = ("release", "partial_release")
-CLIENT_APPROVAL_KINDS = ("release", "partial_release", "conversion")
+TRANSFER_KINDS = ("commitment_fund", "commitment_return")  # moves inside the client's account (FR-ESC-027)
+CLIENT_APPROVAL_KINDS = ("release", "partial_release", "conversion", *TRANSFER_KINDS)
 STAFF_ROLES_EXCLUDED = ("CM", "RV", "AD", "RN")
 
 
@@ -124,10 +125,13 @@ def payee_reasons(ins, stage) -> list[dict]:
 
 def refund_reasons(ins) -> list[dict]:
     """RUL-29, FR-ESC-017: a refund goes to the source of the deposit it returns."""
+    from .services import deposit_funds
+
     dep, e = ins.refund_source_event, ins.escrow
     out = []
-    if dep is None or dep.escrow_id != e.pk or dep.kind != "deposit" or dep.status != "confirmed":
-        return [_r("RUL-29", "refund-not-to-source", "A refund must name a bank-confirmed deposit of this escrow.")]
+    if dep is None or not deposit_funds(e, dep) or dep.kind != "deposit" or dep.status != "confirmed":
+        return [_r("RUL-29", "refund-not-to-source", "A refund must name a bank-confirmed deposit of this escrow "
+                                                     "or of the account it was set aside from.")]
     if dep.misdirected:
         out.append(_r("RUL-34", "misdirected-deposit",
                       "This deposit was credited here by the bank's mistake. Only the bank's correcting entry moves "
@@ -228,8 +232,12 @@ def release_blockers(ins: ReleaseInstruction, stage: str = "send") -> list[dict]
         out.append(_r("RUL-34", "escrow-not-funded" if e.status in ("proposed", "agreed") else "escrow-closed",
                       f"The escrow is {e.status.replace('_', ' ')}."))
     out.extend(freeze_reasons(e))
-    if e.cancel_requested_at and ins.kind != "cancel_refund":
+    if e.cancel_requested_at and ins.kind not in ("cancel_refund", "commitment_return"):
         out.append(_r("FR-ESC-013", "escrow-cancelling", "This escrow is being cancelled. Only refunds go out."))
+    if ins.kind in TRANSFER_KINDS:
+        from .accounts import transfer_reasons
+
+        out.extend(transfer_reasons(ins))
     if ins.kind in RELEASE_KINDS:
         out.extend(open_condition_reasons(e, ins.release_part))
         if ins.release_part == "held_back" and not ReleaseInstruction.objects.filter(
@@ -251,7 +259,8 @@ def release_blockers(ins: ReleaseInstruction, stage: str = "send") -> list[dict]
         elif ins.client_approved_at and ins.client_approved_amount is not None \
                 and ins.client_approved_amount != ins.amount:
             out.append(_r("RUL-11", "client-approval-stale", "The amount changed after the client approved."))
-    if stage == "send" and (ins.approval_request is None or ins.approval_request.status != "approved"):
+    if stage == "send" and ins.kind not in TRANSFER_KINDS and (
+            ins.approval_request is None or ins.approval_request.status != "approved"):
         out.append(_r("RUL-05", "staff-approvals-missing", "Two staff with release rights have not both approved."))
     return out
 

@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { Button, Chip, Field, Input, ProblemBox, Select, When, useGet, useSession } from '@tenmina/web-ui';
-import { Ink, PageHead, Proof, Section, useAction, words, type Any } from '@/components/kit';
+import { Ink, PageHead, Proof, Section, useAction, useCountry, words, type Any } from '@/components/kit';
 
 /** W-02 · SCR-PTL-04: identity check through the provider. Needed before the first report or escrow. */
 export default function Identity() {
@@ -10,13 +10,14 @@ export default function Identity() {
   const a = useAction();
   const [f, setF] = useState({ document_type: 'passport', document_number: '' });
   const status = (me as Any)?.id_check_status;
+  const nid = useCountry().national_id_name;
   return (
     <Ink>
       <PageHead back={{ href: '/account', label: 'Account' }} label="Account" title="Confirm your identity" sub="We check your document with an identity provider. We do this once, before your first report or escrow." />
       {status === 'passed' ? <Proof>Your identity is confirmed</Proof> : null}
       {status !== 'passed' ? (
         <form className="card stack" onSubmit={(e) => { e.preventDefault(); a.run('go', () => a.post('/v1/me/identity-checks', f), 'Sent for checking', () => { q.mutate(); refresh(); }); }}>
-          <Field label="Document"><Select value={f.document_type} onChange={(e) => setF({ ...f, document_type: e.target.value })}><option value="passport">Passport</option><option value="national_id">National ID card (for example a Ghana Card)</option><option value="residence_permit">Residence permit</option><option value="driving_licence">Driving licence</option></Select></Field>
+          <Field label="Document"><Select value={f.document_type} onChange={(e) => setF({ ...f, document_type: e.target.value })}><option value="passport">Passport</option><option value="national_id">{nid ? `National ID card (for example a ${nid.replace(/\s*\(.*\)$/, '')})` : 'National ID card'}</option><option value="residence_permit">Residence permit</option><option value="driving_licence">Driving licence</option></Select></Field>
           <Field label="Document number"><Input value={f.document_number} onChange={(e) => setF({ ...f, document_number: e.target.value })} required /></Field>
           <ProblemBox error={a.error} />
           <Button variant="primary" type="submit" busy={!!a.busy}>Check my identity</Button>

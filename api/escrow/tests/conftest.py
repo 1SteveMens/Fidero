@@ -84,6 +84,23 @@ class Builder:
             transfer_partner=partner, virtual_account_ref=va)
         return services.check_bank_event(ev, self.rv) if check else ev
 
+    def free(self, client=None):
+        """The client's account free balance in GHS, open at the bank (FR-ESC-025)."""
+        from escrow.seed import free_balance
+
+        return free_balance(client or self.client, self.gh, self.cm)
+
+    def fund(self, e, amount, *, confirm=True, deposit=True):
+        """Pay into the client's account, then set the money aside for commitment `e` (FR-ESC-027)."""
+        from escrow import services
+        from escrow.models import Escrow
+
+        if deposit:
+            self.deposit(self.free(e.client), amount, name=e.client.full_name.upper())
+        ins = services.fund_commitment(Escrow.objects.get(pk=e.pk), e.client, amount=amount, mfa_at=timezone.now())
+        ins.refresh_from_db()
+        return self.confirm(ins) if confirm else ins
+
     def close_all(self, e, part="main"):
         from escrow import services
 
@@ -200,8 +217,9 @@ class Builder:
     def confirm(self, ins, amount=None):
         from escrow import services
 
-        kind = {"cancel_refund": "refund_confirmed", "conversion": "conversion_debit"}.get(ins.kind,
-                                                                                            "release_confirmed")
+        kind = {"cancel_refund": "refund_confirmed", "conversion": "conversion_debit",
+                "commitment_fund": "commitment_debit", "commitment_return": "commitment_debit"}.get(
+            ins.kind, "release_confirmed")
         ev = services.record_bank_event(ins.escrow, kind=kind, amount=amount or ins.amount, currency=ins.currency,
                                         bank_reference=f"PAY-{_n()}", by=self.cm, instruction=ins,
                                         proof_evidence=self.ev("debit-advice"),

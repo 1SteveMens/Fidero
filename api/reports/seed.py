@@ -133,68 +133,40 @@ def release_demo_case(case, gh, people, stop=None, parties=True):
     return report
 
 
-def release_report(case, gh, people, verdict="green"):
-    """Sequence 5.2 to a released report with the given verdict (green, or amber with conditions)."""
-    from . import services as rs
-    from .models import Report
-
-    if verdict == "amber":
-        return release_demo_case(case, gh, people)
-    report = release_demo_case(case, gh, people, stop="sections")
-    report = Report.objects.get(pk=report.pk)
-    if report.status == "draft":
-        rs.set_overall_verdict(report, people["lawyer"], verdict)
-        if not report.conditions.exists():
-            rs.add_condition(report, people["lawyer"], key="fresh_search",
-                             text="Fresh official search within the window before release", responsible="tenmina",
-                             closing_evidence="Official search result from Tenmina's registry account")
-        rs.sign_sections(report, people["surveyor"])
-        rs.sign_sections(report, people["lawyer"])
-        report = rs.submit_review(report, people["cm"])
-    if report.status == "in_review":
-        now = timezone.now()
-        rs.approve(report, people["lawyer"], mfa_at=now, note="Legal sections reviewed.")
-        rs.approve(report, people["reviewer"], mfa_at=now, note="Second review done.")
-    report.refresh_from_db()
-    return report
-
-
-def plot_report(ctx, key, *, locality, plot_number, seller="Ato Estates Ltd", seller_phone="+233302000312",
-                verdict="amber", who="client"):
-    """A released report on a plot, for another module's demo (an escrow starts only from a released report).
-
-    The client orders and pays a land check (ORD, PAY), the case opens from the paid order (CASE) and is
-    taken to a released report (sequence 5.2), so the escrow, its case and its plot all exist and the client
-    can open the report. Idempotent on `key`. Returns None when the demo payment provider is not in use."""
+def released_report(ctx, key, *, locality, plot_number, client_key="client", seller="Ato Estates Ltd"):
+    """A released land report for one demo plot, built the real way: the client orders and pays by card (ORD,
+    PAY), the case opens (CASE) and goes through sequence 5.2 to release (RPT). ESC and DSP open their demo
+    escrows on these, so every escrow's report, case and asset is a real row. Idempotent by `key`."""
     from cases import services as cs
     from cases.models import Case
     from orders import services as ords
     from orders.models import Order
     from orders.seed import _accept, _doc
-    from payments import adapters
     from payments.seed import _card
 
     from .models import Report
 
     gh, people = ctx["gh"], ctx["people"]
-    client, seed_key = people[who], f"report:{key}"
-    order = Order.objects.filter(details__seed=seed_key).first()
-    if order is None:
-        if not isinstance(adapters.provider(), adapters.FakePaymentProvider):
-            return None
-        order = ords.create_order(actor=client, country=gh, kind="verification", ip="127.0.0.1", user_agent="seed",
-                                  data={"tier": "basic", "lead_source": "webinar",
-                                        "asset": {"type": "plot", "locality": locality, "plot_number": plot_number,
-                                                  "site_plan_ref": f"GA/{locality[:3].upper()}/2026/{plot_number}"},
-                                        "seller": {"name": seller, "phone": seller_phone},
-                                        "details": {"seed": seed_key}, "upload_ids": [_doc(client, gh, key).pk],
-                                        **_accept(gh)})
-    order.refresh_from_db()
-    if order.status == "awaiting_payment":
-        _card(order, client)
-    case = Case.objects.filter(order=order).first() or cs.create_from_order(order.pk, actor=people["cm"])
-    released = Report.objects.filter(case=case, status="released").order_by("-version").first()
-    return released or release_report(case, gh, people, verdict)
+    client = people[client_key]
+    o = Order.objects.filter(details__seed=key).first()
+    if o is None:
+        o = ords.create_order(actor=client, country=gh, kind="verification", draft=False, ip="127.0.0.1",
+                              user_agent="seed", data={
+                                  "tier": "standard", "lead_source": "webinar",
+                                  "asset": {"type": "plot", "locality": locality, "plot_number": plot_number,
+                                            "site_plan_ref": f"GA/{locality[:3].upper()}/2026/{plot_number}"},
+                                  "seller": {"name": seller, "phone": people["seller"].phone or "+233240000008"},
+                                  "details": {"seed": key}, "upload_ids": [_doc(client, gh, key).pk],
+                                  **_accept(gh)})
+    if o.status == "awaiting_payment":
+        _card(o, client)
+        o.refresh_from_db()
+    case = Case.objects.filter(order=o).first() or cs.create_from_order(o.pk, actor=people["cm"])
+    if case.status != "released":
+        for p in ("lawyer", "surveyor"):
+            people[p].refresh_from_db()
+        release_demo_case(case, gh, people)
+    return Report.objects.get(case=case, status="released")
 
 
 def run(ctx):

@@ -1,6 +1,6 @@
 # Construction milestone schedule
 
-This is the standard schedule for a Tenmina-managed build. Payments are released from the client's held funds only when a milestone is confirmed. Confirmation needs two things: evidence from the contractor through the milestone photo app, and sign-off by an independent inspector.
+This is the standard schedule for a Tenmina-managed build. Payments are released from the money the client set aside for the build inside their Tenmina account only when a milestone is confirmed. Confirmation needs two things: evidence from the contractor through the milestone photo app, and sign-off by an independent inspector.
 
 Percentages are assumptions for a standard single-storey house. The quantity surveyor sets the actual split for each project from the bill of quantities.
 

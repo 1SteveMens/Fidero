@@ -4,8 +4,8 @@ import { router, useLocalSearchParams } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { brand, space } from '@tenmina/tokens';
-import { Button, Choice, DotStepper, Label, Panel, Screen, T, Tick } from '@tenmina/ui';
-import { Field, ProblemBox, money, toProblem, useApi, useGet, useLoad, useSession, words, type ApiMoney, type Problem } from '@tenmina/mobile';
+import { Button, Choice, DotStepper, Label, Panel, Screen, T, Tick, usePalette } from '@tenmina/ui';
+import { Field, ProblemBox, addressLabel, money, toProblem, useApi, useCountry, useGet, useLoad, useSession, words, type ApiMoney, type Problem } from '@tenmina/mobile';
 
 interface Tier {
   tier: string;
@@ -32,8 +32,10 @@ const STEPS = ['What', 'Plot', 'Seller', 'Agree'];
  * The fee is then paid in the app through the payment provider (SCR-APP-06). Prices come only from the server.
  */
 export default function Order() {
+  const pal = usePalette();
   const api = useApi();
   const { me } = useSession();
+  const country = useCountry();
   const params = useLocalSearchParams<{ line?: string }>();
   const [step, setStep] = useState(0);
   const [assetType, setAssetType] = useState<'plot' | 'building'>(params.line === 'building' ? 'building' : 'plot');
@@ -65,7 +67,7 @@ export default function Order() {
     setProblem(undefined);
     try {
       const order = await api.post<{ id: string }>('/v1/orders', {
-        country: me?.home_country ?? 'GH',
+        country: country.code || me?.home_country,
         kind: 'verification',
         draft: true,
         tier,
@@ -151,7 +153,7 @@ export default function Order() {
               <Field label="Site plan reference" value={sitePlanRef} onChange={setSitePlanRef} hint="Printed on the site plan, often with the surveyor's stamp." />
             </>
           ) : null}
-          <Field label="GhanaPost GPS address (optional)" value={gps} onChange={setGps} placeholder="GA-123-4567" />
+          <Field label={`${addressLabel(country)} (optional)`} value={gps} onChange={setGps} placeholder={country.digital_address?.example || undefined} />
           <Panel style={{ gap: space[2] }}>
             <Label>The site plan</Label>
             {file ? (
@@ -170,7 +172,7 @@ export default function Order() {
       {step === 2 ? (
         <>
           <Field label="Seller's name" value={sellerName} onChange={setSellerName} />
-          <Field label="Seller's phone" value={sellerPhone} onChange={setSellerPhone} keyboardType="phone-pad" placeholder="+233 …" hint="We call the seller to arrange the site visit. Never pay the seller before the report." />
+          <Field label="Seller's phone" value={sellerPhone} onChange={setSellerPhone} keyboardType="phone-pad" placeholder={country.phone_prefix ? `${country.phone_prefix} …` : undefined} hint="We call the seller to arrange the site visit. Never pay the seller before the report." />
           <Panel style={{ gap: 0 }}>
             <Label>How did you hear about Tenmina?</Label>
             {(leads.data?.lead_sources ?? []).map((l) => (
@@ -192,7 +194,7 @@ export default function Order() {
           </Panel>
           <Choice selected={agree} onPress={() => setAgree((a) => !a)} title="I have read the scope and the terms, and I agree" detail={chosen ? `${chosen.tier_name}: ${money(chosen.price)}, paid in the app by card or mobile money` : undefined} />
           <View style={{ flexDirection: 'row', gap: space[2] }}>
-            <Ionicons name="lock-closed-outline" size={18} color={brand.ink} />
+            <Ionicons name="lock-closed-outline" size={18} color={pal.text} />
             <T v="footnote" muted style={{ flex: 1 }}>You pay Tenmina's fee for the work, whatever the verdict. Never pay the seller until the report is out and the escrow is set up.</T>
           </View>
         </>

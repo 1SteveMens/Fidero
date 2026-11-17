@@ -1,22 +1,29 @@
-"""Tenmina Field phones for every field role in Ghana, with deterministic keys so the seed is repeatable.
+"""Demo field work, and the phone helpers the line modules' seeds use (`_phone`, `_item`).
 
-Field work itself is seeded by the module that owns its subject, on objects that exist, so every assignment,
-capture, check-in and flag points at a real milestone, inspection, visit, errand step or case task:
-
-- construction: Kobby's foundation evidence submitted and accepted; Esi's foundation inspection recorded as pass
-  with defects; Mensah's blocks photo taken 25 km from the plot, flagged and held for a reviewer.
-- care: Afia's visits checked in and out at the house (one uploaded late and cleared), and today's visit checked
-  in 2 km away, flagged, then cleared by a reviewer with a note.
-- errands: Kofi's acknowledgements, receipts, result and handover photos on real errand steps.
-- cases: the runner's site visit and the surveyor's overlay check on Kofi's land case.
-
-The helpers below (`_phone`, `_item`) are what those seeds use to capture through the real services.
+Field work is always on a real subject from the module that owns it, so every inbox item opens: BLD's seed
+captures and submits the builders' milestones and the inspector's inspection, CARE's seed checks the carer in
+and out (one check-in 2 km from the house, flagged, then cleared by a reviewer), TSK's seed the errand
+agent's steps, and CASE's the runner's site visit. This seed adds one photo the runner took far from the plot
+on that real site visit: flagged outside the plot buffer and waiting for a reviewer.
+Phones use deterministic keys so the seed is repeatable.
 """
 import hashlib
+import uuid
+from datetime import timedelta
+
+from django.utils import timezone
+
+from core import samples
 
 from . import crypto
 from .devtools import FakePhone
-from .models import Device, SignedManifest
+from .models import CheckIn, Device, FraudFlag, SignedManifest
+
+NS = uuid.UUID("0b9c3e6e-8a3c-4a65-a1b1-5c3e2f0d7a11")
+
+
+def sid(name):
+    return uuid.uuid5(NS, name)
 
 
 def _phone(person, name, **kw):
@@ -44,11 +51,39 @@ def _item(phone, client_item_id, subject_type, subject_id, data, **kw):
     return m
 
 
+def _check(phone, client_item_id, kind, subject_type, subject_id, **kw):
+    from .services import record_checkin
+
+    m = SignedManifest.objects.filter(person=phone.person, client_item_id=client_item_id).first()
+    if m is not None:
+        return CheckIn.objects.get(manifest=m)
+    ci, _ = record_checkin(phone.person, phone.check(kind, subject_type, subject_id,
+                                                     client_item_id=client_item_id, **kw), kind)
+    return ci
+
+
 def run(ctx):
-    p = ctx["people"]
-    _phone(p["contractor"], "contractor", platform="android", key_security="tee")
-    _phone(p["contractor"], "contractor-iphone", platform="ios")
-    _phone(p["inspector"], "inspector", platform="ios")
-    _phone(p["carer"], "carer", platform="android", key_security="software", model="TECNO-KG5")
-    for key in ("agent", "runner", "surveyor"):
-        _phone(p[key], key, platform="android", key_security="strongbox", model="SM-A145F")
+    """Nothing before the line modules have seeded: see run_late."""
+
+
+def run_late(ctx):
+    """The runner's photo of the gate, taken in central Accra instead of at Kofi's plot in Dawhenya: stored,
+    flagged outside the plot buffer and left open for a reviewer (FR-MOB-004). Late, once the plot has its
+    surveyed boundary and position (REC's seed)."""
+    from cases.models import Task
+
+    case = (ctx.get("cases") or {}).get("kofi_land_offline_paid")
+    runner = ctx["people"].get("runner")
+    if case is None or runner is None:
+        return
+    task = Task.objects.filter(case=case, step_key="site_visit", assignee=runner,
+                               status__in=["open", "in_progress"]).first()
+    if task is None:
+        return
+    phone = _phone(runner, "runner", platform="android", key_security="strongbox", model="SM-A145F")
+    key = task.required_evidence[0] if task.required_evidence else "site_photo"
+    m = _item(phone, str(sid(f"runner-far-{task.pk}")), "task", task.pk,
+              samples.photo("gate", "seed-runner-far", caption="Gate and beacon", model=phone.model),
+              lat=5.6037, lng=-0.1870, requirement_key=key, captured_at=timezone.now() - timedelta(minutes=40))
+    ctx["mobile"] = {"runner_task": task, "far_photo": m,
+                     "flag": FraudFlag.objects.filter(evidence_id=m.evidence_id, kind="outside_buffer").first()}

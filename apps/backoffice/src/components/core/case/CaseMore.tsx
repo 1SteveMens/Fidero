@@ -5,12 +5,14 @@ import { ApiError } from '@tenmina/api-client';
 import { Empty, ProblemBox, Skeleton, useGet } from '@tenmina/web-ui';
 import { ActionForm, day, dayTime, iso, money, Panel, words } from '../kit';
 import type { CaseDetail, Cost, MoneyT, RiskScreen } from '../types';
+import { useCountryInfo } from '../country';
 
 type Costs = { items: Cost[]; by_item: Record<string, MoneyT[] | Record<string, string> | string>; totals: Record<string, string> };
 type Incident = { id: string; severity: string; narrative: string; persons_named: string; location_note: string; occurred_at: string | null; created_at: string; reported_by: string };
 
 export function CaseCosts({ c }: { c: CaseDetail }) {
   const costs = useGet<Costs>(`/v1/cases/${c.id}/costs`);
+  const { currency } = useCountryInfo(c.country);
   const items = costs.data?.items ?? [];
   const totals = costs.data?.totals ?? {};
   return (
@@ -18,7 +20,7 @@ export function CaseCosts({ c }: { c: CaseDetail }) {
       <ActionForm label="+ Add a cost" path={`/v1/cases/${c.id}/costs`} fields={[
         { name: 'item_type', label: 'Item', type: 'select', required: true, options: ['lawyer', 'surveyor', 'runner', 'inspector', 'fees', 'travel', 'other'].map((x) => ({ value: x, label: words(x) })) },
         { name: 'amount', label: 'Amount', type: 'money', required: true },
-        { name: 'currency', label: 'Currency', initial: 'GHS', required: true },
+        { name: 'currency', label: 'Currency', initial: currency, required: true },
         { name: 'incurred_on', label: 'Date', type: 'date' },
         { name: 'description', label: 'Description' },
       ]} body={(v) => ({ item_type: v.item_type, amount: { amount: v.amount, currency: String(v.currency).toUpperCase() }, incurred_on: v.incurred_on || undefined, description: v.description || '' })}

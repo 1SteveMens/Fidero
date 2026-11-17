@@ -14,6 +14,10 @@ from core.models import BaseModel, CountryScopedModel
 from core.money import amount_field, currency_field
 
 ESCROW_KINDS = ["purchase", "construction", "offplan", "project_fund", "held_funds", "repair", "event"]
+# Every kind but `held_funds` is a commitment inside the client's account (decision 2026-11-17, FR-ESC-026).
+COMMITMENT_KINDS = [k for k in ESCROW_KINDS if k != "held_funds"]
+# Instructions that move money inside the account between the free balance and a commitment (FR-ESC-027).
+TRANSFER_KINDS = ("commitment_fund", "commitment_return")
 # Kinds that pay out in several instructions; the instruction carries the release state (FR-ESC-010, 014).
 STAGED_KINDS = {"construction", "offplan", "project_fund", "held_funds", "repair", "event"}
 # RUL-07: a fresh search and site check before any release on a land, building or off-plan purchase.
@@ -173,13 +177,54 @@ PAYEE = state.register("payee", "esc_payee", {
 }, field="verification_status")
 
 
+# ----------------------------------------------------------------- the client's account (decision 2026-11-17)
+
+class ClientAccount(CountryScopedModel):
+    """One Tenmina account per client per country at the licensed bank
+    (FR-ESC-025). One set of pay-in details: the bank's programme account for
+    each currency and the one reference the bank issued for this client
+    (`virtual_account_ref`). No column holds a balance: the account's lines
+    are its free-balance escrows (kind `held_funds`, one per currency) and its
+    commitments (every other kind), each derived from bank-confirmed events
+    (ADR-18, ADR-26). The bank keeps each commitment apart (RUL-34)."""
+
+    STATUSES = ["open", "closed"]
+    reference = models.TextField(unique=True)
+    client = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="tenmina_accounts")
+    bank_partner = models.ForeignKey("administration.Partner", on_delete=models.PROTECT, related_name="+")
+    virtual_account_ref = models.TextField(null=True, blank=True)  # the client's pay-in reference, issued by the bank
+    status = models.TextField(default="open", choices=[(s, s) for s in STATUSES])
+    opened_at = models.DateTimeField(auto_now_add=True)
+    closed_at = models.DateTimeField(null=True, blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+
+    class Meta:
+        db_table = "esc_client_account"
+        constraints = [
+            models.UniqueConstraint(fields=["client", "country"], name="esc_one_account_per_client_country"),
+            models.UniqueConstraint(fields=["country", "virtual_account_ref"],
+                                    condition=Q(virtual_account_ref__isnull=False),
+                                    name="esc_account_pay_in_reference_unique"),
+            models.CheckConstraint(condition=~Q(status="closed") | Q(closed_at__isnull=False),
+                                   name="esc_account_closed_at"),
+        ]
+
+    def __str__(self):
+        return self.reference
+
+
 # ----------------------------------------------------------------- escrows (FR-ESC-001)
 
 class Escrow(CountryScopedModel):
+    """An escrow is a line of the client's account: the free balance (kind
+    `held_funds`, one per currency) or a commitment tied to one deal (every
+    other kind), with its own parties, conditions, payees and bank sub-ledger."""
+
     reference = models.TextField(unique=True)
     kind = models.TextField(choices=[(k, k) for k in ESCROW_KINDS])
     title = models.TextField(blank=True, default="")
     client = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="escrows")
+    account = models.ForeignKey(ClientAccount, on_delete=models.PROTECT, related_name="lines")
     asset_id = models.UUIDField(null=True, blank=True)  # geo asset (plot or building)
     report_id = models.UUIDField(null=True, blank=True)  # rpt_report: verdict and section 11 conditions
     project_id = models.UUIDField(null=True, blank=True)  # bld_project or prj_project
@@ -188,7 +233,9 @@ class Escrow(CountryScopedModel):
     bank_reference = models.TextField(blank=True, default="")
     programme_account = models.ForeignKey(ProgrammeAccount, null=True, blank=True, on_delete=models.PROTECT,
                                           related_name="escrows")
-    virtual_account_ref = models.TextField(null=True, blank=True)  # issued by the bank (RUL-34)
+    # Issued by the bank (RUL-34). On the free balance it is the account's pay-in reference; on a commitment it is
+    # the bank's own sub-ledger for that deal, never shown to the client as somewhere to pay.
+    virtual_account_ref = models.TextField(null=True, blank=True)
     agreed_amount = amount_field()  # recorded fact from the terms, not a balance
     held_back_amount = amount_field(default=0)  # FR-ESC-020: set only by the escrow terms
     held_back_condition = models.TextField(blank=True, default="")
@@ -259,6 +306,10 @@ class Escrow(CountryScopedModel):
     @property
     def needs_fresh_search(self):
         return self.kind in FRESH_SEARCH_KINDS
+
+    @property
+    def is_commitment(self):
+        return self.kind != "held_funds"
 
 
 ESCROW = state.register("escrow", "esc_escrow", {
@@ -504,8 +555,10 @@ class BankEvent(CountryScopedModel):
     """What the bank reports: deposits, release and refund confirmations,
     and the two legs of a conversion. Only `confirmed` rows count."""
 
+    # correction_debit: the bank's correcting entry for a misdirected deposit (I-43). commitment_debit and
+    # commitment_credit: the two legs of one bank-confirmed move between the free balance and a commitment.
     KINDS = ["deposit", "release_confirmed", "refund_confirmed", "conversion_debit", "conversion_credit",
-             "correction_debit"]  # correction_debit: the bank's correcting entry for a misdirected deposit (I-43)
+             "correction_debit", "commitment_debit", "commitment_credit"]
     SOURCES = ["api", "statement", "manual"]
     STATUSES = ["pending_check", "confirmed", "rejected"]
     ROUTES = ["", "bank_transfer", "transfer_partner", "bank_correction"]
@@ -561,7 +614,8 @@ class BankEvent(CountryScopedModel):
                                    name="esc_bank_event_manual_has_proof"),
             models.CheckConstraint(condition=~Q(kind="deposit") | Q(source_account_known=False) | (
                 ~Q(source_account_number="") & ~Q(source_account_name="")), name="esc_deposit_source_account"),
-            models.CheckConstraint(condition=~Q(kind__in=["release_confirmed", "refund_confirmed", "conversion_debit"])
+            models.CheckConstraint(condition=~Q(kind__in=["release_confirmed", "refund_confirmed", "conversion_debit",
+                                                          "commitment_debit", "commitment_credit"])
                                    | Q(instruction__isnull=False), name="esc_outgoing_event_names_instruction"),
         ]
 
@@ -648,11 +702,15 @@ POSITION = state.register("bank_position", "esc_bank_position", {
 # ----------------------------------------------------------------- instructions (5.3, FR-ESC-006 to 010, 013)
 
 class ReleaseInstruction(CountryScopedModel):
-    KINDS = ["release", "partial_release", "cancel_refund", "conversion"]
+    KINDS = ["release", "partial_release", "cancel_refund", "conversion", "commitment_fund", "commitment_return"]
     STATUSES = ["draft", "awaiting_client", "pending_approval", "approved", "sent", "confirmed", "rejected_by_bank",
                 "rejected", "withdrawn"]
     escrow = models.ForeignKey(Escrow, on_delete=models.PROTECT, related_name="instructions")
     kind = models.TextField(choices=[(k, k) for k in KINDS])
+    # FR-ESC-027: the other line of the same account a transfer moves money to (a commitment, or back to the free
+    # balance when the client keeps a cancelled commitment's money in the account).
+    to_escrow = models.ForeignKey(Escrow, null=True, blank=True, on_delete=models.PROTECT,
+                                  related_name="incoming_transfers")
     subject_type = models.TextField(null=True, blank=True, choices=[(s, s) for s in SUBJECT_TYPES])
     subject_id = models.UUIDField(null=True, blank=True)
     subject_label = models.TextField(blank=True, default="")
@@ -668,7 +726,9 @@ class ReleaseInstruction(CountryScopedModel):
     fx_quote = models.ForeignKey("FxQuote", null=True, blank=True, on_delete=models.PROTECT, related_name="+")
     prepared_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
     reason = models.TextField(blank=True, default="")
-    approval_request = models.ForeignKey("core.ApprovalRequest", on_delete=models.PROTECT, related_name="+")
+    # Two staff approve every release and refund (RUL-05). A transfer inside the account pays nobody and has none.
+    approval_request = models.ForeignKey("core.ApprovalRequest", null=True, blank=True, on_delete=models.PROTECT,
+                                         related_name="+")
     client_approved_at = models.DateTimeField(null=True, blank=True)
     client_approved_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
                                            on_delete=models.PROTECT, related_name="+")
@@ -723,8 +783,15 @@ class ReleaseInstruction(CountryScopedModel):
             models.CheckConstraint(condition=Q(subject_type__isnull=True, subject_id__isnull=True)
                                    | Q(subject_type__isnull=False, subject_id__isnull=False),
                                    name="esc_subject_pair"),
-            models.CheckConstraint(condition=Q(kind__in=["cancel_refund", "conversion"]) | Q(payee__isnull=False),
-                                   name="esc_release_names_payee"),
+            models.CheckConstraint(condition=Q(kind__in=["cancel_refund", "conversion", *TRANSFER_KINDS])
+                                   | Q(payee__isnull=False), name="esc_release_names_payee"),
+            models.CheckConstraint(condition=(Q(kind__in=TRANSFER_KINDS) & Q(to_escrow__isnull=False)
+                                              & Q(payee__isnull=True) & Q(subject_id__isnull=True)
+                                              & ~Q(to_escrow=models.F("escrow")))
+                                   | (~Q(kind__in=TRANSFER_KINDS) & Q(to_escrow__isnull=True)),
+                                   name="esc_transfer_shape"),
+            models.CheckConstraint(condition=Q(kind__in=TRANSFER_KINDS) | Q(approval_request__isnull=False),
+                                   name="esc_release_has_approval_request"),
             models.CheckConstraint(condition=Q(kind="conversion", to_currency__isnull=False)
                                    | (~Q(kind="conversion") & Q(to_currency__isnull=True)),
                                    name="esc_conversion_to_currency"),
@@ -757,7 +824,9 @@ class ReleaseInstruction(CountryScopedModel):
 
 INSTRUCTION = state.register("release_instruction", "esc_release_instruction", {
     "draft": {"awaiting_client", "pending_approval", "withdrawn"},
-    "awaiting_client": {"pending_approval", "rejected", "withdrawn"},
+    # awaiting_client -> approved: only a transfer inside the account (no staff approvals); the trigger refuses it
+    # for anything that pays out (RUL-05).
+    "awaiting_client": {"pending_approval", "approved", "rejected", "withdrawn"},
     "pending_approval": {"approved", "rejected", "withdrawn", "awaiting_client"},
     "approved": {"sent", "withdrawn"},
     "sent": {"confirmed", "rejected_by_bank"},

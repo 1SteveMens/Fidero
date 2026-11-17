@@ -2,7 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Button, Field, Input, ProblemBox, useSession } from '@tenmina/web-ui';
-import { PageHead, Upload, useAction, useCountry, type Any } from '@/components/kit';
+import { PageHead, Upload, addressLabel, useAction, useCountry, type Any } from '@/components/kit';
 
 /** SCR-PTL-46: register a property for management. Ownership documents first; a condition inspection follows. */
 export default function NewProperty() {
@@ -20,7 +20,7 @@ export default function NewProperty() {
       <Field label="Town or area"><Input value={f.locality} onChange={set('locality')} required /></Field>
       <Field label="Address"><Input value={f.address} onChange={set('address')} /></Field>
       <Field label="Region"><Input value={f.region} onChange={set('region')} /></Field>
-      <Field label="Ghana Post GPS address"><Input value={f.ghana_post_gps} onChange={set('ghana_post_gps')} /></Field>
+      <Field label={addressLabel(country)}><Input value={f.ghana_post_gps} onChange={set('ghana_post_gps')} /></Field>
       <div className="card stack">
         <strong>Proof that you own it</strong>
         <span className="muted" style={{ fontSize: 14 }}>An indenture, land title or site plan in your name.</span>

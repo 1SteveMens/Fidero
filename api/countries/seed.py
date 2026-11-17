@@ -16,6 +16,7 @@ GHANA_CONFIG = {
     "phone_prefix": "+233",
     "national_id": {"system": "Ghana Card (NIA)", "provider": "NIA IVSP", "format": "GHA-#########-#"},
     "land_registry": {"name": "Lands Commission", "search_channel": "Tenmina registry account"},
+    "digital_address": {"name": "Ghana Post GPS address", "example": "GA-123-4567"},
     "payee_lock_cooling_off_hours": 72,
     "release": {"staff_approvals_within_working_days": 1, "bank_pays_within_working_days": 2,
                 "client_promise_working_days": 3},
@@ -65,6 +66,7 @@ def run(ctx):
         data = dict(GHANA_CONFIG, currency="NGN", phone_prefix="+234",
                     national_id={"system": "NIN (NIMC)", "provider": "[TO VERIFY]"},
                     land_registry={"name": "Lagos State Lands Bureau", "search_channel": "[TO VERIFY]"},
+                    digital_address=None,  # no national digital address system assumed [TO VERIFY]
                     data_location=None, holiday_calendar=[])
         CountryConfig.objects.create(country=ng, version=1, status="draft", data=data)
     ctx["gh"], ctx["ng"], ctx["cell"] = gh, ng, cell

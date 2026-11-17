@@ -70,7 +70,7 @@ export default function FeePaymentScreen() {
           {direct && d.pay_to && !d.client_reported_at ? (
             <>
               <Panel tone="raised">
-                <Label color="#A9A69E">Pay this account, from your own bank</Label>
+                <Label>Pay this account, from your own bank</Label>
                 {[
                   ['Bank', d.pay_to.bank_name],
                   ['Account name', d.pay_to.account_name],
@@ -79,11 +79,11 @@ export default function FeePaymentScreen() {
                   ['Reference', d.pay_to.reference],
                 ].map(([k, v]) => (
                   <View key={k} style={{ flexDirection: 'row', gap: space[3] }}>
-                    <T v="footnote" color="#A9A69E" style={{ width: 110 }}>{k}</T>
+                    <T v="footnote" muted style={{ width: 110 }}>{k}</T>
                     <T v="mono" color={brand.lime} style={{ flex: 1, fontSize: 14 }}>{v}</T>
                   </View>
                 ))}
-                <T v="footnote" color="#A9A69E">{d.pay_to.note}</T>
+                <T v="footnote" muted>{d.pay_to.note}</T>
               </Panel>
               <Panel tone="orange">
                 <Label color={brand.ink}>Needs you</Label>

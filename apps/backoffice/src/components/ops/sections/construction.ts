@@ -23,7 +23,7 @@ export const construction: SectionSpec = {
   href: '/construction',
   title: 'Construction',
   screens: 'SCR-BO-14 · SCR-BO-15',
-  intro: 'Build in stages. Each milestone is paid only after app evidence, an independent inspection and the client\'s approval, then two staff approvals. The quantity surveyor prices the work; re-pricing in cedis is shown to the client.',
+  intro: 'Build in stages. Each milestone is paid only after app evidence, an independent inspection and the client\'s approval, then two staff approvals. The quantity surveyor prices the work; re-pricing in the local currency is shown to the client.',
   resources: [
     {
       key: 'projects', label: 'Projects', list: '/v1/projects', subject: 'bld_project',
@@ -86,7 +86,7 @@ export const construction: SectionSpec = {
       ],
       subs: [
         { label: 'Inspections', path: '/v1/milestones/{id}/inspections', link: 'inspections' },
-        { label: 'Re-pricing', path: '/v1/milestones/{id}/reprices', note: 'Cedi re-pricing shown to the client before approval.' },
+        { label: 'Re-pricing', path: '/v1/milestones/{id}/reprices', note: 'Re-pricing in the local currency, shown to the client before approval.' },
       ],
     },
     {

@@ -46,6 +46,8 @@ const ROUTES: [RegExp, (id: string) => string][] = [
   [/^\/cases\/([^/?]+)(?:\/document-requests\/[^/?]+)?$/, (id) => `/case/${id}`],
   [/^\/reports\/([^/?]+)$/, (id) => `/report/${id}`],
   [/^\/escrows\/([^/?]+)$/, (id) => `/escrow/${id}`],
+  [/^\/commitments\/([^/?]+)$/, (id) => `/escrow/${id}`],
+  [/^\/tenmina-account$/, () => `/money`],
   [/^\/release-instructions\/([^/?]+)$/, (id) => `/release/${id}`],
   [/^\/invoices\/([^/?]+)$/, (id) => `/invoice/${id}`],
   [/^\/fee-payments\/([^/?]+)$/, (id) => `/fee-payment/${id}`],
@@ -56,7 +58,7 @@ const ROUTES: [RegExp, (id: string) => string][] = [
   [/^\/care\/visits\/([^/?]+)$/, (id) => `/care-visit/${id}`],
   [/^\/care\/concerns\/([^/?]+)$/, (id) => `/concern/${id}`],
   [/^\/errands\/([^/?]+)$/, (id) => `/errand/${id}`],
-  [/^\/events\/([^/?]+)$/, (id) => `/event/${id}`],
+  [/^\/events\/([^/?]+)(?:\/receipts)?$/, (id) => `/event/${id}`],
   [/^\/insurance\/policies\/([^/?]+)$/, (id) => `/policy/${id}`],
   [/^\/insurance\/premiums\/([^/?]+)$/, (id) => `/premium/${id}`],
   [/^\/disputes\/([^/?]+)$/, (id) => `/dispute/${id}`],
@@ -65,6 +67,8 @@ const ROUTES: [RegExp, (id: string) => string][] = [
   [/^\/orders\/([^/?]+)(?:\/pay)?$/, (id) => `/pay-fee/${id}`],
   [/^\/(?:property\/)?listings$/, () => '/listings'],
   [/^\/(?:family\/)?members\/([^/?]+)$/, (id) => `/member/${id}`],
+  [/^\/account\/bank-accounts(?:\/[^/?]+)?$/, () => '/account/bank-accounts'],
+  [/^\/(?:account|me)\/data-requests(?:\/[^/?]+)?$/, () => '/account/data'],
 ];
 
 /**
@@ -171,6 +175,38 @@ export interface Escrow {
   } | null;
   agreement_blockers: { rule?: string; message: string }[] | string[];
   freezes: { reason?: string; kind?: string }[];
+}
+
+/** One commitment inside the client's Tenmina account (FR-ESC-026): GET /v1/account. */
+export interface AccountCommitment {
+  id: string; reference: string; kind: string; title: string; status: string; currency: string;
+  agreed: ApiMoney; set_aside: ApiMoney; paid_out: ApiMoney; on_its_way_in: ApiMoney; still_to_set_aside: ApiMoney; available_to_instruct: ApiMoney;
+  payees: string[]; frozen: boolean; cancelling: boolean; can_fund: boolean; can_keep_in_account: boolean; needs_you: boolean;
+}
+
+/** The client's one Tenmina account per country (FR-ESC-025, decision 2026-11-17). */
+export interface TenminaAccount {
+  id: string; reference: string; country: string; client_name: string; bank_name: string; seal: string;
+  pay_in: { available: boolean; message?: string; bank_name?: string; reference?: string; note?: string; lines: { currency: string; account_name: string; account_number: string; virtual_account_ref: string }[] };
+  balances: { currency: string; held_at_bank: ApiMoney; free_balance: ApiMoney; set_aside: ApiMoney }[];
+  free_balance_lines: { id: string; currency: string }[];
+  commitments: AccountCommitment[];
+}
+
+export const COMMITMENT_KIND: Record<string, string> = {
+  purchase: 'Purchase', construction: 'Building', offplan: 'Off-plan', project_fund: 'Project fund', event: 'Event', repair: 'Repair',
+};
+
+/** A commitment's state in one plain sentence, from what the bank holds for it. */
+export function commitmentState(c: AccountCommitment): string {
+  if (c.frozen) return 'On hold until the check is done.';
+  if (c.cancelling) return 'Being cancelled. The money goes back to where it came from.';
+  if (c.status === 'proposed') return 'Waiting for everyone to accept the terms.';
+  if (c.status === 'released') return 'Paid out in full.';
+  if (c.status === 'cancelled') return 'Cancelled.';
+  if (Number(c.on_its_way_in.amount) > 0) return 'Waiting for the bank to confirm it.';
+  if (Number(c.still_to_set_aside.amount) > 0) return Number(c.set_aside.amount) > 0 ? 'Partly set aside.' : 'Nothing set aside yet.';
+  return 'Set aside. Released only on proof.';
 }
 
 export const ESCROW_STATUS: Record<string, string> = {

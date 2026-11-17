@@ -5,6 +5,14 @@ import { ink, paper, type Ground, type Palette } from '@tenmina/tokens';
 /** The ground of the screen being drawn. Screens set it; components read it. */
 export const GroundContext = createContext<Ground>('paper');
 
+/**
+ * The palette of the block being drawn on, when it is not the screen's ground: a
+ * black strip, a lime or orange panel, the white ticket. Text, labels, buttons and
+ * rows inside such a block take their colours from it, so they never draw the
+ * screen's text colour on a block of the same colour (white on white in dark mode).
+ */
+export const PaletteContext = createContext<Palette | null>(null);
+
 /** In system dark mode every screen is ink. Otherwise the screen's own ground wins. */
 export function useGround(requested?: Ground): Ground {
   const inherited = useContext(GroundContext);
@@ -13,8 +21,15 @@ export function useGround(requested?: Ground): Ground {
   return requested ?? inherited;
 }
 
+/**
+ * The palette to draw with. A screen asks for its ground; a component inside a
+ * block of another colour gets that block's palette (PaletteContext).
+ */
 export function usePalette(requested?: Ground): Palette {
-  return useGround(requested) === 'ink' ? ink : paper;
+  const block = useContext(PaletteContext);
+  const g = useGround(requested);
+  if (block && !requested) return block;
+  return g === 'ink' ? ink : paper;
 }
 
 /** True when the phone asks for less motion. Every animation checks this. */

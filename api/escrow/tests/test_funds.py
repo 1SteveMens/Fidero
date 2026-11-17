@@ -138,13 +138,20 @@ def test_virtual_account_unique_and_never_tenmina(b):
 
 
 def test_payment_instructions_are_the_banks_only(b):
-    """FR-ESC-003, RUL-01: only the bank's programme account and the escrow's own reference."""
-    e = b.purchase()
-    assert services.payment_instructions(e)["available"] is False
-    e = b.agree(e)
+    """FR-ESC-003, FR-ESC-025, RUL-01: only the bank's programme account and the client's one account reference.
+    A commitment shows the account's pay-in details, never its own sub-ledger at the bank."""
+    client = b.new_client()
+    hf = services.open_held_funds(client, b.gh, "GHS", by=b.cm)  # staff opened it: the client has not accepted
+    assert services.payment_instructions(hf)["available"] is False
+    services.accept_terms(hf, client)
+    hf = b.held_funds(amount=None, client=client)
+    pi = services.payment_instructions(hf)
+    assert pi["available"] is True and pi["virtual_account_ref"] == hf.account.virtual_account_ref
+    assert pi["account_number"] == hf.programme_account.account_number
+    e = b.agree(b.purchase())
     pi = services.payment_instructions(e)
-    assert pi["virtual_account_ref"] == e.virtual_account_ref
-    assert pi["account_number"] == e.programme_account.account_number
+    assert pi["virtual_account_ref"] == e.account.virtual_account_ref != e.virtual_account_ref
+    assert pi["commitment"]["still_to_set_aside"]["amount"] == f"{e.agreed_amount:.2f}"
 
 
 def test_bank_facts_never_edited(b):

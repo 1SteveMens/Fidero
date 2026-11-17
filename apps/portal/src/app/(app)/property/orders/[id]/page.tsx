@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { Button, Field, Input, KV, Money, ProblemBox, Select, Skeleton, Steps, When, call, useGet, useSession } from '@tenmina/web-ui';
-import { FilePick, Ink, PageHead, Proof, RadioCard, postForm, useAction, words, type Any } from '@/components/kit';
+import { FilePick, Ink, PageHead, Proof, RadioCard, addressLabel, postForm, useAction, useCountryFor, words, type Any } from '@/components/kit';
 import { PlotDrawer, type LngLat } from '@/components/plot-drawer';
 import { orderSteps } from '@/lib/steps';
 
@@ -27,7 +27,7 @@ function Wizard() {
       <PageHead back={{ href: '/property', label: 'Property' }} label={`${o.reference} · ${o.product_name}`}
         title={step === 2 ? (o.asset?.type === 'building' ? 'The building' : 'The plot') : step === 3 ? 'Documents and seller' : step === 4 ? 'Check and agree' : o.status === 'paid' ? 'Paid. Your case is open.' : o.status === 'cancelled' ? 'Order cancelled' : "Pay Tenmina's fee"} />
       {isLand ? <Steps items={orderSteps(Math.min(step - 1, 4)).map((s) => ({ ...s, state: o.status === 'paid' ? 'done' : s.state }))} /> : null}
-      {step === 2 ? <PlotStep o={o} onSaved={() => { q.mutate(); go(3); }} country={me?.home_country || 'GH'} /> : null}
+      {step === 2 ? <PlotStep o={o} onSaved={() => { q.mutate(); go(3); }} country={o.country || me?.home_country || ''} /> : null}
       {step === 3 ? <DocsStep o={o} onBack={() => go(2)} onSaved={() => { q.mutate(); go(4); }} /> : null}
       {step === 4 ? <AgreeStep o={o} onBack={() => go(3)} onDone={() => q.mutate()} /> : null}
       {step === 5 ? <PayStep o={o} refresh={() => q.mutate()} /> : null}
@@ -35,12 +35,13 @@ function Wizard() {
   );
 }
 
-/** W-04 · SCR-PTL-07: locality, plot number, site plan reference, Ghana Post GPS, and a drawing. */
+/** W-04 · SCR-PTL-07: locality, plot number, site plan reference, the country's digital address, and a drawing. */
 function PlotStep({ o, onSaved, country }: { o: Any; onSaved: () => void; country: string }) {
   const [f, setF] = useState({ type: o.asset?.type || 'plot', locality: o.asset?.locality || '', plot_number: o.asset?.plot_number || '', site_plan_ref: o.asset?.site_plan_ref || '', ghana_post_gps: o.asset?.ghana_post_gps || '' });
   const [points, setPoints] = useState<LngLat[]>(o.details?.drawn_points ?? []);
   const [centre, setCentre] = useState<LngLat | null>(o.details?.drawn_centre ?? null);
   const [gpsMsg, setGpsMsg] = useState('');
+  const cty = useCountryFor(country);
   const a = useAction();
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value });
   async function findGps() {
@@ -56,12 +57,12 @@ function PlotStep({ o, onSaved, country }: { o: Any; onSaved: () => void; countr
         <Field label="Plot number" hint="As on the site plan or the seller's papers"><Input value={f.plot_number} onChange={set('plot_number')} /></Field>
         <Field label="Site plan reference" hint="The number on the site plan, if it has one"><Input value={f.site_plan_ref} onChange={set('site_plan_ref')} /></Field>
       </> : null}
-      <Field label="Ghana Post GPS address" hint="For example: GA-123-4567. Optional, but it helps the surveyor find the place."><Input value={f.ghana_post_gps} onChange={set('ghana_post_gps')} /></Field>
+      <Field label={addressLabel(cty)} hint={`${cty.digital_address?.example ? `For example: ${cty.digital_address.example}. ` : ''}Optional, but it helps the surveyor find the place.`}><Input value={f.ghana_post_gps} onChange={set('ghana_post_gps')} /></Field>
       <section className="card stack">
         <h3 style={{ margin: 0 }}>Draw the plot (optional)</h3>
         <p className="muted" style={{ margin: 0, fontSize: 14 }}>A sketch helps the surveyor. The report uses the surveyor&apos;s own measurements, never this drawing. You can also upload the site plan on the next page.</p>
         <div className="row">
-          <Button type="button" variant="ghost" size="sm" disabled={!f.ghana_post_gps.trim()} busy={a.busy === 'gps'} onClick={findGps}>Start from the GPS address</Button>
+          {cty.digital_address ? <Button type="button" variant="ghost" size="sm" disabled={!f.ghana_post_gps.trim()} busy={a.busy === 'gps'} onClick={findGps}>Start from the {cty.digital_address.name}</Button> : null}
           <Button type="button" variant="ghost" size="sm" onClick={() => navigator.geolocation?.getCurrentPosition((p) => setCentre({ lng: p.coords.longitude, lat: p.coords.latitude }), () => setGpsMsg('Your phone did not share its location.'))}>Start from where I am</Button>
         </div>
         {gpsMsg ? <small className="muted">{gpsMsg}</small> : null}

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Button, Field, Input, Money, ProblemBox, Skeleton, Tabs, When, useGet, useSession } from '@tenmina/web-ui';
-import { AcctCard, AcctRow, ActionDialog, EvidenceLink, PageHead, Proof, Section, list, useAction, words, type Any } from '@/components/kit';
+import { AcctCard, ActionDialog, EvidenceLink, PageHead, Proof, Section, list, useAction, words, type Any } from '@/components/kit';
 
 /** W-28 · SCR-PTL-42: the family member's statement. Who was paid, where money is held, and receipts. */
 export default function Member() {
@@ -36,12 +36,10 @@ export default function Member() {
       {tab === 'statement' ? (st.isLoading ? <Skeleton /> : s ? (
         <div className="stack">
           {(s.held_at_bank ?? []).length ? (
-            <Section title="Held at the bank">
-              <AcctRow>
-                {s.held_at_bank.map((h: Any) => <AcctCard key={h.escrow_id} href={`/property/escrows/${h.escrow_id}`} title="Held for your family" reference={h.escrow_reference} amount={h.held_at_bank} holder={me?.full_name ?? ''} note={`Ready to pay out: ${formatMoney(h.available_to_instruct)}`} />)}
-              </AcctRow>
-              <p className="muted" style={{ margin: 0, fontSize: 14 }}>{s.note}</p>
-              <Link className="btn btn-ghost" href={`/property/escrows/${s.held_at_bank[0].escrow_id}/pay-in`}>Add money</Link>
+            <Section title="Your Tenmina account">
+              {s.held_at_bank.map((h: Any) => <AcctCard key={h.escrow_id} href="/money" title="Free balance" reference={h.escrow_reference} amount={h.held_at_bank} holder={me?.full_name ?? ''} note={`Ready to pay out: ${formatMoney(h.available_to_instruct)}`} />)}
+              <p className="muted" style={{ margin: 0, fontSize: 14 }}>{s.note} Bills for this family member are paid from your one Tenmina account.</p>
+              <Link className="btn btn-ghost" href="/money/pay-in">How to pay in</Link>
             </Section>
           ) : null}
           {(s.totals ?? []).map((t: Any) => (

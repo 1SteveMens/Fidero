@@ -347,13 +347,43 @@ export function EvidenceLink({ id, label = 'Open the file', variant = 'original'
   );
 }
 
-/** The client's home country from configuration (DA-09): code, name and currency. Never hard-coded. */
-export function useCountry(): { code: string; name: string; currency: string } {
+export type CountryInfo = {
+  code: string; name: string; currency: string; phone_prefix: string;
+  /** What the country's digital address is called ("Ghana Post GPS address"), and an example; null if none. */
+  digital_address: { name: string; example: string } | null;
+  national_id_name: string; land_registry_name: string;
+};
+
+/** A country from configuration (DA-09) by code: name, currency and wording. Never hard-coded. */
+export function useCountryOf(code?: string | null): CountryInfo {
+  const q = useGet<Any>('/v1/countries');
+  const c = list(q.data).find((x: Any) => x.code === code);
+  return {
+    code: code ?? '', name: c?.name ?? code ?? '', currency: c?.currency ?? '', phone_prefix: c?.phone_prefix ?? '',
+    digital_address: c?.digital_address ?? null, national_id_name: c?.national_id_name ?? '', land_registry_name: c?.land_registry_name ?? '',
+  };
+}
+
+/** The signed-in person's home country from configuration (DA-09). With no home country on record, the only
+ * open country when there is just one; otherwise empty until the person chooses. */
+export function useCountry(): CountryInfo {
   const { me } = useSession();
   const q = useGet<Any>('/v1/countries');
-  const code = me?.home_country || 'GH';
-  const c = list(q.data).find((x: Any) => x.code === code);
-  return { code, name: c?.name ?? code, currency: c?.currency ?? '' };
+  const open = list(q.data);
+  const code = me?.home_country || (open.length === 1 ? open[0].code : '');
+  return useCountryOf(code);
+}
+
+/** The object's own country (as the API gives it, a code) once it has loaded; the person's home country before. */
+export function useCountryFor(objectCountry?: string | null): CountryInfo {
+  const home = useCountry();
+  const c = useCountryOf(objectCountry || home.code);
+  return objectCountry ? c : home;
+}
+
+/** The label for a country's digital address field, from its configuration. */
+export function addressLabel(c: CountryInfo): string {
+  return c.digital_address?.name || 'Digital address';
 }
 
 /** Multipart POST (for endpoints that take a file directly). */

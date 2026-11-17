@@ -32,6 +32,13 @@ class SmsPauseSerializer(serializers.Serializer):
     detail = serializers.CharField()
 
 
+class WorkCountrySerializer(serializers.Serializer):
+    code = serializers.CharField()
+    name = serializers.CharField()
+    currency = serializers.CharField()
+    status = serializers.CharField()
+
+
 class PersonSerializer(serializers.ModelSerializer):
     roles = serializers.SerializerMethodField()
     home_country = serializers.SlugRelatedField(slug_field="code", read_only=True)
@@ -47,11 +54,16 @@ class PersonSerializer(serializers.ModelSerializer):
     sms_pause = serializers.SerializerMethodField(
         help_text="FR-ACC-015: when SMS approvals are paused (72 hours after a number change or a reported SIM "
                   "swap), why and until when. Null when not paused.")
+    work_countries = serializers.SerializerMethodField(
+        help_text="The countries this person works in, from their role grants (every configured country for a grant "
+                  "with no country), else their home country. Screens take country, currency and wording from "
+                  "here or from the object itself; nothing is hard-coded (CLAUDE.md, DA-09). The home country "
+                  "comes first.")
 
     class Meta:
         model = Person
         fields = ["id", "email", "phone", "full_name", "preferred_language", "residence_country", "home_country",
-                  "mfa_enabled", "second_factor", "phone_masked", "sms_pause", "roles", "status",
+                  "mfa_enabled", "second_factor", "phone_masked", "sms_pause", "work_countries", "roles", "status",
                   "id_check_status", "email_verified", "phone_verified", "preferred_channel", "channels_off",
                   "privacy_notice_pending", "created_at"]
         read_only_fields = ["id", "email", "mfa_enabled", "roles", "status", "id_check_status", "created_at"]
@@ -65,6 +77,22 @@ class PersonSerializer(serializers.ModelSerializer):
         from .services import mask_phone
 
         return mask_phone(obj.phone) if obj.phone else ""
+
+    @extend_schema_field(WorkCountrySerializer(many=True))
+    def get_work_countries(self, obj):
+        from countries.models import Country
+        from countries.selectors import staff_country_codes
+
+        from core.permissions import ALL_ROLES
+
+        codes = staff_country_codes(obj, *[r for r in ALL_ROLES if r != "CL"])
+        qs = Country.objects.exclude(status="paused") if codes is None else Country.objects.filter(code__in=codes)
+        rows = list(qs.order_by("code"))
+        home = obj.home_country
+        if not rows and home is not None:
+            rows = [home]
+        rows.sort(key=lambda c: (c.pk != getattr(home, "pk", None), c.status != "active", c.code))
+        return [{"code": c.code, "name": c.name, "currency": c.currency, "status": c.status} for c in rows]
 
     @extend_schema_field(SmsPauseSerializer(allow_null=True))
     def get_sms_pause(self, obj):

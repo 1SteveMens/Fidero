@@ -68,8 +68,8 @@ export default function DisputeScreen() {
           />
           {d.decision ? (
             <Panel tone="raised">
-              <T v="headline" color="#F7F6F2">{`Decision: ${words(d.decision_outcome)}`}</T>
-              <T v="callout" color="#A9A69E">{d.decision}</T>
+              <T v="headline">{`Decision: ${words(d.decision_outcome)}`}</T>
+              <T v="callout" muted>{d.decision}</T>
             </Panel>
           ) : null}
           <Section title="Statements">

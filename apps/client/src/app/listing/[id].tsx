@@ -101,9 +101,9 @@ export default function ListingScreen() {
             <Panel tone="raised" style={{ gap: space[2] }}>
               <View style={{ flexDirection: 'row', gap: space[2], alignItems: 'center' }}>
                 <Ionicons name="lock-closed" size={18} color={brand.lime} />
-                <T v="headline" color="#F7F6F2" style={{ flex: 1 }}>Reserve it</T>
+                <T v="headline" style={{ flex: 1 }}>Reserve it</T>
               </View>
-              <T v="footnote" color="#A9A69E">Tenmina runs a fresh official search and proposes a bank escrow. You pay nothing now. The seller is paid by the bank only after the conditions are met.</T>
+              <T v="footnote" muted>Tenmina runs a fresh official search and proposes a bank escrow. You pay nothing now. The seller is paid by the bank only after the conditions are met.</T>
               <Button title="Reserve this listing" loading={act.busy} onPress={() => void reserve()} />
             </Panel>
           ) : null}

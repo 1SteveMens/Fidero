@@ -16,7 +16,13 @@ text " ON " in capitals: core.dbsql.install() reads it as a table name.
   account; the bank's facts and the source account are never edited.
 - esc_escrow_rules: no release or cancellation while money is held
   (esc.unused_funds), the programme account matches, the conversion choice
-  is fixed after a foreign currency deposit.
+  is fixed after a foreign currency deposit, and every line belongs to its
+  own client's account in its own country (FR-ESC-025).
+- Moves inside the account (FR-ESC-027, FR-ESC-028): `commitment_fund` and
+  `commitment_return` instructions pay nobody, so they need the client's
+  approval but no staff approvals; they move money only between the free
+  balance and a commitment of the same account, never more than the line's
+  own confirmed funds, and a return only from a cancelled commitment.
 """
 from core.dbsql import append_only
 
@@ -39,11 +45,11 @@ SQL = [
            va.virtual_account_ref,
            COALESCE((SELECT SUM(b.amount) FROM esc_bank_event b
                       WHERE b.escrow_id = e.id AND b.currency = va.currency AND b.status = 'confirmed'
-                        AND b.kind IN ('deposit','conversion_credit')), 0)
+                        AND b.kind IN ('deposit','conversion_credit','commitment_credit')), 0)
          - COALESCE((SELECT SUM(b.amount) FROM esc_bank_event b
                       WHERE b.escrow_id = e.id AND b.currency = va.currency AND b.status = 'confirmed'
                         AND b.kind IN ('release_confirmed','refund_confirmed','conversion_debit',
-                                       'correction_debit')), 0) AS held_at_bank,
+                                       'correction_debit','commitment_debit')), 0) AS held_at_bank,
            COALESCE((SELECT SUM(i.amount) FROM esc_release_instruction i
                       WHERE i.escrow_id = e.id AND i.currency = va.currency
                         AND i.status IN ('awaiting_client','pending_approval','approved','sent')), 0)
@@ -55,7 +61,8 @@ SQL = [
                       WHERE b.escrow_id = e.id AND b.currency = va.currency AND b.status = 'confirmed'
                         AND b.kind = 'correction_debit'), 0), 0) AS awaiting_correction,
            (SELECT MAX(b.occurred_at) FROM esc_bank_event b
-             WHERE b.escrow_id = e.id AND b.currency = va.currency AND b.status = 'confirmed') AS last_bank_event_at
+             WHERE b.escrow_id = e.id AND b.currency = va.currency AND b.status = 'confirmed') AS last_bank_event_at,
+           e.account_id
       FROM esc_escrow e join va on va.escrow_id = e.id;""",
     """CREATE OR REPLACE VIEW esc_held_statement AS
        SELECT * FROM esc_confirmed_funds WHERE kind = 'held_funds';""",
@@ -102,6 +109,7 @@ SQL = [
     DECLARE
       e esc_escrow%ROWTYPE;
       p esc_payee%ROWTYPE;
+      t esc_escrow%ROWTYPE;
       dep esc_bank_event%ROWTYPE;
       held numeric;
       others numeric;
@@ -143,14 +151,42 @@ SQL = [
       END IF;
       IF NEW.kind = 'cancel_refund' THEN
         SELECT * INTO dep FROM esc_bank_event WHERE id = NEW.refund_source_event_id;
-        IF dep.escrow_id IS DISTINCT FROM NEW.escrow_id OR dep.kind <> 'deposit' OR dep.status <> 'confirmed' THEN
-          RAISE EXCEPTION 'RUL-29: a refund names a confirmed deposit of this escrow' USING ERRCODE = 'check_violation';
+        -- A commitment's money came from the account's free balance: its refund may name a deposit there.
+        IF dep.kind <> 'deposit' OR dep.status <> 'confirmed' OR (dep.escrow_id IS DISTINCT FROM NEW.escrow_id
+           AND NOT EXISTS (SELECT 1 FROM esc_escrow s WHERE s.id = dep.escrow_id AND s.kind = 'held_funds'
+                             AND s.account_id = e.account_id AND s.currency = dep.currency
+                             AND e.kind <> 'held_funds')) THEN
+          RAISE EXCEPTION 'RUL-29: a refund names a confirmed deposit of this escrow or of its account'
+            USING ERRCODE = 'check_violation';
+        END IF;
+      END IF;
+      IF NEW.kind IN ('commitment_fund','commitment_return') THEN
+        SELECT * INTO t FROM esc_escrow WHERE id = NEW.to_escrow_id;
+        IF t.id IS NULL OR t.account_id IS DISTINCT FROM e.account_id OR t.client_id <> e.client_id
+           OR NEW.payee_id IS NOT NULL OR NEW.currency <> t.currency THEN
+          RAISE EXCEPTION 'FR-ESC-027: money moves only between the lines of one client''s account'
+            USING ERRCODE = 'check_violation';
+        END IF;
+        IF NEW.kind = 'commitment_fund' AND (e.kind <> 'held_funds' OR t.kind = 'held_funds'
+           OR t.status IN ('proposed','cancelled','released') OR t.cancel_requested_at IS NOT NULL) THEN
+          RAISE EXCEPTION 'FR-ESC-027: money is set aside from the free balance into an open commitment'
+            USING ERRCODE = 'check_violation';
+        END IF;
+        IF NEW.kind = 'commitment_return' AND (e.kind = 'held_funds' OR t.kind <> 'held_funds'
+           OR e.cancel_requested_at IS NULL) THEN
+          RAISE EXCEPTION 'FR-ESC-028: money goes back to the free balance only from a cancelled commitment'
+            USING ERRCODE = 'check_violation';
         END IF;
       END IF;
       IF NOT moving THEN
         RETURN NEW;
       END IF;
-      IF NOT EXISTS (SELECT 1 FROM core_approval_request r WHERE r.id = NEW.approval_request_id
+      IF NEW.kind IN ('commitment_fund','commitment_return') THEN
+        -- Pays nobody: the client's own approval (second factor), no staff approvals (FR-ESC-027).
+        IF NEW.client_approved_at IS NULL OR NEW.client_approved_by_id IS DISTINCT FROM e.client_id THEN
+          RAISE EXCEPTION 'RUL-11: the client has not approved this move' USING ERRCODE = 'check_violation';
+        END IF;
+      ELSIF NOT EXISTS (SELECT 1 FROM core_approval_request r WHERE r.id = NEW.approval_request_id
                       AND r.status = 'approved') THEN
         RAISE EXCEPTION 'RUL-05: two staff approvals are needed' USING ERRCODE = 'check_violation';
       END IF;
@@ -258,6 +294,11 @@ SQL = [
     # ---------------------------------------------------------------- escrows (RUL-34, RUL-36, RUL-29)
     """CREATE OR REPLACE FUNCTION esc_escrow_rules() RETURNS trigger AS $$
     BEGIN
+      IF NOT EXISTS (SELECT 1 FROM esc_client_account a WHERE a.id = NEW.account_id AND a.client_id = NEW.client_id
+                      AND a.country_id = NEW.country_id) THEN
+        RAISE EXCEPTION 'FR-ESC-025: every escrow is a line of its own client''s account in its country'
+          USING ERRCODE = 'check_violation';
+      END IF;
       IF NEW.programme_account_id IS NOT NULL AND NOT EXISTS (
           SELECT 1 FROM esc_programme_account a WHERE a.id = NEW.programme_account_id
              AND a.country_id = NEW.country_id AND a.currency = NEW.currency) THEN

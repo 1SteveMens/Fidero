@@ -57,6 +57,7 @@ class InboxItem:
         d = {f.name: getattr(self, f.name) for f in fields(self)}
         d["subject_id"] = str(self.subject_id)
         d["country"] = getattr(self.country, "code", self.country)
+        d["currency"] = getattr(self.country, "currency", None)
         d["point"] = {"lat": float(self.point[0]), "lng": float(self.point[1])} if self.point else None
         return d
 

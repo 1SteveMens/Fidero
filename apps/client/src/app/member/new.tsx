@@ -3,7 +3,7 @@ import { Pressable, View } from 'react-native';
 import { router } from 'expo-router';
 import { space } from '@tenmina/tokens';
 import { Button, Choice, Label, Panel, Screen, T, Tick, usePalette } from '@tenmina/ui';
-import { Field, ProblemBox, useAction } from '@tenmina/mobile';
+import { Field, ProblemBox, useAction, useCountry } from '@tenmina/mobile';
 
 const RELATIONSHIPS = ['mother', 'father', 'sibling', 'child', 'nephew', 'niece', 'grandparent', 'spouse', 'other'];
 
@@ -12,6 +12,7 @@ const RELATIONSHIPS = ['mother', 'father', 'sibling', 'child', 'nephew', 'niece'
  * arranges care for. They never receive money: institutions, carers and vendors do.
  */
 export default function NewMember() {
+  const country = useCountry();
   const pal = usePalette('paper');
   const act = useAction();
   const [name, setName] = useState('');
@@ -38,7 +39,7 @@ export default function NewMember() {
           ))}
         </View>
       </Panel>
-      <Field label="Their mobile number" value={phone} onChange={setPhone} keyboardType="phone-pad" placeholder="+233 …" hint="For visit codes and confirmations on their own phone." />
+      <Field label="Their mobile number" value={phone} onChange={setPhone} keyboardType="phone-pad" placeholder={country.phone_prefix ? `${country.phone_prefix} …` : undefined} hint="For visit codes and confirmations on their own phone." />
       <Field label="Where they live" value={address} onChange={setAddress} placeholder="Area and town" />
       <Pressable onPress={() => setConfirms((c) => !c)} accessibilityRole="checkbox" accessibilityState={{ checked: confirms }} style={{ flexDirection: 'row', gap: space[3], alignItems: 'center', minHeight: 44 }}>
         {confirms ? <Tick size={26} /> : <View style={{ width: 26, height: 26, borderRadius: 8, borderWidth: 2, borderColor: pal.text }} />}

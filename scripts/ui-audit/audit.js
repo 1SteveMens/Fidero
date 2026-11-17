@@ -18,7 +18,8 @@
  *   node scripts/ui-audit/audit.js \
  *     --portal http://localhost:3114 --backoffice http://localhost:3115 \
  *     [--app portal|backoffice] [--roles client,cm] [--max 150] \
- *     [--out scripts/ui-audit/report.md] [--json path.json]
+ *     [--out scripts/ui-audit/report.md] [--json path.json] [--api-log path/to/runserver.log]
+ *   --api-log: the API's log file, where the development SMS adapter writes sign-in codes for clients.
  *
  * Playwright comes from the machine (`require('playwright')`).
  */
@@ -307,6 +308,17 @@ async function signIn(context, base, role) {
   if (!r.ok() && role.mfa) {
     body.code = totp(MFA_SECRET, Date.now() + 30000);
     r = await context.request.post(base + '/v1/auth/login', { data: body, headers: { 'X-CSRFToken': await csrf(), Origin: base, Referer: base + '/' } });
+  }
+  if (!r.ok() && !role.mfa && args['api-log']) {
+    // Clients sign in with a code by SMS (FR-ACC-015). In development the fake SMS adapter writes the text to
+    // the API's log; pass that file with --api-log to read the code.
+    const p = await r.json().catch(() => ({}));
+    if (p.code === 'mfa-required' && p.method === 'sms') {
+      await new Promise((ok) => setTimeout(ok, 300));
+      const lines = fs.readFileSync(args['api-log'], 'utf8').split('\n').filter((l) => /\[sms\].*code to sign in is \d{6}/.test(l));
+      const m = /code to sign in is (\d{6})/.exec(lines[lines.length - 1] || '');
+      if (m) r = await context.request.post(base + '/v1/auth/login', { data: { ...body, code: m[1] }, headers: { 'X-CSRFToken': await csrf(), Origin: base, Referer: base + '/' } });
+    }
   }
   if (!r.ok()) throw new Error(`sign-in failed for ${role.email}: ${r.status()} ${await r.text()}`);
   await context.request.get(base + '/v1/auth/csrf');

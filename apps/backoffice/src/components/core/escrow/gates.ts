@@ -19,6 +19,7 @@ const DEFS: Def[] = [
   { key: 'payee', title: 'Payee verified, the bank matched the account name, payee locked and not in cooling-off', rule: 'RUL-22, RUL-28', match: (r) => (r.code ?? '').startsWith('payee-'), when: RELEASE },
   { key: 'identity', title: "Payee's identity checked with the national identity system", rule: 'RUL-31', match: (r) => r.rule === 'RUL-31', when: RELEASE },
   { key: 'refund', title: 'Refund goes to the source account', rule: 'RUL-29', match: (r) => (r.code ?? '').startsWith('refund-'), when: (i) => i.kind === 'cancel_refund' },
+  { key: 'transfer', title: "Moves only between the free balance and a commitment of the same client's account", rule: 'FR-ESC-027', match: (r) => /^(transfer-|commitment-|free-balance-)/.test(r.code ?? ''), when: (i) => i.kind === 'commitment_fund' || i.kind === 'commitment_return' },
 ];
 
 export function gates(i: Instruction, e?: Escrow): GateRow[] {

@@ -1,8 +1,8 @@
 import { Pressable, View } from 'react-native';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { brand, font, radius, space } from '@tenmina/tokens';
-import { ArrowBox, Chip, Label, Mark, Panel, Rise, Screen, T, haptic } from '@tenmina/ui';
+import { brand, font, ink, radius, space } from '@tenmina/tokens';
+import { ArrowBox, Chip, Label, Mark, Panel, Rise, Screen, T } from '@tenmina/ui';
 import { Empty, ProblemBox, clock, day, useSession, when } from '@tenmina/mobile';
 import { jobKey, useField } from '../../store';
 import { KIND_LABEL, OnlineChip } from '../../screens/common';
@@ -56,18 +56,11 @@ export default function Jobs() {
         <Label>{`${today} · ${me?.full_name ?? ''}`}</Label>
       </Rise>
       {waiting > 0 ? (
-        <Pressable
-          onPress={() => {
-            haptic('tap');
-            router.push('/queue');
-          }}
-          accessibilityRole="button"
-          style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: space[3], backgroundColor: brand.ink, borderRadius: radius.md + 2, padding: space[3], minHeight: 44, opacity: pressed ? 0.85 : 1 })}
-        >
+        <Panel tone="raised" onPress={() => router.push('/queue')} accessibilityLabel={`${waiting} ${waiting === 1 ? 'item' : 'items'} saved on this phone. Open the upload queue.`} style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], borderRadius: radius.md + 2, padding: space[3], minHeight: 44 }}>
           <Ionicons name="cloud-upload-outline" size={20} color={brand.lime} />
-          <T v="callout" color="#F7F6F2" style={{ flex: 1 }}>{`${waiting} ${waiting === 1 ? 'item' : 'items'} saved on this phone. ${online ? 'Sending now.' : 'They upload when you have signal.'}`}</T>
-          <Ionicons name="chevron-forward" size={18} color="#A9A69E" />
-        </Pressable>
+          <T v="callout" style={{ flex: 1 }}>{`${waiting} ${waiting === 1 ? 'item' : 'items'} saved on this phone. ${online ? 'Sending now.' : 'They upload when you have signal.'}`}</T>
+          <Ionicons name="chevron-forward" size={18} color={ink.textMuted} />
+        </Panel>
       ) : null}
       {syncProblem && syncProblem.code !== 'offline' ? <ProblemBox problem={syncProblem} onRetry={() => void syncNow()} /> : null}
       {!lastSyncAt && !jobs.length ? <Empty icon="sync-outline" title="Getting your jobs" detail="The first sync needs signal. After that, your jobs stay on this phone." /> : null}

@@ -25,7 +25,7 @@ export default function ContractorProject() {
   if (p.error || !p.data) return <ProblemBox error={p.error ?? 'Project not found.'} />;
   const prj = p.data;
   const milestones = [...items(ms.data)].sort((a, b) => a.seq - b.seq);
-  const cur = prj.budget?.currency ?? 'GHS';
+  const cur = prj.budget?.currency ?? '';
 
   return (
     <div className="stack">
