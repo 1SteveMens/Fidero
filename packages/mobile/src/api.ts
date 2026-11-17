@@ -68,8 +68,12 @@ const EARLY_MS = 60_000;
 
 /** A network failure, not a problem from the API: the phone is offline or the server is unreachable. */
 export class OfflineError extends Error {
-  constructor() {
-    super(`No connection to Tenmina at ${apiBaseUrl()}. Check your signal and try again.`);
+  /** What actually failed (for example "timed out" or "TypeError: Network request failed"). */
+  reason?: string;
+
+  constructor(reason?: string) {
+    super(`No connection to Tenmina at ${apiBaseUrl()}.${reason ? ` (${reason})` : ''} Check your signal and try again.`);
+    this.reason = reason;
   }
 }
 
@@ -196,8 +200,10 @@ export class MobileApi {
       // Paths are built at run time (ids in them), so the typed path union is not used here.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       res = await ((opts.anonymous ? this.anonClient : this.client) as any).request(method.toLowerCase(), path, init);
-    } catch {
-      throw new OfflineError();
+    } catch (e) {
+      // Name what failed, so "no connection" can be told apart from a timeout or a bug.
+      const err = e as { name?: string; message?: string } | undefined;
+      throw new OfflineError(controller.signal.aborted ? 'timed out' : `${err?.name ?? 'Error'}: ${err?.message ?? String(e)}`);
     } finally {
       clearTimeout(timer);
     }
