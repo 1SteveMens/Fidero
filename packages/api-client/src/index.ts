@@ -70,11 +70,16 @@ export function createTenminaClient(opts: ClientOptions) {
         request.headers.set('Idempotency-Key', uuid());
       }
       if (opts.app) request.headers.set('Tenmina-App', opts.app);
-      return request;
+      // Return nothing: the headers are set on this request in place. Returning it
+      // fails openapi-fetch's `instanceof Request` check in React Native, where the
+      // phone's Request class differs from the global one.
+      return undefined;
     },
     async onResponse({ response }) {
       if (response.status === 401) opts.onUnauthenticated?.();
-      return response;
+      // Return nothing, for the same reason: returning the response fails the
+      // `instanceof Response` check on a phone ("must return new Response()").
+      return undefined;
     },
   };
   client.use(mw);
