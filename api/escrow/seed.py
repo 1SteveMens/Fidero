@@ -134,14 +134,49 @@ def _agree(e, people, cm, ref):
     return e
 
 
+def free_balance(client, country, cm):
+    """The client's account and its free balance in the country's currency, open at the bank (FR-ESC-025)."""
+    from escrow import services
+    from escrow.models import Escrow
+
+    hf = services.held_funds_for(client, country, country.currency)
+    if hf is None:
+        hf = services.open_held_funds(client, country, country.currency, by=client)
+    if hf.status == "proposed":
+        services.accept_terms(hf, client)
+    hf = Escrow.objects.get(pk=hf.pk)
+    if not hf.virtual_account_ref:
+        ref = hf.account.virtual_account_ref or f"VA-{hf.account.reference}"
+        services.record_virtual_account(hf, cm, virtual_account_ref=ref)
+    return Escrow.objects.get(pk=hf.pk)
+
+
 def _deposit(e, cm, rv, amount, ref, source_name="AMA MENSAH", source_number="GB29NWBK60161331926819"):
+    """A deposit the bank confirms. Since the decision of 17 November 2026 the client pays into their one account:
+    for a commitment, the money lands in the account's free balance and the client then sets it aside for the
+    commitment (FR-ESC-027), which counts once the bank confirms the move. Returns the deposit."""
     from escrow import services
 
-    ev = services.record_bank_event(e, kind="deposit", amount=amount, bank_reference=ref, by=cm, source="manual",
-                                    proof_evidence=_ev(e.country, cm, f"bank-credit-advice-{ref}"),
+    target = free_balance(e.client, e.country, cm) if e.is_commitment else e
+    ev = services.record_bank_event(target, kind="deposit", amount=amount, bank_reference=ref, by=cm,
+                                    source="manual", proof_evidence=_ev(e.country, cm, f"bank-credit-advice-{ref}"),
                                     source_bank_name="NatWest [demo]", source_account_number=source_number,
                                     source_account_name=source_name)
-    return services.check_bank_event(ev, rv)
+    ev = services.check_bank_event(ev, rv)
+    if e.is_commitment:
+        set_aside(e, cm, rv, amount, f"MOV-{ref}")
+    return ev
+
+
+def set_aside(e, cm, rv, amount, ref):
+    """The client sets money aside for a commitment with their second factor; the bank confirms the move."""
+    from escrow import services
+
+    ins = services.fund_commitment(e, e.client, amount=amount, mfa_at=timezone.now())
+    ins.refresh_from_db()
+    if ins.status == "sent":
+        _confirm(ins, cm, rv, ref)
+    return ins
 
 
 def _close_all(e, cm):
@@ -166,7 +201,8 @@ def _release(e, cm, client, rv, rv2, **kw):
 def _confirm(ins, cm, rv, ref):
     from escrow import services
 
-    kind = "refund_confirmed" if ins.kind == "cancel_refund" else "release_confirmed"
+    kind = {"cancel_refund": "refund_confirmed", "commitment_fund": "commitment_debit",
+            "commitment_return": "commitment_debit"}.get(ins.kind, "release_confirmed")
     ev = services.record_bank_event(ins.escrow, kind=kind, amount=ins.amount, bank_reference=ref, by=cm,
                                     source="manual", instruction=ins,
                                     proof_evidence=_ev(ins.country, cm, f"bank-debit-advice-{ref}"))
@@ -259,6 +295,12 @@ def run(ctx):
                                       title=title, report_id=report(name), parties=seller_party)
 
     today = timezone.localdate()
+    # 0. The client's one Tenmina account (decision 2026-11-17, FR-ESC-025): one pay-in reference at the bank and
+    # a free balance. Every deposit below lands here; money for a purchase is then set aside as a commitment.
+    hf = services.open_held_funds(client, gh, "GHS", by=client)
+    services.record_virtual_account(hf, cm, virtual_account_ref="VA-GH-HF-000201")
+    _deposit(Escrow.objects.get(pk=hf.pk), cm, rv, "20000.00", "DEP-HF-0001")
+    _deposit(Escrow.objects.get(pk=hf.pk), cm, rv, "8000.00", "DEP-HF-0002")
     # 1. Proposed: waiting for the seller's acceptance.
     e1 = purchase("Plot at Kwabenya (proposed)", "250000.00", "kwabenya")
     services.accept_terms(e1, client)
@@ -302,11 +344,7 @@ def run(ctx):
     services.record_bank_position(Escrow.objects.get(pk=e2.pk), as_of=today - timedelta(days=1),
                                   reported_held_amount="450000.00", source="api")
 
-    # 6. Held funds for school fees and care visits (FR-ESC-014).
-    hf = services.open_held_funds(client, gh, "GHS", by=client)
-    services.record_virtual_account(hf, cm, virtual_account_ref="VA-GH-HF-000201")
-    _deposit(Escrow.objects.get(pk=hf.pk), cm, rv, "20000.00", "DEP-HF-0001")
-    _deposit(Escrow.objects.get(pk=hf.pk), cm, rv, "8000.00", "DEP-HF-0002")
+    # 6. (now step 0, above) The account's free balance pays school fees and care visits (FR-ESC-014).
     # The bills it pays are FEE's (fees seed: real invoices through the FEE services), the care visits CARE's
     # (care seed: a standing approval on a real plan) and the stage payments BLD's (construction seed: a real
     # project on the escrow route). No release here names a made-up subject.

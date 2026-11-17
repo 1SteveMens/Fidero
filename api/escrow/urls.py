@@ -6,6 +6,8 @@ from . import views
 router = DefaultRouter(trailing_slash=False)
 router.register("escrows", views.EscrowViewSet, basename="escrow")
 router.register("held-funds", views.HeldFundsViewSet, basename="held-funds")
+router.register("accounts", views.StaffAccountViewSet, basename="staff-account")
+router.register("account/commitments", views.AccountCommitmentViewSet, basename="account-commitment")
 router.register("release-instructions", views.ReleaseInstructionViewSet, basename="release-instruction")
 router.register("standing-approvals", views.StandingApprovalViewSet, basename="standing-approval")
 router.register("bank-events", views.BankEventViewSet, basename="bank-event")
@@ -22,6 +24,7 @@ router.register("fx-conversions", views.FxConversionViewSet, basename="fx-conver
 urlpatterns = [
     path("payees/<uuid:payee_pk>/changes", views.PayeeChangeRequestView.as_view({"post": "create"}),
          name="payee-changes-create"),
+    path("account", views.AccountView.as_view({"get": "retrieve", "post": "create"}), name="account"),
     path("fx/comparison", views.fx_comparison, name="fx-comparison"),
     path("admin/fx-collections", views.fx_collect, name="fx-collect"),
     *router.urls,

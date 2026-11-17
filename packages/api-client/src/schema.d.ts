@@ -24,6 +24,122 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/account": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description GET /v1/account: the client's one Tenmina account in a country (`?country=GH`; default their home
+         *     country): pay-in details, a balance per currency, the free balance and every commitment inside it.
+         */
+        get: operations["v1_account_retrieve"];
+        put?: never;
+        /** @description Open the account and its free balance so the bank's pay-in details can be shown (idempotent). */
+        post: operations["v1_account_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/account/commitments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The commitments inside the client's account, and setting money aside for one from the free balance. */
+        get: operations["v1_account_commitments_list"];
+        put?: never;
+        /**
+         * @description Set money aside for a commitment: an instruction to the bank the client approves with their second
+         *     factor. It counts once the bank confirms it.
+         */
+        post: operations["v1_account_commitments_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/account/commitments/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The commitments inside the client's account, and setting money aside for one from the free balance. */
+        get: operations["v1_account_commitments_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/account/commitments/{id}/keep-in-account": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description A cancelled commitment's money goes back to source (RUL-29) unless the client keeps it in the account. */
+        post: operations["v1_account_commitments_keep_in_account_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Back office: clients' accounts with their commitments and the bank's position per account and per
+         *     commitment, within the countries the caller works in.
+         */
+        get: operations["v1_accounts_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/accounts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Back office: clients' accounts with their commitments and the bank's position per account and per
+         *     commitment, within the countries the caller works in.
+         */
+        get: operations["v1_accounts_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/app-versions": {
         parameters: {
             query?: never;
@@ -14657,6 +14773,38 @@ export interface components {
          * @enum {string}
          */
         AccessLogActionEnum: "link_issued" | "downloaded" | "refused" | "delete_refused";
+        Account: {
+            id: string;
+            reference: string;
+            country: string;
+            status: string;
+            client: string;
+            client_name: string;
+            bank_name: string;
+            seal: string;
+            opened_at: string;
+            pay_in: components["schemas"]["AccountPayIn"];
+            balances: components["schemas"]["AccountBalance"][];
+            free_balance_lines: components["schemas"]["FreeBalanceLine"][];
+            commitments: components["schemas"]["CommitmentSummary"][];
+            closed_commitments: number;
+            countries?: string[];
+        };
+        AccountBalance: {
+            currency: string;
+            held_at_bank: components["schemas"]["MoneyOut"];
+            free_balance: components["schemas"]["MoneyOut"];
+            set_aside: components["schemas"]["MoneyOut"];
+            instructed_awaiting_bank: components["schemas"]["MoneyOut"];
+            bank_position: components["schemas"]["AccountBankPosition"];
+        };
+        AccountBankPosition: {
+            reported: components["schemas"]["MoneyOut"];
+            lines_reported: number;
+            lines: number;
+            complete: boolean;
+            mismatch: boolean;
+        };
         /**
          * @description * `escrow` - escrow
          *     * `held_funds` - held_funds
@@ -14664,12 +14812,52 @@ export interface components {
          * @enum {string}
          */
         AccountKindEnum: "escrow" | "held_funds" | "owner_rent";
+        AccountListItem: {
+            id: string;
+            reference: string;
+            country: string;
+            status: string;
+            client: string;
+            client_name: string;
+            virtual_account_ref: string | null;
+            open_commitments: number;
+            balances: components["schemas"]["AccountBalance"][];
+        };
         /**
          * @description * `bank_name_check` - bank_name_check
          *     * `bank_letter` - bank_letter
          * @enum {string}
          */
         AccountNameSourceEnum: "bank_name_check" | "bank_letter";
+        AccountOpenInRequest: {
+            country: string;
+            currency?: string;
+        };
+        /**
+         * @description One set of pay-in details for the whole account: the bank's programme account per currency and the
+         *     client's one reference. Never a Tenmina account (RUL-01).
+         */
+        AccountPayIn: {
+            available: boolean;
+            message?: string;
+            bank_name?: string;
+            account_name?: string;
+            account_number?: string;
+            virtual_account_ref?: string;
+            reference?: string;
+            account_reference: string;
+            currency?: string;
+            note?: string;
+            lines: components["schemas"]["AccountPayInLine"][];
+            foreign_currency_accounts: components["schemas"]["AccountPayInLine"][];
+        };
+        AccountPayInLine: {
+            currency: string;
+            account_name: string;
+            account_number: string;
+            virtual_account_ref: string;
+            line_id: string;
+        };
         /**
          * @description * `person` - person
          *     * `partner` - partner
@@ -15407,7 +15595,7 @@ export interface components {
             readonly id: string;
             /** Format: uuid */
             readonly escrow: string;
-            readonly kind: components["schemas"]["Kind914Enum"];
+            readonly kind: components["schemas"]["Kind6a8Enum"];
             /** Format: decimal */
             readonly amount: string;
             readonly currency: string;
@@ -15446,7 +15634,7 @@ export interface components {
             readonly created_at: string;
         };
         BankEventInRequest: {
-            kind: components["schemas"]["Kind914Enum"];
+            kind: components["schemas"]["Kind6a8Enum"];
             amount: components["schemas"]["MoneyInRequest"];
             bank_reference: string;
             /** Format: date-time */
@@ -16437,6 +16625,48 @@ export interface components {
          * @enum {string}
          */
         CommentStatusEnum: "none" | "pending" | "published" | "hidden";
+        CommitmentAccountRef: {
+            id: string;
+            reference: string;
+            country: string;
+        };
+        CommitmentBankPosition: {
+            as_of: string;
+            reported: components["schemas"]["MoneyOut"];
+            status: string;
+        };
+        CommitmentDetail: {
+            account: components["schemas"]["CommitmentAccountRef"];
+            commitment: components["schemas"]["CommitmentSummary"];
+            escrow: components["schemas"]["Escrow"];
+            transfers: components["schemas"]["Instruction"][];
+            releases: components["schemas"]["Instruction"][];
+        };
+        CommitmentSummary: {
+            id: string;
+            reference: string;
+            kind: string;
+            title: string;
+            status: string;
+            currency: string;
+            agreed: components["schemas"]["MoneyOut"];
+            set_aside: components["schemas"]["MoneyOut"];
+            paid_out: components["schemas"]["MoneyOut"];
+            on_its_way_in: components["schemas"]["MoneyOut"];
+            instructed_awaiting_bank: components["schemas"]["MoneyOut"];
+            still_to_set_aside: components["schemas"]["MoneyOut"];
+            available_to_instruct: components["schemas"]["MoneyOut"];
+            payees: string[];
+            frozen: boolean;
+            cancelling: boolean;
+            can_keep_in_account: boolean;
+            can_fund: boolean;
+            needs_you: boolean;
+            bank_sub_ledger_ref: string | null;
+            bank_position: components["schemas"]["CommitmentBankPosition"] | null;
+            link: string;
+            created_at: string;
+        };
         Comparison: {
             run_id: string;
             run_date: string;
@@ -17832,6 +18062,9 @@ export interface components {
             readonly country: string;
             /** Format: uuid */
             readonly client: string;
+            /** Format: uuid */
+            readonly account: string;
+            readonly account_reference: string;
             /** Format: uuid */
             readonly asset_id: string | null;
             /** Format: uuid */
@@ -19382,6 +19615,15 @@ export interface components {
             /** Format: date-time */
             readonly created_at: string;
         };
+        FreeBalanceLine: {
+            id: string;
+            reference: string;
+            currency: string;
+            status: string;
+            virtual_account_ref: string | null;
+            held_at_bank: components["schemas"]["MoneyOut"];
+            available_to_instruct: components["schemas"]["MoneyOut"];
+        };
         Freeze: {
             /** Format: uuid */
             readonly id: string;
@@ -19425,6 +19667,19 @@ export interface components {
          * @enum {string}
          */
         FreshSearchStatusEnum: "pending" | "passed" | "failed";
+        /**
+         * @description Set money aside for a commitment from the free balance (FR-ESC-027). The client approves with a fresh
+         *     step-up or an authenticator code; no staff approve it because it pays nobody.
+         */
+        FundCommitmentInRequest: {
+            /** Format: uuid */
+            commitment_id: string;
+            amount?: components["schemas"]["MoneyInRequest"];
+            /** @default  */
+            code: string;
+            /** @default press_and_hold */
+            gesture: components["schemas"]["GestureEnum"];
+        };
         Funds: {
             currency: string;
             virtual_account_ref: string | null;
@@ -20296,6 +20551,11 @@ export interface components {
             /** Format: uuid */
             readonly escrow: string;
             readonly escrow_reference: string;
+            readonly escrow_title: string;
+            /** Format: uuid */
+            readonly to_escrow: string | null;
+            readonly to_escrow_reference: string;
+            readonly to_escrow_title: string;
             readonly kind: components["schemas"]["InstructionKindEnum"];
             readonly subject_type: components["schemas"]["InstructionSubjectTypeEnum"] | components["schemas"]["NullEnum"];
             /** Format: uuid */
@@ -20359,9 +20619,11 @@ export interface components {
          *     * `partial_release` - partial_release
          *     * `cancel_refund` - cancel_refund
          *     * `conversion` - conversion
+         *     * `commitment_fund` - commitment_fund
+         *     * `commitment_return` - commitment_return
          * @enum {string}
          */
-        InstructionKindEnum: "release" | "partial_release" | "cancel_refund" | "conversion";
+        InstructionKindEnum: "release" | "partial_release" | "cancel_refund" | "conversion" | "commitment_fund" | "commitment_return";
         /**
          * @description * `draft` - draft
          *     * `awaiting_client` - awaiting_client
@@ -20571,6 +20833,12 @@ export interface components {
          * @enum {string}
          */
         ItemTypeEnum: "lawyer" | "surveyor" | "runner" | "inspector" | "fees" | "travel" | "other";
+        KeepInAccountInRequest: {
+            /** @default  */
+            code: string;
+            /** @default press_and_hold */
+            gesture: components["schemas"]["GestureEnum"];
+        };
         KeptItem: {
             data_class: string;
             what: string;
@@ -20665,6 +20933,18 @@ export interface components {
          */
         Kind4e2Enum: "escrow_bank" | "payment_provider" | "identity" | "messaging" | "insurer" | "institution_portal" | "developer" | "bank_api" | "operating_bank" | "operating_mobile_money" | "registry" | "rate_source" | "transfer_partner" | "professional" | "contractor" | "inspector" | "supplier" | "api_partner";
         /**
+         * @description * `deposit` - deposit
+         *     * `release_confirmed` - release_confirmed
+         *     * `refund_confirmed` - refund_confirmed
+         *     * `conversion_debit` - conversion_debit
+         *     * `conversion_credit` - conversion_credit
+         *     * `correction_debit` - correction_debit
+         *     * `commitment_debit` - commitment_debit
+         *     * `commitment_credit` - commitment_credit
+         * @enum {string}
+         */
+        Kind6a8Enum: "deposit" | "release_confirmed" | "refund_confirmed" | "conversion_debit" | "conversion_credit" | "correction_debit" | "commitment_debit" | "commitment_credit";
+        /**
          * @description * `checked_plot_fee` - checked_plot_fee
          *     * `listing_fee` - listing_fee
          *     * `success_fee` - success_fee
@@ -20725,16 +21005,6 @@ export interface components {
          * @enum {string}
          */
         Kind8ceEnum: "checkin" | "checkout";
-        /**
-         * @description * `deposit` - deposit
-         *     * `release_confirmed` - release_confirmed
-         *     * `refund_confirmed` - refund_confirmed
-         *     * `conversion_debit` - conversion_debit
-         *     * `conversion_credit` - conversion_credit
-         *     * `correction_debit` - correction_debit
-         * @enum {string}
-         */
-        Kind914Enum: "deposit" | "release_confirmed" | "refund_confirmed" | "conversion_debit" | "conversion_credit" | "correction_debit";
         /**
          * @description * `photo` - photo
          *     * `site_plan` - site_plan
@@ -22507,6 +22777,10 @@ export interface components {
          * @enum {string}
          */
         OverlayRunItemStatusEnum: "checked" | "missing" | "failed";
+        PaginatedAccountListItemList: {
+            items?: components["schemas"]["AccountListItem"][];
+            next_cursor?: string | null;
+        };
         PaginatedAdminPersonList: {
             items?: components["schemas"]["AdminPerson"][];
             next_cursor?: string | null;
@@ -29268,6 +29542,195 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Health"];
+                };
+            };
+        };
+    };
+    v1_account_retrieve: {
+        parameters: {
+            query?: {
+                country?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Account"];
+                };
+            };
+        };
+    };
+    v1_account_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AccountOpenInRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AccountOpenInRequest"];
+                "multipart/form-data": components["schemas"]["AccountOpenInRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Account"];
+                };
+            };
+        };
+    };
+    v1_account_commitments_list: {
+        parameters: {
+            query?: {
+                country?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommitmentSummary"][];
+                };
+            };
+        };
+    };
+    v1_account_commitments_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundCommitmentInRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["FundCommitmentInRequest"];
+                "multipart/form-data": components["schemas"]["FundCommitmentInRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Instruction"];
+                };
+            };
+        };
+    };
+    v1_account_commitments_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommitmentDetail"];
+                };
+            };
+        };
+    };
+    v1_account_commitments_keep_in_account_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["KeepInAccountInRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["KeepInAccountInRequest"];
+                "multipart/form-data": components["schemas"]["KeepInAccountInRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Instruction"];
+                };
+            };
+        };
+    };
+    v1_accounts_list: {
+        parameters: {
+            query?: {
+                client?: string;
+                country?: string;
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                /** @description Number of results to return per page. */
+                limit?: number;
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedAccountListItemList"];
+                };
+            };
+        };
+    };
+    v1_accounts_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this client account. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Account"];
                 };
             };
         };

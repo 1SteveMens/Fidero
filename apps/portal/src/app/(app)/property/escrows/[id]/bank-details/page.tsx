@@ -15,7 +15,7 @@ function Row({ k, v, copy, note }: { k: string; v?: string | null; copy?: boolea
   );
 }
 
-/** W-10 · SCR-PTL-18: the bank's details for this escrow only. Never Tenmina's account (RUL-01, RUL-34). */
+/** W-10 · SCR-PTL-18: the bank's details for the client's one Tenmina account (FR-ESC-025). Never Tenmina's own account (RUL-01). */
 function Details() {
   const { id } = useParams<{ id: string }>();
   const quoteId = useSearchParams().get('quote');
@@ -54,7 +54,7 @@ function Details() {
         </section>
       )}
       <p style={{ margin: 0 }}>If anyone sends you different details, do not pay. Call us first.</p>
-      <p className="muted" style={{ margin: 0 }}>This account number is for this escrow only. {pi.bank_name ?? 'The partner bank'} holds the money as escrow agent, not Tenmina.</p>
+      <p className="muted" style={{ margin: 0 }}>These are your Tenmina account&apos;s pay-in details: the same for everything you pay for at home. {pi.bank_name ?? 'The partner bank'} holds the money as escrow agent, not Tenmina.</p>
       <div className="row">
         <Link href={`/property/escrows/${id}/pay-in`} className="btn btn-ghost">Change the route</Link>
         <button className="btn btn-ghost" onClick={() => window.print()}>Save as PDF</button>

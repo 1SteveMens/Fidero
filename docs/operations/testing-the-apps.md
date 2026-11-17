@@ -104,7 +104,7 @@ The app now uses the development API and its seeded data. Nothing moves real mon
 
 - Sign in as `ama@example.com`, password `tenmina-dev-123`.
 - Account, Authenticator app: set one up (Google Authenticator or 1Password). Every approval needs its code.
-- Home: swipe the account cards; open "Needs you".
+- Home: the one Tenmina account card with its commitments; open a commitment and "Set aside from my balance"; open "Needs you".
 - Family: open the hospital bill, enter the code, then press and hold the button until it fills.
 - Projects: open "Boys' quarters at Kasoa" and approve the Foundation payment the same way.
 - Property, then "Check a plot": go through the four steps with a photo of any site plan; the fee opens the Tenmina website.

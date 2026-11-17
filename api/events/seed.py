@@ -91,11 +91,10 @@ def _funeral(gh, people, ctx):
     for party in escrow.parties.filter(must_accept=True, role="tenmina"):
         esc.accept_terms(escrow, cm, party=party)
     esc.record_virtual_account(escrow, cm, virtual_account_ref="VA-GH-EVT-0001")
-    ev = esc.record_bank_event(escrow, kind="deposit", amount="45000.00", bank_reference="DEP-EVT-0001", by=cm,
-                               source="manual", proof_evidence=_doc(gh, cm, "credit-advice-evt-0001.txt"),
-                               source_bank_name="NatWest [demo]", source_account_number="GB29NWBK60161331926819",
-                               source_account_name="AMA MENSAH")
-    esc.check_bank_event(ev, rv)
+    # The client pays into their one account; the money is then set aside for the event (FR-ESC-027).
+    from escrow.seed import _deposit
+
+    _deposit(escrow, cm, rv, "45000.00", "DEP-EVT-0001")
     # Deposit to the funeral home against its signed quote, paid by the bank.
     dep = services.propose_payment(e, cm, vendor_id=home.pk, kind="deposit", amount={"amount": "9000.00",
                                                                                      "currency": "GHS"},

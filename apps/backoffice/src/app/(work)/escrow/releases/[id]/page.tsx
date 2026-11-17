@@ -21,7 +21,9 @@ export default function ReleaseApproval() {
   const i = ins.data;
   const e = esc.data;
   const refund = i.kind === 'cancel_refund';
-  const verb = refund ? 'Refund' : i.kind === 'conversion' ? 'Convert' : 'Pay';
+  // FR-ESC-027: a move inside the client's account pays nobody; the client approves it alone and the bank confirms it.
+  const transfer = i.kind === 'commitment_fund' || i.kind === 'commitment_return';
+  const verb = refund ? 'Refund' : i.kind === 'conversion' ? 'Convert' : transfer ? 'Move inside the account' : 'Pay';
   const rows = gates(i, e);
   const failing = rows.filter((g) => !g.ok);
   const myName = me?.full_name;
@@ -57,7 +59,7 @@ export default function ReleaseApproval() {
     <div className="ground-ink stack" style={{ gap: 18, borderRadius: 24, padding: 'clamp(16px, 3vw, 28px)', margin: 'calc(-1 * clamp(0px, 1vw, 8px))' }}>
       <header className="stack" style={{ gap: 8 }}>
         <Link href={e ? `/escrow/${e.id}` : '/escrow'} className="label" style={{ textDecoration: 'none', color: '#a9a69e' }}>← {i.escrow_reference}</Link>
-        <div className="label" style={{ color: '#a9a69e' }}>{refund ? 'Refund approval' : 'Release approval'} · {i.escrow_reference}{e ? ` · ${e.title}` : ''}</div>
+        <div className="label" style={{ color: '#a9a69e' }}>{refund ? 'Refund approval' : transfer ? 'Move inside the client\'s account' : 'Release approval'} · {i.escrow_reference}{e ? ` · ${e.title}` : ''}</div>
         <div className="row" style={{ gap: 8 }}>
           <span className="chip chip-ink" style={{ background: '#242424' }}>{words(i.status)}</span>
           <ClockChip clock={clock} />
@@ -72,7 +74,9 @@ export default function ReleaseApproval() {
           <div className="money-sentence">{money(i.amount, i.currency)}</div>
           {i.holdback_amount && Number(i.holdback_amount) > 0 ? <div style={{ fontSize: 14 }}>Held back until its own condition closes: {money(i.holdback_amount, i.currency)}</div> : null}
         </>}
-        bottom={<div style={{ fontSize: 16 }}>
+        bottom={transfer ? <div style={{ fontSize: 16 }}>
+          from <span className="mono">{i.escrow_reference}</span> ({i.escrow_title}) to <span className="mono">{i.to_escrow_reference}</span> ({i.to_escrow_title}), inside the same client&apos;s account. Nobody is paid. The client approved it with their second factor; no staff approve it. It counts when the bank confirms it.
+        </div> : <div style={{ fontSize: 16 }}>
           from escrow <span className="mono">{e?.virtual_account_ref || i.escrow_reference}</span> at {String((e?.payment_instructions as Record<string, unknown> | undefined)?.bank_name ?? 'the partner bank')} to <strong>{i.payee_name || 'the source account'}</strong>
           {payee.data ? <>, the {words(payee.data.kind).toLowerCase()}</> : null}{i.payee_account_last4 ? <>, account ending <span className="mono">{i.payee_account_last4}</span></> : null}
           {refund ? <>, where the deposit came from</> : null}.
@@ -93,7 +97,7 @@ export default function ReleaseApproval() {
       ) : null}
       {i.status === 'awaiting_client' ? <div className="strip-ink" style={{ background: '#1a1a1a' }}>Waiting for the client. Staff approvals open after the client approves.</div> : null}
 
-      <div className="grid2">{slot(0)}{slot(1)}</div>
+      {transfer ? null : <div className="grid2">{slot(0)}{slot(1)}</div>}
 
       <div style={{ fontSize: 14, opacity: 0.85 }}>
         After approval: the instruction is signed by both approvers and sent to the bank the same working day. No waiting period (RUL-33). The bank pays within the agreed time [TO VERIFY]. The status changes to Release approved, then Released when the bank confirms.
@@ -112,7 +116,7 @@ export default function ReleaseApproval() {
           {i.status === 'sent' && e ? (
             <ActionForm label="Record the bank's confirmation" variant="primary" path={`/v1/escrows/${e.id}/bank-events`} upload={{ subject_type: 'escrow', subject_id: e.id, role: 'bank_confirmation' }} fields={[
               { name: 'bank_reference', label: "Bank's reference", required: true }, { name: 'proof_evidence_id', label: "The bank's confirmation", type: 'file', required: true },
-            ]} body={(v) => ({ kind: refund ? 'refund_confirmed' : 'release_confirmed', amount: { amount: i.amount, currency: i.to_currency || i.currency }, bank_reference: v.bank_reference, proof_evidence_id: v.proof_evidence_id, instruction_id: i.id })}
+            ]} body={(v) => ({ kind: refund ? 'refund_confirmed' : transfer ? 'commitment_debit' : 'release_confirmed', amount: { amount: i.amount, currency: i.to_currency || i.currency }, bank_reference: v.bank_reference, proof_evidence_id: v.proof_evidence_id, instruction_id: i.id })}
               onDone={reload} submitLabel="Save" intro="A second person checks it before it counts." />
           ) : null}
           {i.status === 'sent' ? (

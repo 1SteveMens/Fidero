@@ -22,8 +22,8 @@ from .models import (LIVE_INSTRUCTION, OPEN_STATUSES, BankEvent, BankPosition, E
                      ReleaseInstruction)
 
 ZERO = Decimal("0.00")
-IN_KINDS = ("deposit", "conversion_credit")
-OUT_KINDS = ("release_confirmed", "refund_confirmed", "conversion_debit", "correction_debit")
+IN_KINDS = ("deposit", "conversion_credit", "commitment_credit")
+OUT_KINDS = ("release_confirmed", "refund_confirmed", "conversion_debit", "correction_debit", "commitment_debit")
 
 
 def escrow(pk) -> Escrow | None:

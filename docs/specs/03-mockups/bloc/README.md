@@ -7,7 +7,7 @@ Each file is one 390 × 844 artboard in the canvas's `.dc.html` format. They ren
 | File | Screen |
 |---|---|
 | `BlocWelcome.dc.html` | Welcome |
-| `BlocHome.dc.html` | Home with account cards side by side |
+| `BlocHome.dc.html` | Home with account cards side by side (superseded on 17 November 2026: one account card with its commitments inside it, `docs/specs/03` 6.1a v0.14) |
 | `BlocCases.dc.html` | Property |
 | `BlocProgress.dc.html` | Case progress |
 | `BlocReport.dc.html` | Land report |

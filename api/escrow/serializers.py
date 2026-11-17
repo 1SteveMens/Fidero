@@ -215,6 +215,7 @@ class FreezeSerializer(serializers.ModelSerializer):
 
 class EscrowSerializer(serializers.ModelSerializer):
     agreed_price = MoneyField(prefix="agreed", read_only=True)
+    account_reference = serializers.CharField(source="account.reference", read_only=True)
     country = serializers.CharField(source="country.code", read_only=True)
     parties = PartySerializer(many=True, read_only=True)
     conditions = ConditionSerializer(many=True, read_only=True)
@@ -225,7 +226,8 @@ class EscrowSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Escrow
-        fields = ["id", "reference", "kind", "title", "country", "client", "asset_id", "report_id", "project_id",
+        fields = ["id", "reference", "kind", "title", "country", "client", "account", "account_reference", "asset_id",
+                  "report_id", "project_id",
                   "case_id", "bank_partner", "bank_reference", "virtual_account_ref", "agreed_price",
                   "held_back_amount", "held_back_condition", "currency", "conversion_choice", "fx_buffer_pct",
                   "terms_version", "status", "prior_status", "fresh_search_case_id", "fresh_search_result_date",
@@ -391,10 +393,14 @@ class InstructionSerializer(serializers.ModelSerializer):
     approvals = serializers.SerializerMethodField()
     clock = serializers.SerializerMethodField()
     blocking_reasons = serializers.SerializerMethodField()
+    to_escrow_reference = serializers.SerializerMethodField()
+    to_escrow_title = serializers.SerializerMethodField()
+    escrow_title = serializers.CharField(source="escrow.title", read_only=True)
 
     class Meta:
         model = ReleaseInstruction
-        fields = ["id", "escrow", "escrow_reference", "kind", "subject_type", "subject_id", "subject_label",
+        fields = ["id", "escrow", "escrow_reference", "escrow_title", "to_escrow", "to_escrow_reference",
+                  "to_escrow_title", "kind", "subject_type", "subject_id", "subject_label",
                   "family_member_id", "payee", "payee_name", "payee_account_last4", "payee_account_version", "money",
                   "amount", "currency", "holdback_amount", "to_currency", "fx_quote", "prepared_by", "reason",
                   "status", "client_approved_at", "client_approval_method", "release_part", "approvals", "clock",
@@ -413,8 +419,16 @@ class InstructionSerializer(serializers.ModelSerializer):
     def get_payee_account_last4(self, o) -> str:
         return o.payee.last4 if o.payee_id else ""
 
+    def get_to_escrow_reference(self, o) -> str:
+        return o.to_escrow.reference if o.to_escrow_id else ""
+
+    def get_to_escrow_title(self, o) -> str:
+        return o.to_escrow.title if o.to_escrow_id else ""
+
     @extend_schema_field(serializers.ListField(child=serializers.DictField()))
     def get_approvals(self, o):
+        if not o.approval_request_id:
+            return []
         return [{"slot": a.slot, "approver": a.approver.full_name, "decision": a.decision,
                  "at": a.approved_at.isoformat()}
                 for a in o.approval_request.approvals.select_related("approver").order_by("approved_at")]
@@ -671,3 +685,154 @@ class DepositRoutesSerializer(serializers.Serializer):
 class HeldFundsIn(serializers.Serializer):
     country = serializers.CharField(max_length=2)
     currency = serializers.CharField(max_length=3, required=False)
+
+
+# ----------------------------------------------------------------- the client's account (FR-ESC-025 to FR-ESC-028)
+
+class AccountPayInLine(serializers.Serializer):
+    currency = serializers.CharField()
+    account_name = serializers.CharField()
+    account_number = serializers.CharField()
+    virtual_account_ref = serializers.CharField()
+    line_id = serializers.CharField()
+
+
+class AccountPayIn(serializers.Serializer):
+    """One set of pay-in details for the whole account: the bank's programme account per currency and the
+    client's one reference. Never a Tenmina account (RUL-01)."""
+
+    available = serializers.BooleanField()
+    message = serializers.CharField(required=False)
+    bank_name = serializers.CharField(required=False)
+    account_name = serializers.CharField(required=False)
+    account_number = serializers.CharField(required=False)
+    virtual_account_ref = serializers.CharField(required=False)
+    reference = serializers.CharField(required=False)
+    account_reference = serializers.CharField()
+    currency = serializers.CharField(required=False)
+    note = serializers.CharField(required=False)
+    lines = AccountPayInLine(many=True)
+    foreign_currency_accounts = AccountPayInLine(many=True)
+
+
+class AccountBankPosition(serializers.Serializer):
+    reported = MoneyOut()
+    lines_reported = serializers.IntegerField()
+    lines = serializers.IntegerField()
+    complete = serializers.BooleanField()
+    mismatch = serializers.BooleanField()
+
+
+class AccountBalance(serializers.Serializer):
+    currency = serializers.CharField()
+    held_at_bank = MoneyOut()
+    free_balance = MoneyOut()
+    set_aside = MoneyOut()
+    instructed_awaiting_bank = MoneyOut()
+    bank_position = AccountBankPosition()
+
+
+class CommitmentBankPosition(serializers.Serializer):
+    as_of = serializers.CharField()
+    reported = MoneyOut()
+    status = serializers.CharField()
+
+
+class CommitmentSummary(serializers.Serializer):
+    id = serializers.CharField()
+    reference = serializers.CharField()
+    kind = serializers.CharField()
+    title = serializers.CharField()
+    status = serializers.CharField()
+    currency = serializers.CharField()
+    agreed = MoneyOut()
+    set_aside = MoneyOut()
+    paid_out = MoneyOut()
+    on_its_way_in = MoneyOut()
+    instructed_awaiting_bank = MoneyOut()
+    still_to_set_aside = MoneyOut()
+    available_to_instruct = MoneyOut()
+    payees = serializers.ListField(child=serializers.CharField())
+    frozen = serializers.BooleanField()
+    cancelling = serializers.BooleanField()
+    can_keep_in_account = serializers.BooleanField()
+    can_fund = serializers.BooleanField()
+    needs_you = serializers.BooleanField()
+    bank_sub_ledger_ref = serializers.CharField(allow_null=True)
+    bank_position = CommitmentBankPosition(allow_null=True)
+    link = serializers.CharField()
+    created_at = serializers.CharField()
+
+
+class FreeBalanceLine(serializers.Serializer):
+    id = serializers.CharField()
+    reference = serializers.CharField()
+    currency = serializers.CharField()
+    status = serializers.CharField()
+    virtual_account_ref = serializers.CharField(allow_null=True)
+    held_at_bank = MoneyOut()
+    available_to_instruct = MoneyOut()
+
+
+class AccountSerializer(serializers.Serializer):
+    id = serializers.CharField()
+    reference = serializers.CharField()
+    country = serializers.CharField()
+    status = serializers.CharField()
+    client = serializers.CharField()
+    client_name = serializers.CharField()
+    bank_name = serializers.CharField()
+    seal = serializers.CharField()
+    opened_at = serializers.CharField()
+    pay_in = AccountPayIn()
+    balances = AccountBalance(many=True)
+    free_balance_lines = FreeBalanceLine(many=True)
+    commitments = CommitmentSummary(many=True)
+    closed_commitments = serializers.IntegerField()
+    countries = serializers.ListField(child=serializers.CharField(), required=False)
+
+
+class AccountListItem(serializers.Serializer):
+    id = serializers.CharField()
+    reference = serializers.CharField()
+    country = serializers.CharField()
+    status = serializers.CharField()
+    client = serializers.CharField()
+    client_name = serializers.CharField()
+    virtual_account_ref = serializers.CharField(allow_null=True)
+    open_commitments = serializers.IntegerField()
+    balances = AccountBalance(many=True)
+
+
+class CommitmentAccountRef(serializers.Serializer):
+    id = serializers.CharField()
+    reference = serializers.CharField()
+    country = serializers.CharField()
+
+
+class CommitmentDetail(serializers.Serializer):
+    account = CommitmentAccountRef()
+    commitment = CommitmentSummary()
+    escrow = EscrowSerializer()
+    transfers = InstructionSerializer(many=True)
+    releases = InstructionSerializer(many=True)
+
+
+class AccountOpenIn(serializers.Serializer):
+    country = serializers.CharField(max_length=2)
+    currency = serializers.CharField(max_length=3, required=False)
+
+
+class FundCommitmentIn(serializers.Serializer):
+    """Set money aside for a commitment from the free balance (FR-ESC-027). The client approves with a fresh
+    step-up or an authenticator code; no staff approve it because it pays nobody."""
+
+    commitment_id = serializers.UUIDField()
+    amount = MoneyIn(required=False)
+    code = serializers.CharField(required=False, allow_blank=True, default="")
+    gesture = serializers.ChoiceField(choices=["press_and_hold"], default="press_and_hold")
+
+
+class KeepInAccountIn(serializers.Serializer):
+    code = serializers.CharField(required=False, allow_blank=True, default="")
+    gesture = serializers.ChoiceField(choices=["press_and_hold"], default="press_and_hold")

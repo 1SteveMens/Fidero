@@ -48,7 +48,7 @@ export default function InvoicePage() {
           <RadioCard name="route" checked={inv.route === 'held_funds'} onChange={() => a.run('route', () => a.post(`/v1/invoices/${id}/route`, { route: 'held_funds' }), undefined, refresh)}>
             <strong>The bank pays from money it holds for me</strong><div className="muted" style={{ fontSize: 14 }}>After you approve, two Tenmina staff approve, then the bank pays the institution.</div>
           </RadioCard>
-          {short ? <Blocked title="Not enough held at the bank">{held ? <>Add money to your held amount first. <Link href={`/property/escrows/${held.escrow_id}/pay-in`} style={{ color: '#a3ee5b' }}>Add money</Link></> : <>You have no money held at the bank yet. <Link href="/family/held-funds" style={{ color: '#a3ee5b' }}>Set it up</Link></>}</Blocked> : null}
+          {short ? <Blocked title="Not enough held at the bank">{held ? <>Pay into your Tenmina account first. <Link href="/money/pay-in" style={{ color: '#a3ee5b' }}>How to pay in</Link></> : <>You have no money held at the bank yet. <Link href="/money" style={{ color: '#a3ee5b' }}>Open your Tenmina account</Link></>}</Blocked> : null}
         </Section>
       ) : null}
       {canApprove && p ? (

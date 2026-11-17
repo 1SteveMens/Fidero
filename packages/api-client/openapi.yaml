@@ -20,6 +20,238 @@ paths:
               schema:
                 $ref: '#/components/schemas/Health'
           description: ''
+  /v1/account:
+    get:
+      operationId: v1_account_retrieve
+      description: |-
+        GET /v1/account: the client's one Tenmina account in a country (`?country=GH`; default their home
+        country): pay-in details, a balance per currency, the free balance and every commitment inside it.
+      parameters:
+      - in: query
+        name: country
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: ''
+    post:
+      operationId: v1_account_create
+      description: Open the account and its free balance so the bank's pay-in details
+        can be shown (idempotent).
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountOpenInRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AccountOpenInRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AccountOpenInRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: ''
+  /v1/account/commitments:
+    get:
+      operationId: v1_account_commitments_list
+      description: The commitments inside the client's account, and setting money
+        aside for one from the free balance.
+      parameters:
+      - in: query
+        name: country
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommitmentSummary'
+          description: ''
+    post:
+      operationId: v1_account_commitments_create
+      description: |-
+        Set money aside for a commitment: an instruction to the bank the client approves with their second
+        factor. It counts once the bank confirms it.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FundCommitmentInRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FundCommitmentInRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FundCommitmentInRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Instruction'
+          description: ''
+  /v1/account/commitments/{id}:
+    get:
+      operationId: v1_account_commitments_retrieve
+      description: The commitments inside the client's account, and setting money
+        aside for one from the free balance.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommitmentDetail'
+          description: ''
+  /v1/account/commitments/{id}/keep-in-account:
+    post:
+      operationId: v1_account_commitments_keep_in_account_create
+      description: A cancelled commitment's money goes back to source (RUL-29) unless
+        the client keeps it in the account.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KeepInAccountInRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/KeepInAccountInRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/KeepInAccountInRequest'
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Instruction'
+          description: ''
+  /v1/accounts:
+    get:
+      operationId: v1_accounts_list
+      description: |-
+        Back office: clients' accounts with their commitments and the bank's position per account and per
+        commitment, within the countries the caller works in.
+      parameters:
+      - in: query
+        name: client
+        schema:
+          type: string
+      - in: query
+        name: country
+        schema:
+          type: string
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: string
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAccountListItemList'
+          description: ''
+  /v1/accounts/{id}:
+    get:
+      operationId: v1_accounts_retrieve
+      description: |-
+        Back office: clients' accounts with their commitments and the bank's position per account and per
+        commitment, within the countries the caller works in.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this client account.
+        required: true
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: ''
   /v1/admin/app-versions:
     get:
       operationId: v1_admin_app_versions_list
@@ -31528,6 +31760,103 @@ components:
         * `downloaded` - downloaded
         * `refused` - refused
         * `delete_refused` - delete_refused
+    Account:
+      type: object
+      properties:
+        id:
+          type: string
+        reference:
+          type: string
+        country:
+          type: string
+        status:
+          type: string
+        client:
+          type: string
+        client_name:
+          type: string
+        bank_name:
+          type: string
+        seal:
+          type: string
+        opened_at:
+          type: string
+        pay_in:
+          $ref: '#/components/schemas/AccountPayIn'
+        balances:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountBalance'
+        free_balance_lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/FreeBalanceLine'
+        commitments:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommitmentSummary'
+        closed_commitments:
+          type: integer
+        countries:
+          type: array
+          items:
+            type: string
+      required:
+      - balances
+      - bank_name
+      - client
+      - client_name
+      - closed_commitments
+      - commitments
+      - country
+      - free_balance_lines
+      - id
+      - opened_at
+      - pay_in
+      - reference
+      - seal
+      - status
+    AccountBalance:
+      type: object
+      properties:
+        currency:
+          type: string
+        held_at_bank:
+          $ref: '#/components/schemas/MoneyOut'
+        free_balance:
+          $ref: '#/components/schemas/MoneyOut'
+        set_aside:
+          $ref: '#/components/schemas/MoneyOut'
+        instructed_awaiting_bank:
+          $ref: '#/components/schemas/MoneyOut'
+        bank_position:
+          $ref: '#/components/schemas/AccountBankPosition'
+      required:
+      - bank_position
+      - currency
+      - free_balance
+      - held_at_bank
+      - instructed_awaiting_bank
+      - set_aside
+    AccountBankPosition:
+      type: object
+      properties:
+        reported:
+          $ref: '#/components/schemas/MoneyOut'
+        lines_reported:
+          type: integer
+        lines:
+          type: integer
+        complete:
+          type: boolean
+        mismatch:
+          type: boolean
+      required:
+      - complete
+      - lines
+      - lines_reported
+      - mismatch
+      - reported
     AccountKindEnum:
       enum:
       - escrow
@@ -31538,6 +31867,41 @@ components:
         * `escrow` - escrow
         * `held_funds` - held_funds
         * `owner_rent` - owner_rent
+    AccountListItem:
+      type: object
+      properties:
+        id:
+          type: string
+        reference:
+          type: string
+        country:
+          type: string
+        status:
+          type: string
+        client:
+          type: string
+        client_name:
+          type: string
+        virtual_account_ref:
+          type:
+          - string
+          - 'null'
+        open_commitments:
+          type: integer
+        balances:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountBalance'
+      required:
+      - balances
+      - client
+      - client_name
+      - country
+      - id
+      - open_commitments
+      - reference
+      - status
+      - virtual_account_ref
     AccountNameSourceEnum:
       enum:
       - bank_name_check
@@ -31546,6 +31910,77 @@ components:
       description: |-
         * `bank_name_check` - bank_name_check
         * `bank_letter` - bank_letter
+    AccountOpenInRequest:
+      type: object
+      properties:
+        country:
+          type: string
+          minLength: 1
+          maxLength: 2
+        currency:
+          type: string
+          minLength: 1
+          maxLength: 3
+      required:
+      - country
+    AccountPayIn:
+      type: object
+      description: |-
+        One set of pay-in details for the whole account: the bank's programme account per currency and the
+        client's one reference. Never a Tenmina account (RUL-01).
+      properties:
+        available:
+          type: boolean
+        message:
+          type: string
+        bank_name:
+          type: string
+        account_name:
+          type: string
+        account_number:
+          type: string
+        virtual_account_ref:
+          type: string
+        reference:
+          type: string
+        account_reference:
+          type: string
+        currency:
+          type: string
+        note:
+          type: string
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountPayInLine'
+        foreign_currency_accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountPayInLine'
+      required:
+      - account_reference
+      - available
+      - foreign_currency_accounts
+      - lines
+    AccountPayInLine:
+      type: object
+      properties:
+        currency:
+          type: string
+        account_name:
+          type: string
+        account_number:
+          type: string
+        virtual_account_ref:
+          type: string
+        line_id:
+          type: string
+      required:
+      - account_name
+      - account_number
+      - currency
+      - line_id
+      - virtual_account_ref
     ActorKindEnum:
       enum:
       - person
@@ -33341,7 +33776,7 @@ components:
           readOnly: true
         kind:
           allOf:
-          - $ref: '#/components/schemas/Kind914Enum'
+          - $ref: '#/components/schemas/Kind6a8Enum'
           readOnly: true
         amount:
           type: string
@@ -33482,7 +33917,7 @@ components:
       type: object
       properties:
         kind:
-          $ref: '#/components/schemas/Kind914Enum'
+          $ref: '#/components/schemas/Kind6a8Enum'
         amount:
           $ref: '#/components/schemas/MoneyInRequest'
         bank_reference:
@@ -35901,6 +36336,134 @@ components:
         * `pending` - pending
         * `published` - published
         * `hidden` - hidden
+    CommitmentAccountRef:
+      type: object
+      properties:
+        id:
+          type: string
+        reference:
+          type: string
+        country:
+          type: string
+      required:
+      - country
+      - id
+      - reference
+    CommitmentBankPosition:
+      type: object
+      properties:
+        as_of:
+          type: string
+        reported:
+          $ref: '#/components/schemas/MoneyOut'
+        status:
+          type: string
+      required:
+      - as_of
+      - reported
+      - status
+    CommitmentDetail:
+      type: object
+      properties:
+        account:
+          $ref: '#/components/schemas/CommitmentAccountRef'
+        commitment:
+          $ref: '#/components/schemas/CommitmentSummary'
+        escrow:
+          $ref: '#/components/schemas/Escrow'
+        transfers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Instruction'
+        releases:
+          type: array
+          items:
+            $ref: '#/components/schemas/Instruction'
+      required:
+      - account
+      - commitment
+      - escrow
+      - releases
+      - transfers
+    CommitmentSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        reference:
+          type: string
+        kind:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+        currency:
+          type: string
+        agreed:
+          $ref: '#/components/schemas/MoneyOut'
+        set_aside:
+          $ref: '#/components/schemas/MoneyOut'
+        paid_out:
+          $ref: '#/components/schemas/MoneyOut'
+        on_its_way_in:
+          $ref: '#/components/schemas/MoneyOut'
+        instructed_awaiting_bank:
+          $ref: '#/components/schemas/MoneyOut'
+        still_to_set_aside:
+          $ref: '#/components/schemas/MoneyOut'
+        available_to_instruct:
+          $ref: '#/components/schemas/MoneyOut'
+        payees:
+          type: array
+          items:
+            type: string
+        frozen:
+          type: boolean
+        cancelling:
+          type: boolean
+        can_keep_in_account:
+          type: boolean
+        can_fund:
+          type: boolean
+        needs_you:
+          type: boolean
+        bank_sub_ledger_ref:
+          type:
+          - string
+          - 'null'
+        bank_position:
+          oneOf:
+          - $ref: '#/components/schemas/CommitmentBankPosition'
+          - type: 'null'
+        link:
+          type: string
+        created_at:
+          type: string
+      required:
+      - agreed
+      - available_to_instruct
+      - bank_position
+      - bank_sub_ledger_ref
+      - can_fund
+      - can_keep_in_account
+      - cancelling
+      - created_at
+      - currency
+      - frozen
+      - id
+      - instructed_awaiting_bank
+      - kind
+      - link
+      - needs_you
+      - on_its_way_in
+      - paid_out
+      - payees
+      - reference
+      - set_aside
+      - status
+      - still_to_set_aside
+      - title
     Comparison:
       type: object
       properties:
@@ -39110,6 +39673,13 @@ components:
           type: string
           format: uuid
           readOnly: true
+        account:
+          type: string
+          format: uuid
+          readOnly: true
+        account_reference:
+          type: string
+          readOnly: true
         asset_id:
           type:
           - string
@@ -39266,6 +39836,8 @@ components:
           format: date-time
           readOnly: true
       required:
+      - account
+      - account_reference
       - agreed_at
       - agreed_price
       - agreement_blockers
@@ -42927,6 +43499,33 @@ components:
       - status
       - subject_id
       - subject_type
+    FreeBalanceLine:
+      type: object
+      properties:
+        id:
+          type: string
+        reference:
+          type: string
+        currency:
+          type: string
+        status:
+          type: string
+        virtual_account_ref:
+          type:
+          - string
+          - 'null'
+        held_at_bank:
+          $ref: '#/components/schemas/MoneyOut'
+        available_to_instruct:
+          $ref: '#/components/schemas/MoneyOut'
+      required:
+      - available_to_instruct
+      - currency
+      - held_at_bank
+      - id
+      - reference
+      - status
+      - virtual_account_ref
     Freeze:
       type: object
       properties:
@@ -43025,6 +43624,26 @@ components:
         * `pending` - pending
         * `passed` - passed
         * `failed` - failed
+    FundCommitmentInRequest:
+      type: object
+      description: |-
+        Set money aside for a commitment from the free balance (FR-ESC-027). The client approves with a fresh
+        step-up or an authenticator code; no staff approve it because it pays nobody.
+      properties:
+        commitment_id:
+          type: string
+          format: uuid
+        amount:
+          $ref: '#/components/schemas/MoneyInRequest'
+        code:
+          type: string
+          default: ''
+        gesture:
+          allOf:
+          - $ref: '#/components/schemas/GestureEnum'
+          default: press_and_hold
+      required:
+      - commitment_id
     Funds:
       type: object
       properties:
@@ -45093,6 +45712,21 @@ components:
         escrow_reference:
           type: string
           readOnly: true
+        escrow_title:
+          type: string
+          readOnly: true
+        to_escrow:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          readOnly: true
+        to_escrow_reference:
+          type: string
+          readOnly: true
+        to_escrow_title:
+          type: string
+          readOnly: true
         kind:
           allOf:
           - $ref: '#/components/schemas/InstructionKindEnum'
@@ -45275,6 +45909,7 @@ components:
       - document_sha256
       - escrow
       - escrow_reference
+      - escrow_title
       - family_member_id
       - fx_quote
       - holdback_amount
@@ -45303,18 +45938,25 @@ components:
       - subject_label
       - subject_type
       - to_currency
+      - to_escrow
+      - to_escrow_reference
+      - to_escrow_title
     InstructionKindEnum:
       enum:
       - release
       - partial_release
       - cancel_refund
       - conversion
+      - commitment_fund
+      - commitment_return
       type: string
       description: |-
         * `release` - release
         * `partial_release` - partial_release
         * `cancel_refund` - cancel_refund
         * `conversion` - conversion
+        * `commitment_fund` - commitment_fund
+        * `commitment_return` - commitment_return
     InstructionStatusEnum:
       enum:
       - draft
@@ -45761,6 +46403,16 @@ components:
         * `fees` - fees
         * `travel` - travel
         * `other` - other
+    KeepInAccountInRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          default: ''
+        gesture:
+          allOf:
+          - $ref: '#/components/schemas/GestureEnum'
+          default: press_and_hold
     KeptItem:
       type: object
       properties:
@@ -45915,6 +46567,26 @@ components:
         * `inspector` - inspector
         * `supplier` - supplier
         * `api_partner` - api_partner
+    Kind6a8Enum:
+      enum:
+      - deposit
+      - release_confirmed
+      - refund_confirmed
+      - conversion_debit
+      - conversion_credit
+      - correction_debit
+      - commitment_debit
+      - commitment_credit
+      type: string
+      description: |-
+        * `deposit` - deposit
+        * `release_confirmed` - release_confirmed
+        * `refund_confirmed` - refund_confirmed
+        * `conversion_debit` - conversion_debit
+        * `conversion_credit` - conversion_credit
+        * `correction_debit` - correction_debit
+        * `commitment_debit` - commitment_debit
+        * `commitment_credit` - commitment_credit
     Kind6c5Enum:
       enum:
       - checked_plot_fee
@@ -46013,22 +46685,6 @@ components:
       description: |-
         * `checkin` - checkin
         * `checkout` - checkout
-    Kind914Enum:
-      enum:
-      - deposit
-      - release_confirmed
-      - refund_confirmed
-      - conversion_debit
-      - conversion_credit
-      - correction_debit
-      type: string
-      description: |-
-        * `deposit` - deposit
-        * `release_confirmed` - release_confirmed
-        * `refund_confirmed` - refund_confirmed
-        * `conversion_debit` - conversion_debit
-        * `conversion_credit` - conversion_credit
-        * `correction_debit` - correction_debit
     Kind93eEnum:
       enum:
       - photo
@@ -50251,6 +50907,16 @@ components:
         * `checked` - checked
         * `missing` - missing
         * `failed` - failed
+    PaginatedAccountListItemList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountListItem'
+        next_cursor:
+          type: string
+          nullable: true
     PaginatedAdminPersonList:
       type: object
       properties:
