@@ -1,9 +1,9 @@
-import { useState, type ReactNode } from 'react';
-import { Linking, Pressable, TextInput, View, type KeyboardTypeOptions } from 'react-native';
+import { useEffect, useState, type ReactNode } from 'react';
+import { ActivityIndicator, Linking, Pressable, Text, TextInput, View, type KeyboardTypeOptions } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { brand, radius, space, type } from '@tenmina/tokens';
 import { Button, Chip, CodeField, Label, Panel, Rise, Screen, T, Tick, haptic, usePalette, type ChipTone, type IconName } from '@tenmina/ui';
-import { toProblem, type Problem, type UpdateRequired } from './api';
+import { apiBaseUrl, toProblem, type Problem, type UpdateRequired } from './api';
 import { useAction, useGet } from './hooks';
 import { useApi, useSession } from './session';
 import { day } from './format';
@@ -393,5 +393,37 @@ export function DeleteAccountScreen({ ground = 'paper' }: { ground?: 'paper' | '
         </>
       ) : null}
     </Screen>
+  );
+}
+
+/* ---------- Starting ---------- */
+
+/**
+ * Shown while the app starts, instead of a blank screen. After a few seconds it
+ * says which address it is trying to reach, so a wrong EXPO_PUBLIC_API_URL or a
+ * blocked connection is easy to spot. Plain text: it may show before fonts load.
+ */
+export function StartingScreen() {
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setSlow(true), 3_000);
+    return () => clearTimeout(t);
+  }, []);
+  return (
+    <View style={{ flex: 1, backgroundColor: brand.ink, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 16 }}>
+      <View style={{ width: 64, height: 64, borderRadius: 18, backgroundColor: brand.lime, alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={{ color: brand.ink, fontSize: 34, fontWeight: '800' }}>T</Text>
+      </View>
+      <ActivityIndicator color={brand.lime} />
+      {slow ? (
+        <View style={{ gap: 8, maxWidth: 320 }}>
+          <Text style={{ color: '#F7F6F2', fontSize: 17, fontWeight: '700', textAlign: 'center' }}>Connecting to Tenmina…</Text>
+          <Text style={{ color: '#A9A69E', fontSize: 14, textAlign: 'center' }}>{apiBaseUrl()}</Text>
+          <Text style={{ color: '#A9A69E', fontSize: 14, textAlign: 'center' }}>
+            If this takes long, check the phone and computer are on the same Wi-Fi and the API is running.
+          </Text>
+        </View>
+      ) : null}
+    </View>
   );
 }

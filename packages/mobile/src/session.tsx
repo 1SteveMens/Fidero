@@ -98,6 +98,7 @@ export function SessionProvider({ app, children }: { app: AppName; children: Rea
       try {
         const c = await api.request<AppConfig>('GET', '/v1/mobile/app-config', {
           anonymous: true,
+          timeoutMs: 6_000,
           query: { app, platform: platformName(), version: APP_VERSION },
         });
         setConfig(c);
@@ -111,7 +112,7 @@ export function SessionProvider({ app, children }: { app: AppName; children: Rea
         return;
       }
       try {
-        await keepMe(await api.get<Person>('/v1/me'));
+        await keepMe(await api.request<Person>('GET', '/v1/me', { timeoutMs: 8_000 }));
         setStatus('signedIn');
       } catch (e) {
         if (e instanceof OfflineError) {

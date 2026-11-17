@@ -57,6 +57,9 @@ export interface RequestOptions {
   idempotencyKey?: string;
   /** Skip the token, for sign-in and the public app config. */
   anonymous?: boolean;
+  /** Give up after this many milliseconds and treat it as no connection (default 20 s), so a
+   * wrong address or a firewall never leaves the app waiting forever. */
+  timeoutMs?: number;
 }
 
 const TOKEN_KEY = 'tenmina.tokens';
@@ -66,7 +69,7 @@ const EARLY_MS = 60_000;
 /** A network failure, not a problem from the API: the phone is offline or the server is unreachable. */
 export class OfflineError extends Error {
   constructor() {
-    super('No connection to Tenmina. Check your signal and try again.');
+    super(`No connection to Tenmina at ${apiBaseUrl()}. Check your signal and try again.`);
   }
 }
 
@@ -185,6 +188,9 @@ export class MobileApi {
     } else if (opts.body !== undefined) {
       init.body = opts.body;
     }
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), opts.timeoutMs ?? (opts.raw || opts.form ? 120_000 : 20_000));
+    init.signal = controller.signal;
     let res: { data?: unknown; error?: unknown; response: Response };
     try {
       // Paths are built at run time (ids in them), so the typed path union is not used here.
@@ -192,6 +198,8 @@ export class MobileApi {
       res = await ((opts.anonymous ? this.anonClient : this.client) as any).request(method.toLowerCase(), path, init);
     } catch {
       throw new OfflineError();
+    } finally {
+      clearTimeout(timer);
     }
     const { data, error, response } = res;
     if (error !== undefined || !response.ok) {

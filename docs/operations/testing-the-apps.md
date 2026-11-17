@@ -111,6 +111,18 @@ The app now uses the development API and its seeded data. Nothing moves real mon
 - Account, Delete my account: read it, but do not confirm on your own account.
 - Turn on Dark Mode, Reduce Motion and VoiceOver in the iPhone's Settings and try again. With VoiceOver, a double tap approves instead of holding.
 
+## If the app stays on "Connecting to Tenmina…" or a sign-in fails
+
+The app shows "Connecting to Tenmina…" and the address it is trying when it cannot reach the API. Check the connection from the phone itself:
+
+1. On the iPhone, open Safari and go to `http://<laptop address>:8000/health`, for example `http://192.168.1.20:8000/health`.
+2. If it shows `{"status":"ok"}`, the connection works. Stop Expo with Ctrl+C and start it again with `npx expo start -c` (keep `EXPO_PUBLIC_API_URL=...` in front).
+3. If it does not load:
+   - The API window must say `0.0.0.0:8000`. If not, stop it and run `python manage.py runserver 0.0.0.0:8000`.
+   - Check the address with `ipconfig getifaddr en0` on the Mac.
+   - Allow Python through the Mac's firewall (System Settings, Network, Firewall), or turn the firewall off while testing.
+   - The phone and the Mac must be on the same Wi-Fi, not a guest network.
+
 ## Reporting a problem
 
 Take a screenshot and write down what you tapped just before. Paste both into the session. Say which phone and which iOS or Android version.
