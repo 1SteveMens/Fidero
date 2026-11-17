@@ -11,6 +11,7 @@ import { IdLine } from '@/components/core/case/CaseParties';
 import { NameMatch } from '@/components/core/payee';
 import type { Page, Payee, PayeeChange } from '@/components/core/types';
 import type { PickSpec } from '@/components/Picker';
+import { useWorkCountry } from '@/components/core/country';
 
 const KINDS = ['institution', 'supplier', 'vendor', 'professional', 'contractor', 'agency', 'insurer', 'carer', 'seller', 'developer', 'client_own_account'];
 type NatCheck = { id: string; country: string; subject_role: string; subject_name: string; id_number: string; channel: string; adapter: string; requested_at: string; result: string; provider_reference: string; checked_at: string | null; attempts: number; context_type: string; context_id: string | null };
@@ -22,9 +23,10 @@ const SUBJECT_PICK: Record<string, PickSpec | undefined> = { institution: 'insti
 
 function NewPayee({ onDone }: { onDone: () => void }) {
   const { hasRole } = useSession();
-  if (!hasRole('CM', 'RV')) return null;
+  const { code: country } = useWorkCountry();
+  if (!hasRole('CM', 'RV') || !country) return null;
   return (
-    <ActionForm label="+ New payee" variant="dark" path="/v1/payees" upload={{ subject_type: 'payee', subject_id: DRAFT_ID, country: 'GH' }} fields={[
+    <ActionForm label="+ New payee" variant="dark" path="/v1/payees" upload={{ subject_type: 'payee', subject_id: DRAFT_ID, country }} fields={[
       { name: 'kind', label: 'Kind', type: 'select', required: true, options: KINDS.filter((k) => k !== 'client_own_account').map((k) => ({ value: k, label: words(k) })) },
       { name: 'subject_type', label: 'Who it is in Tenmina', type: 'select', required: true, options: ['institution', 'supplier', 'panel_member', 'organisation', 'person', 'partner'].map((k) => ({ value: k, label: words(k) })) },
       { name: 'subject_id', label: 'Their record in Tenmina', required: true, pick: (v) => SUBJECT_PICK[String(v.subject_type)], placeholder: 'Choose who it is first, then search' },
@@ -33,7 +35,7 @@ function NewPayee({ onDone }: { onDone: () => void }) {
       { name: 'account_name_source', label: 'Account name from', type: 'select', required: true, options: [{ value: 'bank_name_check', label: "The bank's name check" }, { value: 'bank_letter', label: 'A bank letter' }] },
       { name: 'account_name', label: 'Account name (from a bank letter)' }, { name: 'account_name_evidence_id', label: 'Bank letter', type: 'file' },
       { name: 'contact_email', label: 'Email' }, { name: 'contact_phone', label: 'Phone' },
-    ]} body={(v) => ({ country: 'GH', kind: v.kind, subject_type: v.subject_type, subject_id: v.subject_id, legal_name: v.legal_name, legal_name_evidence_id: v.legal_name_evidence_id, bank_name: v.bank_name, account_number: v.account_number, account_name: v.account_name || '', account_name_source: v.account_name_source, ...(v.account_name_evidence_id ? { account_name_evidence_id: v.account_name_evidence_id } : {}), contact_email: v.contact_email || '', contact_phone: v.contact_phone || '' })}
+    ]} body={(v) => ({ country, kind: v.kind, subject_type: v.subject_type, subject_id: v.subject_id, legal_name: v.legal_name, legal_name_evidence_id: v.legal_name_evidence_id, bank_name: v.bank_name, account_number: v.account_number, account_name: v.account_name || '', account_name_source: v.account_name_source, ...(v.account_name_evidence_id ? { account_name_evidence_id: v.account_name_evidence_id } : {}), contact_email: v.contact_email || '', contact_phone: v.contact_phone || '' })}
       onDone={(out) => { onDone(); const p = out as { id?: string }; if (p?.id) window.location.href = `/payees/${p.id}`; }} submitLabel="Add payee" intro="A payee is verified only when the bank's account name matches the legal name and two staff approve." />
   );
 }

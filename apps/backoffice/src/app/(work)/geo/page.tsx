@@ -7,6 +7,7 @@ import { Suspense, useState } from 'react';
 import { Button, call, Empty, Field, Input, ProblemBox, Select, Skeleton, Tabs, useGet, useSession } from '@tenmina/web-ui';
 import { ActionForm, day, dayTime, Head, useAct, words } from '@/components/core/kit';
 import { GeoMap, type FC } from '@/components/core/GeoMap';
+import { useWorkCountry } from '@/components/core/country';
 import type { Asset, Page } from '@/components/core/types';
 
 type Layer = { id: string; code: string; name: string; kind: string; description: string; buffer_m: string | null; effective_buffer_m: string; status: string; is_sample: boolean; current_version: { id: string; version: number; status: string; source: string; valid_from: string | null; feature_count: number; created_at: string } | null };
@@ -18,12 +19,13 @@ const LAYER_KINDS = ['government_acquisition', 'forest_reserve', 'road_reserve',
 
 function AreaMap() {
   const router = useRouter();
-  const layers = useGet<Page<Layer>>('/v1/admin/overlay-layers', { country: 'GH' });
+  const { code: country } = useWorkCountry();
+  const layers = useGet<Page<Layer>>(country ? '/v1/admin/overlay-layers' : null, { country });
   const [area, setArea] = useState('Accra sample area');
   const [on, setOn] = useState<string[] | null>(null);
   const active = (layers.data?.items ?? []).filter((l) => l.status === 'active');
   const codes = on ?? active.map((l) => l.code);
-  const map = useGet<FC>('/v1/geo/map', { country: 'GH', bbox: AREAS[area], ...(codes.length ? { layers: codes.join(',') } : {}) });
+  const map = useGet<FC>(country ? '/v1/geo/map' : null, { country, bbox: AREAS[area], ...(codes.length ? { layers: codes.join(',') } : {}) });
   return (
     <div className="stack">
       <div className="filters">
@@ -103,6 +105,7 @@ function Overlaps() {
 
 function Alerts() {
   const { client, hasRole } = useSession();
+  const { code: country } = useWorkCountry();
   const [status, setStatus] = useState('open');
   const list = useGet<Page<Alert>>('/v1/monitoring-alerts', { status });
   const act = useAct();
@@ -110,7 +113,7 @@ function Alerts() {
     <div className="stack">
       <div className="filters">
         <Field label="Status"><Select value={status} onChange={(e) => setStatus(e.target.value)}>{['open', 'in_review', 'resolved'].map((s) => <option key={s} value={s}>{words(s)}</option>)}</Select></Field>
-        {hasRole('CM', 'RV') ? <Button variant="ghost" busy={act.busy} onClick={() => act.run(() => call<{ checked: number; alerts: number }>(client, 'POST', '/v1/monitoring/runs', { country: 'GH' }).then((r) => { list.mutate(); act.show(`${r.checked} plots compared, ${r.alerts} new alerts.`); }))}>Compare imagery now</Button> : null}
+        {hasRole('CM', 'RV') && country ? <Button variant="ghost" busy={act.busy} onClick={() => act.run(() => call<{ checked: number; alerts: number }>(client, 'POST', '/v1/monitoring/runs', { country }).then((r) => { list.mutate(); act.show(`${r.checked} plots compared, ${r.alerts} new alerts.`); }))}>Compare imagery now</Button> : null}
       </div>
       <ProblemBox error={list.error ?? act.error} />
       {list.isLoading ? <Skeleton /> : list.data?.items.length ? (
@@ -142,16 +145,17 @@ function Alerts() {
 
 function Layers() {
   const { hasRole } = useSession();
-  const list = useGet<Page<Layer>>('/v1/admin/overlay-layers', { country: 'GH' });
+  const { code: country } = useWorkCountry();
+  const list = useGet<Page<Layer>>(country ? '/v1/admin/overlay-layers' : null, { country });
   return (
     <div className="stack">
-      {hasRole('AD') ? (
+      {hasRole('AD') && country ? (
         <div><ActionForm label="+ New layer" variant="dark" path="/v1/admin/overlay-layers" fields={[
           { name: 'code', label: 'Code (letters, numbers, dashes)', required: true }, { name: 'name', label: 'Name', required: true },
           { name: 'kind', label: 'Kind', type: 'select', required: true, options: LAYER_KINDS.map((k) => ({ value: k, label: words(k) })) },
           { name: 'description', label: 'Description', type: 'textarea' }, { name: 'buffer_m', label: 'Buffer in metres (empty: country setting)', type: 'number' },
           { name: 'is_sample', label: 'Sample data, not a real map', type: 'checkbox' },
-        ]} body={(v) => ({ country: 'GH', code: v.code, name: v.name, kind: v.kind, description: v.description || '', is_sample: !!v.is_sample, ...(v.buffer_m ? { buffer_m: v.buffer_m } : {}) })} onDone={() => list.mutate()} submitLabel="Create" /></div>
+        ]} body={(v) => ({ country, code: v.code, name: v.name, kind: v.kind, description: v.description || '', is_sample: !!v.is_sample, ...(v.buffer_m ? { buffer_m: v.buffer_m } : {}) })} onDone={() => list.mutate()} submitLabel="Create" /></div>
       ) : null}
       <ProblemBox error={list.error} />
       {list.isLoading ? <Skeleton /> : list.data?.items.length ? (

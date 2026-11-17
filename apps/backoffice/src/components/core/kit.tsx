@@ -36,8 +36,10 @@ export function dayTime(v?: string | null): string {
 export function money(amount?: string | number | null, currency?: string | null): string {
   if (amount === null || amount === undefined || amount === '') return '—';
   const n = Number(amount);
+  // Without a currency, show the plain figure rather than guess one (country is configuration).
+  if (!currency) return new Intl.NumberFormat('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
   try {
-    return new Intl.NumberFormat('en-GB', { style: 'currency', currency: currency || 'GHS' }).format(n);
+    return new Intl.NumberFormat('en-GB', { style: 'currency', currency }).format(n);
   } catch {
     return `${currency ?? ''} ${n.toFixed(2)}`;
   }

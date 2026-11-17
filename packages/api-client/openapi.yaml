@@ -53627,6 +53627,11 @@ components:
           description: 'US-DPR-001 AC2: the version to accept, when a newer notice
             exists.'
           readOnly: true
+        work_countries:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkCountry'
+          readOnly: true
         created_at:
           type: string
           format: date-time
@@ -53644,6 +53649,7 @@ components:
       - privacy_notice_pending
       - roles
       - status
+      - work_countries
     PersonPick:
       type: object
       description: 'One row of the staff people picker: enough to choose the right
@@ -66054,6 +66060,19 @@ components:
       properties:
         reason:
           type: string
+    WorkCountry:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        currency:
+          type: string
+      required:
+      - code
+      - currency
+      - name
     WorkKindEnum:
       enum:
       - report_section

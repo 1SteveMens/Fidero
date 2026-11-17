@@ -27,6 +27,28 @@ def staff_country_codes(p, roles=STAFF_ROLES):
     return codes
 
 
+# Roles that open the back office (apps/backoffice/src/lib/nav.ts), plus the money rights.
+BACKOFFICE_ROLES = set(STAFF_ROLES) | {"AN", "DPO", "SUP", "PY", "RR"}
+
+
+def work_countries(p) -> list[dict]:
+    """Countries a staff member works in, from their role grants, with each
+    country's currency (country is configuration, FR-CTY-001). A grant for every
+    country lists every country past draft. Home country first."""
+    from countries.models import Country
+
+    codes = staff_country_codes(p, BACKOFFICE_ROLES)
+    if codes is None:
+        qs = Country.objects.exclude(status="draft")
+    elif not codes:
+        return []
+    else:
+        qs = Country.objects.filter(code__in=codes)
+    home = getattr(p.home_country, "code", None)
+    rows = [{"code": c.code, "name": c.name, "currency": c.currency} for c in qs.order_by("code")]
+    return sorted(rows, key=lambda r: r["code"] != home)
+
+
 def scope_to_staff_countries(qs, p, field="country", roles=STAFF_ROLES):
     codes = staff_country_codes(p, roles)
     if codes is None:

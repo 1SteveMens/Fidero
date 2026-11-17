@@ -23871,6 +23871,7 @@ export interface components {
             channels_off?: components["schemas"]["ChannelsOffEnum"][];
             /** @description US-DPR-001 AC2: the version to accept, when a newer notice exists. */
             readonly privacy_notice_pending: string | null;
+            readonly work_countries: components["schemas"]["WorkCountry"][];
             /** Format: date-time */
             readonly created_at: string;
         };
@@ -29113,6 +29114,11 @@ export interface components {
         };
         WithdrawInRequest: {
             reason?: string;
+        };
+        WorkCountry: {
+            code: string;
+            name: string;
+            currency: string;
         };
         /**
          * @description * `report_section` - report_section

@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from countries.models import Country
@@ -25,8 +26,15 @@ CountryCode = lambda **kw: serializers.SlugRelatedField(slug_field="code", query
 EvidenceRef = lambda **kw: serializers.PrimaryKeyRelatedField(queryset=Evidence.objects.all(), **kw)  # noqa: E731
 
 
+class WorkCountrySerializer(serializers.Serializer):
+    code = serializers.CharField()
+    name = serializers.CharField()
+    currency = serializers.CharField()
+
+
 class PersonSerializer(serializers.ModelSerializer):
     roles = serializers.SerializerMethodField()
+    work_countries = serializers.SerializerMethodField()
     home_country = serializers.SlugRelatedField(slug_field="code", read_only=True)
     email_verified = serializers.SerializerMethodField()
     phone_verified = serializers.SerializerMethodField()
@@ -37,11 +45,19 @@ class PersonSerializer(serializers.ModelSerializer):
         model = Person
         fields = ["id", "email", "phone", "full_name", "preferred_language", "residence_country", "home_country",
                   "mfa_enabled", "roles", "status", "id_check_status", "email_verified", "phone_verified",
-                  "preferred_channel", "channels_off", "privacy_notice_pending", "created_at"]
+                  "preferred_channel", "channels_off", "privacy_notice_pending", "work_countries", "created_at"]
         read_only_fields = ["id", "email", "mfa_enabled", "roles", "status", "id_check_status", "created_at"]
 
     def get_roles(self, obj) -> list[str]:
         return sorted(obj.roles())
+
+    @extend_schema_field(WorkCountrySerializer(many=True))
+    def get_work_countries(self, obj) -> list[dict]:
+        """Back office: the countries this person works in as staff, from their
+        role grants, with each country's currency. Empty for everyone else."""
+        from .selectors import work_countries
+
+        return work_countries(obj)
 
     def get_email_verified(self, obj) -> bool:
         return bool(obj.email_verified_at)

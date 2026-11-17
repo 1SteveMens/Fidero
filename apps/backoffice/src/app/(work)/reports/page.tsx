@@ -6,6 +6,7 @@ import { Suspense, useState } from 'react';
 import { Empty, Field, Input, ProblemBox, Select, Skeleton, Tabs, useGet, useSession, Verdict } from '@tenmina/web-ui';
 import { ActionForm, day, Head, Panel, words } from '@/components/core/kit';
 import type { Page, Report } from '@/components/core/types';
+import { useWorkCountry } from '@/components/core/country';
 
 type Recheck = { id: string; subject_type: string; subject_id: string; case: string; case_reference: string; report: string | null; assignee: string | null; assignee_role: string; assigned_at: string | null; due_at: string | null; status: string; result: string; findings: string; result_at: string | null; incident: string | null; skip_reason: string };
 type Month = { draw: { id: string; sample_month: string; sample_pct: string; population_count: number; selected_count: number; seed: string; population_sha256: string; drawn_at: string } | null; items: Recheck[]; summary: Record<string, unknown> };
@@ -55,14 +56,15 @@ function Rechecks() {
   const now = new Date();
   const [month, setMonth] = useState(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`);
   const reviewer = hasRole('RV', 'AD');
-  const m = useGet<Month>('/v1/rechecks', reviewer ? { month, country: 'GH' } : {});
+  const { code: country } = useWorkCountry();
+  const m = useGet<Month>('/v1/rechecks', reviewer ? { month, ...(country ? { country } : {}) } : {});
   const items = m.data?.items ?? [];
   return (
     <div className="stack">
       {reviewer ? (
         <div className="filters">
           <Field label="Month"><Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} /></Field>
-          {!m.data?.draw ? <ActionForm label="Run this month's draw" variant="dark" path="/v1/rechecks/draws" onDone={() => m.mutate()} body={() => ({ month: `${month}-01`, country: 'GH' })} submitLabel="Draw" intro="Normally the monthly job draws. One draw per month; a second is refused and logged." /> : null}
+          {!m.data?.draw && country ? <ActionForm label="Run this month's draw" variant="dark" path="/v1/rechecks/draws" onDone={() => m.mutate()} body={() => ({ month: `${month}-01`, country })} submitLabel="Draw" intro="Normally the monthly job draws. One draw per month; a second is refused and logged." /> : null}
         </div>
       ) : <p className="muted" style={{ margin: 0 }}>Re-checks assigned to you. Do not contact the original team.</p>}
       <ProblemBox error={m.error} />

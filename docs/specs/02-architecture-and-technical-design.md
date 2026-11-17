@@ -3641,7 +3641,7 @@ Roles: CL client, SE seller, DV developer, CM case manager, RV reviewer, LW lawy
 | POST | `/v1/auth/mfa/devices` | Enrol TOTP or WebAuthn | All | FR-ACC-003 |
 | POST | `/v1/auth/token`, `/v1/auth/token/refresh` | Mobile JWT and rotating refresh for both apps | CT, IN, RN, SV, CE, CL, FM, TN | FR-MOB-001, FR-APP-001 |
 | POST | `/v1/auth/logout` | End session or revoke refresh token | All | NFR-SEC-02 |
-| GET, PATCH | `/v1/me` | Profile, language, notification preferences | All | FR-ACC-010, FR-NTF-001 |
+| GET, PATCH | `/v1/me` | Profile, language, notification preferences. For staff, `work_countries`: the countries their role grants cover, each with its currency from the country record, so back office forms take country and currency from configuration (FR-CTY-001); empty for everyone else | All | FR-ACC-010, FR-NTF-001, FR-ACC-007, FR-CTY-001 |
 | POST | `/v1/me/identity-checks` | Start identity check | CL, SE, DV | FR-ACC-004 |
 | POST, DELETE | `/v1/me/representatives` | Name or remove a representative | CL | FR-ACC-008 |
 | POST, DELETE | `/v1/me/push-devices`, `/v1/me/push-devices/{id}` | Register or remove the push token of this app install (R2) | All app users | FR-APP-002, FR-NTF-001 |

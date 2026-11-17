@@ -7,6 +7,7 @@ import { Suspense, useMemo, useState } from 'react';
 import { Button, call, Empty, Field, Input, ProblemBox, Select, Skeleton, Tabs, useGet, useSession } from '@tenmina/web-ui';
 import { ActionForm, ClockChip, day, dayTime, Head, money, Panel, useAct, words } from '@/components/core/kit';
 import type { BankEvent, EscrowRow, Instruction, Page } from '@/components/core/types';
+import { useWorkCountry } from '@/components/core/country';
 
 const STATUSES = ['proposed', 'agreed', 'funded', 'ready_to_release', 'client_approved', 'release_approved', 'partly_released', 'released', 'frozen', 'cancelled'];
 const KINDS = ['purchase', 'construction', 'offplan', 'project_fund', 'held_funds', 'repair', 'event'];
@@ -98,6 +99,7 @@ function Releases() {
 
 function Bank() {
   const { client } = useSession();
+  const { code: country } = useWorkCountry();
   const events = useGet<Page<BankEvent>>('/v1/bank-events', { status: 'pending_check' });
   const files = useGet<Page<StatementFile>>('/v1/bank-statements');
   const positions = useGet<Page<Position>>('/v1/bank-positions', { status: 'mismatch' });
@@ -132,10 +134,10 @@ function Bank() {
       </Panel>
 
       <Panel title="Bank statements">
-        <form className="filters" onSubmit={async (e) => { e.preventDefault(); if (!csv) return; const ok = await act.run(() => call(client, 'POST', '/v1/bank-statements', { country: 'GH', content: csv.text, original_name: csv.name, account_kind: kind }), 'Statement imported and matched.'); if (ok !== undefined) { setCsv(null); files.mutate(); } }}>
+        <form className="filters" onSubmit={async (e) => { e.preventDefault(); if (!csv) return; const ok = await act.run(() => call(client, 'POST', '/v1/bank-statements', { country, content: csv.text, original_name: csv.name, account_kind: kind }), 'Statement imported and matched.'); if (ok !== undefined) { setCsv(null); files.mutate(); } }}>
           <Field label="Statement file (CSV from the bank)"><input className="input" type="file" accept=".csv,text/csv" onChange={async (e) => { const f = e.target.files?.[0]; setCsv(f ? { name: f.name, text: await f.text() } : null); }} required /></Field>
           <Field label="Account"><Select value={kind} onChange={(e) => setKind(e.target.value)}><option value="escrow">Escrow</option><option value="held_funds">Held funds</option><option value="owner_rent">Owner rent</option></Select></Field>
-          <Button type="submit" variant="dark" busy={act.busy} disabled={!csv}>Import</Button>
+          <Button type="submit" variant="dark" busy={act.busy} disabled={!csv || !country}>Import</Button>
         </form>
         {files.isLoading ? <Skeleton /> : files.data?.items.length ? (
           <div className="rows">
@@ -192,18 +194,19 @@ function EscrowHome() {
   const router = useRouter();
   const tab = sp.get('tab') ?? 'escrows';
   const { hasRole } = useSession();
+  const { code: country, currency } = useWorkCountry();
   return (
     <div className="stack" style={{ gap: 18 }}>
       <Head title="Escrow" sub="Tenmina never holds client money. The partner bank does; money moves only on two staff approvals after the client." actions={<>
         <Link className="btn btn-ghost btn-sm" href="/escrow/fx">Rates and accounts</Link>
-        {hasRole('CM', 'RV') ? (
+        {hasRole('CM', 'RV') && country ? (
           <ActionForm label="+ New escrow" variant="dark" path="/v1/escrows" fields={[
             { name: 'kind', label: 'Kind', type: 'select', required: true, options: KINDS.map((k) => ({ value: k, label: words(k) })) },
             { name: 'title', label: 'Title', required: true }, { name: 'client_id', label: 'Client', required: true, pick: { kind: 'person', query: { role: 'CL' } } },
-            { name: 'amount', label: 'Agreed price', type: 'money' }, { name: 'currency', label: 'Currency', initial: 'GHS' },
+            { name: 'amount', label: 'Agreed price', type: 'money' }, { name: 'currency', label: 'Currency', initial: currency },
             { name: 'report_id', label: 'Released report (its conditions are copied)', pick: { kind: 'report', query: { status: 'released' } } }, { name: 'case_id', label: 'Case', pick: 'case' }, { name: 'asset_id', label: 'Property ID' },
             { name: 'held_back_amount', label: 'Held back until a later condition', type: 'money' }, { name: 'held_back_condition', label: 'That condition' },
-          ]} body={(v) => ({ kind: v.kind, country: 'GH', title: v.title, client_id: v.client_id, ...(v.amount ? { agreed_price: { amount: v.amount, currency: String(v.currency || 'GHS').toUpperCase() } } : {}), ...(v.report_id ? { report_id: v.report_id } : {}), ...(v.case_id ? { case_id: v.case_id } : {}), ...(v.asset_id ? { asset_id: v.asset_id } : {}), held_back_amount: v.held_back_amount || 0, held_back_condition: v.held_back_condition || '' })}
+          ]} body={(v) => ({ kind: v.kind, country, title: v.title, client_id: v.client_id, ...(v.amount ? { agreed_price: { amount: v.amount, currency: String(v.currency || currency).toUpperCase() } } : {}), ...(v.report_id ? { report_id: v.report_id } : {}), ...(v.case_id ? { case_id: v.case_id } : {}), ...(v.asset_id ? { asset_id: v.asset_id } : {}), held_back_amount: v.held_back_amount || 0, held_back_condition: v.held_back_condition || '' })}
             onDone={(out) => { const x = out as { id?: string }; if (x?.id) router.push(`/escrow/${x.id}`); }} submitLabel="Create escrow" intro="Parties, the virtual account and the terms version are added on the escrow next." />
         ) : null}
       </>} />

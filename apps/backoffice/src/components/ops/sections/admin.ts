@@ -138,7 +138,7 @@ export const admin: SectionSpec = {
         { key: 'valid_from', label: 'From', kind: 'date' },
         { key: 'note', label: 'Note', kind: 'text' },
       ],
-      create: { label: 'Set prices', path: '/v1/admin/prices', method: 'PUT', mfa: true, fields: [{ name: 'items', hint: 'JSON list: [{"product_line": "care", "tier": "monthly", "audience": "standard", "price": {"amount": "0.00", "currency": "GHS"}, "note": "[TO VERIFY]"}]' }] },
+      create: { label: 'Set prices', path: '/v1/admin/prices', method: 'PUT', mfa: true, fields: [{ name: 'items', hint: 'JSON list: [{"product_line": "care", "tier": "monthly", "audience": "standard", "price": {"amount": "0.00", "currency": "USD"}, "note": "[TO VERIFY]"}]' }] },
     },
     lockedText('scope_statement', 'Scope statement'),
     lockedText('terms', 'Terms'),
