@@ -11,7 +11,7 @@ import { day } from './format';
 /* ---------- Problems ---------- */
 
 const PLAIN: Record<string, string> = {
-  offline: 'No connection to Tenmina. Check your signal and try again.',
+  offline: `No connection to Tenmina at ${apiBaseUrl()}. Check your signal and try again.`,
   'mfa-required': 'Enter the 6-digit code from your authenticator app to go on.',
   'mfa-not-set-up': 'Set up an authenticator app in Account first. Every approval needs its code.',
   unauthenticated: 'Please sign in again.',
