@@ -253,6 +253,7 @@ def _handover(request, e):
     return Response(S.ErrandHandoverSerializer(h).data, status=201)
 
 
+
 class AgentViewSet(ETagMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """The errand agent panel (FR-TSK-003): staff only."""
 

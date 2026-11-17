@@ -145,6 +145,7 @@ class CarePlanViewSet(ETagMixin, mixins.ListModelMixin, mixins.RetrieveModelMixi
         return Response({"plan_id": str(plan.pk), "by_status": selectors.statement(plan)})
 
 
+
 class CarerViewSet(ETagMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """The carer panel (FR-CARE-002): staff manage it; a client reads the carers on their own plans."""
 

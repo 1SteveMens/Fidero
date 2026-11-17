@@ -80,10 +80,10 @@ def test_run_jobs_refuses_an_unknown_name(db):
 
 def test_app_version_middleware_is_registered(seeded, api, people):
     """FR-APP-006: an app below the minimum version gets 426 on any /v1 call; the web portal sends no header."""
-    from administration.models import FeatureFlag
+    from administration.models import AppVersion
 
     assert "mobile.appversion.AppVersionMiddleware" in settings.MIDDLEWARE
-    FeatureFlag.objects.filter(name="app.min_version.client.android").update(value="5.0.0")
+    AppVersion.objects.filter(app="client", platform="android").update(min_version="5.0.0", latest_version="5.0.0")
     c = api(people["client"])
     r = c.get("/v1/home", HTTP_TENMINA_APP="client/android/4.9.0")
     assert r.status_code == 426 and r.json()["code"] == "app-version-unsupported"

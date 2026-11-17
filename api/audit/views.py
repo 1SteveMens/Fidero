@@ -21,8 +21,9 @@ Admins = roles("AD")
 
 
 class AuditEventList(APIView):
-    """FR-AUD-003: search the audit log by case, user, date and action. The
-    search itself is logged."""
+    """FR-AUD-003: search the audit log by case, user, date and action, newest
+    first. Paging: pass `next_cursor` back as `before_seq` to load the next,
+    older page; it is null on the last page. The search itself is logged."""
 
     permission_classes = [Searchers]
 
@@ -31,13 +32,16 @@ class AuditEventList(APIView):
         q = AuditSearchSerializer(data=request.query_params)
         q.is_valid(raise_exception=True)
         params = q.validated_data
-        rows = list(selectors.search(params, viewer=request.user)[: params["limit"]])
+        limit = params["limit"]
+        rows = list(selectors.search(params, viewer=request.user)[: limit + 1])
+        more = len(rows) > limit
+        rows = rows[:limit]
         services.record(actor=request.user, action="audit.searched", entity="aud_event", entity_id="search",
                         data={k: str(v) for k, v in params.items() if k != "limit"})
         from .serializers import AuditEventSerializer
 
         return Response({"items": AuditEventSerializer(rows, many=True).data,
-                         "next_cursor": str(rows[-1].seq) if len(rows) == params["limit"] else None})
+                         "next_cursor": str(rows[-1].seq) if more and rows else None})
 
 
 class TrailExport(APIView):

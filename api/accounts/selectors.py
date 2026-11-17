@@ -197,3 +197,51 @@ def live_vetting(p, kind):
 
 def is_vetted(p, kind) -> bool:
     return live_vetting(p, kind) is not None
+
+
+# ---- people pickers in the back office
+
+PEOPLE_SEARCH_MIN = 2
+PEOPLE_SEARCH_MAX = 50
+
+
+def mask_email(email: str) -> str:
+    """'ama.mensah@example.com' -> 'a***@example.com'. Enough to tell two people apart, not to write to them."""
+    local, _, domain = (email or "").partition("@")
+    if not local or not domain:
+        return ""
+    return f"{local[0]}***@{domain}"
+
+
+def search_people(viewer, term: str, *, role: str = "", limit: int = 20) -> list[dict]:
+    """People pickers for staff (CM, RV, AD): people with an active role grant in, or living in, one of the
+    viewer's countries. Only id, name, roles and a masked email. At least PEOPLE_SEARCH_MIN characters."""
+    from core.permissions import ALL_ROLES
+
+    term = (term or "").strip()
+    if len(term) < PEOPLE_SEARCH_MIN:
+        raise Invalid(f"Type at least {PEOPLE_SEARCH_MIN} characters to search.", code="search-too-short",
+                      extra={"errors": [{"pointer": "/search", "message": f"At least {PEOPLE_SEARCH_MIN}."}]})
+    role = (role or "").strip().upper()
+    if role and role not in ALL_ROLES:
+        raise Invalid("Unknown role.", extra={"errors": [{"pointer": "/role", "message": "Unknown role."}]})
+    codes = staff_country_codes(viewer)
+    qs = Person.objects.filter(is_active=True, deleted_at__isnull=True, anonymised_at__isnull=True)
+    if codes is not None:
+        # A grant for every country alone does not put a person in scope: they must work or live here.
+        qs = qs.filter(Q(home_country__code__in=codes)
+                       | Q(role_grants__revoked_at__isnull=True, role_grants__country__code__in=codes))
+    if role:
+        qs = qs.filter(role_grants__role=role, role_grants__revoked_at__isnull=True)
+    qs = qs.filter(Q(full_name__icontains=term) | Q(email__icontains=term)).distinct().order_by("full_name")
+    limit = max(1, min(int(limit or 20), PEOPLE_SEARCH_MAX))
+    people = list(qs[:limit])
+    grants = {}
+    from .models import RoleGrant
+
+    for pid, r, cc in RoleGrant.objects.filter(person__in=people, revoked_at__isnull=True) \
+            .values_list("person_id", "role", "country__code"):
+        if codes is None or cc is None or cc in codes:
+            grants.setdefault(pid, set()).add(r)
+    return [{"id": p.pk, "name": p.full_name, "roles": sorted(grants.get(p.pk, set())),
+             "email_masked": mask_email(p.email)} for p in people]

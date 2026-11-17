@@ -2272,8 +2272,9 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description FR-AUD-003: search the audit log by case, user, date and action. The
-         *     search itself is logged.
+         * @description FR-AUD-003: search the audit log by case, user, date and action, newest
+         *     first. Paging: pass `next_cursor` back as `before_seq` to load the next,
+         *     older page; it is null on the last page. The search itself is logged.
          */
         get: operations["v1_audit_events_retrieve"];
         put?: never;
@@ -10667,6 +10668,7 @@ export interface paths {
         /**
          * @description People picker for staff forms: matches name, email or phone (at least
          *     2 characters), only people in the staff member's countries, emails masked.
+         *     Rate-limited, and every search is audited.
          */
         get: operations["v1_people_retrieve"];
         put?: never;
@@ -12836,6 +12838,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/release-instructions/{id}/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description FR-ESC-008, 9.1: the instruction as a PDF for people, for staff with release rights. The header
+         *     X-Content-SHA256 carries the hash stored with the evidence.
+         */
+        get: operations["v1_release_instructions_pdf_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/release-instructions/{id}/send": {
         parameters: {
             query?: never;
@@ -13565,6 +13587,67 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/satisfaction-surveys": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description The client's own satisfaction questions (I-07). Only the client sees their answers; staff see the score
+         *     in analytics, as counts.
+         */
+        get: operations["v1_satisfaction_surveys_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/satisfaction-surveys/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description The client's own satisfaction questions (I-07). Only the client sees their answers; staff see the score
+         *     in analytics, as counts.
+         */
+        get: operations["v1_satisfaction_surveys_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/satisfaction-surveys/{id}/answer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Answer how likely you are to recommend Tenmina, 0 to 10, once
+         * @description The client's own satisfaction questions (I-07). Only the client sees their answers; staff see the score
+         *     in analytics, as counts.
+         */
+        post: operations["v1_satisfaction_surveys_answer_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/search-requests/{id}": {
         parameters: {
             query?: never;
@@ -13961,6 +14044,26 @@ export interface paths {
         get: operations["v1_tasks_candidates_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/tasks/{id}/chase": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Chase the owner of a late task (case staff): the assignee gets a reminder; at most once a day per
+         *     task (429 chased-recently). Recorded on the task and in the audit log.
+         */
+        post: operations["v1_tasks_chase_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -15150,6 +15253,7 @@ export interface components {
         };
         AuditPage: {
             items: components["schemas"]["AuditEvent"][];
+            /** @description The sequence number to pass as before_seq for the next (older) page; null on the last page. */
             next_cursor: string | null;
         };
         AuditVerifyResult: {
@@ -16082,6 +16186,10 @@ export interface components {
          * @enum {string}
          */
         ChannelsOffEnum: "in_app" | "email" | "sms" | "whatsapp" | "push";
+        ChaseInputRequest: {
+            /** @description Optional words for the assignee, shown with the reminder. */
+            note?: string;
+        };
         Check: {
             /** Format: uuid */
             readonly id: string;
@@ -16576,7 +16684,7 @@ export interface components {
          *     * `escrow` - escrow
          * @enum {string}
          */
-        ContextTypeEnum: "case" | "release_instruction" | "milestone" | "dispute" | "listing" | "escrow";
+        ContextType7b6Enum: "case" | "release_instruction" | "milestone" | "dispute" | "listing" | "escrow";
         /**
          * @description * `person` - person
          *     * `organisation` - organisation
@@ -17506,6 +17614,8 @@ export interface components {
             client_id?: string;
         };
         ErrandDocument: {
+            /** Format: uuid */
+            readonly id: string;
             key: string;
             label: string;
             required?: boolean;
@@ -20156,6 +20266,7 @@ export interface components {
                 [key: string]: unknown;
             };
             readonly document_sha256: string;
+            readonly pdf_sha256: string;
             /** Format: date-time */
             readonly sent_at: string | null;
             readonly sent_channel: string;
@@ -21767,7 +21878,7 @@ export interface components {
         Opportunity: {
             /** Format: uuid */
             readonly id: string;
-            context_type: components["schemas"]["ContextTypeEnum"];
+            context_type: components["schemas"]["ContextType7b6Enum"];
             /** Format: uuid */
             context_id: string;
             context_label?: string;
@@ -22845,6 +22956,10 @@ export interface components {
             items?: components["schemas"]["RiskScreen"][];
             next_cursor?: string | null;
         };
+        PaginatedSatisfactionList: {
+            items?: components["schemas"]["Satisfaction"][];
+            next_cursor?: string | null;
+        };
         PaginatedScreeningList: {
             items?: components["schemas"]["Screening"][];
             next_cursor?: string | null;
@@ -23499,6 +23614,8 @@ export interface components {
             readonly applied_at: string | null;
             /** Format: date-time */
             readonly cooling_off_until: string | null;
+            /** Format: date-time */
+            readonly cooling_off_ended_at: string | null;
             /** Format: date-time */
             readonly stopped_at: string | null;
             readonly stop_reason: string;
@@ -25711,7 +25828,7 @@ export interface components {
         RateInRequest: {
             /** Format: uuid */
             opportunity_id?: string;
-            context_type?: components["schemas"]["ContextTypeEnum"];
+            context_type?: components["schemas"]["ContextType7b6Enum"];
             /** Format: uuid */
             context_id?: string;
             subject_type?: components["schemas"]["SubjectTypeD63Enum"];
@@ -27137,6 +27254,33 @@ export interface components {
          * @enum {string}
          */
         SatelliteImageStatusEnum: "available" | "unavailable";
+        Satisfaction: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly context_type: components["schemas"]["SatisfactionContextTypeEnum"];
+            /** Format: uuid */
+            readonly context_id: string;
+            readonly context_label: string;
+            readonly question: string;
+            /** Format: date-time */
+            readonly asked_at: string;
+            readonly score: number | null;
+            readonly comment: string;
+            /** Format: date-time */
+            readonly answered_at: string | null;
+        };
+        SatisfactionAnswerInRequest: {
+            /** @description 0: not at all likely to recommend Tenmina; 10: certainly. */
+            score: number;
+            comment?: string;
+        };
+        /**
+         * @description * `report` - report
+         *     * `fee_payment` - fee_payment
+         *     * `project` - project
+         * @enum {string}
+         */
+        SatisfactionContextTypeEnum: "report" | "fee_payment" | "project";
         /**
          * @description * `pending` - pending
          *     * `clean` - clean
@@ -28484,6 +28628,9 @@ export interface components {
             readonly is_overdue: boolean;
             readonly missing_evidence: string[];
             readonly notice: string;
+            /** Format: date-time */
+            last_chased_at?: string | null;
+            chase_count?: number;
             row_version?: number;
         };
         TaskCandidates: {
@@ -33184,12 +33331,14 @@ export interface operations {
                 /** @description Exact action, or a prefix ending in '.' or '*'. */
                 action?: string;
                 actor_id?: string;
+                /** @description Paging: only entries older than this sequence number. Pass the previous page's next_cursor to load more. Newest first. */
                 before_seq?: number;
                 /** @description Entries about this case or naming it in their data. */
                 case_id?: string;
                 country?: string;
                 entity?: string;
                 entity_id?: string;
+                /** @description Entries per page, 1 to 200. */
                 limit?: number;
                 occurred_from?: string;
                 occurred_to?: string;
@@ -51745,6 +51894,28 @@ export interface operations {
             };
         };
     };
+    v1_release_instructions_pdf_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this release instruction. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                };
+            };
+        };
+    };
     v1_release_instructions_send_create: {
         parameters: {
             query?: never;
@@ -52915,6 +53086,82 @@ export interface operations {
             };
         };
     };
+    v1_satisfaction_surveys_list: {
+        parameters: {
+            query?: {
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                /** @description Number of results to return per page. */
+                limit?: number;
+                /** @description Only questions not answered yet. */
+                open?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedSatisfactionList"];
+                };
+            };
+        };
+    };
+    v1_satisfaction_surveys_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this satisfaction survey. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Satisfaction"];
+                };
+            };
+        };
+    };
+    v1_satisfaction_surveys_answer_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this satisfaction survey. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SatisfactionAnswerInRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SatisfactionAnswerInRequest"];
+                "multipart/form-data": components["schemas"]["SatisfactionAnswerInRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Satisfaction"];
+                };
+            };
+        };
+    };
     v1_search_requests_retrieve: {
         parameters: {
             query?: never;
@@ -53578,6 +53825,33 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TaskCandidates"];
+                };
+            };
+        };
+    };
+    v1_tasks_chase_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ChaseInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ChaseInputRequest"];
+                "multipart/form-data": components["schemas"]["ChaseInputRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Task"];
                 };
             };
         };

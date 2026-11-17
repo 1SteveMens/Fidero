@@ -3667,6 +3667,7 @@ Roles: CL client, SE seller, DV developer, CM case manager, RV reviewer, LW lawy
 | POST | `/v1/cases/{id}/accept` | Accept case, create tasks | CM | FR-CASE-001, FR-CASE-002 |
 | PATCH | `/v1/tasks/{id}` | Assign, change due date with reason | CM | FR-CASE-003 |
 | POST | `/v1/tasks/{id}/complete` | Complete task with evidence | CM, LW/SV/RN asg | FR-CASE-004, FR-CASE-006 |
+| POST | `/v1/tasks/{id}/chase` | Chase the assignee of a late task; at most once a day per task (429 `chased-recently`); recorded on the task and audited | CM, RV | FR-CASE-005 |
 | POST | `/v1/cases/{id}/document-requests` | Ask client for documents | CM | FR-CASE-008 |
 | POST | `/v1/cases/{id}/messages` | Message thread | CL own, CM | FR-CASE-015 |
 | POST | `/v1/cases/{id}/risk-screens` | Record risk screen | CM, RV | FR-CASE-009 |
@@ -3702,6 +3703,7 @@ Roles: CL client, SE seller, DV developer, CM case manager, RV reviewer, LW lawy
 | POST | `/v1/escrows/{id}/release-instructions` | Prepare release, partial release, cancel or conversion (a conversion names the client's accepted quote) | CM | FR-ESC-006, 010, 013, FR-ESC-022 |
 | POST | `/v1/release-instructions/{id}/client-approval` | Client approves | CL own | RUL-11 |
 | POST | `/v1/release-instructions/{id}/approvals` | Staff approval with MFA; payee, subject and held-funds checks run again | RV (RR) | FR-ESC-007, FR-ESC-015 |
+| GET | `/v1/release-instructions/{id}/pdf` | The sent instruction as a deterministic PDF, stored as evidence with its SHA-256 (9.1) | RV, AD with RR | FR-ESC-008 |
 | GET | `/v1/escrows/{id}/statement?family_member=` | Running statement of a held-funds escrow: bank events and instructions, held at the bank, awaiting the bank | CL own, CM, RV | FR-ESC-014, FR-FEE-007 |
 | GET | `/v1/escrows/{id}/funds` | Confirmed funds for any escrow, per currency from 01 v0.15: virtual account reference, held at the bank, awaiting the bank, latest bank figure and its status | CL own, CM, RV | FR-ESC-019, RUL-34 |
 | GET | `/v1/release-instructions?clock=due_today\|send_overdue\|bank_overdue` | Release clock queue: clock start, last approval, send-due and bank-pay-due dates | CM, RV | FR-ESC-018, NFR-PERF-06 |
@@ -3766,7 +3768,9 @@ Roles: CL client, SE seller, DV developer, CM case manager, RV reviewer, LW lawy
 | GET, POST | `/v1/admin/countries/{id}/config-versions` | Draft a country configuration; `copy_from` copies another country's published version | AD | FR-CTY-001, FR-CTY-004 |
 | POST | `/v1/admin/countries/{id}/config-versions/{v}/approvals` | Publish with two administrators; activate the country | AD (two) | FR-CTY-004 |
 | GET | `/v1/admin/cells` | Cells, regions and data locations | AD | FR-CTY-002 |
-| GET | `/v1/audit-events` | Search audit log | RV, AD | FR-AUD-003 |
+| GET | `/v1/audit-events` | Search audit log, newest first; pass `next_cursor` back as `before_seq` for the next page | RV, AD | FR-AUD-003 |
+| GET | `/v1/people?search=&role=` | People picker: id, name, roles and masked email of people in the viewer's countries; at least 2 characters; rate-limited; audited | CM, RV, AD | FR-ACC-007 |
+| GET, POST | `/v1/satisfaction-surveys`, `/v1/satisfaction-surveys/{id}/answer` | The client's one question (recommend Tenmina, 0 to 10, optional comment) after a released report, a paid family bill or a completed project | CL own | I-07 |
 | GET | `/v1/analytics/metrics` | Dashboard metrics by country, line, tier, including the family, property, errand and insurer metrics in 01 A9 | CM, RV, AD | FR-ANL-001, FR-ANL-003, FR-CTY-003 |
 | POST | `/v1/analytics/exports` | CSV export, logged | RV, AD | FR-ANL-002 |
 | GET, POST | `/v1/dpr/requests` | Access and correction requests | AD | FR-DPR-003 |

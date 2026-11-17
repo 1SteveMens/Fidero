@@ -1,7 +1,8 @@
-"""ESC background jobs (02 section 7.12). The beat schedule in settings should
-add: escrow.release_clock_watch every 15 minutes, escrow.retry_unsent every
-15 minutes, escrow.fx_collect_rates each working day at the bank's cut-off
-[TO VERIFY] and again hourly while a source is stale.
+"""ESC background jobs (02 section 7.12), scheduled in tenmina/celery_schedule.py:
+escrow.release_clock_watch and escrow.retry_unsent every 15 minutes,
+escrow.fx_collect_rates each working day at the bank's cut-off [TO VERIFY],
+escrow.payee_expiry and escrow.reconcile_positions daily, and
+escrow.cooling_off_end every 15 minutes. No job approves anything.
 
 There is no job that dispatches later than the last approval: dispatch runs
 on release.approved at once (RUL-33, ADR-26)."""
@@ -30,3 +31,18 @@ def fx_collect_rates():
         if flags.enabled("escrow.enabled", c):
             out[c.code] = [str(r.pk) for r in services.collect_rates(c)]
     return out
+
+
+@shared_task(name="escrow.payee_expiry")
+def payee_expiry():
+    return services.expire_payees()
+
+
+@shared_task(name="escrow.cooling_off_end")
+def cooling_off_end():
+    return services.end_cooling_off()
+
+
+@shared_task(name="escrow.reconcile_positions")
+def reconcile_positions():
+    return services.reconcile_positions()

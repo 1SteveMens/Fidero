@@ -8,10 +8,16 @@ FR-RAT-002 a client rates a completed case, deal, milestone or dispute from 1 to
 FR-RAT-003 summaries for listings and contractor choices (selectors.summary)
 FR-RAT-004 a reviewer hides an abusive comment with a reason; the score never changes
 
-Events consumed: case.status_changed, release.confirmed, milestone.status_changed, dispute.closed.
-Events published: rating.created, rating.comment_moderated, track_record.updated.
+Client satisfaction (US-ANL metrics, issue I-07): after a released report, a confirmed family payment or a
+completed project the client is asked one question in the notifications inbox (0 to 10 and an optional
+comment); the answers feed the analytics score.
+
+Events consumed: case.status_changed, release.confirmed, milestone.status_changed, dispute.closed,
+report.released, fee_payment.status_changed, project.completed.
+Events published: rating.created, rating.comment_moderated, track_record.updated, satisfaction.answered.
 """
 import logging
+from datetime import timedelta
 from decimal import ROUND_HALF_UP, Decimal
 
 from django.db import IntegrityError, transaction
@@ -24,7 +30,7 @@ from core.errors import Forbidden, Invalid, NotFound, StateConflict
 from core.events import publish
 from core.permissions import has_role
 
-from .models import Outcome, Rating, RatingOpportunity, TrackRecord
+from .models import Outcome, Rating, RatingOpportunity, SatisfactionSurvey, TrackRecord
 
 log = logging.getLogger(__name__)
 
@@ -347,3 +353,102 @@ def moderation_queue(actor):
     codes = staff_country_codes(actor, ("RV", "AD"))
     qs = Rating.objects.filter(comment_status="pending")
     return qs if codes is None else qs.filter(Q(country__code__in=list(codes)) | Q(country__isnull=True))
+
+
+# --------------------------------------------------------------------------- client satisfaction (I-07)
+
+SATISFACTION_QUESTION = "How likely are you to recommend Tenmina to a friend or relative?"
+DEFAULT_SATISFACTION_GAP_DAYS = 30  # [TO VERIFY] at most one question per client in this many days
+
+
+def ask_satisfaction(client, *, context_type, context_id, country=None, label="") -> SatisfactionSurvey | None:
+    """Ask the client the one question, in the notifications inbox. Once per item, and at most once per client in
+    `ratings.satisfaction_gap_days` (so a monthly school fee does not ask every month). Never needs action:
+    it is optional and never shown in orange."""
+    from notifications.services import notify
+
+    if client is None or context_type not in SatisfactionSurvey.CONTEXT_TYPES:
+        return None
+    country = _country(country) or getattr(client, "home_country", None)
+    if SatisfactionSurvey.objects.filter(client=client, context_type=context_type, context_id=context_id).exists():
+        return None
+    gap = int(_cfg(country, "ratings.satisfaction_gap_days", DEFAULT_SATISFACTION_GAP_DAYS))
+    now = _now()
+    if SatisfactionSurvey.objects.filter(client=client, asked_at__gte=now - timedelta(days=gap)).exists():
+        return None
+    try:
+        with transaction.atomic():
+            sv = SatisfactionSurvey.objects.create(country=country, client=client, context_type=context_type,
+                                                   context_id=context_id, context_label=label[:200], asked_at=now)
+    except IntegrityError:
+        return None
+    notify(client, "satisfaction_question", subject="One quick question",
+           body=f"{label + '. ' if label else ''}{SATISFACTION_QUESTION} Answer from 0 (not at all) to 10 "
+                "(certainly). You can add a comment. It takes a few seconds.",
+           link=f"/satisfaction/{sv.pk}", subject_obj=sv, needs_action=False, category="request",
+           channels=("in_app",))
+    return sv
+
+
+@transaction.atomic
+def answer_satisfaction(sv: SatisfactionSurvey, person, *, score, comment="") -> SatisfactionSurvey:
+    """The client answers once, from 0 to 10, with an optional comment. The comment is private to Tenmina."""
+    sv = SatisfactionSurvey.objects.select_for_update().get(pk=sv.pk)
+    if person is None or sv.client_id != person.pk:
+        raise NotFound("Not found.")
+    if sv.answered_at is not None:
+        raise StateConflict("You have already answered. Thank you.")
+    try:
+        score = int(score)
+    except (TypeError, ValueError):
+        score = -1
+    if not 0 <= score <= 10:
+        raise Invalid("Give a score from 0 to 10.", extra={"errors": [{"pointer": "/score",
+                                                                       "message": "From 0 to 10."}]})
+    comment = (comment or "").strip()
+    if len(comment) > MAX_COMMENT:
+        raise Invalid(f"Keep the comment under {MAX_COMMENT} characters.")
+    sv.score, sv.comment, sv.answered_at = score, comment, _now()
+    sv.save(update_fields=["score", "comment", "answered_at"])
+    record(actor=person, action="satisfaction.answered", entity="satisfaction_survey", entity_id=sv.pk,
+           country=sv.country, data={"context_type": sv.context_type, "score": score,
+                                     "has_comment": bool(comment)})  # the comment text stays out of the audit
+    publish("satisfaction.answered", sv.pk, {"survey_id": sv.pk, "context_type": sv.context_type,
+                                             "score": score, "country": sv.country.code if sv.country else None})
+    return sv
+
+
+def on_report_released_ask(payload: dict):
+    """A first issue of a released report (a correction is not asked again)."""
+    from accounts.models import Person
+
+    if payload.get("supersedes_id") or not payload.get("client_id") or not payload.get("report_id"):
+        return None
+    client = Person.objects.filter(pk=payload["client_id"]).first()
+    return ask_satisfaction(client, context_type="report", context_id=payload["report_id"],
+                            country=payload.get("country"),
+                            label=f"Your report {payload.get('reference') or ''} is ready".strip())
+
+
+def on_fee_payment_paid_ask(payload: dict):
+    from fees.models import Payment
+
+    if payload.get("to") != "paid":
+        return None
+    pay = Payment.objects.filter(pk=payload.get("id") or payload.get("payment_id")).select_related(
+        "invoice__client", "invoice__institution", "country").first()
+    if pay is None:
+        return None
+    return ask_satisfaction(pay.invoice.client, context_type="fee_payment", context_id=pay.pk, country=pay.country,
+                            label=f"{pay.invoice.institution.legal_name} has been paid")
+
+
+def on_project_completed_ask(payload: dict):
+    from construction.models import Project
+
+    p = Project.objects.filter(pk=payload.get("id") or payload.get("project_id")).select_related(
+        "client", "country").first()
+    if p is None or p.status != "completed":
+        return None
+    return ask_satisfaction(p.client, context_type="project", context_id=p.pk, country=p.country,
+                            label=f"{p.title} is complete")

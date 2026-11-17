@@ -6,5 +6,6 @@ router = DefaultRouter(trailing_slash=False)
 router.register("ratings", views.RatingViewSet, basename="rating")
 router.register("rating-opportunities", views.OpportunityViewSet, basename="rating-opportunity")
 router.register("track-records", views.TrackRecordViewSet, basename="track-record")
+router.register("satisfaction-surveys", views.SatisfactionViewSet, basename="satisfaction-survey")
 
 urlpatterns = router.urls

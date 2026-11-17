@@ -429,6 +429,7 @@ class PayeeChange(CountryScopedModel):
     second_channel_message_id = models.UUIDField(null=True, blank=True)  # ntf_message
     applied_at = models.DateTimeField(null=True, blank=True)
     cooling_off_until = models.DateTimeField(null=True, blank=True)
+    cooling_off_ended_at = models.DateTimeField(null=True, blank=True)  # escrow.cooling_off_end: client and CM told
     stopped_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT,
                                    related_name="+")
     stopped_at = models.DateTimeField(null=True, blank=True)
@@ -679,6 +680,10 @@ class ReleaseInstruction(CountryScopedModel):
     document_evidence = models.ForeignKey("evidence.Evidence", null=True, blank=True, on_delete=models.PROTECT,
                                           related_name="+")
     document_sha256 = models.CharField(max_length=64, blank=True, default="")
+    # 9.1: the same instruction as a PDF for people, rendered from the signed structured file; stored as evidence
+    pdf_evidence = models.ForeignKey("evidence.Evidence", null=True, blank=True, on_delete=models.PROTECT,
+                                     related_name="+")
+    pdf_sha256 = models.CharField(max_length=64, blank=True, default="")
     kms_signature = models.TextField(blank=True, default="")
     signature_key_id = models.TextField(blank=True, default="")
     sent_at = models.DateTimeField(null=True, blank=True)

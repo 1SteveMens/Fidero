@@ -71,6 +71,9 @@ JOBS = {
     "escrow.release_clock_watch": (EVERY_15_MIN, "Releases not sent or not paid on time (FR-ESC-018, NFR-PERF-06)"),
     "escrow.retry_unsent": (EVERY_15_MIN, "Resend approved instructions that failed to send"),
     "escrow.fx_collect_rates": (weekdays(10, 0), "Collect reference and provider rates [TO VERIFY] (FR-ESC-024)"),
+    "escrow.payee_expiry": (daily(0, 35), "Payees past valid-until back to pending (RUL-22)"),
+    "escrow.cooling_off_end": (EVERY_15_MIN, "Tell client and CM a payee change's cooling-off ended (RUL-28)"),
+    "escrow.reconcile_positions": (daily(6, 30), "Bank's daily figure against confirmed events (FR-ESC-019)"),
     # Family payments, care, errands, insurance
     "fees.schedule_due": (daily(6, 30), "Draft invoices from recurring schedules (FR-FEE-005)"),
     "fees.receipt_overdue": (daily(6, 40), "Chase receipts past the target days (FR-FEE-004)"),

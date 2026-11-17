@@ -5100,8 +5100,9 @@ paths:
     get:
       operationId: v1_audit_events_retrieve
       description: |-
-        FR-AUD-003: search the audit log by case, user, date and action. The
-        search itself is logged.
+        FR-AUD-003: search the audit log by case, user, date and action, newest
+        first. Paging: pass `next_cursor` back as `before_seq` to load the next,
+        older page; it is null on the last page. The search itself is logged.
       parameters:
       - in: query
         name: action
@@ -5118,6 +5119,9 @@ paths:
         name: before_seq
         schema:
           type: integer
+          minimum: 1
+        description: 'Paging: only entries older than this sequence number. Pass the
+          previous page''s next_cursor to load more. Newest first.'
       - in: query
         name: case_id
         schema:
@@ -5147,6 +5151,7 @@ paths:
           maximum: 200
           minimum: 1
           default: 50
+        description: Entries per page, 1 to 200.
       - in: query
         name: occurred_from
         schema:
@@ -23297,6 +23302,7 @@ paths:
       description: |-
         People picker for staff forms: matches name, email or phone (at least
         2 characters), only people in the staff member's countries, emails masked.
+        Rate-limited, and every search is audited.
       parameters:
       - in: query
         name: role
@@ -27939,6 +27945,33 @@ paths:
               schema:
                 $ref: '#/components/schemas/Instruction'
           description: ''
+  /v1/release-instructions/{id}/pdf:
+    get:
+      operationId: v1_release_instructions_pdf_retrieve
+      description: |-
+        FR-ESC-008, 9.1: the instruction as a PDF for people, for staff with release rights. The header
+        X-Content-SHA256 carries the hash stored with the evidence.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this release instruction.
+        required: true
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+          description: ''
   /v1/release-instructions/{id}/send:
     post:
       operationId: v1_release_instructions_send_create
@@ -29401,6 +29434,107 @@ paths:
                 type: string
                 format: binary
           description: ''
+  /v1/satisfaction-surveys:
+    get:
+      operationId: v1_satisfaction_surveys_list
+      description: |-
+        The client's own satisfaction questions (I-07). Only the client sees their answers; staff see the score
+        in analytics, as counts.
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: string
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: open
+        schema:
+          type: boolean
+        description: Only questions not answered yet.
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSatisfactionList'
+          description: ''
+  /v1/satisfaction-surveys/{id}:
+    get:
+      operationId: v1_satisfaction_surveys_retrieve
+      description: |-
+        The client's own satisfaction questions (I-07). Only the client sees their answers; staff see the score
+        in analytics, as counts.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this satisfaction survey.
+        required: true
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Satisfaction'
+          description: ''
+  /v1/satisfaction-surveys/{id}/answer:
+    post:
+      operationId: v1_satisfaction_surveys_answer_create
+      description: |-
+        The client's own satisfaction questions (I-07). Only the client sees their answers; staff see the score
+        in analytics, as counts.
+      summary: Answer how likely you are to recommend Tenmina, 0 to 10, once
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this satisfaction survey.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SatisfactionAnswerInRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SatisfactionAnswerInRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SatisfactionAnswerInRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Satisfaction'
+          description: ''
   /v1/search-requests/{id}:
     get:
       operationId: v1_search_requests_retrieve
@@ -30247,6 +30381,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TaskCandidates'
+          description: ''
+  /v1/tasks/{id}/chase:
+    post:
+      operationId: v1_tasks_chase_create
+      description: |-
+        Chase the owner of a late task (case staff): the assignee gets a reminder; at most once a day per
+        task (429 chased-recently). Recorded on the task and in the audit log.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChaseInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChaseInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChaseInputRequest'
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
           description: ''
   /v1/tasks/{id}/complete:
     post:
@@ -32878,6 +33048,8 @@ components:
           type:
           - string
           - 'null'
+          description: The sequence number to pass as before_seq for the next (older)
+            page; null on the last page.
       required:
       - items
       - next_cursor
@@ -35203,6 +35375,13 @@ components:
         * `sms` - sms
         * `whatsapp` - whatsapp
         * `push` - push
+    ChaseInputRequest:
+      type: object
+      properties:
+        note:
+          type: string
+          description: Optional words for the assignee, shown with the reminder.
+          maxLength: 500
     Check:
       type: object
       properties:
@@ -36352,7 +36531,7 @@ components:
         * `partner_full_report` - partner_full_report
         * `case_study` - case_study
         * `marketing` - marketing
-    ContextTypeEnum:
+    ContextType7b6Enum:
       enum:
       - case
       - release_instruction
@@ -38496,6 +38675,10 @@ components:
     ErrandDocument:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
         key:
           type: string
         label:
@@ -38522,6 +38705,7 @@ components:
           - 'null'
           format: date-time
       required:
+      - id
       - key
       - label
     ErrandDocumentLink:
@@ -44930,6 +45114,9 @@ components:
         document_sha256:
           type: string
           readOnly: true
+        pdf_sha256:
+          type: string
+          readOnly: true
         sent_at:
           type:
           - string
@@ -45013,6 +45200,7 @@ components:
       - payee_account_last4
       - payee_account_version
       - payee_name
+      - pdf_sha256
       - prepared_by
       - reason
       - refund_change
@@ -48568,7 +48756,7 @@ components:
           format: uuid
           readOnly: true
         context_type:
-          $ref: '#/components/schemas/ContextTypeEnum'
+          $ref: '#/components/schemas/ContextType7b6Enum'
         context_id:
           type: string
           format: uuid
@@ -51266,6 +51454,16 @@ components:
         next_cursor:
           type: string
           nullable: true
+    PaginatedSatisfactionList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Satisfaction'
+        next_cursor:
+          type: string
+          nullable: true
     PaginatedScreeningList:
       type: object
       properties:
@@ -52803,6 +53001,12 @@ components:
           - 'null'
           format: date-time
           readOnly: true
+        cooling_off_ended_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          readOnly: true
         stopped_at:
           type:
           - string
@@ -52834,6 +53038,7 @@ components:
       - approval_request
       - bank_name
       - client_approved_at
+      - cooling_off_ended_at
       - cooling_off_until
       - country
       - deposit_event
@@ -58398,7 +58603,7 @@ components:
           type: string
           format: uuid
         context_type:
-          $ref: '#/components/schemas/ContextTypeEnum'
+          $ref: '#/components/schemas/ContextType7b6Enum'
         context_id:
           type: string
           format: uuid
@@ -61805,6 +62010,78 @@ components:
       description: |-
         * `available` - available
         * `unavailable` - unavailable
+    Satisfaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        context_type:
+          allOf:
+          - $ref: '#/components/schemas/SatisfactionContextTypeEnum'
+          readOnly: true
+        context_id:
+          type: string
+          format: uuid
+          readOnly: true
+        context_label:
+          type: string
+          readOnly: true
+        question:
+          type: string
+          readOnly: true
+        asked_at:
+          type: string
+          format: date-time
+          readOnly: true
+        score:
+          type:
+          - integer
+          - 'null'
+          readOnly: true
+        comment:
+          type: string
+          readOnly: true
+        answered_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          readOnly: true
+      required:
+      - answered_at
+      - asked_at
+      - comment
+      - context_id
+      - context_label
+      - context_type
+      - id
+      - question
+      - score
+    SatisfactionAnswerInRequest:
+      type: object
+      properties:
+        score:
+          type: integer
+          maximum: 10
+          minimum: 0
+          description: '0: not at all likely to recommend Tenmina; 10: certainly.'
+        comment:
+          type: string
+          maxLength: 1000
+      required:
+      - score
+    SatisfactionContextTypeEnum:
+      enum:
+      - report
+      - fee_payment
+      - project
+      type: string
+      description: |-
+        * `report` - report
+        * `fee_payment` - fee_payment
+        * `project` - project
     ScanStatusEnum:
       enum:
       - pending
@@ -64626,6 +64903,15 @@ components:
         notice:
           type: string
           readOnly: true
+        last_chased_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        chase_count:
+          type: integer
+          maximum: 32767
+          minimum: 0
         row_version:
           type: integer
           maximum: 2147483647

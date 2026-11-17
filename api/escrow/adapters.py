@@ -64,6 +64,12 @@ class ManualBankInstructions:
         """The bank issues virtual account numbers; staff record them by hand."""
         return None
 
+    def daily_positions(self, *, country, as_of) -> dict | None:
+        """The bank's own figure per virtual account for a day, {(virtual_account_ref, currency): amount}, where
+        the bank's channel reports it (FR-ESC-019). None: the figure comes from the statement file or is entered
+        by staff with the bank's report."""
+        return None
+
 
 class DownBankInstructions(ManualBankInstructions):
     """Tests and drills: the channel is down (TC-ESC-008-03, TC-ESC-018-03)."""

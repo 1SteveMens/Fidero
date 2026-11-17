@@ -2,21 +2,27 @@
 (FR-ESC-019, document 06 RB-47) and statement import (FR-ESC-011).
 Called through escrow.services."""
 import hashlib
+import logging
+from datetime import timedelta
 from decimal import Decimal
 
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 
 from administration import flags
+from audit.services import record
 from core import approvals, state
-from core.errors import Forbidden, Invalid, NotFound, RuleBlocked, StateConflict
+from core.errors import DomainError, Forbidden, Invalid, NotFound, RuleBlocked, StateConflict
 from core.events import publish
 from core.permissions import has_role
 
 from . import adapters, selectors
-from .common import alert_staff, audit, fmt, now
+from .common import alert_staff, audit, fmt, local_today, now
 from .models import BankEvent, BankPosition, Escrow, FxAccount, ProgrammeAccount, ReleaseInstruction, StatementFile, \
     StatementLine
+
+
+log = logging.getLogger(__name__)
 
 
 def _on(country):
@@ -184,6 +190,63 @@ def check_resolution(pos: BankPosition, by) -> BankPosition:
     for ins in ReleaseInstruction.objects.filter(escrow=pos.escrow, status="approved"):
         dispatch(ins)
     return pos
+
+
+# ----------------------------------------------------------------- daily reconciliation (7.12)
+
+RECONCILE_STATUSES = ("agreed", "funded", "ready_to_release", "client_approved", "release_approved",
+                      "partly_released", "frozen")
+
+
+def reconcile_positions(as_of=None) -> dict:
+    """escrow.reconcile_positions (daily, after the statement import; FR-ESC-019, FR-ESC-014, RUL-34).
+
+    For every open escrow with a virtual account, and each of its currencies: where the bank's channel reports
+    the day's figure (the `daily_positions` port), record it and compare it with the confirmed events; a figure
+    already recorded from the statement is left as it is (it was compared on import). A mismatch blocks releases
+    on that escrow and goes to a reviewer (`_compare`). An escrow with no bank figure for the day is listed for
+    the case manager. The job never changes a bank event and never releases anything."""
+    from countries.selectors import active_countries
+
+    out = {"recorded": 0, "matched": 0, "mismatch": 0, "missing": {}}
+    gateway = adapters.bank_instructions()
+    for country in active_countries():
+        if not flags.enabled("escrow.enabled", country):
+            continue
+        day = as_of or (local_today(country) - timedelta(days=1))
+        fetch = getattr(gateway, "daily_positions", None)
+        reported = (fetch(country=country, as_of=day) if fetch else None) or {}
+        missing = []
+        escrows = Escrow.objects.filter(country=country, status__in=RECONCILE_STATUSES,
+                                        virtual_account_ref__isnull=False).exclude(virtual_account_ref="")
+        for e in escrows.order_by("reference"):
+            for cur, ref in selectors.currencies(e):
+                if not ref:
+                    continue
+                pos = BankPosition.objects.filter(escrow=e, currency=cur, as_of=day).first()
+                if pos is None and (ref, cur) in reported:
+                    try:
+                        pos = record_bank_position(e, as_of=day, reported_held_amount=reported[(ref, cur)],
+                                                   currency=cur, source="api", virtual_account_ref=ref)
+                        out["recorded"] += 1
+                    except DomainError as exc:
+                        log.warning("reconcile: %s %s not recorded: %s", e.reference, cur, exc.detail)
+                        pos = None
+                if pos is None:
+                    missing.append(f"{e.reference} ({cur})")
+                elif pos.status == "matched":
+                    out["matched"] += 1
+                elif pos.status == "mismatch":
+                    out["mismatch"] += 1
+        if missing:
+            out["missing"][country.code] = missing
+            shown = ", ".join(missing[:20]) + (f" and {len(missing) - 20} more" if len(missing) > 20 else "")
+            alert_staff(country, ("CM",), "bank_position_missing",
+                        f"The bank's figure for {day:%d %B %Y} is missing for {len(missing)} escrow account(s): "
+                        f"{shown}. Enter it from the bank's report or ask the bank.", link="/back-office/escrows")
+        record(action="bank_position.reconciled", entity="bank_position_run", entity_id=f"{country.code}-{day}",
+               country=country, data={"as_of": str(day), "missing": len(missing)})
+    return out
 
 
 # ----------------------------------------------------------------- statement import (FR-ESC-011)

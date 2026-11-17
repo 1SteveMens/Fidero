@@ -5,6 +5,7 @@
 - latest_fresh_search(asset_id)               ESC's RUL-07 check: registry result date and site check date
 - cost_summary(case), cost_per_report(...)    FR-CASE-011, BO-02
 - work_queue(user, ...)                       FR-CASE-005, FR-CASE-006
+- safety_incident_counts(start, end, ...)     counts only from the restricted safety log (analytics)
 """
 from collections import defaultdict
 from decimal import Decimal
@@ -174,3 +175,19 @@ def people_linked_to_case(case_obj) -> set:
                    .values_list("representative_id", flat=True))
     ids.discard(None)
     return ids
+
+
+def safety_incident_counts(start, end, countries=None) -> list[dict]:
+    """How many safety incidents happened, by country, calendar month (UTC) and severity, between `start`
+    (inclusive) and `end` (exclusive). Counts only: no narrative, no names, no case or person and no free text
+    leave the restricted log (RUL-17, 02 10.9). Reads through the database function safety.incident_counts,
+    never the table itself. `countries` is a list of country codes, or None for every country."""
+    from django.db import connection
+
+    with connection.cursor() as cur:
+        cur.execute("SELECT country_code, month, severity, incidents FROM safety.incident_counts(%s, %s)",
+                    [start, end])
+        rows = cur.fetchall()
+    allowed = None if countries is None else {c.upper() for c in countries}
+    return sorted(({"country": c, "month": m, "severity": sev, "incidents": int(n)} for c, m, sev, n in rows
+                   if allowed is None or c in allowed), key=lambda r: (r["month"], r["country"], r["severity"]))

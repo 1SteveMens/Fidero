@@ -121,3 +121,35 @@ class TrackRecord(BaseModel):
     class Meta:
         db_table = "rat_track_record"
         constraints = [models.UniqueConstraint(fields=["subject_type", "subject_id"], name="rat_track_record_uq")]
+
+
+class SatisfactionSurvey(BaseModel):
+    """Client satisfaction (US-ANL metrics, issue I-07). After a released report, a confirmed family payment or a
+    completed project the client is asked one question in the notifications inbox: how likely are you to
+    recommend Tenmina, from 0 to 10, with an optional comment. The answer is private to Tenmina: it feeds the
+    analytics score and is never shown as a public rating."""
+
+    CONTEXT_TYPES = ["report", "fee_payment", "project"]
+    country = models.ForeignKey("countries.Country", null=True, blank=True, on_delete=models.PROTECT,
+                                related_name="+")
+    client = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    context_type = models.TextField(choices=[(c, c) for c in CONTEXT_TYPES])
+    context_id = models.UUIDField()
+    context_label = models.TextField(blank=True, default="")
+    asked_at = models.DateTimeField()
+    score = models.PositiveSmallIntegerField(null=True, blank=True)
+    comment = models.TextField(blank=True, default="")
+    answered_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = "rat_satisfaction"
+        indexes = [models.Index(fields=["client", "asked_at"], name="rat_satisfaction_client_idx"),
+                   models.Index(fields=["country", "asked_at"], name="rat_satisfaction_country_idx")]
+        constraints = [
+            models.UniqueConstraint(fields=["client", "context_type", "context_id"], name="rat_satisfaction_once"),
+            models.CheckConstraint(condition=Q(score__isnull=True) | (Q(score__gte=0) & Q(score__lte=10)),
+                                   name="rat_satisfaction_score_0_10"),
+            models.CheckConstraint(condition=Q(score__isnull=True, answered_at__isnull=True)
+                                   | Q(score__isnull=False, answered_at__isnull=False),
+                                   name="rat_satisfaction_answer_pair"),
+        ]

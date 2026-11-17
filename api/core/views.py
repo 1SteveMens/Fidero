@@ -49,6 +49,24 @@ def require_mfa(request):
     return at
 
 
+def search_filter(qs, request, *fields, min_length=2):
+    """`?search=` on a staff picker list (the back office people pickers): at least `min_length` characters,
+    matched case-insensitively against any of `fields`. No term: the list as it is."""
+    from django.db.models import Q
+
+    from .errors import Invalid
+
+    term = (request.query_params.get("search") or "").strip()
+    if not term:
+        return qs
+    if len(term) < min_length:
+        raise Invalid(f"Type at least {min_length} characters to search.", code="search-too-short")
+    q = Q()
+    for f in fields:
+        q |= Q(**{f"{f}__icontains": term})
+    return qs.filter(q).distinct()
+
+
 def body(request, *fields, optional=()):
     """Read required fields from request.data, 400 if any is missing."""
     missing = [f for f in fields if request.data.get(f) in (None, "")]

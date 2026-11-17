@@ -77,21 +77,9 @@ def _check(phone, client_item_id, kind, subject_type, subject_id, **kw):
     return ci
 
 
-def _flags(ctx):
-    from administration.models import FeatureFlag
-
-    for app in ("field", "client"):
-        for platform in ("android", "ios"):
-            for name, value in ((f"app.min_version.{app}.{platform}", "1.0.0"),
-                                (f"app.latest_version.{app}.{platform}", "1.0.0")):
-                FeatureFlag.objects.get_or_create(name=name, country=None,
-                                                  defaults={"enabled": True, "value": value, "owner": "founder"})
-
-
 def run(ctx):
     from .services import review_flag, submit, submit_inspection
 
-    _flags(ctx)
     gh, p = ctx["gh"], ctx["people"]
     cm, now = p["cm"], timezone.now()
 

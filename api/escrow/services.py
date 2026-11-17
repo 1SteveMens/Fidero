@@ -63,8 +63,8 @@ from .models import (ESCROW, OPEN_STATUSES, STAGED_KINDS, Acceptance, BankEvent,
                      StandingApproval)
 from .payees import (_client_signed, apply_payee_change, apply_verification, change_identity_check,  # noqa: F401
                      check_change_account, client_approve_change, create_payee, decide_change, decide_verification,
-                     lock_payee, on_change_approval, prepare_verification, reinstate_payee, request_change,
-                     stop_change, suspend_payee, update_payee, withdraw_change)
+                     end_cooling_off, expire_payees, lock_payee, on_change_approval, prepare_verification,
+                     reinstate_payee, request_change, stop_change, suspend_payee, update_payee, withdraw_change)
 from .selectors import available_to_instruct, held_funds_for  # noqa: F401
 
 ZERO = Decimal("0.00")
@@ -925,6 +925,42 @@ def _instruction_bytes(doc) -> bytes:
     return json.dumps(doc, sort_keys=True, indent=1).encode()
 
 
+def _store_pdf(ins: ReleaseInstruction, data: bytes):
+    """9.1: the PDF for people, rendered from the signed structured file and stored as evidence with its SHA-256.
+    Deterministic, so the same instruction always gives the same PDF."""
+    from evidence.services import link, store
+
+    from .pdf import render
+
+    e = ins.escrow
+    pdf = render(data, document_sha256=ins.document_sha256)
+    ev = store(data=pdf, country=e.country, content_type="application/pdf", source="generated",
+               original_name=f"instruction-{ins.pk}.pdf", data_class="escrow_payment", owner_type="escrow",
+               owner_id=e.pk, description=f"{ins.kind.replace('_', ' ').capitalize()} instruction (PDF)")
+    link(ev, "escrow_instruction", ins.pk, role="instruction_pdf")
+    ins.pdf_evidence, ins.pdf_sha256 = ev, ev.sha256
+    ins.save(update_fields=["pdf_evidence", "pdf_sha256"])
+    audit(None, "release.pdf_stored", ins, {"pdf_sha256": ev.sha256, "document_sha256": ins.document_sha256})
+
+
+def instruction_pdf(ins: ReleaseInstruction, by) -> tuple[bytes, str, str]:
+    """FR-ESC-008: staff with release rights (RR) in the escrow's country download the PDF. The bytes are checked
+    against the stored SHA-256 before they leave; every download is audited."""
+    from core.adapters import get_adapter
+    from evidence.services import verify
+
+    if not has_rr(by, ins.country):
+        raise Forbidden("Only staff with release rights download a bank instruction.")
+    if not ins.pdf_evidence_id:
+        raise NotFound("This instruction has no PDF yet. It is made when the instruction is sent.")
+    ev = ins.pdf_evidence
+    if not verify(ev) or ev.sha256 != ins.pdf_sha256:
+        audit(by, "release.pdf_check_failed", ins)
+        raise StateConflict("The stored PDF no longer matches its hash. It cannot be downloaded.")
+    audit(by, "release.pdf_downloaded", ins, {"pdf_sha256": ins.pdf_sha256})
+    return get_adapter("evidence_store").get(ev.storage_key), ev.original_name, ins.pdf_sha256
+
+
 def dispatch(ins: ReleaseInstruction) -> ReleaseInstruction:
     """escrow.dispatch_instruction: runs on release.approved at once. Re-checks
     every blocker, signs the instruction and sends it by the agreed channel.
@@ -980,6 +1016,8 @@ def dispatch(ins: ReleaseInstruction) -> ReleaseInstruction:
         ins.document_evidence, ins.document_sha256 = ev, ev.sha256
         ins.kms_signature, ins.signature_key_id = signer.sign(ev.sha256), getattr(signer, "key_id", "")
         ins.save(update_fields=["document_evidence", "document_sha256", "kms_signature", "signature_key_id"])
+    if not ins.pdf_evidence_id:
+        _store_pdf(ins, data)
     ins.send_attempts += 1
     try:
         res = adapters.bank_instructions().send(instruction=ins, document=data, signature=ins.kms_signature,
@@ -1698,7 +1736,7 @@ def on_incident(payload: dict, opened: bool):
 
 # Re-exported for the API and other modules (fx, bank accounts, statements).
 from .bank import (check_bank_position, check_resolution, create_programme_account, decide_programme_account,  # noqa
-                   import_statement, record_bank_position, resolve_position, unmatched_lines)
+                   import_statement, reconcile_positions, record_bank_position, resolve_position, unmatched_lines)
 from .fx import (accept_quote, check_conversion_resolution, check_observation, collect_rates,  # noqa
                  comparison_for, create_programme_rate, decide_programme_rate, deposit_routes, enter_observation,
                  issue_quote, prepare_conversion, record_fx_account, resolve_conversion, set_conversion_choice)

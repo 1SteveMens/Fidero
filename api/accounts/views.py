@@ -11,8 +11,10 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import mixins, permissions, status, viewsets
-from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.decorators import action, api_view, permission_classes, throttle_classes
 from rest_framework.response import Response
+from rest_framework.throttling import UserRateThrottle
+from rest_framework.views import APIView
 
 from core.errors import DomainError, Forbidden, Invalid
 from core.idempotency import idempotent
@@ -444,17 +446,32 @@ class OrganisationViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixins
 
 # ---------------------------------------------------------------- administration of people (US-ACC-006)
 
+class PeopleSearchThrottle(UserRateThrottle):
+    scope = "people_search"
+    rate = "30/min"  # per staff member, assumption
+
+    def get_cache_key(self, request, view):
+        return self.cache_format % {"scope": self.scope, "ident": request.user.pk}
+
+
 @extend_schema(parameters=[OpenApiParameter("search", str, required=True), OpenApiParameter("role", str)],
                responses={200: PersonPickPageSerializer})
 @api_view(["GET"])
 @permission_classes([roles(*STAFF_ROLES)])
+@throttle_classes([PeopleSearchThrottle])
 def people_search(request):
     """People picker for staff forms: matches name, email or phone (at least
-    2 characters), only people in the staff member's countries, emails masked."""
+    2 characters), only people in the staff member's countries, emails masked.
+    Rate-limited, and every search is audited."""
+    from audit.services import record
+
     q = (request.query_params.get("search") or "").strip()
     if len(q) < 2:
         raise Invalid("Type at least 2 characters to search.", code="search-too-short")
-    items = selectors.people_for_picker(request.user, q, role=request.query_params.get("role") or None)
+    role = request.query_params.get("role") or None
+    items = selectors.people_for_picker(request.user, q, role=role)
+    record(actor=request.user, action="people.searched", entity="acc_person", entity_id="search",
+           data={"search": q[:100], "role": role or "", "results": len(items)})
     return Response({"items": items, "next_cursor": None})
 
 
@@ -911,4 +928,6 @@ class VettingViewSet(ModelViewSet):
         v = self.get_object()
         services.revoke_vetting(v, request.user, _valid(ReasonSerializer, request)["reason"])
         return Response(VettingSerializer(v).data)
+
+
 

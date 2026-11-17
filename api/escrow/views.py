@@ -2,6 +2,8 @@
 are a party to); staff are scoped to their country role grants; release
 rights (RR) are checked inside the approval component."""
 from django.db.models import Q
+from django.http import HttpResponse
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
@@ -594,6 +596,18 @@ class ReleaseInstructionViewSet(viewsets.GenericViewSet):
         services.dispatch(ins)
         ins.refresh_from_db()
         return Response(InstructionSerializer(ins).data)
+
+    @extend_schema(request=None, responses={(200, "application/pdf"): OpenApiTypes.BINARY})
+    @action(detail=True, methods=["get"], permission_classes=[roles("RR")])
+    def pdf(self, request, pk=None):
+        """FR-ESC-008, 9.1: the instruction as a PDF for people, for staff with release rights. The header
+        X-Content-SHA256 carries the hash stored with the evidence."""
+        data, name, sha = services.instruction_pdf(self._obj(request, pk), request.user)
+        resp = HttpResponse(data, content_type="application/pdf")
+        resp["Content-Disposition"] = f'attachment; filename="{name}"'
+        resp["X-Content-SHA256"] = sha
+        resp["Cache-Control"] = "private, no-store"
+        return resp
 
     @extend_schema(request=BankRejectionIn, responses=InstructionSerializer)
     @action(detail=True, methods=["post"], url_path="bank-rejection", permission_classes=[roles("CM", "RV")])

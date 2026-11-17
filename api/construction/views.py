@@ -48,6 +48,7 @@ def _country(request, code=None):
 
 # ----------------------------------------------------------------- panel (FR-BLD-003, FR-BLD-004, FR-BLD-010)
 
+
 class PanelMemberViewSet(ETagMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """Contractors, inspectors, quantity surveyors and developers. Clients see only active members."""
 
