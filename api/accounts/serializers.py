@@ -131,7 +131,8 @@ class SignupSerializer(serializers.Serializer):
     full_name = serializers.CharField()
     phone = serializers.CharField()
     residence_country = serializers.CharField(required=False, allow_blank=True, max_length=2)
-    home_country = serializers.CharField(required=False, default="GH", max_length=2)
+    home_country = serializers.CharField(required=False, allow_blank=True, default="", max_length=2,
+                                         help_text="Required when Tenmina works in more than one country")
     preferred_language = serializers.CharField(required=False, default="en")
     privacy_notice_version = serializers.CharField(required=False, allow_blank=True)
     mode = serializers.ChoiceField(choices=["session", "token"], required=False, default="session")
@@ -143,7 +144,8 @@ class RegisterSerializer(serializers.Serializer):
     full_name = serializers.CharField()
     phone = serializers.CharField(required=False, allow_blank=True, default="")
     residence_country = serializers.CharField(required=False, allow_blank=True, max_length=2)
-    home_country = serializers.CharField(required=False, default="GH", max_length=2)
+    home_country = serializers.CharField(required=False, allow_blank=True, default="", max_length=2,
+                                         help_text="Required when Tenmina works in more than one country")
     preferred_language = serializers.CharField(required=False, default="en")
     privacy_notice_version = serializers.CharField(required=False, allow_blank=True)
 

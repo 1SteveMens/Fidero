@@ -208,7 +208,7 @@ class CaseViewSet(ETagMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, v
         d = s.validated_data
         money = d["amount"]
         if "amount" not in money or "currency" not in money:
-            raise Invalid('Give the amount as {"amount": "120.00", "currency": "GHS"}.')
+            raise Invalid(f'Give the amount as {{"amount": "120.00", "currency": "{case.country.currency}"}}.')
         item = services.add_cost(case, actor=request.user, item_type=d["item_type"], amount=money["amount"],
                                  currency=money["currency"], incurred_on=d.get("incurred_on"),
                                  description=d.get("description", ""))

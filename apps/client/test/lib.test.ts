@@ -22,6 +22,12 @@ describe('routeFor', () => {
     expect(routeFor('/account/data-requests/d1')).toBe('/account/data');
   });
 
+  it('opens a payee change waiting for the client from home and from the notification', () => {
+    expect(routeFor('/payee-changes/p1')).toBe('/payee-change/p1');
+    expect(routeFor('/escrows/e1/payee-changes/p1')).toBe('/payee-change/p1');
+    expect(routeFor('/care/concerns/c1')).toBe('/concern/c1');
+  });
+
   it('shows anything else as a summary inside the app, never a web page', () => {
     const r = routeFor('/ratings/new', 'Rate the surveyor', 'Tell us how it went');
     expect(r).toEqual({ pathname: '/item', params: { link: '/ratings/new', title: 'Rate the surveyor', detail: 'Tell us how it went' } });

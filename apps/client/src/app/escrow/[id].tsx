@@ -18,7 +18,8 @@ export default function EscrowScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { me } = useSession();
   const e = useGet<Escrow>(`/v1/escrows/${id}`);
-  const cm = useGet<{ commitment: AccountCommitment }>(`/v1/account/commitments/${id}`);
+  // The account itself (held funds) is not a commitment: it opens Money instead, so do not ask for it.
+  const cm = useGet<{ commitment: AccountCommitment }>(e.data && e.data.kind !== 'held_funds' ? `/v1/account/commitments/${id}` : null);
   const c = cm.data?.commitment;
   const waiting = useGet<{ items: Instruction[] }>('/v1/release-instructions', { status: 'awaiting_client' });
   const accept = useAction();
@@ -138,7 +139,7 @@ export default function EscrowScreen() {
             </Section>
           ) : null}
 
-          {d.case_id ? <Button title="Open the case" variant="quiet" icon="document-text-outline" onPress={() => router.push(`/case/${d.case_id}`)} /> : null}
+          {d.case_id && d.case_is_clients ? <Button title="Open the case" variant="quiet" icon="document-text-outline" onPress={() => router.push(`/case/${d.case_id}`)} /> : null}
           {d.project_id ? <Button title="Open the project" variant="quiet" icon="construct-outline" onPress={() => router.push(`/project/${d.project_id}`)} /> : null}
         </>
       ) : null}

@@ -434,8 +434,11 @@ def _credit_note(refund: Refund) -> Receipt:
 
 
 def _offline_threshold(country, currency):
-    th = _cfg(country, "offline_two_person_threshold", {"USD": "500.00", "GHS": "7500.00"})  # [TO VERIFY]
-    return Decimal(str(th[currency])) if currency in th else None
+    """Above this a second person approves an offline payment. Per currency, from the country's configuration
+    (`payments.offline_two_person_threshold`) [TO VERIFY]. A currency with no threshold set always needs the
+    second person: no country's figure is assumed here."""
+    th = _cfg(country, "offline_two_person_threshold", {"USD": "500.00"})  # [TO VERIFY]
+    return Decimal(str(th[currency])) if currency in th else Decimal("0")
 
 
 def _proof(actor, country, proof_evidence_id=None, proof_file=None):

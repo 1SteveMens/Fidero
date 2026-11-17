@@ -89,9 +89,9 @@ def _alert_staff(country, roles, template, body, obj=None):
 
 
 def _person_country(person):
-    from countries.models import Country
+    from countries.selectors import country_of_person
 
-    return person.home_country or Country.objects.filter(code="GH").first()
+    return country_of_person(person)
 
 
 # ---------------------------------------------------------------- one-time codes
@@ -180,7 +180,7 @@ SIGNUP_REFUSED = ("We could not create an account with these details. If you alr
 
 @transaction.atomic
 def register(*, email, password, full_name, phone="", privacy_notice_version=None, residence_country="",
-             home_country="GH", preferred_language="en", roles=("CL",), ip="", legacy=False) -> Person:
+             home_country="", preferred_language="en", roles=("CL",), ip="", legacy=False) -> Person:
     """FR-ACC-001, FR-DPR-001: sign up with email and mobile number, each
     confirmed by a one-time code, and accept the current privacy notice.
 
@@ -189,12 +189,12 @@ def register(*, email, password, full_name, phone="", privacy_notice_version=Non
     account still cannot sign in until its contact details are confirmed."""
     from django.contrib.auth.password_validation import validate_password
 
-    from countries.models import Country
+    from countries.selectors import country_or_default
     from dataprotection import selectors as dpr
 
     email = (email or "").lower().strip()
     phone = _check_phone(phone) if (phone or not legacy) else ""
-    country = Country.objects.filter(code=(home_country or "GH").upper()).first()
+    country = country_or_default(home_country, field="home_country")
     if country is None:
         raise Invalid("We do not work in that country yet.", code="validation-error")
     notice = dpr.current_notice(country)

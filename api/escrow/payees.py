@@ -671,6 +671,16 @@ def apply_payee_change(ch: PayeeChange):
                 f"expect this, stop it now: /payee-changes/{ch.pk}/stop?token={token}")
         msgs = notify(client, "payee_change_notice", body, subject="An account change on your money",
                       channels=_second_channels(client), category="safety", obj=ch, needs_action=False)
+        # The single-use stop link is for the second channel (email). The in-app copy opens the change itself, so
+        # the app never shows a raw path with ids (FR-NTF-004).
+        in_app = [m.pk for m in (msgs or []) if getattr(m, "channel", "") == "in_app"]
+        if in_app:
+            from notifications.models import Message
+
+            Message.objects.filter(pk__in=in_app).update(
+                body=body.split(" If you did not expect this")[0] + " If you did not expect this, use the stop link "
+                     "in the email we sent you, or tell Tenmina at once.",
+                link=f"/payee-changes/{ch.pk}")
         if msgs and msg_id is None:
             msg_id = msgs[0].pk
         if ch.escrow_id is None:

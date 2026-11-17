@@ -38,6 +38,17 @@ def _country(code):
     return c
 
 
+def _country_for(request):
+    """The country named in the query, else the caller's own country (home country, the one country of their
+    role grants, or the only active country). Several active countries and none named: the field is required."""
+    from countries.selectors import country_of_person
+
+    code = request.query_params.get("country")
+    if code:
+        return _country(code)
+    return country_of_person(request.user if request.user.is_authenticated else None)
+
+
 def _get(model, pk):
     obj = model.objects.filter(pk=pk).first() if pk else None
     if obj is None:
@@ -168,8 +179,7 @@ class ProductViewSet(viewsets.GenericViewSet):
     def list(self, request):
         """Cover products with the insurer's name, terms and the statement that the policy is the insurer's
         (FR-INS-001). Empty where the line is not open (US-INS-001 AC2)."""
-        code = request.query_params.get("country") or getattr(request.user.home_country, "code", "GH")
-        country = _country(code)
+        country = _country_for(request)
         if has_role(request.user, *STAFF, country=country):
             qs = Product.objects.filter(country=country).select_related("insurer", "insurer__partner")
         else:
@@ -180,7 +190,7 @@ class ProductViewSet(viewsets.GenericViewSet):
     @extend_schema(responses=InsLineStatusOut, parameters=[OpenApiParameter("country", str)])
     @action(detail=False, methods=["get"], url_path="line-status")
     def line_status(self, request):
-        ok, reasons = services.line_open(_country(request.query_params.get("country") or "GH"))
+        ok, reasons = services.line_open(_country_for(request))
         return Response({"open": ok, "reasons": reasons})
 
     @extend_schema(request=InsProductIn, responses={201: InsProductSerializer})

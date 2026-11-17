@@ -1,8 +1,10 @@
 """Feature flag checks (document 06, 2.6).
 
 A `lines.*` flag is on in a country only when the platform value is on,
-`country.<code>` is on (Ghana is the launch country and needs no country
-flag), and the country's own value for that line is on.
+the country is open, and the country's own value for that line is on. A
+country is open when its `country.<code>` flag is on, or, with no such flag,
+when the country is active (the launch country needs no country flag;
+country is configuration, so no code is named here).
 """
 from django.conf import settings
 
@@ -10,7 +12,14 @@ from core.errors import DomainError, FeatureOff
 
 from .models import FeatureFlag
 
-LAUNCH_COUNTRIES = {"GH"}
+
+def _country_open(code):
+    flag = _value(f"country.{code.lower()}")
+    if flag is not None:
+        return flag
+    from countries.models import Country
+
+    return Country.objects.filter(code=code.upper(), status="active").exists()
 
 
 def _value(name, country_code=None):
@@ -30,7 +39,7 @@ def enabled(name: str, country=None) -> bool:
     platform = bool(_value(name))
     if not code:
         return platform
-    if code.upper() not in LAUNCH_COUNTRIES and not _value(f"country.{code.lower()}"):
+    if not _country_open(code):
         return False
     if name.startswith("lines."):
         local = _value(name, code)

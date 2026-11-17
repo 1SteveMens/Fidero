@@ -237,6 +237,21 @@ class ReportVerificationView(APIView):
         return Response(services.verify(s.validated_data["reference"], digest, ip_hash=_ip_hash(request)))
 
 
+def _draw_country(user, code):
+    """A re-check draw belongs to a country (RUL-32): the one named, else the one country of the caller's reviewer
+    or administrator grants, else the only active country. Several and none named: the field is required."""
+    from countries.selectors import country_or_default, staff_country_codes
+
+    if not code:
+        codes = staff_country_codes(user, "RV", "AD")
+        if codes and len(codes) == 1:
+            code = next(iter(codes))
+    country = country_or_default(code)
+    if country is None:
+        raise NotFound("Country not found.")
+    return country
+
+
 class RecheckViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """The month's draw, assignments and results. Hidden from the case's original team (RUL-32)."""
 
@@ -257,15 +272,11 @@ class RecheckViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
                                OpenApiParameter("country", str, required=False)],
                    responses=S.RecheckMonthSerializer)
     def list(self, request):
-        from countries.models import Country
-
         u = request.user
         if not has_role(u, "RV", "AD"):
             mine = selectors.rechecks_for_assignee(u)
             return Response({"draw": None, "items": S.RecheckSerializer(mine, many=True).data, "summary": {}})
-        country = Country.objects.filter(code=request.query_params.get("country", "GH").upper()).first()
-        if country is None:
-            raise NotFound("Country not found.")
+        country = _draw_country(u, request.query_params.get("country"))
         raw = request.query_params.get("month")
         today = date.today()
         try:
@@ -283,13 +294,11 @@ class RecheckViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     def draws(self, request):
         """Run the month's draw by hand when the job did not run. One draw per month; a second is refused and
         audited (TC-RUL-32-04)."""
-        from countries.models import Country
-
         if not has_role(request.user, "RV", "AD"):
             raise Forbidden("Reviewers and administrators only.")
         s = S.DrawInput(data=request.data)
         s.is_valid(raise_exception=True)
-        country = get_object_or_404(Country, code=s.validated_data["country"].upper())
+        country = _draw_country(request.user, s.validated_data["country"])
         try:
             d = services.draw(country, s.validated_data["month"], by=request.user)
         except DomainError as exc:

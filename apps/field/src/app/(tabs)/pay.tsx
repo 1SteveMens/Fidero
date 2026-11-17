@@ -74,7 +74,9 @@ export default function Pay() {
   const { hasRole } = useSession();
   const { pay, problem, refresh } = usePay();
   const country = useCountry();
-  const professional = hasRole('RN', 'SV', 'IN', 'QS', 'LW');
+  // Carers and errand agents (CE) see My pay when Tenmina pays them under an agreement (an errand agent is paid
+  // per finished errand, FR-PRO-001); a carer paid from the family's money at the bank sees the note instead.
+  const professional = hasRole('RN', 'SV', 'IN', 'QS', 'LW') || (hasRole('CE') && !!pay?.agreement);
 
   if (!professional || problem?.status === 403) {
     return (
@@ -84,7 +86,7 @@ export default function Pay() {
           <T v="callout" style={{ flex: 1 }}>
             {hasRole('CT')
               ? 'Contractors are paid by the bank for each milestone that passes inspection, after the client and two Tenmina staff approve.'
-              : 'Carers and errand agents are paid from the money the family holds at the bank, for each visit or step that is confirmed.'}
+              : 'Carers are paid from the money the family holds at the bank, for each visit that is confirmed. If Tenmina pays you under an agreement, your pay shows here.'}
           </T>
         </Panel>
       </Screen>

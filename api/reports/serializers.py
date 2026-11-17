@@ -225,7 +225,9 @@ class RecheckMonthSerializer(serializers.Serializer):
 
 class DrawInput(serializers.Serializer):
     month = serializers.DateField()
-    country = serializers.CharField(default="GH")
+    country = serializers.CharField(required=False, allow_blank=True, default="", max_length=2,
+                                    help_text="The draw's country. Defaults to the one country of your reviewer or "
+                                              "administrator grants, or the only active country; required otherwise.")
 
 
 class AssignInput(serializers.Serializer):

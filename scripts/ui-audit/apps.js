@@ -8,7 +8,9 @@
  * SMS adapter prints it; an authenticator code is computed from the development
  * secret), visits every route under `src/app`, presses list rows, tabs and
  * buttons to reach detail screens and sheets (with every POST, PUT, PATCH and
- * DELETE to the API blocked while it explores, so nothing changes), and on each
+ * DELETE to the API blocked while it explores, so nothing changes), then opens
+ * the screens it did not reach from the links the API gives that person (home
+ * rows and notifications, payables, errands and field jobs), and on each
  * view, at 390x844 and 375x667, in light and dark colour scheme, checks:
  *   - contrast of every visible text node against its effective background
  *     (4.5:1, or 3:1 for large text; icons 3:1), and text drawn in the colour of its ground
@@ -74,6 +76,8 @@ const ROLES = [
   { app: 'field', key: 'inspector', email: 'inspector@example.com' },
   { app: 'field', key: 'carer', email: 'carer@example.com' },
   { app: 'field', key: 'agent', email: 'agent@example.com' },
+  /* the errand agent on the panel, with errands and pay (Yaa's vetting is still pending, so she has none) */
+  { app: 'field', key: 'errand-agent', email: 'kofi.agent@example.com' },
   { app: 'field', key: 'runner', email: 'runner@example.com' },
   { app: 'field', key: 'surveyor', email: 'surveyor@example.com', mfa: true },
   { app: 'field', key: 'lawyer', email: 'lawyer@example.com', mfa: true },
@@ -450,6 +454,62 @@ async function press(page, target) {
   }, target);
 }
 
+/* API links to app screens, as the client app maps them (apps/client/src/lib.ts, ROUTES), for the dynamic routes only. */
+const CLIENT_LINKS = [
+  [/^\/cases\/([^/?]+)(?:\/document-requests\/[^/?]+)?$/, '/case/'],
+  [/^\/reports\/([^/?]+)$/, '/report/'],
+  [/^\/(?:escrows|commitments)\/([^/?]+)$/, '/escrow/'],
+  [/^\/release-instructions\/([^/?]+)$/, '/release/'],
+  [/^\/invoices\/([^/?]+)$/, '/invoice/'],
+  [/^\/fee-payments\/([^/?]+)$/, '/fee-payment/'],
+  [/^\/projects\/([^/?]+)$/, '/project/'],
+  [/^\/properties\/([^/?]+)$/, '/managed/'],
+  [/^\/repairs\/([^/?]+)$/, '/repair/'],
+  [/^\/care\/plans\/([^/?]+)$/, '/care-plan/'],
+  [/^\/care\/visits\/([^/?]+)$/, '/care-visit/'],
+  [/^\/care\/concerns\/([^/?]+)$/, '/concern/'],
+  [/^\/errands\/([^/?]+)$/, '/errand/'],
+  [/^\/events\/([^/?]+)(?:\/receipts)?$/, '/event/'],
+  [/^\/insurance\/policies\/([^/?]+)$/, '/policy/'],
+  [/^\/insurance\/premiums\/([^/?]+)$/, '/premium/'],
+  [/^\/disputes\/([^/?]+)$/, '/dispute/'],
+  [/^\/(?:escrows\/[^/?]+\/)?payee-changes\/([^/?]+)$/, '/payee-change/'],
+  [/^\/listings\/([^/?]+)$/, '/listing/'],
+  [/^\/orders\/([^/?]+)(?:\/pay)?$/, '/pay-fee/'],
+  [/^\/(?:family\/)?members\/([^/?]+)$/, '/member/'],
+];
+
+/* App URLs for the links the API gives this person: home rows and notifications (client), payables and errands (field). */
+async function deepLinks(app, headers) {
+  const get = async (p) => {
+    try {
+      const r = await fetch(API + p, { headers: { ...headers, accept: 'application/json' } });
+      return r.ok ? await r.json() : null;
+    } catch {
+      return null;
+    }
+  };
+  const out = [];
+  if (app === 'client') {
+    const links = [];
+    (function walk(v) {
+      if (Array.isArray(v)) v.forEach(walk);
+      else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) { if (k === 'link' && typeof x === 'string') links.push(x); else walk(x); }
+    })([await get('/v1/home'), await get('/v1/me/notifications?page_size=100')]);
+    for (const l of links) {
+      const p = l.split('?')[0];
+      for (const [re, to] of CLIENT_LINKS) { const m = p.match(re); if (m) { out.push(to + m[1]); break; } }
+    }
+  } else {
+    const items = (j) => (Array.isArray(j) ? j : j?.items ?? j?.results ?? []);
+    for (const p of items(await get('/v1/me/pro/payables'))) out.push(`/pay/${p.id}`);
+    for (const e of items(await get('/v1/mobile/errands'))) out.push(`/errand/${e.id}`);
+    /* jobs open from the synced list on the phone; an errand's steps open the errand screen instead */
+    for (const j of items(await get('/v1/mobile/inbox'))) if (j.subject_type && j.subject_type !== 'errand_step') out.push(`/job/${j.subject_type}/${j.subject_id}`);
+  }
+  return [...new Set(out)];
+}
+
 async function runRole(browser, role, allRoutes, results, shots) {
   const base = `http://localhost:${APPS[role.app].port}`;
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, reducedMotion: 'reduce', isMobile: false, hasTouch: false });
@@ -507,6 +567,14 @@ async function runRole(browser, role, allRoutes, results, shots) {
   const pressedOnPattern = new Set();
   const labelLeadsTo = new Map();
   let views = 0;
+  /* the last Authorization and Tenmina-App headers the app sent, to ask the API for deep links */
+  let apiHeaders = null;
+  page.on('request', (req) => {
+    if (!req.url().startsWith(API)) return;
+    const h = req.headers();
+    if (h.authorization) apiHeaders = { authorization: h.authorization, ...(h['tenmina-app'] ? { 'tenmina-app': h['tenmina-app'] } : {}) };
+  });
+  const drain = async () => {
   while (queue.length && views < MAX_VIEWS) {
     const { url, from } = queue.shift();
     const rt = routeOf(url);
@@ -575,6 +643,21 @@ async function runRole(browser, role, allRoutes, results, shots) {
         await settle(page);
       }
     }
+  }
+  };
+  await drain();
+  /* Screens a person reaches only from a row far down a long list (a care concern, a payee change, one payable):
+     open them straight from the links the API gives this person, as a notification or a home row would. */
+  if (role.email && apiHeaders && views < MAX_VIEWS) {
+    const reachedNow = new Set(results.filter((r) => r.role === role.key && r.app === role.app && r.checks).map((r) => r.key));
+    for (const u of await deepLinks(role.app, apiHeaders)) {
+      const r = routeOf(base + u);
+      if (r && r.dynamic && !reachedNow.has(r.pattern) && !visited.has(u) && (perPattern[r.pattern] || 0) < 2) {
+        queue.push({ url: base + u, from: '(a link the API gives this person)' });
+        reachedNow.add(r.pattern);
+      }
+    }
+    await drain();
   }
   const reached = new Set(results.filter((r) => r.role === role.key && r.app === role.app && r.checks).map((r) => r.key));
   results.push({ app: role.app, role: role.key, coverage: { views, reached: [...reached], blocked: [...new Set(blocked)] } });

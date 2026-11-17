@@ -182,6 +182,26 @@ def approved_card(gh, *, role, unit, rate, admin, admin2, valid_from, agreement=
                                    approved_at=timezone.now())
 
 
+def _field_agent_agreement(ctx):
+    """The agreement of the errand agent on TSK's panel (Kofi Mensah-Bonsu, `kofi.agent@example.com`; TSK's seed
+    records it as a draft), with his own verified account, activated. Idempotent; None when TSK has no agent."""
+    from . import services
+    from .models import Agreement
+
+    gh, people = ctx["gh"], ctx["people"]
+    agent = (ctx.get("errands") or {}).get("agent")
+    person = agent.person if agent is not None else None
+    a = Agreement.objects.filter(professional=person, role="errand_agent", country=gh).first() if person else None
+    if a is None:
+        return None
+    if a.status == "draft":
+        admin, cm, rv, rv2 = (people[k] for k in ("admin", "cm", "reviewer", "reviewer2"))
+        acct = own_account(gh, person, "6600778899", [rv, rv2], cm)
+        a = services.update_agreement(a, admin, {"bank_account": acct})
+        a = services.activate_agreement(a, admin)
+    return Agreement.objects.get(pk=a.pk)
+
+
 def run(ctx):
     from core import approvals
     from core.models import OutboxEvent
@@ -208,6 +228,10 @@ def run(ctx):
 
     # ---- agreements (CASE's seed already made them before assigning work; idempotent)
     ensure_agreements(ctx)
+
+    # ---- the errand agent in Tenmina Field: his agreement pays into his own verified account, so his finished
+    # errand becomes a payable (TSK published work.accepted) and his pay screens have data.
+    field_agent = _field_agent_agreement(ctx)
 
     # ---- payables from released reports (replays the work.accepted events RPT already sent)
     for ev in OutboxEvent.objects.filter(topic="work.accepted").order_by("created_at"):
@@ -250,6 +274,20 @@ def run(ctx):
                               amount="290.00", incurred_on=timezone.localdate() - timedelta(days=1),
                               receipt_evidence=receipt3)
 
+    # An expense claim from the errand agent, approved: it joins the run with his errand payable (US-PRO-004).
+    if field_agent is not None and not ExpenseClaim.objects.filter(claimant=field_agent.professional).exists():
+        from errands.models import Errand
+
+        done = Errand.objects.filter(agent__person=field_agent.professional,
+                                     status__in=["completed", "handed_over"]).order_by("created_at").first()
+        if done is not None:
+            receipt = _ev(gh, field_agent.professional, "receipt-trotro-errand-agent-demo.txt",
+                          "Receipt: trotro fares to the ECG office and back, GHS 45.00")
+            c = services.submit_claim(field_agent.professional, kind="travel", description="Fares to the ECG office",
+                                      amount="45.00", incurred_on=timezone.localdate() - timedelta(days=3),
+                                      receipt_evidence=receipt, errand_id=done.pk, agreement=field_agent)
+            services.decide_claim(c, cm, decision="approve")
+
     # ---- a confirmed run with remittance advices, then a run waiting for approval
     if not PaymentRun.objects.filter(country=gh).exists():
         p_hold.refresh_from_db()
@@ -267,8 +305,12 @@ def run(ctx):
         services.mark_uploaded(run1, rv)
         lines = list(run1.lines.order_by("position"))
         rows = ["payment_reference,status,bank_reference,reason,amount"]
-        for i, ln in enumerate(lines):
-            if i == len(lines) - 1 and len(lines) > 1:
+        # One line fails at the bank (account closed): the last one, but never the field agent's, whose paid line,
+        # remittance advice and statement the field app shows.
+        others = [ln for ln in lines if field_agent is None or ln.agreement_id != field_agent.pk]
+        failing = others[-1] if len(lines) > 1 and others else None
+        for ln in lines:
+            if ln is failing:
                 rows.append(f"{ln.reference},failed,,Account closed (demo),{ln.net}")
             else:
                 rows.append(f"{ln.reference},paid,OPB{ln.position:06d},,{ln.net}")
@@ -284,5 +326,10 @@ def run(ctx):
         if run2.line_count:
             services.submit_run(run2, cm)
         out["run_pending"] = PaymentRun.objects.get(pk=run2.pk)
+    # Yearly statements (US-PRO-007 AC3): each adds up to the professional's remittance advices.
+    from .models import Document
+
+    if field_agent is not None and not Document.objects.filter(agreement=field_agent, kind="yearly_statement").exists():
+        services.generate_statements(gh, services.tax_year_of(gh, timezone.localdate()), by=cm)
     # Overdue alert (FR-PRO-008).
     services.check_overdue()

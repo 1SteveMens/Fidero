@@ -377,12 +377,42 @@ def run(ctx):
         refs[e.title] = e
 
 
+def _waiting_payee_change(ctx):
+    """A payee change waiting for the client's approval (RUL-28, the client first): the contractor on Ama's
+    construction escrow, signed in, asks to be paid into a new account in its own name; the bank's name check and a
+    fresh identity check pass, so Ama is asked to approve it. Nothing is applied until she does and two staff
+    approve after her. It runs late: the construction escrow and its contractor are BLD's."""
+    from escrow import services
+    from escrow.models import EscrowPayee, PayeeChange
+
+    people = ctx["people"]
+    client, cm = people["client"], people["cm"]
+    lock = EscrowPayee.objects.filter(escrow__client=client, escrow__kind="construction", ended_at__isnull=True,
+                                      payee__verification_status="verified", payee__kind="contractor") \
+        .select_related("escrow", "payee", "payee__national_id_check").order_by("locked_at").first()
+    if lock is None:
+        return
+    payee, escrow = lock.payee, lock.escrow
+    found = PayeeChange.objects.filter(payee=payee, escrow=escrow).first()
+    if found is None:
+        by, source = (payee.person, "payee_signed_in") if payee.person_id else (cm, "staff_in_person")
+        found = services.request_change(by, kind="new_account", payee=payee, escrow=escrow,
+                                        reason="Our old account is closing; please pay the next stage here [demo]",
+                                        request_source=source, bank_name="Demo Savings Bank [TO VERIFY]",
+                                        account_number="2200565656565", account_name_source="bank_name_check")
+        nid = payee.national_id_check
+        services.change_identity_check(found, cm, id_number=nid.id_number if nid else "",
+                                       subject_name=nid.subject_name if nid else payee.legal_name)
+    ctx["escrow"]["payee_change_waiting"] = PayeeChange.objects.get(pk=found.pk)
+
+
 def run_late(ctx):
     """7. An off-plan escrow on BLD's real off-plan project (the construction seed runs after this one), with a
     payee change in its cooling-off (RUL-28) on the developer."""
     from escrow import services
     from escrow.models import Escrow
 
+    _waiting_payee_change(ctx)
     project = (ctx.get("construction") or {}).get("offplan")
     developer = ((ctx.get("escrow") or {}).get("payees") or {}).get("developer")
     if project is None or developer is None:
