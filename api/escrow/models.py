@@ -21,6 +21,9 @@ FRESH_SEARCH_KINDS = {"purchase", "offplan"}
 # Kinds that need no property (asset). Every other kind must name one: esc_asset_required, checked first in
 # services.create_escrow. A list, so the constraint deconstructs the same as migration 0001.
 ASSET_OPTIONAL_KINDS = ["held_funds", "event", "project_fund"]
+# Kinds that must name a project: esc_project_kinds_have_project, checked first in services.create_escrow.
+# A list, so the constraint deconstructs the same as migration 0001.
+PROJECT_KINDS = ["construction", "offplan", "project_fund"]
 ESCROW_STATUSES = ["proposed", "agreed", "funded", "ready_to_release", "client_approved", "release_approved",
                    "partly_released", "released", "frozen", "cancelled"]
 OPEN_STATUSES = [s for s in ESCROW_STATUSES if s not in ("released", "cancelled")]
@@ -226,7 +229,7 @@ class Escrow(CountryScopedModel):
         constraints = [
             models.CheckConstraint(condition=~Q(kind="purchase") | Q(report_id__isnull=False),
                                    name="esc_purchase_has_report"),
-            models.CheckConstraint(condition=~Q(kind__in=["construction", "offplan", "project_fund"])
+            models.CheckConstraint(condition=~Q(kind__in=PROJECT_KINDS)
                                    | Q(project_id__isnull=False), name="esc_project_kinds_have_project"),
             models.CheckConstraint(condition=Q(kind__in=ASSET_OPTIONAL_KINDS)
                                    | Q(asset_id__isnull=False), name="esc_asset_required"),

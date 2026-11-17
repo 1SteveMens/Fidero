@@ -58,9 +58,9 @@ from .blockers import fresh_search_reasons, open_condition_reasons, raise_if_blo
 from .blockers import release_blockers as _release_blockers
 from .common import (add_working_days, alert_staff, audit, cfg, fmt, has_rr, is_staff, local_date, local_today, log,
                      notify, now, setting, working_day_on_or_after)
-from .models import (ASSET_OPTIONAL_KINDS, ESCROW, OPEN_STATUSES, STAGED_KINDS, Acceptance, BankEvent, Condition,
-                     Escrow, EscrowPayee, Freeze, Party, Payee, PayeeChange, ProgrammeAccount, ReleaseInstruction,
-                     ReportSnapshot, StandingApproval)
+from .models import (ASSET_OPTIONAL_KINDS, ESCROW, OPEN_STATUSES, PROJECT_KINDS, STAGED_KINDS, Acceptance,
+                     BankEvent, Condition, Escrow, EscrowPayee, Freeze, Party, Payee, PayeeChange, ProgrammeAccount,
+                     ReleaseInstruction, ReportSnapshot, StandingApproval)
 from .payees import (_client_signed, apply_payee_change, apply_verification, change_identity_check,  # noqa: F401
                      check_change_account, client_approve_change, create_payee, decide_change, decide_verification,
                      end_cooling_off, expire_payees, lock_payee, on_change_approval, prepare_verification,
@@ -168,7 +168,7 @@ def _programme_account(country, currency):
 
 
 _KIND_NAMES = {"purchase": "A purchase", "construction": "A construction", "offplan": "An off-plan",
-               "repair": "A repair"}
+               "repair": "A repair", "project_fund": "A project fund"}
 
 
 @transaction.atomic
@@ -220,9 +220,16 @@ def create_escrow(by, *, kind, client, country, agreed_amount, currency=None, ti
         if snap is not None:
             asset_id = asset_id or snap.asset_id
             case_id = case_id or snap.case_id
+    # esc_asset_required and esc_project_kinds_have_project, checked here so a gap is a 422, not a 500. Both
+    # are named in one message when both are missing.
+    missing = []
     if kind not in ASSET_OPTIONAL_KINDS and not asset_id:
-        raise Invalid(f"{_KIND_NAMES.get(kind, kind)} escrow needs the property it is for. Enter the property ID.",
-                      code="validation-error")
+        missing.append("property")
+    if kind in PROJECT_KINDS and not project_id:
+        missing.append("project")
+    if missing:
+        raise Invalid(f"{_KIND_NAMES.get(kind, kind)} escrow needs the {' and the '.join(missing)} it is for. "
+                      f"Enter the {' and the '.join(m + ' ID' for m in missing)}.", code="validation-error")
     bank = _bank_for(country, bank_partner)
     e = Escrow.objects.create(
         country=country, reference=_new_reference(country), kind=kind, title=title or kind.replace("_", " ").title(),
