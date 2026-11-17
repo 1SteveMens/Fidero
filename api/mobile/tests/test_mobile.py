@@ -5,7 +5,7 @@ import pytest
 from django.db import DatabaseError, IntegrityError, transaction
 from django.utils import timezone
 
-from administration.models import FeatureFlag
+from administration.models import AppVersion
 from core.events import publish
 from core.models import OutboxEvent
 from evidence import services as evd
@@ -626,8 +626,8 @@ def test_old_app_gets_426_but_queued_evidence_still_uploads(gh, people, phone, m
     ph, sid = phone(), milestone()
     queued = ph.capture("milestone", sid, jpeg("queued"), captured_at=timezone.now() - timedelta(hours=1),
                         **ON_SITE)
-    FeatureFlag.objects.filter(name="app.min_version.field.android").update(value="2.0.0",
-                                                                           updated_at=timezone.now())
+    AppVersion.objects.filter(app="field", platform="android").update(
+        previous_min_version="1.0.0", min_version="2.0.0", latest_version="2.0.0", min_raised_at=timezone.now())
     c = api(people["contractor"])
     old = {"HTTP_TENMINA_APP": "field/android/1.0.0"}
     r = c.get("/v1/mobile/sync", **old)
@@ -645,7 +645,7 @@ def test_version_middleware_answers_426(rf, seeded):
     """FR-APP-006: the middleware checks the header on every /v1/ call."""
     from mobile.appversion import AppVersionMiddleware
 
-    FeatureFlag.objects.filter(name="app.min_version.client.ios").update(value="3.0.0")
+    AppVersion.objects.filter(app="client", platform="ios").update(min_version="3.0.0", latest_version="3.0.0")
     mw = AppVersionMiddleware(lambda req: "ok")
     assert mw(rf.get("/v1/me", HTTP_TENMINA_APP="client/ios/2.9.9")).status_code == 426
     assert mw(rf.get("/v1/me", HTTP_TENMINA_APP="client/ios/3.0.0")) == "ok"

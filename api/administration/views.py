@@ -561,11 +561,6 @@ class AppConfig(APIView):
         s = AppConfigQuerySerializer(data=request.query_params)
         s.is_valid(raise_exception=True)
         d = s.validated_data
-        st = appversion.status(d["app"], d["platform"], d["version"])
         country = Country.objects.filter(code=d.get("country", "").upper()).first() if d.get("country") else None
-        return Response(AppConfigSerializer({
-            "app": d["app"], "platform": d["platform"], "version": d["version"], "min_version": st["min_version"],
-            "latest_version": st["latest_version"], "update_required": not st["supported"],
-            "update_available": st["update_available"], "store_url": st["store_url"],
-            "fee_payment_mode": services.fee_payment_mode(country, d["platform"]),
-        }).data)
+        return Response(AppConfigSerializer(appversion.config(d["app"], d["platform"], d["version"],
+                                                              country=country)).data)

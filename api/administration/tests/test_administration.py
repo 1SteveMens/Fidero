@@ -475,15 +475,31 @@ def test_lowering_minimum_applies_at_once(seeded, admins):
     assert r.status_code == 200 and r.json()["app_version"]["min_version"] == "1.0.0"
 
 
-def test_middleware_answers_426(seeded, rf):
-    """FR-APP-006: the optional middleware answers 426 with problem JSON."""
-    from administration.middleware import AppVersionMiddleware
+def test_middleware_answers_426_from_these_settings(seeded, rf):
+    """FR-APP-006: the registered middleware (mobile.appversion) reads these app version settings and answers
+    426 with problem JSON; the app-config paths stay open."""
+    from mobile.appversion import AppVersionMiddleware
 
     AppVersion.objects.filter(app="client", platform="android").update(min_version="2.0.0", latest_version="2.0.0")
     mw = AppVersionMiddleware(lambda req: None)
     resp = mw(rf.get("/v1/cases", HTTP_TENMINA_APP="client/android/1.9.0"))
     assert resp.status_code == 426 and b"app-version-unsupported" in resp.content
     assert mw(rf.get("/v1/app-config", HTTP_TENMINA_APP="client/android/1.9.0")) is None
+    assert mw(rf.get("/v1/mobile/app-config", HTTP_TENMINA_APP="client/android/1.9.0")) is None
+
+
+def test_both_app_config_endpoints_answer_from_one_source(seeded, api):
+    """FR-APP-006: GET /v1/app-config and GET /v1/mobile/app-config give the same minimum, latest version and
+    store link, from the app version settings."""
+    AppVersion.objects.filter(app="field", platform="ios").update(min_version="1.1.0", latest_version="1.3.0",
+                                                                    store_url="https://stores.example/f/i")
+    q = {"app": "field", "platform": "ios", "version": "1.0.9"}
+    a = api().get("/v1/app-config", q).json()
+    b = api().get("/v1/mobile/app-config", q).json()
+    for key in ("min_version", "latest_version", "store_url", "update_required", "update_available",
+                "fee_payment_mode"):
+        assert a[key] == b[key], key
+    assert b["min_version"] == "1.1.0" and b["update_required"] is True and b["store_url"].endswith("/f/i")
 
 
 def test_withdraw_change(seeded, admins):
