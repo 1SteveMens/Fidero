@@ -47,11 +47,12 @@ def _visit(plan, start, hours=2):
     return v
 
 
-def _check(phone, kind, v, at):
+def _check(phone, kind, v, at, away=0.0):
+    """A signed check-in or check-out at the house, or `away` degrees of latitude from it (0.018 is about 2 km)."""
     from mobile.services import record_checkin
 
     p = v.plan
-    record_checkin(phone.person, phone.check(kind, "care_visit", v.pk, lat=float(p.point_lat),
+    record_checkin(phone.person, phone.check(kind, "care_visit", v.pk, lat=float(p.point_lat) + away,
                                              lng=float(p.point_lng), accuracy=6.0, captured_at=at), kind)
 
 
@@ -150,9 +151,16 @@ def run(ctx):
     _items(b, carer_person, phone, b.window_start + timedelta(minutes=25))
     _check(phone, "checkout", b, b.window_start + timedelta(minutes=66))
     _clear_flags(b, rv2)
-    # C: now, checked in, two tasks done.
+    # C: now, checked in 2 km from the house (flagged), two tasks done. A reviewer called the family and cleared
+    # the flag: she had gone with the carer to the clinic.
     c = _visit(plan, now - timedelta(minutes=30), hours=3)
-    _check(phone, "checkin", c, now - timedelta(minutes=25))
+    _check(phone, "checkin", c, now - timedelta(minutes=25), away=0.018)
+    from mobile.models import FraudFlag
+    from mobile.services import review_flag
+
+    for f in FraudFlag.objects.filter(subject_type="care_visit", subject_id=c.pk, kind="outside_address_radius",
+                                      status="open"):
+        review_flag(f, rv, "clear", "Called the family: Akosua was at the clinic with the carer [demo].")
     _items(c, carer_person, phone, now - timedelta(minutes=10), all_items=False)
     services.missed_and_unconfirmed(now)
     refs["visits"] = {"missed": missed, "confirmed": a, "awaiting": b, "in_progress": c}

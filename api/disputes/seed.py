@@ -22,21 +22,21 @@ ESCROWS = {
 }
 
 
-def funded_escrow(gh, people, key, title, price, va):
-    """A funded purchase escrow between Ama and Ato Estates, on a green report snapshot."""
+def funded_escrow(ctx, key, title, price, va, report_id=None):
+    """A funded purchase escrow between Ama and Ato Estates, on a real released report (RPT's seed helper)."""
     from accounts.models import Organisation
     from escrow import services as esc
-    from escrow.models import Escrow, Payee, ReportSnapshot
-    from escrow.seed import _agree, _deposit, demo_id
+    from escrow.models import Escrow, Payee
+    from escrow.seed import _agree, _deposit
+    from reports.seed import released_report
 
+    gh, people = ctx["gh"], ctx["people"]
     e = Escrow.objects.filter(title=title).first()
     if e is not None:
         return e
     cm, rv = people["cm"], people["reviewer"]
-    rid = demo_id(f"report:dsp:{key}")
-    ReportSnapshot.objects.get_or_create(report_id=rid, defaults=dict(
-        country=gh, client=people["client"], case_id=demo_id(f"case:dsp:{key}"),
-        asset_id=demo_id(f"asset:dsp:{key}"), verdict="green", released_at=timezone.now(), conditions=[]))
+    locality = title.removeprefix("Plot at ").split(" (")[0]
+    rid = report_id or released_report(ctx, f"dsp_{key}", locality=locality, plot_number="21").pk
     ato = Organisation.objects.filter(name="Ato Estates Ltd").first()
     payee = Payee.objects.filter(organisation=ato, kind="seller", verification_status="verified").first()
     e = esc.create_escrow(cm, kind="purchase", client=people["client"], country=gh, agreed_amount=price, title=title,
@@ -57,7 +57,7 @@ def run(ctx):
     for key, fn in (("evidence", _evidence), ("decision", _decision), ("closed", _closed), ("referred", _referred)):
         try:
             title, price, va = ESCROWS[key]
-            e = funded_escrow(gh, people, key, title, price, va)
+            e = funded_escrow(ctx, key, title, price, va)
             seeded[f"{key}_escrow"] = e
             seeded[key] = fn(gh, people, e)
         except DomainError as exc:

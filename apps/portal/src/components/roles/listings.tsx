@@ -10,9 +10,10 @@ import type { Money as MoneyT } from '@tenmina/api-client';
 import { EmptyText, Loaded, PageHead, RowLink, Section, items, useAct, useApi, words, type Page } from './kit';
 import { postForm } from './files';
 import { Photo } from '../photo';
+import { addressLabel, useCountryFor } from '../kit';
 
 export type Listing = {
-  id: string; reference: string; slug: string; status: string; origin: string; kind: string; title: string; description: string;
+  id: string; reference: string; slug: string; status: string; country?: string; origin: string; kind: string; title: string; description: string;
   estate_name: string; price: MoneyT; size_sqm: string | null; region: string; district: string; locality: string;
   badge: { label: string; checks_date: string; expires_at: string; report_reference: string } | null; checks_date: string | null;
   seller: { name: string; kind: string; established: boolean } | null; disclosure: string;
@@ -65,18 +66,18 @@ export function ListingsList({ base, title, intro }: { base: string; title: stri
 
 export function NewListing({ base, origins }: { base: string; origins: string[] }) {
   const router = useRouter();
-  const { me } = useSession();
   const api = useApi();
   const act = useAct();
   const orgs = useGet<Page<{ id: string; name: string; country: string }>>('/v1/organisations');
-  const [f, setF] = useState({ kind: 'plot', origin: origins[0], title: '', description: '', estate_name: '', amount: '', currency: 'GHS', size_sqm: '', locality: '', region: '', district: '', plot_number: '', site_plan_ref: '', ghana_post_gps: '' });
+  const [f, setF] = useState({ kind: 'plot', origin: origins[0], title: '', description: '', estate_name: '', amount: '', currency: '', size_sqm: '', locality: '', region: '', district: '', plot_number: '', site_plan_ref: '', ghana_post_gps: '' });
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setF({ ...f, [k]: e.target.value });
   const org = items(orgs.data)[0];
+  const country = useCountryFor(org?.country);
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     const x = await act.run('save', () => api<Listing>('POST', '/v1/listings', {
-      country: org?.country || me?.home_country || 'GH', organisation_id: org?.id, origin: f.origin, kind: f.kind, title: f.title,
-      description: f.description, estate_name: f.estate_name, price: { amount: f.amount, currency: f.currency },
+      country: country.code, organisation_id: org?.id, origin: f.origin, kind: f.kind, title: f.title,
+      description: f.description, estate_name: f.estate_name, price: { amount: f.amount, currency: (f.currency || country.currency).toUpperCase() },
       ...(f.size_sqm ? { size_sqm: f.size_sqm } : {}),
       asset: { locality: f.locality, region: f.region, district: f.district, plot_number: f.plot_number, site_plan_ref: f.site_plan_ref, ghana_post_gps: f.ghana_post_gps },
     }));
@@ -93,7 +94,7 @@ export function NewListing({ base, origins }: { base: string; origins: string[] 
       <Field label="Estate name (if any)"><Input value={f.estate_name} onChange={set('estate_name')} /></Field>
       <div className="grid2" style={{ gridTemplateColumns: '2fr 1fr', gap: 8 }}>
         <Field label="Price"><Input inputMode="decimal" value={f.amount} onChange={set('amount')} required /></Field>
-        <Field label="Currency"><Input value={f.currency} maxLength={3} onChange={set('currency')} /></Field>
+        <Field label="Currency"><Input value={f.currency || country.currency} maxLength={3} onChange={set('currency')} /></Field>
       </div>
       <Field label="Size in square metres"><Input inputMode="decimal" value={f.size_sqm} onChange={set('size_sqm')} /></Field>
       <h2>Where it is</h2>
@@ -102,7 +103,7 @@ export function NewListing({ base, origins }: { base: string; origins: string[] 
       <Field label="District"><Input value={f.district} onChange={set('district')} /></Field>
       <Field label="Plot number"><Input value={f.plot_number} onChange={set('plot_number')} /></Field>
       <Field label="Site plan reference"><Input value={f.site_plan_ref} onChange={set('site_plan_ref')} /></Field>
-      <Field label="Digital address (if known)"><Input value={f.ghana_post_gps} onChange={set('ghana_post_gps')} /></Field>
+      <Field label={`${addressLabel(country)} (if known)`}><Input value={f.ghana_post_gps} onChange={set('ghana_post_gps')} /></Field>
       <ProblemBox error={act.error} />
       <Button variant="primary" type="submit" busy={act.busy === 'save'} block>Save as draft</Button>
     </form>
@@ -124,7 +125,7 @@ export function ManageListing({ id, base }: { id: string; base: string }) {
   const [agree, setAgree] = useState(false);
   const x = q.data;
   const needsTerms = x?.status === 'draft' || x?.status === 'expired';
-  const terms = useGet<Terms>(needsTerms ? '/v1/catalogue/terms' : null, { country: me?.home_country || 'GH' });
+  const terms = useGet<Terms>(needsTerms && (x?.country || me?.home_country) ? '/v1/catalogue/terms' : null, { country: x?.country || me?.home_country });
   const versions = { terms_version: terms.data?.terms_version ?? '', scope_version: terms.data?.scope_version ?? '' };
   if (q.isLoading) return <Skeleton lines={8} />;
   if (q.error || !x) return <ProblemBox error={q.error ?? 'Listing not found.'} />;

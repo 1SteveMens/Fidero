@@ -213,8 +213,7 @@ def _identity(gh, people):
                 provider_reference=f"NIA-DEMO-{key.upper()}" if final else None,
                 checked_at=timezone.now() if final else None,
                 person=people.get(key) if key in ("carer", "agent") else None,
-                context_type="case" if key in ("seller", "grantor", "consenting") else "",
-                context_id=demo_id("case:ama-plot") if key in ("seller", "grantor", "consenting") else None)
+                context_type="", context_id=None)  # the case context is set in run_late
         checks[key] = chk
     return checks
 
@@ -290,14 +289,6 @@ def _misc(gh, people):
         Invitation.objects.create(email="new.lawyer@example.com", full_name="Adwoa New Lawyer", roles=["LW"],
                                   country=gh, token_hash=uuid.uuid4().hex, invited_by=admin,
                                   expires_at=timezone.now() + timedelta(hours=72))
-    client = people["client"]
-    if not RepresentativeGrant.objects.filter(client=client).exists():
-        RepresentativeGrant.objects.create(client=client, representative=people["family"],
-                                           invited_email=people["family"].email, invited_name="Auntie Comfort",
-                                           subject_type="case", subject_id=demo_id("case:ama-plot"), status="active")
-        RepresentativeGrant.objects.create(client=client, invited_email="brother.kwesi@example.com",
-                                           invited_name="Kwesi Mensah", subject_type="case",
-                                           subject_id=demo_id("case:ama-plot"), status="pending")
     if not RightsRequest.objects.filter(person=people["admin3"]).exists():
         rr = RightsRequest.objects.create(person=people["admin3"], right="RR", country=gh, requested_by=admin,
                                           reason="Third approver for releases while staff are on leave")
@@ -319,4 +310,24 @@ def run(ctx):
     ctx["family_members"] = fams
     ctx["bank_accounts"] = accounts
     ctx["national_id_checks"] = checks
-    ctx["demo_case_id"] = demo_id("case:ama-plot")
+
+
+def run_late(ctx):
+    """Rows about Ama's land case, which CASE's seed opens after this module's seed: her two representatives
+    and the case the parties' Ghana Card checks were made for."""
+    case = (ctx.get("cases") or {}).get("ama_land_card")
+    if case is None:
+        return
+    people, client = ctx["people"], ctx["people"]["client"]
+    ctx["demo_case_id"] = case.pk
+    keys = ("seller", "grantor", "consenting")
+    ids = [c.pk for k, c in (ctx.get("national_id_checks") or {}).items() if k in keys]
+    NationalIdCheck.objects.filter(pk__in=ids, context_id__isnull=True).update(context_type="case",
+                                                                            context_id=case.pk)
+    if not RepresentativeGrant.objects.filter(client=client).exists():
+        RepresentativeGrant.objects.create(client=client, representative=people["family"],
+                                           invited_email=people["family"].email, invited_name="Auntie Comfort",
+                                           subject_type="case", subject_id=case.pk, status="active")
+        RepresentativeGrant.objects.create(client=client, invited_email="brother.kwesi@example.com",
+                                           invited_name="Kwesi Mensah", subject_type="case",
+                                           subject_id=case.pk, status="pending")

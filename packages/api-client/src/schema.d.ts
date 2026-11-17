@@ -17556,25 +17556,10 @@ export interface components {
             app_version: string;
         };
         DigitalAddress: {
-            status: components["schemas"]["DigitalAddressStatusEnum"];
-            code: string;
-            location: {
-                /** @example -0.187 */
-                lng: number;
-                /** @example 5.603 */
-                lat: number;
-            } | null;
-            /** Format: double */
-            accuracy_m: number | null;
-            message: string;
+            /** @description What the country's digital address is called, e.g. Ghana Post GPS address */
+            name: string;
+            example: string;
         };
-        /**
-         * @description * `resolved` - resolved
-         *     * `not_found` - not_found
-         *     * `unavailable` - unavailable
-         * @enum {string}
-         */
-        DigitalAddressStatusEnum: "resolved" | "not_found" | "unavailable";
         DirectoryAnswer: {
             cell: string | null;
             api_host: string;
@@ -20013,6 +19998,8 @@ export interface components {
             title: string;
             kind: string;
             country: string | null;
+            /** @description The country's currency, for values the worker enters offline (a defect's cost). From country configuration. */
+            currency: string | null;
             status: string;
             address: string;
             point: components["schemas"]["Point"] | null;
@@ -21313,6 +21300,7 @@ export interface components {
             reference: string;
             slug?: string;
             status?: components["schemas"]["Status0e1Enum"];
+            readonly country: string;
             origin?: components["schemas"]["OriginEnum"];
             kind?: components["schemas"]["Kind19fEnum"];
             title: string;
@@ -21377,6 +21365,7 @@ export interface components {
             reference: string;
             slug?: string;
             status?: components["schemas"]["Status0e1Enum"];
+            readonly country: string;
             origin?: components["schemas"]["OriginEnum"];
             kind?: components["schemas"]["Kind19fEnum"];
             title: string;
@@ -24216,6 +24205,8 @@ export interface components {
             readonly phone_masked: string;
             /** @description FR-ACC-015: when SMS approvals are paused (72 hours after a number change or a reported SIM swap), why and until when. Null when not paused. */
             readonly sms_pause: components["schemas"]["SmsPause"] | null;
+            /** @description The countries this person works in, from their role grants (every configured country for a grant with no country), else their home country. Screens take country, currency and wording from here or from the object itself; nothing is hard-coded (CLAUDE.md, DA-09). The home country comes first. */
+            readonly work_countries: components["schemas"]["WorkCountry"][];
             readonly roles: string[];
             readonly status: components["schemas"]["Status151Enum"];
             readonly id_check_status: components["schemas"]["IdCheckStatusEnum"];
@@ -26103,6 +26094,7 @@ export interface components {
             /** Format: date-time */
             expires_at: string;
         };
+        /** @description What screens need to show a country's own wording (DA-09): nothing about a country is hard-coded. */
         PublicCountry: {
             code: string;
             name: string;
@@ -26110,6 +26102,12 @@ export interface components {
             timezone?: string;
             readonly languages: string[];
             readonly phone_prefix: string;
+            /** @description The country's digital address system, or null where it has none (the field is then hidden). */
+            readonly digital_address: components["schemas"]["DigitalAddress"] | null;
+            /** @description e.g. Ghana Card (NIA) */
+            readonly national_id_name: string;
+            /** @description e.g. Lands Commission */
+            readonly land_registry_name: string;
         };
         PublicLockedText: {
             /** Format: uuid */
@@ -29505,6 +29503,12 @@ export interface components {
         };
         WithdrawInRequest: {
             reason?: string;
+        };
+        WorkCountry: {
+            code: string;
+            name: string;
+            currency: string;
+            status: string;
         };
         /**
          * @description * `report_section` - report_section

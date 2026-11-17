@@ -212,7 +212,7 @@ def _confirm(ins, cm, rv, ref):
 def run(ctx):
     from administration.models import Partner
     from escrow import services
-    from escrow.models import Escrow, ReportSnapshot
+    from escrow.models import Escrow
 
     gh, people = ctx["gh"], ctx["people"]
     cm, rv, rv2 = people["cm"], people["reviewer"], people["reviewer2"]
@@ -232,7 +232,7 @@ def run(ctx):
         refs["payees"] = {k: Payee.objects.filter(subject_id=orgs[o].pk, kind=kind).first()
                           for k, (o, kind) in keys.items()}
         refs["payees"]["carer"] = Payee.objects.filter(subject_id=people["carer"].pk, kind="carer").first()
-        refs["payees"]["mismatch"] = Payee.objects.filter(subject_id=demo_id("supplier:cement")).first()
+        refs["payees"]["mismatch"] = Payee.objects.filter(legal_name="Tema Cement Supplies Ltd").first()
         refs["transfer_partners"] = {p.name: p for p in Partner.objects.filter(country=gh, kind="transfer_partner")}
         refs["programme_accounts"] = {a.currency: a for a in ProgrammeAccount.objects.filter(
             country=gh, kind="programme", status="active")}
@@ -244,6 +244,11 @@ def run(ctx):
 
     # ---- the verified payee registry (ADR-17)
     seller_nid = checks.get("seller") or _nid(gh, cm, "Kwabena Owusu", "GHA-700000001-1", "seller")
+    from accounts.models import Organisation
+    from accounts.services import create_organisation
+
+    cement = Organisation.objects.filter(name="Tema Cement Supplies Ltd", kind="supplier", country=gh).first() \
+        or create_organisation(cm, name="Tema Cement Supplies Ltd", kind="supplier", country=gh)
     payees = {
         "seller": _payee(gh, cm, rv, rv2, key="ato", kind="seller", subject_type="organisation",
                          subject_id=orgs["ato"].pk, organisation=orgs["ato"], person=people["seller"],
@@ -269,23 +274,28 @@ def run(ctx):
                           legal_name="Insurer Partner Ltd (demo)", account_number="1100777788889",
                           nid=_nid(gh, cm, "Insurer Partner", "GHA-700000024-6", person=people["insurer"])),
         # A bank letter in another name: shown red, and nobody can verify it (FR-ESC-015).
-        "mismatch": _payee(gh, cm, rv, rv2, key="mismatch", kind="supplier", subject_type="supplier",
-                           subject_id=demo_id("supplier:cement"), legal_name="Tema Cement Supplies Ltd",
+        "mismatch": _payee(gh, cm, rv, rv2, key="mismatch", kind="supplier", subject_type="organisation",
+                           subject_id=cement.pk, organisation=cement, legal_name="Tema Cement Supplies Ltd",
                            account_number="1100345345345", source="bank_letter",
                            account_name="K. OFORI ENTERPRISE", nid=None, verify=False),
     }
     refs["payees"] = payees
 
-    # ---- a released report (RPT publishes report.released; ESC keeps the facts it needs)
-    def report(name, verdict="green"):
-        rid = demo_id(f"report:{name}")
-        ReportSnapshot.objects.get_or_create(report_id=rid, defaults=dict(
-            country=gh, client=client, case_id=demo_id(f"case:{name}"), asset_id=demo_id(f"asset:{name}"),
-            verdict=verdict, released_at=timezone.now(), conditions=[
-                {"id": str(demo_id(f"cond:{name}:1")), "key": "family_consent", "text": "Family consent recorded"},
-                {"id": str(demo_id(f"cond:{name}:2")), "key": "indenture_signed",
-                 "text": "Indenture signed by the vendor and witnessed"}]))
-        return rid
+    # ---- a released report for each plot: ordered, paid, checked and released through ORD, PAY, CASE and RPT, so
+    # the escrow's report, case and asset are real rows (RPT publishes report.released; ESC keeps the facts).
+    from reports.seed import released_report
+
+    reports = {}
+
+    def report(name):
+        reports[name] = released_report(ctx, f"esc_{name}", locality=name.capitalize(), plot_number="12")
+        return reports[name].pk
+
+    def fresh_search(name):
+        """A real fresh search case on the plot (FR-CASE-014), for the escrow's release condition."""
+        from cases import services as cs
+
+        return cs.open_fresh_search(reports[name].case.asset, actor=cm, reason="Escrow release coming up (demo)").pk
 
     seller_party = [{"role": "seller", "person": people["seller"], "organisation": orgs["ato"],
                      "name": "Ato Estates Ltd", "payee": payees["seller"], "national_id_check": seller_nid}]
@@ -310,31 +320,32 @@ def run(ctx):
     _deposit(e2, cm, rv, "450000.00", "DEP-OYA-0001")
     c = e2.conditions.filter(status="open").first()
     services.close_condition(c, cm, evidence_ids=[_ev(gh, cm, "family-consent-oyarifa").pk])
-    services.record_fresh_search(e2, cm, case_id=demo_id("case:oyarifa-fresh"), registry_result_date=today,
+    services.record_fresh_search(e2, cm, case_id=fresh_search("oyarifa"), registry_result_date=today,
                                  site_check_date=today)
     # 3. Ready to release: the case manager prepares the release next, then the client approves.
     e3 = purchase("Plot at Aburi (ready to release)", "180000.00", "aburi")
     _agree(e3, people, cm, "VA-GH-000103")
     _deposit(e3, cm, rv, "180000.00", "DEP-ABU-0001")
     _close_all(e3, cm)
-    services.record_fresh_search(e3, cm, case_id=demo_id("case:aburi-fresh"), registry_result_date=today,
+    services.record_fresh_search(e3, cm, case_id=fresh_search("aburi"), registry_result_date=today,
                                  site_check_date=today - timedelta(days=2))
     # 4. Released: the full journey J-02.
     e4 = purchase("Plot at Prampram (released)", "380000.00", "prampram")
     _agree(e4, people, cm, "VA-GH-000104")
     _deposit(e4, cm, rv, "380000.00", "DEP-PRA-0001")
     _close_all(e4, cm)
-    services.record_fresh_search(e4, cm, case_id=demo_id("case:prampram-fresh"), registry_result_date=today,
+    services.record_fresh_search(e4, cm, case_id=fresh_search("prampram"), registry_result_date=today,
                                  site_check_date=today)
     ins4 = _release(Escrow.objects.get(pk=e4.pk), cm, client, rv, rv2)
     if ins4.status == "sent":
         _confirm(ins4, cm, rv, "PAY-PRA-0001")
-    # 5. Frozen by a failed re-check (RUL-32).
+    # 5. On hold: a reviewer holds releases (US-ESC-006 AC4) while a question about the site plan is answered.
     e5 = purchase("Plot at Dodowa (on hold)", "150000.00", "dodowa")
     _agree(e5, people, cm, "VA-GH-000105")
     _deposit(e5, cm, rv, "150000.00", "DEP-DOD-0001")
-    services.freeze(Escrow.objects.get(pk=e5.pk), kind="incident", source_id=demo_id("incident:dodowa"),
-                    reason="A re-check found the site plan does not match the registry record [demo]")
+    services.place_hold(Escrow.objects.get(pk=e5.pk), rv,
+                        reason="The site plan does not match the registry record. Holding until it is explained "
+                               "[demo]")
     services.record_bank_position(Escrow.objects.get(pk=e5.pk), as_of=today - timedelta(days=1),
                                   reported_held_amount="149000.00", by=cm,
                                   proof_evidence=_ev(gh, cm, "bank-daily-report-dodowa"))
@@ -349,21 +360,7 @@ def run(ctx):
     # (care seed: a standing approval on a real plan) and the stage payments BLD's (construction seed: a real
     # project on the escrow route). No release here names a made-up subject.
 
-    # 7. A payee change in its cooling-off (RUL-28) on the off-plan developer.
-    off = services.open_line_escrow(kind="offplan", client=client, country=gh, agreed_amount="320000.00", by=cm,
-                                    title="Off-plan house at Sunrise Estate", asset_id=demo_id("asset:sunrise"),
-                                    project_id=demo_id("project:sunrise"), payees=[payees["developer"]])
-    _agree(off, people, cm, "VA-GH-000108")
-    ch = services.request_change(people["developer"], kind="new_account", payee=payees["developer"],
-                                 escrow=Escrow.objects.get(pk=off.pk), reason="Moved banks [demo]",
-                                 request_source="payee_signed_in", bank_name="Demo Savings Bank [TO VERIFY]",
-                                 account_number="2200343434343", account_name_source="bank_name_check")
-    services.change_identity_check(ch, cm, id_number="GHA-700000023-5", subject_name="Off-plan Developer")
-    ch.refresh_from_db()
-    if ch.status == "checks_passed":
-        services.client_approve_change(ch, client, mfa_at=timezone.now())
-        ch.refresh_from_db()
-        _approve(ch.approval_request, rv, rv2)
+    # 7. The off-plan escrow and its payee change are in run_late: they need BLD's real off-plan project.
 
     # 8. Today's rate comparison and a deposit quote on the funded purchase (RUL-35).
     try:
@@ -378,3 +375,36 @@ def run(ctx):
 
     for e in Escrow.objects.filter(country=gh):
         refs[e.title] = e
+
+
+def run_late(ctx):
+    """7. An off-plan escrow on BLD's real off-plan project (the construction seed runs after this one), with a
+    payee change in its cooling-off (RUL-28) on the developer."""
+    from escrow import services
+    from escrow.models import Escrow
+
+    project = (ctx.get("construction") or {}).get("offplan")
+    developer = ((ctx.get("escrow") or {}).get("payees") or {}).get("developer")
+    if project is None or developer is None:
+        return
+    title = "Off-plan house at Sunrise Estate"
+    if Escrow.objects.filter(kind="offplan", title=title).exists():
+        ctx["escrow"][title] = Escrow.objects.filter(kind="offplan", title=title).first()
+        return
+    gh, people = ctx["gh"], ctx["people"]
+    cm, rv, rv2, client = people["cm"], people["reviewer"], people["reviewer2"], people["client"]
+    off = services.open_line_escrow(kind="offplan", client=client, country=gh, agreed_amount="320000.00", by=cm,
+                                    title=title, asset_id=project.asset_id, project_id=project.pk,
+                                    payees=[developer])
+    _agree(off, people, cm, "VA-GH-000108")
+    ch = services.request_change(people["developer"], kind="new_account", payee=developer,
+                                 escrow=Escrow.objects.get(pk=off.pk), reason="Moved banks [demo]",
+                                 request_source="payee_signed_in", bank_name="Demo Savings Bank [TO VERIFY]",
+                                 account_number="2200343434343", account_name_source="bank_name_check")
+    services.change_identity_check(ch, cm, id_number="GHA-700000023-5", subject_name="Off-plan Developer")
+    ch.refresh_from_db()
+    if ch.status == "checks_passed":
+        services.client_approve_change(ch, client, mfa_at=timezone.now())
+        ch.refresh_from_db()
+        _approve(ch.approval_request, rv, rv2)
+    ctx["escrow"][title] = Escrow.objects.get(pk=off.pk)

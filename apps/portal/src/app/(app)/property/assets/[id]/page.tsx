@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Blocked, Button, Chip, KV, ProblemBox, Skeleton, When, useGet } from '@tenmina/web-ui';
-import { PageHead, Proof, Section, list, useAction, words, type Any } from '@/components/kit';
+import { PageHead, Proof, Section, addressLabel, list, useAction, useCountryFor, words, type Any } from '@/components/kit';
 import { PlotDrawer, type LngLat } from '@/components/plot-drawer';
 
 /** A property the client owns or is buying: details, its boundary, and a fresh search (FR-GEO-001, FR-CASE-014). */
@@ -17,6 +17,7 @@ export default function Asset() {
   const [points, setPoints] = useState<LngLat[]>([]);
   const [centre, setCentre] = useState<LngLat | null>(null);
   const a = useAction();
+  const cty = useCountryFor(q.data?.country);
   if (q.isLoading) return <Skeleton lines={5} />;
   if (!q.data) return <ProblemBox error={q.error} />;
   const x = q.data;
@@ -32,7 +33,7 @@ export default function Asset() {
       {x.disputed_flag ? <Blocked title="Marked as disputed">{x.disputed_reason}</Blocked> : null}
       <KV items={[
         ['Area', [x.locality, x.district, x.region].filter(Boolean).join(', ')],
-        ['Address', x.address || '—'], ['Plot number', x.plot_number || '—'], ['Site plan', x.site_plan_ref || '—'], ['Ghana Post GPS', x.ghana_post_gps || '—'],
+        ['Address', x.address || '—'], ['Plot number', x.plot_number || '—'], ['Site plan', x.site_plan_ref || '—'], [addressLabel(cty), x.ghana_post_gps || '—'],
         ['Checked', x.verified_at ? <Proof key="v">Checked <When value={x.verified_at} /></Proof> : 'Not yet'],
         ['Monitoring', x.monitoring_active ? `On${x.open_alerts ? `, ${x.open_alerts} open alert(s)` : ''}` : 'Off'],
       ]} />

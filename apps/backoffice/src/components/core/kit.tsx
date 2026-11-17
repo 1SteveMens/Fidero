@@ -37,7 +37,8 @@ export function money(amount?: string | number | null, currency?: string | null)
   if (amount === null || amount === undefined || amount === '') return '—';
   const n = Number(amount);
   try {
-    return new Intl.NumberFormat('en-GB', { style: 'currency', currency: currency || 'GHS' }).format(n);
+    if (!currency) return n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return new Intl.NumberFormat('en-GB', { style: 'currency', currency }).format(n);
   } catch {
     return `${currency ?? ''} ${n.toFixed(2)}`;
   }

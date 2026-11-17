@@ -1,10 +1,12 @@
+import type { Money } from '@tenmina/shared';
+
 /** Money as the API sends it: a decimal string and an ISO currency (02 section 7.1). */
 export interface ApiMoney {
   amount: string;
   currency: string;
 }
 
-/** "GHS 1,850.00", written by hand so it reads the same on every phone. Amounts are never rounded. */
+/** "USD 1,850.00" in the money's own currency, written by hand so it reads the same on every phone. Amounts are never rounded. */
 export function money(m: ApiMoney | null | undefined): string {
   if (!m || m.amount === undefined || m.amount === null) return '—';
   const raw = String(m.amount).trim();
@@ -22,8 +24,8 @@ export function moneyOf(amount: string | number | null | undefined, currency: st
 }
 
 /** For the shared Bloc components, which count in minor units. */
-export function toMinor(m: ApiMoney): { amountMinor: number; currency: 'GHS' } {
-  return { amountMinor: Math.round(Number(m.amount) * 100), currency: m.currency as 'GHS' };
+export function toMinor(m: ApiMoney): Money {
+  return { amountMinor: Math.round(Number(m.amount) * 100), currency: m.currency as Money['currency'] };
 }
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

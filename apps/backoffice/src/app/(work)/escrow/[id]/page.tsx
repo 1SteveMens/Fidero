@@ -260,7 +260,7 @@ function FxTab({ e }: { e: Escrow }) {
       <Panel title="Conversions against the accepted quote" actions={STAFF_CAN(hasRole) ? (
         <ActionForm label="Get a quote" path={`/v1/escrows/${e.id}/fx-quotes`} fields={[
           { name: 'purpose', label: 'For', type: 'select', initial: 'release_conversion', options: [{ value: 'deposit', label: 'A deposit' }, { value: 'release_conversion', label: 'Converting before a release' }, { value: 'refund_conversion', label: 'A refund' }] },
-          { name: 'route', label: 'Route', type: 'select', required: true, options: [{ value: 'escrow_fx_account', label: "The escrow's foreign-currency account" }, { value: 'escrow_local_account', label: "The escrow's cedi account" }, { value: 'transfer_partner', label: 'A transfer service' }] },
+          { name: 'route', label: 'Route', type: 'select', required: true, options: [{ value: 'escrow_fx_account', label: "The escrow's foreign-currency account" }, { value: 'escrow_local_account', label: `The escrow's ${e.currency} account` }, { value: 'transfer_partner', label: 'A transfer service' }] },
           { name: 'amount', label: 'Amount', type: 'money', required: true }, { name: 'currency', label: 'From currency', initial: 'USD', required: true },
         ]} body={(v) => ({ purpose: v.purpose, route: v.route, amount: { amount: v.amount, currency: String(v.currency).toUpperCase() } })}
           onDone={(q) => { const x = q as Quote; act.show(`Quote ${x.from_currency} ${x.from_amount} → ${x.to_currency} ${x.expected_to_amount} at ${x.offered_rate}. The client accepts it in the app.`); }} submitLabel="Get quote" intro="Tenmina takes no margin on the exchange. The client sees and accepts the quote." />

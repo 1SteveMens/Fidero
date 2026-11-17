@@ -2,17 +2,16 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 import { Button, Money, ProblemBox, Skeleton, Steps, useGet, useSession } from '@tenmina/web-ui';
-import { PageHead, RadioCard, useAction, type Any } from '@/components/kit';
+import { PageHead, RadioCard, useAction, useCountry, type Any } from '@/components/kit';
 import { orderSteps } from '@/lib/steps';
 
 /** W-03 · SCR-PTL-06: land or building, and the tier. Prices come from the server, never the page. */
 function Step1() {
-  const { me } = useSession();
-  const country = me?.home_country || 'GH';
+  const country = useCountry().code;
   const router = useRouter();
   const kind = useSearchParams().get('kind') || 'verification';
-  const tiers = useGet<Any[]>('/v1/catalogue/tiers', { country, kind });
-  const products = useGet<Any[]>('/v1/catalogue/products', { country });
+  const tiers = useGet<Any[]>(country ? '/v1/catalogue/tiers' : null, { country, kind });
+  const products = useGet<Any[]>(country ? '/v1/catalogue/products' : null, { country });
   const [assetType, setAssetType] = useState('plot');
   const [tier, setTier] = useState('');
   const a = useAction();

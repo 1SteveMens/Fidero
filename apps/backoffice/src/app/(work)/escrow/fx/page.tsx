@@ -7,6 +7,7 @@ import { useMemo } from 'react';
 import { Button, call, Empty, ProblemBox, Skeleton, useGet, useSession } from '@tenmina/web-ui';
 import { ActionForm, day, dayTime, Head, money, Panel, useAct, words } from '@/components/core/kit';
 import type { Approval, Page } from '@/components/core/types';
+import { CountryPick, useWorkCountry } from '@/components/core/country';
 
 type Run = { run_id: string; run_date: string; pair: string; send_amount: string; status: string; providers_expected: number; providers_fresh: number; reference_rate: string | null; last_success_at: string | null; items: { provider: string; kind: string; stale: boolean; rank: number; rate: string; margin_pct: string; fees_total: string; delivered_amount: string; collected_at: string; method: string }[]; bank_best_rate: boolean; statement: string };
 type Rate = { id: string; bank_partner: string; from_currency: string; to_currency: string; band_from: string; band_to: string | null; margin_pct: string; tolerance_pct: string; fee_schedule: { name: string; amount: string; currency: string }[]; reference_source: string; valid_from: string; valid_to: string | null; approval_request: string | null; status: string };
@@ -20,7 +21,8 @@ function ApproveOne({ path, label, onDone }: { path: string; label: string; onDo
 
 export default function FxPage() {
   const { client, hasRole } = useSession();
-  const cmp = useGet<Run[]>('/v1/fx/comparison', { country: 'GH' });
+  const country = useWorkCountry();
+  const cmp = useGet<Run[]>(country.code ? '/v1/fx/comparison' : null, { country: country.code });
   const rates = useGet<Rate[]>(hasRole('AD', 'CM', 'RV') ? '/v1/admin/programme-rates' : null);
   const accounts = useGet<Account[]>(hasRole('AD') ? '/v1/admin/programme-accounts' : null);
   const partners = useGet<Page<Partner>>(hasRole('AD') ? '/v1/admin/partners' : null, { limit: 100 });
@@ -32,7 +34,7 @@ export default function FxPage() {
   const isOpen = (reqId: string | null) => !!reqId && (open.data?.items ?? []).some((a) => a.id === reqId);
   return (
     <div className="stack" style={{ gap: 18 }}>
-      <Head crumb={{ href: '/escrow', label: 'Escrow' }} title="Rates and accounts" sub="Tenmina takes no margin on the exchange. “Best rate” is said only when the day's comparison is complete and shows it." actions={hasRole('AD', 'CM') ? <Button variant="dark" size="sm" busy={act.busy} onClick={() => act.run(() => call(client, 'POST', '/v1/admin/fx-collections', { country: 'GH' }).then(() => cmp.mutate()), 'Rates collected.')}>Collect today&apos;s rates now</Button> : null} />
+      <Head crumb={{ href: '/escrow', label: 'Escrow' }} title="Rates and accounts" sub="Tenmina takes no margin on the exchange. “Best rate” is said only when the day's comparison is complete and shows it." actions={hasRole('AD', 'CM') ? <Button variant="dark" size="sm" busy={act.busy} onClick={() => act.run(() => call(client, 'POST', '/v1/admin/fx-collections', { country: country.code }).then(() => cmp.mutate()), 'Rates collected.')}>Collect today&apos;s rates now</Button> : null} />
       <ProblemBox error={act.error} />
       <Panel title="Today's comparison">
         <ProblemBox error={cmp.error} />
@@ -58,13 +60,13 @@ export default function FxPage() {
           </div>
         )) : <Empty>No comparison collected today.</Empty>}
         {hasRole('AD', 'CM', 'RV') && partners.data ? (
-          <ActionForm label="Enter a rate by hand" path="/v1/admin/fx-observations" upload={{ subject_type: 'fx_observation', subject_id: '00000000-0000-0000-0000-000000000000', country: 'GH', role: 'rate_proof' }} fields={[
+          <ActionForm label="Enter a rate by hand" path="/v1/admin/fx-observations" upload={{ subject_type: 'fx_observation', subject_id: '00000000-0000-0000-0000-000000000000', country: country.code, role: 'rate_proof' }} fields={[
             { name: 'source_partner_id', label: 'Source', type: 'select', required: true, options: [...opt('rate_source'), ...opt('transfer_partner'), ...opt('escrow_bank')] },
             { name: 'kind', label: 'Kind', type: 'select', required: true, options: ['reference', 'programme', 'provider'].map((x) => ({ value: x, label: words(x) })) },
-            { name: 'from_currency', label: 'From', initial: 'USD', required: true }, { name: 'to_currency', label: 'To', initial: 'GHS', required: true },
+            { name: 'from_currency', label: 'From', initial: 'USD', required: true }, { name: 'to_currency', label: 'To', initial: country.currency, required: true },
             { name: 'rate', label: 'Rate', type: 'number', required: true }, { name: 'send_amount', label: 'Send amount', type: 'money' }, { name: 'fees_total', label: 'Fees', type: 'money' }, { name: 'delivered_amount', label: 'Delivered', type: 'money' },
             { name: 'proof_evidence_id', label: 'Screenshot or page as proof', type: 'file', required: true },
-          ]} body={(v) => ({ country: 'GH', source_partner_id: v.source_partner_id, kind: v.kind, from_currency: String(v.from_currency).toUpperCase(), to_currency: String(v.to_currency).toUpperCase(), rate: v.rate, proof_evidence_id: v.proof_evidence_id, ...(v.send_amount ? { send_amount: v.send_amount } : {}), ...(v.fees_total ? { fees_total: v.fees_total } : {}), ...(v.delivered_amount ? { delivered_amount: v.delivered_amount } : {}) })}
+          ]} body={(v) => ({ country: country.code, source_partner_id: v.source_partner_id, kind: v.kind, from_currency: String(v.from_currency).toUpperCase(), to_currency: String(v.to_currency).toUpperCase(), rate: v.rate, proof_evidence_id: v.proof_evidence_id, ...(v.send_amount ? { send_amount: v.send_amount } : {}), ...(v.fees_total ? { fees_total: v.fees_total } : {}), ...(v.delivered_amount ? { delivered_amount: v.delivered_amount } : {}) })}
             onDone={() => cmp.mutate()} submitLabel="Save" intro="A second person checks it before it counts." />
         ) : null}
       </Panel>
@@ -83,14 +85,14 @@ export default function FxPage() {
       </Panel>
 
       <Panel title="Programme rates (the bank's written rate)" actions={hasRole('AD') && partners.data ? (
-        <ActionForm label="+ New programme rate" path="/v1/admin/programme-rates" upload={{ subject_type: 'programme_rate', subject_id: '00000000-0000-0000-0000-000000000000', country: 'GH', role: 'agreement' }} fields={[
+        <ActionForm label="+ New programme rate" path="/v1/admin/programme-rates" upload={{ subject_type: 'programme_rate', subject_id: '00000000-0000-0000-0000-000000000000', country: country.code, role: 'agreement' }} fields={[
           { name: 'bank_partner_id', label: 'Bank', type: 'select', required: true, options: opt('escrow_bank') }, { name: 'reference_source_id', label: 'Reference rate source', type: 'select', required: true, options: opt('rate_source') },
-          { name: 'from_currency', label: 'From', initial: 'USD', required: true }, { name: 'to_currency', label: 'To', initial: 'GHS', required: true },
+          { name: 'from_currency', label: 'From', initial: 'USD', required: true }, { name: 'to_currency', label: 'To', initial: country.currency, required: true },
           { name: 'margin_pct', label: 'Margin %', type: 'number', required: true }, { name: 'tolerance_pct', label: 'Tolerance %', type: 'number', initial: '0' },
           { name: 'fee_name', label: 'Fee name' }, { name: 'fee_amount', label: 'Fee amount', type: 'money' },
           { name: 'valid_from', label: 'Valid from', type: 'date', required: true }, { name: 'valid_to', label: 'Valid to', type: 'date' },
           { name: 'agreement_evidence_id', label: "The bank's written rate", type: 'file', required: true },
-        ]} body={(v) => ({ country: 'GH', bank_partner_id: v.bank_partner_id, reference_source_id: v.reference_source_id, from_currency: String(v.from_currency).toUpperCase(), to_currency: String(v.to_currency).toUpperCase(), margin_pct: v.margin_pct, tolerance_pct: v.tolerance_pct || 0, fee_schedule: v.fee_name ? [{ name: v.fee_name, amount: v.fee_amount || '0', currency: String(v.from_currency).toUpperCase() }] : [], valid_from: v.valid_from, valid_to: v.valid_to || null, agreement_evidence_id: v.agreement_evidence_id })}
+        ]} body={(v) => ({ country: country.code, bank_partner_id: v.bank_partner_id, reference_source_id: v.reference_source_id, from_currency: String(v.from_currency).toUpperCase(), to_currency: String(v.to_currency).toUpperCase(), margin_pct: v.margin_pct, tolerance_pct: v.tolerance_pct || 0, fee_schedule: v.fee_name ? [{ name: v.fee_name, amount: v.fee_amount || '0', currency: String(v.from_currency).toUpperCase() }] : [], valid_from: v.valid_from, valid_to: v.valid_to || null, agreement_evidence_id: v.agreement_evidence_id })}
           onDone={() => rates.mutate()} submitLabel="Prepare" intro="A second administrator approves before it is used." />
       ) : null}>
         {rates.isLoading ? <Skeleton /> : rates.data?.length ? (
@@ -113,12 +115,12 @@ export default function FxPage() {
 
       {hasRole('AD') ? (
         <Panel title="Programme accounts at the bank" actions={partners.data ? (
-          <ActionForm label="+ New account" path="/v1/admin/programme-accounts" upload={{ subject_type: 'programme_account', subject_id: '00000000-0000-0000-0000-000000000000', country: 'GH', role: 'agreement' }} fields={[
-            { name: 'bank_partner_id', label: 'Bank', type: 'select', required: true, options: opt('escrow_bank') }, { name: 'currency', label: 'Currency', initial: 'GHS', required: true },
+          <ActionForm label="+ New account" path="/v1/admin/programme-accounts" upload={{ subject_type: 'programme_account', subject_id: '00000000-0000-0000-0000-000000000000', country: country.code, role: 'agreement' }} fields={[
+            { name: 'bank_partner_id', label: 'Bank', type: 'select', required: true, options: opt('escrow_bank') }, { name: 'currency', label: 'Currency', initial: country.currency, required: true },
             { name: 'kind', label: 'Kind', type: 'select', initial: 'programme', options: [{ value: 'programme', label: 'Programme account' }, { value: 'single_escrow', label: 'Single escrow account' }] },
             { name: 'account_number', label: 'Account number', required: true }, { name: 'account_name', label: 'Account name', required: true },
             { name: 'agreement_evidence_id', label: 'The three-party agreement', type: 'file', required: true },
-          ]} body={(v) => ({ country: 'GH', bank_partner_id: v.bank_partner_id, currency: String(v.currency).toUpperCase(), kind: v.kind || 'programme', account_number: v.account_number, account_name: v.account_name, agreement_evidence_id: v.agreement_evidence_id })}
+          ]} body={(v) => ({ country: country.code, bank_partner_id: v.bank_partner_id, currency: String(v.currency).toUpperCase(), kind: v.kind || 'programme', account_number: v.account_number, account_name: v.account_name, agreement_evidence_id: v.agreement_evidence_id })}
             onDone={() => accounts.mutate()} submitLabel="Prepare" intro="The bank holds the money as escrow agent. Tenmina never holds client money." />
         ) : null}>
           {accounts.isLoading ? <Skeleton /> : accounts.data?.length ? (

@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { brand, space } from '@tenmina/tokens';
 import { Label, Panel, Screen, T } from '@tenmina/ui';
-import { LoadState, toProblem, useApi, useLoad, when, words } from '@tenmina/mobile';
+import { LoadState, toProblem, useApi, useCountry, useLoad, when, words } from '@tenmina/mobile';
 import { ApprovalSheet } from '../../components/ApprovalSheet';
 import type { Escrow } from '../../lib';
 
@@ -39,6 +39,7 @@ const SOURCE: Record<string, string> = {
  */
 export default function PayeeChangeSheet() {
   const api = useApi();
+  const country = useCountry();
   const { id } = useLocalSearchParams<{ id: string }>();
   const data = useLoad(async (a) => {
     const ch = await a.get<PayeeChange>(`/v1/payee-changes/${id}`);
@@ -59,7 +60,7 @@ export default function PayeeChangeSheet() {
     <ApprovalSheet
       title="Approve a new bank account"
       source={escrow ? `For ${escrow.reference} · ${escrow.title}` : 'Payee change'}
-      amount={escrow?.agreed_price ?? { amount: '0', currency: 'GHS' }}
+      amount={escrow?.agreed_price ?? { amount: '0', currency: country.currency }}
       description="Future payments from this escrow go to the new account below."
       payee={{ name: ch.account_name, bank: ch.bank_name.replace(/\s*\[TO VERIFY\]/, ''), last4: ch.account_last4, matched: ch.account_name_source === 'bank_name_check' ? true : null }}
       checks={[

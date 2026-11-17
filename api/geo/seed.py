@@ -64,8 +64,6 @@ PLOTS = [
 ]
 
 GHANA_BOX = _rect(-3.30, 4.70, 1.20, 11.20)  # approximate bounding box [TO VERIFY]
-LISTING_ID = "0192f3c1-0000-7000-8000-00000000a001"  # sample listing id until LST seeds its own
-PROJECT_ID = "0192f3c1-0000-7000-8000-00000000b001"  # sample project id until BLD seeds its own
 
 
 def _evidence(data, country, *, by, content_type, name, source, description):
@@ -205,7 +203,7 @@ def _watch(asset, *, reason, source_id, cm, change, resolved):
     if resolved:
         alert.status, alert.resolution, alert.resolved_by, alert.resolved_at = (
             "resolved", "change_explained", cm, timezone.now())
-        alert.resolution_note = "The contractor started the foundation as planned. Matches milestone 1."
+        alert.resolution_note = "The owner started a foundation as planned. Checked with the owner [demo]."
         e.baseline_image = new
     else:
         e.baseline_image = base
@@ -248,8 +246,8 @@ def run(ctx):
     if flags.enabled(services.SATELLITE_FLAG, gh):
         if not assets["clear"].satellite_images.filter(purpose="report").exists():
             _image(assets["clear"], purpose="report", before=None, by=cm)
-        _watch(assets["verified"], reason="listing", source_id=LISTING_ID, cm=cm, change=(0.30, -0.25),
-               resolved=False)
-        _watch(assets["near_road"], reason="project", source_id=PROJECT_ID, cm=cm, change=(0.20, -0.05),
-               resolved=True)
+        # Watched by a case manager's decision (FR-GEO-007 "manual"): no listing or project id is made up here.
+        # Listings and projects enrol their own plots through geo.services.enrol when LST and BLD start them.
+        _watch(assets["verified"], reason="manual", source_id=None, cm=cm, change=(0.30, -0.25), resolved=False)
+        _watch(assets["near_road"], reason="manual", source_id=None, cm=cm, change=(0.20, -0.05), resolved=True)
     ctx["geo"] = {"assets": assets, "layers": layers}

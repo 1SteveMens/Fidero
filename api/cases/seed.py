@@ -4,8 +4,9 @@
 - Names Tenmina's own registry account on the Lands Commission partner (RUL-30) [demo value, TO VERIFY].
 - Opens cases for the orders PAY's seed paid, then walks them into several states:
   Kofi's land case in progress (searches lodged, a site visit screened and assigned, a document request,
-  messages, costs, a safety incident), a checked plot waiting to be accepted, an institution verification
-  in progress and a contractor check finished. RPT's seed takes Ama's land case to a released report.
+  messages, costs, a safety incident) and a checked plot waiting to be accepted. RPT's seed takes Ama's land
+  case to a released report. Institution verifications and contractor checks are opened by FEE's and BLD's seeds
+  on their real institutions and panel members, so every case's subject is a real row.
 """
 import logging
 from datetime import timedelta
@@ -171,7 +172,6 @@ def run(ctx):
     if kofi is not None:
         seeded["kofi_land_offline_paid"] = Case.objects.get(pk=kofi.pk)
 
-    _line_cases(gh, people, seeded)
 
 
 def _kofi_in_progress(case, gh, people):
@@ -201,39 +201,3 @@ def _kofi_in_progress(case, gh, people):
                                  severity="medium", narrative="Two men at the plot asked the runner to leave and "
                                                               "said the land is family land. No one was hurt.",
                                  location_note="Plot entrance")
-
-
-def _line_cases(gh, people, seeded):
-    from core.ids import uuid7
-
-    from . import services
-    from .models import Case
-
-    cm, reviewer, client = people["cm"], people["reviewer"], people["client"]
-    inst = Case.objects.filter(product_line="institution_verification", title__contains="Accra Academy").first()
-    if inst is None:
-        inst = services.open_case("institution_verification", gh, "institution", uuid7(), client=client, actor=cm,
-                                  title="Institution verification: Accra Academy (demo)", case_manager=cm)
-        t = inst.tasks.get(step_key="registration_check")
-        attach(t, cm, gh, "registration_certificate")
-        services.complete_task(t, cm)
-    seeded["institution"] = inst
-    con = Case.objects.filter(product_line="contractor_check", title__contains="Kobby Builders").first()
-    if con is None:
-        con = services.open_case("contractor_check", gh, "contractor", uuid7(), actor=cm, case_manager=cm,
-                                 title="Contractor check: Kobby Builders (demo)")
-        for t in con.tasks.filter(review_step=False).order_by("position"):
-            if t.owner_role == "CM":
-                for k in t.required_evidence:
-                    attach(t, cm, gh, k)
-                services.complete_task(t, cm)
-            else:
-                t.refresh_from_db()
-                if t.site_visit:
-                    services.record_risk_screen(con, cm, task=t, outcome="proceed", people_required=1)
-                for k in t.required_evidence:
-                    attach(t, cm, gh, k)
-                services.complete_task(t, cm)
-        services.decide_verification(con, reviewer, outcome="verified",
-                                     note="Registered class D1K1 [demo]; past work seen.")
-    seeded["contractor"] = con

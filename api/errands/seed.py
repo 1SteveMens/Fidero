@@ -183,8 +183,6 @@ def _photo(phone, subject_type, subject_id, key, lat=5.5560, lng=-0.1969):
 
 def _ready(e, client, cm, terms):
     """Upload every document, submit, Tenmina accepts them, the charge is paid."""
-    from orders.services import mark_paid
-
     from . import services
 
     for d in e.documents.all():
@@ -193,7 +191,12 @@ def _ready(e, client, cm, terms):
     for d in e.documents.all():
         services.review_document(d, cm, accept=True)
     e.refresh_from_db()
-    mark_paid(e.fee_order_id, payment_id=demo_id(f"pay:{e.pk}"), method="card")
+    from orders.models import Order
+    from payments.seed import _card
+
+    order = Order.objects.get(pk=e.fee_order_id)
+    if order.status == "awaiting_payment":
+        _card(order, client)  # a real card payment through PAY, which marks the order paid
     e.refresh_from_db()
     return e
 
@@ -212,8 +215,17 @@ def run(ctx):
     refs = ctx.setdefault("errands", {})
     agent_person = _agent_person(gh, people)
     people["agent2"] = agent_person
-    agent = Agent.objects.filter(person=agent_person).first() or services.add_agent(
-        cm, person=agent_person, pro_agreement_id=demo_id("pro-agreement:kofi"))
+    agent = Agent.objects.filter(person=agent_person).first() or services.add_agent(cm, person=agent_person)
+    if agent.pro_agreement_id is None:
+        # The agent's signed agreement is PRO's (FR-PRO-001): a real row, recorded through its services.
+        from profpay import services as pro
+        from profpay.models import Agreement
+        from profpay.seed import _ev as pro_ev
+
+        a = Agreement.objects.filter(professional=agent_person, role="errand_agent", country=gh).first() \
+            or pro.create_agreement(admin, country=gh, professional=agent_person, role="errand_agent",
+                                    agreement_evidence=pro_ev(gh, admin, "signed-agreement-kofi-agent.txt"))
+        agent = services.update_agent(agent, cm, pro_agreement_id=a.pk)
     refs["agent"] = agent
     if not (ctx.get("escrow") or {}).get("payees"):
         return  # escrow is off in this database; errands still order, but no fee can be paid

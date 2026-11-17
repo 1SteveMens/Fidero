@@ -38475,47 +38475,15 @@ components:
     DigitalAddress:
       type: object
       properties:
-        status:
-          $ref: '#/components/schemas/DigitalAddressStatusEnum'
-        code:
+        name:
           type: string
-        location:
-          type:
-          - object
-          - 'null'
-          properties:
-            lng:
-              type: number
-              example: -0.187
-            lat:
-              type: number
-              example: 5.603
-          required:
-          - lng
-          - lat
-        accuracy_m:
-          type:
-          - number
-          - 'null'
-          format: double
-        message:
+          description: What the country's digital address is called, e.g. Ghana Post
+            GPS address
+        example:
           type: string
       required:
-      - accuracy_m
-      - code
-      - location
-      - message
-      - status
-    DigitalAddressStatusEnum:
-      enum:
-      - resolved
-      - not_found
-      - unavailable
-      type: string
-      description: |-
-        * `resolved` - resolved
-        * `not_found` - not_found
-        * `unavailable` - unavailable
+      - example
+      - name
     DirectoryAnswer:
       type: object
       properties:
@@ -44472,6 +44440,12 @@ components:
           type:
           - string
           - 'null'
+        currency:
+          type:
+          - string
+          - 'null'
+          description: The country's currency, for values the worker enters offline
+            (a defect's cost). From country configuration.
         status:
           type: string
         address:
@@ -44545,6 +44519,7 @@ components:
       - buffer_m
       - checklist
       - country
+      - currency
       - details
       - due_at
       - kind
@@ -47271,6 +47246,9 @@ components:
             maxLength: 0
         status:
           $ref: '#/components/schemas/Status0e1Enum'
+        country:
+          type: string
+          readOnly: true
         origin:
           $ref: '#/components/schemas/OriginEnum'
         kind:
@@ -47363,6 +47341,7 @@ components:
       - asset_id
       - badge
       - can_reserve
+      - country
       - disclosure
       - id
       - location
@@ -47437,6 +47416,9 @@ components:
             maxLength: 0
         status:
           $ref: '#/components/schemas/Status0e1Enum'
+        country:
+          type: string
+          readOnly: true
         origin:
           $ref: '#/components/schemas/OriginEnum'
         kind:
@@ -47542,6 +47524,7 @@ components:
       - badge
       - boundary
       - can_reserve
+      - country
       - disclosure
       - id
       - location
@@ -54374,6 +54357,16 @@ components:
           description: 'FR-ACC-015: when SMS approvals are paused (72 hours after
             a number change or a reported SIM swap), why and until when. Null when
             not paused.'
+        work_countries:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkCountry'
+          readOnly: true
+          description: The countries this person works in, from their role grants
+            (every configured country for a grant with no country), else their home
+            country. Screens take country, currency and wording from here or from
+            the object itself; nothing is hard-coded (CLAUDE.md, DA-09). The home
+            country comes first.
         roles:
           type: array
           items:
@@ -54426,6 +54419,7 @@ components:
       - second_factor
       - sms_pause
       - status
+      - work_countries
     PersonPick:
       type: object
       description: 'One row of the staff people picker: enough to choose the right
@@ -59195,6 +59189,8 @@ components:
       - summary
     PublicCountry:
       type: object
+      description: 'What screens need to show a country''s own wording (DA-09): nothing
+        about a country is hard-coded.'
       properties:
         code:
           type: string
@@ -59214,11 +59210,29 @@ components:
         phone_prefix:
           type: string
           readOnly: true
+        digital_address:
+          oneOf:
+          - $ref: '#/components/schemas/DigitalAddress'
+          - type: 'null'
+          readOnly: true
+          description: The country's digital address system, or null where it has
+            none (the field is then hidden).
+        national_id_name:
+          type: string
+          readOnly: true
+          description: e.g. Ghana Card (NIA)
+        land_registry_name:
+          type: string
+          readOnly: true
+          description: e.g. Lands Commission
       required:
       - code
       - currency
+      - digital_address
+      - land_registry_name
       - languages
       - name
+      - national_id_name
       - phone_prefix
     PublicLockedText:
       type: object
@@ -66905,6 +66919,22 @@ components:
       properties:
         reason:
           type: string
+    WorkCountry:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        currency:
+          type: string
+        status:
+          type: string
+      required:
+      - code
+      - currency
+      - name
+      - status
     WorkKindEnum:
       enum:
       - report_section

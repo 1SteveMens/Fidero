@@ -1591,7 +1591,12 @@ def place_hold(e: Escrow, by, *, reason) -> Freeze:
         raise Forbidden("Only a reviewer places a hold.")
     if not reason:
         raise Invalid("Give the reason.", code="validation-error")
-    return freeze(e, kind="reviewer_hold", source_id=uuid7(), reason=reason, by=by)
+    hold_id = uuid7()  # a hold's source is the freeze row itself (Freeze.source_id)
+    f = freeze(e, kind="reviewer_hold", source_id=hold_id, reason=reason, by=by)
+    if f.source_id == hold_id and f.pk != hold_id:
+        Freeze.objects.filter(pk=f.pk).update(source_id=f.pk)
+        f.refresh_from_db()
+    return f
 
 
 def lift_hold(f: Freeze, by, *, note) -> Escrow:

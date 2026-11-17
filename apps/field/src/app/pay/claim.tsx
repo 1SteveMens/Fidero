@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { router } from 'expo-router';
 import { space } from '@tenmina/tokens';
 import { Button, Choice, Input, Label, Panel, Screen, T, Tick } from '@tenmina/ui';
-import { newUuid } from '@tenmina/mobile';
+import { newUuid, useCountry } from '@tenmina/mobile';
 import { useField } from '../../store';
 import { CaptureButton, OfflineBanner, Submitted } from '../../screens/common';
 
@@ -19,6 +19,7 @@ const KINDS = [
  * A receipt pays once; a claim above the limit needs a second approval.
  */
 export default function Claim() {
+  const country = useCountry();
   const { progress, setProgress, capturesFor, queue } = useField();
   const draft = progress('claim-draft') as { id?: string };
   const subjectId = useMemo(() => draft.id ?? newUuid(), [draft.id]);
@@ -60,7 +61,7 @@ export default function Claim() {
         ))}
       </Panel>
       <Input label="What for" value={description} onChange={setDescription} placeholder="For example: search fee at Lands Commission, Accra" />
-      <Input label="Amount (GHS)" value={amount} onChange={(v) => setAmount(v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" />
+      <Input label={country.currency ? `Amount (${country.currency})` : 'Amount'} value={amount} onChange={(v) => setAmount(v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" />
       <Input label="Date paid (YYYY-MM-DD)" value={date} onChange={setDate} />
       <Panel style={{ flexDirection: 'row', alignItems: 'center', gap: space[3] }}>
         {receipts.length ? <Tick /> : <View style={{ width: 22, height: 22, borderRadius: 7, borderWidth: 2, borderColor: '#D6D3CB' }} />}

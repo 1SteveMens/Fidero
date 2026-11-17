@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { space } from '@tenmina/tokens';
 import { Button, Choice, Input, Label, Panel, Rise, Screen, T, YesNo, haptic, usePalette } from '@tenmina/ui';
-import { day, moneyOf } from '@tenmina/mobile';
+import { day, moneyOf, useCountry } from '@tenmina/mobile';
 import { jobKey, useField } from '../store';
 import type { Job } from '../types';
 import { CheckCard } from './CheckIn';
@@ -15,8 +15,6 @@ interface DefectDraft {
   description: string;
   amount: string;
 }
-
-const CURRENCY: Record<string, string> = { GH: 'GHS', NG: 'NGN', KE: 'KES' };
 
 /**
  * Inspection checklist, defects and result (W-18; SCR-MOB-09, 10, 11, 18;
@@ -34,7 +32,9 @@ export function InspectionScreen({ job }: { job: Job }) {
   const [result, setResult] = useState<Result | undefined>(saved.result);
   const [reason, setReason] = useState(saved.reason ?? '');
   const done = useDone(job, ['inspection']);
-  const currency = CURRENCY[job.country ?? 'GH'] ?? 'GHS';
+  const cty = useCountry(job.country);
+  // The job carries its country's currency, so a defect's value works offline; else country configuration.
+  const currency = job.currency || cty.currency;
   const keep = (patch: Record<string, unknown>) => setProgress(key, patch);
   useEffect(() => {
     keep({ answers });

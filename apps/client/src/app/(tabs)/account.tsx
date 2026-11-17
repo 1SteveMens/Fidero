@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { brand, space } from '@tenmina/tokens';
 import { Button, Chip, Label, ListRow, Panel, Rise, Screen, T } from '@tenmina/ui';
-import { APP_VERSION, initials, itemsOf, localApprovalKey, useGet, useSession } from '@tenmina/mobile';
+import { APP_VERSION, initials, itemsOf, localApprovalKey, useCountry, useGet, useSession } from '@tenmina/mobile';
 
 /**
  * Account (SCR-PTL-20, 21, 34 and SCR-APP-04): who you are, security, how fees
@@ -11,6 +11,7 @@ import { APP_VERSION, initials, itemsOf, localApprovalKey, useGet, useSession } 
  * codes by text message (FR-ACC-015), bank accounts, representatives and help.
  */
 export default function Account() {
+  const country = useCountry();
   const { me, signOut, config, api } = useSession();
   const reps = useGet<{ items: { id: string; full_name: string; status: string }[] }>('/v1/me/representatives');
   const banks = useGet<{ items: { id: string; bank_name: string; account_number_last4: string; verification_status: string }[] }>('/v1/bank-accounts');
@@ -91,7 +92,7 @@ export default function Account() {
             detail={reps.data ? `${itemsOf(reps.data).filter((r) => r.status === 'active').length} active · read-only or limited` : 'People who act for you'}
             onPress={() => router.push('/account/representatives')}
           />
-          <ListRow icon="flag-outline" title="Country" detail={me?.home_country === 'GH' ? 'Ghana · prices in GHS' : (me?.home_country ?? '')} last />
+          <ListRow icon="flag-outline" title="Country" detail={country.currency ? `${country.name} · prices in ${country.currency}` : country.name} last />
         </Panel>
       </Rise>
 

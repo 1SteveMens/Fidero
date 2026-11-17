@@ -18,7 +18,8 @@ def escrow(seeded, gh, people):
     import uuid
 
     key = uuid.uuid4().hex[:6]
-    return funded_escrow(gh, people, f"t{key}", f"Test plot {key}", "50000.00", f"VA-GH-T{key}")
+    return funded_escrow(seeded, f"t{key}", f"Test plot {key}", "50000.00", f"VA-GH-T{key}",
+                         report_id=seeded["report"].pk)
 
 
 def _open(escrow, people, **kw):

@@ -1,41 +1,34 @@
 'use client';
 import Link from 'next/link';
 import { useState } from 'react';
-import { Button, CodeBoxes, Dialog, HoldButton, Money, ProblemBox, Skeleton, Ticket, useGet, useSession } from '@tenmina/web-ui';
+import { Button, Dialog, HoldButton, Money, ProblemBox, Skeleton, Ticket, useGet } from '@tenmina/web-ui';
 import { ApiError } from '@tenmina/api-client';
 import { Seal, money, useAction, useCountry, type Any } from './kit';
+import { FactorField, useWebFactor } from './secondfactor';
 
-/** Press and hold, then the code from the authenticator app (RUL-11): the client's own approval of a move inside
- * the account. It pays nobody, so no Tenmina staff approve it; the bank confirms it before it counts. */
-function HoldThenCode({ label, onApprove, disabled }: { label: string; onApprove: (code: string) => Promise<unknown>; disabled?: boolean }) {
-  const { me } = useSession();
+/** Press and hold, then the client's second factor (RUL-11, FR-ACC-015): a 6-digit code sent by SMS ("Send code",
+ * then the boxes), or the authenticator's code for a client who set one up. The code steps up first; the move then
+ * rests on that fresh step-up. It pays nobody, so no Tenmina staff approve it; the bank confirms it before it
+ * counts. Silence is never approval: nothing moves until the client holds and enters the code. */
+function HoldThenCode({ label, onApprove, disabled }: { label: string; onApprove: () => Promise<unknown>; disabled?: boolean }) {
+  const f = useWebFactor();
   const [ask, setAsk] = useState(false);
-  const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
   async function go() {
     setBusy(true); setError(null);
-    try { await onApprove(code); setAsk(false); setCode(''); } catch (e) { setError(e); } finally { setBusy(false); }
+    try { await f.stepUp(); await onApprove(); setAsk(false); f.reset(); } catch (e) { setError(e); } finally { setBusy(false); }
   }
-  if (me && !me.mfa_enabled) {
-    return (
-      <div className="card stack">
-        <strong>Set up your authenticator app first.</strong>
-        <span className="muted">Every money step needs a code from your authenticator app.</span>
-        <Link className="btn btn-primary" href="/account/security">Set up the app</Link>
-      </div>
-    );
-  }
+  const canCode = f.method === 'totp' || f.method === 'sms';
   return (
     <>
-      <HoldButton label={label} tone="lime" disabled={disabled} onConfirm={() => { setError(null); setAsk(true); }} />
+      <HoldButton label={label} tone="lime" disabled={disabled} onConfirm={() => { setError(null); f.reset(); setAsk(true); }} />
       {!ask ? <ProblemBox error={error} /> : null}
-      <Dialog open={ask} onClose={() => setAsk(false)} title="Enter your code" ink>
+      <Dialog open={ask} onClose={() => setAsk(false)} title="Confirm it is you" ink>
         <div className="stack">
-          <p className="muted">Open your authenticator app and enter the six-digit code for Tenmina.</p>
-          <CodeBoxes value={code} onChange={setCode} autoFocus />
+          <FactorField f={f} autoFocus />
           <ProblemBox error={error} />
-          <Button variant="primary" busy={busy} disabled={code.length !== 6} onClick={go} block>Confirm</Button>
+          {canCode ? <Button variant="primary" busy={busy} disabled={!f.ready} onClick={go} block>Confirm</Button> : null}
         </div>
       </Dialog>
     </>
@@ -63,7 +56,7 @@ export function SetAside({ c, free, onDone }: { c: Commitment; free?: Any; onDon
         bottom={<div className="stack" style={{ gap: 4 }}><div className="label" style={{ color: '#6a675f' }}>Inside your account, for</div><div style={{ fontWeight: 800, fontSize: 18 }}>{c.title}</div>
           <div style={{ fontSize: 13, color: '#6a675f' }}>Nobody is paid now. The bank keeps it for this deal only. It is released only to {c.payees.length ? c.payees.join(', ') : 'the verified payee'}, on proof, after you approve.</div></div>}
       />
-      <HoldThenCode label="Hold to set aside" disabled={!(n > 0) || tooMuch} onApprove={(code) => a.post('/v1/account/commitments', { commitment_id: c.id, amount: { amount: n.toFixed(2), currency: c.currency }, code, gesture: 'press_and_hold' }).then(() => { a.show('Asked the bank. It counts once the bank confirms it.'); onDone(); })} />
+      <HoldThenCode label="Hold to set aside" disabled={!(n > 0) || tooMuch} onApprove={() => a.post('/v1/account/commitments', { commitment_id: c.id, amount: { amount: n.toFixed(2), currency: c.currency }, gesture: 'press_and_hold' }).then(() => { a.show('Asked the bank. It counts once the bank confirms it.'); onDone(); })} />
       {a.toast}
     </div>
   );
@@ -77,7 +70,7 @@ export function KeepInAccount({ c, onDone }: { c: Commitment; onDone: () => void
       <strong>This commitment is being cancelled</strong>
       <span>The <Money value={c.available_to_instruct} /> set aside goes back to the bank account it came from. Two Tenmina staff approve that refund.</span>
       <span className="muted">You can keep it in your Tenmina account instead, to use for something else. Only you can choose this.</span>
-      <HoldThenCode label="Hold to keep it in my account" onApprove={(code) => a.post(`/v1/account/commitments/${c.id}/keep-in-account`, { code, gesture: 'press_and_hold' }).then(() => { a.show('Asked the bank to move it back to your free balance.'); onDone(); })} />
+      <HoldThenCode label="Hold to keep it in my account" onApprove={() => a.post(`/v1/account/commitments/${c.id}/keep-in-account`, { gesture: 'press_and_hold' }).then(() => { a.show('Asked the bank to move it back to your free balance.'); onDone(); })} />
       {a.toast}
     </div>
   );

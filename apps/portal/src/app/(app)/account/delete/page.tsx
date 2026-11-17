@@ -1,18 +1,19 @@
 'use client';
 import Link from 'next/link';
 import { useState } from 'react';
-import { Blocked, Button, Chip, CodeBoxes, ProblemBox, Skeleton, When, useGet, useSession } from '@tenmina/web-ui';
+import { Blocked, Button, Chip, ProblemBox, Skeleton, When, useGet } from '@tenmina/web-ui';
 import { Ink, PageHead, Section, useAction, words, type Any } from '@/components/kit';
 import { toPortal } from '@/lib/links';
+import { FactorField, useWebFactor } from '@/components/secondfactor';
 
 /** W-38 · SCR-APP-04 on the web: delete my account, with the preview of what is deleted, what is kept and why. */
 export default function DeleteAccount() {
-  const { me, stepUp } = useSession();
+  const f = useWebFactor();
+  const needsCode = f.method === 'totp' || f.method === 'sms';
   const pv = useGet<Any>('/v1/me/deletion-requests/preview');
   const reqs = useGet<Any[]>('/v1/me/deletion-requests');
   const a = useAction();
   const [sure, setSure] = useState(false);
-  const [code, setCode] = useState('');
   const p = pv.data;
   const pending = (reqs.data ?? []).find((r: Any) => !['completed', 'rejected'].includes(r.status));
   return (
@@ -37,10 +38,10 @@ export default function DeleteAccount() {
       {pending ? <div className="card">You asked to delete your account on <When value={pending.created_at} />. Status: {words(pending.status)}.</div> : (
         <div className="stack">
           <label className="row" style={{ flexWrap: 'nowrap', alignItems: 'flex-start' }}><input type="checkbox" checked={sure} onChange={(e) => setSure(e.target.checked)} style={{ width: 22, height: 22, flex: 'none' }} /> <span>I understand. Delete my account{p?.can_complete_now ? ' now' : ' when the open matters are closed'}.</span></label>
-          {me?.mfa_enabled ? <><span className="muted">Code from your authenticator app</span><CodeBoxes value={code} onChange={setCode} /></> : null}
+          {sure && f.method !== 'none' ? <FactorField f={f} /> : null}
           <ProblemBox error={a.error} />
-          <Button variant="danger" disabled={!sure || (!!me?.mfa_enabled && code.length !== 6)} busy={!!a.busy}
-            onClick={() => a.run('del', async () => { if (me?.mfa_enabled) await stepUp(code); return a.post('/v1/me/deletion-requests', { confirm: true, source: 'portal' }); }, 'Request received', () => reqs.mutate())}>Delete my account</Button>
+          <Button variant="danger" disabled={!sure || (needsCode && !f.ready)} busy={!!a.busy}
+            onClick={() => a.run('del', async () => { if (needsCode) await f.stepUp(); return a.post('/v1/me/deletion-requests', { confirm: true, source: 'portal' }); }, 'Request received', () => reqs.mutate())}>Delete my account</Button>
           <Chip>This cannot be undone</Chip>
         </div>
       )}

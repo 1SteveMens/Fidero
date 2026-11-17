@@ -133,6 +133,42 @@ def release_demo_case(case, gh, people, stop=None, parties=True):
     return report
 
 
+def released_report(ctx, key, *, locality, plot_number, client_key="client", seller="Ato Estates Ltd"):
+    """A released land report for one demo plot, built the real way: the client orders and pays by card (ORD,
+    PAY), the case opens (CASE) and goes through sequence 5.2 to release (RPT). ESC and DSP open their demo
+    escrows on these, so every escrow's report, case and asset is a real row. Idempotent by `key`."""
+    from cases import services as cs
+    from cases.models import Case
+    from orders import services as ords
+    from orders.models import Order
+    from orders.seed import _accept, _doc
+    from payments.seed import _card
+
+    from .models import Report
+
+    gh, people = ctx["gh"], ctx["people"]
+    client = people[client_key]
+    o = Order.objects.filter(details__seed=key).first()
+    if o is None:
+        o = ords.create_order(actor=client, country=gh, kind="verification", draft=False, ip="127.0.0.1",
+                              user_agent="seed", data={
+                                  "tier": "standard", "lead_source": "webinar",
+                                  "asset": {"type": "plot", "locality": locality, "plot_number": plot_number,
+                                            "site_plan_ref": f"GA/{locality[:3].upper()}/2026/{plot_number}"},
+                                  "seller": {"name": seller, "phone": people["seller"].phone or "+233240000008"},
+                                  "details": {"seed": key}, "upload_ids": [_doc(client, gh, key).pk],
+                                  **_accept(gh)})
+    if o.status == "awaiting_payment":
+        _card(o, client)
+        o.refresh_from_db()
+    case = Case.objects.filter(order=o).first() or cs.create_from_order(o.pk, actor=people["cm"])
+    if case.status != "released":
+        for p in ("lawyer", "surveyor"):
+            people[p].refresh_from_db()
+        release_demo_case(case, gh, people)
+    return Report.objects.get(case=case, status="released")
+
+
 def run(ctx):
     from cases import services as cs
     from cases.models import Case

@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 import { apiGet } from '@/components/roles/server-api';
 
 export const dynamic = 'force-dynamic';
-export const metadata: Metadata = { title: 'Today’s exchange rates | Tenmina', description: 'How many cedis each provider delivers today, after every fee.' };
+export const metadata: Metadata = { title: 'Today’s exchange rates | Tenmina', description: 'How much each provider delivers today in the local currency, after every fee.' };
 
 type Item = { provider: string; kind: string; stale: boolean; rank: number | null; rate: string; margin_pct: string; fees_total: string; delivered_amount: string; collected_at: string };
 type Run = { run_id: string; run_date: string; pair: string; send_amount: string; status: string; providers_expected: number; providers_fresh: number; reference_rate: string; items: Item[]; bank_best_rate: boolean; statement: string };
@@ -14,7 +14,9 @@ const n = (s: string, d = 2) => Number(s).toLocaleString('en-GB', { minimumFract
 
 export default async function FxPage({ searchParams }: { searchParams: Promise<{ country?: string }> }) {
   const sp = await searchParams;
-  const { data, status } = await apiGet<Run[]>('/v1/fx/comparison', { country: sp.country || 'GH' });
+  const open = sp.country ? null : await apiGet<{ code: string }[]>('/v1/countries');
+  const country = sp.country || open?.data?.[0]?.code || '';
+  const { data, status } = country ? await apiGet<Run[]>('/v1/fx/comparison', { country }) : { data: [] as Run[], status: 200 };
   const runs = data ?? [];
   return (
     <div className="stack">

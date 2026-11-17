@@ -6,6 +6,7 @@ import { Button, Card, Field, Input, Money, ProblemBox, Select, Status, Textarea
 import { EmptyText, FilePick, Loaded, PageHead, Section, items, useAct, useApi, words, type Page } from '@/components/roles/kit';
 import { toBase64 } from '@/components/roles/files';
 import type { FeeInvoice, Institution } from '@/components/roles/fees';
+import { useCountryOf } from '@/components/kit';
 
 export default function InstitutionBills() {
   const inst = useGet<Page<Institution>>('/v1/institutions');
@@ -58,9 +59,11 @@ function SendBill({ institutions, onDone }: { institutions: Institution[]; onDon
   const api = useApi();
   const act = useAct();
   const [instId, setInstId] = useState('');
-  const [f, setF] = useState({ ref: '', tenmina: '', description: '', amount: '', currency: 'GHS', due: '' });
+  const [f, setF] = useState({ ref: '', tenmina: '', description: '', amount: '', currency: '', due: '' });
   const [file, setFile] = useState<File | null>(null);
   const inst = institutions.find((x) => x.id === instId) ?? institutions[0];
+  const instCountry = useCountryOf(inst?.country);
+  const cur = f.currency || instCountry.currency;
   if (!inst) return null;
   return (
     <Section title="Send a bill">
@@ -72,14 +75,14 @@ function SendBill({ institutions, onDone }: { institutions: Institution[]; onDon
         <Field label="What it is for"><Input value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} /></Field>
         <div className="grid2" style={{ gridTemplateColumns: '2fr 1fr', gap: 8 }}>
           <Field label="Amount"><Input inputMode="decimal" value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })} /></Field>
-          <Field label="Currency"><Input value={f.currency} maxLength={3} onChange={(e) => setF({ ...f, currency: e.target.value.toUpperCase() })} /></Field>
+          <Field label="Currency"><Input value={cur} maxLength={3} onChange={(e) => setF({ ...f, currency: e.target.value.toUpperCase() })} /></Field>
         </div>
         <Field label="Due date"><Input type="date" value={f.due} onChange={(e) => setF({ ...f, due: e.target.value })} /></Field>
         <FilePick label="The bill (PDF or photo)" file={file} onFile={setFile} accept="application/pdf,image/*" />
         <Button variant="dark" disabled={!file || !f.ref || !f.amount || !f.tenmina} busy={act.busy === 's'} onClick={() => act.run('s', async () => {
           await api('POST', '/v1/invoices', {
             institution_id: inst.id, tenmina_reference: f.tenmina, institution_reference: f.ref, description: f.description,
-            amount: { amount: f.amount, currency: f.currency }, due_on: f.due || null,
+            amount: { amount: f.amount, currency: cur }, due_on: f.due || null,
             document_base64: await toBase64(file!), content_type: file!.type || 'application/pdf', file_name: file!.name,
           });
           setF({ ref: '', tenmina: '', description: '', amount: '', currency: f.currency, due: '' }); setFile(null); onDone();

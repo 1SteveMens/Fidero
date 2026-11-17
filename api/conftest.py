@@ -29,20 +29,9 @@ def _media_root(tmp_path_factory):
 
 
 def _run_seeds():
-    import importlib
+    from core.seeding import run_all
 
-    from django.conf import settings
-
-    ctx = {"people": {}}
-    for name in settings.TENMINA_MODULES:
-        try:
-            mod = importlib.import_module(f"{name}.seed")
-        except ModuleNotFoundError as exc:
-            if exc.name == f"{name}.seed":
-                continue
-            raise
-        mod.run(ctx)
-    return ctx
+    return run_all()
 
 
 @pytest.fixture(scope="session")

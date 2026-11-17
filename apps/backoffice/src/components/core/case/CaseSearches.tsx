@@ -5,11 +5,16 @@
 import { Empty, ProblemBox, Skeleton, useGet } from '@tenmina/web-ui';
 import { ActionForm, day, dayTime, iso, Panel, str, words } from '../kit';
 import type { CaseDetail, SearchRequest } from '../types';
+import { useCountryInfo } from '../country';
 
-const CHANNEL: Record<string, string> = { online_portal: 'Lands Commission online portal', registry_office: 'Registry office (client service unit)' };
+/** The search channels, named after the case's country's land registry (country configuration). */
+function channels(registry?: string): Record<string, string> {
+  return { online_portal: `${registry || 'Land registry'} online portal`, registry_office: 'Registry office (client service unit)' };
+}
 
 export function CaseSearches({ c, reload }: { c: CaseDetail; reload: () => void }) {
   const list = useGet<SearchRequest[]>(`/v1/cases/${c.id}/search-requests`);
+  const CHANNEL = channels(useCountryInfo(c.country).land_registry_name);
   const searchTasks = (c.tasks ?? []).filter((t) => t.search_kind && t.status !== 'cancelled');
   const refresh = () => { list.mutate(); reload(); };
   return (

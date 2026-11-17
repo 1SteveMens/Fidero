@@ -330,6 +330,9 @@ importers:
       '@tenmina/api-client':
         specifier: workspace:*
         version: link:../api-client
+      '@tenmina/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@tenmina/tokens':
         specifier: workspace:*
         version: link:../tokens

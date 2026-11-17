@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { brand, space } from '@tenmina/tokens';
 import { Button, Chip, IconTile, Label, Panel, Rise, Screen, T } from '@tenmina/ui';
-import { day, itemsOf, money, toProblem, useApi, useSession, when, words, type ApiMoney, type Problem } from '@tenmina/mobile';
+import { day, itemsOf, money, toProblem, useApi, useCountry, useSession, when, words, type ApiMoney, type Problem } from '@tenmina/mobile';
 import { useField } from '../../store';
 
 export interface Payable {
@@ -72,6 +72,7 @@ function sum(list: ApiMoney[]): ApiMoney | null {
 export default function Pay() {
   const { hasRole } = useSession();
   const { pay, problem, refresh } = usePay();
+  const country = useCountry();
   const professional = hasRole('RN', 'SV', 'IN', 'QS', 'LW');
 
   if (!professional || problem?.status === 403) {
@@ -103,11 +104,11 @@ export default function Pay() {
           <Rise style={{ flexDirection: 'row', gap: space[2] }}>
             <Panel style={{ flex: 1, gap: space[1] }}>
               <T v="footnote" muted>Accepted, not yet paid</T>
-              <T v="title" style={{ fontSize: 20 }}>{money(sum(unpaid.map((p) => p.net)) ?? { amount: '0', currency: pay.payables[0]?.net.currency ?? 'GHS' })}</T>
+              <T v="title" style={{ fontSize: 20 }}>{money(sum(unpaid.map((p) => p.net)) ?? { amount: '0', currency: pay.payables[0]?.net.currency ?? country.currency })}</T>
             </Panel>
             <Panel style={{ flex: 1, gap: space[1] }}>
               <T v="footnote" muted>Paid this month</T>
-              <T v="title" style={{ fontSize: 20 }}>{money(sum(thisMonth.map((p) => p.net)) ?? { amount: '0', currency: pay.payables[0]?.net.currency ?? 'GHS' })}</T>
+              <T v="title" style={{ fontSize: 20 }}>{money(sum(thisMonth.map((p) => p.net)) ?? { amount: '0', currency: pay.payables[0]?.net.currency ?? country.currency })}</T>
             </Panel>
           </Rise>
           <Panel tone="raised" style={{ flexDirection: 'row', alignItems: 'center' }}>

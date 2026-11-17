@@ -175,13 +175,14 @@ class ListingSerializer(serializers.ModelSerializer):
     reserved = serializers.SerializerMethodField()
     can_reserve = serializers.SerializerMethodField()
     seller_track_record = serializers.SerializerMethodField()
+    country = serializers.SlugRelatedField(slug_field="code", read_only=True)
 
     class Meta:
         model = Listing
-        fields = ["id", "reference", "slug", "status", "origin", "kind", "title", "description", "estate_name",
-                  "price", "size_sqm", "region", "district", "locality", "asset_id", "organisation_id", "badge",
-                  "checks_date", "seller", "disclosure", "location", "media", "reserved", "can_reserve",
-                  "seller_track_record", "live_at", "sold_at"]
+        fields = ["id", "reference", "slug", "status", "country", "origin", "kind", "title", "description",
+                  "estate_name", "price", "size_sqm", "region", "district", "locality", "asset_id",
+                  "organisation_id", "badge", "checks_date", "seller", "disclosure", "location", "media",
+                  "reserved", "can_reserve", "seller_track_record", "live_at", "sold_at"]
 
     @extend_schema_field(BadgeSerializer(allow_null=True))
     def get_badge(self, x):

@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from .models import Cell, Country, CountryConfig
@@ -18,13 +19,36 @@ class CellUpdateSerializer(serializers.ModelSerializer):
         extra_kwargs = {f: {"required": False} for f in fields}
 
 
+class DigitalAddressSerializer(serializers.Serializer):
+    name = serializers.CharField(help_text="What the country's digital address is called, e.g. Ghana Post GPS address")
+    example = serializers.CharField(allow_blank=True)
+
+
 class PublicCountrySerializer(serializers.ModelSerializer):
+    """What screens need to show a country's own wording (DA-09): nothing about a country is hard-coded."""
+
     languages = serializers.SerializerMethodField()
     phone_prefix = serializers.SerializerMethodField()
+    digital_address = serializers.SerializerMethodField(
+        help_text="The country's digital address system, or null where it has none (the field is then hidden).")
+    national_id_name = serializers.SerializerMethodField(help_text="e.g. Ghana Card (NIA)")
+    land_registry_name = serializers.SerializerMethodField(help_text="e.g. Lands Commission")
 
     class Meta:
         model = Country
-        fields = ["code", "name", "currency", "timezone", "languages", "phone_prefix"]
+        fields = ["code", "name", "currency", "timezone", "languages", "phone_prefix", "digital_address",
+                  "national_id_name", "land_registry_name"]
+
+    @extend_schema_field(DigitalAddressSerializer(allow_null=True))
+    def get_digital_address(self, obj):
+        d = (obj.config() or {}).get("digital_address")
+        return {"name": d.get("name") or "", "example": d.get("example") or ""} if isinstance(d, dict) else None
+
+    def get_national_id_name(self, obj) -> str:
+        return ((obj.config() or {}).get("national_id") or {}).get("system") or ""
+
+    def get_land_registry_name(self, obj) -> str:
+        return ((obj.config() or {}).get("land_registry") or {}).get("name") or ""
 
     def get_languages(self, obj) -> list[str]:
         return (obj.config() or {}).get("languages") or []
