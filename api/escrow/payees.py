@@ -21,7 +21,7 @@ from core.events import publish
 from core.permissions import has_role
 
 from . import adapters, selectors
-from .common import STAFF, alert_staff, audit, has_rr, is_staff, notify, now, setting
+from .common import STAFF, alert_staff, audit, has_rr, is_staff, local_today, notify, now, setting
 from .models import (OPEN_STATUSES, PAYEE_KINDS, RELEASABLE_KINDS, Escrow, EscrowPayee, Payee, PayeeChange,
                      ReleaseInstruction)
 
@@ -176,8 +176,9 @@ def update_payee(p: Payee, by, data: dict) -> Payee:
 def _reset_verification(p, by, reason):
     p.verified_by = p.second_check_by = p.approval_request = None
     p.verified_at = None
-    p.save(update_fields=["verified_by", "second_check_by", "approval_request", "verified_at"])
-    state.transition(p, "payee", "pending", actor=by, reason=reason)
+    # One save with the status: a verified row must keep its two approvers (esc_payee_verified_needs_two_and_match)
+    state.transition(p, "payee", "pending", actor=by, reason=reason,
+                     extra_fields=["verified_by", "second_check_by", "approval_request", "verified_at"])
     _withdraw_live_instructions(p, by, reason)
 
 
@@ -746,6 +747,70 @@ def withdraw_change(ch: PayeeChange, by) -> PayeeChange:
     return state.transition(ch, "payee_change", "withdrawn", actor=by)
 
 
+# ----------------------------------------------------------------- scheduled jobs (02 section 7.12)
+
+def expire_payees(on=None) -> dict:
+    """escrow.payee_expiry (daily, RUL-22): a verified payee past its `valid_until` date goes back to pending, its
+    live instructions and their open approvals are withdrawn, and staff are told to verify it again. Nothing is
+    paid to it until two staff verify it afresh."""
+    out = {"expired": 0, "instructions_withdrawn": 0}
+    for p in Payee.objects.filter(verification_status="verified", valid_until__isnull=False).select_related("country"):
+        today = on or local_today(p.country)
+        if p.valid_until >= today:
+            continue
+        with transaction.atomic():
+            p = Payee.objects.select_for_update().get(pk=p.pk)
+            if p.verification_status != "verified":
+                continue
+            out["instructions_withdrawn"] += selectors.live_instructions_to(p).count()
+            reason = f"The payee's verification ran out on {p.valid_until:%d %B %Y}. Verify it again (RUL-22)."
+            _reset_verification(p, None, reason)
+            audit(None, "payee.verification_expired", p, {"valid_until": str(p.valid_until)})
+            alert_staff(p.country, ("CM", "RV"), "payee_reverification_due",
+                        f"{p.legal_name}'s verification ran out on {p.valid_until:%d %B %Y}. Payments to it wait "
+                        "until two staff verify it again.", obj=p, link=f"/back-office/payees/{p.pk}")
+            out["expired"] += 1
+    return out
+
+
+def end_cooling_off(at=None) -> dict:
+    """escrow.cooling_off_end (every 15 minutes, FR-ESC-016, RUL-28). The change was applied when the client and
+    two staff approved it; when its cooling-off has ended the new account takes effect: the change is marked,
+    and the client and the case manager are told. The job approves and sends nothing (silence is never
+    approval): a release to the new account still follows 5.3, with the client's approval and two staff."""
+    t = at or now()
+    out = {"ended": 0}
+    due = PayeeChange.objects.filter(status="applied", cooling_off_until__lte=t, cooling_off_ended_at__isnull=True)
+    for pk in due.values_list("pk", flat=True):
+        with transaction.atomic():
+            ch = PayeeChange.objects.select_for_update().get(pk=pk)
+            if ch.status != "applied" or ch.cooling_off_ended_at is not None:
+                continue
+            ch.cooling_off_ended_at = t
+            ch.save(update_fields=["cooling_off_ended_at"])
+            audit(None, "payee_change.cooling_off_ended", ch, {"cooling_off_until": ch.cooling_off_until.isoformat()})
+            publish("payee_change.cooling_off_ended", ch.pk, {"change_id": ch.pk, "kind": ch.kind,
+                                                              "payee_id": ch.payee_id, "escrow_id": ch.escrow_id})
+            if ch.kind == "refund_destination":
+                what = "the refund account"
+            else:
+                what = f"the account of {ch.payee.legal_name if ch.payee_id else 'the payee'}"
+            if ch.escrow_id:
+                clients = [ch.escrow.client]
+            else:
+                clients = list({e.client for e in selectors.escrows_paying(ch.payee)})
+            for client in clients:
+                notify(client, "payee_change_effective",
+                       f"The waiting time for the change to {what} has ended. Payments to it still need your "
+                       "approval and two Tenmina staff.", obj=ch, category="money",
+                       link=f"/escrows/{ch.escrow_id}" if ch.escrow_id else "")
+            alert_staff(ch.country, ("CM",), "payee_change_effective",
+                        f"The cooling-off on the change to {what} has ended. Releases to it follow the usual "
+                        "approvals.", obj=ch, link=f"/back-office/payee-changes/{ch.pk}")
+            out["ended"] += 1
+    return out
+
+
 def ensure_staff(by, country):
     if not has_role(by, *STAFF, country=country):
         raise Forbidden()
@@ -754,4 +819,4 @@ def ensure_staff(by, country):
 __all__ = ["create_payee", "update_payee", "prepare_verification", "decide_verification", "apply_verification",
            "suspend_payee", "reinstate_payee", "lock_payee", "request_change", "check_change_account",
            "change_identity_check", "client_approve_change", "decide_change", "apply_payee_change", "stop_change",
-           "withdraw_change", "DomainError"]
+           "withdraw_change", "expire_payees", "end_cooling_off", "DomainError"]

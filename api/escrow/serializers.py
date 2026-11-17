@@ -92,7 +92,8 @@ class PayeeChangeSerializer(serializers.ModelSerializer):
         fields = ["id", "country", "kind", "payee", "replaces_payee", "escrow", "deposit_event", "reason",
                   "request_source", "bank_name", "account_name", "account_last4", "account_name_source",
                   "account_checked_by", "previous_last4", "previous_account_name", "national_id_check",
-                  "client_approved_at", "approval_request", "applied_at", "cooling_off_until", "stopped_at",
+                  "client_approved_at", "approval_request", "applied_at", "cooling_off_until", "cooling_off_ended_at",
+                  "stopped_at",
                   "stop_reason", "requested_by", "requested_at", "status"]
         read_only_fields = fields
 
@@ -397,7 +398,7 @@ class InstructionSerializer(serializers.ModelSerializer):
                   "family_member_id", "payee", "payee_name", "payee_account_last4", "payee_account_version", "money",
                   "amount", "currency", "holdback_amount", "to_currency", "fx_quote", "prepared_by", "reason",
                   "status", "client_approved_at", "client_approval_method", "release_part", "approvals", "clock",
-                  "document_sha256", "sent_at", "sent_channel", "sent_recipient", "sent_reference",
+                  "document_sha256", "pdf_sha256", "sent_at", "sent_channel", "sent_recipient", "sent_reference",
                   "last_send_error", "shortfall_amount", "refund_source_event", "refund_change",
                   "bank_confirmation_event", "closed_reason", "blocking_reasons", "row_version", "created_at"]
         read_only_fields = fields
