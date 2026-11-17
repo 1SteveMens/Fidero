@@ -66,12 +66,16 @@ export function SectionPage({ section, children }: { section: SectionSpec; child
 const HIDE = new Set(['id', 'status_text', 'row_version', 'country_id']);
 const HEAD = ['reference', 'name', 'legal_name', 'full_name', 'title', 'status', 'verdict'];
 
+/** Screens outside the section that only some staff may open. The API gives administrators no case access by default. */
+const ABS_ROLES: Record<string, string[]> = { '/cases': ['CM', 'RV'] };
+
 function linkFor(section: SectionSpec, res: ResourceSpec, k: string, v: unknown, hasRole: (...r: string[]) => boolean) {
   const to = res.links?.[k];
   if (!to || v == null || v === '') return null;
   // No link the person cannot open (people records, for example, are for administrators only).
   const target = to.startsWith('/') ? undefined : section.resources.find((r) => r.key === to);
   if (target?.roles && !hasRole(...target.roles)) return null;
+  if (to.startsWith('/') && ABS_ROLES[to] && !hasRole(...ABS_ROLES[to])) return null;
   const id = typeof v === 'object' ? (v as Row).id : v;
   if (!id) return null;
   const href = to.startsWith('/') ? `${to}/${id}` : `${section.href}/${to}/${id}`;

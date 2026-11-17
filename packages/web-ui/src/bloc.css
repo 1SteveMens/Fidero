@@ -35,7 +35,7 @@
   color-scheme: light;
 }
 /* Orange "needs you" blocks: secondary text stays dark enough to read on orange. */
-.needs-you { --color-text: #0b0b0b; --color-text-muted: #2e2a26; --color-focus: #0b0b0b; }
+.needs-you { --color-text: #0b0b0b; --color-text-muted: #2e2a26; --color-focus: #0b0b0b; --color-surface: rgba(11,11,11,.08); --color-surface-2: rgba(11,11,11,.14); --color-line: rgba(11,11,11,.2); --color-line-strong: rgba(11,11,11,.35); --color-raised: #0b0b0b; --color-on-raised: #f7f6f2; }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --color-bg: #0b0b0b; --color-surface: #1a1a1a; --color-surface-2: #242424;
@@ -160,6 +160,13 @@ p { margin: 0 0 10px; }
 .ticket .input, .ticket .select, .ticket .textarea, .ticket .codeboxes input { background: #ffffff; }
 /* Map on OpenStreetMap tiles (osm-map.tsx); the SVG drawing replaces it when tiles cannot load. */
 .osm-map { width: 100%; aspect-ratio: 4 / 3; max-height: 70vh; border-radius: var(--r-lg); overflow: hidden; background: var(--color-surface-2); z-index: 0; }
-.osm-map .leaflet-control-attribution { font: 500 11px var(--font-sans); color: #0b0b0b; background: rgba(255,255,255,.9); }
+.osm-map.leaflet-container .leaflet-control-attribution { font: 500 11px var(--font-sans); color: #0b0b0b; background: rgba(255,255,255,.9); }
 .osm-map .leaflet-control-attribution a { color: #0b0b0b; }
-.osm-map .leaflet-bar a { width: 44px; height: 44px; line-height: 44px; color: #0b0b0b; }
+.osm-map.leaflet-container .leaflet-bar a { width: 44px; height: 44px; line-height: 44px; color: #0b0b0b; }
+/* Saved passwords and addresses: browsers paint autofilled fields with their own light ground (Safari keeps
+   our light text on it on the black sign-in pages). Keep the field's own ground and text instead. */
+.input:-webkit-autofill, .input:-webkit-autofill:hover, .input:-webkit-autofill:focus, .codeboxes input:-webkit-autofill {
+  -webkit-text-fill-color: var(--color-text); caret-color: var(--color-text);
+  -webkit-box-shadow: 0 0 0 1000px var(--color-bg) inset; box-shadow: 0 0 0 1000px var(--color-bg) inset;
+  transition: background-color 9999s ease-out 0s;
+}

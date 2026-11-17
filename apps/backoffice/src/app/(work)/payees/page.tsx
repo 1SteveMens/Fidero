@@ -176,11 +176,14 @@ function Identity() {
 function PayeesHome() {
   const sp = useSearchParams();
   const router = useRouter();
-  const tab = sp.get('tab') ?? 'registry';
+  const { hasRole } = useSession();
+  // Identity checks are run and read by case managers and reviewers only (the API refuses others).
+  const idChecks = hasRole('CM', 'RV');
+  const tab = sp.get('tab') === 'identity' && !idChecks ? 'registry' : sp.get('tab') ?? 'registry';
   return (
     <div className="stack" style={{ gap: 18 }}>
       <Head title="Payees" sub="Money goes only to a verified institution, supplier, vendor or professional. Never as cash to a relative." />
-      <div className="tabs-scroll"><Tabs items={[{ key: 'registry', label: 'Registry' }, { key: 'changes', label: 'Payee changes' }, { key: 'identity', label: 'Identity checks' }]} current={tab} onChange={(k) => router.replace(`/payees?tab=${k}`)} /></div>
+      <div className="tabs-scroll"><Tabs items={[{ key: 'registry', label: 'Registry' }, { key: 'changes', label: 'Payee changes' }, ...(idChecks ? [{ key: 'identity', label: 'Identity checks' }] : [])]} current={tab} onChange={(k) => router.replace(`/payees?tab=${k}`)} /></div>
       {tab === 'registry' ? <Registry /> : tab === 'changes' ? <Changes /> : <Identity />}
     </div>
   );
