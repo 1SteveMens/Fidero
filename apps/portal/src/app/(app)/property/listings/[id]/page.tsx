@@ -3,6 +3,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Button, Chip, Field, KV, Money, ProblemBox, Skeleton, Textarea, Verdict, When, useGet } from '@tenmina/web-ui';
 import { ActionDialog, PageHead, Section, useAction, words, type Any } from '@/components/kit';
+import { Photo } from '@/components/photo';
 
 /** W-22 · SCR-PTL-27: listing detail with the badge, the full report, the seller's track record; reserve (SCR-PTL-28). */
 export default function ListingDetail() {
@@ -22,7 +23,7 @@ export default function ListingDetail() {
     <div className="stack" style={{ gap: 18 }}>
       <PageHead back={{ href: '/property/listings', label: 'Checked plots' }} label={`${words(x.kind)} · ${x.reference}`} title={x.title} sub={x.locality} />
       {x.media?.length ? (
-        <div className="acct-row">{x.media.map((m: Any) => <img key={m.id} src={m.url} alt={m.caption || x.title} style={{ width: '100%', aspectRatio: '4 / 3', objectFit: 'cover', borderRadius: 20, background: 'var(--color-surface-2)' }} />)}</div>
+        <div className="acct-row">{x.media.map((m: Any) => <Photo key={m.id} src={m.url} alt={m.caption || x.title} style={{ width: '100%', aspectRatio: '4 / 3', objectFit: 'cover', borderRadius: 20, background: 'var(--color-surface-2)' }} />)}</div>
       ) : null}
       <div className="spread"><Money value={x.price} className="h2" />{x.reserved ? <Chip>Reserved</Chip> : null}</div>
       {x.badge ? (

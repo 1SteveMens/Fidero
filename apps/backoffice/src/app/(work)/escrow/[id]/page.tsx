@@ -44,7 +44,7 @@ function Overview({ e, reload }: { e: Escrow; reload: () => void }) {
             {e.asset_id ? <Link className="btn btn-ghost btn-sm" href={`/geo/assets/${e.asset_id}`}>Plot</Link> : null}
             {isStaff && ['purchase', 'offplan'].includes(e.kind) ? (
               <ActionForm label="Record fresh search" path={`/v1/escrows/${e.id}/fresh-search`} fields={[
-                { name: 'case_id', label: 'Fresh-search case ID', required: true }, { name: 'registry_result_date', label: "Date of the registry's result", type: 'date', required: true }, { name: 'site_check_date', label: 'Date of the site check', type: 'date', required: true },
+                { name: 'case_id', label: 'Fresh-search case', required: true, pick: 'case' }, { name: 'registry_result_date', label: "Date of the registry's result", type: 'date', required: true }, { name: 'site_check_date', label: 'Date of the site check', type: 'date', required: true },
               ]} onDone={reload} submitLabel="Save" intro="The window counts from the registry's result date and the site check date (RUL-07)." />
             ) : null}
           </div>
@@ -68,7 +68,7 @@ function Overview({ e, reload }: { e: Escrow; reload: () => void }) {
       <Panel title="Parties" actions={isStaff ? (
         <ActionForm label="+ Add party" path={`/v1/escrows/${e.id}/parties`} fields={[
           { name: 'role', label: 'Role', type: 'select', required: true, options: ['seller', 'developer', 'contractor', 'supplier', 'vendor'].map((x) => ({ value: x, label: words(x) })) },
-          { name: 'name', label: 'Name', required: true }, { name: 'payee_id', label: 'Verified payee ID', hint: 'From Payees. Money goes only to a verified payee.' },
+          { name: 'name', label: 'Name', required: true }, { name: 'payee_id', label: 'Verified payee', hint: 'Money goes only to a verified payee.', pick: { kind: 'payee', query: { verification_status: 'verified' } } },
           { name: 'must_accept', label: 'Must accept the terms', type: 'checkbox', initial: true },
         ]} body={(v) => ({ role: v.role, name: v.name, must_accept: !!v.must_accept, ...(v.payee_id ? { payee_id: v.payee_id } : {}) })} onDone={reload} submitLabel="Add party" />
       ) : null}>

@@ -32,8 +32,8 @@
 .tabs-scroll .tab { white-space: nowrap; min-height: 44px; }
 .sec-list { display: flex; flex-direction: column; gap: 4px; }
 .sec-btn { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; text-align: left; border: 0; border-radius: var(--r-sm); background: transparent; padding: 10px 12px; min-height: 44px; font: 600 14px var(--font-sans); color: inherit; cursor: pointer; }
-.sec-btn[aria-current='true'] { background: var(--ink); color: #fff; }
-.mapbox { width: 100%; aspect-ratio: 4 / 3; max-height: 70vh; background: #e9e6df; border-radius: var(--r-lg); overflow: hidden; display: block; touch-action: none; }
+.sec-btn[aria-current='true'] { background: var(--color-raised); color: var(--color-on-raised); }
+.mapbox { width: 100%; aspect-ratio: 4 / 3; max-height: 70vh; background: var(--color-surface-2); border-radius: var(--r-lg); overflow: hidden; display: block; touch-action: none; }
 .legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 13px; }
 .legend i { display: inline-block; width: 14px; height: 14px; border-radius: 3px; margin-right: 6px; vertical-align: -2px; }
 .thread { display: flex; flex-direction: column; gap: 8px; max-height: 420px; overflow: auto; }

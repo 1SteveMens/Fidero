@@ -248,6 +248,19 @@ class GrantRoleSerializer(StrictMixin, serializers.Serializer):
     scope_id = serializers.UUIDField(required=False)
 
 
+class PersonPickSerializer(serializers.Serializer):
+    """One row of the staff people picker: enough to choose the right person, nothing more."""
+    id = serializers.UUIDField()
+    full_name = serializers.CharField()
+    roles = serializers.ListField(child=serializers.CharField())
+    email_masked = serializers.CharField()
+
+
+class PersonPickPageSerializer(serializers.Serializer):
+    items = PersonPickSerializer(many=True)
+    next_cursor = serializers.CharField(allow_null=True)
+
+
 class AdminPersonSerializer(serializers.ModelSerializer):
     home_country = serializers.SlugRelatedField(slug_field="code", read_only=True)
     grants = serializers.SerializerMethodField()

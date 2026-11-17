@@ -10,12 +10,15 @@ import { ActionForm, day, dayTime, Head, words } from '@/components/core/kit';
 import { IdLine } from '@/components/core/case/CaseParties';
 import { NameMatch } from '@/components/core/payee';
 import type { Page, Payee, PayeeChange } from '@/components/core/types';
+import type { PickSpec } from '@/components/Picker';
 
 const KINDS = ['institution', 'supplier', 'vendor', 'professional', 'contractor', 'agency', 'insurer', 'carer', 'seller', 'developer', 'client_own_account'];
 type NatCheck = { id: string; country: string; subject_role: string; subject_name: string; id_number: string; channel: string; adapter: string; requested_at: string; result: string; provider_reference: string; checked_at: string | null; attempts: number; context_type: string; context_id: string | null };
 type IdCheck = { id: string; person: { id: string; full_name?: string; name?: string } | null; method: string; provider: string; provider_reference: string; provider_result: string; document_type: string; document_number: string; status: string; reviewed_at: string | null; notes: string; created_at: string };
 
 const DRAFT_ID = '00000000-0000-0000-0000-000000000000';
+/** Which list to search for the payee's own record. A supplier record is still pasted as an ID. */
+const SUBJECT_PICK: Record<string, PickSpec | undefined> = { institution: 'institution', organisation: 'organisation', person: 'person', partner: 'partner', panel_member: 'panel' };
 
 function NewPayee({ onDone }: { onDone: () => void }) {
   const { hasRole } = useSession();
@@ -24,7 +27,7 @@ function NewPayee({ onDone }: { onDone: () => void }) {
     <ActionForm label="+ New payee" variant="dark" path="/v1/payees" upload={{ subject_type: 'payee', subject_id: DRAFT_ID, country: 'GH' }} fields={[
       { name: 'kind', label: 'Kind', type: 'select', required: true, options: KINDS.filter((k) => k !== 'client_own_account').map((k) => ({ value: k, label: words(k) })) },
       { name: 'subject_type', label: 'Who it is in Tenmina', type: 'select', required: true, options: ['institution', 'supplier', 'panel_member', 'organisation', 'person', 'partner'].map((k) => ({ value: k, label: words(k) })) },
-      { name: 'subject_id', label: 'Their record ID', required: true },
+      { name: 'subject_id', label: 'Their record in Tenmina', required: true, pick: (v) => SUBJECT_PICK[String(v.subject_type)], placeholder: 'Choose who it is first, then search' },
       { name: 'legal_name', label: 'Legal name', required: true }, { name: 'legal_name_evidence_id', label: 'Registration or ID record', type: 'file', required: true },
       { name: 'bank_name', label: 'Bank', required: true }, { name: 'account_number', label: 'Account number', required: true },
       { name: 'account_name_source', label: 'Account name from', type: 'select', required: true, options: [{ value: 'bank_name_check', label: "The bank's name check" }, { value: 'bank_letter', label: 'A bank letter' }] },
@@ -107,7 +110,9 @@ function Changes() {
 function Identity() {
   const { hasRole } = useSession();
   const nat = useGet<Page<NatCheck>>('/v1/national-id-checks', { limit: 100 });
-  const manual = useGet<Page<IdCheck>>('/v1/identity-checks', { status: 'pending' });
+  // Manual document checks are decided by case managers and reviewers only (the API refuses others).
+  const canDecide = hasRole('CM', 'RV');
+  const manual = useGet<Page<IdCheck>>(canDecide ? '/v1/identity-checks' : null, { status: 'pending' });
   return (
     <div className="stack" style={{ gap: 16 }}>
       <section className="stack" aria-label="National identity checks">
@@ -146,7 +151,7 @@ function Identity() {
           </div>
         ) : <Empty>No national identity checks.</Empty>}
       </section>
-      <section className="stack" aria-label="Manual checks">
+      {canDecide ? <section className="stack" aria-label="Manual checks">
         <h2 style={{ margin: 0, fontSize: 18 }}>Client document checks waiting</h2>
         <p className="muted" style={{ margin: 0, fontSize: 14 }}>For clients whose provider check could not finish. Party and payee checks never use this route.</p>
         <ProblemBox error={manual.error} />
@@ -163,7 +168,7 @@ function Identity() {
             ))}
           </div>
         ) : <Empty>No manual checks waiting.</Empty>}
-      </section>
+      </section> : null}
     </div>
   );
 }

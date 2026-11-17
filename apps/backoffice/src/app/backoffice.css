@@ -17,3 +17,12 @@
   .bo-top { display: flex; align-items: center; justify-content: space-between; background: #0b0b0b; color: #fff; padding: 10px 16px; position: sticky; top: 0; z-index: 30; }
   .bo-main { padding: 16px; }
 }
+/* Other black panels take the same dark tokens as .ground-ink (bloc.css), so what sits inside reads on black. */
+.strip-ink, .bo-side, .bo-top { --color-bg: #0b0b0b; --color-surface: #1a1a1a; --color-surface-2: #242424; --color-text: #f7f6f2; --color-text-muted: #a9a69e; --color-line: #2c2c2c; --color-line-strong: #3a3a3a; --color-raised: #ffffff; --color-on-raised: #0b0b0b; --color-focus: #a3ee5b; color-scheme: dark; }
+/* Picker (components/Picker.tsx): search, then choose; the list sits in the flow so it is never cut off in a dialog. */
+.picker { display: flex; flex-direction: column; gap: 6px; }
+.picker-list { list-style: none; margin: 0; padding: 4px; border: 1.5px solid var(--color-line-strong); border-radius: var(--r-md); background: var(--color-bg); max-height: 280px; overflow-y: auto; }
+.picker-option { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; min-height: 44px; border-radius: var(--r-sm); cursor: pointer; overflow-wrap: anywhere; }
+.picker-option[aria-selected='true'] { background: var(--color-surface-2); }
+.picker-note { padding: 10px 12px; color: var(--color-text-muted); font-size: 14px; }
+.picker-chosen { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 10px 12px; min-height: 44px; border: 1.5px solid var(--color-line-strong); border-radius: var(--r-md); background: var(--color-bg); }

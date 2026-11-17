@@ -38,6 +38,7 @@ urlpatterns = [
     path("auth/mfa/confirm", views.mfa_confirm),
     path("auth/mfa/step-up", views.mfa_step_up),
     path("auth/mfa/disable", views.mfa_disable),
+    path("people", views.people_search),
     path("me", views.me),
     path("me/identity-checks", views.my_identity_checks),
     path("me/represented", views.represented),

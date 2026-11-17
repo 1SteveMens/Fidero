@@ -51,7 +51,7 @@ export const projects: SectionSpec = {
       key: 'suppliers', label: 'Supplier', list: '/v1/projects', detail: '/v1/project-suppliers/{id}', hidden: true, subject: 'prj_supplier', columns: [],
       actions: [
         { label: 'Record verified payee', path: '/v1/project-suppliers/{id}/payee', tone: 'primary', when: (r) => !r.payee_verified, fields: [
-          { name: 'payee_id', label: 'Existing verified payee (optional)', source: { path: '/v1/payees', query: { status: 'verified' }, label: (p) => `${p.legal_name} · ending ${p.account_last4}` } },
+          { name: 'payee_id', label: 'Existing verified payee (optional)', source: { path: '/v1/payees', query: { verification_status: 'verified' }, label: (p) => `${p.legal_name} · ending ${p.account_last4}` } },
           { name: 'legal_name_evidence_id', type: 'file' }, { name: 'account_name_evidence_id', type: 'file' },
         ] },
         { label: 'Edit supplier', path: '/v1/project-suppliers/{id}', method: 'PATCH', tone: 'ghost' },

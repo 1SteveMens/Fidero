@@ -15,12 +15,27 @@
   --r-sm: 8px; --r-md: 14px; --r-lg: 20px; --r-xl: 24px;
   color-scheme: light;
 }
-.ground-ink, [data-ground='ink'] {
+/* Black grounds (approvals, reports, money). Every black panel, not only
+   .ground-ink, takes the dark token set, so a card, chip, input, muted label or
+   ghost button inside it is drawn for black and never as light text on a light
+   surface (or dark text on black). Native controls follow with color-scheme. */
+.ground-ink, [data-ground='ink'], .card-ink, .banner-blocked, .toast {
   --color-bg: #0b0b0b; --color-surface: #1a1a1a; --color-surface-2: #242424;
   --color-text: #f7f6f2; --color-text-muted: #a9a69e; --color-line: #2c2c2c; --color-line-strong: #3a3a3a;
   --color-raised: #ffffff; --color-on-raised: #0b0b0b; --color-focus: #a3ee5b;
-  background: var(--color-bg); color: var(--color-text);
+  color-scheme: dark;
 }
+.ground-ink, [data-ground='ink'] { background: var(--color-bg); color: var(--color-text); }
+/* White grounds inside black or in dark mode (the money ticket): the light token set,
+   except --color-bg, which the ticket's tear cut-outs take from the ground around it. */
+.ticket {
+  --color-surface: #f3f1ec; --color-surface-2: #e9e6df;
+  --color-text: #0b0b0b; --color-text-muted: #6a675f; --color-line: #eceae4; --color-line-strong: #d6d3cb;
+  --color-raised: #0b0b0b; --color-on-raised: #f7f6f2; --color-focus: #0b0b0b;
+  color-scheme: light;
+}
+/* Orange "needs you" blocks: secondary text stays dark enough to read on orange. */
+.needs-you { --color-text: #0b0b0b; --color-text-muted: #2e2a26; --color-focus: #0b0b0b; }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --color-bg: #0b0b0b; --color-surface: #1a1a1a; --color-surface-2: #242424;
@@ -120,7 +135,7 @@ p { margin: 0 0 10px; }
 .steps { display: flex; flex-direction: column; gap: 0; }
 .step { display: grid; grid-template-columns: 28px 1fr; gap: 10px; padding: 8px 0; }
 .step .dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--color-line-strong); display: grid; place-items: center; font-size: 12px; font-weight: 800; }
-.step.done .dot { background: var(--ink); border-color: var(--ink); color: #fff; }
+.step.done .dot { background: var(--color-raised); border-color: var(--color-raised); color: var(--color-on-raised); }
 .step.now .dot { background: var(--orange); border-color: var(--orange); }
 @media (prefers-reduced-motion: no-preference) {
   .step.now .dot, .pulse { animation: pulse 2s ease-in-out infinite; }
@@ -135,10 +150,16 @@ p { margin: 0 0 10px; }
 
 .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
 .tab { padding: 8px 14px; border-radius: var(--r-sm); background: var(--color-surface); text-decoration: none; font-weight: 700; font-size: 14px; border: 0; cursor: pointer; color: var(--color-text); }
-.tab[aria-current='page'], .tab.active { background: var(--ink); color: #fff; }
+.tab[aria-current='page'], .tab.active { background: var(--color-raised); color: var(--color-on-raised); }
 .kv { display: grid; grid-template-columns: minmax(120px, 40%) 1fr; gap: 6px 12px; }
 .kv dt { font: 600 11px var(--font-mono); text-transform: uppercase; color: var(--color-text-muted); padding-top: 3px; }
 .kv dd { margin: 0; overflow-wrap: anywhere; }
 .dialog-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: grid; place-items: center; padding: 16px; z-index: 50; }
 .dialog { background: var(--color-bg); color: var(--color-text); border-radius: var(--r-xl); padding: 22px; width: min(560px, 100%); max-height: 90vh; overflow: auto; }
 .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 12px 18px; border-radius: var(--r-md); z-index: 60; box-shadow: 0 6px 24px rgba(0,0,0,.2); max-width: calc(100% - 32px); }
+.ticket .input, .ticket .select, .ticket .textarea, .ticket .codeboxes input { background: #ffffff; }
+/* Map on OpenStreetMap tiles (osm-map.tsx); the SVG drawing replaces it when tiles cannot load. */
+.osm-map { width: 100%; aspect-ratio: 4 / 3; max-height: 70vh; border-radius: var(--r-lg); overflow: hidden; background: var(--color-surface-2); z-index: 0; }
+.osm-map .leaflet-control-attribution { font: 500 11px var(--font-sans); color: #0b0b0b; background: rgba(255,255,255,.9); }
+.osm-map .leaflet-control-attribution a { color: #0b0b0b; }
+.osm-map .leaflet-bar a { width: 44px; height: 44px; line-height: 44px; color: #0b0b0b; }

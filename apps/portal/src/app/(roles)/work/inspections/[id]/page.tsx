@@ -40,7 +40,7 @@ export default function InspectionPage() {
             <p style={{ margin: 0 }}>You may inspect only if you have no link to this contractor: no family tie, no business, no money between you (RUL-10).</p>
             <Button variant="primary" busy={act.busy === 'nolink'} onClick={() => act.run('nolink', async () => { await api('POST', `/v1/inspections/${id}/declaration`, { has_link: false }); await q.mutate(); }, 'Recorded.')}>I have no link to this contractor</Button>
             <Field label="Or declare a link"><Textarea value={linkReason} onChange={(e) => setLinkReason(e.target.value)} placeholder="Say what the link is" /></Field>
-            <Button variant="ghost" style={{ color: '#fff' }} disabled={!linkReason.trim()} busy={act.busy === 'link'} onClick={() => act.run('link', async () => { await api('POST', `/v1/inspections/${id}/declaration`, { has_link: true, reason: linkReason }); await q.mutate(); }, 'Link declared. A case manager will reassign this inspection.')}>Declare a link</Button>
+            <Button variant="ghost" disabled={!linkReason.trim()} busy={act.busy === 'link'} onClick={() => act.run('link', async () => { await api('POST', `/v1/inspections/${id}/declaration`, { has_link: true, reason: linkReason }); await q.mutate(); }, 'Link declared. A case manager will reassign this inspection.')}>Declare a link</Button>
           </div>
         </Section>
       ) : i.declared_no_link_at ? <p className="muted">{i.independence_statement}</p> : null}

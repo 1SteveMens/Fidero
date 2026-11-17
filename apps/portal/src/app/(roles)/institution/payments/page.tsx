@@ -37,7 +37,7 @@ function PaymentCard({ p, inst, onDone }: { p: FeePayment; inst?: Institution; o
           <span>The family says they paid on {p.client_paid_on ? <When value={p.client_paid_on} /> : 'a recent date'}{p.client_transfer_reference ? <>, reference <span className="mono">{p.client_transfer_reference}</span></> : null}. Check your account.</span>
           <div className="row">
             <Button variant="action" busy={act.busy === 'y'} onClick={() => act.run('y', async () => { await api('POST', `/v1/fee-payments/${p.id}/institution-confirmation`, { received: true, amount: p.amount, method: '' }); onDone(); }, 'Confirmed.')}>We received it</Button>
-            <Button variant="ghost" style={{ color: '#fff' }} busy={act.busy === 'n'} onClick={() => act.run('n', async () => { await api('POST', `/v1/fee-payments/${p.id}/institution-confirmation`, { received: false, method: '' }); onDone(); }, 'Recorded. Tenmina will follow up.')}>Not received</Button>
+            <Button variant="ghost" busy={act.busy === 'n'} onClick={() => act.run('n', async () => { await api('POST', `/v1/fee-payments/${p.id}/institution-confirmation`, { received: false, method: '' }); onDone(); }, 'Recorded. Tenmina will follow up.')}>Not received</Button>
           </div>
         </>
       ) : null}

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { apiGet, day, money } from '@/components/roles/server-api';
 import type { Listing } from '@/components/roles/listings';
 import { ListingActions } from '@/components/roles/listing-actions';
+import { Photo } from '@/components/photo';
 
 export const dynamic = 'force-dynamic';
 type P = Promise<{ id: string }>;
@@ -45,7 +46,7 @@ export default async function ListingDetail({ params }: { params: P }) {
         <h1>{x.title}</h1>
         <div className="row"><strong style={{ fontSize: 24, fontVariantNumeric: 'tabular-nums' }}>{money(x.price)}</strong>{x.size_sqm ? <span className="muted">{Number(x.size_sqm).toLocaleString('en-GB')} m²</span> : null}{x.status === 'reserved' ? <span className="chip">Reserved</span> : null}</div>
       </div>
-      {photos.length ? <div className="photo-strip">{photos.map((m) => <img key={m.id} src={m.url} alt={m.caption || x.title} />)}</div> : null}
+      {photos.length ? <div className="photo-strip">{photos.map((m) => <Photo key={m.id} src={m.url} alt={m.caption || x.title} />)}</div> : null}
       {x.badge ? (
         <div className="card-ink stack">
           <span className="chip chip-lime" style={{ alignSelf: 'flex-start' }}>✓ {x.badge.label}</span>

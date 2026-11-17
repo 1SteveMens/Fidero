@@ -1,16 +1,45 @@
 'use client';
 import { useRef } from 'react';
-import { Button } from '@tenmina/web-ui';
+import { Button, OsmMap, type MapFeatures } from '@tenmina/web-ui';
 
 export type LngLat = { lng: number; lat: number };
 const SPAN_M = 200; // the drawing area is 200 m across
 const M_PER_DEG = 111320;
 
 /**
- * Draw the plot's corners on a grid around a known point (W-04). A sketch for the
- * surveyor: the report uses the surveyor's own coordinates, never this drawing.
+ * Draw the plot's corners on the map around a known point (W-04): on OpenStreetMap
+ * tiles where they load, else on a plain grid. A sketch for the surveyor: the report
+ * uses the surveyor's own coordinates, never this drawing.
  */
 export function PlotDrawer({ centre, points, onChange }: { centre: LngLat; points: LngLat[]; onChange: (p: LngLat[]) => void }) {
+  const start: MapFeatures = { type: 'FeatureCollection', features: [{ type: 'Feature', geometry: { type: 'Point', coordinates: [centre.lng, centre.lat] }, properties: {} }] };
+  return (
+    <OsmMap
+      label="Plot drawing on the map. Tap each corner of the plot in order."
+      centre={centre}
+      zoom={18}
+      features={start}
+      look={() => ({ fill: '#0b0b0b', stroke: '#0b0b0b', radius: 4 })}
+      title={() => 'Your point'}
+      drawing={{ points, onAdd: (p) => onChange([...points, p]) }}
+      fallback={<GridDrawer centre={centre} points={points} onChange={onChange} />}
+      after={<Controls points={points} onChange={onChange} />}
+    />
+  );
+}
+
+function Controls({ points, onChange }: { points: LngLat[]; onChange: (p: LngLat[]) => void }) {
+  return (
+    <div className="row">
+      <Button type="button" variant="ghost" size="sm" disabled={!points.length} onClick={() => onChange(points.slice(0, -1))}>Undo last corner</Button>
+      <Button type="button" variant="ghost" size="sm" disabled={!points.length} onClick={() => onChange([])}>Clear</Button>
+      <span className="muted" style={{ fontSize: 13 }}>{points.length} corner{points.length === 1 ? '' : 's'}{points.length && points.length < 3 ? ', at least 3 needed' : ''}</span>
+    </div>
+  );
+}
+
+/** The same drawing on a plain 200 m grid, with no map tiles. */
+function GridDrawer({ centre, points, onChange }: { centre: LngLat; points: LngLat[]; onChange: (p: LngLat[]) => void }) {
   const svg = useRef<SVGSVGElement>(null);
   const cos = Math.cos((centre.lat * Math.PI) / 180) || 1;
   const toXY = (p: LngLat) => ({ x: 150 + ((p.lng - centre.lng) * M_PER_DEG * cos * 300) / SPAN_M, y: 150 - ((p.lat - centre.lat) * M_PER_DEG * 300) / SPAN_M });
@@ -41,11 +70,7 @@ export function PlotDrawer({ centre, points, onChange }: { centre: LngLat; point
         {xy.length === 2 ? <line x1={xy[0].x} y1={xy[0].y} x2={xy[1].x} y2={xy[1].y} stroke="#0b0b0b" strokeWidth="2" /> : null}
         {xy.map((p, i) => <g key={i}><circle cx={p.x} cy={p.y} r="6" fill="#a3ee5b" stroke="#0b0b0b" strokeWidth="2" /><text x={p.x + 8} y={p.y - 6} fontSize="10" fontWeight="700" fill="var(--color-text)">{i + 1}</text></g>)}
       </svg>
-      <div className="row">
-        <Button type="button" variant="ghost" size="sm" disabled={!points.length} onClick={() => onChange(points.slice(0, -1))}>Undo last corner</Button>
-        <Button type="button" variant="ghost" size="sm" disabled={!points.length} onClick={() => onChange([])}>Clear</Button>
-        <span className="muted" style={{ fontSize: 13 }}>{points.length} corner{points.length === 1 ? '' : 's'}{points.length && points.length < 3 ? ', at least 3 needed' : ''}</span>
-      </div>
+      <Controls points={points} onChange={onChange} />
     </div>
   );
 }

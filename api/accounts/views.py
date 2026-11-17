@@ -16,8 +16,8 @@ from rest_framework.response import Response
 
 from core.errors import DomainError, Forbidden, Invalid
 from core.idempotency import idempotent
-from core.permissions import has_role, roles
-from core.views import ModelViewSet, require_mfa
+from core.permissions import STAFF_ROLES, has_role, roles
+from core.views import SEARCH, ModelViewSet, require_mfa, search
 
 from . import home as home_registry
 from . import selectors, services
@@ -31,7 +31,8 @@ from .serializers import (AcceptInvitationSerializer, AddMemberResultSerializer,
                           MfaSetupResultSerializer, MfaStepUpResultSerializer, NationalIdCheckSerializer,
                           OrganisationSerializer, OtpSendSerializer, OtpVerifyResultSerializer, OtpVerifySerializer,
                           PasswordChangeSerializer, PasswordResetConfirmSerializer, PasswordResetSerializer,
-                          PersonSerializer, ReasonSerializer, RefreshSerializer, RegisterSerializer,
+                          PersonPickPageSerializer, PersonSerializer, ReasonSerializer, RefreshSerializer,
+                          RegisterSerializer,
                           RepresentativeSerializer,
                           RequestNationalIdCheckSerializer, RightsRequestSerializer, RoleGrantSerializer,
                           SignupResultSerializer, SignupSerializer, StaffPortalResultSerializer,
@@ -332,8 +333,14 @@ class OrganisationViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixins
             return Organisation.objects.none()
         u = self.request.user
         if has_role(u, "CM", "RV", "AD"):
-            return selectors.scope_to_staff_countries(Organisation.objects.all(), u).order_by("-created_at")
-        return selectors.organisations_of(u).order_by("-created_at")
+            qs = selectors.scope_to_staff_countries(Organisation.objects.all(), u).order_by("-created_at")
+        else:
+            qs = selectors.organisations_of(u).order_by("-created_at")
+        return search(qs, self.request, "name", "registration_number")
+
+    @extend_schema(parameters=[SEARCH])
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         d = dict(serializer.validated_data)
@@ -374,6 +381,20 @@ class OrganisationViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixins
 
 
 # ---------------------------------------------------------------- administration of people (US-ACC-006)
+
+@extend_schema(parameters=[OpenApiParameter("search", str, required=True), OpenApiParameter("role", str)],
+               responses={200: PersonPickPageSerializer})
+@api_view(["GET"])
+@permission_classes([roles(*STAFF_ROLES)])
+def people_search(request):
+    """People picker for staff forms: matches name, email or phone (at least
+    2 characters), only people in the staff member's countries, emails masked."""
+    q = (request.query_params.get("search") or "").strip()
+    if len(q) < 2:
+        raise Invalid("Type at least 2 characters to search.", code="search-too-short")
+    items = selectors.people_for_picker(request.user, q, role=request.query_params.get("role") or None)
+    return Response({"items": items, "next_cursor": None})
+
 
 class AdminPeopleViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = AdminPersonSerializer

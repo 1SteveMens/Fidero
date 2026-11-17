@@ -22,7 +22,9 @@ export default function MyWork() {
   const [step, setStep] = useState('');
   const [q, setQ] = useState('');
   const query = owner === 'me' ? { owner: me?.id } : owner === 'unassigned' ? { owner: 'unassigned' } : {};
-  const queue = useGet<Page<Task>>('/v1/work-queue', query, { refreshInterval: 60000 });
+  // The API gives the work queue to case staff and professionals only (an administrator alone has none).
+  const hasQueue = hasRole('CM', 'RV', 'LW', 'SV', 'RN', 'IN', 'QS', 'CE');
+  const queue = useGet<Page<Task>>(hasQueue ? '/v1/work-queue' : null, query, { refreshInterval: 60000 });
   const isMoney = hasRole('CM', 'RV', 'AD');
   const sendLate = useGet<Page<Instruction>>(isMoney ? '/v1/release-instructions' : null, { clock: 'send_overdue' });
   const bankLate = useGet<Page<Instruction>>(isMoney ? '/v1/release-instructions' : null, { clock: 'bank_overdue' });
@@ -117,6 +119,11 @@ export default function MyWork() {
         ) : <p className="muted" style={{ margin: 0 }}>No approvals are waiting for you.</p>}
       </Panel>
 
+      {!hasQueue ? (
+        <Panel title="Case tasks">
+          <p className="muted" style={{ margin: 0 }}>Case tasks go to case managers, reviewers and professionals. Your work is in <Link href="/approvals">Approvals</Link> and <Link href="/admin">Admin</Link>.</p>
+        </Panel>
+      ) : (
       <section className="stack" aria-label="Tasks">
         <div className="filters">
           <Field label="Owner">
@@ -147,6 +154,7 @@ export default function MyWork() {
           </>
         )}
       </section>
+      )}
     </div>
   );
 }

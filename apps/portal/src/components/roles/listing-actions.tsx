@@ -37,7 +37,7 @@ export function ListingActions({ id, live, hasReport }: { id: string; live: bool
             {report.sections.map((s, n) => <div key={n} className="statline"><span>{s.number ?? s.label ? `${s.number ?? s.label}. ` : ''}{s.title}</span><span>{s.verdict ? <Verdict value={s.verdict} /> : null}</span></div>)}
             <span className="mono" style={{ fontSize: 12, overflowWrap: 'anywhere' }}>SHA-256 {report.pdf_sha256}</span>
             {report.pdf?.url ? <a className="btn btn-primary" href={report.pdf.url} target="_blank" rel="noopener noreferrer">Open the PDF</a> : null}
-            <Link className="btn btn-ghost" style={{ color: '#fff' }} href="/check">Check this PDF is genuine</Link>
+            <Link className="btn btn-ghost" href="/check">Check this PDF is genuine</Link>
           </div>
         ) : <Button variant="dark" busy={act.busy === 'r'} onClick={() => act.run('r', async () => setReport(await api<ReportView>('GET', `/v1/listings/${id}/report`)))}>Read the full report</Button>
       ) : null}

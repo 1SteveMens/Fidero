@@ -5,6 +5,7 @@
  * API schema (forms.json, built by gen_forms.py) unless a spec overrides them.
  */
 import type { ReactNode } from 'react';
+import type { PickSpec } from '../Picker';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Row = Record<string, any>;
@@ -26,6 +27,9 @@ export type FieldSpec = {
   upload?: { subject_type: string; role?: string; subjectId?: (row: Row, parent?: Row) => string };
   /** For a textfile field: also put the file's name in this field. */
   fileNameField?: string;
+  /** Choose a person or record from a search instead of typing its ID. Set from the field
+   * name when not given (see pickFor in components/Picker); false turns it off. */
+  pick?: PickSpec | false;
 };
 
 export type ActionSpec = {
@@ -102,6 +106,8 @@ export type ResourceSpec = {
   idKey?: string;
   /** Fields that open another screen: resource key in this section, or an absolute path prefix. */
   links?: Record<string, string>;
+  /** Query parameter that takes next_cursor for "Load more" (default cursor; the audit log uses before_seq). */
+  cursorParam?: string;
   /** Not a tab: reached only from links. */
   hidden?: boolean;
 };

@@ -59,7 +59,7 @@ export default function ReportWork() {
                 <Field label="Note (needed to return it)"><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></Field>
                 <div className="row">
                   <Button variant="primary" onClick={() => setApprove('approve')}>Approve for release</Button>
-                  <Button variant="ghost" style={{ color: '#fff' }} onClick={() => setApprove('return')} disabled={!note.trim()}>Return with note</Button>
+                  <Button variant="ghost" onClick={() => setApprove('return')} disabled={!note.trim()}>Return with note</Button>
                 </div>
               </>
             )}

@@ -20,7 +20,7 @@ export const errands: SectionSpec = {
       actions: [
         { label: 'Assign an agent', path: '/v1/errands/{id}/assignments', tone: 'primary', when: (r) => ['funded', 'documents_pending', 'ordered', 'assigned'].includes(r.status), fields: [
           { name: 'agent_id', label: 'Agent from the vetted panel', source: { path: '/v1/errand-agents', query: { status: 'active' }, label: (a) => `${a.name} · ${a.open_errands ?? 0} open` } },
-          { name: 'agency_payee_id', label: 'Agency account (verified payee)', source: { path: '/v1/payees', query: { status: 'verified' }, label: (p) => `${p.legal_name} · ending ${p.account_last4}` } },
+          { name: 'agency_payee_id', label: 'Agency account (verified payee)', source: { path: '/v1/payees', query: { verification_status: 'verified' }, label: (p) => `${p.legal_name} · ending ${p.account_last4}` } },
         ] },
         { label: 'Approve agency account', path: '/v1/errands/{id}/agency-approvals', when: (r) => !!r.agency_payee && !r.agency_approved_at, confirm: 'The official fee can be paid only to this agency\'s verified account.' },
         { label: 'Check the result document', path: '/v1/errands/{id}/result-checks', tone: 'primary', when: (r) => r.status === 'result_uploaded', confirm: 'Check the document against the checklist. Accepting completes the errand, tells the client and creates the agent\'s payable (paid by Tenmina).' },
@@ -56,7 +56,7 @@ export const errands: SectionSpec = {
         { key: 'status', label: 'Status', kind: 'status' },
       ],
       filters: ['status'],
-      create: { label: 'Add a vetted agent', path: '/v1/errand-agents', fields: [{ name: 'person_id', hint: 'The person\'s ID. They need a completed vetting.' }] },
+      create: { label: 'Add a vetted agent', path: '/v1/errand-agents', fields: [{ name: 'person_id', label: 'Person', hint: 'They need a completed vetting.' }] },
       actions: [
         { label: 'Suspend', path: '/v1/errand-agents/{id}/suspend', tone: 'ghost', when: (r) => r.status === 'active' },
         { label: 'Reinstate', path: '/v1/errand-agents/{id}/reinstate', when: (r) => r.status === 'suspended' },

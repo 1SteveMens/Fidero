@@ -17,7 +17,7 @@ export const insurance: SectionSpec = {
       ],
       create: { label: 'Add an insurer partner', path: '/v1/insurance/insurers', roles: ['AD'], fields: [
         { name: 'partner_id', label: 'Partner record', source: { path: '/v1/admin/partners', query: { kind: 'insurer' }, label: (p) => p.name } },
-        { name: 'payee_id', label: 'Insurer\'s verified account', source: { path: '/v1/payees', query: { status: 'verified' }, label: (p) => `${p.legal_name} · ending ${p.account_last4}` } },
+        { name: 'payee_id', label: 'Insurer\'s verified account', source: { path: '/v1/payees', query: { verification_status: 'verified' }, label: (p) => `${p.legal_name} · ending ${p.account_last4}` } },
       ], omit: ['licence_evidence_id'] },
       actions: [{ label: 'Edit licence and status', path: '/v1/insurance/insurers/{id}', method: 'PATCH', roles: ['AD'], tone: 'ghost', omit: ['licence_evidence_id'] }],
     },

@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from core.errors import Invalid, NotFound
 from core.idempotency import idempotent
 from core.permissions import has_role, roles
+from core.views import SEARCH, search
 
 from . import selectors, services
 from .models import Application, Claim, Insurer, IntermediaryLicence, Policy, Premium, Product
@@ -81,10 +82,11 @@ class InsurerViewSet(viewsets.GenericViewSet):
             return Insurer.objects.none()
         from accounts.selectors import scope_to_staff_countries
 
-        return scope_to_staff_countries(Insurer.objects.select_related("partner", "payee", "country"),
-                                        self.request.user).order_by("-created_at")
+        qs = scope_to_staff_countries(Insurer.objects.select_related("partner", "payee", "country"),
+                                      self.request.user).order_by("-created_at")
+        return search(qs, self.request, "partner__name", "organisation__name")
 
-    @extend_schema(responses=InsInsurerSerializer(many=True))
+    @extend_schema(responses=InsInsurerSerializer(many=True), parameters=[SEARCH])
     def list(self, request):
         page = self.paginate_queryset(self.get_queryset())
         return self.get_paginated_response(InsInsurerSerializer(page, many=True).data)

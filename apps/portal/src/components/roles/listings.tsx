@@ -9,6 +9,7 @@ import { Button, Card, Chip, Field, Input, KV, Money, ProblemBox, Select, Skelet
 import type { Money as MoneyT } from '@tenmina/api-client';
 import { EmptyText, Loaded, PageHead, RowLink, Section, items, useAct, useApi, words, type Page } from './kit';
 import { postForm } from './files';
+import { Photo } from '../photo';
 
 export type Listing = {
   id: string; reference: string; slug: string; status: string; origin: string; kind: string; title: string; description: string;
@@ -182,7 +183,7 @@ export function ManageListing({ id, base }: { id: string; base: string }) {
 
       <Section title="Photos and documents">
         {x.status === 'draft' ? <p className="muted" style={{ margin: 0 }}>Add the site plan before you submit. Tenmina checks the plot from it.</p> : null}
-        {x.media.length ? <div className="photo-strip">{x.media.filter((m) => m.kind === 'photo').map((m) => <img key={m.id} src={m.url} alt={m.caption || x.title} />)}</div> : <p className="muted">No photos yet.</p>}
+        {x.media.length ? <div className="photo-strip">{x.media.filter((m) => m.kind === 'photo').map((m) => <Photo key={m.id} src={m.url} alt={m.caption || x.title} />)}</div> : <p className="muted">No photos yet.</p>}
         {x.media.filter((m) => m.kind !== 'photo').map((m) => <Card key={m.id}>{words(m.kind)}: {m.caption || 'File'}</Card>)}
         {canEdit ? (
           <Card className="stack">

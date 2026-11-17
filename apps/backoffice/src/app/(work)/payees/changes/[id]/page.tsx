@@ -100,7 +100,7 @@ export default function PayeeChangeView() {
 
       <div className="row">
         {cooling && hasRole('RV') ? <ActionForm label="Stop this change" path={`/v1/payee-changes/${id}/stop`} fields={[{ name: 'reason', label: 'Why (e.g. it looks like fraud)', type: 'textarea', required: true }]} onDone={reload} submitLabel="Stop" intro="The old account is kept and the payee is suspended for review." /> : null}
-        {!closed && x.status !== 'applied' && (iPrepared || hasRole('RV')) ? <Button size="sm" variant="ghost" style={{ color: '#fff' }} busy={act.busy} onClick={() => act.run(() => call(client, 'POST', `/v1/payee-changes/${id}/withdraw`).then(reload), 'Withdrawn.')}>Withdraw</Button> : null}
+        {!closed && x.status !== 'applied' && (iPrepared || hasRole('RV')) ? <Button size="sm" variant="ghost" busy={act.busy} onClick={() => act.run(() => call(client, 'POST', `/v1/payee-changes/${id}/withdraw`).then(reload), 'Withdrawn.')}>Withdraw</Button> : null}
       </div>
       <ProblemBox error={act.error} />
       {act.toast}

@@ -11,7 +11,7 @@ from accounts.models import Person
 from core.errors import Forbidden, Invalid, NotFound
 from core.idempotency import idempotent
 from core.permissions import has_role
-from core.views import ETagMixin, mfa_at, require_mfa
+from core.views import SEARCH, ETagMixin, mfa_at, require_mfa, search
 
 from . import materials, milestones, panel, payments, projects, selectors
 from . import serializers as S
@@ -57,6 +57,7 @@ class PanelMemberViewSet(ETagMixin, mixins.ListModelMixin, mixins.RetrieveModelM
     def get_queryset(self):
         qs = selectors.visible_panel(self.request.user).select_related("country", "payee").order_by("kind", "name")
         kind = self.request.query_params.get("kind")
+        qs = search(qs, self.request, "name", "registration_number")
         return qs.filter(kind=kind) if kind else qs
 
     def get_serializer_class(self):
@@ -64,7 +65,7 @@ class PanelMemberViewSet(ETagMixin, mixins.ListModelMixin, mixins.RetrieveModelM
             return S.PanelMemberSerializer
         return S.PanelMemberPublicSerializer
 
-    @extend_schema(parameters=[OpenApiParameter("kind", str), OpenApiParameter("status", str)])
+    @extend_schema(parameters=[OpenApiParameter("kind", str), OpenApiParameter("status", str), SEARCH])
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 

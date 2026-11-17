@@ -30,7 +30,7 @@ export default function WorkLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="bo">
       <div className="bo-top">
-        <button className="btn btn-sm btn-ghost" style={{ color: '#fff' }} onClick={() => setOpen(!open)} aria-expanded={open} aria-controls="bo-side">Menu</button>
+        <button className="btn btn-sm btn-ghost" onClick={() => setOpen(!open)} aria-expanded={open} aria-controls="bo-side">Menu</button>
         <span className="row"><Mark size={22} /> Back office</span>
       </div>
       <nav id="bo-side" className={`bo-side ${open ? 'open' : ''}`} aria-label="Sections">
@@ -48,7 +48,7 @@ export default function WorkLayout({ children }: { children: React.ReactNode }) 
         <div className="bo-me">
           <div style={{ fontWeight: 700 }}>{me.full_name}</div>
           <div className="mono" style={{ fontSize: 12, color: '#a9a69e' }}>{me.roles.join(' · ')}</div>
-          <button className="btn btn-sm btn-ghost" style={{ color: '#fff', marginTop: 8 }} onClick={async () => { await signOut(); router.replace('/login'); }}>Sign out</button>
+          <button className="btn btn-sm btn-ghost" style={{ marginTop: 8 }} onClick={async () => { await signOut(); router.replace('/login'); }}>Sign out</button>
         </div>
       </nav>
       <main className="bo-main">{children}</main>

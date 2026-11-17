@@ -1,9 +1,54 @@
 'use client';
-/* Plain SVG map of GeoJSON (the tile host is not reachable from every network, so no tiles are needed).
- * Plots in lime with an ink outline; overlay layers in neutral greys told apart by pattern; overlapping plots
- * hatched in ink. No red, orange or yellow: those colours keep their meanings (6.1a). Zoom with the buttons;
- * drag to pan. */
+/* Map of GeoJSON: on OpenStreetMap tiles where the browser can reach them, else a plain SVG drawing
+ * (the tile host is not reachable from every network). Plots in lime with an ink outline; overlay layers
+ * in neutral greys told apart by pattern (dash on tiles); overlapping plots hatched or dashed in ink.
+ * No red, orange or yellow: those colours keep their meanings (6.1a). Zoom with the buttons; drag to pan. */
 import { useMemo, useRef, useState } from 'react';
+import { OsmMap, type FeatureLook, type MapFeature } from '@tenmina/web-ui';
+
+/** Tiles first, the SVG drawing when they cannot load. Same legend under both. */
+export function GeoMap(props: { data?: FC | null; onSelect?: (f: Feature) => void; selected?: string | null; height?: number }) {
+  const { data, onSelect, selected, height } = props;
+  const feats = data?.features ?? [];
+  if (!feats.length) return <SvgGeoMap {...props} />;
+  const look = (f: MapFeature): FeatureLook => {
+    const p = f.properties;
+    if (p.kind === 'layer') {
+      const st = LAYER_STYLE[String(p.layer_kind ?? 'other')] ?? LAYER_STYLE.other;
+      return { fill: st.fill.startsWith('url') ? '#cfccc4' : st.fill, stroke: st.stroke, fillOpacity: 0.45, dash: st.dash ?? (st.fill.startsWith('url') ? '2 4' : undefined), weight: 1.5 };
+    }
+    if (p.kind === 'overlap') return { fill: '#0b0b0b', stroke: '#0b0b0b', fillOpacity: 0.3, dash: '6 3', weight: 3 };
+    const sel = selected && (p.asset_id === selected || p.flag_id === selected);
+    return { fill: p.disputed ? '#0b0b0b' : '#a3ee5b', stroke: '#0b0b0b', fillOpacity: p.disputed ? 0.35 : 0.6, weight: sel ? 5 : 2, dash: p.disputed ? '4 3' : undefined };
+  };
+  const title = (f: MapFeature) => {
+    const p = f.properties;
+    if (p.kind === 'layer') return `${(LAYER_STYLE[String(p.layer_kind ?? 'other')] ?? LAYER_STYLE.other).label}: ${String(p.name || p.layer_name || '')}${p.is_sample ? ' (sample)' : ''}`;
+    if (p.kind === 'overlap') return `Overlapping plot ${String(p.other_reference ?? '')}`;
+    return `${String(p.reference ?? 'Plot')}${p.locality ? ` · ${String(p.locality)}` : ''}${p.disputed ? ' · disputed' : ''}`;
+  };
+  return (
+    <div className="stack" style={{ gap: 8 }}>
+      <OsmMap features={data} look={look} title={title} label="Map of plots and layers" height={height}
+        onFeatureClick={onSelect ? (f) => onSelect(f as Feature) : undefined}
+        fallback={<SvgGeoMap {...props} noLegend />} />
+      <Legend feats={feats} />
+    </div>
+  );
+}
+
+function Legend({ feats }: { feats: Feature[] }) {
+  const kinds = Array.from(new Set(feats.filter((f) => f.properties.kind === 'layer').map((f) => String(f.properties.layer_kind ?? 'other'))));
+  const hasOverlap = feats.some((f) => f.properties.kind === 'overlap');
+  return (
+    <div className="legend" aria-label="Legend">
+      <span><i style={{ background: '#a3ee5b', border: '1.5px solid #0b0b0b' }} />Plot</span>
+      {feats.some((f) => f.properties.disputed) ? <span><i style={{ background: 'repeating-linear-gradient(45deg,#0b0b0b 0 1px,#e9e6df 1px 5px)', border: '1.5px solid #0b0b0b' }} />Disputed plot</span> : null}
+      {hasOverlap ? <span><i style={{ background: 'repeating-linear-gradient(-45deg,#0b0b0b 0 2px,transparent 2px 6px)', border: '1.5px dashed #0b0b0b' }} />Overlapping plot</span> : null}
+      {kinds.map((k) => { const st = LAYER_STYLE[k] ?? LAYER_STYLE.other; return <span key={k}><i style={{ background: st.fill.startsWith('url') ? '#cfccc4' : st.fill, border: `1.5px ${st.dash ? 'dashed' : 'solid'} ${st.stroke}` }} />{st.label}</span>; })}
+    </div>
+  );
+}
 
 type Geometry = { type: string; coordinates: unknown };
 export type Feature = { type: 'Feature'; id?: string | number; geometry: Geometry; properties: Record<string, unknown> };
@@ -35,7 +80,8 @@ function points(g: Geometry): number[][] {
   return rings(g).flat();
 }
 
-export function GeoMap({ data, onSelect, selected, height }: { data?: FC | null; onSelect?: (f: Feature) => void; selected?: string | null; height?: number }) {
+/** The SVG drawing: no tiles needed. */
+function SvgGeoMap({ data, onSelect, selected, height, noLegend }: { data?: FC | null; onSelect?: (f: Feature) => void; selected?: string | null; height?: number; noLegend?: boolean }) {
   const feats = useMemo(() => data?.features ?? [], [data]);
   const ext = useMemo(() => {
     const pts = feats.flatMap((f) => points(f.geometry));
@@ -61,8 +107,6 @@ export function GeoMap({ data, onSelect, selected, height }: { data?: FC | null;
   const zoom = (f: number) => setView((v) => ({ ...v, z: Math.min(40, Math.max(1, v.z * f)) }));
   const path = (g: Geometry) => rings(g).map((r) => 'M' + r.map((p) => proj(p).map((n) => n.toFixed(1)).join(',')).join('L') + (g.type.includes('Polygon') ? 'Z' : '')).join(' ');
   const order = (f: Feature) => (f.properties.kind === 'layer' ? 0 : f.properties.kind === 'overlap' ? 1 : 2);
-  const kinds = Array.from(new Set(feats.filter((f) => f.properties.kind === 'layer').map((f) => String(f.properties.layer_kind ?? 'other'))));
-  const hasOverlap = feats.some((f) => f.properties.kind === 'overlap');
   const stroke = 1.5 / view.z;
   return (
     <div className="stack" style={{ gap: 8 }}>
@@ -107,12 +151,7 @@ export function GeoMap({ data, onSelect, selected, height }: { data?: FC | null;
           <button type="button" className="btn btn-dark" style={{ width: 44, padding: 0, fontSize: 12 }} onClick={() => setView({ x: 0, y: 0, z: 1 })} aria-label="Fit">Fit</button>
         </div>
       </div>
-      <div className="legend" aria-label="Legend">
-        <span><i style={{ background: '#a3ee5b', border: '1.5px solid #0b0b0b' }} />Plot</span>
-        {feats.some((f) => f.properties.disputed) ? <span><i style={{ background: 'repeating-linear-gradient(45deg,#0b0b0b 0 1px,#e9e6df 1px 5px)', border: '1.5px solid #0b0b0b' }} />Disputed plot</span> : null}
-        {hasOverlap ? <span><i style={{ background: 'repeating-linear-gradient(-45deg,#0b0b0b 0 2px,transparent 2px 6px)', border: '1.5px dashed #0b0b0b' }} />Overlapping plot</span> : null}
-        {kinds.map((k) => { const st = LAYER_STYLE[k] ?? LAYER_STYLE.other; return <span key={k}><i style={{ background: st.fill.startsWith('url') ? '#cfccc4' : st.fill, border: `1.5px ${st.dash ? 'dashed' : 'solid'} ${st.stroke}` }} />{st.label}</span>; })}
-      </div>
+      {noLegend ? null : <Legend feats={feats} />}
     </div>
   );
 }

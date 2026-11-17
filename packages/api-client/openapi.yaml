@@ -2439,6 +2439,11 @@ paths:
         schema:
           type: integer
       - in: query
+        name: search
+        schema:
+          type: string
+        description: Part of a name or reference (the back office pickers use it).
+      - in: query
         name: status
         schema:
           type: string
@@ -6971,6 +6976,11 @@ paths:
           * `held_funds` - held_funds
           * `tenmina` - tenmina
       - in: query
+        name: search
+        schema:
+          type: string
+        description: Part of a name or reference (the back office pickers use it).
+      - in: query
         name: status
         schema:
           type: string
@@ -7250,6 +7260,11 @@ paths:
           * `contractor_check` - contractor_check
           * `developer_check` - developer_check
           * `offplan_check` - offplan_check
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Part of a name or reference (the back office pickers use it).
       - in: query
         name: status
         schema:
@@ -10365,6 +10380,11 @@ paths:
         description: Number of results to return per page.
         schema:
           type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Part of a name or reference (the back office pickers use it).
       - in: query
         name: status
         schema:
@@ -15075,6 +15095,11 @@ paths:
         description: Number of results to return per page.
         schema:
           type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Part of a name or reference (the back office pickers use it).
       tags:
       - v1
       security:
@@ -21236,6 +21261,11 @@ paths:
         description: Number of results to return per page.
         schema:
           type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Part of a name or reference (the back office pickers use it).
       tags:
       - v1
       security:
@@ -21559,6 +21589,11 @@ paths:
         description: Number of results to return per page.
         schema:
           type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Part of a name or reference (the back office pickers use it).
       - in: query
         name: status
         schema:
@@ -22647,6 +22682,11 @@ paths:
         schema:
           type: integer
       - in: query
+        name: search
+        schema:
+          type: string
+        description: Part of a name or reference (the back office pickers use it).
+      - in: query
         name: verification_status
         schema:
           type: string
@@ -23114,6 +23154,34 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Payment'
+          description: ''
+  /v1/people:
+    get:
+      operationId: v1_people_retrieve
+      description: |-
+        People picker for staff forms: matches name, email or phone (at least
+        2 characters), only people in the staff member's countries, emails masked.
+      parameters:
+      - in: query
+        name: role
+        schema:
+          type: string
+      - in: query
+        name: search
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonPickPage'
           description: ''
   /v1/pmg-inspections:
     get:
@@ -28437,6 +28505,11 @@ paths:
         description: Number of results to return per page.
         schema:
           type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Part of a name or reference (the back office pickers use it).
       - in: query
         name: status
         schema:
@@ -53120,6 +53193,41 @@ components:
       - privacy_notice_pending
       - roles
       - status
+    PersonPick:
+      type: object
+      description: 'One row of the staff people picker: enough to choose the right
+        person, nothing more.'
+      properties:
+        id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        email_masked:
+          type: string
+      required:
+      - email_masked
+      - full_name
+      - id
+      - roles
+    PersonPickPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonPick'
+        next_cursor:
+          type:
+          - string
+          - 'null'
+      required:
+      - items
+      - next_cursor
     PersonSummary:
       type: object
       properties:

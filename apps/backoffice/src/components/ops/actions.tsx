@@ -8,6 +8,7 @@ import { Button, call, CodeBoxes, Dialog, Field, HoldButton, Input, ProblemBox, 
 import formsJson from './forms.json';
 import { humanize, Value } from './fmt';
 import type { ActionSpec, FieldSpec, Opt, Row } from './spec';
+import { Picker, pickFor } from '../Picker';
 
 type SchemaField = { n: string; t?: string; e?: string[]; f?: string; i?: string; r?: number; d?: string };
 const FORMS = formsJson as unknown as Record<string, SchemaField[] | { q: string[]; s?: string[] }>;
@@ -29,7 +30,8 @@ export function fill(path: string, row: Row, parent?: Row): string {
   return path.replace(/\{([^}]+)\}/g, (_, name: string) => {
     if (name === 'id') return encodeURIComponent(String(row.id ?? ''));
     if (name === 'parent') return encodeURIComponent(String(parent?.id ?? ''));
-    const v = row[name] ?? parent?.[name];
+    const dig = (o: Row | undefined) => name.split('.').reduce<unknown>((x, k) => (x as Row | undefined)?.[k], o);
+    const v = dig(row) ?? dig(parent);
     return encodeURIComponent(String(v ?? ''));
   });
 }
@@ -69,7 +71,9 @@ export function fieldsFor(a: ActionSpec, row: Row, parent?: Row): FieldSpec[] {
     return o ? { ...f, ...o } : f;
   });
   for (const o of over) if (!merged.some((f) => f.name === o.name)) merged.push({ type: 'text', ...o });
-  return merged.filter((f) => !(f.name in fixed));
+  // A field that names a person or another record gets a searchable picker, not a typed ID.
+  const picked = merged.map((f) => (f.pick === undefined && !f.source && !f.options && (f.type ?? 'text') === 'text' ? { ...f, pick: pickFor(f.name, a.path) } : f));
+  return picked.filter((f) => !(f.name in fixed));
 }
 
 /* Toasts shared by every action on a screen, so they survive the button going away. */
@@ -249,6 +253,17 @@ export function FormFields({ fields, values, set, row, parent, subject }: {
         const sv = val == null ? '' : String(val);
         let input: React.ReactNode;
         const opts = typeof f.options === 'function' ? f.options(row, parent) : f.options;
+        if (f.pick && !f.source && !opts) {
+          // Not a <label>: the picker holds its own buttons, and a label would press the first one.
+          const plain = (f.label ?? humanize(f.name.replace(/_id$/, ''))) + (f.required ? '' : ' (optional)');
+          return (
+            <div key={f.name} className="field">
+              <span>{plain}</span>
+              <Picker spec={f.pick} value={sv} onChange={(v) => set(f.name, v)} required={f.required} label={plain} />
+              {f.hint ? <small className="muted">{f.hint}</small> : null}
+            </div>
+          );
+        }
         if (f.source) input = <SourceSelect f={f} row={row} parent={parent} value={sv} onChange={(v) => set(f.name, v)} />;
         else if (opts) {
           input = (

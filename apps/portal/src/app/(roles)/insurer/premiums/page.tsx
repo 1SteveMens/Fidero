@@ -40,7 +40,7 @@ function PremiumCard({ p, onDone }: { p: Premium; onDone: () => void }) {
           <FilePick label="Your receipt (optional)" file={file} onFile={setFile} accept="application/pdf,image/*" />
           <div className="row">
             <Button variant="action" busy={act.busy === 'y'} onClick={() => confirm(true)}>We received it</Button>
-            <Button variant="ghost" style={{ color: '#fff' }} busy={act.busy === 'n'} onClick={() => confirm(false)}>Not received</Button>
+            <Button variant="ghost" busy={act.busy === 'n'} onClick={() => confirm(false)}>Not received</Button>
           </div>
         </>
       ) : null}

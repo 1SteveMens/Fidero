@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from core.errors import Invalid, NotFound
 from core.idempotency import idempotent
 from core.permissions import has_role, roles
-from core.views import require_mfa
+from core.views import SEARCH, require_mfa, search
 
 from accounts.models import NationalIdCheck, Organisation
 
@@ -743,7 +743,8 @@ class PayeeViewSet(viewsets.GenericViewSet):
 
         if getattr(self, "swagger_fake_view", False):
             return Payee.objects.none()
-        qs = scope_to_staff_countries(Payee.objects.order_by("legal_name"), self.request.user)
+        qs = search(scope_to_staff_countries(Payee.objects.order_by("legal_name"), self.request.user), self.request,
+                    "legal_name", "account_name")
         for f in ("kind", "verification_status"):
             v = self.request.query_params.get(f)
             if v:
@@ -757,7 +758,7 @@ class PayeeViewSet(viewsets.GenericViewSet):
         return p
 
     @extend_schema(responses=PayeeSerializer(many=True),
-                   parameters=[OpenApiParameter("kind", str), OpenApiParameter("verification_status", str)])
+                   parameters=[OpenApiParameter("kind", str), OpenApiParameter("verification_status", str), SEARCH])
     def list(self, request):
         page = self.paginate_queryset(self.get_queryset())
         return self.get_paginated_response(PayeeSerializer(page, many=True).data)

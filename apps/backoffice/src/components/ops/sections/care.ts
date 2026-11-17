@@ -72,7 +72,7 @@ export const care: SectionSpec = {
       ],
       filters: ['status'],
       title: (r) => r.person?.full_name ?? 'Carer',
-      create: { label: 'Add a vetted carer', path: '/v1/carers', fields: [{ name: 'person_id', hint: 'The person\'s ID. They must have a completed vetting (Professionals › Vetting).' }, { name: 'payee_id', source: { path: '/v1/payees', query: { status: 'verified' }, label: (p) => `${p.legal_name} · ${p.kind} · ending ${p.account_last4}` } }] },
+      create: { label: 'Add a vetted carer', path: '/v1/carers', fields: [{ name: 'person_id', label: 'Person', hint: 'They must have a completed vetting (Professionals › Vetting).' }, { name: 'payee_id', source: { path: '/v1/payees', query: { verification_status: 'verified' }, label: (p) => `${p.legal_name} · ${p.kind} · ending ${p.account_last4}` } }] },
       actions: [
         { label: 'Suspend', path: '/v1/carers/{id}/suspend', tone: 'ghost', when: (r) => r.status === 'active' },
         { label: 'Reinstate', path: '/v1/carers/{id}/reinstate', when: (r) => r.status === 'suspended' },

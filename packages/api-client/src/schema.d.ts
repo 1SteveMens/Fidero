@@ -10568,6 +10568,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/people": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description People picker for staff forms: matches name, email or phone (at least
+         *     2 characters), only people in the staff member's countries, emails masked.
+         */
+        get: operations["v1_people_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/pmg-inspections": {
         parameters: {
             query?: never;
@@ -23601,6 +23621,18 @@ export interface components {
             /** Format: date-time */
             readonly created_at: string;
         };
+        /** @description One row of the staff people picker: enough to choose the right person, nothing more. */
+        PersonPick: {
+            /** Format: uuid */
+            id: string;
+            full_name: string;
+            roles: string[];
+            email_masked: string;
+        };
+        PersonPickPage: {
+            items: components["schemas"]["PersonPick"][];
+            next_cursor: string | null;
+        };
         PersonSummary: {
             /** Format: uuid */
             readonly id: string;
@@ -30831,6 +30863,8 @@ export interface operations {
                 kind?: string;
                 /** @description Number of results to return per page. */
                 limit?: number;
+                /** @description Part of a name or reference (the back office pickers use it). */
+                search?: string;
                 status?: string;
             };
             header?: never;
@@ -34512,6 +34546,8 @@ export interface operations {
                  *     * `tenmina` - tenmina
                  */
                 pay_route?: "held_funds" | "tenmina";
+                /** @description Part of a name or reference (the back office pickers use it). */
+                search?: string;
                 /**
                  * @description * `active` - active
                  *     * `suspended` - suspended
@@ -34727,6 +34763,8 @@ export interface operations {
                  *     * `offplan_check` - offplan_check
                  */
                 product_line?: "building" | "contractor_check" | "developer_check" | "fresh_search" | "institution_verification" | "land" | "offplan_check" | "property_onboarding" | "supplier_check" | "vendor_verification";
+                /** @description Part of a name or reference (the back office pickers use it). */
+                search?: string;
                 /**
                  * @description * `paid` - paid
                  *     * `in_progress` - in_progress
@@ -37255,6 +37293,8 @@ export interface operations {
                 cursor?: string;
                 /** @description Number of results to return per page. */
                 limit?: number;
+                /** @description Part of a name or reference (the back office pickers use it). */
+                search?: string;
                 /**
                  * @description * `active` - active
                  *     * `suspended` - suspended
@@ -41083,6 +41123,8 @@ export interface operations {
                 cursor?: string;
                 /** @description Number of results to return per page. */
                 limit?: number;
+                /** @description Part of a name or reference (the back office pickers use it). */
+                search?: string;
             };
             header?: never;
             path?: never;
@@ -46102,6 +46144,8 @@ export interface operations {
                 cursor?: string;
                 /** @description Number of results to return per page. */
                 limit?: number;
+                /** @description Part of a name or reference (the back office pickers use it). */
+                search?: string;
             };
             header?: never;
             path?: never;
@@ -46361,6 +46405,8 @@ export interface operations {
                 kind?: string;
                 /** @description Number of results to return per page. */
                 limit?: number;
+                /** @description Part of a name or reference (the back office pickers use it). */
+                search?: string;
                 status?: string;
             };
             header?: never;
@@ -47301,6 +47347,8 @@ export interface operations {
                 kind?: string;
                 /** @description Number of results to return per page. */
                 limit?: number;
+                /** @description Part of a name or reference (the back office pickers use it). */
+                search?: string;
                 verification_status?: string;
             };
             header?: never;
@@ -47683,6 +47731,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Payment"];
+                };
+            };
+        };
+    };
+    v1_people_retrieve: {
+        parameters: {
+            query: {
+                role?: string;
+                search: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonPickPage"];
                 };
             };
         };
@@ -51961,6 +52031,8 @@ export interface operations {
                 cursor?: string;
                 /** @description Number of results to return per page. */
                 limit?: number;
+                /** @description Part of a name or reference (the back office pickers use it). */
+                search?: string;
                 /**
                  * @description * `draft` - draft
                  *     * `in_review` - in_review
