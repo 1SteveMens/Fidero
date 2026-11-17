@@ -31,9 +31,9 @@ def _now():
 
 
 def _country_of(person):
-    from countries.models import Country
+    from countries.selectors import country_of_person
 
-    return getattr(person, "home_country", None) or Country.objects.filter(code="GH").first()
+    return country_of_person(person)
 
 
 def _cfg(country, key, default):

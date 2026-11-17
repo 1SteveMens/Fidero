@@ -85,7 +85,9 @@ class PayeeUpdateSerializer(serializers.Serializer):
 
 class PayeeChangeSerializer(serializers.ModelSerializer):
     account_last4 = serializers.SerializerMethodField()
-    previous_last4 = serializers.SerializerMethodField()
+    previous_last4 = serializers.SerializerMethodField(
+        help_text="The account the change replaces: recorded when applied, until then the payee's current one")
+    previous_account_name = serializers.SerializerMethodField()
 
     class Meta:
         model = PayeeChange
@@ -100,8 +102,20 @@ class PayeeChangeSerializer(serializers.ModelSerializer):
     def get_account_last4(self, o) -> str:
         return o.account_number[-4:] if o.account_number else ""
 
+    @staticmethod
+    def _old_account(o) -> tuple[str, str]:
+        """(name, number) of the account being replaced, so the client compares old and new before approving."""
+        if o.previous_account_number:
+            return o.previous_account_name, o.previous_account_number
+        old = o.replaces_payee if o.kind == "new_payee" else o.payee if o.kind == "new_account" else None
+        return (old.account_name, old.account_number) if old is not None else ("", "")
+
     def get_previous_last4(self, o) -> str:
-        return o.previous_account_number[-4:] if o.previous_account_number else ""
+        number = self._old_account(o)[1]
+        return number[-4:] if number else ""
+
+    def get_previous_account_name(self, o) -> str:
+        return self._old_account(o)[0]
 
 
 class PayeeChangeCreateSerializer(serializers.Serializer):
@@ -225,12 +239,16 @@ class EscrowSerializer(serializers.ModelSerializer):
     freezes = serializers.SerializerMethodField()
     listing_id = serializers.SerializerMethodField()
     reservation_id = serializers.SerializerMethodField()
+    case_is_clients = serializers.SerializerMethodField(
+        help_text="True when the case is the client's own, so the client can open it. A reservation on a listing "
+                  "sits on the seller's checked case, which the buyer sees only through the report.")
 
     class Meta:
         model = Escrow
         fields = ["id", "reference", "kind", "title", "country", "client", "account", "account_reference", "asset_id",
                   "report_id", "listing_id", "reservation_id", "project_id",
-                  "case_id", "bank_partner", "bank_reference", "virtual_account_ref", "agreed_price",
+                  "case_id", "case_is_clients",
+                  "bank_partner", "bank_reference", "virtual_account_ref", "agreed_price",
                   "held_back_amount", "held_back_condition", "currency", "conversion_choice", "fx_buffer_pct",
                   "terms_version", "status", "prior_status", "fresh_search_case_id", "fresh_search_result_date",
                   "site_check_date", "agreed_at", "funded_at", "closed_at", "cancel_requested_at", "cancel_reason",
@@ -256,6 +274,14 @@ class EscrowSerializer(serializers.ModelSerializer):
         from .services import agreement_blockers
 
         return agreement_blockers(o) if o.status == "proposed" else []
+
+    @extend_schema_field(serializers.BooleanField())
+    def get_case_is_clients(self, o) -> bool:
+        if o.case_id is None:
+            return False
+        from cases.models import Case
+
+        return Case.objects.filter(pk=o.case_id, client_id=o.client_id).exists()
 
     def _reservation(self, o):
         """The reservation that made this purchase escrow, looked up once per escrow."""

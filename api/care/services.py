@@ -450,7 +450,7 @@ def _money(value, country):
     try:
         amount = q(amount)
     except Exception:  # noqa: BLE001
-        raise Invalid("Give the visit fee as {\"amount\": \"150.00\", \"currency\": \"GHS\"}.") from None
+        raise Invalid(f'Give the visit fee as {{"amount": "150.00", "currency": "{country.currency}"}}.') from None
     if amount <= 0:
         raise Invalid("The visit fee must be more than zero.")
     return amount, str(currency).upper()

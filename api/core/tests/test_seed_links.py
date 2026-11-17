@@ -64,6 +64,28 @@ def test_every_escrow_subject_resolves(seeded):
     assert not bad, f"payees for subjects that do not exist: {bad}"
 
 
+LINK_FIELDS = ("case_id", "report_id", "asset_id", "project_id", "fresh_search_case_id", "check_case_id",
+               "offplan_case_id", "source_condition_id", "subject_id", "source_id")
+
+
+def test_every_case_report_asset_and_project_id_resolves(seeded):
+    """Escrows and their commitments, report snapshots, projects, payables and every other row that names a case,
+    report, asset, project or subject by a plain id (not a foreign key) name a real row, so "Open the case" and the
+    like never lead to "We could not find this". The phone app audit once found an escrow whose case the seed never
+    created."""
+    pks = _all_pks()
+    checked = 0
+    for m in apps.get_models():
+        for f in m._meta.get_fields():
+            if not isinstance(f, models.UUIDField) or f.primary_key or f.name not in LINK_FIELDS:
+                continue
+            values = list(m.objects.exclude(**{f.name: None}).values_list(f.name, flat=True))
+            checked += len(values)
+            bad = _missing(values, pks)
+            assert not bad, f"{m._meta.db_table}.{f.name} names rows that do not exist: {bad[:5]}"
+    assert checked
+
+
 def test_every_home_item_link_resolves(seeded):
     from accounts import home
     from accounts.models import Person

@@ -171,7 +171,7 @@ export default function EscrowTracker() {
         {e.listing_id ? <Link className="btn btn-ghost" href={`/property/listings/${e.listing_id}#report`}>The report</Link>
           : e.report_id ? <Link className="btn btn-ghost" href={`/property/reports/${e.report_id}`}>The report</Link> : null}
         {e.reservation_id ? <Link className="btn btn-ghost" href={`/property/reservations/${e.reservation_id}`}>The reservation</Link> : null}
-        {e.case_id && !e.listing_id ? <Link className="btn btn-ghost" href={`/property/cases/${e.case_id}`}>The case</Link> : null}
+        {e.case_id && e.case_is_clients ? <Link className="btn btn-ghost" href={`/property/cases/${e.case_id}`}>The case</Link> : null}
         {e.status !== 'cancelled' && e.status !== 'released' ? <Link className="btn btn-ghost" href={`/property/disputes/new?escrow=${id}`}>Open a dispute</Link> : null}
       </div>
       {a.toast}

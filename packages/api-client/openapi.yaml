@@ -38945,8 +38945,10 @@ components:
           format: date
         country:
           type: string
-          minLength: 1
-          default: GH
+          default: ''
+          description: The draw's country. Defaults to the one country of your reviewer
+            or administrator grants, or the only active country; required otherwise.
+          maxLength: 2
       required:
       - month
     EndEnrolmentRequest:
@@ -39684,6 +39686,12 @@ components:
           - 'null'
           format: uuid
           readOnly: true
+        case_is_clients:
+          type: boolean
+          readOnly: true
+          description: True when the case is the client's own, so the client can open
+            it. A reservation on a listing sits on the seller's checked case, which
+            the buyer sees only through the report.
         bank_partner:
           type: string
           format: uuid
@@ -39827,6 +39835,7 @@ components:
       - cancel_reason
       - cancel_requested_at
       - case_id
+      - case_is_clients
       - client
       - closed_at
       - conditions
@@ -53745,6 +53754,8 @@ components:
         previous_last4:
           type: string
           readOnly: true
+          description: 'The account the change replaces: recorded when applied, until
+            then the payee''s current one'
         previous_account_name:
           type: string
           readOnly: true
@@ -61019,8 +61030,8 @@ components:
           maxLength: 2
         home_country:
           type: string
-          minLength: 1
-          default: GH
+          default: ''
+          description: Required when Tenmina works in more than one country
           maxLength: 2
         preferred_language:
           type: string
@@ -64040,8 +64051,8 @@ components:
           maxLength: 2
         home_country:
           type: string
-          minLength: 1
-          default: GH
+          default: ''
+          description: Required when Tenmina works in more than one country
           maxLength: 2
         preferred_language:
           type: string

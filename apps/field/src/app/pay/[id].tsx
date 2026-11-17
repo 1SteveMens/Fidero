@@ -3,6 +3,14 @@ import { Chip, Label, Panel, Screen, T } from '@tenmina/ui';
 import { KV, LoadState, day, money, useGet, words } from '@tenmina/mobile';
 import type { Payable } from '../(tabs)/pay';
 
+/** Why a payable is on hold, in plain words (FR-PRO-002, FR-PRO-006). */
+const HOLD: Record<string, string> = {
+  payee_not_verified: 'Your pay account is not verified yet. Tenmina pays only into a checked account in your own name.',
+  agreement_suspended: 'Your agreement with Tenmina is suspended. Pay waits until it is active again.',
+  fraud_review: 'Tenmina is reviewing this work. Pay waits until the review ends.',
+  misconduct_review: 'Tenmina is reviewing a complaint. Pay waits until the review ends.',
+};
+
 /** Payable detail (SCR-MOB-20, as SCR-BO-34; FR-PRO-002, FR-PRO-007): the rate, the deductions and the net. Black, white and lime only. */
 export default function PayableScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -32,7 +40,7 @@ export default function PayableScreen() {
           {d.hold_reason ? (
             <Panel>
               <Label>On hold</Label>
-              <T v="callout">{d.hold_reason}</T>
+              <T v="callout">{HOLD[d.hold_reason] ?? words(d.hold_reason)}</T>
             </Panel>
           ) : null}
           <T v="footnote" muted>Tenmina pays from its own account in the monthly payment run. The amount never depends on what a report or an inspection found.</T>

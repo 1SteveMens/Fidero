@@ -253,6 +253,28 @@ def test_stop_during_cooling_off(b):
     assert ch.status == "stopped" and Payee.objects.get(pk=seller.pk).verification_status == "suspended"
 
 
+def test_change_notice_in_app_opens_the_change_and_shows_no_raw_link(b):
+    """FR-ESC-016, FR-NTF-004: the applied-change notice keeps the single-use stop link for the email; the in-app
+    copy opens the change in the app and shows no path or id (the phone app audit found one in the inbox)."""
+    from notifications.models import Message
+
+    e = b.ready_purchase()
+    seller = b.payee("seller")
+    adapters.FakeBankNameCheck.REGISTRY["4400112233449"] = "Ato Estates Ltd"
+    try:
+        ch = _change(b, e, seller, number="4400112233449")
+    finally:
+        adapters.FakeBankNameCheck.REGISTRY.pop("4400112233449", None)
+    services.client_approve_change(ch, b.client, mfa_at=timezone.now())
+    services.decide_change(ch, b.rv, decision="approve", mfa_at=timezone.now())
+    services.decide_change(ch, b.rv2, decision="approve", mfa_at=timezone.now())
+    msgs = Message.objects.filter(person=b.client, template="payee_change_notice", subject_id=str(ch.pk))
+    in_app = msgs.get(channel="in_app")
+    assert in_app.link == f"/payee-changes/{ch.pk}" and str(ch.pk) not in in_app.body and "/stop" not in in_app.body
+    assert "If you did not expect this" in in_app.body
+    assert any("/stop?token=" in m.body for m in msgs.filter(channel="email"))
+
+
 def test_shared_payee_change_needs_each_client(b, codes):
     """I-42, TC-ESC-016-07: a school's new account is approved by each client for their own held amount."""
     school = b.payee("school")

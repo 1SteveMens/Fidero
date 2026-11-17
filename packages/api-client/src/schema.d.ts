@@ -17755,7 +17755,10 @@ export interface components {
         DrawInputRequest: {
             /** Format: date */
             month: string;
-            /** @default GH */
+            /**
+             * @description The draw's country. Defaults to the one country of your reviewer or administrator grants, or the only active country; required otherwise.
+             * @default
+             */
             country: string;
         };
         EndEnrolmentRequest: {
@@ -18062,6 +18065,8 @@ export interface components {
             readonly project_id: string | null;
             /** Format: uuid */
             readonly case_id: string | null;
+            /** @description True when the case is the client's own, so the client can open it. A reservation on a listing sits on the seller's checked case, which the buyer sees only through the report. */
+            readonly case_is_clients: boolean;
             /** Format: uuid */
             readonly bank_partner: string;
             readonly bank_reference: string;
@@ -23950,6 +23955,7 @@ export interface components {
             readonly account_name_source: components["schemas"]["AccountNameSourceEnum"] | components["schemas"]["BlankEnum"];
             /** Format: uuid */
             readonly account_checked_by: string | null;
+            /** @description The account the change replaces: recorded when applied, until then the payee's current one */
             readonly previous_last4: string;
             readonly previous_account_name: string;
             /** Format: uuid */
@@ -26813,7 +26819,10 @@ export interface components {
             /** @default  */
             phone: string;
             residence_country?: string;
-            /** @default GH */
+            /**
+             * @description Required when Tenmina works in more than one country
+             * @default
+             */
             home_country: string;
             /** @default en */
             preferred_language: string;
@@ -28140,7 +28149,10 @@ export interface components {
             full_name: string;
             phone: string;
             residence_country?: string;
-            /** @default GH */
+            /**
+             * @description Required when Tenmina works in more than one country
+             * @default
+             */
             home_country: string;
             /** @default en */
             preferred_language: string;

@@ -13,8 +13,8 @@ backgrounds. This audit looked for that and every other UI and UX bug the two ap
    (about 35 minutes with `--parallel 3`). `scripts/ui-audit/app-flows.js` walks the fee and set-aside flows.
 
 The script serves both exports and signs in through each app's own sign-in screen as 2 clients (ama, kofi: the
-SMS code is read from the API log) and 7 field roles (inspector, carer, agent, runner, and surveyor, lawyer and qs
-with the authenticator). The Field app registers the phone as it does after a real sign-in. It opens every route
+SMS code is read from the API log) and 8 field people (inspector, carer, agent, the errand agent on the panel,
+runner, and surveyor, lawyer and qs with the authenticator; the errand agent since the follow-up below). The Field app registers the phone as it does after a real sign-in. It opens every route
 under `src/app`, presses rows, tabs and buttons to reach detail screens and sheets, and blocks every POST, PUT,
 PATCH and DELETE while it explores, so nothing changes on the server. It checks each view at 390x844 and 375x667, in
 light and dark colour scheme:
@@ -47,9 +47,9 @@ the start (commit `c28c084`); "after" is this commit. The full output of the las
 | Screens visited (views with sheets and in-place changes) | 197 (265) | 200 (267) |
 
 A finding is one element on one screen for one person, merged across the four modes. A few "before" findings on
-Home and Money are the seal's decorative words, now hidden from screen readers. The 6 API 404s left (for information)
-are expected: kofi has no Tenmina account yet (the screens say "No account yet"), and some demo escrows are not
-commitments, or point at a case the seed does not create.
+Home and Money are the seal's decorative words, now hidden from screen readers. The 6 API 404s left at the time (for
+information) were: kofi has no Tenmina account yet (the screens say "No account yet"), an escrow's "Open the case" and
+a held-funds release asking for a commitment. The last two are fixed in the follow-up below; the 3 left are kofi's.
 
 Before and after, dark mode, 390x844 (`docs/screenshots/ui-audit/apps/`):
 
@@ -139,9 +139,8 @@ inside the black "start the plan" panel of a care plan, the code boxes and their
   ("vendor payments", "partner orders"). It is now a word such as "Event payment", or nothing.
 - **A record that is not there (404)** showed "Not found." and "Try again", which can never work. Every screen now
   says "We could not find this", why that can happen, and "Go back" (`LoadState` in `packages/mobile`). It showed
-  for the demo escrow "Plot at Kwabenya (proposed)": its "Open the case" points at a case id the seed never creates
-  (`api/escrow/seed.py` gives demo escrows placeholder case ids). That is seed data, not app behaviour, and was
-  left as it is.
+  for the demo escrow "Plot at Kwabenya (proposed)": its "Open the case" pointed at a case id the seed never created.
+  The seed now builds every escrow on a real case, report, asset or project (follow-up below).
 - **Step bars (`SegBar`, `DotStepper`)** had no value on the web (React Native Web drops `accessibilityValue`), so a
   screen reader announced each as an unknown busy indicator. They now carry `aria-valuenow`, `aria-valuemax` and a
   spoken text such as "Step 1 of 4: What".
@@ -191,17 +190,54 @@ Walked in Chromium with Playwright as ama by `scripts/ui-audit/app-flows.js`, sc
 - SMS sign-in on a real number with one-time-code autofill from the Messages app.
 - Contrast in strong sun on Field phones (6.1c): the colours pass 4.5:1, but glare is a field test.
 
+## Follow-up, 17 November evening: the screens the audit could not reach
+
+The first run could not reach the payee change sheet, a care concern, the Field errand screen and the Field pay
+screens, because the demo data had nothing for them. Last run: 208 screens (280 views), 0 blocking findings
+(`apps-results.md`).
+
+**Demo data, through each module's services, idempotent:**
+- `api/escrow/seed.py` (`run_late`): the contractor on Ama's construction escrow asks, signed in, to be paid into a
+  new account; the bank's name check and a fresh identity check pass, so the change waits for Ama's approval (the
+  client first, then two staff). It is on her home screen.
+- `api/profpay/seed.py`: the errand agent on the panel (`kofi.agent@example.com`) has his own verified account and an
+  active agreement, so his finished errand becomes a payable, paid in the confirmed run with a remittance advice and a
+  yearly statement, plus an approved expense claim. The run's failing line is never his.
+- Care concerns and the errand with steps were already seeded (Ama's two concerns; the birth certificate errand in
+  progress). The crawler missed them in long lists. Yaa (`agent@example.com`) stays a field agent with her vetting
+  pending (tests and the back office rely on it), so the audit now also signs in as the errand agent on the panel.
+- Every escrow already pointed at a real case, report, asset and project. `api/core/tests/test_seed_links.py` now
+  checks every `case_id`, `report_id`, `asset_id`, `project_id`, `subject_id` and `source_id` in every table.
+
+**The script** (`apps.js`): after the crawl, it opens the screens a person did not reach from the links the API gives
+them (home rows and notifications for the client; payables, errands and jobs in Field), and signs in as
+`errand-agent`.
+
+**Found on those screens and fixed:**
+- Escrow, "Open the case" on a listing reservation led to "We could not find this": the reservation sits on the
+  seller's checked case, which the buyer cannot open. The escrow now says `case_is_clients`, and the app shows the
+  button only for the client's own case.
+- Escrow opened for the account itself (held funds) asked for it as a commitment (404) before going to Money. It no
+  longer asks.
+- Inbox: the in-app copy of "Tenmina approved a change to the account of…" showed a raw path with the change's id
+  and its stop token. The stop link now goes only in the email; the in-app copy opens the change.
+- Payee change sheet: "Old account" showed "— ••—" before the change was applied. It now shows the payee's current
+  account until the change records the old one.
+- Field, My pay: errand agents (CE) were told they are paid from the family's money, and saw no pay, though Tenmina
+  pays them per finished errand under an agreement. A CE with an agreement now sees My pay; a carer paid from the
+  family's money still sees the note.
+- Field, a payable on hold showed its code word (`payee_not_verified`). It now says why in plain words.
+- The notification link `/escrows/{id}/payee-changes/{id}` opened the summary screen; it opens the payee change.
+
 ## Not reached by the crawler
 
-From the seeded data the crawler reached every route except these, which need data the seed does not give the
-person, or an action the crawler blocks:
-
-- Client: `/checkout/[id]` (needs a payment started, a POST; walked by `app-flows.js` instead), `/payee-change/[id]`
-  (no payee change waiting for ama), `/concern/[id]` (no care concern raised), `/face-id` and
+- Client: `/checkout/[id]` (needs a payment started, a POST; walked by `app-flows.js` instead), `/face-id` and
   `/turn-on-notifications` (shown once after sign-in, and skipped on the web, which has no biometrics or push).
   Kofi reaches fewer screens because he has fewer records; every screen he lacks was reached as ama.
-- Field: `/errand/[id]` (the seed gives the errand agent no errand), `/pay/[id]` for the inspector, carer, agent and
-  qs (no payables yet), `/job/[type]/[id]` for the lawyer and qs (no job assigned).
+- Field: `/pay/[id]` for the inspector (his agreement is a draft: no verified account yet), the carer (paid from the
+  family's money) and Yaa and the qs (no agreement): those are the demo states those screens show. `/job/[type]/[id]`
+  for the inspector, Yaa, the surveyor, the lawyer and the qs: since the seed stopped assigning made-up subjects
+  (`38f25d6`), only the runner, the carer and the errand agent have field jobs. `/errand/[id]` for everyone but the
+  errand agent.
 
-These screens use the same components and palettes as the screens checked, so the colour fixes apply to them. Their
-layout was not checked by the script.
+These screens use the same components and palettes as the screens checked, so the colour fixes apply to them.

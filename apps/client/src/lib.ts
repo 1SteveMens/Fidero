@@ -62,7 +62,7 @@ const ROUTES: [RegExp, (id: string) => string][] = [
   [/^\/insurance\/policies\/([^/?]+)$/, (id) => `/policy/${id}`],
   [/^\/insurance\/premiums\/([^/?]+)$/, (id) => `/premium/${id}`],
   [/^\/disputes\/([^/?]+)$/, (id) => `/dispute/${id}`],
-  [/^\/payee-changes\/([^/?]+)$/, (id) => `/payee-change/${id}`],
+  [/^\/(?:escrows\/[^/?]+\/)?payee-changes\/([^/?]+)$/, (id) => `/payee-change/${id}`],
   [/^\/listings\/([^/?]+)$/, (id) => `/listing/${id}`],
   [/^\/orders\/([^/?]+)(?:\/pay)?$/, (id) => `/pay-fee/${id}`],
   [/^\/(?:property\/)?listings$/, () => '/listings'],
@@ -157,6 +157,8 @@ export interface Escrow {
   held_back_condition: string;
   fresh_search_result_date: string | null;
   case_id: string | null;
+  /** The case is the client's own (a listing reservation sits on the seller's case, which the buyer cannot open). */
+  case_is_clients?: boolean;
   report_id: string | null;
   project_id: string | null;
   funded_at: string | null;

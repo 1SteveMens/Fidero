@@ -40,9 +40,9 @@ def _valid(cls, request, **kw):
 @api_view(["GET"])
 @permission_classes([permissions.AllowAny])
 def current_notice(request):
-    from countries.models import Country
+    from countries.selectors import country_or_default
 
-    country = Country.objects.filter(code=(request.query_params.get("country") or "GH").upper()).first()
+    country = country_or_default(request.query_params.get("country"))
     n = selectors.current_notice(country)
     if n is None:
         raise NotFound()

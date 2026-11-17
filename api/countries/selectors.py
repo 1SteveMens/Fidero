@@ -48,6 +48,40 @@ def active_countries():
     return Country.objects.filter(status="active")
 
 
+CHOOSE_COUNTRY = "Choose the country. Tenmina works in more than one."
+
+
+def country_or_default(code: str | None = None, *, field: str = "country") -> Country | None:
+    """The country the caller named, or, when they named none, the only active country. Country is
+    configuration (CLAUDE.md): nothing defaults to one country by name. With several active countries the
+    field is required, and with none there is nothing to default to: both are a validation error on `field`.
+    A code that names no country returns None, so the caller can say so in its own words."""
+    if code:
+        return Country.objects.filter(code=code.strip().upper()).first()
+    active = list(active_countries()[:2])
+    if len(active) == 1:
+        return active[0]
+    from core.errors import Invalid
+
+    message = CHOOSE_COUNTRY if active else "Tenmina does not work in any country yet."
+    raise Invalid(message, extra={"errors": [{"pointer": f"/{field}", "message": message}]})
+
+
+def country_of_person(person, *, field: str = "country") -> Country:
+    """The country a person's work defaults to: their home country, else the one country their role grants
+    name, else the only active country (country_or_default)."""
+    c = getattr(person, "home_country", None)
+    if c is not None:
+        return c
+    if person is not None and getattr(person, "is_authenticated", False):
+        codes = staff_country_codes(person)
+        if codes and len(codes) == 1:
+            found = Country.objects.filter(code=next(iter(codes))).first()
+            if found is not None:
+                return found
+    return country_or_default(None, field=field)
+
+
 def staff_country_codes(user, *roles) -> set[str] | None:
     """The countries a staff member may see for the given roles. None means
     every country (a grant with no country). An empty set means none."""

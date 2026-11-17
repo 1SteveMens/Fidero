@@ -23,6 +23,8 @@ GHANA_CONFIG = {
     "fresh_search_window_days": 30,
     "report_tiers": {"basic": {"price": "150.00"}, "standard": {"price": "350.00"}, "premium": {"price": "650.00"}},
     "price_currency": "USD",
+    # Offline payments above these need a second person (FR-ORD-004) [TO VERIFY].
+    "payments": {"offline_two_person_threshold": {"USD": "500.00", "GHS": "7500.00"}},
     "withholding_tax_rate": "0.075",
     "errand_catalogue": [
         {"code": "birth_cert", "name": "Birth certificate copy", "agency": "Births and Deaths Registry"},
@@ -64,6 +66,7 @@ def run(ctx):
         gh.save(update_fields=["current_config"])
     if not ng.configs.exists():
         data = dict(GHANA_CONFIG, currency="NGN", phone_prefix="+234",
+                    payments={"offline_two_person_threshold": {"USD": "500.00"}},  # NGN figure [TO VERIFY]
                     national_id={"system": "NIN (NIMC)", "provider": "[TO VERIFY]"},
                     land_registry={"name": "Lagos State Lands Bureau", "search_channel": "[TO VERIFY]"},
                     digital_address=None,  # no national digital address system assumed [TO VERIFY]
