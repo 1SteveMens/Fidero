@@ -671,7 +671,7 @@ class ReleaseInstruction(CountryScopedModel):
     client_approved_at = models.DateTimeField(null=True, blank=True)
     client_approved_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
                                            on_delete=models.PROTECT, related_name="+")
-    client_approval_method = models.TextField(blank=True, default="")  # mfa_step_up | device_biometric | totp_code | standing | fx_quote
+    client_approval_method = models.TextField(blank=True, default="")  # mfa_step_up | device_biometric | sms_code | totp_code | standing | fx_quote
     client_approved_amount = amount_field(null=True, blank=True)
     client_declined_at = models.DateTimeField(null=True, blank=True)
     client_reminded_at = models.DateTimeField(null=True, blank=True)

@@ -10,3 +10,5 @@ export * from './push';
 export { STEP_UP_PREFIX, approvalPublicKey, signStepUpMessage, stepUpMessage } from './approvalkey';
 export * from './biometric';
 export * from './secondfactor';
+export * from './help';
+export * from './forgot';

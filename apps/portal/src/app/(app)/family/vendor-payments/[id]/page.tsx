@@ -1,13 +1,12 @@
 'use client';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { Blocked, KV, Money, ProblemBox, Skeleton, When, useGet, useSession } from '@tenmina/web-ui';
+import { Blocked, KV, Money, ProblemBox, Skeleton, When, useGet } from '@tenmina/web-ui';
 import { ApproveMoney, EvidenceLink, Ink, PageHead, Proof, Section, useAction, words, type Any } from '@/components/kit';
 
 /** An event vendor payment: evidence first, then the client's approval on black, then two Tenmina staff (RUL-11, RUL-22). */
 export default function VendorPayment() {
   const { id } = useParams<{ id: string }>();
-  const { stepUp } = useSession();
   const q = useGet<Any>(`/v1/vendor-payments/${id}`);
   const ev = useGet<Any>(q.data ? `/v1/events/${q.data.event}` : null);
   const a = useAction();
@@ -31,7 +30,7 @@ export default function VendorPayment() {
       {mine ? (
         <ApproveMoney amount={p.amount} payee={vendor?.payee?.name ?? p.vendor_name}
           payeeLines={vendor?.payee ? <div className="mono" style={{ fontSize: 14 }}>Account ending {vendor.payee.account_last4} · {words(vendor.payee.status)}</div> : null}
-          onApprove={async (code) => { await stepUp(code); await a.post(`/v1/vendor-payments/${id}/client-approval`, { confirm_amount: p.amount, acknowledge_budget_warning: true }); q.mutate(); a.show('Approved. Two Tenmina staff approve next.'); }}
+          onApprove={async () => { await a.post(`/v1/vendor-payments/${id}/client-approval`, { confirm_amount: p.amount, acknowledge_budget_warning: true }); q.mutate(); a.show('Approved. Two Tenmina staff approve next.'); }}
           onDecline={(reason) => a.post(`/v1/vendor-payments/${id}/reject`, { reason }).then(() => { q.mutate(); a.show('Rejected. Nothing is paid.'); })}
           declineLabel="Reject this payment" />
       ) : (

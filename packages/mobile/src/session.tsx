@@ -12,6 +12,12 @@ export interface Person {
   residence_country: string;
   home_country: string;
   mfa_enabled: boolean;
+  /** FR-ACC-003, FR-ACC-015: the authenticator app, a code by SMS (clients only), or none yet. */
+  second_factor?: SecondFactorKind;
+  /** The mobile number as screens show it: "+44 •••• 123". */
+  phone_masked?: string;
+  /** SMS approvals paused for 72 hours after a number change or a reported SIM swap. */
+  sms_pause?: SmsPause | null;
   roles: string[];
   status: string;
   id_check_status: string;
@@ -37,7 +43,30 @@ export interface AppConfig {
   fee_payment_mode: string;
 }
 
-export type SignInResult = { ok: true } | { ok: false; needsCode: true; problem?: Problem } | { ok: false; needsCode?: false; problem: Problem };
+export type SecondFactorKind = 'authenticator' | 'sms' | 'none';
+
+export interface SmsPause {
+  reason: 'phone_changed' | 'sim_swap';
+  until: string;
+  detail: string;
+}
+
+/** How the second factor at sign-in arrives: the authenticator app, or a code sent by SMS to `sentTo`. */
+export interface CodeAsk {
+  method: 'totp' | 'sms';
+  sentTo?: string;
+}
+
+export type SignInResult =
+  | { ok: true }
+  | { ok: false; needsCode: true; ask: CodeAsk; problem?: Problem }
+  | { ok: false; needsCode?: false; problem: Problem };
+
+/** Read the second-factor request out of an mfa-required problem (FR-ACC-015). */
+export function codeAskOf(problem: Problem): CodeAsk {
+  const extra = problem as Problem & { method?: string; sent_to?: string };
+  return extra.method === 'sms' ? { method: 'sms', sentTo: extra.sent_to } : { method: 'totp' };
+}
 
 interface Session {
   api: MobileApi;
@@ -60,9 +89,10 @@ const SessionContext = createContext<Session | null>(null);
 const ME_KEY = 'tenmina.me';
 
 /**
- * Real sign-in for both apps (FR-ACC-001 to FR-ACC-003): email or phone and a
- * password, then the authenticator code when the account has MFA. Tokens stay
- * in secure storage, so the app opens signed in next time.
+ * Real sign-in for both apps (FR-ACC-001 to FR-ACC-003, FR-ACC-015): email or
+ * phone and a password, then the second factor: the authenticator code, or for
+ * a client without one the code Tenmina sends by SMS. Tokens stay in secure
+ * storage, so the app opens signed in next time.
  */
 export function SessionProvider({ app, children }: { app: AppName; children: ReactNode }) {
   const api = useMemo(() => new MobileApi(app), [app]);
@@ -146,8 +176,8 @@ export function SessionProvider({ app, children }: { app: AppName; children: Rea
         return { ok: true };
       } catch (e) {
         const problem = toProblem(e);
-        if (problem.code === 'mfa-required') return { ok: false, needsCode: true };
-        if (problem.code === 'mfa-invalid') return { ok: false, needsCode: true, problem };
+        if (problem.code === 'mfa-required') return { ok: false, needsCode: true, ask: codeAskOf(problem) };
+        if (code && ['mfa-invalid', 'mfa-code-expired', 'mfa-code-used-up'].includes(problem.code)) return { ok: false, needsCode: true, ask: { method: 'totp' }, problem };
         return { ok: false, problem };
       }
     },

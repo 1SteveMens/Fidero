@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { brand, holdToApproveMs, radius, space } from '@tenmina/tokens';
 import { Button, HoldButton, Label, Panel, Pulse, Rise, Screen, T, Tick, haptic, usePalette, useReducedMotion, useScreenReader } from '@tenmina/ui';
-import { Field, ProblemBox, SecondFactorInput, initials, money, useSecondFactor, type ApiMoney, type Problem } from '@tenmina/mobile';
+import { Field, ProblemBox, SecondFactorInput, initials, methodWords, money, useSecondFactor, type ApiMoney, type ApprovalMethod, type Problem } from '@tenmina/mobile';
 
 /** Who approves, in order. Two different Tenmina staff, then the bank pays (RUL-05, RUL-11). */
 const CHAIN = ['You', 'Staff 1', 'Staff 2', 'Bank pays'] as const;
@@ -23,11 +23,12 @@ export interface PayeeLine {
  * and exactly who is paid on a ticket, every condition ticked, the approval
  * chain, then press and hold. When the hold completes the phone asks for Face
  * ID or a fingerprint and steps up with this phone's approval key
- * (FR-ACC-014); without one, the six code boxes show instead. Silence is never
+ * (FR-ACC-014); without one, the code shows instead: the authenticator's if the
+ * client set one up, else a code sent by SMS (FR-ACC-015). Silence is never
  * approval: nothing moves until the client acts, and declining says why.
  *
- * `onApprove(code)` gets the authenticator code, or "" when Face ID already
- * stepped up; the API then uses that fresh step-up.
+ * `onApprove(code)` gets the authenticator code, or "" when Face ID or an SMS
+ * code already stepped up; the API then uses that fresh step-up.
  */
 export function ApprovalSheet({
   title,
@@ -61,7 +62,7 @@ export function ApprovalSheet({
 }) {
   const screenReader = useScreenReader();
   const factor = useSecondFactor();
-  const [method, setMethod] = useState<'device_biometric' | 'totp'>('totp');
+  const [method, setMethod] = useState<ApprovalMethod>('totp');
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<Problem>();
   const [done, setDone] = useState<'approved' | 'declined'>();
@@ -103,7 +104,7 @@ export function ApprovalSheet({
     setDone('declined');
   }
 
-  if (done === 'approved') return <Approved amount={amount} payee={payee} message={approvedMessage} after={after} how={method === 'device_biometric' ? factor.label : 'your authenticator code'} />;
+  if (done === 'approved') return <Approved amount={amount} payee={payee} message={approvedMessage} after={after} how={methodWords(method, factor.label)} />;
   if (done === 'declined') {
     return (
       <Screen ground="ink" footer={<Button title="Done" onPress={() => router.back()} />}>
@@ -204,9 +205,9 @@ export function ApprovalSheet({
         </Panel>
       ) : noMfa ? (
         <Panel style={{ borderWidth: 2, borderColor: brand.orange, backgroundColor: 'transparent' }}>
-          <Label color={brand.orange}>Set up your authenticator first</Label>
-          <T v="callout">Every approval needs a second check: an authenticator app, then Face ID or a fingerprint on this phone if you want. It takes a minute.</T>
-          <Button title="Set up the authenticator" variant="dark" onPress={() => router.push('/account/security')} />
+          <Label color={brand.orange}>Confirm your mobile number first</Label>
+          <T v="callout">Every approval needs a second check: Face ID or a fingerprint on this phone, or a code we text you. Confirm your number to get the codes.</T>
+          <Button title="Confirm your number" variant="dark" onPress={() => router.push('/account/phone')} />
         </Panel>
       ) : declining ? (
         <Field label="Why are you declining?" value={reason} onChange={setReason} multiline hint="Tenmina staff read this before anything else happens." />

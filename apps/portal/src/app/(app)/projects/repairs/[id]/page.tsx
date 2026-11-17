@@ -2,13 +2,12 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
-import { Blocked, Chip, KV, Money, ProblemBox, Skeleton, When, useGet, useSession } from '@tenmina/web-ui';
+import { Blocked, Chip, KV, Money, ProblemBox, Skeleton, When, useGet } from '@tenmina/web-ui';
 import { ApproveMoney, EvidenceLink, Ink, PageHead, Proof, RadioCard, Section, useAction, words, type Any } from '@/components/kit';
 
 /** W-33 · SCR-PTL-48: two or more quotes from vetted contractors; approve one; money held; inspection; payment. */
 export default function Repair() {
   const { id } = useParams<{ id: string }>();
-  const { stepUp } = useSession();
   const q = useGet<Any>(`/v1/repairs/${id}`);
   const a = useAction();
   const [pick, setPick] = useState('');
@@ -37,7 +36,7 @@ export default function Repair() {
         <ApproveMoney amount={chosen.amount} payee={chosen.payee?.name ?? chosen.contractor?.name} payeeLines={<div className="mono" style={{ fontSize: 14 }}>Account ending {chosen.payee?.account_last4}</div>}
           holdLabel="Hold to approve this quote"
           note={<p className="muted" style={{ margin: 0, fontSize: 14 }}>After you approve, you pay the amount into the bank, which holds it. The contractor is paid only after the work is inspected, and after two Tenmina staff approve.</p>}
-          onApprove={async (code) => { await stepUp(code); await a.post(`/v1/repairs/${id}/quote-approvals`, { quote_id: chosen.id, confirm_amount: chosen.amount }); q.mutate(); a.show('Quote approved'); }} />
+          onApprove={async () => { await a.post(`/v1/repairs/${id}/quote-approvals`, { quote_id: chosen.id, confirm_amount: chosen.amount }); q.mutate(); a.show('Quote approved'); }} />
       ) : null}
       {r.owner_approved_at ? <Proof>You approved a quote <When value={r.owner_approved_at} /></Proof> : null}
       {r.escrow ? <Link className="btn btn-primary" href={`/property/escrows/${r.escrow}`}>Money at the bank · {r.escrow_reference}</Link> : null}

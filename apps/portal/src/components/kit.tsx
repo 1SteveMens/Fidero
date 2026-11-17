@@ -4,9 +4,10 @@ import Link from 'next/link';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ApiError, type Money as MoneyT } from '@tenmina/api-client';
 import {
-  Button, CodeBoxes, Dialog, HoldButton, Money, ProblemBox, Skeleton, Status, Ticket, call, useGet, useSession, useToast,
+  Button, Dialog, HoldButton, Money, ProblemBox, Skeleton, Status, Ticket, call, useGet, useSession, useToast,
 } from '@tenmina/web-ui';
 import { toPortal } from '@/lib/links';
+import { FactorField, useWebFactor } from './secondfactor';
 import './client.css';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -171,24 +172,26 @@ export function Upload({ subject, label = 'Upload a file', accept = 'image/*,app
 
 /**
  * The client's money approval (03, 5.4 and W-15): a ticket with the amount above the
- * tear and who is paid below it, then press and hold, then the authenticator code.
- * Silence is never approval: nothing happens until the client holds and enters the code.
+ * tear and who is paid below it, then the code, then press and hold. The code is a
+ * 6-digit code sent by SMS ("Send code", then the boxes), or the authenticator's for
+ * a client who set one up (FR-ACC-003, FR-ACC-015). The hold steps up first, then
+ * calls `onApprove("")`: the approval rests on that fresh step-up. Silence is never
+ * approval: nothing happens until the client enters the code and holds.
  */
 export function ApproveMoney({ amount, payee, payeeLines, above, holdLabel = 'Hold to approve', onApprove, onDecline, declineLabel = 'Decline', disabled, note }: {
   amount: MoneyT | null; payee: React.ReactNode; payeeLines?: React.ReactNode; above?: React.ReactNode; holdLabel?: string;
   onApprove: (code: string) => Promise<unknown>; onDecline?: (reason: string) => Promise<unknown>; declineLabel?: string; disabled?: boolean; note?: React.ReactNode;
 }) {
-  const { me } = useSession();
-  const [ask, setAsk] = useState(false);
-  const [code, setCode] = useState('');
+  const f = useWebFactor();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
   const [decline, setDecline] = useState(false);
   const [reason, setReason] = useState('');
   async function go() {
     setBusy(true); setError(null);
-    try { await onApprove(code); setAsk(false); setCode(''); } catch (e) { setError(e); } finally { setBusy(false); }
+    try { await f.stepUp(); await onApprove(''); f.reset(); } catch (e) { setError(e); } finally { setBusy(false); }
   }
+  const canCode = f.method === 'totp' || f.method === 'sms';
   return (
     <div className="stack" style={{ gap: 14 }}>
       <Ticket
@@ -197,25 +200,11 @@ export function ApproveMoney({ amount, payee, payeeLines, above, holdLabel = 'Ho
           <div style={{ fontSize: 13, color: '#6a675f' }}>We never change who gets paid because of a message, email or call.</div></div>}
       />
       {note}
-      {me && !me.mfa_enabled ? (
-        <div className="card stack">
-          <strong>Set up your authenticator app first.</strong>
-          <span className="muted">Every money approval needs a code from your authenticator app.</span>
-          <Link className="btn btn-primary" href="/account/security">Set up the app</Link>
-        </div>
-      ) : (
-        <HoldButton label={holdLabel} disabled={disabled} onConfirm={() => { setError(null); setAsk(true); }} />
-      )}
+      {!disabled ? <FactorField f={f} /> : null}
+      {canCode ? <HoldButton label={holdLabel} disabled={disabled || !f.ready || busy} onConfirm={() => void go()} /> : null}
+      {busy ? <p className="muted" role="status" style={{ margin: 0 }}>Approving…</p> : null}
       {onDecline ? <Button variant="ghost" onClick={() => setDecline(true)}>{declineLabel}</Button> : null}
-      {!ask ? <ProblemBox error={error} /> : null}
-      <Dialog open={ask} onClose={() => setAsk(false)} title="Enter your code" ink>
-        <div className="stack">
-          <p className="muted">Open your authenticator app and enter the six-digit code for Tenmina.</p>
-          <CodeBoxes value={code} onChange={setCode} autoFocus />
-          <ProblemBox error={error} />
-          <Button variant="action" busy={busy} disabled={code.length !== 6} onClick={go} block>Approve</Button>
-        </div>
-      </Dialog>
+      <ProblemBox error={error} />
       <Dialog open={decline} onClose={() => setDecline(false)} title={declineLabel} ink>
         <div className="stack">
           <label className="field"><span>Why (optional)</span><textarea className="textarea" value={reason} onChange={(e) => setReason(e.target.value)} /></label>
@@ -305,29 +294,28 @@ export function Bar({ value, max, label }: { value: number; max: number; label?:
   );
 }
 
-/** An action that needs a fresh MFA step-up first (6.3): ask for the code, step up, then run it. */
-export function StepUpButton({ label, onRun, variant = 'action', block, title = 'Enter your code', children }: {
+/** An action that needs a fresh MFA step-up first (6.3): the code (by SMS or the authenticator), step up, then run it. */
+export function StepUpButton({ label, onRun, variant = 'action', block, title = 'Confirm it is you', children }: {
   label: string; onRun: () => Promise<unknown>; variant?: 'primary' | 'dark' | 'action' | 'ghost'; block?: boolean; title?: string; children?: React.ReactNode;
 }) {
-  const { me, stepUp } = useSession();
+  const f = useWebFactor();
   const [open, setOpen] = useState(false);
-  const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
-  if (me && !me.mfa_enabled) return <Link className={`btn btn-${variant} ${block ? 'btn-block' : ''}`} href="/account/security">{label} (set up your authenticator app first)</Link>;
   return (
     <>
-      <Button variant={variant} block={block} onClick={() => { setOpen(true); setCode(''); setError(null); }}>{label}</Button>
+      <Button variant={variant} block={block} onClick={() => { setOpen(true); f.reset(); setError(null); }}>{label}</Button>
       <Dialog open={open} onClose={() => setOpen(false)} title={title} ink>
         <div className="stack">
           {children}
-          <p className="muted" style={{ margin: 0 }}>Code from your authenticator app</p>
-          <CodeBoxes value={code} onChange={setCode} autoFocus />
+          <FactorField f={f} autoFocus />
           <ProblemBox error={error} />
-          <Button variant="action" block busy={busy} disabled={code.length !== 6} onClick={async () => {
-            setBusy(true); setError(null);
-            try { await stepUp(code); await onRun(); setOpen(false); } catch (e) { setError(e); } finally { setBusy(false); }
-          }}>{label}</Button>
+          {f.method === 'totp' || f.method === 'sms' ? (
+            <Button variant="action" block busy={busy} disabled={!f.ready} onClick={async () => {
+              setBusy(true); setError(null);
+              try { await f.stepUp(); await onRun(); setOpen(false); } catch (e) { setError(e); } finally { setBusy(false); }
+            }}>{label}</Button>
+          ) : null}
         </div>
       </Dialog>
     </>

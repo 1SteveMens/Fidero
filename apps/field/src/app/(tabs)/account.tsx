@@ -1,8 +1,8 @@
-import { Linking, Switch, View } from 'react-native';
+import { Switch, View } from 'react-native';
 import { router } from 'expo-router';
 import { brand, space } from '@tenmina/tokens';
 import { Button, Chip, Label, ListRow, Panel, Rise, Screen, T } from '@tenmina/ui';
-import { APP_VERSION, initials, portalUrl, useSession, when, words } from '@tenmina/mobile';
+import { APP_VERSION, initials, useSession, when, words } from '@tenmina/mobile';
 import { useField } from '../../store';
 
 const ROLE: Record<string, string> = { IN: 'Inspector', CT: 'Contractor', CE: 'Carer or errand agent', RN: 'Runner', SV: 'Surveyor', QS: 'Quantity surveyor', LW: 'Lawyer' };
@@ -48,7 +48,7 @@ export default function Account() {
       <Rise delay={160}>
         <Label style={{ marginBottom: space[2] }}>Help</Label>
         <Panel style={{ gap: 0, paddingVertical: space[1] }}>
-          <ListRow icon="help-circle-outline" title="Talk to Tenmina" onPress={() => void Linking.openURL(`${portalUrl()}/help`)} />
+          <ListRow icon="help-circle-outline" title="Help and talk to Tenmina" onPress={() => router.push('/help')} />
           <ListRow icon="trash-outline" iconTone="orange" title="Delete my account" detail="What is deleted and what we must keep (FR-APP-004)" onPress={() => router.push('/delete')} last />
         </Panel>
       </Rise>

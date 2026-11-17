@@ -71,7 +71,7 @@ class NotFound(DomainError):
 class MfaRequired(DomainError):
     status = 401
     code = "mfa-required"
-    title = "Confirm with your authenticator code first"
+    title = "Confirm it is you first"
 
 
 class FeatureOff(DomainError):

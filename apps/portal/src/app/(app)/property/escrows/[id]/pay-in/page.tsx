@@ -1,7 +1,8 @@
 'use client';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Chip, CodeBoxes, Dialog, Field, Input, Money, ProblemBox, Select, Skeleton, When, useGet, useSession } from '@tenmina/web-ui';
+import { Button, Chip, Dialog, Field, Input, Money, ProblemBox, Select, Skeleton, When, useGet, useSession } from '@tenmina/web-ui';
+import { FactorField, useWebFactor } from '@/components/secondfactor';
 import { Ink, PageHead, RadioCard, useAction, words, type Any } from '@/components/kit';
 
 const ROUTE_LABEL: Record<string, string> = {
@@ -16,6 +17,7 @@ const CURRENCIES = ['GBP', 'USD', 'EUR', 'CAD'];
 export default function PayIn() {
   const { id } = useParams<{ id: string }>();
   const { me } = useSession();
+  const f = useWebFactor();
   const router = useRouter();
   const e = useGet<Any>(`/v1/escrows/${id}`);
   const guides = useGet<Any[]>(e.data ? '/v1/fx-guides' : null, { country: e.data?.country });
@@ -36,7 +38,6 @@ export default function PayIn() {
   const [choice, setChoice] = useState<string>('');
   const [compare, setCompare] = useState(false);
   const [quote, setQuote] = useState<Any>(null);
-  const [code, setCode] = useState('');
   const a = useAction();
   if (e.isLoading) return <Ink><Skeleton lines={6} /></Ink>;
   if (!e.data) return <Ink><ProblemBox error={e.error} /></Ink>;
@@ -49,12 +50,14 @@ export default function PayIn() {
   async function continueRoute() {
     if (!r) return;
     const q = await a.run('quote', () => a.post<Any>(`/v1/escrows/${id}/fx-quotes`, { purpose: 'deposit', route: r.route, amount: { amount, currency: cur }, provider_partner_id: r.provider_partner_id }));
-    if (q) { setQuote(q); setCode(''); }
+    if (q) { setQuote(q); f.reset(); }
   }
   async function accept() {
     await a.run('accept', async () => {
-      if (foreign && conv !== esc.conversion_choice && esc.kind !== 'held_funds') await a.post(`/v1/escrows/${id}/conversion-choice`, { conversion_choice: conv, code }, 'PUT');
-      return a.post(`/v1/fx-quotes/${quote.id}/accept`, { shown_sha256: quote.shown_sha256, code });
+      // One fresh step-up (a code by SMS or the authenticator, FR-ACC-015) covers both calls.
+      await f.stepUp();
+      if (foreign && conv !== esc.conversion_choice && esc.kind !== 'held_funds') await a.post(`/v1/escrows/${id}/conversion-choice`, { conversion_choice: conv }, 'PUT');
+      return a.post(`/v1/fx-quotes/${quote.id}/accept`, { shown_sha256: quote.shown_sha256 });
     }, undefined, () => router.push(`/property/escrows/${id}/bank-details?quote=${quote.id}`));
   }
   return (
@@ -107,9 +110,10 @@ export default function PayIn() {
           <div className="stack">
             <p style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{quote.shown_text}</p>
             <div className="mono muted" style={{ fontSize: 13 }}>Good until <When value={quote.expires_at} withTime /></div>
-            {me?.mfa_enabled ? <><p className="muted" style={{ margin: 0 }}>Enter the code from your authenticator app to record this quote.</p><CodeBoxes value={code} onChange={setCode} autoFocus /></> : <p>Set up your authenticator app in Account first.</p>}
+            <p className="muted" style={{ margin: 0 }}>Confirm it is you to record this quote.</p>
+            <FactorField f={f} autoFocus />
             <ProblemBox error={a.error} />
-            <Button variant="action" block disabled={code.length !== 6} busy={a.busy === 'accept'} onClick={accept}>Accept and see the bank details</Button>
+            <Button variant="action" block disabled={!f.ready} busy={a.busy === 'accept'} onClick={accept}>Accept and see the bank details</Button>
           </div>
         ) : null}
       </Dialog>

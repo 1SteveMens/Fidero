@@ -128,7 +128,8 @@ function cancelled(error: string): boolean {
 
 /**
  * Turn on Face ID or fingerprint for approvals on this phone (FR-ACC-014).
- * Without `code` it relies on the code entered at sign-in, if that was in the
+ * Without `code` it relies on the code entered at sign-in (the authenticator's
+ * or, for a client without one, the SMS code; FR-ACC-015), if that was in the
  * last 5 minutes; the API answers `needsCode` otherwise.
  */
 export async function enrolApprovalKey(api: MobileApi, personId: string, label: BiometricLabel, code?: string): Promise<EnrolResult> {
@@ -163,7 +164,8 @@ export async function enrolApprovalKey(api: MobileApi, personId: string, label: 
     } catch (e) {
       await SecureStore.deleteItemAsync(secretName(personId)).catch(() => undefined);
       const problem = toProblem(e);
-      return { ok: false, needsCode: problem.code === 'mfa-required' || problem.code === 'mfa-invalid', problem: problem.code === 'mfa-required' ? undefined : problem };
+      const codeProblem = ['mfa-required', 'mfa-invalid', 'mfa-code-expired', 'mfa-code-used-up'].includes(problem.code);
+      return { ok: false, needsCode: codeProblem, problem: problem.code === 'mfa-required' ? undefined : problem };
     }
     await secureSet(metaName(personId), JSON.stringify({ keyId, gate, deviceName: name } satisfies Stored));
     await markBiometricOffered(personId, 'on');

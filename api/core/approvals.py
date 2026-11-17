@@ -57,7 +57,8 @@ def decide(req: ApprovalRequest, approver, *, decision="approve", mfa_at=None, s
 
     `allowed(approver) -> bool` lets the owning module apply extra checks
     (release rights, payment rights, assigned reviewer). `mfa_method` is how
-    the approver stepped up ("totp" or "device_biometric", FR-ACC-014); by
+    the approver stepped up ("totp", "device_biometric" or, for clients only,
+    "sms_code"; FR-ACC-014, FR-ACC-015); by
     default it is read from `mfa_at` as `core.views.require_mfa` returns it.
     """
     from . import mfa as mfa_kernel
@@ -83,6 +84,9 @@ def decide(req: ApprovalRequest, approver, *, decision="approve", mfa_at=None, s
         method = mfa_method or mfa_kernel.method_of(mfa_at)
         if method not in mfa_kernel.METHODS:
             raise ValueError(f"Unknown MFA method '{method}'.")
+        if method == mfa_kernel.SMS_CODE and approver.has_tenmina_role(*mfa_kernel.NO_SMS_ROLES):
+            # Decision of 17 November 2026: staff and rights holders never approve with an SMS code.
+            raise MfaRequired("Tenmina staff approve with the authenticator app, not a code by text message.")
         Approval.objects.create(request=req, slot=slot or f"approver_{n + 1}", approver=approver,
                                 decision=decision, mfa_at=mfa_kernel.plain(mfa_at), mfa_method=method, note=note)
         record(actor=approver, action=f"approval.{decision}", entity="approval_request", entity_id=req.pk,

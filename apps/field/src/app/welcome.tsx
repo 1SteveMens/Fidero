@@ -37,7 +37,15 @@ export default function Welcome() {
                 <T v="body" muted>Your jobs, checklists and evidence in one place. Photos are taken in this app only, and sealed when they are taken.</T>
               </Rise>
               <Rise delay={240}>
-                <SignInForm onSignedIn={() => void registerDevice()} />
+                <SignInForm
+                  onSignedIn={() => void registerDevice()}
+                  footer={
+                    <>
+                      <Button title="Forgot your password?" variant="quiet" onPress={() => router.push('/forgot-password')} />
+                      <Button title="Get help" variant="quiet" icon="help-circle-outline" onPress={() => router.push('/help')} />
+                    </>
+                  }
+                />
               </Rise>
             </>
           ) : (

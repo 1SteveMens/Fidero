@@ -921,20 +921,11 @@ def set_route(inv: Invoice, by, route, reason="") -> Invoice:
 
 
 def _client_signed(client, mfa_at, code):
-    from django.conf import settings
+    """FR-ACC-003, FR-ACC-014, FR-ACC-015: the authenticator code, or a fresh
+    step-up (authenticator, Face ID or fingerprint, or an SMS code)."""
+    from accounts.services import client_signed
 
-    from accounts.services import mfa_verify
-
-    if code:
-        if not mfa_verify(client, code):
-            raise MfaRequired("The code is not right. Try again.")
-        return "totp_code"
-    if mfa_at is None or timezone.now() - mfa_at > settings.TENMINA["MFA_FRESHNESS"]:
-        raise MfaRequired()
-    from core.mfa import DEVICE_BIOMETRIC, method_of
-
-    # FR-ACC-014: a step-up signed by the approval key on the client's phone.
-    return "device_biometric" if method_of(mfa_at) == DEVICE_BIOMETRIC else "mfa_step_up"
+    return client_signed(client, mfa_at, code)
 
 
 def held_funds_figures(client, country, currency) -> dict | None:
@@ -1095,7 +1086,7 @@ def client_approve(inv: Invoice, client, *, mfa_at=None, code=None, confirm_amou
         out["next"] = (f"Pay {inv.institution.legal_name} from your own bank using these details, then tell us. "
                        "The institution confirms it received the money and we send you the receipt.")
         return out
-    stepped_up = method in ("mfa_step_up", "device_biometric")
+    stepped_up = method in ("mfa_step_up", "device_biometric", "sms_code")
     return _held_funds_after_approval(inv, client, mfa_at=mfa_at if stepped_up else None,
                                       code=code if method == "totp_code" else None, out=out)
 

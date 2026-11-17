@@ -61,6 +61,10 @@ class Person(AbstractBaseUser, PermissionsMixin, BaseModel):
     locked_until = models.DateTimeField(null=True, blank=True)
     email_verified_at = models.DateTimeField(null=True, blank=True)
     phone_verified_at = models.DateTimeField(null=True, blank=True)
+    # When the confirmed mobile number last changed: SMS approvals pause for 72 hours after it.
+    phone_changed_at = models.DateTimeField(null=True, blank=True)
+    # When the mobile network last reported a SIM swap for the number (FR-ACC-015).
+    sim_swapped_at = models.DateTimeField(null=True, blank=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
     status = models.TextField(default="active", choices=[(s, s) for s in STATUSES])
     id_check_status = models.TextField(default="none", choices=[(s, s) for s in ID_CHECK])  # FR-ACC-004
@@ -194,7 +198,7 @@ class ApiToken(BaseModel):
     expires_at = models.DateTimeField()
     revoked_at = models.DateTimeField(null=True, blank=True)
     mfa_at = models.DateTimeField(null=True, blank=True)
-    mfa_method = models.TextField(blank=True, default="")  # totp | device_biometric (FR-ACC-014)
+    mfa_method = models.TextField(blank=True, default="")  # totp | device_biometric | sms_code (FR-ACC-003, 014)
     app = models.TextField(blank=True, default="")  # e.g. field/ios/1.4.0
     device_id = models.TextField(blank=True, default="")
 
@@ -252,10 +256,13 @@ class MfaChallenge(BaseModel):
 
 
 class OneTimeCode(BaseModel):
-    """Six-digit codes, 10-minute life, 5 tries (10.3, assumptions)."""
+    """Six-digit codes, 10-minute life, 5 tries (10.3, assumptions). Only a
+    hash is kept. SMS second-factor codes (`mfa_login`, `mfa_step_up`) and the
+    code that confirms a new number (`phone_change`) live 5 minutes
+    (FR-ACC-015)."""
 
     CHANNELS = ["email", "phone"]
-    PURPOSES = ["signup", "login", "password_reset"]
+    PURPOSES = ["signup", "login", "password_reset", "mfa_login", "mfa_step_up", "phone_change"]
     person = models.ForeignKey(Person, on_delete=models.PROTECT, related_name="one_time_codes")
     channel = models.TextField(choices=[(c, c) for c in CHANNELS])
     purpose = models.TextField(choices=[(p, p) for p in PURPOSES])

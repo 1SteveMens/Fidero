@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from countries.models import Country
@@ -25,6 +26,12 @@ CountryCode = lambda **kw: serializers.SlugRelatedField(slug_field="code", query
 EvidenceRef = lambda **kw: serializers.PrimaryKeyRelatedField(queryset=Evidence.objects.all(), **kw)  # noqa: E731
 
 
+class SmsPauseSerializer(serializers.Serializer):
+    reason = serializers.ChoiceField(choices=["phone_changed", "sim_swap"])
+    until = serializers.DateTimeField()
+    detail = serializers.CharField()
+
+
 class PersonSerializer(serializers.ModelSerializer):
     roles = serializers.SerializerMethodField()
     home_country = serializers.SlugRelatedField(slug_field="code", read_only=True)
@@ -32,13 +39,41 @@ class PersonSerializer(serializers.ModelSerializer):
     phone_verified = serializers.SerializerMethodField()
     privacy_notice_pending = serializers.SerializerMethodField()
     channels_off = serializers.ListField(child=serializers.ChoiceField(choices=Person.CHANNELS), required=False)
+    second_factor = serializers.SerializerMethodField(
+        help_text="FR-ACC-003, FR-ACC-015: how this person signs in and approves on the web: the authenticator "
+                  "app, a code by SMS (clients only), or none yet.")
+    phone_masked = serializers.SerializerMethodField(help_text="The mobile number as screens show it, e.g. "
+                                                               "+44 •••• 123.")
+    sms_pause = serializers.SerializerMethodField(
+        help_text="FR-ACC-015: when SMS approvals are paused (72 hours after a number change or a reported SIM "
+                  "swap), why and until when. Null when not paused.")
 
     class Meta:
         model = Person
         fields = ["id", "email", "phone", "full_name", "preferred_language", "residence_country", "home_country",
-                  "mfa_enabled", "roles", "status", "id_check_status", "email_verified", "phone_verified",
-                  "preferred_channel", "channels_off", "privacy_notice_pending", "created_at"]
+                  "mfa_enabled", "second_factor", "phone_masked", "sms_pause", "roles", "status",
+                  "id_check_status", "email_verified", "phone_verified", "preferred_channel", "channels_off",
+                  "privacy_notice_pending", "created_at"]
         read_only_fields = ["id", "email", "mfa_enabled", "roles", "status", "id_check_status", "created_at"]
+
+    def get_second_factor(self, obj) -> str:
+        from .services import second_factor
+
+        return second_factor(obj)
+
+    def get_phone_masked(self, obj) -> str:
+        from .services import mask_phone
+
+        return mask_phone(obj.phone) if obj.phone else ""
+
+    @extend_schema_field(SmsPauseSerializer(allow_null=True))
+    def get_sms_pause(self, obj):
+        from .services import sms_allowed, sms_pause
+
+        if not obj.phone or not sms_allowed(obj):
+            return None
+        p = sms_pause(obj)
+        return {"reason": p["reason"], "until": p["until"], "detail": p["detail"]} if p else None
 
     def get_roles(self, obj) -> list[str]:
         return sorted(obj.roles())
@@ -119,7 +154,9 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField(required=False, write_only=True)
     otp = serializers.CharField(required=False, help_text="One-time code instead of a password")
     channel = serializers.ChoiceField(choices=["email", "phone"], required=False)
-    code = serializers.CharField(required=False, help_text="Authenticator code when MFA is on")
+    code = serializers.CharField(required=False, help_text="The second factor: the authenticator code, or the "
+                                                            "code sent by SMS when the answer was mfa-required "
+                                                            "with method sms (FR-ACC-015)")
 
     def validate(self, attrs):
         attrs["identifier"] = attrs.get("identifier") or attrs.get("email") or ""
@@ -150,7 +187,10 @@ class PasswordResetSerializer(serializers.Serializer):
 class PasswordResetConfirmSerializer(serializers.Serializer):
     identifier = serializers.CharField()
     channel = serializers.ChoiceField(choices=["email", "phone"], required=False)
-    code = serializers.CharField()
+    code = serializers.CharField(help_text="The code from the email (or the phone)")
+    sms_code = serializers.CharField(required=False, allow_blank=True, default="",
+                                     help_text="FR-ACC-015: for a client whose second factor is SMS, the code "
+                                               "texted to the phone as well")
     new_password = serializers.CharField(min_length=10, write_only=True)
 
 
@@ -164,9 +204,12 @@ class CodeSerializer(serializers.Serializer):
 
 
 class StepUpSerializer(StrictMixin, serializers.Serializer):
-    """A fresh MFA step-up: the authenticator `code`, or a signature from this
-    phone's approval key over a challenge (FR-ACC-014)."""
+    """A fresh MFA step-up: the authenticator `code`; an SMS `code` with
+    `method` "sms" (clients only, FR-ACC-015); or a signature from this
+    phone's approval key over a challenge (FR-ACC-014). Without `method`, a
+    code is the authenticator's when the person has one, else an SMS code."""
 
+    method = serializers.ChoiceField(choices=["totp", "sms"], required=False, allow_blank=True, default="")
     code = serializers.CharField(required=False, allow_blank=True, default="")
     key_id = serializers.UUIDField(required=False, allow_null=True, default=None)
     challenge = serializers.CharField(required=False, allow_blank=True, default="")
@@ -187,7 +230,8 @@ class ApprovalKeyEnrolSerializer(StrictMixin, serializers.Serializer):
     device_name = serializers.CharField(max_length=80)
     platform = serializers.ChoiceField(choices=["ios", "android"])
     code = serializers.CharField(required=False, allow_blank=True, default="",
-                                 help_text="The authenticator code. Without it, a code step-up in the last 5 "
+                                 help_text="The authenticator code, or for a client without one the code sent "
+                                           "by POST /v1/auth/mfa/sms. Without it, a code step-up in the last 5 "
                                            "minutes is needed.")
 
 
@@ -207,7 +251,18 @@ class MfaSetupResultSerializer(serializers.Serializer):
 class MfaStepUpResultSerializer(serializers.Serializer):
     mfa_at = serializers.DateTimeField()
     valid_for_seconds = serializers.IntegerField()
-    mfa_method = serializers.ChoiceField(choices=["totp", "device_biometric"])
+    mfa_method = serializers.ChoiceField(choices=["totp", "device_biometric", "sms_code"])
+
+
+class SmsCodeSentSerializer(serializers.Serializer):
+    sent_to = serializers.CharField(help_text="The number the code went to, masked: +44 •••• 123")
+    expires_in = serializers.IntegerField(help_text="Seconds the code works for")
+    detail = serializers.CharField()
+
+
+class PhoneChangeSerializer(StrictMixin, serializers.Serializer):
+    phone = serializers.CharField(help_text="The new mobile number with its country code")
+    password = serializers.CharField(write_only=True)
 
 
 class CsrfSerializer(serializers.Serializer):
