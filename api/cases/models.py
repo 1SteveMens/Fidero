@@ -115,6 +115,11 @@ class Task(CountryScopedModel):
                                      related_name="+")
     note = models.TextField(blank=True, default="")
     overdue_alerted_at = models.DateTimeField(null=True, blank=True)
+    # "Chase the owner" (W-13): at most once a day per task; every chase is also in the audit log
+    last_chased_at = models.DateTimeField(null=True, blank=True)
+    last_chased_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT,
+                                       related_name="+")
+    chase_count = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
         db_table = "case_task"

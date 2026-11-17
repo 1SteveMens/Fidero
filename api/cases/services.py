@@ -624,6 +624,51 @@ def change_due(task: Task, actor, due_at, reason: str) -> Task:
     return task
 
 
+CHASE_INTERVAL = timedelta(days=1)  # at most one chase a day per task (assumption)
+
+
+@transaction.atomic
+def chase_task(task: Task, actor, *, note: str = "") -> Task:
+    """Chase the owner of a late task: case staff send the assignee (and the second person on a site visit) a
+    reminder. Recorded on the task and in the audit log; at most once a day per task."""
+    flags.read_only_guard()
+    _require_staff(actor, task.case, msg="Only a case manager or reviewer chases a task.")
+    task = Task.objects.select_for_update(of=("self",)).select_related("case", "assignee", "second_assignee") \
+        .get(pk=task.pk)
+    now = _now()
+    if task.status not in ("open", "in_progress"):
+        raise StateConflict("This task is finished.")
+    if task.assignee_id is None:
+        raise Invalid("Nobody is assigned to this task yet. Assign someone first.", code="task-unassigned")
+    if task.due_at >= now:
+        raise StateConflict(f"This task is not late. It is due on {task.due_at:%d %B %Y}.", code="task-not-late")
+    if task.last_chased_at and now - task.last_chased_at < CHASE_INTERVAL:
+        nxt = task.last_chased_at + CHASE_INTERVAL
+        raise DomainError(f"This task was chased on {timezone.localtime(task.last_chased_at):%d %B %Y at %H:%M}. "
+                          "You can chase it again after a day.", code="chased-recently", status=429,
+                          title="Already chased today", extra={"next_chase_at": nxt.isoformat()})
+    note = (note or "").strip()[:500]
+    task.last_chased_at, task.last_chased_by, task.chase_count = now, actor, task.chase_count + 1
+    task.save(update_fields=["last_chased_at", "last_chased_by", "chase_count"])
+    people = [p for p in (task.assignee, task.second_assignee) if p is not None]
+    record(actor=actor, action="task.chased", entity="task", entity_id=task.pk, country=task.case.country,
+           data={"case_id": str(task.case_id), "step_key": task.step_key, "due_at": task.due_at,
+                 "chase_count": task.chase_count, "to": [str(p.pk) for p in people], "note": note})
+    days = max(1, (now - task.due_at).days)
+    body = (f"The task '{task.title}' on case {task.case.reference} was due on {task.due_at:%d %B %Y}, "
+            f"{days} day{'s' if days != 1 else ''} ago. Please finish it, or tell the case manager what is holding "
+            "it up." + (f" Note from {actor.full_name}: {note}" if note else ""))
+    for p in people:
+        _notify(p, "task_chased", subject=f"Late: {task.title}", obj=task, link=f"/tasks/{task.pk}",
+                channels="preferred", category="task", body=body,
+                context={"task_title": task.title, "case_ref": task.case.reference,
+                         "due_date": f"{task.due_at:%d %B %Y}"})
+    publish("task.chased", task.pk, {"task_id": task.pk, "case_id": task.case_id, "step_key": task.step_key,
+                                     "assignee_id": task.assignee_id, "chase_count": task.chase_count,
+                                     "chased_by": actor.pk, "country": task.case.country.code, "notified": True})
+    return task
+
+
 def can_work_on(user, task) -> bool:
     return bool(user and user.is_authenticated and (
         user.pk in (task.assignee_id, task.second_assignee_id) or is_case_staff(user, task.case)))

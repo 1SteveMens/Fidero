@@ -308,6 +308,18 @@ class TaskViewSet(ETagMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, v
         task.refresh_from_db()
         return Response(S.TaskSerializer(task).data)
 
+    @extend_schema(request=S.ChaseInput, responses=S.TaskSerializer)
+    @action(detail=True, methods=["post"])
+    @idempotent
+    def chase(self, request, pk=None):
+        """Chase the owner of a late task (case staff): the assignee gets a reminder; at most once a day per
+        task (429 chased-recently). Recorded on the task and in the audit log."""
+        task = self.get_object()
+        s = S.ChaseInput(data=request.data)
+        s.is_valid(raise_exception=True)
+        task = services.chase_task(task, request.user, note=s.validated_data.get("note", ""))
+        return Response(S.TaskSerializer(task).data)
+
     @extend_schema(request=None, responses=S.TaskSerializer)
     @action(detail=True, methods=["post"])
     def start(self, request, pk=None):

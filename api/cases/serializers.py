@@ -34,7 +34,7 @@ class TaskSerializer(serializers.ModelSerializer):
         fields = ["id", "case", "case_reference", "step_key", "title", "position", "owner_role", "assignee",
                   "second_assignee", "assigned_at", "due_at", "due_change_reason", "required_evidence", "depends_on",
                   "waiting_for", "site_visit", "search_kind", "review_step", "status", "completed_at", "is_overdue",
-                  "missing_evidence", "notice", "row_version"]
+                  "missing_evidence", "notice", "last_chased_at", "chase_count", "row_version"]
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
     def get_waiting_for(self, obj):
@@ -196,6 +196,11 @@ class TaskCandidatesSerializer(serializers.Serializer):
 
 class CompleteInput(serializers.Serializer):
     note = serializers.CharField(required=False, allow_blank=True)
+
+
+class ChaseInput(serializers.Serializer):
+    note = serializers.CharField(required=False, allow_blank=True, max_length=500,
+                                 help_text="Optional words for the assignee, shown with the reminder.")
 
 
 class EvidenceInput(serializers.Serializer):
