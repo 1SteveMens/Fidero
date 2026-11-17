@@ -1,14 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Linking, View } from 'react-native';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { brand, space } from '@tenmina/tokens';
 import { Button, CodeField, Label, Panel, Screen, T, Tick } from '@tenmina/ui';
-import { ProblemBox, useAction, useSession } from '@tenmina/mobile';
+import { ProblemBox, localApprovalKey, useAction, useSession } from '@tenmina/mobile';
+import { EnrolBiometric } from '../../components/EnrolBiometric';
 
 /**
- * Authenticator app (FR-ACC-003). Every approval needs its 6-digit code, so a
- * client sets it up once: add the key to an authenticator app, then enter a code.
+ * Authenticator app (FR-ACC-003). Every approval needs a second factor, so a
+ * client sets it up once: add the key to an authenticator app, then enter a
+ * code. Then this phone can use Face ID or a fingerprint instead of typing the
+ * code at each approval (FR-ACC-014).
  */
 export default function Security() {
   const { me, reloadMe } = useSession();
@@ -16,6 +19,10 @@ export default function Security() {
   const [setup, setSetup] = useState<{ otpauth_uri: string; secret: string }>();
   const [code, setCode] = useState('');
   const [done, setDone] = useState(false);
+  const [biometricOn, setBiometricOn] = useState(false);
+  useEffect(() => {
+    if (me) void localApprovalKey(me.id).then((k) => setBiometricOn(!!k));
+  }, [me]);
 
   async function start() {
     const r = await act.run<{ otpauth_uri: string; secret: string }>('POST', '/v1/auth/mfa/setup');
@@ -36,7 +43,19 @@ export default function Security() {
           <Tick size={28} />
           <T v="headline" style={{ flex: 1 }}>Your authenticator is set up.</T>
         </Panel>
-        <T v="callout" muted>Each approval asks for its 6-digit code. If you lose the phone with the authenticator, contact Tenmina: we check who you are before resetting it.</T>
+        <T v="callout" muted>Each approval asks for its 6-digit code, or Face ID or a fingerprint on a phone where you turn it on. If you lose the phone with the authenticator, contact Tenmina: we check who you are before resetting it.</T>
+        <Panel>
+          <Label>Face ID or fingerprint for approvals</Label>
+          {biometricOn ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[3] }}>
+              <Tick size={24} />
+              <T v="callout" style={{ flex: 1 }}>On for this phone.</T>
+            </View>
+          ) : (
+            <EnrolBiometric onDone={() => setBiometricOn(true)} />
+          )}
+          <Button title="Phones that can approve" variant="dark" icon="phone-portrait-outline" onPress={() => router.push('/account/approval-keys')} />
+        </Panel>
       </Screen>
     );
   }
@@ -54,7 +73,7 @@ export default function Security() {
         )
       }
     >
-      <T v="callout" muted>Use an authenticator app such as Google Authenticator, Microsoft Authenticator or 1Password. Approving a payment always needs its code, even with Face ID.</T>
+      <T v="callout" muted>Use an authenticator app such as Google Authenticator, Microsoft Authenticator or 1Password. Approving a payment needs its code, or Face ID or a fingerprint once you turn that on for this phone.</T>
       {setup ? (
         <>
           <Panel>

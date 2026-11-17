@@ -8,7 +8,10 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.tenmina.client"
+      "bundleIdentifier": "com.tenmina.client",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Tenmina uses Face ID to approve payments on this phone, instead of typing the code from your authenticator app. Your face never leaves the phone."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -27,7 +30,19 @@
     },
     "plugins": [
       "expo-router",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Tenmina uses Face ID to approve payments on this phone, instead of typing the code from your authenticator app. Your face never leaves the phone."
+        }
+      ],
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": "Tenmina uses Face ID to approve payments on this phone, instead of typing the code from your authenticator app. Your face never leaves the phone."
+        }
+      ]
     ],
     "scheme": "tenmina",
     "experiments": {

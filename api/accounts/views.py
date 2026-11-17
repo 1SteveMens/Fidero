@@ -21,21 +21,22 @@ from core.views import ModelViewSet, require_mfa
 
 from . import home as home_registry
 from . import selectors, services
-from .models import (ApiToken, BankAccount, FamilyMember, IdentityCheck, Invitation, Membership, NationalIdCheck,
-                     Organisation, Person, ProfessionalLicence, RepresentativeGrant, RightsRequest, RoleGrant, Vetting)
+from .models import (ApiToken, ApprovalKey, BankAccount, FamilyMember, IdentityCheck, Invitation, Membership,
+                     NationalIdCheck, Organisation, Person, ProfessionalLicence, RepresentativeGrant, RightsRequest,
+                     RoleGrant, Vetting)
 from .serializers import (AcceptInvitationSerializer, AddMemberResultSerializer, AddMemberSerializer,
-                          AdminPersonSerializer, BankAccountSerializer, BankVerificationSerializer, CodeSerializer,
-                          CsrfSerializer, DecisionSerializer, DetailSerializer, FamilyMemberSerializer,
-                          GrantRoleSerializer, HomeSerializer, IdentityCheckSerializer, InvitationSerializer,
-                          LicenceSerializer, LoginSerializer, ManualCheckSerializer, MembershipSerializer,
+                          AdminPersonSerializer, ApprovalKeyEnrolSerializer, ApprovalKeySerializer,
+                          BankAccountSerializer, BankVerificationSerializer, CodeSerializer, CsrfSerializer,
+                          DecisionSerializer, DetailSerializer, FamilyMemberSerializer, GrantRoleSerializer,
+                          HomeSerializer, IdentityCheckSerializer, InvitationSerializer, LicenceSerializer,
+                          LoginSerializer, ManualCheckSerializer, MembershipSerializer, MfaChallengeResultSerializer,
                           MfaSetupResultSerializer, MfaStepUpResultSerializer, NationalIdCheckSerializer,
                           OrganisationSerializer, OtpSendSerializer, OtpVerifyResultSerializer, OtpVerifySerializer,
                           PasswordChangeSerializer, PasswordResetConfirmSerializer, PasswordResetSerializer,
                           PersonSerializer, ReasonSerializer, RefreshSerializer, RegisterSerializer,
-                          RepresentativeSerializer,
-                          RequestNationalIdCheckSerializer, RightsRequestSerializer, RoleGrantSerializer,
-                          SignupResultSerializer, SignupSerializer, StaffPortalResultSerializer,
-                          StartIdentityCheckSerializer, TokenPairSerializer, VettingSerializer)
+                          RepresentativeSerializer, RequestNationalIdCheckSerializer, RightsRequestSerializer,
+                          RoleGrantSerializer, SignupResultSerializer, SignupSerializer, StaffPortalResultSerializer,
+                          StartIdentityCheckSerializer, StepUpSerializer, TokenPairSerializer, VettingSerializer)
 
 T = settings.TENMINA
 NEUTRAL = {"detail": "If the details are right, we have sent a code."}
@@ -43,7 +44,7 @@ NEUTRAL = {"detail": "If the details are right, we have sent a code."}
 
 def _tokens(person, request, mfa_at=None):
     access, _ = ApiToken.issue(person, "access", T["ACCESS_TOKEN_TTL"], mfa_at=mfa_at,
-                               app=request.headers.get("Tenmina-App", ""))
+                               mfa_method="totp" if mfa_at else "", app=request.headers.get("Tenmina-App", ""))
     refresh, _ = ApiToken.issue(person, "refresh", T["REFRESH_TOKEN_TTL"], app=request.headers.get("Tenmina-App", ""))
     return {"access": access, "refresh": refresh, "expires_in": int(T["ACCESS_TOKEN_TTL"].total_seconds())}
 
@@ -156,6 +157,7 @@ def session_login(request):
     login(request, p, backend="django.contrib.auth.backends.ModelBackend")
     if at:
         request.session["mfa_at"] = at.isoformat()
+        request.session["mfa_method"] = "totp"
     return Response(PersonSerializer(p).data)
 
 
@@ -264,15 +266,74 @@ def mfa_confirm(request):
     return _stepped_up(request)
 
 
-@extend_schema(request=CodeSerializer, responses={200: MfaStepUpResultSerializer})
+@extend_schema(request=StepUpSerializer, responses={200: MfaStepUpResultSerializer})
 @api_view(["POST"])
 def mfa_step_up(request):
-    """Fresh MFA for an approval (6.3). Valid for 5 minutes."""
+    """Fresh MFA for an approval (6.3). Valid for 5 minutes. Either the
+    authenticator `code`, or (FR-ACC-014) `key_id`, `challenge` and
+    `signature` from the phone's approval key after Face ID or a fingerprint."""
     if not request.user.mfa_enabled:
         raise DomainError("Set up an authenticator app first.", code="mfa-not-set-up", status=409)
-    if not services.mfa_verify(request.user, request.data.get("code", "")):
+    d = _valid(StepUpSerializer, request)
+    if not d["code"] and (d["key_id"] or d["challenge"] or d["signature"]):
+        services.verify_approval_signature(request.user, key_id=d["key_id"], challenge=d["challenge"],
+                                           signature=d["signature"])
+        return _stepped_up(request, "device_biometric")
+    if not services.mfa_verify(request.user, d["code"]):
         raise Invalid("That code is not right.", code="mfa-invalid")
     return _stepped_up(request)
+
+
+# The challenge is spent and a refusal audited even when the step-up fails.
+mfa_step_up = transaction.non_atomic_requests(mfa_step_up)
+
+
+@extend_schema(request=None, responses={201: MfaChallengeResultSerializer})
+@api_view(["POST"])
+def mfa_challenge(request):
+    """FR-ACC-014: a one-time challenge for a step-up with this phone's
+    approval key. It expires in 2 minutes and works once."""
+    ch = services.issue_mfa_challenge(request.user)
+    return Response({"challenge": ch.challenge, "message": services.step_up_message(ch.challenge),
+                     "expires_at": ch.expires_at}, status=201)
+
+
+@extend_schema(request=ApprovalKeyEnrolSerializer, responses={201: ApprovalKeySerializer})
+@api_view(["POST"])
+def approval_key_enrol(request):
+    """FR-ACC-014: register this phone's approval key (Face ID or fingerprint
+    for approvals). Needs the authenticator code, in `code` or as a code
+    step-up in the last 5 minutes. Only the public key reaches Tenmina."""
+    from core.views import mfa_at
+
+    d = _valid(ApprovalKeyEnrolSerializer, request)
+    key = services.enrol_approval_key(request.user, public_key=d["public_key"], device_name=d["device_name"],
+                                      platform=d["platform"], code=d["code"] or None, mfa_at=mfa_at(request),
+                                      app=request.headers.get("Tenmina-App", ""))
+    return Response(ApprovalKeySerializer(key).data, status=201)
+
+
+class MyApprovalKeyViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,
+                           viewsets.GenericViewSet):
+    """FR-ACC-014: the phones set up for Face ID or fingerprint approvals.
+    DELETE revokes the key (it is kept, marked revoked, for the audit)."""
+
+    serializer_class = ApprovalKeySerializer
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return ApprovalKey.objects.none()
+        qs = ApprovalKey.objects.filter(person=self.request.user).order_by("-created_at")
+        if self.action == "list" and self.request.query_params.get("status"):
+            qs = qs.filter(status=self.request.query_params["status"])
+        return qs
+
+    @extend_schema(parameters=[OpenApiParameter("status", str, enum=["active", "revoked"], required=False)])
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    def perform_destroy(self, instance):
+        services.revoke_approval_key(instance, self.request.user, reason="revoked_by_person")
 
 
 @extend_schema(request=CodeSerializer, responses={204: None})
@@ -286,15 +347,16 @@ def mfa_disable(request):
     return Response(status=204)
 
 
-def _stepped_up(request):
+def _stepped_up(request, method="totp"):
     now = timezone.now()
     if isinstance(request.auth, ApiToken):
-        request.auth.mfa_at = now
-        request.auth.save(update_fields=["mfa_at"])
+        request.auth.mfa_at, request.auth.mfa_method = now, method
+        request.auth.save(update_fields=["mfa_at", "mfa_method"])
     else:
         request.session["mfa_at"] = now.isoformat()
-    return Response({"mfa_at": now.isoformat(), "valid_for_seconds": int(T["MFA_FRESHNESS"].total_seconds())},
-                    status=status.HTTP_200_OK)
+        request.session["mfa_method"] = method
+    return Response({"mfa_at": now.isoformat(), "valid_for_seconds": int(T["MFA_FRESHNESS"].total_seconds()),
+                     "mfa_method": method}, status=status.HTTP_200_OK)
 
 
 @extend_schema(methods=["GET"], responses=PersonSerializer)

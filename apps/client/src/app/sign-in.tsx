@@ -3,11 +3,12 @@ import { router } from 'expo-router';
 import { Button, Screen, T } from '@tenmina/ui';
 import { SignInForm, pushChoice, portalUrl } from '@tenmina/mobile';
 
-/** Sign in (SCR-PTL-03): email or phone and password, then the authenticator code when MFA is on. */
+/** Sign in (SCR-PTL-03): email or phone and password, then the authenticator code when MFA is on. Then, once, Face ID for approvals. */
 export default function SignIn() {
   async function next() {
-    // SCR-APP-01 is offered once after the first sign-in on this phone.
-    router.replace((await pushChoice()) === null ? '/turn-on-notifications' : '/');
+    // Face ID for approvals (FR-ACC-014), then SCR-APP-01: each offered once on this phone.
+    const after = (await pushChoice()) === null ? '/turn-on-notifications' : '/';
+    router.replace({ pathname: '/face-id', params: { next: after } });
   }
   return (
     <Screen ground="ink" back title="Sign in">

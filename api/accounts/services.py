@@ -17,9 +17,9 @@ from core.errors import DomainError, Forbidden, Invalid, NotFound, PayeeNotVerif
 from core.events import publish
 from core.permissions import ALL_ROLES, STAFF_ROLES, has_role
 
-from .models import (RIGHTS_ROLES, ApiToken, BankAccount, FamilyMember, IdentityCheck, Invitation, Membership,
-                     NationalIdCheck, OneTimeCode, Organisation, Person, ProfessionalLicence, RepresentativeGrant,
-                     RightsRequest, RoleGrant, Vetting)
+from .models import (RIGHTS_ROLES, ApiToken, ApprovalKey, BankAccount, FamilyMember, IdentityCheck, Invitation,
+                     Membership, MfaChallenge, NationalIdCheck, OneTimeCode, Organisation, Person,
+                     ProfessionalLicence, RepresentativeGrant, RightsRequest, RoleGrant, Vetting)
 from .normalise import bidx, code_hash, normalise_name, normalise_phone
 
 MAX_FAILED = 5                      # FR-ACC-009
@@ -241,6 +241,7 @@ def _count_failure(p):
         fields.append("locked_until")
         record(actor=p, action="account.locked", entity="person", entity_id=p.pk)
         publish("account.locked", p.pk, {"person_id": p.pk, "until": p.locked_until})
+        revoke_approval_keys(p, reason="account_locked")
         _notify(p, "account_locked", subject="Your Tenmina account is locked for 15 minutes",
                 body="Someone entered the wrong password 5 times. Your account is locked for 15 minutes. "
                      "If this was not you, reset your password.", channels=("in_app", "email"), obj=p)
@@ -316,6 +317,7 @@ def confirm_password_reset(identifier, code, new_password, channel=None) -> Pers
         p.locked_until = None
         p.save(update_fields=["password", "failed_logins", "locked_until"])
         revoke_tokens(p)
+        revoke_approval_keys(p, reason="password_reset")
         record(actor=p, action="person.password_reset", entity="person", entity_id=p.pk)
         _notify(p, "password_changed", subject="Your Tenmina password was changed",
                 body="Your password was changed. If this was not you, contact Tenmina at once.",
@@ -376,6 +378,208 @@ def disable_mfa(person, by):
     person.mfa_secret = ""
     person.save(update_fields=["mfa_enabled", "mfa_secret"])
     record(actor=by, action="mfa.disabled", entity="person", entity_id=person.pk)
+    revoke_approval_keys(person, by=by, reason="mfa_disabled")
+
+
+# ---------------------------------------------------------------- approval keys (FR-ACC-014, ADR-13)
+#
+# Face ID or a fingerprint for approvals in the two phone apps. The phone
+# keeps an Ed25519 private key that it can read only after the biometric; the
+# server keeps the public key. A signature over a one-time challenge from the
+# server is a fresh MFA step-up bound to this person and this phone, recorded
+# as "device_biometric". Enrolling a key needs the authenticator code once.
+
+CHALLENGE_TTL = timedelta(minutes=2)    # FR-ACC-014
+MAX_APPROVAL_KEYS = 5                   # active phones per person, assumption [TO VERIFY]
+STEP_UP_PREFIX = "tenmina-step-up:v1:"  # what the phone signs, before the challenge
+
+
+def step_up_message(challenge: str) -> str:
+    """The exact text the phone signs (UTF-8): a fixed prefix, then the challenge."""
+    return STEP_UP_PREFIX + challenge
+
+
+def _b64any(text: str) -> bytes:
+    import base64
+
+    text = (text or "").strip()
+    pad = "=" * (-len(text) % 4)
+    if "-" in text or "_" in text:
+        return base64.urlsafe_b64decode(text + pad)
+    return base64.b64decode(text + pad, validate=True)
+
+
+def parse_approval_public_key(text: str):
+    """An Ed25519 public key as 32 raw bytes (base64 or base64url), DER
+    SubjectPublicKeyInfo (base64) or PEM. Returns (key, spki_b64, sha256 hex of the SPKI)."""
+    import base64
+    import binascii
+    import hashlib
+
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric import ed25519
+
+    bad = Invalid("The phone sent a key Tenmina cannot use. Update the app and try again.",
+                  code="approval-key-invalid")
+    text = (text or "").strip()
+    try:
+        if text.startswith("-----BEGIN"):
+            key = serialization.load_pem_public_key(text.encode())
+        else:
+            raw = _b64any(text)
+            key = (ed25519.Ed25519PublicKey.from_public_bytes(raw) if len(raw) == 32
+                   else serialization.load_der_public_key(raw))
+    except (ValueError, TypeError, binascii.Error) as exc:
+        raise bad from exc
+    if not isinstance(key, ed25519.Ed25519PublicKey):
+        raise bad
+    der = key.public_bytes(serialization.Encoding.DER, serialization.PublicFormat.SubjectPublicKeyInfo)
+    return key, base64.b64encode(der).decode(), hashlib.sha256(der).hexdigest()
+
+
+def _fresh_code_step_up(mfa_at) -> bool:
+    from django.conf import settings
+
+    from core.mfa import TOTP, method_of
+
+    return (mfa_at is not None and method_of(mfa_at) == TOTP
+            and _now() - mfa_at <= settings.TENMINA["MFA_FRESHNESS"])
+
+
+@transaction.atomic
+def enrol_approval_key(person, *, public_key, device_name, platform, code=None, mfa_at=None,
+                       app="") -> ApprovalKey:
+    """FR-ACC-014: register this phone's approval key. Needs the authenticator
+    code now (`code`) or a step-up with the code in the last 5 minutes, so a
+    stolen password alone never enrols a key, nor does another approval key."""
+    from core.errors import MfaRequired
+
+    if not person.mfa_enabled:
+        raise DomainError("Set up an authenticator app first.", code="mfa-not-set-up", status=409)
+    if code:
+        if not mfa_verify(person, code):
+            raise Invalid("That code is not right.", code="mfa-invalid")
+    elif not _fresh_code_step_up(mfa_at):
+        raise MfaRequired("Enter the code from your authenticator app to turn on Face ID or fingerprint "
+                          "for approvals.")
+    if platform not in ApprovalKey.PLATFORMS:
+        raise Invalid("Face ID and fingerprint approvals work only in the iPhone and Android apps.",
+                      code="approval-key-platform")
+    device_name = (device_name or "").strip()[:80]
+    if not device_name:
+        raise Invalid("Name this phone.", code="approval-key-invalid")
+    _, spki, key_hash = parse_approval_public_key(public_key)
+    if ApprovalKey.objects.filter(key_sha256=key_hash).exists():
+        raise DomainError("This key is already registered. Make a new one on the phone.",
+                          code="approval-key-exists", status=409)
+    if ApprovalKey.objects.filter(person=person, status="active").count() >= MAX_APPROVAL_KEYS:
+        raise DomainError(f"You have {MAX_APPROVAL_KEYS} phones set up for approvals. Remove one in Account "
+                          "first.", code="approval-key-limit", status=409)
+    key = ApprovalKey.objects.create(person=person, public_key=spki, key_alg="EdDSA", key_sha256=key_hash,
+                                     device_name=device_name, platform=platform, app=(app or "")[:64])
+    record(actor=person, action="approval_key.enrolled", entity="approval_key", entity_id=key.pk,
+           data={"device_name": device_name, "platform": platform, "key_sha256": key_hash,
+                 "with": "code" if code else "step_up"})
+    publish("approval_key.enrolled", key.pk, {"person_id": person.pk, "key_id": key.pk})
+    _notify(person, "approval_key_enrolled", subject="Face ID or fingerprint approvals turned on",
+            body=f"Approvals with Face ID or fingerprint were turned on for {device_name}. If this was not you, "
+                 "remove the phone in Account and contact Tenmina at once.",
+            channels=("in_app", "email"), obj=key, category="safety")
+    return key
+
+
+@transaction.atomic
+def revoke_approval_key(key: ApprovalKey, by, reason="revoked_by_person", *, check_owner=True) -> ApprovalKey:
+    """The person removes one of their phones. Internal revocations (reset,
+    lock, suspension, closure) pass check_owner=False."""
+    if check_owner and (by is None or by.pk != key.person_id):
+        raise NotFound()
+    key = ApprovalKey.objects.select_for_update().get(pk=key.pk)
+    if key.status == "revoked":
+        return key
+    key.status, key.revoked_at, key.revoked_by, key.revoke_reason = "revoked", _now(), by, reason
+    key.save(update_fields=["status", "revoked_at", "revoked_by", "revoke_reason"])
+    record(actor=by or key.person, action="approval_key.revoked", entity="approval_key", entity_id=key.pk,
+           data={"device_name": key.device_name, "reason": reason})
+    publish("approval_key.revoked", key.pk, {"person_id": key.person_id, "key_id": key.pk, "reason": reason})
+    return key
+
+
+def revoke_approval_keys(person, by=None, reason="") -> int:
+    """Every active approval key of the person: on a password reset, an account
+    lock, a suspension or MFA switched off (FR-ACC-014)."""
+    n = 0
+    for key in ApprovalKey.objects.filter(person=person, status="active"):
+        revoke_approval_key(key, by, reason=reason, check_owner=False)
+        n += 1
+    return n
+
+
+def issue_mfa_challenge(person) -> MfaChallenge:
+    """FR-ACC-014: a random challenge for one approval-key step-up, 2 minutes, single use."""
+    if not person.mfa_enabled:
+        raise DomainError("Set up an authenticator app first.", code="mfa-not-set-up", status=409)
+    return MfaChallenge.objects.create(person=person, challenge=secrets.token_urlsafe(32),
+                                       expires_at=_now() + CHALLENGE_TTL)
+
+
+def _consume_challenge(person, challenge) -> bool:
+    """Mark the challenge used whatever happens next, so it never works twice.
+    Committed on its own when called outside the request transaction."""
+    with transaction.atomic():
+        ch = MfaChallenge.objects.select_for_update().filter(person=person, challenge=str(challenge or "")).first()
+        if ch is None or ch.used_at is not None:
+            return False
+        ch.used_at = _now()
+        ch.save(update_fields=["used_at"])
+        return ch.expires_at > ch.used_at
+
+
+def _step_up_refused(person, code, detail, key_id=None):
+    record(actor=person, action="mfa.step_up_refused", entity="person", entity_id=person.pk,
+           data={"method": "device_biometric", "code": code, "key_id": str(key_id or "")})
+    return Invalid(detail, code=code)
+
+
+def verify_approval_signature(person, *, key_id, challenge, signature) -> ApprovalKey:
+    """FR-ACC-014: check a step-up signed on the phone. Refuses a wrong
+    signature, a used or expired challenge, a revoked key and another person's
+    key. Call outside the request transaction: the challenge is spent and the
+    refusal audited even when the step-up fails."""
+    import binascii
+    import uuid
+
+    from cryptography.exceptions import InvalidSignature
+
+    if not _consume_challenge(person, challenge):
+        raise _step_up_refused(person, "mfa-challenge-invalid",
+                               "That approval request has expired or was already used. Try again.", key_id)
+    try:
+        kid = uuid.UUID(str(key_id))
+    except (ValueError, TypeError):
+        kid = None
+    key = ApprovalKey.objects.filter(pk=kid, person=person).first() if kid else None
+    if key is None:
+        raise _step_up_refused(person, "approval-key-unknown",
+                               "This phone is not set up for Face ID or fingerprint approvals. Use the code from "
+                               "your authenticator app.", key_id)
+    if key.status != "active":
+        raise _step_up_refused(person, "approval-key-revoked",
+                               "Face ID or fingerprint approvals were turned off for this phone. Use the code from "
+                               "your authenticator app, then turn them on again in Account.", key_id)
+    pub, _, _ = parse_approval_public_key(key.public_key)
+    try:
+        pub.verify(_b64any(signature), step_up_message(str(challenge)).encode())
+    except (InvalidSignature, ValueError, TypeError, binascii.Error) as exc:
+        raise _step_up_refused(person, "mfa-signature-invalid",
+                               "The phone's signature did not check out. Use the code from your authenticator "
+                               "app.", key_id) from exc
+    with transaction.atomic():
+        key.last_used_at = _now()
+        key.save(update_fields=["last_used_at"])
+        record(actor=person, action="mfa.stepped_up", entity="approval_key", entity_id=key.pk,
+               data={"method": "device_biometric", "device_name": key.device_name})
+    return key
 
 
 # ---------------------------------------------------------------- profile
@@ -1523,6 +1727,7 @@ def suspend_person(person, by, reason=""):
         raise Forbidden("Only an administrator suspends an account.")
     state.transition(person, "person", "suspended", actor=by, reason=reason)
     revoke_tokens(person)
+    revoke_approval_keys(person, by=by, reason="suspended")
     return person
 
 
@@ -1543,8 +1748,9 @@ def mark_closing(person, by=None):
 
 @transaction.atomic
 def close_account(person, by=None):
-    """Revoke sign-in, sessions and tokens at once (US-APP-004 AC2)."""
+    """Revoke sign-in, sessions, tokens and approval keys at once (US-APP-004 AC2, FR-ACC-014)."""
     revoke_tokens(person)
+    revoke_approval_keys(person, by=by, reason="account_closed")
     person.set_unusable_password()  # also ends every web session (session auth hash changes)
     person.is_active = False
     person.closed_at = _now()
@@ -1585,6 +1791,8 @@ def anonymise_person(person, by=None):
                                    "anonymised_at"], payload={"person_id": person.pk})
     for fm in FamilyMember.objects.filter(client=person).exclude(status="anonymised"):
         anonymise_family_member(fm)
+    # A phone's name often carries the person's name ("Ama's iPhone").
+    ApprovalKey.objects.filter(person=person).update(device_name="Deleted account's phone")
     return person
 
 

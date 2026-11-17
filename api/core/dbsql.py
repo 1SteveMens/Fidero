@@ -39,6 +39,9 @@ CORE_SQL = [
       IF NEW.approved_at - NEW.mfa_at > interval '5 minutes' THEN
         RAISE EXCEPTION 'MFA step-up is not fresh' USING ERRCODE = 'check_violation';
       END IF;
+      IF NEW.mfa_method NOT IN ('totp', 'device_biometric') THEN
+        RAISE EXCEPTION 'Unknown MFA method' USING ERRCODE = 'check_violation';
+      END IF;
       RETURN NEW;
     END $$ LANGUAGE plpgsql;
     """,

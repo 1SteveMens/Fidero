@@ -9,6 +9,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@noble/curves": "2.4.0",
     "@tenmina/api-client": "workspace:*",
     "@tenmina/tokens": "workspace:*",
     "@tenmina/ui": "workspace:*"
@@ -16,6 +17,8 @@
   "peerDependencies": {
     "@expo/vector-icons": "*",
     "expo-constants": "*",
+    "expo-crypto": "*",
+    "expo-local-authentication": "*",
     "expo-router": "*",
     "expo-secure-store": "*",
     "react": "*",

@@ -5208,6 +5208,37 @@ paths:
               schema:
                 $ref: '#/components/schemas/AuditVerifyResult'
           description: ''
+  /v1/auth/approval-keys:
+    post:
+      operationId: v1_auth_approval_keys_create
+      description: |-
+        FR-ACC-014: register this phone's approval key (Face ID or fingerprint
+        for approvals). Needs the authenticator code, in `code` or as a code
+        step-up in the last 5 minutes. Only the public key reaches Tenmina.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalKeyEnrolRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ApprovalKeyEnrolRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ApprovalKeyEnrolRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalKey'
+          description: ''
   /v1/auth/csrf:
     get:
       operationId: v1_auth_csrf_retrieve
@@ -5297,6 +5328,24 @@ paths:
       responses:
         '204':
           description: No response body
+  /v1/auth/mfa/challenge:
+    post:
+      operationId: v1_auth_mfa_challenge_create
+      description: |-
+        FR-ACC-014: a one-time challenge for a step-up with this phone's
+        approval key. It expires in 2 minutes and works once.
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MfaChallengeResult'
+          description: ''
   /v1/auth/mfa/confirm:
     post:
       operationId: v1_auth_mfa_confirm_create
@@ -5368,21 +5417,23 @@ paths:
   /v1/auth/mfa/step-up:
     post:
       operationId: v1_auth_mfa_step_up_create
-      description: Fresh MFA for an approval (6.3). Valid for 5 minutes.
+      description: |-
+        Fresh MFA for an approval (6.3). Valid for 5 minutes. Either the
+        authenticator `code`, or (FR-ACC-014) `key_id`, `challenge` and
+        `signature` from the phone's approval key after Face ID or a fingerprint.
       tags:
       - v1
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CodeRequest'
+              $ref: '#/components/schemas/StepUpRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CodeRequest'
+              $ref: '#/components/schemas/StepUpRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CodeRequest'
-        required: true
+              $ref: '#/components/schemas/StepUpRequest'
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -17577,6 +17628,91 @@ paths:
               schema:
                 $ref: '#/components/schemas/Person'
           description: ''
+  /v1/me/approval-keys:
+    get:
+      operationId: v1_me_approval_keys_list
+      description: |-
+        FR-ACC-014: the phones set up for Face ID or fingerprint approvals.
+        DELETE revokes the key (it is kept, marked revoked, for the audit).
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: string
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - active
+          - revoked
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedApprovalKeyList'
+          description: ''
+  /v1/me/approval-keys/{id}:
+    get:
+      operationId: v1_me_approval_keys_retrieve
+      description: |-
+        FR-ACC-014: the phones set up for Face ID or fingerprint approvals.
+        DELETE revokes the key (it is kept, marked revoked, for the audit).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this approval key.
+        required: true
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalKey'
+          description: ''
+    delete:
+      operationId: v1_me_approval_keys_destroy
+      description: |-
+        FR-ACC-014: the phones set up for Face ID or fingerprint approvals.
+        DELETE revokes the key (it is kept, marked revoked, for the audit).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this approval key.
+        required: true
+      tags:
+      - v1
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
   /v1/me/confirmations:
     get:
       operationId: v1_me_confirmations_list
@@ -31915,6 +32051,88 @@ components:
           default: approve
         note:
           type: string
+    ApprovalKey:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        device_name:
+          type: string
+          readOnly: true
+        platform:
+          allOf:
+          - $ref: '#/components/schemas/PlatformEnum'
+          readOnly: true
+        key_alg:
+          allOf:
+          - $ref: '#/components/schemas/ApprovalKeyKeyAlgEnum'
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusD50Enum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        last_used_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          readOnly: true
+        revoked_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          readOnly: true
+        revoke_reason:
+          type: string
+          readOnly: true
+      required:
+      - created_at
+      - device_name
+      - id
+      - key_alg
+      - last_used_at
+      - platform
+      - revoke_reason
+      - revoked_at
+      - status
+    ApprovalKeyEnrolRequest:
+      type: object
+      description: |-
+        Refuse fields the API does not know (TC-ACC-012-02: only catalogued
+        fields are accepted, NFR-PRIV-02).
+      properties:
+        public_key:
+          type: string
+          minLength: 1
+          description: 'Ed25519 public key: 32 raw bytes in base64 or base64url, or
+            DER SubjectPublicKeyInfo in base64.'
+        device_name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        platform:
+          $ref: '#/components/schemas/PlatformEnum'
+        code:
+          type: string
+          default: ''
+          description: The authenticator code. Without it, a code step-up in the last
+            5 minutes is needed.
+      required:
+      - device_name
+      - platform
+      - public_key
+    ApprovalKeyKeyAlgEnum:
+      enum:
+      - EdDSA
+      type: string
+      description: '* `EdDSA` - EdDSA'
     ApprovalRequest:
       type: object
       properties:
@@ -37257,7 +37475,7 @@ components:
           readOnly: true
         key_alg:
           allOf:
-          - $ref: '#/components/schemas/KeyAlgEnum'
+          - $ref: '#/components/schemas/KeyAlgA38Enum'
           readOnly: true
         key_security:
           allOf:
@@ -37282,7 +37500,7 @@ components:
           readOnly: true
         status:
           allOf:
-          - $ref: '#/components/schemas/DeviceStatusEnum'
+          - $ref: '#/components/schemas/StatusD50Enum'
           readOnly: true
         registered_at:
           type: string
@@ -37353,14 +37571,6 @@ components:
       - challenge
       - platform
       - public_key
-    DeviceStatusEnum:
-      enum:
-      - active
-      - revoked
-      type: string
-      description: |-
-        * `active` - active
-        * `revoked` - revoked
     DigitalAddress:
       type: object
       properties:
@@ -45220,7 +45430,7 @@ components:
       - until
       - what
       - why
-    KeyAlgEnum:
+    KeyAlgA38Enum:
       enum:
       - ES256
       - EdDSA
@@ -47119,6 +47329,29 @@ components:
         * `api` - api
         * `file` - file
         * `manual` - manual
+    MfaChallengeResult:
+      type: object
+      properties:
+        challenge:
+          type: string
+        message:
+          type: string
+          description: 'The exact text to sign: a fixed prefix, then the challenge.'
+        expires_at:
+          type: string
+          format: date-time
+      required:
+      - challenge
+      - expires_at
+      - message
+    MfaMethodEnum:
+      enum:
+      - totp
+      - device_biometric
+      type: string
+      description: |-
+        * `totp` - totp
+        * `device_biometric` - device_biometric
     MfaSetupResult:
       type: object
       properties:
@@ -47137,8 +47370,11 @@ components:
           format: date-time
         valid_for_seconds:
           type: integer
+        mfa_method:
+          $ref: '#/components/schemas/MfaMethodEnum'
       required:
       - mfa_at
+      - mfa_method
       - valid_for_seconds
     Milestone:
       type: object
@@ -49682,6 +49918,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Agent'
+        next_cursor:
+          type: string
+          nullable: true
+    PaginatedApprovalKeyList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApprovalKey'
         next_cursor:
           type: string
           nullable: true
@@ -63373,6 +63619,14 @@ components:
         * `pending` - pending
         * `passed` - passed
         * `failed` - failed
+    StatusD50Enum:
+      enum:
+      - active
+      - revoked
+      type: string
+      description: |-
+        * `active` - active
+        * `revoked` - revoked
     StatusDfdEnum:
       enum:
       - open
@@ -63485,6 +63739,28 @@ components:
       required:
       - evidence_id
       - kind
+    StepUpRequest:
+      type: object
+      description: |-
+        A fresh MFA step-up: the authenticator `code`, or a signature from this
+        phone's approval key over a challenge (FR-ACC-014).
+      properties:
+        code:
+          type: string
+          default: ''
+        key_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        challenge:
+          type: string
+          default: ''
+        signature:
+          type: string
+          default: ''
+          description: Ed25519 signature, base64 or base64url, over the UTF-8 bytes
+            of the challenge's `message`.
     StopRequest:
       type: object
       properties:

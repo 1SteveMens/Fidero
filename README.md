@@ -91,7 +91,7 @@ Pre-seed: $400k for 18 months `[TO VERIFY]` against the wider scope. It funds th
 |---|---|
 | `README.md` | This summary |
 | `CLAUDE.md` | Context and writing rules for Claude sessions working on Tenmina |
-| `docs/decisions/` | Decision records. Start with `2026-11-01-diaspora-platform.md`, then `2026-11-12-build-with-claude.md` (who builds the software) , `2026-11-12-name-tenmina.md` (the name) , `2026-11-12-checked-plots-and-established-sellers.md` (checked plots test and the escrow pilot mix) and `2026-11-12-two-front-doors.md` (launch with family payments and property checks) |
+| `docs/decisions/` | Decision records. Start with `2026-11-01-diaspora-platform.md`, then `2026-11-12-build-with-claude.md` (who builds the software) , `2026-11-12-name-tenmina.md` (the name) , `2026-11-12-checked-plots-and-established-sellers.md` (checked plots test and the escrow pilot mix) `2026-11-12-two-front-doors.md` (launch with family payments and property checks) and `2026-11-17-biometric-approvals.md` (Face ID or fingerprint for approvals in the apps) |
 | `docs/proposal.md` | Full business proposal |
 | `docs/validation-plan.md` | 90-day plan to launch the manual verification service |
 | `docs/operations/home-payments-survey.md` | The "what else do you pay for at home?" survey for leads and webinars (validation plan 4b) |

@@ -20,7 +20,8 @@ class ApprovalRequestSerializer(serializers.ModelSerializer):
 
     def get_approvals(self, obj):
         return [{"approver": str(a.approver_id), "approver_name": a.approver.full_name, "decision": a.decision,
-                 "slot": a.slot, "at": a.approved_at} for a in obj.approvals.select_related("approver")]
+                 "slot": a.slot, "at": a.approved_at, "mfa_method": a.mfa_method}
+                for a in obj.approvals.select_related("approver")]
 
 
 @extend_schema(responses=ApprovalRequestSerializer(many=True))

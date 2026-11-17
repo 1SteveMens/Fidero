@@ -1,8 +1,9 @@
+import { useCallback, useState } from 'react';
 import { Linking, View } from 'react-native';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { brand, space } from '@tenmina/tokens';
 import { Button, Chip, Label, ListRow, Panel, Rise, Screen, T } from '@tenmina/ui';
-import { APP_VERSION, initials, itemsOf, portalUrl, useGet, useSession } from '@tenmina/mobile';
+import { APP_VERSION, initials, itemsOf, localApprovalKey, portalUrl, useGet, useSession } from '@tenmina/mobile';
 
 /** Account (SCR-PTL-20, 21, 34 and SCR-APP-04): who you are, security, how fees are paid, your data. */
 export default function Account() {
@@ -10,6 +11,12 @@ export default function Account() {
   const reps = useGet<{ items: { id: string; full_name: string; status: string }[] }>('/v1/me/representatives');
   const banks = useGet<{ items: { id: string; bank_name: string; account_number_last4: string; verification_status: string }[] }>('/v1/bank-accounts');
   const web = (config?.fee_payment_mode ?? 'web') === 'web';
+  const [faceId, setFaceId] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      if (me) void localApprovalKey(me.id).then((k) => setFaceId(!!k));
+    }, [me]),
+  );
 
   return (
     <Screen ground="ink" tabs>
@@ -29,11 +36,18 @@ export default function Account() {
           <ListRow
             icon="lock-closed"
             title="Authenticator app"
-            detail="Needed for every approval"
+            detail="Needed for every approval, and the back-up to Face ID"
             onPress={() => router.push('/account/security')}
             trailing={me?.mfa_enabled ? <Chip label="On" tone="lime" /> : <Chip label="Set up" tone="orange" />}
           />
-          <ListRow icon="phone-portrait-outline" title="Unlock with Face ID or fingerprint" detail="Comes with the test build. Approving always needs your code." last />
+          <ListRow
+            icon="scan-outline"
+            title="Face ID or fingerprint for approvals"
+            detail={faceId ? 'On for this phone · manage phones' : 'Approve without typing the code'}
+            onPress={() => router.push('/account/approval-keys')}
+            trailing={faceId ? <Chip label="On" tone="lime" /> : <Chip label="Off" tone="paper" />}
+            last
+          />
         </Panel>
       </Rise>
 

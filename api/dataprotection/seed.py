@@ -53,6 +53,8 @@ TABLE_PURPOSES = {
     "acc_role_grant": ("account", False, "Decide what each person may see and do"),
     "acc_rights_request": ("account", False, "Two administrators grant release and payment rights"),
     "acc_refresh_token": ("account", False, "Keep app users signed in"),
+    "acc_approval_key": ("account", False, "Each phone's public key for Face ID approvals, no biometric data"),
+    "acc_mfa_challenge": ("account", False, "One-time challenges for Face ID or fingerprint approvals (FR-ACC-014)"),
     "acc_one_time_code": ("account", False, "Confirm email and phone, sign in by code"),
     "acc_invitation": ("account", True, "Invite staff, professionals and sellers"),
     "acc_organisation": ("account", False, "Organisation accounts"),

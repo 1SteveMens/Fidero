@@ -417,3 +417,19 @@ def test_errors_are_problem_codes(b):
         assert {"condition-open", "fresh-search-missing"} <= {r["code"] for r in exc.blocking_reasons}
     else:
         pytest.fail("not blocked")
+
+
+def test_biometric_step_up_is_recorded_for_client_and_staff(b):
+    """FR-ACC-014, RUL-11, RUL-05: a step-up signed with the approval key on the
+    phone (Face ID or fingerprint) is recorded as device_biometric on the
+    client's approval and on each staff approval."""
+    from core.mfa import MfaAt
+    from core.models import Approval
+
+    e = b.ready_purchase()
+    ins = services.request_release(e, requested_by=b.cm)
+    services.client_approve(ins, b.client, MfaAt.of(timezone.now(), "device_biometric"))
+    ins.refresh_from_db()
+    assert ins.client_approval_method == "device_biometric"
+    services.staff_approve(ins, b.rv, mfa_at=MfaAt.of(timezone.now(), "device_biometric"))
+    assert Approval.objects.get(request=ins.approval_request, approver=b.rv).mfa_method == "device_biometric"

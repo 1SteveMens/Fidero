@@ -111,4 +111,35 @@ SQL = [
     "DROP TRIGGER IF EXISTS trg_acc_national_id_check_rules ON acc_national_id_check;",
     """CREATE TRIGGER trg_acc_national_id_check_rules BEFORE UPDATE ON acc_national_id_check
        FOR EACH ROW EXECUTE FUNCTION acc_national_id_check_rules();""",
+
+    # FR-ACC-014: an approval-key challenge works once, and a revoked
+    # approval key never comes back or changes its public key.
+    """CREATE OR REPLACE FUNCTION acc_mfa_challenge_rules() RETURNS trigger AS $$
+    BEGIN
+      IF OLD.used_at IS NOT NULL AND NEW.used_at IS DISTINCT FROM OLD.used_at THEN
+        RAISE EXCEPTION 'A challenge works once' USING ERRCODE = 'check_violation';
+      END IF;
+      IF NEW.challenge IS DISTINCT FROM OLD.challenge OR NEW.person_id IS DISTINCT FROM OLD.person_id
+         OR NEW.expires_at IS DISTINCT FROM OLD.expires_at THEN
+        RAISE EXCEPTION 'A challenge cannot change' USING ERRCODE = 'check_violation';
+      END IF;
+      RETURN NEW;
+    END $$ LANGUAGE plpgsql;""",
+    "DROP TRIGGER IF EXISTS trg_acc_mfa_challenge_rules ON acc_mfa_challenge;",
+    """CREATE TRIGGER trg_acc_mfa_challenge_rules BEFORE UPDATE ON acc_mfa_challenge
+       FOR EACH ROW EXECUTE FUNCTION acc_mfa_challenge_rules();""",
+    """CREATE OR REPLACE FUNCTION acc_approval_key_rules() RETURNS trigger AS $$
+    BEGIN
+      IF NEW.public_key IS DISTINCT FROM OLD.public_key OR NEW.key_sha256 IS DISTINCT FROM OLD.key_sha256
+         OR NEW.person_id IS DISTINCT FROM OLD.person_id THEN
+        RAISE EXCEPTION 'An approval key cannot change' USING ERRCODE = 'check_violation';
+      END IF;
+      IF OLD.status = 'revoked' AND NEW.status IS DISTINCT FROM 'revoked' THEN
+        RAISE EXCEPTION 'A revoked approval key stays revoked' USING ERRCODE = 'check_violation';
+      END IF;
+      RETURN NEW;
+    END $$ LANGUAGE plpgsql;""",
+    "DROP TRIGGER IF EXISTS trg_acc_approval_key_rules ON acc_approval_key;",
+    """CREATE TRIGGER trg_acc_approval_key_rules BEFORE UPDATE ON acc_approval_key
+       FOR EACH ROW EXECUTE FUNCTION acc_approval_key_rules();""",
 ]

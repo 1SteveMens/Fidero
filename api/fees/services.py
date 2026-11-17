@@ -931,7 +931,10 @@ def _client_signed(client, mfa_at, code):
         return "totp_code"
     if mfa_at is None or timezone.now() - mfa_at > settings.TENMINA["MFA_FRESHNESS"]:
         raise MfaRequired()
-    return "mfa_step_up"
+    from core.mfa import DEVICE_BIOMETRIC, method_of
+
+    # FR-ACC-014: a step-up signed by the approval key on the client's phone.
+    return "device_biometric" if method_of(mfa_at) == DEVICE_BIOMETRIC else "mfa_step_up"
 
 
 def held_funds_figures(client, country, currency) -> dict | None:
@@ -1092,7 +1095,8 @@ def client_approve(inv: Invoice, client, *, mfa_at=None, code=None, confirm_amou
         out["next"] = (f"Pay {inv.institution.legal_name} from your own bank using these details, then tell us. "
                        "The institution confirms it received the money and we send you the receipt.")
         return out
-    return _held_funds_after_approval(inv, client, mfa_at=mfa_at if method == "mfa_step_up" else None,
+    stepped_up = method in ("mfa_step_up", "device_biometric")
+    return _held_funds_after_approval(inv, client, mfa_at=mfa_at if stepped_up else None,
                                       code=code if method == "totp_code" else None, out=out)
 
 

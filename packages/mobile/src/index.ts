@@ -7,3 +7,6 @@ export * from './hooks';
 export * from './format';
 export * from './components';
 export * from './push';
+export { STEP_UP_PREFIX, approvalPublicKey, signStepUpMessage, stepUpMessage } from './approvalkey';
+export * from './biometric';
+export * from './secondfactor';

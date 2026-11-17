@@ -12,7 +12,7 @@ import { day } from './format';
 
 const PLAIN: Record<string, string> = {
   'mfa-required': 'Enter the 6-digit code from your authenticator app to go on.',
-  'mfa-not-set-up': 'Set up an authenticator app in Account first. Every approval needs its code.',
+  'mfa-not-set-up': 'Set up an authenticator app in Account first. Every approval needs it, also with Face ID.',
   unauthenticated: 'Please sign in again.',
 };
 

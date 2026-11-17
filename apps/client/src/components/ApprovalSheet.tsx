@@ -3,8 +3,8 @@ import { Animated, Platform, View } from 'react-native';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { brand, holdToApproveMs, radius, space } from '@tenmina/tokens';
-import { Button, CodeField, HoldButton, Label, Panel, Pulse, Rise, Screen, T, Tick, haptic, usePalette, useReducedMotion, useScreenReader } from '@tenmina/ui';
-import { Field, ProblemBox, initials, money, useSession, type ApiMoney, type Problem } from '@tenmina/mobile';
+import { Button, HoldButton, Label, Panel, Pulse, Rise, Screen, T, Tick, haptic, usePalette, useReducedMotion, useScreenReader } from '@tenmina/ui';
+import { Field, ProblemBox, SecondFactorInput, initials, money, useSecondFactor, type ApiMoney, type Problem } from '@tenmina/mobile';
 
 /** Who approves, in order. Two different Tenmina staff, then the bank pays (RUL-05, RUL-11). */
 const CHAIN = ['You', 'Staff 1', 'Staff 2', 'Bank pays'] as const;
@@ -21,8 +21,13 @@ export interface PayeeLine {
 /**
  * One approval pattern for every payment (RUL-05, RUL-11, RUL-22): the amount
  * and exactly who is paid on a ticket, every condition ticked, the approval
- * chain, the code, then press and hold. Silence is never approval: nothing
- * moves until the client acts, and declining says why.
+ * chain, then press and hold. When the hold completes the phone asks for Face
+ * ID or a fingerprint and steps up with this phone's approval key
+ * (FR-ACC-014); without one, the six code boxes show instead. Silence is never
+ * approval: nothing moves until the client acts, and declining says why.
+ *
+ * `onApprove(code)` gets the authenticator code, or "" when Face ID already
+ * stepped up; the API then uses that fresh step-up.
  */
 export function ApprovalSheet({
   title,
@@ -55,8 +60,8 @@ export function ApprovalSheet({
   after?: { title: string; detail: string }[];
 }) {
   const screenReader = useScreenReader();
-  const { me } = useSession();
-  const [code, setCode] = useState('');
+  const factor = useSecondFactor();
+  const [method, setMethod] = useState<'device_biometric' | 'totp'>('totp');
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<Problem>();
   const [done, setDone] = useState<'approved' | 'declined'>();
@@ -66,15 +71,23 @@ export function ApprovalSheet({
   async function approve() {
     setBusy(true);
     setProblem(undefined);
-    const p = await onApprove(code);
+    const f = await factor.confirm();
+    if (!f.ok) {
+      setBusy(false);
+      haptic('warning');
+      setProblem(f.problem);
+      return;
+    }
+    const p = await onApprove(f.code);
     setBusy(false);
     if (p) {
       haptic('warning');
       setProblem(p);
-      setCode('');
+      factor.reset();
       return;
     }
     haptic('success');
+    setMethod(f.method);
     setDone('approved');
   }
 
@@ -90,7 +103,7 @@ export function ApprovalSheet({
     setDone('declined');
   }
 
-  if (done === 'approved') return <Approved amount={amount} payee={payee} message={approvedMessage} after={after} />;
+  if (done === 'approved') return <Approved amount={amount} payee={payee} message={approvedMessage} after={after} how={method === 'device_biometric' ? factor.label : 'your authenticator code'} />;
   if (done === 'declined') {
     return (
       <Screen ground="ink" footer={<Button title="Done" onPress={() => router.back()} />}>
@@ -102,10 +115,10 @@ export function ApprovalSheet({
     );
   }
 
-  const noMfa = me && !me.mfa_enabled;
+  const noMfa = factor.mode === 'none';
   const ready = blockers.length === 0;
   const matched = payee.matched !== false;
-  const canApprove = ready && matched && !noMfa && code.length === 6;
+  const canApprove = ready && matched && factor.ready;
 
   return (
     <Screen
@@ -192,14 +205,14 @@ export function ApprovalSheet({
       ) : noMfa ? (
         <Panel style={{ borderWidth: 2, borderColor: brand.orange, backgroundColor: 'transparent' }}>
           <Label color={brand.orange}>Set up your authenticator first</Label>
-          <T v="callout">Every approval needs a 6-digit code from an authenticator app. It takes a minute.</T>
+          <T v="callout">Every approval needs a second check: an authenticator app, then Face ID or a fingerprint on this phone if you want. It takes a minute.</T>
           <Button title="Set up the authenticator" variant="dark" onPress={() => router.push('/account/security')} />
         </Panel>
       ) : declining ? (
         <Field label="Why are you declining?" value={reason} onChange={setReason} multiline hint="Tenmina staff read this before anything else happens." />
       ) : (
         <Rise delay={340}>
-          <CodeField label="Code from your authenticator app" value={code} onChange={setCode} />
+          <SecondFactorInput factor={factor} />
         </Rise>
       )}
       <ProblemBox problem={problem} />
@@ -228,7 +241,7 @@ function Ticket({ top, bottom }: { top: ReactNode; bottom: ReactNode }) {
 }
 
 /** After the client approves: what happens next, and that the money is still at the bank. */
-function Approved({ amount, payee, message, after }: { amount: ApiMoney; payee: PayeeLine; message: string; after?: { title: string; detail: string }[] }) {
+function Approved({ amount, payee, message, after, how }: { amount: ApiMoney; payee: PayeeLine; message: string; after?: { title: string; detail: string }[]; how: string }) {
   const reduced = useReducedMotion();
   const pop = useRef(new Animated.Value(reduced ? 1 : 0)).current;
   useEffect(() => {
@@ -242,7 +255,7 @@ function Approved({ amount, payee, message, after }: { amount: ApiMoney; payee: 
     { title: 'The bank pays', detail: `${payee.name}${payee.last4 ? ` ••${payee.last4}` : ''}. The receipt comes here.` },
   ];
   const rows: { state: 'done' | 'now' | 'next'; title: string; detail: string }[] = [
-    { state: 'done', title: 'You approved', detail: 'Just now, with your authenticator code' },
+    { state: 'done', title: 'You approved', detail: `Just now, with ${how}` },
     ...next.map((r, i) => ({ ...r, state: (i === 0 ? 'now' : 'next') as 'now' | 'next' })),
   ];
   return (

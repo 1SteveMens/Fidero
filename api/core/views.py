@@ -7,14 +7,21 @@ from .errors import MfaRequired
 
 
 def mfa_at(request):
-    """When the caller last passed an MFA step-up (session or bearer token)."""
+    """When the caller last passed an MFA step-up (session or bearer token).
+
+    Returns a `core.mfa.MfaAt`, which also carries the method ("totp" or
+    "device_biometric") so approvals record how the person stepped up."""
+    from .mfa import MfaAt
+
     auth = getattr(request, "auth", None)
     value = getattr(auth, "mfa_at", None)
+    method = getattr(auth, "mfa_method", "") if value is not None else ""
     if value is None and hasattr(request, "session"):
         raw = request.session.get("mfa_at")
         if raw:
             value = timezone.datetime.fromisoformat(raw)
-    return value
+            method = request.session.get("mfa_method", "")
+    return MfaAt.of(value, method or "totp") if value is not None else None
 
 
 def require_mfa(request):

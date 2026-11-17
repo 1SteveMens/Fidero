@@ -37,6 +37,7 @@ function Root() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="welcome" options={{ animation: 'fade' }} />
+        <Stack.Screen name="face-id" options={{ animation: 'fade' }} />
         <Stack.Screen name="release/[id]" options={sheet} />
         <Stack.Screen name="invoice/[id]" options={sheet} />
         <Stack.Screen name="payee-change/[id]" options={sheet} />
