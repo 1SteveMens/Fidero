@@ -21214,6 +21214,11 @@ export interface components {
             /** @default  */
             notes: string;
         };
+        MapArea: {
+            name: string;
+            /** @description minLon,minLat,maxLon,maxLat in degrees (WGS 84), as GET /v1/geo/map takes it. */
+            bbox: string;
+        };
         MaterialsInputRequest: {
             /** Format: uuid */
             milestone_id: string;
@@ -29119,6 +29124,8 @@ export interface components {
             code: string;
             name: string;
             currency: string;
+            /** @description Areas the back office map offers, from the country's published configuration (FR-CTY-001). Empty when none are set. */
+            map_areas: components["schemas"]["MapArea"][];
         };
         /**
          * @description * `report_section` - report_section

@@ -7,8 +7,8 @@ import { ApiProvider, call } from './data';
 export type Me = {
   id: string; email: string; full_name: string; phone: string; roles: string[];
   mfa_enabled: boolean; preferred_language: string; residence_country: string; home_country: string | null;
-  /** Staff only: countries their role grants cover, with each country's currency. */
-  work_countries?: { code: string; name: string; currency: string }[];
+  /** Staff only: countries their role grants cover, with each country's currency and configured map areas. */
+  work_countries?: { code: string; name: string; currency: string; map_areas: { name: string; bbox: string }[] }[];
 };
 
 type SessionCtx = {

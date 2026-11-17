@@ -26,10 +26,17 @@ CountryCode = lambda **kw: serializers.SlugRelatedField(slug_field="code", query
 EvidenceRef = lambda **kw: serializers.PrimaryKeyRelatedField(queryset=Evidence.objects.all(), **kw)  # noqa: E731
 
 
+class MapAreaSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    bbox = serializers.CharField(help_text="minLon,minLat,maxLon,maxLat in degrees (WGS 84), as GET /v1/geo/map takes it.")
+
+
 class WorkCountrySerializer(serializers.Serializer):
     code = serializers.CharField()
     name = serializers.CharField()
     currency = serializers.CharField()
+    map_areas = MapAreaSerializer(many=True, help_text="Areas the back office map offers, from the country's "
+                                  "published configuration (FR-CTY-001). Empty when none are set.")
 
 
 class PersonSerializer(serializers.ModelSerializer):
@@ -54,7 +61,7 @@ class PersonSerializer(serializers.ModelSerializer):
     @extend_schema_field(WorkCountrySerializer(many=True))
     def get_work_countries(self, obj) -> list[dict]:
         """Back office: the countries this person works in as staff, from their
-        role grants, with each country's currency. Empty for everyone else."""
+        role grants, with each country's currency and map areas. Empty for everyone else."""
         from .selectors import work_countries
 
         return work_countries(obj)

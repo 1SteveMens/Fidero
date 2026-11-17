@@ -38,6 +38,13 @@ GHANA_CONFIG = {
     "holiday_calendar": GHANA_HOLIDAYS_2026,
     "licence_bodies": {"lawyer": "General Legal Council", "surveyor": "Ghana Institution of Surveyors",
                        "quantity_surveyor": "Ghana Institution of Surveyors"},
+    # Back office Map tab areas (bbox: minLon,minLat,maxLon,maxLat, WGS 84). Rough boxes drawn by hand to frame
+    # the seeded plots, the region and the country; working assumptions, not survey data [TO VERIFY].
+    "map_areas": [
+        {"name": "Accra sample area", "bbox": "-0.25,5.65,-0.05,5.85"},
+        {"name": "Greater Accra", "bbox": "-0.6,5.45,0.7,6.1"},
+        {"name": "Ghana", "bbox": "-3.3,4.7,1.2,11.2"},
+    ],
 }
 
 
@@ -65,6 +72,6 @@ def run(ctx):
         data = dict(GHANA_CONFIG, currency="NGN", phone_prefix="+234",
                     national_id={"system": "NIN (NIMC)", "provider": "[TO VERIFY]"},
                     land_registry={"name": "Lagos State Lands Bureau", "search_channel": "[TO VERIFY]"},
-                    data_location=None, holiday_calendar=[])
+                    data_location=None, holiday_calendar=[], map_areas=[])
         CountryConfig.objects.create(country=ng, version=1, status="draft", data=data)
     ctx["gh"], ctx["ng"], ctx["cell"] = gh, ng, cell

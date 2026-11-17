@@ -49,6 +49,7 @@ def test_copy_makes_drafts_and_never_points_at_ghana(seeded, admins, gh):
     cfg = _open_country(a, *admins[1:])
     data = cfg["data"]
     assert cfg["status"] == "draft" and data["currency"] is None and data["data_location"] is None
+    assert data["map_areas"] is None and "map_areas" in data["to_review"]  # Ghana's boxes never carry over
     assert data["copied_from"]["country"] == "GH" and data["refs"]["partners"] == {}
     ke = Country.objects.get(code="KE")
     for kind, pk in data["refs"]["config_versions"].items():
@@ -81,6 +82,29 @@ def test_mixing_countries_is_refused(seeded, admins, gh):
     a.patch(f"/v1/admin/countries/KE/config-versions/{cfg['version']}", {"data": data}, format="json")
     r = a.post(f"/v1/admin/countries/KE/config-versions/{cfg['version']}/submit")
     assert "belongs to another country" in str(r.json()["blocking_reasons"])
+
+
+def test_map_areas_come_from_configuration(seeded, gh):
+    """FR-CTY-001: the back office map areas are configuration, not code. Malformed entries are dropped."""
+    areas = selectors.map_areas(gh)
+    assert [a["name"] for a in areas] == ["Accra sample area", "Greater Accra", "Ghana"]
+    assert areas[0]["bbox"] == "-0.25,5.65,-0.05,5.85"
+    assert selectors.map_areas("NG") == []  # draft configuration only: nothing published
+
+
+def test_malformed_map_areas_block_publication(seeded, admins):
+    a, _ = admins
+    cfg = _open_country(a, *admins[1:])
+    data = dict(cfg["data"], map_areas=[{"name": "Nairobi", "bbox": "36.6,-1.45,37.1"},
+                                        {"name": "Kenya", "bbox": "42,-5,33,5"}, {"bbox": "1,1,2,2"}])
+    r = a.patch(f"/v1/admin/countries/KE/config-versions/{cfg['version']}", {"data": data}, format="json")
+    messages = [b["message"] for b in r.json()["publication_blockers"] if b["rule"] == "FR-CTY-001"]
+    assert any("Nairobi" in m and "four numbers" in m for m in messages)
+    assert any("Kenya" in m and "min below max" in m for m in messages)
+    assert "Map area 3 has no name." in messages
+    good = dict(cfg["data"], map_areas=[{"name": "Nairobi", "bbox": "36.6,-1.45,37.1,-1.15"}])
+    r = a.patch(f"/v1/admin/countries/KE/config-versions/{cfg['version']}", {"data": good}, format="json")
+    assert not any("map area" in b["message"].lower() for b in r.json()["publication_blockers"])
 
 
 def _make_publishable(a, b, cfg):

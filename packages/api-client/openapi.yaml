@@ -47117,6 +47117,18 @@ components:
       - document_number
       - document_type
       - outcome
+    MapArea:
+      type: object
+      properties:
+        name:
+          type: string
+        bbox:
+          type: string
+          description: minLon,minLat,maxLon,maxLat in degrees (WGS 84), as GET /v1/geo/map
+            takes it.
+      required:
+      - bbox
+      - name
     MaterialsInputRequest:
       type: object
       properties:
@@ -66069,9 +66081,16 @@ components:
           type: string
         currency:
           type: string
+        map_areas:
+          type: array
+          items:
+            $ref: '#/components/schemas/MapArea'
+          description: Areas the back office map offers, from the country's published
+            configuration (FR-CTY-001). Empty when none are set.
       required:
       - code
       - currency
+      - map_areas
       - name
     WorkKindEnum:
       enum:

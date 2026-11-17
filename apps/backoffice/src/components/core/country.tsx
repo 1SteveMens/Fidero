@@ -1,11 +1,14 @@
 'use client';
 /* The country a staff member is working in (FR-CTY-001: country is configuration). The list comes from their role
- * grants (`work_countries` on /v1/me), each with the currency from the country record. Someone who works in
+ * grants (`work_countries` on /v1/me), each with the currency from the country record and the map areas from its
+ * configuration. Someone who works in
  * more than one country picks one in the side menu; the choice is remembered in this browser only. */
 import { createContext, useContext, useMemo, useState } from 'react';
 import { Field, Select, useSession } from '@tenmina/web-ui';
 
-export type WorkCountry = { code: string; name: string; currency: string };
+/** A named map area; bbox is minLon,minLat,maxLon,maxLat as GET /v1/geo/map takes it. */
+export type MapArea = { name: string; bbox: string };
+export type WorkCountry = { code: string; name: string; currency: string; map_areas: MapArea[] };
 type Ctx = { country: WorkCountry | null; countries: WorkCountry[]; choose: (code: string) => void };
 
 const KEY = 'tenmina.bo.country';
@@ -38,11 +41,14 @@ export function CountryProvider({ children }: { children: React.ReactNode }) {
   return <CountryCtx.Provider value={value}>{children}</CountryCtx.Provider>;
 }
 
-/** The working country and its currency. `code` is '' when the person has no staff country. */
-export function useWorkCountry(): { code: string; currency: string; name: string; countries: WorkCountry[] } {
+/** The working country, its currency and map areas. `code` is '' when the person has no staff country. */
+export function useWorkCountry(): { code: string; currency: string; name: string; mapAreas: MapArea[]; countries: WorkCountry[] } {
   const c = useContext(CountryCtx);
   if (!c) throw new Error('CountryProvider missing');
-  return { code: c.country?.code ?? '', currency: c.country?.currency ?? '', name: c.country?.name ?? '', countries: c.countries };
+  return {
+    code: c.country?.code ?? '', currency: c.country?.currency ?? '', name: c.country?.name ?? '',
+    mapAreas: c.country?.map_areas ?? [], countries: c.countries,
+  };
 }
 
 /** Currency of a given country code, from the staff member's countries; falls back to the working country's. */

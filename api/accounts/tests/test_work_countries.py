@@ -18,7 +18,8 @@ def test_grant_for_every_country_lists_countries_past_draft(seeded, api, people,
     cm = people["cm"]
     cm.role_grants.update(country=None)
     rows = api(cm).get("/v1/me").json()["work_countries"]
-    assert {"code": "GH", "name": gh.name, "currency": gh.currency} in rows
+    gh_row = next(r for r in rows if r["code"] == "GH")
+    assert (gh_row["name"], gh_row["currency"]) == (gh.name, gh.currency)
     assert "NG" not in [r["code"] for r in rows]
 
 
@@ -33,6 +34,15 @@ def test_country_grants_list_those_countries_home_first(seeded, api, people, gh)
     rows = api(cm).get("/v1/me").json()["work_countries"]
     assert [r["code"] for r in rows] == ["NG", "GH"]
     assert rows[0]["currency"] == "NGN"
+    assert rows[0]["map_areas"] == []  # Nigeria has no published configuration, so no map areas
+
+
+def test_map_areas_come_from_the_country_configuration(seeded, api, people):
+    """FR-CTY-001: the back office map offers the working country's configured areas, not Ghana's in code."""
+    rows = api(people["cm"]).get("/v1/me").json()["work_countries"]
+    gh_row = next(r for r in rows if r["code"] == "GH")
+    assert gh_row["map_areas"][0] == {"name": "Accra sample area", "bbox": "-0.25,5.65,-0.05,5.85"}
+    assert [a["name"] for a in gh_row["map_areas"]] == ["Accra sample area", "Greater Accra", "Ghana"]
 
 
 def test_clients_have_no_work_countries(seeded, api, people):

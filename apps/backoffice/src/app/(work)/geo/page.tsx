@@ -14,22 +14,25 @@ type Layer = { id: string; code: string; name: string; kind: string; description
 type Overlap = { id: string; asset: string; asset_reference: string; other_asset: { id: string; reference: string; locality: string; plot_number: string; owner_name: string } | null; other_kind: string; overlap_area_sqm: string; overlap_share: string; other_overlap_share: string; status: string; resolution: string; resolution_note: string; resolved_by_name: string | null; created_at: string };
 type Alert = { id: string; asset: string; asset_reference: string; previous_date: string | null; new_date: string | null; change_score: string; threshold: string; change_kind: string; status: string; assigned_to_name: string; resolution: string; resolution_note: string; created_at: string; previous_image: { content_url: string } | null; new_image: { content_url: string } | null };
 
-const AREAS: Record<string, string> = { 'Accra sample area': '-0.25,5.65,-0.05,5.85', 'Greater Accra': '-0.6,5.45,0.7,6.1', Ghana: '-3.3,4.7,1.2,11.2' };
 const LAYER_KINDS = ['government_acquisition', 'forest_reserve', 'road_reserve', 'waterway', 'wetland', 'flood_zone', 'known_dispute', 'planning_zone', 'other'];
 
+/* The areas come from the working country's configuration (`map_areas`, FR-CTY-001); the first is the default. */
 function AreaMap() {
   const router = useRouter();
-  const { code: country } = useWorkCountry();
-  const layers = useGet<Page<Layer>>(country ? '/v1/admin/overlay-layers' : null, { country });
-  const [area, setArea] = useState('Accra sample area');
+  const { code: country, name: countryName, mapAreas } = useWorkCountry();
+  const [chosen, setChosen] = useState<string | null>(null);
+  const area = mapAreas.find((a) => a.name === chosen) ?? mapAreas[0];
+  const layers = useGet<Page<Layer>>(country && area ? '/v1/admin/overlay-layers' : null, { country });
   const [on, setOn] = useState<string[] | null>(null);
   const active = (layers.data?.items ?? []).filter((l) => l.status === 'active');
   const codes = on ?? active.map((l) => l.code);
-  const map = useGet<FC>(country ? '/v1/geo/map' : null, { country, bbox: AREAS[area], ...(codes.length ? { layers: codes.join(',') } : {}) });
+  const map = useGet<FC>(country && area ? '/v1/geo/map' : null, { country, bbox: area?.bbox, ...(codes.length ? { layers: codes.join(',') } : {}) });
+  if (!country) return <Empty>You have no staff role in any country, so there is no map to show.</Empty>;
+  if (!area) return <Empty>No map areas are set for {countryName || country} yet. An administrator adds them to the country configuration (map areas).</Empty>;
   return (
     <div className="stack">
       <div className="filters">
-        <Field label="Area"><Select value={area} onChange={(e) => setArea(e.target.value)}>{Object.keys(AREAS).map((a) => <option key={a}>{a}</option>)}</Select></Field>
+        <Field label="Area"><Select value={area.name} onChange={(e) => setChosen(e.target.value)}>{mapAreas.map((a) => <option key={a.name}>{a.name}</option>)}</Select></Field>
       </div>
       <div className="row" style={{ gap: 6 }} role="group" aria-label="Layers">
         {active.map((l) => {
@@ -174,6 +177,7 @@ function Layers() {
 
 function GeoHome() {
   const sp = useSearchParams();
+  const { code: country } = useWorkCountry();  // a new working country starts the map afresh: its own areas and layers
   const router = useRouter();
   const tab = sp.get('tab') ?? 'map';
   const TABS = [{ key: 'map', label: 'Map' }, { key: 'assets', label: 'Properties' }, { key: 'overlaps', label: 'Overlaps' }, { key: 'alerts', label: 'Monitoring alerts' }, { key: 'layers', label: 'Overlay layers' }];
@@ -181,7 +185,7 @@ function GeoHome() {
     <div className="stack" style={{ gap: 18 }}>
       <Head title="Maps and layers" sub="Every plot is checked against each overlay layer when its boundary is saved, and against earlier plots." />
       <div className="tabs-scroll"><Tabs items={TABS} current={tab} onChange={(k) => router.replace(`/geo?tab=${k}`)} /></div>
-      {tab === 'map' ? <AreaMap /> : tab === 'assets' ? <Assets /> : tab === 'overlaps' ? <Overlaps /> : tab === 'alerts' ? <Alerts /> : <Layers />}
+      {tab === 'map' ? <AreaMap key={country} /> : tab === 'assets' ? <Assets /> : tab === 'overlaps' ? <Overlaps /> : tab === 'alerts' ? <Alerts /> : <Layers />}
     </div>
   );
 }

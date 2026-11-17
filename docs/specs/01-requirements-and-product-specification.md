@@ -963,7 +963,7 @@ Tenmina's own contracted professionals are paid by Tenmina, from its fee income,
 
 | ID | Requirement | Priority | Release | Source |
 |---|---|---|---|---|
-| FR-CTY-001 | The system shall hold country as configuration: templates, scope statement, overlay layers, currency, partners, professional licence bodies, legal texts, holiday calendar, errand catalogue and data location. Every case, payment, listing and user belongs to one country. | Must | R1 | BR-14 |
+| FR-CTY-001 | The system shall hold country as configuration: templates, scope statement, overlay layers, map areas for the back office map, currency, partners, professional licence bodies, legal texts, holiday calendar, errand catalogue and data location. Every case, payment, listing and user belongs to one country. | Must | R1 | BR-14 |
 | FR-CTY-004 | The system shall let an administrator open a new country by copying another country's configuration and editing it, without code changes other than new integrations. | Must | R2 | BR-14 |
 | FR-CTY-002 | The system shall keep each country's data in the location its law requires. | Must | R2 | BR-14 |
 | FR-CTY-003 | The system shall report all metrics by country. | Must | R1 | BR-14 |

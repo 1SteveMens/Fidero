@@ -33,9 +33,10 @@ BACKOFFICE_ROLES = set(STAFF_ROLES) | {"AN", "DPO", "SUP", "PY", "RR"}
 
 def work_countries(p) -> list[dict]:
     """Countries a staff member works in, from their role grants, with each
-    country's currency (country is configuration, FR-CTY-001). A grant for every
-    country lists every country past draft. Home country first."""
+    country's currency and map areas (country is configuration, FR-CTY-001). A
+    grant for every country lists every country past draft. Home country first."""
     from countries.models import Country
+    from countries.selectors import map_areas
 
     codes = staff_country_codes(p, BACKOFFICE_ROLES)
     if codes is None:
@@ -45,7 +46,8 @@ def work_countries(p) -> list[dict]:
     else:
         qs = Country.objects.filter(code__in=codes)
     home = getattr(p.home_country, "code", None)
-    rows = [{"code": c.code, "name": c.name, "currency": c.currency} for c in qs.order_by("code")]
+    rows = [{"code": c.code, "name": c.name, "currency": c.currency, "map_areas": map_areas(c)}
+            for c in qs.order_by("code")]
     return sorted(rows, key=lambda r: r["code"] != home)
 
 

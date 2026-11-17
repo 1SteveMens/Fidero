@@ -224,7 +224,8 @@ def create_config(country: Country, *, by, data=None, copy_from: CountryConfig |
     return cfg
 
 
-COPY_RESET = ("currency", "data_location", "phone_prefix", "national_id", "land_registry", "holiday_calendar")
+COPY_RESET = ("currency", "data_location", "phone_prefix", "national_id", "land_registry", "holiday_calendar",
+              "map_areas")
 
 
 @transaction.atomic
@@ -324,6 +325,10 @@ def publication_blockers(cfg: CountryConfig) -> list[dict]:
             out.append({"rule": "FR-ADM-001", "message": f"The {kind.replace('_', ' ')} is not published yet."})
         else:
             out.extend(_template_reasons(cv.kind, cv.content, c, label=kind))
+    if d.get("map_areas") is not None:
+        from .selectors import map_area_problems
+
+        out.extend({"rule": "FR-CTY-001", "message": m} for m in map_area_problems(d["map_areas"]))
     if d.get("errand_catalogue") is not None:
         out.extend(_template_reasons("errand_catalogue", {"errands": d.get("errand_catalogue") or []}, c,
                                      label="errand catalogue"))

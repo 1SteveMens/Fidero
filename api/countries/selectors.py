@@ -44,6 +44,49 @@ def ref(country: Country | str, group: str, key: str):
     return config(country, f"refs.{group}.{key}")
 
 
+def _bbox_problem(bbox) -> str | None:
+    if not isinstance(bbox, str):
+        return "is not text"
+    try:
+        min_lon, min_lat, max_lon, max_lat = (float(x) for x in bbox.split(","))
+    except ValueError:
+        return "is not four numbers: minLon,minLat,maxLon,maxLat"
+    if not (-180 <= min_lon < max_lon <= 180 and -90 <= min_lat < max_lat <= 90):
+        return "is not minLon,minLat,maxLon,maxLat in degrees with min below max"
+    return None
+
+
+def map_area_problems(areas) -> list[str]:
+    """Why a `map_areas` value is malformed: a list of {name, bbox}, bbox as
+    'minLon,minLat,maxLon,maxLat' in degrees. Empty when it is well formed."""
+    if not isinstance(areas, list):
+        return ["The map areas are not a list."]
+    out, names = [], set()
+    for i, a in enumerate(areas, 1):
+        name = a.get("name") if isinstance(a, dict) else None
+        if not isinstance(name, str) or not name.strip():
+            out.append(f"Map area {i} has no name.")
+            continue
+        if name in names:
+            out.append(f"Map area {name} is listed twice.")
+        names.add(name)
+        problem = _bbox_problem(a.get("bbox"))
+        if problem:
+            out.append(f"The box of map area {name} {problem}.")
+    return out
+
+
+def map_areas(country: Country | str) -> list[dict]:
+    """The areas the back office map offers for this country (FR-CTY-001: no
+    country's coordinates in code). Only well-formed entries; [] when none are set."""
+    areas = config(country, "map_areas") or []
+    if not isinstance(areas, list):
+        return []
+    return [{"name": a["name"], "bbox": a["bbox"]} for a in areas
+            if isinstance(a, dict) and isinstance(a.get("name"), str) and a["name"].strip()
+            and _bbox_problem(a.get("bbox")) is None]
+
+
 def active_countries():
     return Country.objects.filter(status="active")
 
