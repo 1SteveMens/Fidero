@@ -37,7 +37,7 @@ const args = Object.fromEntries(
 );
 const BASE = { portal: args.portal || 'http://localhost:3114', backoffice: args.backoffice || 'http://localhost:3115' };
 const PASSWORD = 'tenmina-dev-123';
-const MFA_SECRET = 'JBSWY3DPEHPK3PXP';
+const MFA_SECRET = 'XDNFDBLX4EL75ISFLLJ47V44O7HWLKRP'; // DEV_MFA_SECRET in api/accounts/seed.py
 const MAX_PAGES = Number(args.max || 150);
 const SETTLE_MS = Number(args.settle || 10000);
 const MODES = [

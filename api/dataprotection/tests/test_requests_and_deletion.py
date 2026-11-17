@@ -7,6 +7,7 @@ import pyotp
 from django.utils import timezone
 
 from accounts.models import ApiToken, FamilyMember, Person
+from accounts.seed import DEV_MFA_SECRET
 from audit.models import AuditEvent
 from core.adapters import get_adapter
 from core.models import OutboxEvent
@@ -117,7 +118,7 @@ def test_delete_account_with_nothing_open(seeded, api, people):
 def test_deletion_needs_the_second_factor_when_mfa_is_on(seeded, api, people, mfa):
     """TC-APP-004-04."""
     ama = people["client"]
-    Person.objects.filter(pk=ama.pk).update(mfa_enabled=True, mfa_secret="JBSWY3DPEHPK3PXP")
+    Person.objects.filter(pk=ama.pk).update(mfa_enabled=True, mfa_secret=DEV_MFA_SECRET)
     ama.refresh_from_db()
     c = api(ama)
     r = c.post("/v1/me/deletion-requests", {"confirm": True}, format="json")

@@ -49,6 +49,7 @@ def _person(gh, key, email, name, role, admin):
         p = Person.objects.create_user(email, DEV_PASSWORD, full_name=name, home_country=gh, residence_country="GH",
                                        email_verified_at=timezone.now())
         RoleGrant.objects.create(person=p, role=role, granted_by=admin)
+    if not p.mfa_enabled or len(p.mfa_secret) < 32:  # also moves people off the old 80-bit dev secret
         p.mfa_secret, p.mfa_enabled = DEV_MFA_SECRET, True
         p.save(update_fields=["mfa_secret", "mfa_enabled"])
     return p

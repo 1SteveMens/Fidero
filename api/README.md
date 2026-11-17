@@ -13,7 +13,7 @@ python manage.py seed_dev          # demo people, Ghana configuration and sample
 python manage.py runserver 8000    # API on http://localhost:8000/v1, docs at /v1/docs
 ```
 
-Every seeded person signs in with the password `tenmina-dev-123`. Staff (case manager, reviewers, administrators) have MFA on with the shared development secret in `accounts/seed.py`; any authenticator app given that secret produces their codes.
+Every seeded person signs in with the password `tenmina-dev-123`. Staff (case manager, reviewers, administrators) have MFA on with the shared development secret `DEV_MFA_SECRET` in `accounts/seed.py` (`XDNFDBLX4EL75ISFLLJ47V44O7HWLKRP`, 160 bits; development only); any authenticator app given that secret produces their codes. It replaced a shorter 80-bit secret on 17 November 2026, because pyotp 2.12 refuses secrets under 112 bits: delete any authenticator entry made with the old secret and add the new one. Running `seed_dev` again moves seeded staff on the old secret to the new one.
 
 Seeded files are real JPEG photos and PDFs from `core/samples.py`: drawn scenes of plots, houses at each building stage, defects, rooms, care visits and listings, and receipts, invoices, site plans, bank letters and certificates from fictional organisations. Every one is marked SAMPLE (an ID document says "SAMPLE · NOT A REAL ID"), and the same seed always gives the same bytes. Use `samples.file_for(name)` in a new seed instead of stub bytes.
 
