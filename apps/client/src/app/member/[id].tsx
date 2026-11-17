@@ -1,9 +1,10 @@
 import { Pressable, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { space } from '@tenmina/tokens';
-import { Label, Panel, Screen, T } from '@tenmina/ui';
-import { LoadState, Section, day, money, words, useGet, type ApiMoney } from '@tenmina/mobile';
+import { Button, Label, Panel, Screen, T } from '@tenmina/ui';
+import { LoadState, ProblemBox, Section, day, money, words, useAction, useGet, type ApiMoney } from '@tenmina/mobile';
 import { Figures } from '../../components/rows';
+import { openFile } from '../../components/files';
 
 interface Statement {
   family_member: { id: string; full_name: string; relationship: string };
@@ -13,14 +14,30 @@ interface Statement {
   note: string;
 }
 
-/** Family-member statement (SCR-PTL-42, W-28; FR-FEE-007): every bill, payment and receipt for one person. */
+/**
+ * Family-member statement (SCR-PTL-42, W-28; FR-FEE-007): every bill, payment
+ * and receipt for one person, and the same as a sealed PDF read in the app
+ * (US-FEE-007 AC2).
+ */
 export default function MemberStatement() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const s = useGet<Statement>(`/v1/family-members/${id}/statement`);
+  const pdf = useAction();
+
+  async function openPdf() {
+    const doc = await pdf.run<{ evidence: string; sha256: string }>('POST', `/v1/family-members/${id}/statement-pdfs`, {}, { idempotencyKey: `statement-${id}-${new Date().toISOString().slice(0, 16)}` });
+    if (doc) openFile(doc.evidence, `Statement for ${s.data?.family_member.full_name ?? 'family member'}`, 'application/pdf');
+  }
   const d = s.data;
   const totals = Object.entries(d?.totals ?? {}).filter(([, v]) => v && typeof v === 'object' && 'amount' in (v as object)) as [string, ApiMoney][];
   return (
-    <Screen ground="paper" back eyebrow={d ? words(d.family_member.relationship) : 'Statement'} title={d?.family_member.full_name}>
+    <Screen
+      ground="paper"
+      back
+      eyebrow={d ? words(d.family_member.relationship) : 'Statement'}
+      title={d?.family_member.full_name}
+      footer={d ? <Button title="The statement as a PDF" icon="document-text-outline" variant="dark" loading={pdf.busy} onPress={() => void openPdf()} /> : undefined}
+    >
       <LoadState loading={s.loading} problem={s.problem} onRetry={s.reload} hasData={!!d} />
       {d ? (
         <>
@@ -45,6 +62,7 @@ export default function MemberStatement() {
             </Panel>
           </Section>
           {d.note ? <T v="footnote" muted>{d.note}</T> : null}
+          <ProblemBox problem={pdf.problem} />
         </>
       ) : null}
     </Screen>

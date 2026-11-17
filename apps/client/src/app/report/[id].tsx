@@ -1,9 +1,9 @@
-import { Linking, View } from 'react-native';
+import { View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { brand, font, radius, space } from '@tenmina/tokens';
 import { Button, Label, Panel, Rise, Screen, T } from '@tenmina/ui';
-import { LoadState, ProblemBox, apiBaseUrl, day, shortHash, useAction, useGet, words } from '@tenmina/mobile';
+import { LoadState, day, shortHash, useGet, words } from '@tenmina/mobile';
 
 interface Report {
   id: string;
@@ -31,16 +31,13 @@ const HEAD = {
 export default function ReportScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const r = useGet<Report>(`/v1/reports/${id}`);
-  const pdf = useAction();
   const d = r.data;
   const v = d?.overall_verdict ?? null;
   const tone = v === 'green' ? 'lime' : v === 'amber' ? 'amber' : 'red';
   const mark = v === 'green' ? 'checkmark' : v === 'amber' ? 'alert' : 'close';
 
-  async function openPdf() {
-    const out = await pdf.run<{ url: string }>('GET', `/v1/reports/${id}/pdf`);
-    if (out) void Linking.openURL(out.url.startsWith('http') ? out.url : `${apiBaseUrl()}${out.url}`);
-  }
+  // The sealed PDF opens in the app's reader through a short-lived signed link (FR-RPT-007, FR-EVD-003).
+  const openPdf = () => router.push({ pathname: '/file/[id]', params: { id, from: 'report', name: d ? `Report ${d.reference}` : 'Report', type: 'application/pdf' } });
 
   return (
     <Screen
@@ -48,7 +45,7 @@ export default function ReportScreen() {
       back
       title={d ? `Report ${d.reference}` : 'Report'}
       trailing={d ? <Label>{`V${d.version}`}</Label> : undefined}
-      footer={d ? <Button title="Open the PDF" icon="document-outline" variant="dark" loading={pdf.busy} onPress={() => void openPdf()} /> : undefined}
+      footer={d ? <Button title="Read the PDF" icon="document-outline" variant="dark" onPress={openPdf} /> : undefined}
     >
       <LoadState loading={r.loading} problem={r.problem} onRetry={r.reload} hasData={!!d} />
       {d && v ? (
@@ -98,7 +95,6 @@ export default function ReportScreen() {
               </View>
             </View>
           </Rise>
-          <ProblemBox problem={pdf.problem} />
           <Button title="Back to the case" variant="quiet" onPress={() => router.push(`/case/${d.case}`)} />
         </>
       ) : null}

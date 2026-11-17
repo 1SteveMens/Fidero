@@ -43,8 +43,11 @@ ORDERS = [
 def _doc(person, gh, key):
     from evidence.services import store
 
-    return store(data=f"%PDF-1.4 demo site plan for {key}".encode(), country=gh, uploaded_by=person,
-                 content_type="application/pdf", original_name=f"{key}-site-plan.pdf", source="upload")
+    from core import samples
+
+    return store(data=samples.pdf("site_plan", key, title=f"Site plan: {key.replace('-', ' ')}"), country=gh,
+                 uploaded_by=person, content_type="application/pdf", original_name=f"{key}-site-plan.pdf",
+                 source="upload")
 
 
 def _accept(gh):

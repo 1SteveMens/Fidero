@@ -43,7 +43,7 @@ export const TAB_LINES = {
 } as const;
 
 const ROUTES: [RegExp, (id: string) => string][] = [
-  [/^\/cases\/([^/?]+)$/, (id) => `/case/${id}`],
+  [/^\/cases\/([^/?]+)(?:\/document-requests\/[^/?]+)?$/, (id) => `/case/${id}`],
   [/^\/reports\/([^/?]+)$/, (id) => `/report/${id}`],
   [/^\/escrows\/([^/?]+)$/, (id) => `/escrow/${id}`],
   [/^\/release-instructions\/([^/?]+)$/, (id) => `/release/${id}`],
@@ -61,12 +61,16 @@ const ROUTES: [RegExp, (id: string) => string][] = [
   [/^\/insurance\/premiums\/([^/?]+)$/, (id) => `/premium/${id}`],
   [/^\/disputes\/([^/?]+)$/, (id) => `/dispute/${id}`],
   [/^\/payee-changes\/([^/?]+)$/, (id) => `/payee-change/${id}`],
+  [/^\/listings\/([^/?]+)$/, (id) => `/listing/${id}`],
+  [/^\/orders\/([^/?]+)(?:\/pay)?$/, (id) => `/pay-fee/${id}`],
+  [/^\/(?:property\/)?listings$/, () => '/listings'],
+  [/^\/(?:family\/)?members\/([^/?]+)$/, (id) => `/member/${id}`],
 ];
 
 /**
  * The app screen for a link the API gives (GET /v1/home, notifications). A
- * link the app has no screen for opens a summary with a link to the website.
- * Opening a link never approves anything (03 section 2.3a).
+ * link the app has no screen for opens a summary inside the app; nothing opens
+ * the website. Opening a link never approves anything (03 section 2.3a).
  */
 export function routeFor(link: string, title?: string, detail?: string): Href {
   const path = link.split('?')[0];
@@ -75,6 +79,20 @@ export function routeFor(link: string, title?: string, detail?: string): Href {
     if (m) return to(m[1]) as Href;
   }
   return { pathname: '/item', params: { link, title: title ?? '', detail: detail ?? '' } };
+}
+
+/** Digits and one decimal point only, for money fields. */
+export function amountOnly(v: string): string {
+  const clean = v.replace(/[^\d.]/g, '');
+  const [whole, ...rest] = clean.split('.');
+  return rest.length ? `${whole}.${rest.join('').slice(0, 2)}` : whole;
+}
+
+/** The content type for a picked file whose picker did not say (the evidence store checks the bytes too). */
+export function typeFromName(name: string): string {
+  const ext = name.toLowerCase().split('.').pop() ?? '';
+  const types: Record<string, string> = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', heic: 'image/heic', heif: 'image/heif', pdf: 'application/pdf' };
+  return types[ext] ?? 'application/octet-stream';
 }
 
 export function iconFor(kind: string): IconName {

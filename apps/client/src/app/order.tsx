@@ -29,7 +29,7 @@ const STEPS = ['What', 'Plot', 'Seller', 'Agree'];
 /**
  * Order a report in four steps (SCR-PTL-06 to 09; W-03 to W-05): what to check
  * and the tier, the plot and its site plan, the seller, then the scope and terms.
- * The fee is then paid on the website (SCR-APP-06). Prices come only from the server.
+ * The fee is then paid in the app through the payment provider (SCR-APP-06). Prices come only from the server.
  */
 export default function Order() {
   const api = useApi();
@@ -190,7 +190,7 @@ export default function Order() {
             <Label>{terms.data.terms.title}</Label>
             <T v="callout">{terms.data.terms.text}</T>
           </Panel>
-          <Choice selected={agree} onPress={() => setAgree((a) => !a)} title="I have read the scope and the terms, and I agree" detail={chosen ? `${chosen.tier_name}: ${money(chosen.price)}, paid on the Tenmina website` : undefined} />
+          <Choice selected={agree} onPress={() => setAgree((a) => !a)} title="I have read the scope and the terms, and I agree" detail={chosen ? `${chosen.tier_name}: ${money(chosen.price)}, paid in the app by card or mobile money` : undefined} />
           <View style={{ flexDirection: 'row', gap: space[2] }}>
             <Ionicons name="lock-closed-outline" size={18} color={brand.ink} />
             <T v="footnote" muted style={{ flex: 1 }}>You pay Tenmina's fee for the work, whatever the verdict. Never pay the seller until the report is out and the escrow is set up.</T>

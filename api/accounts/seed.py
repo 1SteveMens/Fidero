@@ -87,15 +87,17 @@ def _evidence(gh, by, name, text):
     from core.ids import uuid7
     from evidence.models import Evidence
 
+    from core import samples
+
+    data, ct, name = samples.file_for(name, "application/pdf", lines=[text])  # a sample PDF marked SAMPLE
     ev = Evidence.objects.filter(original_name=name, country=gh).first()
     if ev:
         return ev
-    data = text.encode()
     eid = uuid7()
     key = f"{gh.code}/seed/{eid}"
     get_adapter("evidence_store").put(key, data)
     return Evidence.objects.create(id=eid, country=gh, sha256=hashlib.sha256(data).hexdigest(), size_bytes=len(data),
-                                   content_type="text/plain", original_name=name, storage_key=key, source="upload",
+                                   content_type=ct, original_name=name, storage_key=key, source="upload",
                                    uploaded_by=by, scan_status="clean", description=name)
 
 

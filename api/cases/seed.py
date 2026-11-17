@@ -97,8 +97,10 @@ def ensure_registry_account(gh, admin):
 def _file(person, gh, name, kind="image/jpeg"):
     from evidence.services import store
 
-    data = (b"\xff\xd8\xff\xe0" + f"demo {name}".encode()) if kind == "image/jpeg" else f"%PDF-1.4 {name}".encode()
-    return store(data=data, country=gh, uploaded_by=person, content_type=kind, original_name=name)
+    from core import samples
+
+    data, kind, filename = samples.file_for(name, kind)
+    return store(data=data, country=gh, uploaded_by=person, content_type=kind, original_name=filename)
 
 
 def attach(task, person, gh, kind):

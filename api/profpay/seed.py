@@ -49,9 +49,16 @@ def _ev(gh, by, name, text=None):
     from evidence.models import Evidence
     from evidence.services import store
 
+    from core import samples
+
+    stem = name.rsplit(".", 1)[0] if name.endswith(".txt") else name
+    if stem.startswith("receipt"):  # a paper receipt, photographed
+        data, ct, name = samples.photo("receipt", stem, caption=text or "Receipt"), "image/jpeg", f"{stem}.jpg"
+    else:
+        data, ct, name = samples.file_for(stem, "application/pdf", lines=[text] if text else None)
     ev = Evidence.objects.filter(original_name=name, country=gh).first()
-    return ev or store(data=(text or f"Demo document: {name}").encode(), country=gh, uploaded_by=by,
-                       content_type="text/plain", original_name=name, data_class="payables")
+    return ev or store(data=data, country=gh, uploaded_by=by, content_type=ct, original_name=name,
+                       data_class="payables")
 
 
 def _config(gh, admin):

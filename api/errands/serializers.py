@@ -56,7 +56,7 @@ class CatalogueSerializer(serializers.Serializer):
 class ErrandDocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ErrandDocument
-        fields = ["key", "label", "required", "status", "reject_reason", "evidence", "uploaded_at", "reviewed_at"]
+        fields = ["id", "key", "label", "required", "status", "reject_reason", "evidence", "uploaded_at", "reviewed_at"]
 
 
 class ErrandStepSerializer(serializers.ModelSerializer):

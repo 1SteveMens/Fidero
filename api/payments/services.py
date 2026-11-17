@@ -124,6 +124,9 @@ def _close_stale_attempts(qs):
     return False
 
 
+APP_RETURN_SCHEME = "tenmina://"  # the client app's scheme (apps/client/app.json)
+
+
 def _start(*, payer, country, purpose, amount, currency, method, order=None, invoice=None, return_url="",
            wallet_phone=""):
     if method not in ("card", "mobile_money"):
@@ -132,8 +135,9 @@ def _start(*, payer, country, purpose, amount, currency, method, order=None, inv
         flags.require("payments.mobile_money", country)
     if amount is None or Decimal(amount) <= 0:
         raise Invalid("This order has no price to pay.")
+    # A Tenmina page, or the Tenmina app's own link scheme (the client app returns from the provider's sheet to it).
     if return_url and not (return_url.startswith("/") or return_url.startswith("https://")
-                           or return_url.startswith("http://localhost")):
+                           or return_url.startswith("http://localhost") or return_url.startswith(APP_RETURN_SCHEME)):
         raise Invalid("The return address must be a Tenmina page.")
     provider = adapters.provider()
     p = FeePayment.objects.create(country=country, purpose=purpose, payer=payer, order=order, invoice=invoice,

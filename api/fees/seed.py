@@ -13,13 +13,13 @@ from datetime import timedelta
 from django.utils import timezone
 
 
-def _doc(gh, by, name, ct="application/pdf"):
-    from core.ids import uuid7
+def _doc(gh, by, name, ct="application/pdf", **sample):
+    """A sample bill, receipt or letter (core.samples), marked SAMPLE. `sample` names the issuer and amount."""
+    from core import samples
     from evidence.services import store
 
-    head = b"\xff\xd8\xff\xe0 " if ct == "image/jpeg" else b"%PDF-1.4 "
-    return store(data=head + f"Demo document: {name} ".encode() + uuid7().bytes, country=gh, uploaded_by=by,
-                 content_type=ct, original_name=f"{name}.{'jpg' if ct == 'image/jpeg' else 'pdf'}",
+    data, ct, filename = samples.file_for(name, ct, **sample)
+    return store(data=data, country=gh, uploaded_by=by, content_type=ct, original_name=filename,
                  description=name, data_class="family_payment")
 
 
@@ -88,8 +88,10 @@ def verified_institution(gh, people, *, name, type, reg, account, contact_person
 def _invoice(gh, by, inst, fm, ref, amount, **kw):
     from fees import services
 
+    bill = _doc(gh, by, f"bill-{ref}", issuer=inst.legal_name, amount=amount, to=f"For {fm.full_name}",
+                title=kw.get("description") or "Bill")
     return services.submit_invoice(by, institution=inst, family_member=fm, institution_reference=ref, amount=amount,
-                                   currency="GHS", evidence=_doc(gh, by, f"bill-{ref}"),
+                                   currency="GHS", evidence=bill,
                                    due_on=timezone.localdate() + timedelta(days=kw.pop("due_in", 14)), **kw)
 
 
@@ -137,8 +139,10 @@ def _held_funds_bills(gh, people, inst, mother):
             _confirm(ins, cm, rv, "PAY-HF-0001")
             payment.refresh_from_db()
             if payment.status == "paid":
-                services.add_receipt(payment, cm, receipt_evidence=_doc(gh, cm, f"receipt-{ref}"),
-                                     confirmation_evidence=_doc(gh, cm, f"enrolment-{ref}"))
+                receipt = _doc(gh, cm, f"receipt-{ref}", issuer=inst.legal_name, amount=amount,
+                               title=f"Receipt: {label}")
+                enrolment = _doc(gh, cm, f"enrolment-{ref}", issuer=inst.legal_name, title="Confirmation of enrolment")
+                services.add_receipt(payment, cm, receipt_evidence=receipt, confirmation_evidence=enrolment)
 
 
 def _school(gh, people, ctx):
@@ -235,7 +239,8 @@ def run(ctx):
         _approve(inv5, client)
         pay5 = inv5.payments.get()
         services.confirm_received(pay5, cm, method="receipt", note="Receipt handed in [demo]",
-                                  evidence=_doc(gh, cm, "receipt-KATH-2026-08-0120"))
+                                  evidence=_doc(gh, cm, "receipt-KATH-2026-08-0120", issuer=hosp.legal_name,
+                                                amount="300.00", title="Receipt: lab tests"))
 
     # Pending verification, with a runner collecting a paper bill.
     clinic, _ = services.register_institution(client, country=gh, type="clinic",

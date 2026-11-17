@@ -33,8 +33,10 @@ def demo_id(name):
 def _ev(gh, by, name, kind="application/pdf"):
     from evidence.services import store
 
-    data = (b"\xff\xd8\xff\xe0" + f"demo {name}".encode()) if kind == "image/jpeg" else f"%PDF-1.4 {name}".encode()
-    return store(data=data, country=gh, uploaded_by=by, content_type=kind, original_name=f"{name}.pdf",
+    from core import samples
+
+    data, kind, filename = samples.file_for(name, kind)
+    return store(data=data, country=gh, uploaded_by=by, content_type=kind, original_name=filename,
                  description=name)
 
 
@@ -252,15 +254,18 @@ def _project_a(ctx, gh, people, panel_, asset):
 
 def _field_submit(gh, m, person, key):
     """Capture the required evidence with a Tenmina Field phone and submit it."""
-    from mobile.devtools import jpeg, mp4
+    from core import samples
+    from mobile.devtools import mp4
     from mobile.seed import _item, _phone
     from mobile.services import submit
 
     phone = _phone(person, f"bld-{key}", platform="android")
     items, when = [], timezone.now() - timedelta(hours=3)
     for n, req in enumerate(m.required_evidence):
-        data = mp4(f"bld-{key}-{m.key}-{n}") if req["media"] == "video" else jpeg(f"bld-{key}-{m.key}-{n}",
-                                                                                   model=phone.model)
+        scene = samples.photo_kind_for(f"{req['key']} {m.key} {m.name}", default="foundation")
+        data = mp4(f"bld-{key}-{m.key}-{n}") if req["media"] == "video" else samples.photo(
+            scene, f"bld-{key}-{m.key}-{n}", caption=f"{m.name}: {req.get('label') or req['key']}"[:58],
+            model=phone.model)
         it = _item(phone, str(demo_id(f"{key}-{m.pk}-{n}")), "milestone", m.pk, data, requirement_key=req["key"],
                    media_type="video/mp4" if req["media"] == "video" else "image/jpeg",
                    captured_at=when + timedelta(minutes=n * 2), lat=5.5342, lng=-0.4256)
@@ -270,15 +275,17 @@ def _field_submit(gh, m, person, key):
 
 
 def _inspect(gh, i, person, key, *, outcome="pass", defects=()):
-    from mobile.devtools import jpeg
+    from core import samples
     from mobile.seed import _item, _phone
     from mobile.services import submit_inspection
 
     phone = _phone(person, f"bld-insp-{key}", platform="ios")
     clean = []
     for n, (desc, value) in enumerate(defects):
+        photo = samples.photo("defect", f"bld-defect-{key}-{n}", caption=f"Defect: {desc}"[:58], model=phone.model,
+                              make="Apple")
         it = _item(phone, str(demo_id(f"defect-{key}-{n}")), "milestone_inspection", i.pk,
-                   jpeg(f"bld-defect-{key}-{n}", model=phone.model, make="Apple"), requirement_key=f"defect_{n + 1}",
+                   photo, requirement_key=f"defect_{n + 1}",
                    captured_at=timezone.now() - timedelta(minutes=30), lat=5.5342, lng=-0.4256)
         clean.append({"description": desc, "value": {"amount": value, "currency": "GHS"},
                       "evidence_ids": [str(it.evidence_id)]})

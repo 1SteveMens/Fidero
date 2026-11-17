@@ -28,10 +28,11 @@ def _momo(order, person, outcome):
 
 
 def _proof(person, gh, label):
+    from core import samples
     from evidence.services import store
 
-    return store(data=f"%PDF-1.4 demo bank advice {label}".encode(), country=gh, uploaded_by=person,
-                 content_type="application/pdf", original_name=f"{label}.pdf")
+    return store(data=samples.pdf("bank_advice", label, title=f"Bank advice: {label}"), country=gh,
+                 uploaded_by=person, content_type="application/pdf", original_name=f"{label}.pdf")
 
 
 def run(ctx):

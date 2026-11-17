@@ -3,8 +3,9 @@ import { View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { space } from '@tenmina/tokens';
 import { Button, Chip, Choice, Label, Panel, Screen, T } from '@tenmina/ui';
-import { LoadState, day, money, useApi, useGet, words, type ApiMoney } from '@tenmina/mobile';
+import { LoadState, Section, day, money, useApi, useGet, words, type ApiMoney } from '@tenmina/mobile';
 import { InlineApproval } from '../../components/InlineApproval';
+import { AddFile, EvidenceFiles, FileRow } from '../../components/files';
 
 interface Repair {
   id: string;
@@ -14,7 +15,7 @@ interface Repair {
   description: string;
   urgent: boolean;
   status: string;
-  quotes: { id: string; contractor: { name: string }; payee: { name: string; status: string; account_last4: string }; amount: ApiMoney; valid_until: string; status: string; track_record: { completed: number; disputes: number } }[];
+  quotes: { id: string; contractor: { name: string }; payee: { name: string; status: string; account_last4: string }; amount: ApiMoney; valid_until: string; status: string; track_record: { completed: number; disputes: number }; quote_evidence?: string | null }[];
   quotes_needed: number;
   approval_blockers: { message: string }[] | string[];
   approved_quote: string | null;
@@ -33,6 +34,7 @@ export default function RepairScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const r = useGet<Repair>(`/v1/repairs/${id}`);
   const [pick, setPick] = useState<string>();
+  const [filesTick, setFilesTick] = useState(0);
   const d = r.data;
   const quote = d?.quotes.find((q) => q.id === pick);
   const blockers = (d?.approval_blockers ?? []).map((b) => (typeof b === 'string' ? b : b.message));
@@ -59,6 +61,17 @@ export default function RepairScreen() {
               />
             ))}
           </Panel>
+          {d.quotes.some((q) => q.quote_evidence) ? (
+            <Section title="The quotes">
+              <Panel style={{ paddingVertical: space[1], gap: 0 }}>
+                {d.quotes
+                  .filter((q) => q.quote_evidence)
+                  .map((q, i, all) => (
+                    <FileRow key={q.id} id={q.quote_evidence as string} name={`Quote from ${q.contractor.name}`} type="" detail={money(q.amount)} last={i === all.length - 1} />
+                  ))}
+              </Panel>
+            </Section>
+          ) : null}
           {blockers.map((b) => (
             <T key={b} v="footnote" muted>{b}</T>
           ))}
@@ -73,6 +86,12 @@ export default function RepairScreen() {
             />
           ) : null}
           {d.release_instruction && d.status !== 'paid' ? <Button title="Open the payment" onPress={() => router.push(`/release/${d.release_instruction}`)} /> : null}
+          <Section title="Photos and documents">
+            <EvidenceFiles subjectType="repair" subjectId={d.id} tick={filesTick} empty="No photos yet." />
+            {d.status !== 'paid' && d.status !== 'cancelled' ? (
+              <AddFile label="Add a photo or document from" subject={{ type: 'repair', id: d.id, role: 'owner_document', description: `For the repair: ${d.title}` }} onDone={() => setFilesTick((t) => t + 1)} />
+            ) : null}
+          </Section>
           <Button title="Back to the property" variant="quiet" onPress={() => router.push(`/managed/${d.property}`)} />
         </>
       ) : null}

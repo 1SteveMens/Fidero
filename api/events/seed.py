@@ -7,17 +7,23 @@ from datetime import timedelta
 from django.utils import timezone
 
 
-def _doc(gh, by, name, data=None, content_type="text/plain"):
+def _doc(gh, by, name, data=None, content_type="application/pdf"):
+    """A sample document (core.samples) marked SAMPLE, or the bytes given."""
+    from core import samples
     from evidence.services import store
 
-    return store(data=data or f"Demo document: {name} [demo]".encode(), country=gh, uploaded_by=by,
-                 content_type=content_type, original_name=name, description=name, data_class="escrow_payment")
+    if data is None:
+        data, content_type, name = samples.file_for(name)
+    return store(data=data, country=gh, uploaded_by=by, content_type=content_type, original_name=name,
+                 description=name, data_class="escrow_payment")
 
 
 def _photo(gh, by, name):
-    from mobile.devtools import jpeg
+    from core import samples
 
-    return _doc(gh, by, f"{name}.jpg", data=jpeg(f"evt-seed-{name}"), content_type="image/jpeg")
+    return _doc(gh, by, f"{name}.jpg", data=samples.photo("delivery", f"evt-seed-{name}",
+                                                          caption=name.replace("-", " ").capitalize()),
+                content_type="image/jpeg")
 
 
 def _approve(req, *approvers):

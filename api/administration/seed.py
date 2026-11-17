@@ -76,7 +76,7 @@ def _flags():
     for name in DEV_OFF:
         FeatureFlag.objects.get_or_create(name=name, country=None, defaults={"enabled": False, "owner": "founder"})
     FeatureFlag.objects.get_or_create(name="app.fee_payment_mode", country=None,
-                                      defaults={"enabled": True, "value": "web"})
+                                      defaults={"enabled": True, "value": "in_app_provider"})
 
 
 def _approve(req, approver):
@@ -86,10 +86,12 @@ def _approve(req, approver):
 
 
 def _evidence(gh, admin, name):
+    from core import samples
     from evidence.services import store
 
-    return store(data=f"Signed approval: {name} [demo document]".encode(), country=gh, uploaded_by=admin,
-                 content_type="text/plain", original_name=f"{name}.txt", description=name)
+    data = samples.pdf("approval", name, title=f"Signed approval: {name.replace('-', ' ')}")
+    return store(data=data, country=gh, uploaded_by=admin, content_type="application/pdf",
+                 original_name=f"{name}.pdf", description=name)
 
 
 def _published_text(kind, gh, admin, admin2, text, title, insurer=False):

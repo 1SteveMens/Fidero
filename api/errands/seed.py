@@ -86,10 +86,15 @@ def _publish_catalogue(gh, admin):
 
 
 def _ev(gh, by, name, data_class="identity_documents"):
+    from core import samples
     from evidence.services import store
 
-    return store(data=f"%PDF-1.4\n% Demo document: {name} [demo]\n".encode(), country=gh, uploaded_by=by,
-                 content_type="application/pdf", original_name=f"{name}.pdf", data_class=data_class)
+    if samples.doc_kind_for(name) == "id":  # an identity document, photographed: obviously fake
+        data, ct, filename = samples.photo("id", name, caption=name.replace("-", " ")), "image/jpeg", f"{name}.jpg"
+    else:
+        data, ct, filename = samples.file_for(name, "application/pdf")
+    return store(data=data, country=gh, uploaded_by=by, content_type=ct, original_name=filename,
+                 data_class=data_class)
 
 
 def _agent_person(gh, people):
@@ -163,10 +168,13 @@ def _phone(person, name):
 
 
 def _photo(phone, subject_type, subject_id, key, lat=5.5560, lng=-0.1969):
-    from mobile.devtools import jpeg
+    from core import samples
     from mobile.services import complete_item, register_item
 
-    data = jpeg(f"errand-seed-{subject_id}-{key}", model=phone.model)
+    data = samples.photo("receipt" if key == "receipt" else "document", f"errand-seed-{subject_id}-{key}",
+                         caption={"receipt": "Official fee receipt", "result": "Result document",
+                                  "handover": "Handover: waybill"}.get(key, "Stamped acknowledgement"),
+                         model=phone.model)
     m, _ = register_item(phone.person, phone.capture(subject_type, subject_id, data, requirement_key=key, lat=lat,
                                                      lng=lng), app_version="1.0.0")
     m, _ = complete_item(m, phone.person, data)
