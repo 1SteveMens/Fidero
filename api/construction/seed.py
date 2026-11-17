@@ -42,7 +42,7 @@ def _ev(gh, by, name, kind="application/pdf"):
 
 def _person(gh, key, email, name, role, admin):
     from accounts.models import Person, RoleGrant
-    from accounts.seed import DEV_MFA_SECRET, DEV_PASSWORD
+    from accounts.seed import DEV_MFA_SECRET, DEV_PASSWORD, OLD_DEV_MFA_SECRET
 
     p = Person.objects.filter(email=email).first()
     if p is None:
@@ -51,6 +51,9 @@ def _person(gh, key, email, name, role, admin):
         RoleGrant.objects.create(person=p, role=role, granted_by=admin)
         p.mfa_secret, p.mfa_enabled = DEV_MFA_SECRET, True
         p.save(update_fields=["mfa_secret", "mfa_enabled"])
+    elif p.mfa_secret == OLD_DEV_MFA_SECRET:
+        p.mfa_secret = DEV_MFA_SECRET
+        p.save(update_fields=["mfa_secret"])
     return p
 
 

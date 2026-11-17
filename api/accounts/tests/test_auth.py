@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from accounts.adapters import FakeOtpSender
 from accounts.models import ApiToken, OneTimeCode, Person
+from accounts.seed import DEV_MFA_SECRET
 from audit.models import AuditEvent
 from notifications.models import Message
 
@@ -215,7 +216,7 @@ def test_mfa_cannot_be_switched_off_for_staff(seeded, api, people, mfa):
     r = c.post(f"/v1/admin/people/{people['reviewer'].pk}/mfa-disable")
     assert r.status_code == 409 and r.json()["code"] == "mfa-mandatory"
     ama = people["client"]
-    Person.objects.filter(pk=ama.pk).update(mfa_enabled=True, mfa_secret="JBSWY3DPEHPK3PXP")
+    Person.objects.filter(pk=ama.pk).update(mfa_enabled=True, mfa_secret=DEV_MFA_SECRET)
     assert c.post(f"/v1/admin/people/{ama.pk}/mfa-disable").status_code == 200
 
 
