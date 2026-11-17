@@ -18,6 +18,9 @@ ESCROW_KINDS = ["purchase", "construction", "offplan", "project_fund", "held_fun
 STAGED_KINDS = {"construction", "offplan", "project_fund", "held_funds", "repair", "event"}
 # RUL-07: a fresh search and site check before any release on a land, building or off-plan purchase.
 FRESH_SEARCH_KINDS = {"purchase", "offplan"}
+# Kinds that need no property (asset). Every other kind must name one: esc_asset_required, checked first in
+# services.create_escrow. A list, so the constraint deconstructs the same as migration 0001.
+ASSET_OPTIONAL_KINDS = ["held_funds", "event", "project_fund"]
 ESCROW_STATUSES = ["proposed", "agreed", "funded", "ready_to_release", "client_approved", "release_approved",
                    "partly_released", "released", "frozen", "cancelled"]
 OPEN_STATUSES = [s for s in ESCROW_STATUSES if s not in ("released", "cancelled")]
@@ -225,7 +228,7 @@ class Escrow(CountryScopedModel):
                                    name="esc_purchase_has_report"),
             models.CheckConstraint(condition=~Q(kind__in=["construction", "offplan", "project_fund"])
                                    | Q(project_id__isnull=False), name="esc_project_kinds_have_project"),
-            models.CheckConstraint(condition=Q(kind__in=["held_funds", "event", "project_fund"])
+            models.CheckConstraint(condition=Q(kind__in=ASSET_OPTIONAL_KINDS)
                                    | Q(asset_id__isnull=False), name="esc_asset_required"),
             models.CheckConstraint(condition=Q(agreed_amount__gt=0) | (Q(kind="held_funds") & Q(agreed_amount__gte=0)),
                                    name="esc_agreed_amount_positive"),

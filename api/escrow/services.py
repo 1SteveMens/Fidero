@@ -58,9 +58,9 @@ from .blockers import fresh_search_reasons, open_condition_reasons, raise_if_blo
 from .blockers import release_blockers as _release_blockers
 from .common import (add_working_days, alert_staff, audit, cfg, fmt, has_rr, is_staff, local_date, local_today, log,
                      notify, now, setting, working_day_on_or_after)
-from .models import (ESCROW, OPEN_STATUSES, STAGED_KINDS, Acceptance, BankEvent, Condition, Escrow, EscrowPayee,
-                     Freeze, Party, Payee, PayeeChange, ProgrammeAccount, ReleaseInstruction, ReportSnapshot,
-                     StandingApproval)
+from .models import (ASSET_OPTIONAL_KINDS, ESCROW, OPEN_STATUSES, STAGED_KINDS, Acceptance, BankEvent, Condition,
+                     Escrow, EscrowPayee, Freeze, Party, Payee, PayeeChange, ProgrammeAccount, ReleaseInstruction,
+                     ReportSnapshot, StandingApproval)
 from .payees import (_client_signed, apply_payee_change, apply_verification, change_identity_check,  # noqa: F401
                      check_change_account, client_approve_change, create_payee, decide_change, decide_verification,
                      end_cooling_off, expire_payees, lock_payee, on_change_approval, prepare_verification,
@@ -167,6 +167,10 @@ def _programme_account(country, currency):
                                            status="active").first()
 
 
+_KIND_NAMES = {"purchase": "A purchase", "construction": "A construction", "offplan": "An off-plan",
+               "repair": "A repair"}
+
+
 @transaction.atomic
 def create_escrow(by, *, kind, client, country, agreed_amount, currency=None, title="", report_id=None,
                   asset_id=None, project_id=None, case_id=None, bank_partner=None, parties=(), conditions=(),
@@ -216,6 +220,9 @@ def create_escrow(by, *, kind, client, country, agreed_amount, currency=None, ti
         if snap is not None:
             asset_id = asset_id or snap.asset_id
             case_id = case_id or snap.case_id
+    if kind not in ASSET_OPTIONAL_KINDS and not asset_id:
+        raise Invalid(f"{_KIND_NAMES.get(kind, kind)} escrow needs the property it is for. Enter the property ID.",
+                      code="validation-error")
     bank = _bank_for(country, bank_partner)
     e = Escrow.objects.create(
         country=country, reference=_new_reference(country), kind=kind, title=title or kind.replace("_", " ").title(),
