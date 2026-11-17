@@ -5,8 +5,8 @@ Business requirements (BRD), product requirements (PRD) and software requirement
 | Item | Value |
 |---|---|
 | Document | 01 of 6 in `docs/specs/` |
-| Version | 0.17, working draft |
-| Date | 12 November 2026 |
+| Version | 0.18, working draft |
+| Date | 17 November 2026 |
 | Owner | Founder, acting as product owner |
 | Status | For review. Not yet baselined |
 | Sources | `README.md`, `docs/proposal.md`, `docs/validation-plan.md`, `docs/partners.md`, `docs/operations/verification-report-template.md`, `docs/operations/milestone-schedule.md`, `docs/product/architecture.md`, `docs/decisions/2026-11-01-diaspora-platform.md`, the business plan Claude doc |
@@ -18,6 +18,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 31 October 2026 | First draft |
+| 0.18 | 17 November 2026 | Founder decision `docs/decisions/2026-11-17-in-app-everything.md`: the client app does everything itself and never sends the person to the website to finish a task. FR-APP-005 now takes Tenmina's fees through the payment provider inside the app (card or mobile money), never as an in-app purchase and never on the web. AS-14 and Q-23 restated: the fee pays for real-world services (App Store Review Guideline 3.1.3(e)), to be confirmed by the lawyer. |
 | 0.17 | 12 November 2026 | Founder decision `docs/decisions/2026-11-12-two-front-doors.md`: the launch has two front doors, family payments against proof and property checks on land and houses, with a test of building in stages. A1 updated. R0 family payments use a verify-and-confirm model (the client pays the verified institution directly) until a licensed partner can pay on the client's behalf. No requirement IDs change; release scope is unchanged. |
 | 0.16 | 12 November 2026 | Adds Q-34 on candidate lines from diaspora habits (household bills, family pot, home watch, funeral package, trip home bundle, repeat prescriptions and NHIS renewal, inheritance and family property, religious giving against proof, farm watch), informed by the R0 survey. No requirement changes. |
 | 0.15 | 12 November 2026 | Exchange rates and deposit routes. Adds RUL-35 (no Tenmina margin on currency exchange, full rate disclosure, prices and payments to payees in the local currency) and RUL-36 (the client chooses to convert on deposit or at release; holding foreign currency needs a buffer). Adds FR-ESC-021 to FR-ESC-024 (deposit routes with the cedis delivered by each, conversion choice and buffer, the accepted quote recorded, a daily rate comparison), IF-14 (reference rate and rate comparison sources), IF-15 (licensed money transfer partners), Q-32 (foreign currency pricing for non-resident buyers under the Foreign Exchange Act 2006, Act 723) and Q-33 (the bank's programme rate and partners' limits). FR-ADM-005 and the glossary updated. Review fixes: local currency, not cedis, in FR-ESC-021 and IF-15; buffer measured against the amount due, with held amounts converted per payment; quote checks cover transfer partners, and the client's own bank is shown as an estimate; "best rate" ranked by amount delivered on a complete day; converted refunds to foreign accounts; a second administrator for comparison providers; quote validity; escrows in more than one currency; refunds of transfer partner deposits; a shortfall found at sending. |
@@ -226,7 +227,7 @@ The full problem statement is in `docs/proposal.md` section 2.
 | AS-10 | Schools, hospitals and government agencies accept direct payment with an invoice or student reference `[TO VERIFY]`. | That institution is not eligible for direct payment. Tenmina does not pay cash on the client's behalf. |
 | AS-11 | At least one licensed insurer per country will sell health and funeral cover through Tenmina `[TO VERIFY]`. | The insurer lines do not open in that country. |
 | AS-12 | Vetted carers and errand agents can be recruited and retained at a fee clients will pay `[TO VERIFY]`. | Care visits and errands stay small or close. |
-| AS-14 | Apple and Google accept that Tenmina's fees pay for real-world services, so they can be paid through the payment provider rather than in-app purchase `[TO VERIFY]`. | Fees are paid on the web portal and the apps show status and approvals only. |
+| AS-14 | Apple and Google accept that Tenmina's fees pay for real-world services (verification by lawyers and surveyors, errands, inspections), so they are paid through the payment provider inside the app rather than by in-app purchase (Apple guideline 3.1.3(e)) `[TO VERIFY]`. | The provider's hosted checkout opens in a sheet inside the app; the report PDF is described to reviewers as the record of the real-world work. |
 | AS-13 | Nigeria (country 2) passes its day-90 gate by month 9 `[TO VERIFY]`. | Country 2 software waits; Ghana continues. |
 
 ## A9. Success metrics
@@ -514,7 +515,7 @@ The system must enforce these rules. Each is tested in document 05.
 | Q-20 | Pricing for each new line | Founder | R1, R2 |
 | Q-21 | What data protection law and regulator apply in each new country, and what notification duties follow? | Lawyer per country | Each country's manual phase |
 | Q-22 | What duty of care does Tenmina owe during care visits, how is a carer's own safety protected, and what insurance covers both? | Founder, lawyer, insurer | R2 |
-| Q-23 | Do Apple and Google accept payment of Tenmina's fees through the payment provider inside the apps, as payment for real-world services? | Product lead | Before R2 app submission |
+| Q-23 | Do Apple and Google accept payment of Tenmina's fees through the payment provider inside the apps, as payment for real-world services? Working answer (17 November 2026): yes under Apple guideline 3.1.3(e) and Google Play's rule for physical services; the lawyer confirms `[TO VERIFY]`. | Product lead | Before R2 app submission |
 | Q-24 | Does Google Play's financial features declaration, or Apple's rules for financial apps, require any licence or proof from Tenmina or its bank in each country? | Lawyer | Before R2 app submission |
 | Q-25 | What withholding tax, registration and reporting apply when Tenmina pays contracted professionals in Ghana, Nigeria and Kenya? | Accountant, lawyer | R1 start; each country's manual phase |
 | Q-26 | Which bank account and mobile money provider does Tenmina use to pay professionals, and do they accept a bulk payment file? | Founder | R1 start |
@@ -748,7 +749,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 | FR-APP-002 | The client app shall send push notifications for status changes, requests and approvals, following the user's channel preferences and FR-NTF-004's limits on content. | Should | R2 | BR-01, FR-NTF-004 |
 | FR-APP-003 | The client app shall allow biometric unlock. Approving a release still needs the user's second factor. | Should | R2 | FR-ACC-003 |
 | FR-APP-004 | Both apps shall let a user delete their account from inside the app, subject to legal holds and the retention rules in C5.2, and say plainly what is kept and why. | Must | R2 | C-14, FR-DPR-004 |
-| FR-APP-005 | The client app shall take Tenmina's fees through the payment provider where store rules allow it for real-world services, and otherwise send the user to the web portal to pay. It shall never take purchase, construction or project money. | Must | R2 | AS-14, RUL-01 |
+| FR-APP-005 | The client app shall take Tenmina's fees through the payment provider inside the app (card or mobile money), as payment for real-world services. It shall never offer an in-app purchase for them, never send the user to the web to pay, and never take purchase, construction or project money. | Must | R2 | AS-14, RUL-01, `docs/decisions/2026-11-17-in-app-everything.md` |
 | FR-APP-006 | Both apps shall check for a minimum supported version at start and ask the user to update when theirs is too old, without losing queued evidence. | Must | R2 | C-14, FR-MOB-005 |
 
 ### C4.10 Construction, off-plan and buildings (BLD)

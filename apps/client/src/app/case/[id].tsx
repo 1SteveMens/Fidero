@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import type { CaseStep } from '@tenmina/shared';
-import { space } from '@tenmina/tokens';
+import { brand, space } from '@tenmina/tokens';
 import { Button, Chip, Label, Panel, Rise, Screen, StepTrail, T, VerdictChip, usePalette } from '@tenmina/ui';
-import { LoadState, Section, day, useGet, words } from '@tenmina/mobile';
+import { LoadState, Section, day, useApi, useGet, useSession, words } from '@tenmina/mobile';
+import { AddFile, EvidenceFiles, FileRow } from '../../components/files';
 
 interface CaseDetail {
   id: string;
@@ -18,7 +20,7 @@ interface CaseDetail {
   status_messages: { id: string; text: string; message_date: string; next_expected_date: string | null }[];
   steps: { step_key: string; title: string; status: string; due_at: string | null; completed_at: string | null }[];
   reports: { id: string; reference: string; version: number; status: string; released_at: string | null }[];
-  document_requests: { id: string; title?: string; description?: string; status: string; due_on?: string }[];
+  document_requests: { id: string; title?: string; description?: string; status: string; due_on?: string; received_evidence?: string | null; received_at?: string | null }[];
 }
 
 const LINES: Record<string, string> = { land: 'Land check', building: 'Building check', offplan: 'Off-plan check', institution: 'Institution check' };
@@ -27,7 +29,10 @@ const LINES: Record<string, string> = { land: 'Land check', building: 'Building 
 export default function CaseScreen() {
   const pal = usePalette('paper');
   const { id } = useLocalSearchParams<{ id: string }>();
+  const api = useApi();
+  const { me } = useSession();
   const c = useGet<CaseDetail>(`/v1/cases/${id}`);
+  const [filesTick, setFilesTick] = useState(0);
   const d = c.data;
   const firstOpen = d?.steps.findIndex((s) => s.status !== 'done' && s.status !== 'skipped') ?? -1;
   const steps: CaseStep[] = (d?.steps ?? []).map((s, i) => ({
@@ -80,15 +85,42 @@ export default function CaseScreen() {
 
           {d.document_requests.length ? (
             <Section title="Documents we asked for">
-              {d.document_requests.map((r) => (
-                <Panel key={r.id}>
-                  <T v="headline">{r.title ?? r.description ?? 'Document'}</T>
-                  <Label>{`${words(r.status)}${r.due_on ? ` · by ${day(r.due_on)}` : ''}`}</Label>
-                  <T v="footnote" muted>Send documents on the Tenmina website, where you can attach files.</T>
-                </Panel>
-              ))}
+              {d.document_requests.map((r) =>
+                r.status === 'open' ? (
+                  <Panel key={r.id} tone="orange">
+                    <Label color={brand.ink}>Needs you</Label>
+                    <T v="headline" color={brand.ink}>{r.title || r.description || 'Document'}</T>
+                    {r.description && r.title ? <T v="callout" color={brand.ink}>{r.description}</T> : null}
+                    {r.due_on ? <T v="footnote" color="#3A1408">{`Send it by ${day(r.due_on)}`}</T> : null}
+                    <AddFile
+                      label="Send it from"
+                      subject={{ type: 'case', id: d.id, role: 'client_document', description: r.title || 'Requested document' }}
+                      then={(ev) => api.post(`/v1/document-requests/${r.id}/responses`, { evidence_id: ev.id }, { idempotencyKey: `docreq-${r.id}-${ev.id}` })}
+                      onDone={() => {
+                        c.reload();
+                        setFilesTick((t) => t + 1);
+                      }}
+                    />
+                  </Panel>
+                ) : (
+                  <Panel key={r.id}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[2] }}>
+                      <T v="headline" style={{ flex: 1 }}>{r.title || r.description || 'Document'}</T>
+                      <Chip label={r.status === 'received' ? 'Received' : words(r.status)} tone={r.status === 'received' ? 'lime' : 'paper'} icon={r.status === 'received' ? 'checkmark' : undefined} />
+                    </View>
+                    {r.received_evidence ? <FileRow id={r.received_evidence} name="The file you sent" type="" detail={r.received_at ? `Sent ${day(r.received_at)}` : undefined} last /> : null}
+                  </Panel>
+                ),
+              )}
             </Section>
           ) : null}
+
+          <Section title="Files on this case">
+            <EvidenceFiles subjectType="case" subjectId={d.id} tick={filesTick} empty="No files on this case yet." />
+            {me && d.status !== 'cancelled' ? (
+              <AddFile label="Send a document from" subject={{ type: 'case', id: d.id, role: 'client_document', description: 'Sent by the client' }} onDone={() => setFilesTick((t) => t + 1)} />
+            ) : null}
+          </Section>
 
           {d.reports.length > 1 ? (
             <Section title="Report versions">

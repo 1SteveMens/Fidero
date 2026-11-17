@@ -14,8 +14,10 @@ from datetime import timedelta
 
 from django.utils import timezone
 
+from core import samples
+
 from . import crypto
-from .devtools import FakePhone, jpeg, mp4
+from .devtools import FakePhone, mp4
 from .models import Assignment, CheckIn, Device, FraudFlag, SignedManifest, Submission
 
 NS = uuid.UUID("0b9c3e6e-8a3c-4a65-a1b1-5c3e2f0d7a11")
@@ -144,9 +146,12 @@ def run(ctx):
 
     # Contractor, project A: three clean items, submitted.
     when = now - timedelta(hours=2)
-    a1 = _item(ct, str(sid("a1")), "milestone", ms_a, jpeg("seed-a1", model=ct.model), lat=5.6499, lng=-0.1801,
-               requirement_key="trench_depth_photo", captured_at=when)
-    a2 = _item(ct, str(sid("a2")), "milestone", ms_a, jpeg("seed-a2", model=ct.model), lat=5.6500, lng=-0.1800,
+    a1 = _item(ct, str(sid("a1")), "milestone", ms_a,
+               samples.photo("foundation", "seed-a1", caption="Trench depth", model=ct.model), lat=5.6499,
+               lng=-0.1801, requirement_key="trench_depth_photo", captured_at=when)
+    a2 = _item(ct, str(sid("a2")), "milestone", ms_a,
+               samples.photo("foundation", "seed-a2", caption="Rebar placed", model=ct.model), lat=5.6500,
+               lng=-0.1800,
                requirement_key="rebar_photo", captured_at=when + timedelta(minutes=3))
     a3 = _item(ct, str(sid("a3")), "milestone", ms_a, mp4("seed-a3"), media_type="video/mp4", lat=5.6498,
                lng=-0.1802, requirement_key="trench_walk_video", captured_at=when + timedelta(minutes=5))
@@ -157,13 +162,16 @@ def run(ctx):
                   {"requirement_key": "trench_walk_video", "evidence_id": str(a3.evidence_id)}])
 
     # Contractor, project B: photo taken in Accra, 25 km from the Kasoa plot. Flagged and held.
-    b1 = _item(ct, str(sid("b1")), "milestone", ms_b, jpeg("seed-b1", model=ct.model), lat=5.6037, lng=-0.1870,
+    b1 = _item(ct, str(sid("b1")), "milestone", ms_b,
+               samples.photo("roofing", "seed-b1", caption="Roof done", model=ct.model), lat=5.6037, lng=-0.1870,
                requirement_key="roof_photo", captured_at=now - timedelta(minutes=40))
     submit(p["contractor"], client_submission_id=str(sid("sub-b")), subject_type="milestone", subject_id=ms_b,
            items=[{"requirement_key": "roof_photo", "evidence_id": str(b1.evidence_id)}], note="Roof done")
 
     # Inspector: one defect photo, then pass with defects.
-    d1 = _item(insp, str(sid("d1")), "milestone_inspection", insp_a, jpeg("seed-d1", model=insp.model, make="Apple"),
+    d1 = _item(insp, str(sid("d1")), "milestone_inspection", insp_a,
+               samples.photo("defect", "seed-d1", caption="Defect: concrete cover too thin", model=insp.model,
+                             make="Apple"),
                lat=5.6499, lng=-0.1801, requirement_key="defect_1", captured_at=now - timedelta(minutes=20))
     submit_inspection(p["inspector"], client_submission_id=str(sid("insp-a")), subject_type="milestone_inspection",
                       subject_id=insp_a, outcome="pass_with_defects",

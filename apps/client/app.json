@@ -27,7 +27,16 @@
     },
     "plugins": [
       "expo-router",
-      "expo-font"
+      "expo-font",
+      "expo-sharing",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Tenmina uses your photos only when you choose one to send as a document.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ]
     ],
     "scheme": "tenmina",
     "experiments": {

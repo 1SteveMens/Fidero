@@ -19,8 +19,10 @@ log = logging.getLogger("projectfunds.seed")
 def _ev(gh, by, name, kind="application/pdf"):
     from evidence.services import store
 
-    data = (b"\xff\xd8\xff\xe0" + f"demo {name}".encode()) if kind == "image/jpeg" else f"%PDF-1.4 {name}".encode()
-    return store(data=data, country=gh, uploaded_by=by, content_type=kind, original_name=name, description=name)
+    from core import samples
+
+    data, kind, filename = samples.file_for(name, kind)
+    return store(data=data, country=gh, uploaded_by=by, content_type=kind, original_name=filename, description=name)
 
 
 def complete_case(case_id, gh, people, outcome="verified", note=""):

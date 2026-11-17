@@ -27,11 +27,15 @@ TITLES = {
 }
 
 
-def doc(person, gh, name, kind="application/pdf"):
+def doc(person, gh, name, kind="application/pdf", scene="listing_land", caption=""):
+    """A sample file marked SAMPLE (core.samples): a listing photo, or a site plan, certificate or report."""
+    from core import samples
     from evidence.services import store
 
-    data = (b"\xff\xd8\xff\xe0" + f"listing photo {name}".encode()) if kind == "image/jpeg" \
-        else f"%PDF-1.4 listing document {name}".encode()
+    if kind == "image/jpeg":  # a listing photo: a plot, or a house for units and houses
+        data = samples.photo(scene, f"listing-{name}", caption=caption or f"Listing photo {name.rsplit('.', 1)[0]}")
+        return store(data=data, country=gh, uploaded_by=person, content_type=kind, original_name=name)
+    data, kind, name = samples.file_for(name, kind)
     return store(data=data, country=gh, uploaded_by=person, content_type=kind, original_name=name)
 
 
@@ -108,7 +112,9 @@ def new_listing(gh, people, *, seller="seller", org=None, title, plot, price="15
                   "plot_number": plot, "site_plan_ref": f"GA/AFI/{plot}", "location": location}})
     services.add_media(listing, person, kind="site_plan", evidence=doc(person, gh, f"site-plan-{plot}.pdf"))
     services.add_media(listing, person, kind="photo", caption="View from the access road",
-                       evidence=doc(person, gh, f"{plot}.jpg", "image/jpeg"))
+                       evidence=doc(person, gh, f"{plot}.jpg", "image/jpeg",
+                                    scene="listing_land" if kind == "plot" else "listing",
+                                    caption=f"{title}: view from the access road"[:58]))
     if not submit:
         return listing
     t = legal.current(gh)
@@ -216,7 +222,8 @@ def _live(ctx, gh, people, ato, sunrise, seeded):
             "description": "Half plot (70 x 70 ft) in a gated estate. Tarred road, water and electricity. [demo]",
             "price": {"amount": "185000.00", "currency": "GHS"}, "size_sqm": "455.00", "estate_name": "Ato Estates"})
         services.add_media(x, people["seller"], kind="photo", caption="Plot A-12 from the estate road",
-                           evidence=doc(people["seller"], gh, "a12.jpg", "image/jpeg"))
+                           evidence=doc(people["seller"], gh, "a12.jpg", "image/jpeg",
+                                        caption="Plot A-12 from the estate road"))
         t = legal.current(gh)
         x = services.submit(x, people["seller"], terms_version=t["terms_version"], scope_version=t["scope_version"])
         pay_invoice(listing_fee_invoice(x), people["seller"])

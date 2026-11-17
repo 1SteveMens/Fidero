@@ -7,12 +7,14 @@ from django.utils import timezone
 
 
 def _doc(gh, by, name):
-    from core.ids import uuid7
+    from core import samples
     from evidence.services import store
 
-    return store(data=b"%PDF-1.4 " + f"Demo document: {name} ".encode() + uuid7().bytes, country=gh, uploaded_by=by,
-                 content_type="application/pdf", original_name=f"{name}.pdf", description=name,
-                 data_class="insurance")
+    kind = "certificate" if "licence" in name else "policy"
+    return store(data=samples.pdf(kind, name, title=name.replace("-", " ").capitalize(),
+                                  issuer=None if kind == "policy" else "Insurance regulator (sample)"),
+                 country=gh, uploaded_by=by, content_type="application/pdf", original_name=f"{name}.pdf",
+                 description=name, data_class="insurance")
 
 
 def run(ctx):

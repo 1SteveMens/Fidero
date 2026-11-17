@@ -448,7 +448,9 @@ def test_raising_minimum_needs_second_admin_and_old_app_gets_426(seeded, admins,
         appversion.check("client/ios/1.0.5")
     assert exc.value.status == 426 and exc.value.code == "app-version-unsupported"
     cfg = api().get("/v1/app-config", {"app": "client", "platform": "ios", "version": "1.0.5"}).json()
-    assert cfg["update_required"] is True and cfg["min_version"] == "1.2.0" and cfg["fee_payment_mode"] == "web"
+    # FR-APP-005: the development seed takes Tenmina's fees in the app, through the payment provider.
+    assert cfg["update_required"] is True and cfg["min_version"] == "1.2.0" and \
+        cfg["fee_payment_mode"] == "in_app_provider"
     assert api().get("/v1/app-config", {"app": "client", "platform": "ios", "version": "1.2.0"}).json()[
         "update_required"] is False
 

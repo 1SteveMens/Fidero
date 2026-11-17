@@ -1,8 +1,8 @@
-import { Linking, View } from 'react-native';
+import { View } from 'react-native';
 import { router } from 'expo-router';
 import { space } from '@tenmina/tokens';
 import { IconButton, Rise, Screen, T } from '@tenmina/ui';
-import { LoadState, Section, portalUrl } from '@tenmina/mobile';
+import { LoadState, Section } from '@tenmina/mobile';
 import { ItemList, NeedsYouList, StartTile, useHome } from '../../components/rows';
 
 const CASES = ['case', 'report', 'partner_order'];
@@ -45,7 +45,7 @@ export default function Property() {
           <View style={{ flexDirection: 'row', gap: space[2] }}>
             <StartTile icon="location-outline" title="Check a plot" detail="Searches, survey, legal" tone="lime" href="/order" />
             <StartTile icon="home-outline" title="Check a house" detail="Structure, title, rates" tone="ink" href={{ pathname: '/order', params: { line: 'building' } }} />
-            <StartTile icon="list-outline" title="Verified listings" detail="Opens the website" tone="surface" onPress={() => void Linking.openURL(`${portalUrl()}/listings`)} />
+            <StartTile icon="list-outline" title="Verified listings" detail="Checked plots and homes" tone="surface" href="/listings" />
           </View>
         </>
       ) : null}

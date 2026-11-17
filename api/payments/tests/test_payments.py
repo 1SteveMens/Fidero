@@ -56,6 +56,21 @@ def test_card_payment_journey_marks_order_paid_and_issues_receipt(seeded, api, p
     assert c.get("/v1/receipts").json()["items"][0]["number"] == rec["number"]
 
 
+def test_return_address_is_a_tenmina_page_or_the_tenmina_app(seeded, api, people, gh):
+    """FR-APP-005, FR-PAY-001: the client app pays in the app and returns from the provider to its own link
+    (tenmina://); any other site is refused, so the checkout cannot send the client elsewhere."""
+    c = api(people["client"])
+    o = _order(api, people, gh)
+    r = c.post(f"/v1/orders/{o['id']}/payments", {"method": "card", "return_url": "tenmina://pay-fee/x"}, format="json")
+    assert r.status_code == 201, r.content
+    o2 = _order(api, people, gh)
+    r = c.post(f"/v1/orders/{o2['id']}/payments", {"method": "card", "return_url": "evil://pay"}, format="json")
+    assert r.status_code == 422 and r.json()["code"] == "validation-error"
+    r = c.post(f"/v1/orders/{o2['id']}/payments", {"method": "card", "return_url": "http://evil.example/pay"},
+               format="json")
+    assert r.status_code == 422
+
+
 def test_same_webhook_twice_records_one_payment(seeded, api, people, gh):
     """US-PAY-001a AC2, TC-ORD-004-02: duplicate callbacks record one payment and one receipt."""
     c = api(people["client"])

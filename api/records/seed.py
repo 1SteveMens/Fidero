@@ -13,9 +13,15 @@ def _ev(gh, by, name):
     from evidence.models import Evidence
     from evidence.services import store
 
+    from core import samples
+
+    stem = name.rsplit(".", 1)[0]
+    if "agreement" in stem or "letter" in stem:  # a signed document
+        data, ct, name = samples.file_for(stem, "application/pdf")
+    else:  # a page of the register, photographed
+        data, ct, name = samples.photo("register", stem, caption=f"Register page {stem}"), "image/jpeg", f"{stem}.jpg"
     ev = Evidence.objects.filter(original_name=name, country=gh).first()
-    return ev or store(data=f"Scanned register page: {name}".encode(), country=gh, uploaded_by=by,
-                       content_type="text/plain", original_name=name, data_class="case")
+    return ev or store(data=data, country=gh, uploaded_by=by, content_type=ct, original_name=name, data_class="case")
 
 
 def _shifted(geom, fx):

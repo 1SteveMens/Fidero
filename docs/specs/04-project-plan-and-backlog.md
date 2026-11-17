@@ -1175,7 +1175,7 @@ Acceptance criteria:
 | US-APP-002 | As a client (P-01, P-15), I want push notifications for status changes, requests and approvals, following my channel choices and never showing amounts or names on the lock screen, so that I hear at once without exposing my family's details. | Should | R2 | 5 | US-APP-001a, US-NTF-001b, US-NTF-004, EN-65 |
 | US-APP-003 | As a client (P-01), I want to unlock the app with Face ID, Touch ID or my fingerprint, while approvals still ask for my second factor, so that the app is quick to open and still safe. | Should | R2 | 3 | US-APP-001a, US-ACC-003 |
 | US-APP-004 | As any app user (clients, family members, tenants and field users), I want to delete my account from inside either app and be told plainly what is kept and why, so that I control my data as the stores and the law require. | Must | R2 | 5 | US-DPR-004a, US-MOB-001 |
-| US-APP-005 | As a client (P-01, P-02), I want to pay Tenmina's fees from the app through the payment provider where the stores allow it, or on the website where they do not, and never pay purchase, construction or project money in the app, so that payment is clear and allowed. | Must | R2 | 5 | US-APP-001b, US-PAY-001a, US-PAY-005, EN-76 |
+| US-APP-005 | As a client (P-01, P-02), I want to pay Tenmina's fees inside the app through the payment provider, by card or mobile money, without going to the website, and never pay purchase, construction or project money in the app, so that payment is clear and allowed. | Must | R2 | 5 | US-APP-001b, US-PAY-001a, US-PAY-005, EN-76 |
 | US-APP-006 | As any app user, I want the app to tell me when my version is too old and send me to the store, without losing evidence waiting to upload, so that I always run a safe version. | Must | R2 | 3 | EN-33, US-MOB-005a |
 
 Acceptance criteria:
@@ -1210,7 +1210,7 @@ Acceptance criteria:
   2. Given a confirmed deletion with nothing open, when it is processed, then sign-in, sessions, push tokens and device keys are revoked at once and personal data is deleted or anonymised under the retention rules.
   3. Given an open escrow or a legal hold, when the user deletes, then the request is recorded, the account closes to new orders, the user is told what remains open, and the held records are kept.
 - **US-APP-005** (implements FR-APP-005, RUL-01)
-  1. Given the fee payment mode is web, when the client pays a fee, then the app opens the portal's payment page in the system browser and shows the result on return.
+  1. Given any fee payment mode, when the client pays a fee, then the payment provider's checkout opens inside the app and the app shows the result; the website is never opened (`docs/decisions/2026-11-17-in-app-everything.md`).
   2. Given the mode allows the payment provider in the app, when the client pays a fee, then the provider takes it and the receipt matches a portal payment.
   3. Given an escrow deposit, construction or project payment, when the client opens it in the app, then only the bank's payment instructions are shown, never a pay button.
 - **US-APP-006** (implements FR-APP-006)

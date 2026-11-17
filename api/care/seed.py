@@ -56,10 +56,11 @@ def _check(phone, kind, v, at):
 
 
 def _photo(phone, v, key, at):
-    from mobile.devtools import jpeg
+    from core import samples
     from mobile.services import complete_item, register_item
 
-    data = jpeg(f"care-seed-{v.pk}-{key}", model=phone.model, when=at)
+    data = samples.photo_for(key, f"care-seed-{v.pk}-{key}", default="care", model=phone.model, when=at,
+                             caption=f"Care visit: {key.replace('_', ' ')}")
     p = v.plan
     m, _ = register_item(phone.person, phone.capture("care_visit", v.pk, data, requirement_key=key,
                                                      lat=float(p.point_lat), lng=float(p.point_lng), captured_at=at),

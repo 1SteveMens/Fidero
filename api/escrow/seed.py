@@ -15,10 +15,12 @@ def demo_id(name):
 
 
 def _ev(gh, by, name, text=None):
+    from core import samples
     from evidence.services import store
 
-    return store(data=(text or f"Demo document: {name}").encode(), country=gh, uploaded_by=by,
-                 content_type="text/plain", original_name=f"{name}.txt", description=name, data_class="escrow_payment")
+    data, ct, filename = samples.file_for(name, "application/pdf", lines=[text] if text else None)
+    return store(data=data, country=gh, uploaded_by=by, content_type=ct, original_name=filename, description=name,
+                 data_class="escrow_payment")
 
 
 def _approve(req, *approvers):

@@ -15,17 +15,24 @@ def demo_id(name):
     return uuid.uuid5(NS, name)
 
 
-def _doc(gh, by, name, text=None, content_type="text/plain", data=None):
+def _doc(gh, by, name, text=None, content_type="application/pdf", data=None):
+    """A sample document (core.samples) marked SAMPLE, or the bytes given."""
+    from core import samples
     from evidence.services import store
 
-    return store(data=data or (text or f"Demo document: {name} [demo]").encode(), country=gh, uploaded_by=by,
-                 content_type=content_type, original_name=name, description=name, data_class="tenancy")
+    if data is None:
+        data, content_type, name = samples.file_for(name, lines=[text] if text else None)
+    return store(data=data, country=gh, uploaded_by=by, content_type=content_type, original_name=name,
+                 description=name, data_class="tenancy")
 
 
 def _photo(gh, by, name):
-    from mobile.devtools import jpeg
+    from core import samples
 
-    return _doc(gh, by, f"{name}.jpg", data=jpeg(f"pmg-seed-{name}"), content_type="image/jpeg")
+    scene = {"leak-report": "room_living", "roof-done": "work", "gate-lock": "gate"}.get(name, "house")
+    return _doc(gh, by, f"{name}.jpg", data=samples.photo(scene, f"pmg-seed-{name}",
+                                                          caption=name.replace("-", " ").capitalize()),
+                content_type="image/jpeg")
 
 
 def _approve(req, *approvers):
@@ -155,10 +162,11 @@ def _phone(person, name):
 
 def capture(phone, insp, key, name):
     """An app photo of the inspection, signed by the inspector's phone (RUL-08)."""
-    from mobile.devtools import jpeg
+    from core import samples
     from mobile.services import complete_item, register_item
 
-    data = jpeg(f"pmg-{insp.pk}-{name}", model=phone.model, when=timezone.now())
+    data = samples.photo_for(key, f"pmg-{insp.pk}-{name}", default="house", model=phone.model,
+                             when=timezone.now(), caption=f"Inspection: {name.replace('-', ' ')}")
     m, _ = register_item(phone.person, phone.capture("property_inspection", insp.pk, data, requirement_key=key),
                          app_version="1.0.0")
     m, _ = complete_item(m, phone.person, data)
@@ -326,7 +334,24 @@ def _onboarding_flat(gh, people, ctx, inspector):
                                       ownership_evidence_ids=[_doc(gh, client, "land-title-east-legon.txt").pk])
     services.set_rent_account(prop, client, ctx["bank_accounts"]["rent"].pk)
     services.assign_inspector(services.onboarding_inspection(prop), cm, inspector)
+    _ask_for_rates_receipt(prop, cm)
     return prop
+
+
+def _ask_for_rates_receipt(prop, cm):
+    """An open document request on Ama's onboarding case, so the app's upload has something to answer."""
+    from cases import services as cs
+    from core.errors import DomainError
+
+    case = prop.onboarding_case
+    if case is None or case.document_requests.exists():
+        return
+    try:
+        cs.request_document(case, cm, title="This year's property rates receipt",
+                            description="A photo of the receipt or a PDF from the assembly is enough.",
+                            due_on=timezone.localdate() + timedelta(days=7))
+    except DomainError:  # the case is not open for requests
+        pass
 
 
 def _new_house(gh, people):

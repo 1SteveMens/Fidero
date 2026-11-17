@@ -404,3 +404,27 @@ def test_cancel_before_the_agent_starts(tsk):
     with pytest.raises(Invalid):
         services.cancel_errand(e, tsk.client, reason="")
     assert services.cancel_errand(e, tsk.client, reason="Done it myself").status == "cancelled"
+
+
+def test_client_app_sends_a_checklist_document_through_an_upload_slot(tsk, api):
+    """US-TSK-002, FR-EVD-001: the client app hashes the file, opens a slot on the checklist document (its id is
+    in the errand), sends the bytes, then hands the evidence to the errand. The agent may not open that slot."""
+    import hashlib
+
+    from core import samples
+
+    cl = api(tsk.client)
+    eid = cl.post("/v1/errands", {"code": "birth_cert", "country": "GH"}, format="json").json()["id"]
+    doc = next(d for d in cl.get(f"/v1/errands/{eid}").json()["documents"] if d["key"] == "parent_id")
+    data = samples.photo("id", "errand-slot-test")
+    slot = {"subject_type": "errand_document", "subject_id": doc["id"], "role": "checklist:parent_id",
+            "content_type": "image/jpeg", "size_bytes": len(data), "sha256": hashlib.sha256(data).hexdigest(),
+            "original_name": "parent-id.jpg"}
+    assert api(tsk.agent_person).post("/v1/uploads", slot, format="json").status_code == 404
+    r = cl.post("/v1/uploads", slot, format="json")
+    assert r.status_code == 201, r.content
+    r = cl.generic("PUT", f"/v1/uploads/{r.json()['id']}/content", data, content_type="application/octet-stream")
+    assert r.status_code == 201, r.content
+    ev = r.json()["id"]
+    r = cl.post(f"/v1/errands/{eid}/documents/parent_id", {"evidence_id": ev}, format="json")
+    assert r.status_code == 201 and r.json()["status"] == "uploaded" and r.json()["evidence"] == ev
