@@ -42,5 +42,6 @@ urlpatterns = [
     path("me/identity-checks", views.my_identity_checks),
     path("me/represented", views.represented),
     path("home", views.home),
+    path("people", views.PeopleSearchView.as_view()),
     *router.urls,
 ]

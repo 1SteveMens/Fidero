@@ -13,6 +13,8 @@ from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.throttling import UserRateThrottle
+from rest_framework.views import APIView
 
 from core.errors import DomainError, Forbidden, Invalid
 from core.idempotency import idempotent
@@ -23,6 +25,7 @@ from . import home as home_registry
 from . import selectors, services
 from .models import (ApiToken, BankAccount, FamilyMember, IdentityCheck, Invitation, Membership, NationalIdCheck,
                      Organisation, Person, ProfessionalLicence, RepresentativeGrant, RightsRequest, RoleGrant, Vetting)
+from .serializers import PeopleSearchQuery, PeopleSearchResultSerializer
 from .serializers import (AcceptInvitationSerializer, AddMemberResultSerializer, AddMemberSerializer,
                           AdminPersonSerializer, BankAccountSerializer, BankVerificationSerializer, CodeSerializer,
                           CsrfSerializer, DecisionSerializer, DetailSerializer, FamilyMemberSerializer,
@@ -829,3 +832,36 @@ class VettingViewSet(ModelViewSet):
         services.revoke_vetting(v, request.user, _valid(ReasonSerializer, request)["reason"])
         return Response(VettingSerializer(v).data)
 
+
+
+# ---- people pickers in the back office
+
+class PeopleSearchThrottle(UserRateThrottle):
+    scope = "people_search"
+    rate = "30/min"  # per staff member, assumption
+
+    def get_cache_key(self, request, view):
+        return self.cache_format % {"scope": self.scope, "ident": request.user.pk}
+
+
+class PeopleSearchView(APIView):
+    """GET /v1/people?search=&role=: people pickers for staff (CM, RV, AD), scoped to their countries. Returns
+    only id, name, roles and a masked email; at least 2 characters; rate-limited; every search is audited."""
+
+    permission_classes = [roles("CM", "RV", "AD")]
+    throttle_classes = [PeopleSearchThrottle]
+
+    @extend_schema(parameters=[PeopleSearchQuery], responses=PeopleSearchResultSerializer)
+    def get(self, request):
+        from audit.services import record
+
+        q = PeopleSearchQuery(data=request.query_params)
+        if not q.is_valid():
+            if "search" in q.errors:
+                raise Invalid("Type at least 2 characters to search.", code="search-too-short")
+            q.is_valid(raise_exception=True)
+        d = q.validated_data
+        items = selectors.search_people(request.user, d["search"], role=d.get("role", ""), limit=d["limit"])
+        record(actor=request.user, action="people.searched", entity="acc_person", entity_id="search",
+               data={"search": d["search"][:100], "role": d.get("role", ""), "results": len(items)})
+        return Response(PeopleSearchResultSerializer({"items": items}).data)

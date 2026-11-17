@@ -467,3 +467,22 @@ class HomeSerializer(serializers.Serializer):
     family_members = FamilyMemberSerializer(many=True)
     items = HomeItemSerializer(many=True)
     needs_action_count = serializers.IntegerField()
+
+
+class PersonPickSerializer(serializers.Serializer):
+    """A back-office people picker row: never more than this (no full email, phone or address)."""
+
+    id = serializers.UUIDField()
+    name = serializers.CharField()
+    roles = serializers.ListField(child=serializers.CharField())
+    email_masked = serializers.CharField()
+
+
+class PeopleSearchQuery(serializers.Serializer):
+    search = serializers.CharField(help_text="Part of a name or email; at least 2 characters.")
+    role = serializers.CharField(required=False, allow_blank=True, help_text="Only people holding this role.")
+    limit = serializers.IntegerField(required=False, min_value=1, max_value=50, default=20)
+
+
+class PeopleSearchResultSerializer(serializers.Serializer):
+    items = PersonPickSerializer(many=True)

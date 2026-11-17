@@ -12,7 +12,7 @@ from accounts.models import FamilyMember, Organisation, Person
 from core.errors import Forbidden, Invalid, NotFound
 from core.idempotency import idempotent
 from core.permissions import has_role, is_staff
-from core.views import ETagMixin, mfa_at, require_mfa
+from core.views import ETagMixin, mfa_at, require_mfa, search_filter
 
 from . import catalogue, selectors, services
 from . import serializers as S
@@ -253,6 +253,7 @@ def _handover(request, e):
     return Response(S.ErrandHandoverSerializer(h).data, status=201)
 
 
+
 class AgentViewSet(ETagMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """The errand agent panel (FR-TSK-003): staff only."""
 
@@ -261,7 +262,13 @@ class AgentViewSet(ETagMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, 
     filterset_fields = ["status"]
 
     def get_queryset(self):
-        return selectors.agent_panel(self.request.user).order_by("-created_at")
+        return search_filter(selectors.agent_panel(self.request.user).order_by("-created_at"), self.request,
+                       "person__full_name")
+
+    @extend_schema(parameters=[OpenApiParameter("search", str,
+                                                description="Part of the name; at least 2 characters.")])
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     def _out(self, a, status=200):
         a.refresh_from_db()

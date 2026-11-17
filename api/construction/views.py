@@ -11,7 +11,7 @@ from accounts.models import Person
 from core.errors import Forbidden, Invalid, NotFound
 from core.idempotency import idempotent
 from core.permissions import has_role
-from core.views import ETagMixin, mfa_at, require_mfa
+from core.views import ETagMixin, mfa_at, require_mfa, search_filter
 
 from . import materials, milestones, panel, payments, projects, selectors
 from . import serializers as S
@@ -48,6 +48,7 @@ def _country(request, code=None):
 
 # ----------------------------------------------------------------- panel (FR-BLD-003, FR-BLD-004, FR-BLD-010)
 
+
 class PanelMemberViewSet(ETagMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """Contractors, inspectors, quantity surveyors and developers. Clients see only active members."""
 
@@ -57,14 +58,16 @@ class PanelMemberViewSet(ETagMixin, mixins.ListModelMixin, mixins.RetrieveModelM
     def get_queryset(self):
         qs = selectors.visible_panel(self.request.user).select_related("country", "payee").order_by("kind", "name")
         kind = self.request.query_params.get("kind")
-        return qs.filter(kind=kind) if kind else qs
+        qs = qs.filter(kind=kind) if kind else qs
+        return search_filter(qs, self.request, "name", "person__full_name")
 
     def get_serializer_class(self):
         if has_role(self.request.user, *STAFF) or self.action in ("create",):
             return S.PanelMemberSerializer
         return S.PanelMemberPublicSerializer
 
-    @extend_schema(parameters=[OpenApiParameter("kind", str), OpenApiParameter("status", str)])
+    @extend_schema(parameters=[OpenApiParameter("kind", str), OpenApiParameter("status", str),
+                               OpenApiParameter("search", str, description="Part of the name; at least 2 characters.")])
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 

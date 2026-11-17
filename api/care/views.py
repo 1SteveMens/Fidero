@@ -9,7 +9,7 @@ from accounts.models import FamilyMember, Organisation, Person
 from core.errors import Forbidden, Invalid, NotFound
 from core.idempotency import idempotent
 from core.permissions import has_role, is_staff
-from core.views import ETagMixin, mfa_at, require_mfa
+from core.views import ETagMixin, mfa_at, require_mfa, search_filter
 
 from . import selectors, services
 from . import serializers as S
@@ -145,6 +145,7 @@ class CarePlanViewSet(ETagMixin, mixins.ListModelMixin, mixins.RetrieveModelMixi
         return Response({"plan_id": str(plan.pk), "by_status": selectors.statement(plan)})
 
 
+
 class CarerViewSet(ETagMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """The carer panel (FR-CARE-002): staff manage it; a client reads the carers on their own plans."""
 
@@ -155,7 +156,13 @@ class CarerViewSet(ETagMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, 
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
             return Carer.objects.none()
-        return selectors.panel(self.request.user).order_by("-created_at")
+        return search_filter(selectors.panel(self.request.user).order_by("-created_at"), self.request,
+                             "person__full_name")
+
+    @extend_schema(parameters=[OpenApiParameter("search", str,
+                                                description="Part of the name; at least 2 characters.")])
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     def _out(self, carer, status=200):
         carer.refresh_from_db()
