@@ -16,7 +16,8 @@ def test_seeded_escrows_start_from_released_reports(seeded, api):
     read it from the escrow page. When the report is on the client's own case, the portal links
     /property/escrows/:id to /property/reports/:report_id. A listing purchase sits on the seller's report: the
     escrow carries listing_id, the portal links to the listing, and the buyer reads the report there (RUL-14,
-    FR-LST-003). The seller's case report itself stays closed to the buyer."""
+    FR-LST-003). The seller's case report itself stays closed to the buyer. The buyer follows the fresh search on the
+    reservation, which links to the fresh-search case only for someone who can open it."""
     from escrow.models import Escrow
     from reports.models import Report
 
@@ -30,7 +31,7 @@ def test_seeded_escrows_start_from_released_reports(seeded, api):
         assert body["report_id"] == str(e.report_id), e.title
         if r.case.client_id == e.client_id:
             own += 1
-            assert body["listing_id"] is None, e.title
+            assert body["listing_id"] is None and body["reservation_id"] is None, e.title
             assert e.case_id == r.case_id and e.asset_id == r.case.asset_id, e.title
             assert c.get(f"/v1/reports/{e.report_id}").status_code == 200, e.title
         else:
@@ -40,4 +41,11 @@ def test_seeded_escrows_start_from_released_reports(seeded, api):
             rep = c.get(f"/v1/listings/{body['listing_id']}/report")
             assert rep.status_code == 200 and rep.json()["report_id"] == str(e.report_id), e.title
             assert c.get(f"/v1/reports/{e.report_id}").status_code == 404, e.title
+            res = c.get(f"/v1/reservations/{body['reservation_id']}")
+            assert res.status_code == 200, e.title
+            res = res.json()
+            assert res["listing"]["id"] == body["listing_id"] and res["escrow"]["id"] == str(e.pk), e.title
+            if res["fresh_search_case_id"]:
+                case = c.get(f"/v1/cases/{res['fresh_search_case_id']}").status_code
+                assert res["can_open_fresh_search"] is (case == 200), (e.title, case)
     assert own >= 9 and listed >= 2, (own, listed)

@@ -6,7 +6,7 @@
 - visible_listings(user)              what a seller, buyer or staff member may open
 - listing_for_asset(asset_id)         the active listing on a plot, if any
 - active_reservation(listing)
-- listing_id_for_escrow(escrow_id)    the listing a purchase escrow was reserved from, if any
+- reservation_for_escrow(escrow_id)   {"id", "listing_id"} of the reservation that made a purchase escrow, if any
 """
 from datetime import date
 from decimal import Decimal, InvalidOperation
@@ -166,7 +166,7 @@ def is_party(person, listing) -> bool:
     return listing.reservations.filter(buyer=person).exists()
 
 
-def listing_id_for_escrow(escrow_id):
-    """ESC: a purchase escrow made by a reservation sits on the seller's report, which the buyer reads through the
-    listing (RUL-14), not through their own case."""
-    return Reservation.objects.filter(escrow_id=escrow_id).values_list("listing_id", flat=True).first()
+def reservation_for_escrow(escrow_id) -> dict | None:
+    """ESC: a purchase escrow made by a reservation sits on the seller's report and case. The buyer reads the report
+    through the listing (RUL-14) and follows the fresh search on the reservation."""
+    return Reservation.objects.filter(escrow_id=escrow_id).values("id", "listing_id").first()

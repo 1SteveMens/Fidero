@@ -39128,6 +39128,12 @@ components:
           - 'null'
           format: uuid
           readOnly: true
+        reservation_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          readOnly: true
         project_id:
           type:
           - string
@@ -39305,6 +39311,7 @@ components:
       - project_id
       - reference
       - report_id
+      - reservation_id
       - row_version
       - site_check_date
       - status
@@ -61225,6 +61232,11 @@ components:
           - string
           - 'null'
           format: uuid
+        can_open_fresh_search:
+          type: boolean
+          description: The fresh-search case is opened on the plot for its owner,
+            so the buyer follows it here, not on the case.
+          readOnly: true
         fresh_search_note:
           type: string
         escrow:
@@ -61246,6 +61258,7 @@ components:
           readOnly: true
       required:
       - buyer_name
+      - can_open_fresh_search
       - created_at
       - escrow
       - expires_at

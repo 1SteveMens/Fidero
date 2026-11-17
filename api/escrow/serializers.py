@@ -223,11 +223,12 @@ class EscrowSerializer(serializers.ModelSerializer):
     agreement_blockers = serializers.SerializerMethodField()
     freezes = serializers.SerializerMethodField()
     listing_id = serializers.SerializerMethodField()
+    reservation_id = serializers.SerializerMethodField()
 
     class Meta:
         model = Escrow
         fields = ["id", "reference", "kind", "title", "country", "client", "asset_id", "report_id", "listing_id",
-                  "project_id", "case_id", "bank_partner", "bank_reference", "virtual_account_ref", "agreed_price",
+                  "reservation_id", "project_id", "case_id", "bank_partner", "bank_reference", "virtual_account_ref", "agreed_price",
                   "held_back_amount", "held_back_condition", "currency", "conversion_choice", "fx_buffer_pct",
                   "terms_version", "status", "prior_status", "fresh_search_case_id", "fresh_search_result_date",
                   "site_check_date", "agreed_at", "funded_at", "closed_at", "cancel_requested_at", "cancel_reason",
@@ -254,14 +255,26 @@ class EscrowSerializer(serializers.ModelSerializer):
 
         return agreement_blockers(o) if o.status == "proposed" else []
 
+    def _reservation(self, o):
+        """The reservation that made this purchase escrow, looked up once per escrow."""
+        cache = self.__dict__.setdefault("_reservations", {})
+        if o.pk not in cache:
+            from listings.selectors import reservation_for_escrow
+
+            cache[o.pk] = reservation_for_escrow(o.pk) if o.kind == "purchase" else None
+        return cache[o.pk]
+
     @extend_schema_field(serializers.UUIDField(allow_null=True))
     def get_listing_id(self, o):
         """A purchase reserved from a listing: its report is the seller's, read through the listing (RUL-14)."""
-        if o.kind != "purchase" or o.report_id is None:
-            return None
-        from listings.selectors import listing_id_for_escrow
+        r = self._reservation(o)
+        return r["listing_id"] if r else None
 
-        return listing_id_for_escrow(o.pk)
+    @extend_schema_field(serializers.UUIDField(allow_null=True))
+    def get_reservation_id(self, o):
+        """A purchase reserved from a listing: the buyer follows the fresh search on the reservation."""
+        r = self._reservation(o)
+        return r["id"] if r else None
 
     @extend_schema_field(FreezeSerializer(many=True))
     def get_freezes(self, o):

@@ -279,12 +279,13 @@ class ReservationSerializer(serializers.ModelSerializer):
     listing = serializers.SerializerMethodField()
     buyer_name = serializers.SerializerMethodField()
     escrow = serializers.SerializerMethodField()
+    can_open_fresh_search = serializers.SerializerMethodField()
 
     class Meta:
         model = Reservation
         fields = ["id", "reference", "status", "listing", "buyer_name", "expires_at", "fresh_search_status",
-                  "fresh_search_date", "fresh_search_case_id", "fresh_search_note", "escrow", "ended_at",
-                  "end_reason", "created_at"]
+                  "fresh_search_date", "fresh_search_case_id", "can_open_fresh_search", "fresh_search_note",
+                  "escrow", "ended_at", "end_reason", "created_at"]
 
     @extend_schema_field(serializers.DictField())
     def get_listing(self, r):
@@ -297,6 +298,15 @@ class ReservationSerializer(serializers.ModelSerializer):
         if user and (user.pk == r.buyer_id or services.is_staff(user, r.country)):
             return r.buyer.full_name
         return None
+
+    def get_can_open_fresh_search(self, r) -> bool:
+        """The fresh-search case is opened on the plot for its owner, so the buyer follows it here, not on the case."""
+        user = getattr(self.context.get("request"), "user", None)
+        if r.fresh_search_case_id is None or user is None:
+            return False
+        from cases.selectors import visible_cases
+
+        return visible_cases(user).filter(pk=r.fresh_search_case_id).exists()
 
     @extend_schema_field(serializers.DictField(allow_null=True))
     def get_escrow(self, r):

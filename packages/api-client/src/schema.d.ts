@@ -17839,6 +17839,8 @@ export interface components {
             /** Format: uuid */
             readonly listing_id: string | null;
             /** Format: uuid */
+            readonly reservation_id: string | null;
+            /** Format: uuid */
             readonly project_id: string | null;
             /** Format: uuid */
             readonly case_id: string | null;
@@ -26913,6 +26915,8 @@ export interface components {
             fresh_search_date?: string | null;
             /** Format: uuid */
             fresh_search_case_id?: string | null;
+            /** @description The fresh-search case is opened on the plot for its owner, so the buyer follows it here, not on the case. */
+            readonly can_open_fresh_search: boolean;
             fresh_search_note?: string;
             readonly escrow: {
                 [key: string]: unknown;
