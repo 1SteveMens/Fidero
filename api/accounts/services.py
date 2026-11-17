@@ -390,7 +390,7 @@ def mfa_required(person) -> bool:
 
 
 def mfa_setup(person) -> str:
-    person.mfa_secret = pyotp.random_base32()
+    person.mfa_secret = pyotp.random_base32(length=32)  # 160 bits; pyotp refuses under 112
     person.save(update_fields=["mfa_secret"])
     return pyotp.TOTP(person.mfa_secret).provisioning_uri(name=person.email, issuer_name="Tenmina")
 

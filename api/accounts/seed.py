@@ -20,7 +20,9 @@ from .models import (BankAccount, FamilyMember, IdentityCheck, Invitation, Membe
 from .normalise import bidx, normalise_name
 
 DEV_PASSWORD = "tenmina-dev-123"
-DEV_MFA_SECRET = "JBSWY3DPEHPK3PXP"
+# 32 base32 characters = 160 bits. pyotp 2.10+ refuses secrets under 112 bits (RFC 4226 section 4).
+DEV_MFA_SECRET = "F4SXJB772VGU7FC44NG5RKB7BR7IFKGW"
+OLD_DEV_MFA_SECRET = "JBSWY3DPEHPK3PXP"  # 80 bits; re-seeding replaces it in existing dev databases
 NS = uuid.UUID("6f1d0c1e-7e2a-4c55-9a51-1e3f0a7b5c01")  # demo ids are uuid5 under this namespace
 
 # key, email, name, roles, residence, phone (all phone numbers are fictional)
@@ -118,7 +120,7 @@ def _people(ctx, gh):
         if not p.phone and not Person.objects.filter(phone=phone).exists():
             p.phone, p.phone_verified_at = phone, now
             fields += ["phone", "phone_verified_at"]
-        if services.MFA_REQUIRED_ROLES & set(roles) and not p.mfa_enabled:
+        if services.MFA_REQUIRED_ROLES & set(roles) and (not p.mfa_enabled or p.mfa_secret == OLD_DEV_MFA_SECRET):
             p.mfa_secret, p.mfa_enabled = DEV_MFA_SECRET, True
             fields += ["mfa_secret", "mfa_enabled"]
         if fields:

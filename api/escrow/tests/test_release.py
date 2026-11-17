@@ -189,6 +189,8 @@ def test_client_needs_fresh_mfa_or_code(b):
     """RUL-11: press and hold with MFA or an authenticator code."""
     import pyotp
 
+    from accounts.seed import DEV_MFA_SECRET
+
     e = b.ready_purchase()
     ins = services.request_release(e, requested_by=b.cm)
     with pytest.raises(MfaRequired):
@@ -196,7 +198,7 @@ def test_client_needs_fresh_mfa_or_code(b):
     with pytest.raises(MfaRequired):
         services.client_approve(ins, b.client, code="000000")
     if not b.client.mfa_secret:
-        b.client.mfa_secret = "JBSWY3DPEHPK3PXP"
+        b.client.mfa_secret = DEV_MFA_SECRET
         b.client.save(update_fields=["mfa_secret"])
     services.client_approve(ins, b.client, code=pyotp.TOTP(b.client.mfa_secret).now())
     ins.refresh_from_db()
