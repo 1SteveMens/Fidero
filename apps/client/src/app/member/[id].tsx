@@ -1,7 +1,7 @@
 import { Pressable, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { space } from '@tenmina/tokens';
-import { Button, Label, Panel, Screen, T } from '@tenmina/ui';
+import { Button, Label, Panel, Screen, T, usePalette } from '@tenmina/ui';
 import { LoadState, ProblemBox, Section, day, money, words, useAction, useGet, type ApiMoney } from '@tenmina/mobile';
 import { Figures } from '../../components/rows';
 import { openFile } from '../../components/files';
@@ -20,6 +20,7 @@ interface Statement {
  * (US-FEE-007 AC2).
  */
 export default function MemberStatement() {
+  const pal = usePalette();
   const { id } = useLocalSearchParams<{ id: string }>();
   const s = useGet<Statement>(`/v1/family-members/${id}/statement`);
   const pdf = useAction();
@@ -49,7 +50,7 @@ export default function MemberStatement() {
                   key={`${l.type}-${l.id}-${i}`}
                   disabled={l.type !== 'invoice'}
                   accessibilityRole={l.type === 'invoice' ? 'button' : undefined}
-                  style={{ paddingVertical: space[3], borderTopWidth: i ? 1 : 0, borderTopColor: '#ECEAE4', gap: 2 }}
+                  style={{ paddingVertical: space[3], borderTopWidth: i ? 1 : 0, borderTopColor: pal.line, gap: 2 }}
                   onPress={() => router.push(`/invoice/${l.id}`)}
                 >
                   <View style={{ flexDirection: 'row', gap: space[2] }}>

@@ -49708,6 +49708,12 @@ components:
         can_pay:
           type: boolean
           readOnly: true
+        open_payment:
+          type:
+          - object
+          - 'null'
+          additionalProperties: {}
+          readOnly: true
         missing:
           type: array
           items:
@@ -49755,6 +49761,7 @@ components:
       - missing
       - next
       - notes
+      - open_payment
       - organisation
       - paid_at
       - paid_method

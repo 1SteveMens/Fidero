@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Linking, Pressable, Text, TextInput, View, type KeyboardTypeOptions } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { router } from 'expo-router';
 import { brand, radius, space, type } from '@tenmina/tokens';
 import { Button, Chip, CodeField, Label, Panel, Rise, Screen, T, Tick, haptic, usePalette, type ChipTone, type IconName } from '@tenmina/ui';
 import { apiBaseUrl, toProblem, type Problem, type UpdateRequired } from './api';
@@ -51,6 +52,16 @@ export function ProblemBox({ problem, onRetry }: { problem?: Problem | null; onR
 /** Loading, a problem, or nothing: the top of every screen that reads data. */
 export function LoadState({ loading, problem, onRetry, hasData }: { loading: boolean; problem?: Problem; onRetry: () => void; hasData: boolean }) {
   const p = usePalette();
+  // Trying again never brings back something that is not there (or not shared with this person): offer the way back.
+  if (problem?.status === 404) {
+    return (
+      <View accessibilityRole="alert" style={{ borderRadius: radius.lg, borderWidth: 2, borderColor: p.text, padding: space[4], gap: space[2] }}>
+        <T v="headline" style={{ fontSize: 15 }}>We could not find this</T>
+        <T v="callout">It may have been closed or moved, or it is not shared with you. Ask your case manager if you expected to see it.</T>
+        <Button title="Go back" variant="dark" onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} />
+      </View>
+    );
+  }
   if (problem) return <ProblemBox problem={problem} onRetry={onRetry} />;
   if (loading && !hasData) {
     return (

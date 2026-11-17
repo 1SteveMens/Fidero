@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 import { space } from '@tenmina/tokens';
-import { Button, Input, Label, Panel, Rise, Screen, T, Tick } from '@tenmina/ui';
+import { Button, Input, Label, Panel, Rise, Screen, T, Tick, usePalette } from '@tenmina/ui';
 import { day } from '@tenmina/mobile';
 import { jobKey, useField } from '../store';
 import type { Job } from '../types';
@@ -17,6 +17,7 @@ const isMedia = (m?: string) => m === 'photo' || m === 'video' || m === undefine
  * phone and is sent by itself (FR-MOB-005).
  */
 export function EvidenceJobScreen({ job }: { job: Job }) {
+  const pal = usePalette();
   const { capturesFor, queue, progress, setProgress } = useField();
   const key = jobKey(job.subject_type, job.subject_id);
   const saved = progress(key) as { values?: Record<string, string>; note?: string; checkin?: string; checkinWhy?: string };
@@ -110,9 +111,9 @@ export function EvidenceJobScreen({ job }: { job: Job }) {
               const n = counts[r.key] ?? 0;
               const ok = media ? n > 0 : !!(values[r.key] ?? '').trim();
               return (
-                <View key={r.key} style={{ paddingVertical: space[3], borderTopWidth: i ? 1 : 0, borderTopColor: '#ECEAE4', gap: space[2] }}>
+                <View key={r.key} style={{ paddingVertical: space[3], borderTopWidth: i ? 1 : 0, borderTopColor: pal.line, gap: space[2] }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[3] }}>
-                    {ok ? <Tick /> : <View style={{ width: 22, height: 22, borderRadius: 7, borderWidth: 2, borderColor: '#D6D3CB' }} />}
+                    {ok ? <Tick /> : <View style={{ width: 22, height: 22, borderRadius: 7, borderWidth: 2, borderColor: pal.lineStrong }} />}
                     <View style={{ flex: 1 }}>
                       <T v="callout">{r.label ?? r.key}</T>
                       <Label>{media ? `${n} ${r.media === 'video' ? (n === 1 ? 'video' : 'videos') : n === 1 ? 'photo' : 'photos'}${r.required === false ? ' · optional' : ''}` : r.required === false ? 'Optional' : 'Needed'}</Label>

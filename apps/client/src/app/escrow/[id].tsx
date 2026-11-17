@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { brand, space } from '@tenmina/tokens';
-import { Button, Chip, Label, Panel, Rise, Screen, T, Tick } from '@tenmina/ui';
+import { Button, Chip, Label, Panel, Rise, Screen, T, Tick, usePalette } from '@tenmina/ui';
 import { KV, LoadState, ProblemBox, Section, day, itemsOf, money, moneyOf, useAction, useGet, useSession } from '@tenmina/mobile';
 import { ActionRow, Figures } from '../../components/rows';
 import { ESCROW_STATUS, commitmentState, type AccountCommitment, type Escrow, type Instruction } from '../../lib';
@@ -14,6 +14,7 @@ import { ESCROW_STATUS, commitmentState, type AccountCommitment, type Escrow, ty
  * Tenmina (RUL-01). Money is set aside from the free balance; releases wait for the client, then two staff.
  */
 export default function EscrowScreen() {
+  const pal = usePalette();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { me } = useSession();
   const e = useGet<Escrow>(`/v1/escrows/${id}`);
@@ -94,8 +95,8 @@ export default function EscrowScreen() {
             <Section title={`Conditions · ${d.conditions.filter((c) => c.status === 'closed').length} of ${d.conditions.length} met`}>
               <Panel style={{ gap: 0, paddingVertical: space[1] }}>
                 {d.conditions.map((c, i) => (
-                  <View key={c.id} style={{ flexDirection: 'row', gap: space[3], alignItems: 'center', paddingVertical: space[3], borderTopWidth: i ? 1 : 0, borderTopColor: '#ECEAE4' }}>
-                    {c.status === 'closed' ? <Tick /> : <View style={{ width: 22, height: 22, borderRadius: 7, borderWidth: 2, borderColor: '#D6D3CB' }} />}
+                  <View key={c.id} style={{ flexDirection: 'row', gap: space[3], alignItems: 'center', paddingVertical: space[3], borderTopWidth: i ? 1 : 0, borderTopColor: pal.line }}>
+                    {c.status === 'closed' ? <Tick /> : <View style={{ width: 22, height: 22, borderRadius: 7, borderWidth: 2, borderColor: pal.lineStrong }} />}
                     <View style={{ flex: 1 }}>
                       <T v="callout">{c.text}</T>
                       {c.closed_at ? <Label>{`Met ${day(c.closed_at)}`}</Label> : <Label>Open</Label>}
@@ -108,7 +109,7 @@ export default function EscrowScreen() {
 
           {d.fresh_search_result_date ? (
             <Panel style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Ionicons name="search-outline" size={20} />
+              <Ionicons name="search-outline" size={20} color={pal.text} />
               <T v="callout" style={{ flex: 1 }}>{`Fresh official search: ${day(d.fresh_search_result_date)}`}</T>
             </Panel>
           ) : null}
@@ -119,8 +120,8 @@ export default function EscrowScreen() {
           {pi?.available ? (
             <Section title="Pay into your Tenmina account">
               <Panel tone="raised">
-                <Label color="#A9A69E">Pay the bank, never Tenmina</Label>
-                <T v="headline" color="#F7F6F2" style={{ fontSize: 15 }}>{pi.bank_name}</T>
+                <Label>Pay the bank, never Tenmina</Label>
+                <T v="headline" style={{ fontSize: 15 }}>{pi.bank_name}</T>
                 {[
                   ['Account name', pi.account_name],
                   ['Account number', pi.account_number],
@@ -128,11 +129,11 @@ export default function EscrowScreen() {
                   ['Currency', pi.currency],
                 ].map(([k, v]) => (
                   <View key={k} style={{ flexDirection: 'row', gap: space[3] }}>
-                    <T v="footnote" color="#A9A69E" style={{ width: 110 }}>{k}</T>
+                    <T v="footnote" muted style={{ width: 110 }}>{k}</T>
                     <T v="mono" color={brand.lime} style={{ flex: 1, fontSize: 14 }}>{v}</T>
                   </View>
                 ))}
-                <T v="footnote" color="#A9A69E">{pi.note}</T>
+                <T v="footnote" muted>{pi.note}</T>
               </Panel>
             </Section>
           ) : null}

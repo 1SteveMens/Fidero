@@ -4,7 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { brand, space } from '@tenmina/tokens';
-import { Button, Choice, DotStepper, Label, Panel, Screen, T, Tick } from '@tenmina/ui';
+import { Button, Choice, DotStepper, Label, Panel, Screen, T, Tick, usePalette } from '@tenmina/ui';
 import { Field, ProblemBox, money, toProblem, useApi, useGet, useLoad, useSession, words, type ApiMoney, type Problem } from '@tenmina/mobile';
 
 interface Tier {
@@ -32,6 +32,7 @@ const STEPS = ['What', 'Plot', 'Seller', 'Agree'];
  * The fee is then paid in the app through the payment provider (SCR-APP-06). Prices come only from the server.
  */
 export default function Order() {
+  const pal = usePalette();
   const api = useApi();
   const { me } = useSession();
   const params = useLocalSearchParams<{ line?: string }>();
@@ -192,7 +193,7 @@ export default function Order() {
           </Panel>
           <Choice selected={agree} onPress={() => setAgree((a) => !a)} title="I have read the scope and the terms, and I agree" detail={chosen ? `${chosen.tier_name}: ${money(chosen.price)}, paid in the app by card or mobile money` : undefined} />
           <View style={{ flexDirection: 'row', gap: space[2] }}>
-            <Ionicons name="lock-closed-outline" size={18} color={brand.ink} />
+            <Ionicons name="lock-closed-outline" size={18} color={pal.text} />
             <T v="footnote" muted style={{ flex: 1 }}>You pay Tenmina's fee for the work, whatever the verdict. Never pay the seller until the report is out and the escrow is set up.</T>
           </View>
         </>

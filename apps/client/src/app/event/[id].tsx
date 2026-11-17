@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { space } from '@tenmina/tokens';
-import { Button, Chip, Label, Panel, Screen, T } from '@tenmina/ui';
+import { Button, Chip, Label, Panel, Screen, T, usePalette } from '@tenmina/ui';
 import { LoadState, Section, day, money, useApi, useLoad, words, type ApiMoney } from '@tenmina/mobile';
 import { Figures } from '../../components/rows';
 import { InlineApproval } from '../../components/InlineApproval';
@@ -41,6 +41,7 @@ interface VendorPayment {
  * the family's confirmation of delivery. Never cash to a relative.
  */
 export default function EventScreen() {
+  const pal = usePalette();
   const api = useApi();
   const { id } = useLocalSearchParams<{ id: string }>();
   const data = useLoad(async (a) => {
@@ -98,7 +99,7 @@ export default function EventScreen() {
             <Section title="Payments">
               <Panel style={{ gap: 0, paddingVertical: space[1] }}>
                 {payments.map((p, i) => (
-                  <View key={p.id} style={{ paddingVertical: space[3], borderTopWidth: i ? 1 : 0, borderTopColor: '#ECEAE4', gap: 2 }}>
+                  <View key={p.id} style={{ paddingVertical: space[3], borderTopWidth: i ? 1 : 0, borderTopColor: pal.line, gap: 2 }}>
                     <View style={{ flexDirection: 'row', gap: space[2] }}>
                       <T v="callout" style={{ flex: 1 }}>{`${p.vendor_name}: ${p.description}`}</T>
                       <T v="headline" style={{ fontSize: 15 }}>{money(p.amount)}</T>

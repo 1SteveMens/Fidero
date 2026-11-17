@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { space } from '@tenmina/tokens';
-import { Button, Chip, Label, Panel, Screen, T, Tick } from '@tenmina/ui';
+import { Button, Chip, Label, Panel, Screen, T, Tick, usePalette } from '@tenmina/ui';
 import { KV, LoadState, Section, clock, day, money, useGet, words, type ApiMoney } from '@tenmina/mobile';
 
 interface CareVisit {
@@ -31,6 +31,7 @@ function reading(r: Record<string, number | string> | null): string {
 
 /** One care visit as the client sees it (SCR-PTL-44): check-in at the address, the plan, readings, and the family's confirmation. */
 export default function CareVisitScreen() {
+  const pal = usePalette();
   const { id } = useLocalSearchParams<{ id: string }>();
   const v = useGet<CareVisit>(`/v1/care-visits/${id}`);
   const d = v.data;
@@ -54,8 +55,8 @@ export default function CareVisitScreen() {
           <Section title="The plan">
             <Panel style={{ gap: 0, paddingVertical: space[1] }}>
               {d.items.map((i, n) => (
-                <View key={i.key} style={{ flexDirection: 'row', gap: space[3], alignItems: 'center', paddingVertical: space[3], borderTopWidth: n ? 1 : 0, borderTopColor: '#ECEAE4' }}>
-                  {i.outcome === 'done' ? <Tick /> : <View style={{ width: 22, height: 22, borderRadius: 7, borderWidth: 2, borderColor: '#D6D3CB' }} />}
+                <View key={i.key} style={{ flexDirection: 'row', gap: space[3], alignItems: 'center', paddingVertical: space[3], borderTopWidth: n ? 1 : 0, borderTopColor: pal.line }}>
+                  {i.outcome === 'done' ? <Tick /> : <View style={{ width: 22, height: 22, borderRadius: 7, borderWidth: 2, borderColor: pal.lineStrong }} />}
                   <View style={{ flex: 1 }}>
                     <T v="callout">{i.label}</T>
                     <Label>{[words(i.outcome), reading(i.reading), i.reason, i.evidence ? 'photo' : ''].filter(Boolean).join(' · ')}</Label>

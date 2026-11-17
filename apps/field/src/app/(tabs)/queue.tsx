@@ -2,7 +2,7 @@ import type { ComponentProps } from 'react';
 import { View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { brand, space } from '@tenmina/tokens';
-import { Button, Chip, Label, Panel, Rise, Screen, T } from '@tenmina/ui';
+import { Button, Chip, Label, Panel, Rise, Screen, T, usePalette } from '@tenmina/ui';
 import { clock } from '@tenmina/mobile';
 import { useField } from '../../store';
 import { OnlineChip } from '../../screens/common';
@@ -20,13 +20,14 @@ const ICON: Record<string, ComponentProps<typeof Ionicons>['name']> = {
 };
 
 function Row({ op, last }: { op: Op; last: boolean }) {
+  const pal = usePalette();
   const { retry, removeOp, captures } = useField();
   const cap = op.captureId ? captures.find((c) => c.id === op.captureId) : undefined;
   const flags = cap?.flags?.length ? `${cap.flags.length} for review` : '';
   return (
-    <View style={{ paddingVertical: space[3], borderBottomWidth: last ? 0 : 1, borderBottomColor: '#ECEAE4', gap: space[2] }}>
+    <View style={{ paddingVertical: space[3], borderBottomWidth: last ? 0 : 1, borderBottomColor: pal.line, gap: space[2] }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[3] }}>
-        <Ionicons name={ICON[op.kind] ?? 'cloud-upload-outline'} size={20} />
+        <Ionicons name={ICON[op.kind] ?? 'cloud-upload-outline'} size={20} color={pal.text} />
         <View style={{ flex: 1 }}>
           <T v="headline" style={{ fontSize: 15 }}>{op.label}</T>
           <Label>{`Saved ${clock(op.createdAt)}${op.sentAt ? ` · received ${clock(op.sentAt)}` : ''}${flags ? ` · ${flags}` : ''}`}</Label>
@@ -65,6 +66,7 @@ function Row({ op, last }: { op: Op; last: boolean }) {
  * the app closes or the phone restarts.
  */
 export default function Queue() {
+  const pal = usePalette();
   const { ops, online, syncNow } = useField();
   const open = ops.filter((o) => o.state !== 'sent');
   const sent = ops.filter((o) => o.state === 'sent').slice(-10).reverse();
@@ -82,7 +84,7 @@ export default function Queue() {
         <Label style={{ marginBottom: space[2] }}>{`Waiting · ${open.length}`}</Label>
         {open.length === 0 ? (
           <Panel style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Ionicons name="checkmark-circle" size={22} color={brand.ink} />
+            <Ionicons name="checkmark-circle" size={22} color={pal.text} />
             <T v="callout" style={{ flex: 1 }}>Nothing waiting. Everything has reached Tenmina.</T>
           </Panel>
         ) : (

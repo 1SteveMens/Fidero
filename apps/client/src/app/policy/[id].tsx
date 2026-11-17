@@ -43,7 +43,7 @@ export default function PolicyScreen() {
           />
           <Panel tone="raised" style={{ flexDirection: 'row' }}>
             <Ionicons name="umbrella-outline" size={20} color={brand.lime} />
-            <T v="footnote" color="#F7F6F2" style={{ flex: 1 }}>{d.statement}</T>
+            <T v="footnote" style={{ flex: 1 }}>{d.statement}</T>
           </Panel>
           {d.status_note ? (
             <Panel>

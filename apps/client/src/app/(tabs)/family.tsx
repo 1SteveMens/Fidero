@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { brand, space } from '@tenmina/tokens';
-import { IconButton, Panel, Rise, Screen, T } from '@tenmina/ui';
+import { IconButton, Panel, Rise, Screen, T, usePalette } from '@tenmina/ui';
 import { LoadState, Section, initials, words } from '@tenmina/mobile';
 import { ItemList, NeedsYouList, StartTile, useHome } from '../../components/rows';
 import type { HomeItem } from '../../lib';
@@ -15,6 +15,7 @@ const LINES = ['fee', 'care', 'errands', 'ins', 'evt', 'family'];
  * cash to a person (RUL-22).
  */
 export default function Family() {
+  const pal = usePalette();
   const home = useHome();
   const d = home.data;
   const items = (d?.items ?? []).filter((i) => LINES.includes(i.line) || !!i.family_member_id);
@@ -27,7 +28,7 @@ export default function Family() {
       <Rise delay={40}>
         <Panel tone="raised" style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: space[3] }}>
           <Ionicons name="shield-checkmark-outline" size={22} color={brand.lime} />
-          <T v="callout" color="#F7F6F2" style={{ flex: 1 }}>We pay hospitals, schools, carers and vendors directly. Never cash to a person.</T>
+          <T v="callout" style={{ flex: 1 }}>We pay hospitals, schools, carers and vendors directly. Never cash to a person.</T>
         </Panel>
       </Rise>
       <LoadState loading={home.loading} problem={home.problem} onRetry={home.reload} hasData={!!d} />
@@ -45,7 +46,7 @@ export default function Family() {
                   <T v="title" style={{ fontSize: 19, lineHeight: 23 }}>{m.full_name}</T>
                   <T v="footnote" muted>{`${words(m.relationship)} · ${m.address}`}</T>
                 </View>
-                <Ionicons name="chevron-forward" size={18} color="#6A675F" />
+                <Ionicons name="chevron-forward" size={18} color={pal.textMuted} />
               </Panel>
               {rows.length ? <ItemList items={[...rows.filter((r) => r.needs_action), ...rows.filter((r) => !r.needs_action).slice(0, 4)]} /> : null}
               {!rows.length ? <T v="footnote" muted>Nothing open for them right now.</T> : null}

@@ -79,11 +79,11 @@ export default function CarePlanScreen() {
           {d.needs_client === 'activate' ? (
             <Panel tone="raised">
               <Label color={brand.orange}>Needs you · start the plan</Label>
-              <T v="headline" color="#F7F6F2">{`${d.carer?.name ?? 'The carer'} is ready to visit.`}</T>
-              <T v="footnote" color="#A9A69E">
+              <T v="headline">{`${d.carer?.name ?? 'The carer'} is ready to visit.`}</T>
+              <T v="footnote" muted>
                 {`Accepting starts the visits. Each visit is paid ${money(d.visit_fee)} from your money held at the bank, only after the family confirms it.`}
               </T>
-              {terms.data ? <T v="footnote" color="#A9A69E">{`${terms.data.terms.title}: ${terms.data.terms.text}`}</T> : null}
+              {terms.data ? <T v="footnote" muted>{`${terms.data.terms.title}: ${terms.data.terms.text}`}</T> : null}
               {factor.mode !== 'none' ? (
                 <>
                   <SecondFactorInput factor={factor} />

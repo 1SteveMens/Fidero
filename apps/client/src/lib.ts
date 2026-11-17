@@ -58,7 +58,7 @@ const ROUTES: [RegExp, (id: string) => string][] = [
   [/^\/care\/visits\/([^/?]+)$/, (id) => `/care-visit/${id}`],
   [/^\/care\/concerns\/([^/?]+)$/, (id) => `/concern/${id}`],
   [/^\/errands\/([^/?]+)$/, (id) => `/errand/${id}`],
-  [/^\/events\/([^/?]+)$/, (id) => `/event/${id}`],
+  [/^\/events\/([^/?]+)(?:\/receipts)?$/, (id) => `/event/${id}`],
   [/^\/insurance\/policies\/([^/?]+)$/, (id) => `/policy/${id}`],
   [/^\/insurance\/premiums\/([^/?]+)$/, (id) => `/premium/${id}`],
   [/^\/disputes\/([^/?]+)$/, (id) => `/dispute/${id}`],
@@ -67,6 +67,8 @@ const ROUTES: [RegExp, (id: string) => string][] = [
   [/^\/orders\/([^/?]+)(?:\/pay)?$/, (id) => `/pay-fee/${id}`],
   [/^\/(?:property\/)?listings$/, () => '/listings'],
   [/^\/(?:family\/)?members\/([^/?]+)$/, (id) => `/member/${id}`],
+  [/^\/account\/bank-accounts(?:\/[^/?]+)?$/, () => '/account/bank-accounts'],
+  [/^\/(?:account|me)\/data-requests(?:\/[^/?]+)?$/, () => '/account/data'],
 ];
 
 /**

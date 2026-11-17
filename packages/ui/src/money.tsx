@@ -4,8 +4,8 @@ import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Svg, { Circle, Defs, Path, Text as SvgText, TextPath } from 'react-native-svg';
 import { formatMoney, type Money } from '@tenmina/shared';
-import { brand, font, radius, space } from '@tenmina/tokens';
-import { usePalette, useReducedMotion } from './theme';
+import { blocks, brand, font, radius, space } from '@tenmina/tokens';
+import { PaletteContext, usePalette, useReducedMotion } from './theme';
 import { Label, T, haptic } from './ui';
 
 const nativeDriver = Platform.OS !== 'web';
@@ -22,7 +22,8 @@ export function Seal({ id, ring, text, check, size = 132, words = 'HELD AT THE B
   }, [reduced, spin]);
   const rotate = spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
   return (
-    <View style={{ width: size, height: size }} pointerEvents="none">
+    // Decoration: the words are said elsewhere on the screen, so screen readers skip the seal.
+    <View style={{ width: size, height: size }} pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" aria-hidden>
       <Animated.View style={{ position: 'absolute', inset: 0, transform: [{ rotate }] }}>
         <Svg width={size} height={size} viewBox="0 0 120 120">
           <Defs>
@@ -80,9 +81,13 @@ export function TenminaAccountCard({ account, holder, max = 4 }: { account: Tenm
     if (reduced) return;
     Animated.timing(enter, { toValue: 1, duration: 800, delay: 100, easing: Easing.out(Easing.cubic), useNativeDriver: nativeDriver }).start();
   }, [enter, reduced]);
+  // A black card on a white screen. On a black screen (dark mode) it is one step lighter, so it still reads as a card.
+  const onBlack = usePalette().ground === brand.ink;
+  const card = onBlack ? '#1A1A1A' : brand.ink;
+  const strip = onBlack ? '#242424' : '#1A1A1A';
   const fg = '#F7F6F2';
   const sub = '#A9A69E';
-  const line = '#2C2C2C';
+  const line = onBlack ? '#333333' : '#2C2C2C';
   const shown = account.commitments.slice(0, max);
   const main = account.balances[0];
   const open = (href: string) => {
@@ -95,7 +100,7 @@ export function TenminaAccountCard({ account, holder, max = 4 }: { account: Tenm
         opacity: enter,
         transform: [{ perspective: 900 }, { rotateX: enter.interpolate({ inputRange: [0, 1], outputRange: ['18deg', '0deg'] }) }, { translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) }],
         borderRadius: radius.xl,
-        backgroundColor: brand.ink,
+        backgroundColor: card,
         overflow: 'hidden',
         shadowColor: '#000',
         shadowOpacity: 0.2,
@@ -145,12 +150,13 @@ export function TenminaAccountCard({ account, holder, max = 4 }: { account: Tenm
               accessibilityLabel={`${c.kind}: ${c.label}. ${formatMoney(c.amount)} ${c.amountNote}. ${c.state}${c.needsYou ? ' Needs you.' : ''}`}
               style={({ pressed }) => ({ flexDirection: 'row', gap: space[3], paddingVertical: space[2], minHeight: 44, borderTopWidth: i ? 1 : 0, borderTopColor: line, opacity: pressed ? 0.8 : 1 })}
             >
-              <View style={{ flex: 1 }}>
+              {/* minWidth 0 lets a long name shrink and end in "…" instead of running under the amount */}
+              <View style={{ flex: 1, minWidth: 0 }}>
                 <Label color={c.needsYou ? brand.orange : sub} style={{ fontSize: 10 }}>{c.needsYou ? `${c.kind} · needs you` : c.kind}</Label>
                 <T v="callout" color={fg} style={{ fontFamily: font.bold }} numberOfLines={1}>{c.label}</T>
                 <T v="footnote" color={sub} numberOfLines={2}>{c.state}</T>
               </View>
-              <View style={{ alignItems: 'flex-end' }}>
+              <View style={{ alignItems: 'flex-end', flexShrink: 0 }}>
                 <T v="callout" color={fg} style={{ fontFamily: font.bold }}>{formatMoney(c.amount)}</T>
                 <T v="footnote" color={sub}>{c.amountNote}</T>
               </View>
@@ -163,7 +169,7 @@ export function TenminaAccountCard({ account, holder, max = 4 }: { account: Tenm
           ) : null}
         </View>
       ) : null}
-      <View style={{ minHeight: 54, paddingHorizontal: space[5], backgroundColor: '#1A1A1A', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space[3], marginTop: space[2] }}>
+      <View style={{ minHeight: 54, paddingHorizontal: space[5], backgroundColor: strip, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space[3], marginTop: space[2] }}>
         <Label color={fg} style={{ flexShrink: 1 }}>{holder}</Label>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 1 }}>
           <Ionicons name="business" size={14} color={sub} />
@@ -178,13 +184,16 @@ export function TenminaAccountCard({ account, holder, max = 4 }: { account: Tenm
 export function Ticket({ top, bottom }: { top: ReactNode; bottom: ReactNode }) {
   const p = usePalette();
   const [tear, setTear] = useState<number>();
+  // The ticket is white paper on any ground, so what is printed on it uses the paper palette.
   return (
     <View style={{ backgroundColor: brand.paper, borderRadius: radius.xl }}>
-      <View onLayout={(e) => setTear(e.nativeEvent.layout.height)} style={{ padding: space[5], paddingBottom: space[4], gap: 4 }}>
-        {top}
-      </View>
-      <View style={{ marginHorizontal: space[4], borderTopWidth: 2, borderStyle: 'dashed', borderColor: 'rgba(11,11,11,0.25)' }} />
-      <View style={{ padding: space[5], paddingTop: space[4] }}>{bottom}</View>
+      <PaletteContext.Provider value={blocks.ticket}>
+        <View onLayout={(e) => setTear(e.nativeEvent.layout.height)} style={{ padding: space[5], paddingBottom: space[4], gap: 4 }}>
+          {top}
+        </View>
+        <View style={{ marginHorizontal: space[4], borderTopWidth: 2, borderStyle: 'dashed', borderColor: 'rgba(11,11,11,0.25)' }} />
+        <View style={{ padding: space[5], paddingTop: space[4] }}>{bottom}</View>
+      </PaletteContext.Provider>
       {tear !== undefined ? (
         <>
           <View pointerEvents="none" style={{ position: 'absolute', left: -11, top: tear - 10, width: 22, height: 22, borderRadius: 11, backgroundColor: p.ground }} />
