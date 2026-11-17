@@ -39122,6 +39122,12 @@ components:
           - 'null'
           format: uuid
           readOnly: true
+        listing_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          readOnly: true
         project_id:
           type:
           - string
@@ -39292,6 +39298,7 @@ components:
       - held_back_condition
       - id
       - kind
+      - listing_id
       - parties
       - payment_instructions
       - prior_status
@@ -46688,6 +46695,11 @@ components:
         can_reserve:
           type: boolean
           readOnly: true
+        can_read_report:
+          type: boolean
+          description: 'RUL-14: whether GET /v1/listings/:id/report opens for this
+            viewer.'
+          readOnly: true
         seller_track_record:
           oneOf:
           - $ref: '#/components/schemas/TrackRecordSummary'
@@ -46706,6 +46718,7 @@ components:
       required:
       - asset_id
       - badge
+      - can_read_report
       - can_reserve
       - disclosure
       - id
@@ -46854,6 +46867,11 @@ components:
         can_reserve:
           type: boolean
           readOnly: true
+        can_read_report:
+          type: boolean
+          description: 'RUL-14: whether GET /v1/listings/:id/report opens for this
+            viewer.'
+          readOnly: true
         seller_track_record:
           oneOf:
           - $ref: '#/components/schemas/TrackRecordSummary'
@@ -46885,6 +46903,7 @@ components:
       - asset_id
       - badge
       - boundary
+      - can_read_report
       - can_reserve
       - disclosure
       - id

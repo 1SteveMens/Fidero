@@ -24,6 +24,7 @@ export interface Listing {
   media: { id: string; kind: string; caption: string; public: boolean; evidence_id: string; url: string | null }[];
   reserved: boolean;
   can_reserve: boolean;
+  can_read_report: boolean;
 }
 
 export function photoUrl(l: Listing): string | null {

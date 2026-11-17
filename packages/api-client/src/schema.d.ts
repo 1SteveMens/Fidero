@@ -17837,6 +17837,8 @@ export interface components {
             /** Format: uuid */
             readonly report_id: string | null;
             /** Format: uuid */
+            readonly listing_id: string | null;
+            /** Format: uuid */
             readonly project_id: string | null;
             /** Format: uuid */
             readonly case_id: string | null;
@@ -21074,6 +21076,8 @@ export interface components {
             readonly media: components["schemas"]["Media"][];
             readonly reserved: boolean;
             readonly can_reserve: boolean;
+            /** @description RUL-14: whether GET /v1/listings/:id/report opens for this viewer. */
+            readonly can_read_report: boolean;
             readonly seller_track_record: components["schemas"]["TrackRecordSummary"] | null;
             /** Format: date-time */
             live_at?: string | null;
@@ -21138,6 +21142,8 @@ export interface components {
             readonly media: components["schemas"]["Media"][];
             readonly reserved: boolean;
             readonly can_reserve: boolean;
+            /** @description RUL-14: whether GET /v1/listings/:id/report opens for this viewer. */
+            readonly can_read_report: boolean;
             readonly seller_track_record: components["schemas"]["TrackRecordSummary"] | null;
             /** Format: date-time */
             live_at?: string | null;

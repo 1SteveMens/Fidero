@@ -222,11 +222,12 @@ class EscrowSerializer(serializers.ModelSerializer):
     payment_instructions = serializers.SerializerMethodField()
     agreement_blockers = serializers.SerializerMethodField()
     freezes = serializers.SerializerMethodField()
+    listing_id = serializers.SerializerMethodField()
 
     class Meta:
         model = Escrow
-        fields = ["id", "reference", "kind", "title", "country", "client", "asset_id", "report_id", "project_id",
-                  "case_id", "bank_partner", "bank_reference", "virtual_account_ref", "agreed_price",
+        fields = ["id", "reference", "kind", "title", "country", "client", "asset_id", "report_id", "listing_id",
+                  "project_id", "case_id", "bank_partner", "bank_reference", "virtual_account_ref", "agreed_price",
                   "held_back_amount", "held_back_condition", "currency", "conversion_choice", "fx_buffer_pct",
                   "terms_version", "status", "prior_status", "fresh_search_case_id", "fresh_search_result_date",
                   "site_check_date", "agreed_at", "funded_at", "closed_at", "cancel_requested_at", "cancel_reason",
@@ -252,6 +253,15 @@ class EscrowSerializer(serializers.ModelSerializer):
         from .services import agreement_blockers
 
         return agreement_blockers(o) if o.status == "proposed" else []
+
+    @extend_schema_field(serializers.UUIDField(allow_null=True))
+    def get_listing_id(self, o):
+        """A purchase reserved from a listing: its report is the seller's, read through the listing (RUL-14)."""
+        if o.kind != "purchase" or o.report_id is None:
+            return None
+        from listings.selectors import listing_id_for_escrow
+
+        return listing_id_for_escrow(o.pk)
 
     @extend_schema_field(FreezeSerializer(many=True))
     def get_freezes(self, o):

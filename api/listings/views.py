@@ -233,9 +233,7 @@ class ListingViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
     @action(detail=True, methods=["get"])
     def report(self, request, pk=None):
         x = self._mine(pk)
-        allowed = services.badge_valid(x) or services.is_seller(request.user, x) or \
-            services.is_staff(request.user, x.country) or x.reservations.filter(buyer=request.user).exists()
-        if not allowed or x.report is None:
+        if not services.can_read_report(request.user, x):
             raise NotFound("There is no report to show for this listing.")
         r = x.report
         from evidence.services import issue_link

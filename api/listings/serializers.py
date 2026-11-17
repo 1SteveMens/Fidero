@@ -174,6 +174,7 @@ class ListingSerializer(serializers.ModelSerializer):
     media = serializers.SerializerMethodField()
     reserved = serializers.SerializerMethodField()
     can_reserve = serializers.SerializerMethodField()
+    can_read_report = serializers.SerializerMethodField()
     seller_track_record = serializers.SerializerMethodField()
 
     class Meta:
@@ -181,7 +182,7 @@ class ListingSerializer(serializers.ModelSerializer):
         fields = ["id", "reference", "slug", "status", "origin", "kind", "title", "description", "estate_name",
                   "price", "size_sqm", "region", "district", "locality", "asset_id", "organisation_id", "badge",
                   "checks_date", "seller", "disclosure", "location", "media", "reserved", "can_reserve",
-                  "seller_track_record", "live_at", "sold_at"]
+                  "can_read_report", "seller_track_record", "live_at", "sold_at"]
 
     @extend_schema_field(BadgeSerializer(allow_null=True))
     def get_badge(self, x):
@@ -218,6 +219,11 @@ class ListingSerializer(serializers.ModelSerializer):
 
     def get_can_reserve(self, x) -> bool:
         return x.status == "live" and services.badge_valid(x)
+
+    def get_can_read_report(self, x) -> bool:
+        """RUL-14: whether GET /v1/listings/:id/report opens for this viewer."""
+        request = self.context.get("request")
+        return services.can_read_report(getattr(request, "user", None), x)
 
     @extend_schema_field(TrackRecordSummary(allow_null=True))
     def get_seller_track_record(self, x):

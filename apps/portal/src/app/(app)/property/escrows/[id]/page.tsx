@@ -122,8 +122,10 @@ export default function EscrowTracker() {
 
       <ProblemBox error={a.error} />
       <div className="row">
-        {e.report_id ? <Link className="btn btn-ghost" href={`/property/reports/${e.report_id}`}>The report</Link> : null}
-        {e.case_id ? <Link className="btn btn-ghost" href={`/property/cases/${e.case_id}`}>The case</Link> : null}
+        {/* A purchase reserved from a listing sits on the seller's report and case: the buyer reads the report on the listing (RUL-14). */}
+        {e.listing_id ? <Link className="btn btn-ghost" href={`/property/listings/${e.listing_id}#report`}>The report</Link>
+          : e.report_id ? <Link className="btn btn-ghost" href={`/property/reports/${e.report_id}`}>The report</Link> : null}
+        {e.case_id && !e.listing_id ? <Link className="btn btn-ghost" href={`/property/cases/${e.case_id}`}>The case</Link> : null}
         {e.status !== 'cancelled' && e.status !== 'released' ? <Link className="btn btn-ghost" href={`/property/disputes/new?escrow=${id}`}>Open a dispute</Link> : null}
       </div>
       {a.toast}

@@ -1,6 +1,6 @@
 'use client';
 import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Chip, Field, KV, Money, ProblemBox, Skeleton, Textarea, Verdict, When, useGet } from '@tenmina/web-ui';
 import { ActionDialog, PageHead, Section, useAction, words, type Any } from '@/components/kit';
 import { Photo } from '@/components/photo';
@@ -10,7 +10,13 @@ export default function ListingDetail() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const q = useGet<Any>(`/v1/listings/${id}`);
-  const rep = useGet<Any>(q.data?.badge ? `/v1/listings/${id}/report` : null, undefined, { shouldRetryOnError: false });
+  // RUL-14: anyone signed in while the badge is valid; the buyer who reserved it keeps the report after that.
+  const rep = useGet<Any>(q.data?.can_read_report ? `/v1/listings/${id}/report` : null, undefined, { shouldRetryOnError: false });
+  const hasReport = Boolean(rep.data);
+  useEffect(() => {
+    // The escrow page links here with #report; the section appears only once the report has loaded.
+    if (hasReport && window.location.hash === '#report') document.getElementById('report')?.scrollIntoView();
+  }, [hasReport]);
   const a = useAction();
   const [ask, setAsk] = useState(false);
   const [msg, setMsg] = useState('');
@@ -36,13 +42,13 @@ export default function ListingDetail() {
       {x.description ? <p style={{ margin: 0 }}>{x.description}</p> : null}
       <KV items={[['Size', x.size_sqm ? `${Number(x.size_sqm).toLocaleString('en-GB')} m²` : '—'], ['Estate', x.estate_name || '—'], ['Seller', x.seller?.name]]} />
       {rep.data ? (
-        <Section title="The full report">
+        <div id="report" style={{ scrollMarginTop: 72 }}><Section title="The full report">
           {(rep.data.sections ?? []).filter((s: Any) => s.verdict).map((s: Any) => (
             <div key={s.number} className="spread card" style={{ flexWrap: 'nowrap' }}><span><span className="mono muted">{s.label}</span> {s.title}<div className="muted" style={{ fontSize: 13 }}>{s.findings}</div></span><Verdict value={s.verdict} /></div>
           ))}
           {rep.data.pdf?.url ? <a className="btn btn-ghost" href={rep.data.pdf.url} target="_blank" rel="noopener noreferrer">Download the report PDF</a> : null}
           <div className="mono muted" style={{ fontSize: 12, overflowWrap: 'anywhere' }}>SHA-256 {rep.data.pdf_sha256}</div>
-        </Section>
+        </Section></div>
       ) : null}
       {tr ? (
         <Section title="Seller's track record">
