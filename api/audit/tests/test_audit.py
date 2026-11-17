@@ -49,6 +49,39 @@ def test_search_filters_and_is_logged(seeded, api, people, gh):
     assert AuditEvent.objects.filter(action="audit.searched", actor_id=rv.pk).count() == 2
 
 
+def test_search_pages_with_next_cursor_and_before_seq(seeded, api, people, gh):
+    """FR-AUD-003: newest first; next_cursor passed back as before_seq loads the next, older page; the last page
+    has no next_cursor; before_seq is a documented parameter in the schema."""
+    from accounts.models import Person, RoleGrant
+
+    rv = Person.objects.create_user("rv-paging@tenmina.test", "tenmina-dev-123", full_name="Paging Reviewer",
+                                    home_country=gh)
+    RoleGrant.objects.create(person=rv, role="RV", country=gh)
+    for i in range(5):
+        services.record(action="paging.test", entity="case", entity_id=f"p-{i}", data={})
+    c = api(rv)
+    seen, cursor, pages = [], None, 0
+    while True:
+        q = {"action": "paging.test", "limit": 2, **({"before_seq": cursor} if cursor else {})}
+        body = c.get("/v1/audit-events", q).json()
+        seen += [i["entity_id"] for i in body["items"]]
+        pages += 1
+        cursor = body["next_cursor"]
+        if cursor is None:
+            break
+    assert seen == ["p-4", "p-3", "p-2", "p-1", "p-0"] and pages == 3
+    body = c.get("/v1/audit-events", {"action": "paging.test", "limit": 5}).json()
+    assert len(body["items"]) == 5 and body["next_cursor"] is None  # exactly one page: no empty extra page
+    assert c.get("/v1/audit-events", {"before_seq": "x"}).status_code == 400
+
+    from drf_spectacular.generators import SchemaGenerator
+
+    op = SchemaGenerator().get_schema(request=None, public=True)["paths"]["/v1/audit-events"]["get"]
+    names = {p["name"]: p for p in op["parameters"]}
+    assert "before_seq" in names and names["before_seq"]["schema"]["type"] == "integer"
+    assert "next_cursor" in names["before_seq"].get("description", "")
+
+
 def test_search_refused_for_clients_and_case_managers(seeded, api, people):
     """FR-AUD-003: reviewers and administrators only."""
     assert api(people["client"]).get("/v1/audit-events").status_code == 403

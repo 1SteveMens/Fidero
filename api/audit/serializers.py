@@ -24,13 +24,19 @@ class AuditSearchSerializer(serializers.Serializer):
     country = serializers.CharField(required=False, max_length=2)
     occurred_from = serializers.DateTimeField(required=False)
     occurred_to = serializers.DateTimeField(required=False)
-    before_seq = serializers.IntegerField(required=False)
-    limit = serializers.IntegerField(required=False, min_value=1, max_value=200, default=50)
+    before_seq = serializers.IntegerField(
+        required=False, min_value=1,
+        help_text="Paging: only entries older than this sequence number. Pass the previous page's next_cursor to "
+                  "load more. Newest first.")
+    limit = serializers.IntegerField(required=False, min_value=1, max_value=200, default=50,
+                                     help_text="Entries per page, 1 to 200.")
 
 
 class AuditPageSerializer(serializers.Serializer):
     items = AuditEventSerializer(many=True)
-    next_cursor = serializers.CharField(allow_null=True)
+    next_cursor = serializers.CharField(
+        allow_null=True,
+        help_text="The sequence number to pass as before_seq for the next (older) page; null on the last page.")
 
 
 class TrailExportSerializer(serializers.Serializer):
