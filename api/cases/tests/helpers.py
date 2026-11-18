@@ -42,6 +42,13 @@ def pdf(person, gh, name="doc.pdf"):
                  content_type="application/pdf", original_name=name)
 
 
+def pending_inspector():
+    """The seeded inspector whose licence is sent but not verified yet (BLD's seed: Yaw Boakye)."""
+    from accounts.models import Person
+
+    return Person.objects.get(email="new.inspector@example.com")
+
+
 def licensed(gh, role, email, name, *, status="verified", days=200):
     """A new professional with a role and a licence (RUL-20)."""
     from datetime import date, timedelta

@@ -7,6 +7,8 @@
   messages, costs, a safety incident) and a checked plot waiting to be accepted. RPT's seed takes Ama's land
   case to a released report. Institution verifications and contractor checks are opened by FEE's and BLD's seeds
   on their real institutions and panel members, so every case's subject is a real row.
+- Late (`run_late`): gives the lawyer and the surveyor their field steps on Kofi's case and on BLD's off-plan
+  check, so they have work in Tenmina Field.
 """
 import logging
 from datetime import timedelta
@@ -201,3 +203,64 @@ def _kofi_in_progress(case, gh, people):
                                  severity="medium", narrative="Two men at the plot asked the runner to leave and "
                                                               "said the land is family land. No one was hurt.",
                                  location_note="Plot entrance")
+
+
+def run_late(ctx):
+    """Field work for the lawyer and the surveyor, on real case steps, assigned by the case manager (FR-CASE-003).
+    Late, because BLD's seed opens the off-plan check:
+
+    - Kofi's land case: the consent meeting goes to the lawyer; the boundary and overlay check to the surveyor,
+      who also notes the access road Kofi asked about. It waits for the runner's site visit.
+    - The off-plan check of Sunrise Homes: the lawyer checks title to the estate land (open) and the building
+      permits, photographed at the assembly in Tenmina Field and sent (done)."""
+    from .models import Case
+
+    people = ctx["people"]
+    cm, lawyer, surveyor = people["cm"], people.get("lawyer"), people.get("surveyor")
+    if lawyer is None or surveyor is None:
+        return
+    kofi = (ctx.get("cases") or {}).get("kofi_land_offline_paid")
+    if kofi is not None:
+        kofi.refresh_from_db()
+        if kofi.status == "in_progress":
+            _assign(kofi, "consent_meeting", cm, lawyer)
+            _assign(kofi, "overlay_check", cm, surveyor)
+    offplan = Case.objects.filter(product_line="offplan_check", status="in_progress").order_by("created_at").first()
+    if offplan is not None:
+        _assign(offplan, "land_title_check", cm, lawyer)
+        permit = _assign(offplan, "permit_check", cm, lawyer)
+        if permit is not None and permit.status in ("open", "in_progress") and permit.assignee_id == lawyer.pk:
+            _field_done(permit, lawyer, "permit_copy", "document", "Building permit, stamped by the assembly")
+
+
+def _assign(case, step_key, cm, person):
+    from . import services
+
+    t = case.tasks.filter(step_key=step_key).first()
+    if t is None or t.status not in ("open", "in_progress"):
+        return t
+    if t.assignee_id != person.pk:
+        try:
+            t = services.assign_task(t, cm, assignee=person)
+        except DomainError as exc:
+            log.info("seed: %s on %s not assigned: %s", step_key, case.reference, exc.detail)
+    return t
+
+
+def _field_done(task, person, key, scene, caption):
+    """The professional photographs the evidence in Tenmina Field and sends it; CASE closes the step when the
+    submission is clean (FR-CASE-006). The photo is signed by the phone and stored tamper-evident."""
+    import uuid
+
+    from core import samples
+    from mobile.seed import _item, _phone
+    from mobile.services import submit
+
+    ns = uuid.UUID("9e0f6a52-3c1b-4f7e-8a2d-6b5c4d3e2f10")
+    phone = _phone(person, f"case-{person.email}", platform="ios")
+    m = _item(phone, str(uuid.uuid5(ns, f"{task.pk}-{key}")), "task", task.pk,
+              samples.photo(scene, f"case-{task.pk}-{key}", caption=caption[:58], model=phone.model, make="Apple"),
+              requirement_key=key, captured_at=timezone.now() - timedelta(hours=2))
+    submit(person, client_submission_id=str(uuid.uuid5(ns, f"sub-{task.pk}")), subject_type="task",
+           subject_id=task.pk, items=[{"requirement_key": key, "evidence_id": str(m.evidence_id)}],
+           note="Permit seen at the assembly. Copy photographed.")

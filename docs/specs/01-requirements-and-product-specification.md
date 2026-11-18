@@ -5,8 +5,8 @@ Business requirements (BRD), product requirements (PRD) and software requirement
 | Item | Value |
 |---|---|
 | Document | 01 of 6 in `docs/specs/` |
-| Version | 0.21, working draft |
-| Date | 17 November 2026 |
+| Version | 0.22, working draft |
+| Date | 18 November 2026 |
 | Owner | Founder, acting as product owner |
 | Status | For review. Not yet baselined |
 | Sources | `README.md`, `docs/proposal.md`, `docs/validation-plan.md`, `docs/partners.md`, `docs/operations/verification-report-template.md`, `docs/operations/milestone-schedule.md`, `docs/product/architecture.md`, `docs/decisions/2026-11-01-diaspora-platform.md`, the business plan Claude doc |
@@ -18,6 +18,7 @@ Every figure in this document is a working assumption, not verified data. Unknow
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 31 October 2026 | First draft |
+| 0.22 | 18 November 2026 | Clarification, no new IDs: FR-MOB-001 also names lawyers and quantity surveyors. A lawyer's assigned case steps and a quantity surveyor's site measurement for a bill of quantities (FR-BLD-002) are field work in Tenmina Field; a paper document is photographed with the app's camera (RUL-08). |
 | 0.21 | 17 November 2026 | Founder decision `docs/decisions/2026-11-17-one-client-account.md`: one Tenmina account per client per country at the licensed bank, with one set of pay-in details and one balance (a line per currency where the client pays in more than one). Everything is paid from it. Money committed to a purchase, a building contract, an event or a repair is set aside inside the account as a commitment tied to that deal; the bank still keeps each commitment apart. RUL-34 restated. FR-ESC-003, FR-ESC-014, FR-ESC-019 and FR-ESC-021 updated. Adds FR-ESC-025 (the account and its pay-in details), FR-ESC-026 (commitments inside the account), FR-ESC-027 (setting money aside: an instruction to the bank the client approves with their second factor; no staff approvals because nobody is paid; counts only when the bank confirms it) and FR-ESC-028 (a cancelled commitment goes back to source under RUL-29, or stays in the account only if the client chooses). Q-29, the data entities and the glossary updated. RUL-05, RUL-11, RUL-22, RUL-28 and RUL-29 are unchanged. |
 | 0.20 | 17 November 2026 | Founder decision `docs/decisions/2026-11-17-sms-codes-for-clients.md`: clients sign in, and approve on the website, with a 6-digit code sent by SMS instead of an authenticator app; staff keep the authenticator. Adds FR-ACC-015 (SMS codes: 6 digits, 5 minutes, single use, 5 tries, sends limited to 3 in 10 minutes and 10 a day `[TO VERIFY]`, stored hashed, audited, content policy; recorded as `sms_code`; refused for staff and anyone holding RR or PY; SMS approvals pause for 72 hours after a number change or a reported SIM swap; a new number is confirmed by a code sent to it with the password; a password reset of an SMS client needs the email code and an SMS code). FR-ACC-003 restated: the second factor is the authenticator app or an approval key for staff, professionals and rights holders, and for clients also an SMS code. FR-ACC-014 restated: a client may register an approval key with an SMS code; an account lock no longer revokes approval keys (anyone who knows an email address could cause one), a new mobile number does. FR-ACC-002 and FR-APP-003 updated. RUL-05, RUL-11 and RUL-28 are unchanged. |
 | 0.19 | 17 November 2026 | Founder decision `docs/decisions/2026-11-17-biometric-approvals.md`: in the two phone apps, Face ID or a fingerprint replaces typing the authenticator code at each approval. Adds FR-ACC-014 (approval keys per person and phone; a signed one-time challenge is a fresh step-up, recorded as `device_biometric` on every approval; enrolment needs the authenticator code; revocation; fallback to the code). FR-APP-003 updated: besides biometric unlock, the second factor for an approval may be the authenticator code or the phone's approval key after Face ID or a fingerprint; unlocking the app alone still never counts. FR-ACC-003, RUL-05 and RUL-11 are unchanged. The web portal and back office keep the authenticator code; WebAuthn passkeys are the later web equivalent. |
@@ -737,7 +738,7 @@ Each requirement uses "shall". Priority and release follow the conventions above
 
 | ID | Requirement | Priority | Release | Source |
 |---|---|---|---|---|
-| FR-MOB-001 | The field app, on iOS and Android, shall let contractors, inspectors, runners, surveyors, carers and errand agents sign in and see only their assigned projects, cases and tasks. | Must | R2 | BR-08 |
+| FR-MOB-001 | The field app, on iOS and Android, shall let contractors, inspectors, runners, surveyors, lawyers, quantity surveyors, carers and errand agents sign in and see only their assigned projects, cases and tasks. | Must | R2 | BR-08 |
 | FR-MOB-002 | The app shall capture photos and video with its own camera only, and block gallery and file uploads for evidence. | Must | R2 | RUL-08 |
 | FR-MOB-003 | The app shall record GPS position and accuracy at capture and warn when the position is more than a configured distance from the plot boundary. | Must | R2 | BR-08 |
 | FR-MOB-004 | The app shall hash each file at capture and sign the hash, position and device time with a key held in the phone's hardware-backed keystore (Android Keystore or the iOS Secure Enclave), registered with the platform's attestation service (Play Integrity or App Attest). | Must | R2 | BR-06 |

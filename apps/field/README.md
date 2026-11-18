@@ -4,7 +4,7 @@ The app for field roles: inspectors, contractors, carers, and later runners, sur
 
 ## Run it
 
-See `docs/operations/testing-the-apps.md`. Sign in with a seeded field user (`inspector@example.com`, `builder@example.com`, `carer@example.com`, `runner@example.com`, `kofi.agent@example.com`; password `tenmina-dev-123`).
+See `docs/operations/testing-the-apps.md`. Sign in with a seeded field user (`inspector@example.com`, `builder@example.com`, `carer@example.com`, `runner@example.com`, `kofi.agent@example.com`, `lawyer@example.com`, `surveyor@example.com`, `qs@example.com`; password `tenmina-dev-123`).
 
 ## How it works
 

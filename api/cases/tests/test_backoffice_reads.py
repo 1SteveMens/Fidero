@@ -35,7 +35,7 @@ def test_task_candidates_flag_an_invalid_licence(seeded, api, people, gh):
     case = accepted_case(api, people, gh, asset={"type": "building", "locality": "Tema"})
     t = task(case, "structural_inspection")
     body = api(people["cm"]).get(f"/v1/tasks/{t.pk}/candidates").json()
-    insp = next(p for p in body["people"] if p["name"] == "Kwesi Inspector")
+    insp = next(p for p in body["people"] if p["name"] == "Yaw Boakye (inspector)")
     assert insp["licence"]["valid"] is False and insp["can_be_main"] is False and insp["licence"]["message"]
 
 

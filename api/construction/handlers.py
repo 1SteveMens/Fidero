@@ -123,7 +123,7 @@ def _site(p):
 def field_work(person):
     from .models import Inspection, Milestone
 
-    if not person.has_tenmina_role("CT", "IN", "DV"):
+    if not person.has_tenmina_role("CT", "IN", "DV", "QS"):
         return
     if person.has_tenmina_role("CT", "DV"):
         from django.db.models import Q
@@ -163,6 +163,38 @@ def field_work(person):
                 details={"independence": "You have no link to this contractor.",
                          "contractor": i.project.contractor.name if i.project.contractor else "",
                          "concern": i.concern, "kind": i.kind}, updated_at=i.updated_at)
+    if person.has_tenmina_role("QS"):
+        yield from _boq_visits(person)
+
+
+BOQ_VISIT_EVIDENCE = [
+    {"key": "site_photo", "label": "The site, from each corner", "media": "photo", "required": True},
+    {"key": "measurement_photo", "label": "Tape on the main lengths", "media": "photo", "required": True},
+    {"key": "access_photo", "label": "Road access for deliveries", "media": "photo", "required": False},
+]
+
+
+def _boq_visits(person):
+    """FR-BLD-002: a build being set up, with this quantity surveyor assigned and no bill of quantities yet. They
+    measures the site in Tenmina Field; the bill itself is uploaded in the portal. After her photos are sent the
+    job stays listed, closed for more photos, until the bill is in."""
+    from mobile.models import Submission
+
+    from .models import BUILD_TYPES, Project
+
+    for p in Project.objects.filter(quantity_surveyor__person=person, status="setup", type__in=BUILD_TYPES) \
+            .exclude(boqs__status__in=["submitted", "accepted"]) \
+            .select_related("asset", "asset__current_boundary", "country"):
+        point, boundary, address = _site(p)
+        sent = Submission.objects.filter(subject_type="bld_project", subject_id=p.pk, person=person).exists()
+        yield inbox.InboxItem(
+            subject_type="bld_project", subject_id=p.pk, title=f"Measure the site: {p.title}",
+            kind="boq_visit", country=p.country, address=address, point=point, boundary=boundary, buffer_m=50,
+            required_evidence=BOQ_VISIT_EVIDENCE, project_key=str(p.pk), accepts_submissions=not sent,
+            state_reason="Photos sent. Upload the bill of quantities in the Tenmina portal." if sent else "",
+            details={"note": "Measure the site for the bill of quantities. Upload the bill itself in the Tenmina "
+                             "portal.", "instructions": p.description or ""},
+            updated_at=p.updated_at)
 
 
 # ----------------------------------------------------------------- client home (FR-ACC-012)

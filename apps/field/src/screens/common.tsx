@@ -115,4 +115,7 @@ export const KIND_LABEL: Record<string, string> = {
   fee_runner_task: 'Collect a bill',
   errand_step: 'Errand step',
   property_inspection: 'Property inspection',
+  boq_visit: 'Bill of quantities',
+  recheck: 'Re-check',
+  errand: 'Errand',
 };
