@@ -9,7 +9,7 @@ from django.utils import timezone
 from audit.models import AuditEvent
 from cases import services, templates
 from cases.models import Case, Task
-from cases.tests.helpers import accepted_case, paid_case, pdf, task
+from cases.tests.helpers import accepted_case, paid_case, pdf, pending_inspector, task
 from core.errors import DomainError, Invalid
 from core.models import OutboxEvent
 from notifications.models import Message as Notice
@@ -110,7 +110,7 @@ def test_licence_needed_to_assign_professional(seeded, api, people, gh):
     """RUL-20: an inspector whose licence is not verified cannot be assigned."""
     case = accepted_case(api, people, gh, asset={"type": "building", "locality": "Tema"})
     t = task(case, "structural_inspection")
-    r = api(people["cm"]).patch(f"/v1/tasks/{t.pk}", {"assignee_id": str(people["inspector"].pk)}, format="json")
+    r = api(people["cm"]).patch(f"/v1/tasks/{t.pk}", {"assignee_id": str(pending_inspector().pk)}, format="json")
     assert r.status_code == 409 and r.json()["code"] == "licence-invalid"
 
 

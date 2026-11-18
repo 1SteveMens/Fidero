@@ -229,6 +229,42 @@ them (home rows and notifications for the client; payables, errands and jobs in 
 - Field, a payable on hold showed its code word (`payee_not_verified`). It now says why in plain words.
 - The notification link `/escrows/{id}/payee-changes/{id}` opened the summary screen; it opens the payee change.
 
+## Follow-up, 18 November: field jobs for every field role
+
+Since `38f25d6` field work comes only from real rows, and the inspector, the surveyor, the lawyer and the qs had no
+job, so the Field job screen (`/job/[type]/[id]`) was never opened as them. Each now has work from its own module,
+given through that module's services (case manager assignment, licence and agreement checks, panel approval).
+
+**Demo data:**
+- Inspector (`inspector@example.com`, Kwesi): an administrator verifies the licence he sent and approves him onto the
+  BLD panel (`api/construction/seed.py`); he is the inspector on Ama's two builds. Open: "Inspect Foundation, House at
+  Millennium City, Kasoa". Done: the boys' quarters foundation, passed with a defect, with his signed defect photo.
+  The "licence not verified" demo moves to a new inspector, Yaw Boakye (`new.inspector@example.com`), pending on the
+  panel; the tests that need an unlicensed inspector use him. Kwesi's PRO agreement stays a draft, so `/pay/[id]`
+  is still not reached for him.
+- Surveyor: Kofi's land case, "Check the boundary and the overlays" (`api/cases/seed.py`, `run_late`). It opens after
+  the runner's site visit, so the screen shows it closed with the reason.
+- Lawyer: Kofi's consent meeting and the off-plan check's title check (open), and the off-plan permit check (done:
+  the permit photographed in Tenmina Field and sent; CASE closed the step from the clean submission).
+- QS: a new build being set up, "Boundary wall at Millennium City, Kasoa", with Adjoa assigned and no bill of
+  quantities yet. Her Field job is to measure the site (photos); the bill itself is uploaded in the portal. After
+  her photos are sent the job stays, closed, until the bill is in (`api/construction/handlers.py`).
+- Yaa (`agent@example.com`) still has no job. Her errand agent vetting is pending, so she is on no panel (FR-TSK-003)
+  and no case step may be given to her (no agreement, US-PRO-001 AC1). No work is open to a pending agent. Her empty
+  inbox is tested.
+
+**Found and fixed:**
+- API: every case task carried the plot's position, so any photo a lawyer took at a registry or an assembly was
+  flagged "outside the plot". Only site visits carry the position now.
+- API and Field: a step waiting for another showed its key ("Waiting for: site_visit"). It now names the step
+  ("Opens after: Visit the plot and capture evidence.").
+- Field: evidence of kind "document" (legal note, survey report, permit copy, consent form) showed a text box, which
+  can never close a case step. It now opens the app's camera to photograph the paper, counted in pages.
+- Field: the "What to send" count included optional items ("1/3" before any photo). It counts required items only.
+
+**Audit** (`--app field --roles inspector,agent,surveyor,lawyer,qs`): 64 screens (86 views), first run 3 findings
+(the code word above), after the fixes 0. The job screen was reached for all four with work.
+
 ## Not reached by the crawler
 
 - Client: `/checkout/[id]` (needs a payment started, a POST; walked by `app-flows.js` instead), `/face-id` and
@@ -236,8 +272,7 @@ them (home rows and notifications for the client; payables, errands and jobs in 
   Kofi reaches fewer screens because he has fewer records; every screen he lacks was reached as ama.
 - Field: `/pay/[id]` for the inspector (his agreement is a draft: no verified account yet), the carer (paid from the
   family's money) and Yaa and the qs (no agreement): those are the demo states those screens show. `/job/[type]/[id]`
-  for the inspector, Yaa, the surveyor, the lawyer and the qs: since the seed stopped assigning made-up subjects
-  (`38f25d6`), only the runner, the carer and the errand agent have field jobs. `/errand/[id]` for everyone but the
-  errand agent.
+  for Yaa: her vetting is pending, so no work may be given to her (see the follow-up of 18 November).
+  `/errand/[id]` for everyone but the errand agent.
 
 These screens use the same components and palettes as the screens checked, so the colour fixes apply to them.

@@ -8,10 +8,18 @@ import type { Job } from '../types';
 import { CheckCard } from './CheckIn';
 import { CaptureButton, KIND_LABEL, OfflineBanner, SearchStrip, Submitted, useDone } from './common';
 
-const isMedia = (m?: string) => m === 'photo' || m === 'video' || m === undefined;
+/** Photos, videos and paper documents are all taken with the app's own camera (RUL-08): a document is photographed. */
+const isMedia = (m?: string) => m === 'photo' || m === 'video' || m === 'document' || m === undefined;
+
+function countLabel(media: string | undefined, n: number): string {
+  if (media === 'video') return `${n} ${n === 1 ? 'video' : 'videos'}`;
+  if (media === 'document') return `${n} ${n === 1 ? 'page' : 'pages'} photographed`;
+  return `${n} ${n === 1 ? 'photo' : 'photos'}`;
+}
 
 /**
- * Evidence for a milestone, a case task, an errand step or a bill to collect
+ * Evidence for a milestone, a case task, an errand step, a bill to collect or
+ * the quantity surveyor's site measurement
  * (SCR-MOB-03, 04, 07, 12; FR-MOB-006, FR-MOB-010): each required item from the
  * schedule, taken in this app, then one submission. Offline, it waits on the
  * phone and is sent by itself (FR-MOB-005).
@@ -33,7 +41,8 @@ export function EvidenceJobScreen({ job }: { job: Job }) {
   }
 
   const counts = Object.fromEntries(job.required_evidence.map((r) => [r.key, capturesFor(job.subject_type, job.subject_id, r.key).length]));
-  const missing = job.required_evidence.filter((r) => r.required !== false && (isMedia(r.media) ? !counts[r.key] : !(values[r.key] ?? '').trim()));
+  const needed = job.required_evidence.filter((r) => r.required !== false);
+  const missing = needed.filter((r) => (isMedia(r.media) ? !counts[r.key] : !(values[r.key] ?? '').trim()));
   const keep = (patch: Record<string, unknown>) => setProgress(key, patch);
 
   function submit() {
@@ -103,7 +112,7 @@ export function EvidenceJobScreen({ job }: { job: Job }) {
         <Rise>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: space[2] }}>
             <T v="headline" header style={{ fontSize: 18 }}>What to send</T>
-            <T v="title">{`${job.required_evidence.length - missing.length}/${job.required_evidence.length}`}</T>
+            <T v="title">{`${needed.length - missing.length}/${needed.length}`}</T>
           </View>
           <Panel style={{ gap: 0, paddingVertical: space[1] }}>
             {job.required_evidence.map((r, i) => {
@@ -116,7 +125,7 @@ export function EvidenceJobScreen({ job }: { job: Job }) {
                     {ok ? <Tick /> : <View style={{ width: 22, height: 22, borderRadius: 7, borderWidth: 2, borderColor: pal.lineStrong }} />}
                     <View style={{ flex: 1 }}>
                       <T v="callout">{r.label ?? r.key}</T>
-                      <Label>{media ? `${n} ${r.media === 'video' ? (n === 1 ? 'video' : 'videos') : n === 1 ? 'photo' : 'photos'}${r.required === false ? ' · optional' : ''}` : r.required === false ? 'Optional' : 'Needed'}</Label>
+                      <Label>{media ? `${countLabel(r.media, n)}${r.required === false ? ' · optional' : ''}` : r.required === false ? 'Optional' : 'Needed'}</Label>
                     </View>
                     {media ? <CaptureButton subjectType={job.subject_type} subjectId={job.subject_id} reqKey={r.key} label={r.label ?? r.key} kind={r.media === 'video' ? 'video' : 'photo'} count={n} /> : null}
                   </View>

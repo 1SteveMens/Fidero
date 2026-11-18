@@ -68,7 +68,7 @@ def test_inactive_contractor_not_offered(b, api):
 def test_panel_approval_needs_vetting(b, api):
     """TC-BLD-003-01: active only after the checks; RUL-20: an inspector without a verified licence stays out."""
     with pytest.raises(RuleBlocked) as ei:
-        panel.approve(b.m("kwesi"), b.p["admin"])
+        panel.approve(b.m("boakye"), b.p["admin"])
     assert "RUL-20" in {r["rule"] for r in ei.value.blocking_reasons}
     r = api(b.p["admin"]).post(f"/v1/panel-members/{b.panel['adom'].pk}/approval", {}, format="json")
     assert r.status_code == 409

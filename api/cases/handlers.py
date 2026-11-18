@@ -152,6 +152,14 @@ def on_order_refunded(ev):
 
 # --------------------------------------------------------------------------- registries
 
+def _waiting_text(task, waiting):
+    """Why a field step is not open yet, in words: the titles of the steps it waits for, never their keys."""
+    if not waiting:
+        return ""
+    titles = dict(task.case.tasks.filter(step_key__in=waiting).values_list("step_key", "title"))
+    return "Opens after: " + "; ".join(titles.get(k, k.replace("_", " ")) for k in waiting) + "."
+
+
 def _register():
     from accounts import home
     from accounts.services import register_owner_check
@@ -221,8 +229,10 @@ def _register():
                 details["notice"] = SEARCH_NOTICE
             if t.site_visit:
                 details["risk_screen_required"] = True
+            # Only a site visit is checked against the plot's position. Other steps happen at an office, a
+            # registry or a meeting, so their photos are never flagged for being away from the plot.
             point = None
-            if asset is not None and asset.location is not None:
+            if t.site_visit and asset is not None and asset.location is not None:
                 point = (asset.location.y, asset.location.x)
             yield inbox.InboxItem(
                 subject_type="task", subject_id=str(t.pk), title=f"{t.title} ({t.case.reference})", kind="case_task",
@@ -232,7 +242,7 @@ def _register():
                                     "media": "video" if k.endswith("video") else
                                     "photo" if services.PHOTO_KINDS.search(k) else "document", "required": True}
                                    for k in t.required_evidence],
-                accepts_submissions=not waiting, state_reason=f"Waiting for: {', '.join(waiting)}" if waiting else "",
+                accepts_submissions=not waiting, state_reason=_waiting_text(t, waiting),
                 due_at=t.due_at, details=details, updated_at=t.updated_at)
 
     @registry.open_matters

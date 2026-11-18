@@ -81,12 +81,18 @@ def test_tenancy_blocked_until_condition_inspection(people, new_property, seeded
     assert e.value.code == "inspection-required"
 
 
+def _pending_inspector():
+    from accounts.models import Person
+
+    return Person.objects.get(email="new.inspector@example.com")
+
+
 def test_inspection_needs_licensed_inspector_and_app_photos(people, new_property, pmg, doc):
     """RUL-20, RUL-08, US-PMG-001 AC2: only a licensed inspector; photos per room taken in the app."""
     prop = new_property()
     insp = services.onboarding_inspection(prop)
     with pytest.raises(DomainError) as e:
-        services.assign_inspector(insp, people["cm"], people["inspector"])  # licence not verified
+        services.assign_inspector(insp, people["cm"], _pending_inspector())  # licence not verified
     assert e.value.code == "licence-invalid"
     services.assign_inspector(insp, people["cm"], pmg["inspector"])
     uploaded = doc(pmg["inspector"], "phone-gallery", image=True)

@@ -154,11 +154,16 @@ npx expo start
 
 Start it with the same `EXPO_PUBLIC_API_URL=...` in front. Stop the client app first with Ctrl+C, or run Tenmina Field in a second Terminal window. Sign in as a seeded field user (password `tenmina-dev-123`); the phone then registers its own signing key:
 
-- **Inspector** `inspector@example.com`: open "Inspect foundation, East Legon", check in, answer each check, mark one "No" as a defect with a photo and a value, then choose a result.
+- **Inspector** `inspector@example.com`: open "Inspect Foundation, House at Millennium City, Kasoa", check in, answer each check, mark one "No" as a defect with a photo and a value, then choose a result.
 - **Contractor** `builder@example.com`: open a milestone, take the evidence photos (and the video), then submit. Try it with "Test: pretend there is no signal" switched on in Account, and watch the Queue tab.
 - **Carer** `carer@example.com`: open "Visit Akosua Mensah", check in (far from the address, it asks you to say why), record each plan item and the blood pressure, then check out. The family's code goes to their phone, not yours.
 - **Runner** `runner@example.com`: a case task with the search notice, a bill to collect, and the Pay tab.
 - **Errand agent** `kofi.agent@example.com`: the birth certificate errand and its steps.
+- **Lawyer** `lawyer@example.com`: "Check title to the estate land" on the off-plan check. Photograph the legal note with the app's camera (a paper document is photographed, page by page), then submit. The consent meeting on Kofi's land case asks for the consent form and a video.
+- **Surveyor** `surveyor@example.com`: the boundary check on Kofi's land case. It shows as not open yet: it opens after the runner's site visit.
+- **Quantity surveyor** `qs@example.com`: "Measure the site: Boundary wall at Millennium City, Kasoa". Take the site and tape photos, then submit. The bill of quantities itself is uploaded in the portal.
+
+The lawyer, the surveyor and the quantity surveyor sign in with an authenticator code: add the development key `JBSWY3DPEHPK3PXP` to your authenticator app (test data only). Yaa (`agent@example.com`) has no jobs on purpose: her vetting is not finished, so no work can be given to her.
 
 The first time, the phone asks for the camera and for your location. Allow both: the app needs them to seal where and when evidence was taken.
 

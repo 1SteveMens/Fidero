@@ -239,7 +239,7 @@ def test_expiry_job_expires_and_alerts(seeded, people):
 
 
 def test_expired_licence_cannot_be_verified(seeded, people):
-    lic = ProfessionalLicence.objects.get(person=people["inspector"])
+    lic = ProfessionalLicence.objects.get(person__email="new.inspector@example.com", status="submitted")
     ProfessionalLicence.objects.filter(pk=lic.pk).update(expires_on=date.today() - timedelta(days=1))
     lic.refresh_from_db()
     with pytest.raises(DomainError) as e:

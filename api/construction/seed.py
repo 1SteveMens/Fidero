@@ -2,16 +2,19 @@
 assumption or a synthetic figure [TO VERIFY].
 
 Panel: Kobby Builders and Mensah Construction (active contractors with verified payees), Adom Builders
-(pending: never offered), Esi Owusu (independent inspector), Kofi Asare (inspector who works for Kobby
-Builders: a recorded link, never assigned to Kobby's work), Adjoa (quantity surveyor), Kwesi (inspector whose
-licence is not verified yet: pending), Sunrise Homes (developer).
+(pending: never offered), Kwesi (`inspector@example.com`: his licence checked by an administrator, then
+approved), Esi Owusu (independent inspector), Kofi Asare (inspector who works for Kobby Builders: a recorded
+link, never assigned to Kobby's work), Adjoa (quantity surveyor), Yaw Boakye (inspector whose licence is not
+verified yet: pending), Sunrise Homes (developer).
 
 Projects for Ama:
 - A. House at Millennium City, Kasoa: the launch route (client_direct). Mobilisation paid directly and
-  confirmed by the builder; the foundation inspection is scheduled with Esi.
-- B. Boys' quarters at Kasoa: the escrow route. The bank holds the money; mobilisation paid by the bank; the
-  foundation passed with a defect held back and waits for Ama's approval; a variation waits for her agreement.
+  confirmed by the builder; the foundation inspection is scheduled with Kwesi (open in his Tenmina Field).
+- B. Boys' quarters at Kasoa: the escrow route. The bank holds the money; mobilisation paid by the bank; Kwesi
+  passed the foundation with a defect held back (his photo in Tenmina Field), which waits for Ama's approval;
+  a variation waits for her agreement.
 - C. Off-plan house at Sunrise Estate: the developer's off-plan check is in progress.
+- D. Boundary wall at Millennium City, Kasoa: being set up; Adjoa measures the site for the bill of quantities.
 """
 import logging
 import uuid
@@ -62,6 +65,26 @@ def _licence(p, role, number, admin, gh):
             person=p, role=role, country=gh, body="Engineering Council [TO VERIFY]", number=number,
             expires_on=timezone.localdate() + timedelta(days=365), status="verified", verified_by=admin,
             verified_on=timezone.localdate())
+
+
+def _verify_licence(p, role, admin):
+    """An administrator verifies a licence the professional sent (RUL-20), through ACC's service."""
+    from accounts.models import ProfessionalLicence
+    from accounts.services import verify_licence
+
+    lic = ProfessionalLicence.objects.filter(person=p, role=role, status="submitted").order_by("-created_at").first()
+    if lic is not None and not ProfessionalLicence.objects.filter(person=p, role=role, status="verified").exists():
+        verify_licence(lic, admin)
+
+
+def _submitted_licence(p, role, number, admin, gh):
+    """A licence sent for checking and not verified yet."""
+    from accounts.models import ProfessionalLicence
+    from accounts.services import add_licence
+
+    if not ProfessionalLicence.objects.filter(person=p, role=role).exists():
+        add_licence(admin, p, role=role, body="Engineering Council [TO VERIFY]", number=number,
+                    expires_on=timezone.localdate() + timedelta(days=365), country=gh)
 
 
 def _approve(req, *approvers):
@@ -173,7 +196,15 @@ def _panel(ctx, gh, people):
     out["asare"] = asare
     out["qs"] = _activate(_member(gh, cm, admin, kind="quantity_surveyor", name="Adjoa Quantity Surveyor",
                                   person=people["qs"]), admin)
-    out["kwesi"] = _member(gh, cm, admin, kind="inspector", name="Kwesi Inspector", person=people["inspector"])
+    # Kwesi: an administrator checks the licence he sent (ACC's seed records it as submitted), then approves him
+    # onto the panel, so a case manager may give him the builds' inspections (RUL-20).
+    _verify_licence(people["inspector"], "IN", admin)
+    out["kwesi"] = _activate(_member(gh, cm, admin, kind="inspector", name="Kwesi Inspector",
+                                     person=people["inspector"]), admin)
+    # Yaw: an inspector who has sent his licence but is not checked yet. He stays pending and is never assigned.
+    boakye_p = _person(gh, "boakye", "new.inspector@example.com", "Yaw Boakye (inspector)", "IN", admin)
+    _submitted_licence(boakye_p, "IN", "EC/DEMO/0103", admin, gh)
+    out["boakye"] = _member(gh, cm, admin, kind="inspector", name="Yaw Boakye", person=boakye_p)
     out["sunrise"] = _activate(_member(gh, cm, admin, kind="developer", name="Sunrise Homes Developers (demo)",
                                        person=people["developer"], organisation=orgs.get("developer")), admin)
     if out["sunrise"].payee_id is None and esc_payees.get("developer") is not None:
@@ -227,7 +258,7 @@ def _project_a(ctx, gh, people, panel_, asset):
     from .models import Milestone, Payment
 
     p = _set_up(gh, people, panel_, title="House at Millennium City, Kasoa", asset=asset,
-                contractor=panel_["kobby"], route="client_direct", inspector=panel_["esi"])
+                contractor=panel_["kobby"], route="client_direct", inspector=panel_["kwesi"])
     if not p.handover_confirmed_at:
         projects.confirm_handover(p, people["cm"], evidence_ids=[_ev(gh, people["cm"], "site-handover-A").pk])
     mob = Milestone.objects.get(project=p, seq=0)
@@ -306,7 +337,7 @@ def _project_b(ctx, gh, people, panel_, asset):
 
     cm, rv, rv2, client = people["cm"], people["reviewer"], people["reviewer2"], people["client"]
     p = _set_up(gh, people, panel_, title="Boys' quarters at Kasoa", asset=asset, contractor=panel_["mensah"],
-                route="escrow", inspector=panel_["esi"],
+                route="escrow", inspector=panel_["kwesi"],
                 boq_items=[{"description": "Two-room boys' quarters, complete", "quantity": "1",
                             "rate": "180000.00"}])
     if p.escrow_id is None:
@@ -346,9 +377,9 @@ def _project_b(ctx, gh, people, panel_, asset):
         if found.status == "submitted":
             milestones.review_evidence(found, cm, decision="accept")
         found.refresh_from_db()
-    i = Inspection.objects.filter(milestone=found, status="scheduled").first()
+    i = Inspection.objects.filter(milestone=found, status="scheduled").select_related("inspector").first()
     if i is not None:
-        _inspect(gh, i, panel_["esi"].person, "esi-b",
+        _inspect(gh, i, i.inspector.person, "kwesi-b",
                  outcome="pass_with_defects", defects=[("Concrete cover under 50 mm at the north wall", "1200.00")])
     blocks = Milestone.objects.get(project=p, key="blocks")
     if not blocks.variations.exists():
@@ -371,6 +402,24 @@ def _project_c(ctx, gh, people, panel_):
     return projects.create_project(people["client"], type="offplan", title="Off-plan house at Sunrise Estate",
                                    asset_id=asset.pk, budget="320000.00", contractor_id=panel_["sunrise"].pk,
                                    payment_route="client_direct")
+
+
+def _project_d(ctx, gh, people, panel_, asset):
+    """D. A boundary wall on the same plot, being set up: the case manager has assigned Adjoa, the quantity
+    surveyor, who measures the site for her bill of quantities (FR-BLD-002). It is in her Tenmina Field jobs
+    until the bill is uploaded."""
+    from . import projects
+    from .models import Project
+
+    title = "Boundary wall at Millennium City, Kasoa"
+    p = Project.objects.filter(client=people["client"], title=title).first()
+    if p is None:
+        p = projects.create_project(people["cm"], type="construction", title=title, asset_id=asset.pk,
+                                    budget="45000.00", client=people["client"], payment_route="client_direct",
+                                    description="A block wall with a gate along the surveyed boundary.")
+    if p.quantity_surveyor_id is None:
+        projects.assign_quantity_surveyor(p, people["cm"], panel_["qs"].pk)
+    return Project.objects.get(pk=p.pk)
 
 
 def quiet(person, since):
@@ -412,7 +461,7 @@ def run(ctx):
     if asset is None:
         log.warning("seed: no verified plot for Ama; construction projects not seeded")
         return
-    for key, fn in (("house", _project_a), ("quarters", _project_b)):
+    for key, fn in (("house", _project_a), ("quarters", _project_b), ("wall", _project_d)):
         try:
             with transaction.atomic():
                 refs[key] = fn(ctx, gh, people, panel_, asset)
