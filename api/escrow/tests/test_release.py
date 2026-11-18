@@ -6,6 +6,7 @@ import pytest
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 
+from accounts.seed import DEV_MFA_SECRET
 from core.errors import DomainError, Forbidden, MfaRequired, RuleBlocked, SameApprover, StateConflict
 from escrow import services
 from escrow.models import Escrow, ReleaseInstruction
@@ -196,7 +197,7 @@ def test_client_needs_fresh_mfa_or_code(b):
     with pytest.raises(MfaRequired):
         services.client_approve(ins, b.client, code="000000")
     if not b.client.mfa_secret:
-        b.client.mfa_secret = "JBSWY3DPEHPK3PXP"
+        b.client.mfa_secret = DEV_MFA_SECRET
         b.client.save(update_fields=["mfa_secret"])
     services.client_approve(ins, b.client, code=pyotp.TOTP(b.client.mfa_secret).now())
     ins.refresh_from_db()

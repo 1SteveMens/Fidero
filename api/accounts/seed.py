@@ -20,7 +20,8 @@ from .models import (BankAccount, FamilyMember, IdentityCheck, Invitation, Membe
 from .normalise import bidx, normalise_name
 
 DEV_PASSWORD = "tenmina-dev-123"
-DEV_MFA_SECRET = "JBSWY3DPEHPK3PXP"
+# 32 base32 characters = 160 bits. pyotp 2.12 and later refuse secrets under 112 bits.
+DEV_MFA_SECRET = "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP"
 NS = uuid.UUID("6f1d0c1e-7e2a-4c55-9a51-1e3f0a7b5c01")  # demo ids are uuid5 under this namespace
 
 # key, email, name, roles, residence, phone (all phone numbers are fictional)
