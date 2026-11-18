@@ -16,7 +16,8 @@ from notifications.models import Message
 from orders.models import Order
 from orders.tests.helpers import checkout, pay, place_order, site_plan, start_payment, terms
 from payments import adapters, services
-from payments.models import FakeProviderTransaction, FeePayment, Invoice, Receipt, ReconIssue, Refund
+from payments.models import (FakeProviderTransaction, FeePayment, Invoice, Receipt, ReconIssue, Refund,
+                             SettlementRun)
 
 
 def _approve(api, mfa, person, url, decision="approve"):
@@ -505,9 +506,18 @@ def test_offline_refund_goes_back_to_the_source_account(seeded, api, people, gh,
 # ---------------------------------------------------------------- reconciliation (US-PAY-006)
 
 
-def _yesterday(*payments):
-    """Settle the test's payments on a day the seed did not touch."""
-    day = timezone.now() - timedelta(days=1)
+def _quiet_day(*payments):
+    """Settle the test's payments on a day nothing else touched.
+
+    The seed runs once per test session and settles on the day it ran. A run
+    that crosses midnight UTC would make "yesterday" that day, so look back
+    from two days ago for a day with no payment, provider line or settlement.
+    """
+    day = timezone.now() - timedelta(days=2)
+    while (FeePayment.objects.filter(confirmed_at__date=day.date()).exists()
+           or FakeProviderTransaction.objects.filter(paid_at__date=day.date()).exists()
+           or SettlementRun.objects.filter(settlement_date=day.date()).exists()):
+        day -= timedelta(days=1)
     for p in payments:
         FeePayment.objects.filter(pk=p["id"]).update(confirmed_at=day)
         FakeProviderTransaction.objects.filter(reference=p["provider_ref"]).update(paid_at=day)
@@ -519,7 +529,7 @@ def test_daily_settlement_matches_and_lists_mismatches(seeded, api, people, gh):
     c = api(people["client"])
     o1, o2 = _order(api, people, gh), _order(api, people, gh)
     p1, p2 = pay(c, o1["id"]), pay(c, o2["id"])
-    day = _yesterday(p1, p2).isoformat()
+    day = _quiet_day(p1, p2).isoformat()
     cm = api(people["cm"])
     r = cm.post("/v1/reconciliation/runs", {"country": "GH", "settlement_date": day}, format="json")
     assert r.status_code == 201 and r.json()["matched"] == 2 and r.json()["issues"] == 0
@@ -552,7 +562,7 @@ def test_missing_settlement_and_amount_mismatch(seeded, api, people, gh):
     c = api(people["client"])
     o1, o2 = _order(api, people, gh), _order(api, people, gh)
     p1, p2 = pay(c, o1["id"]), pay(c, o2["id"])
-    day = _yesterday(p1, p2)
+    day = _quiet_day(p1, p2)
     run = services.import_settlement(people["cm"], country=gh, settlement_date=day, items=[
         adapters.SettlementItem(provider_ref=p1["provider_ref"], amount=Decimal("300.00"), currency="USD")])
     assert run.issues == 2
