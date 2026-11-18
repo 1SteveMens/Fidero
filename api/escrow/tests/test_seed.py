@@ -11,6 +11,46 @@ def test_seed_states(seeded):
     assert ReleaseInstruction.objects.filter(status="pending_approval").exists()
 
 
+def test_seeded_escrows_start_from_released_reports(seeded, api):
+    """FR-ESC-001: every seeded escrow that names a report names a released report that exists, and the client can
+    read it from the escrow page. When the report is on the client's own case, the portal links
+    /property/escrows/:id to /property/reports/:report_id. A listing purchase sits on the seller's report: the
+    escrow carries listing_id, the portal links to the listing, and the buyer reads the report there (RUL-14,
+    FR-LST-003). The seller's case report itself stays closed to the buyer. The buyer follows the fresh search on the
+    reservation, which links to the fresh-search case only for someone who can open it."""
+    from escrow.models import Escrow
+    from reports.models import Report
+
+    assert Escrow.objects.filter(kind="purchase").count() >= 5
+    own = listed = 0
+    for e in Escrow.objects.exclude(report_id=None).select_related("client"):
+        r = Report.objects.filter(pk=e.report_id).select_related("case").first()
+        assert r is not None and r.status == "released", e.title
+        c = api(e.client)
+        body = c.get(f"/v1/escrows/{e.pk}").json()
+        assert body["report_id"] == str(e.report_id), e.title
+        if r.case.client_id == e.client_id:
+            own += 1
+            assert body["listing_id"] is None and body["reservation_id"] is None, e.title
+            assert e.case_id == r.case_id and e.asset_id == r.case.asset_id, e.title
+            assert c.get(f"/v1/reports/{e.report_id}").status_code == 200, e.title
+        else:
+            listed += 1
+            assert body["listing_id"], f"{e.title}: not the client's report and no listing to read it through"
+            assert c.get(f"/v1/listings/{body['listing_id']}").json()["can_read_report"] is True, e.title
+            rep = c.get(f"/v1/listings/{body['listing_id']}/report")
+            assert rep.status_code == 200 and rep.json()["report_id"] == str(e.report_id), e.title
+            assert c.get(f"/v1/reports/{e.report_id}").status_code == 404, e.title
+            res = c.get(f"/v1/reservations/{body['reservation_id']}")
+            assert res.status_code == 200, e.title
+            res = res.json()
+            assert res["listing"]["id"] == body["listing_id"] and res["escrow"]["id"] == str(e.pk), e.title
+            if res["fresh_search_case_id"]:
+                case = c.get(f"/v1/cases/{res['fresh_search_case_id']}").status_code
+                assert res["can_open_fresh_search"] is (case == 200), (e.title, case)
+    assert own >= 9 and listed >= 2, (own, listed)
+
+
 def test_seed_has_a_payee_change_waiting_for_the_client(seeded, people):
     """RUL-28, FR-ESC-016: a change of account whose checks passed waits for the client's approval, first, and is
     on her home screen (the client app's payee change sheet has data)."""

@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from accounts.adapters import FakeOtpSender
 from accounts.models import ApiToken, OneTimeCode, Person
+from accounts.seed import DEV_MFA_SECRET
 from audit.models import AuditEvent
 from notifications.models import Message
 
@@ -191,6 +192,21 @@ def _bearer(api, email, code=None):
     return c
 
 
+def test_mfa_secrets_meet_the_112_bit_floor(seeded, people):
+    """FR-ACC-003: pyotp 2.12 and later refuse authenticator secrets under 112 bits. The shared development secret
+    and the secret made when staff enrol both meet that floor, so a fresh install of the requirements works."""
+    from accounts import services
+
+    def bits(secret):
+        return len(secret.rstrip("=")) * 5  # base32: 5 bits per character
+
+    assert bits(DEV_MFA_SECRET) >= 112
+    pyotp.TOTP(DEV_MFA_SECRET).now()
+    cm = people["cm"]
+    services.mfa_setup(cm)
+    assert bits(cm.mfa_secret) >= 112
+
+
 def test_staff_must_enrol_mfa_before_working(seeded, api, people):
     """US-ACC-003 AC1, TC-ACC-003-01/02: a staff member without MFA gets 403
     until enrolled; with MFA the code is required at sign-in."""
@@ -215,7 +231,7 @@ def test_mfa_cannot_be_switched_off_for_staff(seeded, api, people, mfa):
     r = c.post(f"/v1/admin/people/{people['reviewer'].pk}/mfa-disable")
     assert r.status_code == 409 and r.json()["code"] == "mfa-mandatory"
     ama = people["client"]
-    Person.objects.filter(pk=ama.pk).update(mfa_enabled=True, mfa_secret="JBSWY3DPEHPK3PXP")
+    Person.objects.filter(pk=ama.pk).update(mfa_enabled=True, mfa_secret=DEV_MFA_SECRET)
     assert c.post(f"/v1/admin/people/{ama.pk}/mfa-disable").status_code == 200
 
 

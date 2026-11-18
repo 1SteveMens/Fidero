@@ -29,7 +29,7 @@ export default function Reservation() {
       {r.fresh_search_note ? <div className="card">{r.fresh_search_note}</div> : null}
       <div className="row">
         {r.escrow ? <Link className="btn btn-dark" href={`/property/escrows/${r.escrow.id}`}>Open the escrow</Link> : null}
-        {r.fresh_search_case_id ? <Link className="btn btn-ghost" href={`/property/cases/${r.fresh_search_case_id}`}>The fresh search</Link> : null}
+        {r.can_open_fresh_search ? <Link className="btn btn-ghost" href={`/property/cases/${r.fresh_search_case_id}`}>The fresh search</Link> : null}
         {r.listing ? <Link className="btn btn-ghost" href={`/property/listings/${r.listing.id}`}>The listing</Link> : null}
       </div>
       {active ? <button className="btn btn-ghost" onClick={() => setW(true)}>Withdraw the reservation</button> : null}

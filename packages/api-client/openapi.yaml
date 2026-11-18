@@ -39662,6 +39662,18 @@ components:
           - 'null'
           format: uuid
           readOnly: true
+        listing_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          readOnly: true
+        reservation_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          readOnly: true
         project_id:
           type:
           - string
@@ -39841,12 +39853,14 @@ components:
       - held_back_condition
       - id
       - kind
+      - listing_id
       - parties
       - payment_instructions
       - prior_status
       - project_id
       - reference
       - report_id
+      - reservation_id
       - row_version
       - site_check_date
       - status
@@ -47331,6 +47345,11 @@ components:
         can_reserve:
           type: boolean
           readOnly: true
+        can_read_report:
+          type: boolean
+          description: 'RUL-14: whether GET /v1/listings/:id/report opens for this
+            viewer.'
+          readOnly: true
         seller_track_record:
           oneOf:
           - $ref: '#/components/schemas/TrackRecordSummary'
@@ -47349,6 +47368,7 @@ components:
       required:
       - asset_id
       - badge
+      - can_read_report
       - can_reserve
       - country
       - disclosure
@@ -47501,6 +47521,11 @@ components:
         can_reserve:
           type: boolean
           readOnly: true
+        can_read_report:
+          type: boolean
+          description: 'RUL-14: whether GET /v1/listings/:id/report opens for this
+            viewer.'
+          readOnly: true
         seller_track_record:
           oneOf:
           - $ref: '#/components/schemas/TrackRecordSummary'
@@ -47532,6 +47557,7 @@ components:
       - asset_id
       - badge
       - boundary
+      - can_read_report
       - can_reserve
       - country
       - disclosure
@@ -61904,6 +61930,11 @@ components:
           - string
           - 'null'
           format: uuid
+        can_open_fresh_search:
+          type: boolean
+          description: The fresh-search case is opened on the plot for its owner,
+            so the buyer follows it here, not on the case.
+          readOnly: true
         fresh_search_note:
           type: string
         escrow:
@@ -61925,6 +61956,7 @@ components:
           readOnly: true
       required:
       - buyer_name
+      - can_open_fresh_search
       - created_at
       - escrow
       - expires_at

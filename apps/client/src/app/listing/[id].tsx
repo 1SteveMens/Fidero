@@ -27,7 +27,8 @@ export default function ListingScreen() {
   const { width } = useWindowDimensions();
   const l = useGet<Listing>(`/v1/listings/${id}`);
   const d = l.data;
-  const report = useGet<ListingReport>(d?.badge ? `/v1/listings/${id}/report` : null);
+  // RUL-14: anyone signed in while the badge is valid; the buyer who reserved it keeps the report after that.
+  const report = useGet<ListingReport>(d?.can_read_report ? `/v1/listings/${id}/report` : null);
   const act = useAction();
   const [question, setQuestion] = useState('');
   const [asked, setAsked] = useState(false);

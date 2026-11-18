@@ -237,6 +237,8 @@ class EscrowSerializer(serializers.ModelSerializer):
     payment_instructions = serializers.SerializerMethodField()
     agreement_blockers = serializers.SerializerMethodField()
     freezes = serializers.SerializerMethodField()
+    listing_id = serializers.SerializerMethodField()
+    reservation_id = serializers.SerializerMethodField()
     case_is_clients = serializers.SerializerMethodField(
         help_text="True when the case is the client's own, so the client can open it. A reservation on a listing "
                   "sits on the seller's checked case, which the buyer sees only through the report.")
@@ -244,7 +246,7 @@ class EscrowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Escrow
         fields = ["id", "reference", "kind", "title", "country", "client", "account", "account_reference", "asset_id",
-                  "report_id", "project_id",
+                  "report_id", "listing_id", "reservation_id", "project_id",
                   "case_id", "case_is_clients",
                   "bank_partner", "bank_reference", "virtual_account_ref", "agreed_price",
                   "held_back_amount", "held_back_condition", "currency", "conversion_choice", "fx_buffer_pct",
@@ -280,6 +282,27 @@ class EscrowSerializer(serializers.ModelSerializer):
         from cases.models import Case
 
         return Case.objects.filter(pk=o.case_id, client_id=o.client_id).exists()
+
+    def _reservation(self, o):
+        """The reservation that made this purchase escrow, looked up once per escrow."""
+        cache = self.__dict__.setdefault("_reservations", {})
+        if o.pk not in cache:
+            from listings.selectors import reservation_for_escrow
+
+            cache[o.pk] = reservation_for_escrow(o.pk) if o.kind == "purchase" else None
+        return cache[o.pk]
+
+    @extend_schema_field(serializers.UUIDField(allow_null=True))
+    def get_listing_id(self, o):
+        """A purchase reserved from a listing: its report is the seller's, read through the listing (RUL-14)."""
+        r = self._reservation(o)
+        return r["listing_id"] if r else None
+
+    @extend_schema_field(serializers.UUIDField(allow_null=True))
+    def get_reservation_id(self, o):
+        """A purchase reserved from a listing: the buyer follows the fresh search on the reservation."""
+        r = self._reservation(o)
+        return r["id"] if r else None
 
     @extend_schema_field(FreezeSerializer(many=True))
     def get_freezes(self, o):

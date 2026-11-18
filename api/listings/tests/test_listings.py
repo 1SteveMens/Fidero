@@ -84,6 +84,22 @@ def test_badge_date_and_report_for_any_signed_in_buyer(seeded, api, people):
     assert api(people["client2"]).get(body["pdf"]["url"]).status_code == 200
 
 
+def test_buyer_keeps_the_report_after_the_badge_goes(seeded, api, people):
+    """RUL-14: the buyer of a sold plot still reads the report behind it from the listing (the escrow page links
+    there); another client does not."""
+    from listings.models import Reservation
+
+    sold = L(seeded, "sold")
+    buyer = Reservation.objects.filter(listing=sold).select_related("buyer").first().buyer
+    r = api(buyer).get(f"/v1/listings/{sold.pk}")
+    assert r.status_code == 200 and r.json()["badge"] is None and r.json()["can_read_report"] is True
+    rep = api(buyer).get(f"/v1/listings/{sold.pk}/report")
+    assert rep.status_code == 200 and rep.json()["report_id"] == str(sold.report_id)
+    other = people["client2"] if buyer != people["client2"] else people["client"]
+    assert api(other).get(f"/v1/listings/{sold.pk}").json()["can_read_report"] is False
+    assert api(other).get(f"/v1/listings/{sold.pk}/report").status_code == 404
+
+
 def test_no_badge_when_not_live(seeded, api, people):
     """TC-LST-003-02, TC-RUL-13-02: a suspended listing shows no badge and is not public."""
     sus = L(seeded, "suspended")

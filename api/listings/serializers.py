@@ -174,6 +174,7 @@ class ListingSerializer(serializers.ModelSerializer):
     media = serializers.SerializerMethodField()
     reserved = serializers.SerializerMethodField()
     can_reserve = serializers.SerializerMethodField()
+    can_read_report = serializers.SerializerMethodField()
     seller_track_record = serializers.SerializerMethodField()
     country = serializers.SlugRelatedField(slug_field="code", read_only=True)
 
@@ -182,7 +183,7 @@ class ListingSerializer(serializers.ModelSerializer):
         fields = ["id", "reference", "slug", "status", "country", "origin", "kind", "title", "description",
                   "estate_name", "price", "size_sqm", "region", "district", "locality", "asset_id",
                   "organisation_id", "badge", "checks_date", "seller", "disclosure", "location", "media",
-                  "reserved", "can_reserve", "seller_track_record", "live_at", "sold_at"]
+                  "reserved", "can_reserve", "can_read_report", "seller_track_record", "live_at", "sold_at"]
 
     @extend_schema_field(BadgeSerializer(allow_null=True))
     def get_badge(self, x):
@@ -219,6 +220,11 @@ class ListingSerializer(serializers.ModelSerializer):
 
     def get_can_reserve(self, x) -> bool:
         return x.status == "live" and services.badge_valid(x)
+
+    def get_can_read_report(self, x) -> bool:
+        """RUL-14: whether GET /v1/listings/:id/report opens for this viewer."""
+        request = self.context.get("request")
+        return services.can_read_report(getattr(request, "user", None), x)
 
     @extend_schema_field(TrackRecordSummary(allow_null=True))
     def get_seller_track_record(self, x):
@@ -274,12 +280,13 @@ class ReservationSerializer(serializers.ModelSerializer):
     listing = serializers.SerializerMethodField()
     buyer_name = serializers.SerializerMethodField()
     escrow = serializers.SerializerMethodField()
+    can_open_fresh_search = serializers.SerializerMethodField()
 
     class Meta:
         model = Reservation
         fields = ["id", "reference", "status", "listing", "buyer_name", "expires_at", "fresh_search_status",
-                  "fresh_search_date", "fresh_search_case_id", "fresh_search_note", "escrow", "ended_at",
-                  "end_reason", "created_at"]
+                  "fresh_search_date", "fresh_search_case_id", "can_open_fresh_search", "fresh_search_note",
+                  "escrow", "ended_at", "end_reason", "created_at"]
 
     @extend_schema_field(serializers.DictField())
     def get_listing(self, r):
@@ -292,6 +299,15 @@ class ReservationSerializer(serializers.ModelSerializer):
         if user and (user.pk == r.buyer_id or services.is_staff(user, r.country)):
             return r.buyer.full_name
         return None
+
+    def get_can_open_fresh_search(self, r) -> bool:
+        """The fresh-search case is opened on the plot for its owner, so the buyer follows it here, not on the case."""
+        user = getattr(self.context.get("request"), "user", None)
+        if r.fresh_search_case_id is None or user is None:
+            return False
+        from cases.selectors import visible_cases
+
+        return visible_cases(user).filter(pk=r.fresh_search_case_id).exists()
 
     @extend_schema_field(serializers.DictField(allow_null=True))
     def get_escrow(self, r):

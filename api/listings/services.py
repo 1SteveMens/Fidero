@@ -173,6 +173,15 @@ def badge_valid(listing, at=None) -> bool:
             and listing.badge_expires_at > at and listing.report_id is not None)
 
 
+def can_read_report(person, listing) -> bool:
+    """RUL-14: the full report behind a listing, for any signed-in buyer while the badge is valid, and always for
+    the seller, staff in the country and a buyer who reserved it (so a buyer keeps it after the badge goes)."""
+    if listing.report_id is None or person is None or not getattr(person, "is_authenticated", False):
+        return False
+    return (badge_valid(listing) or is_seller(person, listing) or is_staff(person, listing.country)
+            or listing.reservations.filter(buyer=person).exists())
+
+
 def disclosure(country) -> str:
     return _cfg(country, "listings.disclosure_text", DISCLOSURE) or DISCLOSURE
 
